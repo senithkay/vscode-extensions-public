@@ -8,6 +8,7 @@
  */
 import type {} from "@emotion/styled";
 export { Diagram } from "./components/Diagram";
+export { MemoizedDiagram } from "./components/Diagram";
 
 // components
 export { NodeIcon } from "./components/NodeIcon";

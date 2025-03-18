@@ -13,10 +13,8 @@ import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagram
 
 import { ExpressionLabelModel } from "../Label";
 import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
-import { IntermediatePortModel } from '../Port/IntermediatePort';
-import { isInputNode, isOutputNode } from '../Actions/utils';
-import { useDMExpressionBarStore } from '../../../store/store';
-import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
+import { isInputNode, isLinkModel, isOutputNode } from '../Actions/utils';
+import { DataMapperLinkModel } from '../Link/DataMapperLink';
 /**
  * This state is controlling the creation of a link.
  */
@@ -24,18 +22,24 @@ export class CreateLinkState extends State<DiagramEngine> {
 	sourcePort: PortModel;
 	link: LinkModel;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'create-new-link' });
+
+		if (resetState) {
+			this.clearState();
+		}
 
 		this.registerAction(
 			new Action({
 				type: InputType.MOUSE_UP,
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
-					const { focusedPort, focusedFilter } = useDMExpressionBarStore.getState();
-					const isExprBarFocused = focusedPort || focusedFilter;
+					const isValueConfig = (actionEvent.event.target as Element)
+						.closest('div[id^="value-config"]');
 
-					if (!(element instanceof PortModel)) {
+					if (element === null) {
+						this.clearState();
+					} else if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]');
 							if (recordFieldElement) {
@@ -60,13 +64,15 @@ export class CreateLinkState extends State<DiagramEngine> {
 								}
 							}
 						}
+
+						if (isLinkModel(element) && this.sourcePort) {
+							// If a source port is already selected and clicked on a link,
+							// select the target port of the link to create a mapping
+							element = (element as DataMapperLinkModel).getTargetPort();
+						}
 					}
 
-					if (isExprBarFocused && element instanceof InputOutputPortModel && element.portType === "OUT") {
-						element.fireEvent({}, "addToExpression");
-						this.clearState();
-						this.eject();
-					} else if (element instanceof PortModel && !this.sourcePort) {
+					if (element instanceof PortModel && !this.sourcePort) {
 						if (element instanceof InputOutputPortModel) {
 							if (element.portType === "OUT") {
 								this.sourcePort = element;
@@ -81,12 +87,8 @@ export class CreateLinkState extends State<DiagramEngine> {
 									context: undefined
 								}));
 								this.link = link;
-							} else {
-								if (element.portName === OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX) {
-									element.fireEvent({}, "firstClickedOnDynamicOutput");
-								} else {
-									element.fireEvent({}, "expressionBarFocused");
-								}
+							} else if (!isValueConfig) {
+								element.fireEvent({}, "firstClickedOnOutput");
 								this.clearState();
 								this.eject();
 							}
@@ -109,7 +111,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 												linkedPort.fireEvent({}, "enableNewLinking")
 											})
 										}
-										this.clearState();
+										this.sourcePort = undefined;
 										this.eject();
 									}
 								}

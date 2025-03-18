@@ -11,15 +11,12 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { css, keyframes } from "@emotion/react";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { EmptyNodeModel } from "./EmptyNodeModel";
-import {
-    Colors,
-    EMPTY_NODE_WIDTH,
-    NODE_PADDING,
-} from "../../../resources/constants";
+import { EMPTY_NODE_WIDTH, NODE_PADDING } from "../../../resources/constants";
 import { useDiagramContext } from "../../DiagramContext";
 import AddCommentPopup from "../../AddCommentPopup";
-import { Popover } from "@wso2-enterprise/ui-toolkit";
+import AddPromptPopup from "../../AddPromptPopup";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -41,8 +38,8 @@ namespace S {
         align-items: center;
         width: ${(props: CircleStyleProp) => (props.show ? NODE_PADDING : 0)}px;
         height: ${(props: CircleStyleProp) => (props.show ? NODE_PADDING : 0)}px;
-        border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY : "transparent")};
-        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY_CONTAINER : "transparent")};
+        border: 2px solid ${(props: CircleStyleProp) => (props.show ? ThemeColors.PRIMARY : "transparent")};
+        background-color: ${(props: CircleStyleProp) => (props.show ? ThemeColors.PRIMARY_CONTAINER : "transparent")};
         border-radius: 50%;
         cursor: ${(props: CircleStyleProp) => (props.clickable ? "pointer" : "default")};
     `;
@@ -74,17 +71,16 @@ interface EmptyNodeWidgetProps {
 
 export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
     const { node, engine } = props;
-    const { onAddNode } = useDiagramContext();
+    const { onAddNode, onAddNodePrompt } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
-    const isCommentBoxOpen = Boolean(anchorEl);
-
-    // useEffect(() => {
-    //   if(isHovered){
-    //     // send top node source and target link to make active
-    //   }
-    // }, [isHovered])
+    const [isCommentButtonHovered, setIsCommentButtonHovered] = useState(false);
+    const [isNodeButtonHovered, setIsNodeButtonHovered] = useState(false);
+    const [isPromptButtonHovered, setIsPromptButtonHovered] = useState(false);
+    const [commentAnchorEl, setCommentAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const [promptAnchorEl, setPromptAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isCommentBoxOpen = Boolean(commentAnchorEl);
+    const isPromptBoxOpen = Boolean(promptAnchorEl);
 
     const handleAddNode = () => {
         const topNode = node.getTopNode();
@@ -100,25 +96,35 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
         onAddNode(topNode, { startLine: target, endLine: target });
     };
 
-    const handleAddComment = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleCloseCommentBox = () => {
-        setAnchorEl(null);
-        setIsHovered(false);
-    };
-
-    const handleAddPrompt = () => {
+    const handleAddPrompt = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        if (!onAddNodePrompt) {
+            console.error(">>> EmptyNodeWidget: handleAddPrompt: onAddNodePrompt not found");
+            return;
+        }
         const target = node.getTarget();
         if (!target) {
             console.error(">>> EmptyNodeWidget: handleAddPrompt: target not found");
             return;
         }
-        // onAddPrompt({ startLine: target, endLine: target });
+        setPromptAnchorEl(event.currentTarget);
+        setCommentAnchorEl(null);
     };
 
-    const linkColor = isHovered ? Colors.PRIMARY : Colors.ON_SURFACE;
+    const handleClosePromptBox = () => {
+        setPromptAnchorEl(null);
+        setIsHovered(false);
+    };
+
+    const handleAddComment = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        setCommentAnchorEl(event.currentTarget);
+    };
+
+    const handleCloseCommentBox = () => {
+        setCommentAnchorEl(null);
+        setIsHovered(false);
+    };
+
+    const linkColor = isHovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE;
 
     return (
         <S.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
@@ -138,21 +144,22 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
                             width="20"
                             height="20"
                             viewBox="0 0 24 24"
-                            onClick={handleAddPrompt}
+                            onClick={handleAddComment}
+                            onMouseEnter={() => setIsCommentButtonHovered(true)}
+                            onMouseLeave={() => setIsCommentButtonHovered(false)}
                             css={css`
                                 display: ${isHovered ? "flex" : "none"};
                                 animation: ${fadeInZoomIn} 0.2s ease-out forwards;
-                                cursor: not-allowed;
-                                visibility: hidden;
+                                cursor: pointer;
                             `}
                         >
                             <path
-                                fill={Colors.SURFACE_BRIGHT}
-                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                                fill={ThemeColors.SURFACE_BRIGHT}
+                                d="M12 0C5 0 0 5 0 12s5 12 12 12 12-5 12-12S19 0 12 0z"
                             />
                             <path
-                                fill={Colors.OUTLINE_VARIANT}
-                                d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2L8.6 4.5L10 7zm12 9.8L22 14l-1.4 2.5L22 19l-2.5-1.4L17 19l1.4-2.5L17 14zM22 2l-1.4 2.5L22 7l-2.5-1.4L17 7l1.4-2.5L17 2l2.5 1.4zm-8.66 10.78l2.44-2.44l-2.12-2.12l-2.44 2.44zm1.03-5.49l2.34 2.34c.39.37.39 1.02 0 1.41L5.04 22.71c-.39.39-1.04.39-1.41 0l-2.34-2.34c-.39-.37-.39-1.02 0-1.41L12.96 7.29c.39-.39 1.04-.39 1.41 0"
+                                fill={isCommentButtonHovered ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
+                                d="m6 17l-2.15 2.15q-.25.25-.55.125T3 18.8V5q0-.825.588-1.412T5 3h12q.825 0 1.413.588T19 5v4.025q0 .425-.288.7T18 10t-.712-.288T17 9V5H5v10h6q.425 0 .713.288T12 16t-.288.713T11 17zm2-8h6q.425 0 .713-.288T15 8t-.288-.712T14 7H8q-.425 0-.712.288T7 8t.288.713T8 9m0 4h3q.425 0 .713-.288T12 12t-.288-.712T11 11H8q-.425 0-.712.288T7 12t.288.713T8 13m9 4h-2q-.425 0-.712-.288T14 16t.288-.712T15 15h2v-2q0-.425.288-.712T18 12t.713.288T19 13v2h2q.425 0 .713.288T22 16t-.288.713T21 17h-2v2q0 .425-.288.713T18 20t-.712-.288T17 19zM5 15V5z"
                             />
                         </svg>
                         <svg
@@ -161,16 +168,18 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
                             height="20"
                             viewBox="0 0 24 24"
                             onClick={handleAddNode}
+                            onMouseEnter={() => setIsNodeButtonHovered(true)}
+                            onMouseLeave={() => setIsNodeButtonHovered(false)}
                             css={css`
                                 cursor: pointer;
                             `}
                         >
                             <path
-                                fill={Colors.SURFACE_BRIGHT}
+                                fill={ThemeColors.SURFACE_BRIGHT}
                                 d="M12 0C5 0 0 5 0 12s5 12 12 12 12-5 12-12S19 0 12 0z"
                             />
                             <path
-                                fill={Colors.PRIMARY}
+                                fill={isNodeButtonHovered ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
                                 d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
                             />
                         </svg>
@@ -179,7 +188,9 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
                             width="20"
                             height="20"
                             viewBox="0 0 24 24"
-                            onClick={handleAddComment}
+                            onClick={handleAddPrompt}
+                            onMouseEnter={() => setIsPromptButtonHovered(true)}
+                            onMouseLeave={() => setIsPromptButtonHovered(false)}
                             css={css`
                                 display: ${isHovered ? "flex" : "none"};
                                 animation: ${fadeInZoomIn} 0.2s ease-out forwards;
@@ -187,28 +198,50 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
                             `}
                         >
                             <path
-                                fill={Colors.SURFACE_BRIGHT}
-                                d="M12 0C5 0 0 5 0 12s5 12 12 12 12-5 12-12S19 0 12 0z"
+                                fill={ThemeColors.SURFACE_BRIGHT}
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
                             />
                             <path
-                                fill={Colors.PRIMARY}
-                                d="m6 17l-2.15 2.15q-.25.25-.55.125T3 18.8V5q0-.825.588-1.412T5 3h12q.825 0 1.413.588T19 5v4.025q0 .425-.288.7T18 10t-.712-.288T17 9V5H5v10h6q.425 0 .713.288T12 16t-.288.713T11 17zm2-8h6q.425 0 .713-.288T15 8t-.288-.712T14 7H8q-.425 0-.712.288T7 8t.288.713T8 9m0 4h3q.425 0 .713-.288T12 12t-.288-.712T11 11H8q-.425 0-.712.288T7 12t.288.713T8 13m9 4h-2q-.425 0-.712-.288T14 16t.288-.712T15 15h2v-2q0-.425.288-.712T18 12t.713.288T19 13v2h2q.425 0 .713.288T22 16t-.288.713T21 17h-2v2q0 .425-.288.713T18 20t-.712-.288T17 19zM5 15V5z"
+                                fill={isPromptButtonHovered ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
+                                d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2L8.6 4.5L10 7zm12 9.8L22 14l-1.4 2.5L22 19l-2.5-1.4L17 19l1.4-2.5L17 14zM22 2l-1.4 2.5L22 7l-2.5-1.4L17 7l1.4-2.5L17 2l2.5 1.4zm-8.66 10.78l2.44-2.44l-2.12-2.12l-2.44 2.44zm1.03-5.49l2.34 2.34c.39.37.39 1.02 0 1.41L5.04 22.71c-.39.39-1.04.39-1.41 0l-2.34-2.34c-.39-.37-.39-1.02 0-1.41L12.96 7.29c.39-.39 1.04-.39 1.41 0"
                             />
                         </svg>
                     </div>
                 )}
-                <Popover
-                    open={isCommentBoxOpen}
-                    anchorEl={anchorEl}
-                    handleClose={handleCloseCommentBox}
-                    sx={{
-                        padding: 0,
-                        borderRadius: 0,
-                        backgroundColor: "unset",
-                    }}
-                >
-                    <AddCommentPopup target={node.getTarget()} onClose={handleCloseCommentBox} />
-                </Popover>
+                {isCommentBoxOpen && (
+                    <foreignObject>
+                        <Popover
+                            open={isCommentBoxOpen}
+                            anchorEl={commentAnchorEl}
+                            sx={{
+                                padding: 0,
+                                borderRadius: 0,
+                                backgroundColor: "unset",
+                            }}
+                        >
+                            <AddCommentPopup target={node.getTarget()} onClose={handleCloseCommentBox} />
+                        </Popover>
+                    </foreignObject>
+                )}
+                {isPromptBoxOpen && (
+                    <foreignObject>
+                        <Popover
+                            open={isPromptBoxOpen}
+                            anchorEl={promptAnchorEl}
+                            sx={{
+                                padding: 0,
+                                borderRadius: 0,
+                                backgroundColor: "unset",
+                            }}
+                        >
+                            <AddPromptPopup
+                                node={node.getTopNode()}
+                                target={node.getTarget()}
+                                onClose={handleClosePromptBox}
+                            />
+                        </Popover>
+                    </foreignObject>
+                )}
                 <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
             </S.Circle>
         </S.Node>

@@ -6,13 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IDMType, TypeKind } from '@wso2-enterprise/ballerina-core';
+import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { InputNode } from "../Node";
 
-export function hasFields(type: IDMType): boolean {
-    if (type.kind === TypeKind.Record) {
-        return type.fields && type.fields.length > 0;
-    } else if (type.kind === TypeKind.Array) {
-        return hasFields(type.memberType);
-    }
-    return false;
+export function findInputNode(field: string, outputNode: DataMapperNodeModel): InputNode {
+    const nodes = outputNode.getModel().getNodes();
+
+    const inputNode = nodes.find(node => {
+        if (node instanceof InputNode) {
+            const mappingStartsWith = field.split('.')[0];
+            return node.inputType.id === mappingStartsWith;
+
+        }
+    });
+
+    return inputNode ? inputNode as InputNode : undefined;
 }

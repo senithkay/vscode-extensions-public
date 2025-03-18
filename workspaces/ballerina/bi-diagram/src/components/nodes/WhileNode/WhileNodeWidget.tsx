@@ -11,21 +11,30 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { WhileNodeModel } from "./WhileNodeModel";
-import { Colors, WHILE_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_WIDTH } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import {
+    WHILE_NODE_WIDTH,
+    NODE_BORDER_WIDTH,
+    NODE_WIDTH,
+    NODE_GAP_X,
+    CONTAINER_PADDING,
+    DRAFT_NODE_BORDER_WIDTH,
+} from "../../../resources/constants";
+import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 import { nodeHasError } from "../../../utils/node";
+import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
+import { NodeIcon } from "../../NodeIcon";
 
 export namespace NodeStyles {
     export const Node = styled.div`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        color: ${Colors.ON_SURFACE};
-        color: ${Colors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         cursor: pointer;
     `;
 
@@ -43,8 +52,8 @@ export namespace NodeStyles {
     export const StyledButton = styled(Button)`
         border-radius: 5px;
         position: absolute;
-        top: -8px;
-        left: 48px;
+        top: -10px;
+        left: 52px;
     `;
 
     export const ErrorIcon = styled.div`
@@ -68,7 +77,7 @@ export namespace NodeStyles {
     export const Icon = styled.div`
         padding: 4px;
         svg {
-            fill: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
         }
     `;
 
@@ -108,17 +117,21 @@ export namespace NodeStyles {
         selected: boolean;
         hovered: boolean;
         hasError: boolean;
+        isActiveBreakpoint?: boolean;
+        disabled: boolean;
     };
-    export const Circle = styled.div<NodeStyleProp>`
+    export const Box = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) =>
-                props.hasError ? Colors.ERROR : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
-        border-radius: 50px;
-        background-color: ${Colors.SURFACE_DIM};
+        border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
+        border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
+        border-color: ${(props: NodeStyleProp) =>
+            props.hasError ? ThemeColors.ERROR : props.hovered && !props.disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT};
+        border-radius: 8px;
+        background-color: ${(props: NodeStyleProp) =>
+            props?.isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM};
         width: ${WHILE_NODE_WIDTH}px;
         height: ${WHILE_NODE_WIDTH}px;
     `;
@@ -134,13 +147,13 @@ export namespace NodeStyles {
         left: number;
     };
     export const Container = styled.div<ContainerStyleProp>`
-        position: absolute;
+        position: fixed;
         width: ${(props) => props.width}px;
         height: ${(props) => props.height}px;
         top: ${(props) => props.top}px;
         left: ${(props) => props.left}px;
 
-        border: 2px dashed ${Colors.OUTLINE_VARIANT};
+        border: 2px dashed ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: transparent;
         z-index: -1;
@@ -160,11 +173,13 @@ export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> 
 
 export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint, readOnly } = useDiagramContext();
 
     const [isHovered, setIsHovered] = React.useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
+    const hasBreakpoint = model.hasBreakpoint();
+    const isActiveBreakpoint = model.isActiveBreakpoint();
 
     useEffect(() => {
         if (model.node.suggested) {
@@ -196,6 +211,16 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
         setAnchorEl(null);
     };
 
+    const onAddBreakpoint = () => {
+        addBreakpoint && addBreakpoint(model.node);
+        setAnchorEl(null);
+    };
+
+    const onRemoveBreakpoint = () => {
+        removeBreakpoint && removeBreakpoint(model.node);
+        setAnchorEl(null);
+    };
+
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -215,44 +240,51 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-    const viewState = model.node.viewState;
     const hasError = nodeHasError(model.node);
+    const nodeViewState = model.node.viewState;
 
     return (
         <NodeStyles.Node>
             <NodeStyles.Row>
                 <NodeStyles.Column>
-                    <NodeStyles.Circle
+                    <NodeStyles.Box
                         onClick={handleOnClick}
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         selected={model.isSelected()}
                         hovered={isHovered}
                         hasError={hasError}
+                        isActiveBreakpoint={isActiveBreakpoint}
+                        disabled={disabled}
                     >
+                        {hasBreakpoint && (
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    left: 1,
+                                    width: 15,
+                                    height: 15,
+                                    borderRadius: "50%",
+                                    backgroundColor: "red",
+                                }}
+                            />
+                        )}
                         <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <g
-                                fill="none"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2.5"
-                                stroke={Colors.ON_SURFACE}
-                            >
-                                <path d="M12 3a9 9 0 1 1-5.657 2" />
-                                <path d="M3 4.5h4v4" />
-                            </g>
-                        </svg>
+                        <NodeIcon type={model.node.codedata.node} size={24} />
                         <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
-                    </NodeStyles.Circle>
+                    </NodeStyles.Box>
                 </NodeStyles.Column>
                 <NodeStyles.Header>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
+                    {model.node.properties?.condition && (
+                        <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
+                    )}
                 </NodeStyles.Header>
-                <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                    <MoreVertIcon />
-                </NodeStyles.StyledButton>
+                {!readOnly && (
+                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                        <MoreVertIcon />
+                    </NodeStyles.StyledButton>
+                )}
                 {hasError && (
                     <NodeStyles.ErrorIcon>
                         <DiagnosticsPopUp node={model.node} />
@@ -268,17 +300,24 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                     }}
                 >
                     <Menu>
-                        {menuItems.map((item) => (
-                            <MenuItem key={item.id} item={item} />
-                        ))}
+                        <>
+                            {menuItems.map((item) => (
+                                <MenuItem key={item.id} item={item} />
+                            ))}
+                            <BreakpointMenu
+                                hasBreakpoint={hasBreakpoint}
+                                onAddBreakpoint={onAddBreakpoint}
+                                onRemoveBreakpoint={onRemoveBreakpoint}
+                            />
+                        </>
                     </Menu>
                 </Popover>
             </NodeStyles.Row>
             <NodeStyles.Container
-                width={viewState.cw}
-                height={viewState.ch - viewState.h}
-                top={viewState.h}
-                left={viewState.x + viewState.w / 2 + WHILE_NODE_WIDTH / 2 - viewState.cw / 2}
+                width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
+                height={nodeViewState.ch - nodeViewState.h + CONTAINER_PADDING}
+                top={nodeViewState.y + nodeViewState.h - CONTAINER_PADDING}
+                left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
             ></NodeStyles.Container>
         </NodeStyles.Node>
     );

@@ -11,8 +11,8 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { LifeLineNodeModel } from "./LifeLineNodeModel";
-import { BORDER_WIDTH, Colors } from "../../../resources/constants";
-
+import { BORDER_WIDTH } from "../../../resources/constants";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 namespace LifeLineNodeStyles {
     export type BoxStyleProp = {
         width: number;
@@ -42,8 +42,8 @@ export function LifeLineNodeWidget(props: LifeLineNodeWidgetProps) {
                     width={node.width}
                     height={node.height}
                     strokeWidth={BORDER_WIDTH}
-                    fill={Colors.OUTLINE_VARIANT}
-                    rx="10"
+                    fill={ThemeColors.OUTLINE_VARIANT}
+                    rx="4"
                 />
             </svg>
         </LifeLineNodeStyles.Box>

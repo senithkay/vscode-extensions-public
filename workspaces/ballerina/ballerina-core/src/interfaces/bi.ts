@@ -7,8 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
+import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
+import { ServiceModel } from "./service";
 
 export type { NodePosition };
 
@@ -43,6 +45,19 @@ export type FlowNode = {
     returning: boolean;
     suggested?: boolean;
     viewState?: ViewState;
+    hasBreakpoint?: boolean;
+    isActiveBreakpoint?: boolean;
+};
+
+
+export type FunctionNode = {
+    id: string;
+    metadata: Metadata;
+    codedata: CodeData;
+    diagnostics?: Diagnostic;
+    properties?: NodeProperties;
+    flags?: number;
+    returning: boolean;
 };
 
 export type Metadata = {
@@ -51,19 +66,57 @@ export type Metadata = {
     icon?: string;
     keywords?: string[];
     draft?: boolean; // for diagram draft nodes
+    data?: {
+        isDataMappedFunction?: boolean;
+        isAgentTool?: boolean;
+        isIsolatedFunction?: boolean;
+        tools?: ToolData[];
+        model?: ToolData;
+        agent?: AgentData;
+        paramsToHide?: string[]; // List of properties keys to to hide from forms
+    }
 };
+
+export type ToolData = {
+    name: string;
+    description?: string;
+    path?: string;
+    type?: string;
+}
+
+export type AgentData = {
+    role?: string;
+    instructions?: string;
+}
 
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
-    value: string | ELineRange;
+    value: string | ELineRange | NodeProperties | string[];
+    advanceProperties?: NodeProperties;
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
+    hidden?: boolean;
     placeholder?: string;
     valueTypeConstraint?: string | string[];
+    codedata?: CodeData;
+    typeMembers?: PropertyTypeMemberInfo[];
 };
+
+export type PropertyTypeMemberInfo = {
+    type: string;
+    kind: string;
+    packageInfo: string;
+    selected: boolean;
+};
+
+export type RecordTypeField = {
+    key: string;
+    property: Property;
+    recordTypeMembers: PropertyTypeMemberInfo[];
+}
 
 export type Diagnostic = {
     hasDiagnostics: boolean;
@@ -76,13 +129,18 @@ export type DiagnosticMessage = {
 };
 
 export type CodeData = {
-    node: NodeKind;
+    node?: NodeKind;
     org?: string;
     module?: string;
     object?: string;
     symbol?: string;
     lineRange?: ELineRange;
     sourceCode?: string;
+    parentSymbol?: string;
+    inferredReturnType?: string;
+    version?: string;
+    isNew?: boolean;
+    isGenerated?: boolean;
 };
 
 export type Branch = {
@@ -107,13 +165,17 @@ export type ViewState = {
     // element view state
     x: number;
     y: number;
-    w: number;
-    h: number;
+    lw: number; // left width from center
+    rw: number; // right width from center
+    h: number;  // height
     // container view state
-    cw?: number;
-    ch?: number;
+    clw: number; // container left width from center 
+    crw: number; // container right width from center
+    ch: number;  // container height
     // flow start node
     startNodeId?: string;
+    // is top level node
+    isTopLevel?: boolean;
 };
 
 // Add node target position metadata
@@ -125,6 +187,7 @@ export type TargetMetadata = {
 
 export enum DIRECTORY_MAP {
     SERVICES = "services",
+    LISTENERS = "listeners",
     AUTOMATION = "automation",
     FUNCTIONS = "functions",
     TRIGGERS = "triggers",
@@ -132,6 +195,12 @@ export enum DIRECTORY_MAP {
     TYPES = "types",
     RECORDS = "records",
     CONFIGURATIONS = "configurations",
+    DATA_MAPPERS = "dataMappers",
+    ENUMS = "enums",
+    CLASSES = "classes",
+    NATURAL_FUNCTIONS = "naturalFunctions",
+    AGENTS = "agents",
+    LOCAL_CONNECTORS = "localConnectors",
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -141,19 +210,37 @@ export enum DIRECTORY_SUB_TYPE {
     CONFIGURATION = "configuration",
     SERVICE = "service",
     AUTOMATION = "automation",
-    TRIGGER = "trigger"
+    TRIGGER = "trigger",
+    LISTENER = "listener",
+    DATA_MAPPER = "dataMapper",
+    NATURAL_FUNCTION = "naturalFunction",
+    AGENTS = "agents",
+    LOCAL_CONNECTORS = "localConnector",
+}
+
+export enum FUNCTION_TYPE {
+    REGULAR = "regular",
+    EXPRESSION_BODIED = "expressionBodied",
+    ALL = "all",
 }
 
 export interface ProjectStructureResponse {
+    projectName: string;
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.LISTENERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.FUNCTIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TYPES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.NATURAL_FUNCTIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.LOCAL_CONNECTORS]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -164,7 +251,7 @@ export interface ProjectStructureArtifactResponse {
     icon?: string;
     context?: string;
     position?: NodePosition;
-    st?: STNode;
+    serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;
@@ -200,7 +287,14 @@ export type NodePropertyKey =
     | "variable"
     | "defaultable"
     | "scope"
-    | "functionName";
+    | "parameters"
+    | "model"
+    | "tools"
+    | "query"
+    | "functionName"
+    | "systemPrompt"
+    | "prompt"
+    | "enableModelContext";
 
 export type BranchKind = "block" | "worker";
 
@@ -217,6 +311,7 @@ export type NodeKind =
     | "RESOURCE_ACTION_CALL"
     | "RETURN"
     | "EXPRESSION"
+    | "RAW_TEMPLATE"
     | "ERROR_HANDLER"
     | "WHILE"
     | "FOREACH"
@@ -239,8 +334,25 @@ export type NodeKind =
     | "COMMENT"
     | "FUNCTION"
     | "FUNCTION_CALL"
+    | "NP_FUNCTION_CALL"
+    | "NP_FUNCTION"
+    | "NP_FUNCTION_DEFINITION"
     | "ASSIGN"
-    | "DATA_MAPPER"
+    | "DATA_MAPPER_DEFINITION"
+    | "DATA_MAPPER_CALL"
+    | "FORK"
+    | "WORKER"
+    | "WAIT"
+    | "START"
+    | "COMMIT"
+    | "ROLLBACK"
+    | "FAIL"
+    | "RETRY"
+    | "CLASS"
+    | "AGENT"
+    | "AGENT_CALL"
+    | "FUNCTION_DEFINITION"
+    | "AUTOMATION"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {
@@ -286,3 +398,8 @@ export type ConfigVariable = {
     returning: boolean;
     diagnostics?: Diagnostic;
 };
+
+export type FormDiagnostics = {
+    key: string;
+    diagnostics: VSCodeDiagnostic[];
+}

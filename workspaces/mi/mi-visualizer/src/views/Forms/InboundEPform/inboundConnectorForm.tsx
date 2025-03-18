@@ -14,9 +14,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { useForm } from 'react-hook-form';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { TypeChip } from '../Commons';
-import FormGenerator from '../Commons/FormGenerator';
 import { useEffect, useState } from 'react';
-import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
+import { ParamConfig, ParamManager, FormGenerator } from '@wso2-enterprise/mi-diagram';
 
 const ParamManagerContainer = styled.div`
     width: ; 100%;
@@ -90,8 +89,6 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     }
 
     useEffect(() => {
-        const defaultValues = extractDefaultValues(formData.elements);
-        reset(defaultValues);
         setParams(paramConfigs);
         fetchSequences();
 
@@ -143,7 +140,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         );
         if (genericGroup) {
             return genericGroup.value.elements
-                .filter((element: any) => element.type === "attribute")
+                .filter((element: any) => element.type === "attribute" && element.value.name !== "generateSequences")
                 .map((attribute: any) => attribute.value.name);
         }
         return [];
@@ -184,18 +181,6 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         return { attrFields, paramFields };
     }
 
-    const extractDefaultValues = (jsonData: any) => {
-        let defaultValues: { [key: string]: any } = {};
-        jsonData.forEach((element: any) => {
-            if (element.type === 'attribute') {
-                defaultValues[getNameForController(element.value.name)] = element.value.defaultValue;
-            } else if (element.type === 'attributeGroup') {
-                Object.assign(defaultValues, extractDefaultValues(element.value.elements));
-            }
-        });
-        return defaultValues;
-    };
-
     const handleOnChange = (params: any) => {
         const modifiedParams = {
             ...params, paramValues: params.paramValues.map((param: any) => {
@@ -231,6 +216,17 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
     const handleCreateInboundConnector = async (values: any) => {
         const attributeNames = getGenericAttributeNames(formData);
+
+        if (values.generateSequences) {
+            if (props.model) {
+                values.sequence = props.model.sequence;
+                values.onError = props.model.onError;
+            }
+        } else {
+            values.sequence = values.sequence.value;
+            values.onError = values.onError.value;
+        }
+
         const { attrFields, paramFields } = extractProperties(values, attributeNames);
 
         // Transform the keys of the rest object
@@ -290,6 +286,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                 control={control}
                 errors={errors}
                 setValue={setValue}
+                reset={reset}
                 watch={watch}
                 getValues={getValues} />
             {formData && formData.additionalParameters && (
@@ -308,16 +305,16 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
             )}
             <FormActions>
                 <Button
-                    appearance="primary"
-                    onClick={handleSubmit(handleCreateInboundConnector)}
-                >
-                    {props.model ? "Update" : "Create"}
-                </Button>
-                <Button
                     appearance="secondary"
                     onClick={handleOnClose}
                 >
                     Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleCreateInboundConnector)}
+                >
+                    {props.model ? "Update" : "Create"}
                 </Button>
             </FormActions>
         </>

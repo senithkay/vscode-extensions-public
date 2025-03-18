@@ -10,13 +10,16 @@
 
 import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation, TextDocumentItem, WorkspaceEdit } from "vscode-languageserver-types";
 import { CMDiagnostics, ComponentModel } from "./component";
-import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range } from "./common";
+import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Position, Range } from "./common";
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField, ComponentInfo } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
+import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode, Property, AvailableNode, PropertyTypeMemberInfo } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
+import { FieldType, FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
+import { CDModel } from "./component-diagram";
+import { IDMModel, Mapping } from "./inline-data-mapper";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -79,6 +82,14 @@ export interface TextEdit {
     }
 }
 
+export interface DidChangeWatchedFileParams {
+    changes: Change[];
+}
+
+export interface Change {
+    uri: string;
+    type: number;
+}
 
 // <-------- BALLERINA RELATED --------->
 
@@ -128,13 +139,6 @@ export interface Diagnostics {
     diagnostics: Diagnostic[];
 }
 
-export interface TypeParams {
-    documentIdentifier: {
-        uri: string;
-    };
-    position: LinePosition;
-}
-
 export interface ExpressionType {
     documentIdentifier: {
         uri: string;
@@ -164,7 +168,9 @@ export interface Connector extends BallerinaConnectorInfo {
 }
 
 export interface TriggerParams {
-    id: string
+    id?: string;
+    orgName?: string;
+    packageName?: string;
 }
 
 export interface Trigger extends BallerinaTriggerInfo {
@@ -263,6 +269,43 @@ export interface TypeWithIdentifier {
     type: TypeField;
 }
 
+export interface InlineDataMapperModelRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    propertyKey: string;
+    position: LinePosition;
+}
+
+export interface InlineDataMapperSourceRequest extends InlineDataMapperModelRequest {
+    mappings: Mapping[];
+}
+
+export interface VisualizableFieldsRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    position: LinePosition;
+}
+
+export interface InlineDataMapperModelResponse {
+    mappingsModel: IDMModel;
+}
+
+export interface InlineDataMapperSourceResponse {
+    source: string;
+}
+
+export interface VisualizableFieldsResponse {
+    visualizableProperties: string[];
+}
+
+export interface AddArrayElementRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    position: LinePosition;
+    propertyKey: string;
+    targetField: string;
+}
+
 export interface GraphqlDesignServiceParams {
     filePath: string;
     startLine: LinePosition;
@@ -306,6 +349,7 @@ export interface BallerinaProject {
     version?: string;
     author?: string;
     packageName?: string;
+    orgName?: string;
 }
 
 export interface BallerinaPackagesParams {
@@ -344,12 +388,132 @@ export interface ExecutorPositions {
     executorPositions?: ExecutorPosition[];
 }
 
+// Test Manager related interfaces 
+
+export interface TestsDiscoveryRequest {
+    filePath: string;
+}
+
+export interface TestsDiscoveryResponse {
+    result?: Map<string, FunctionTreeNode[]>;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface FunctionTreeNode {
+    functionName: string;
+    lineRange: FunctionLineRange;
+    kind: string;
+    groups: string[];
+}
+
+export interface FunctionLineRange {
+    fileName: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+export interface ICPEnabledRequest {
+    projectPath: string;
+}
+
+export interface ICPEnabledResponse {
+    enabled?: boolean;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface GetTestFunctionRequest {
+    filePath: string;
+    functionName: string;
+}
+
+export interface AddOrUpdateTestFunctionRequest {
+    filePath: string;
+    function: TestFunction;
+}
+
+export interface TestSourceEditResponse {
+    textEdits?: {
+        [key: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface GetTestFunctionResponse {
+    function?: TestFunction;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface TestFunctionMetadata {
+    label?: string;
+    description?: string;
+}
+
+export interface Codedata {
+    lineRange?: FunctionLineRange;
+}
+
+export interface ValueProperty {
+    metadata?: TestFunctionMetadata;
+    codedata?: Codedata;
+    valueType?: string;
+    valueTypeConstraint?: any;
+    originalName?: string;
+    value?: any;
+    placeholder?: string;
+    optional?: boolean;
+    editable?: boolean;
+    advanced?: boolean;
+}
+
+export interface FunctionParameter {
+    type?: ValueProperty;
+    variable?: ValueProperty;
+    defaultValue?: ValueProperty;
+    optional?: boolean;
+    editable?: boolean;
+    advanced?: boolean;
+}
+
+export interface Annotation {
+    metadata?: TestFunctionMetadata;
+    codedata?: Codedata;
+    org?: string;
+    module?: string;
+    name?: string;
+    fields?: ValueProperty[];
+}
+
+export interface TestFunction {
+    metadata?: TestFunctionMetadata;
+    codedata?: Codedata;
+    functionName?: ValueProperty;
+    returnType?: ValueProperty;
+    parameters?: FunctionParameter[];
+    annotations?: Annotation[];
+    editable?: boolean;
+}
+
+// End of Test Manager related interfaces
+
 export interface JsonToRecordParams {
     jsonString: string;
     recordName: string;
     isRecordTypeDesc: boolean;
     isClosed: boolean;
     forceFormatRecordFields?: boolean;
+    prefix?: string;
+    filePathUri?: string;
+}
+
+export interface TypeDataWithReferences {
+    types: {
+        type: Type;
+        refs: string[];
+    }[];
 }
 
 export interface JsonToRecord {
@@ -362,6 +526,8 @@ export interface XMLToRecordParams {
     isRecordTypeDesc?: boolean;
     isClosed?: boolean;
     forceFormatRecordFields?: boolean;
+    prefix?: string;
+    filePath?: string;
 }
 
 export interface XMLToRecord {
@@ -407,6 +573,7 @@ export interface PartialST {
 
 export interface OpenAPIConverterParams {
     documentFilePath: string;
+    enableBalExtension?: boolean;
 }
 
 export interface OpenAPISpec {
@@ -477,14 +644,16 @@ export interface BISuggestedFlowModelRequest extends BIFlowModelRequest {
 }
 
 export type BIFlowModelResponse = {
-    flowModel: Flow;
+    flowModel?: Flow;
+    errorMsg?: string;
+    stacktrace?: string;
 };
 
 export interface BISourceCodeRequest {
     filePath: string;
-    flowNode: FlowNode;
+    flowNode: FlowNode | FunctionNode;
     isConnector?: boolean;
-    isDataMapperFormUpdate?: boolean;
+    isFunctionNodeUpdate?: boolean;
 }
 
 export type BISourceCodeResponse = {
@@ -545,18 +714,33 @@ export type SearchQueryParams = {
     q?: string;
     limit?: number;
     offset?: number;
+    includeAvailableFunctions?: string;
 }
 
-export type BIGetFunctionsRequest = {
+export type SearchKind = 'FUNCTION' | 'CONNECTOR' | 'TYPE' | "NP_FUNCTION";
+
+export type BISearchRequest = {
     position: LineRange;
     filePath: string;
     queryMap: SearchQueryParams;
+    searchKind: SearchKind;
 }
 
-export type BIGetFunctionsResponse = {
+export type BISearchResponse = {
     categories: Category[];
 }
 
+export type BIGetEnclosedFunctionRequest = {
+    filePath: string;
+    position: LinePosition;
+    findClass?: boolean;
+}
+
+export type BIGetEnclosedFunctionResponse = {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
 
 export type BIConnectorsRequest = {
     queryMap: SearchQueryParams;
@@ -595,7 +779,7 @@ export interface UpdateConfigVariableRequest {
 }
 
 export interface UpdateConfigVariableResponse {
-    
+
 }
 
 export interface BICopilotContextRequest {
@@ -607,6 +791,14 @@ export interface BICopilotContextResponse {
     prefix: string;
     suffix: string;
 }
+
+export interface BIDesignModelRequest {
+    projectPath: string;
+}
+
+export type BIDesignModelResponse = {
+    designModel: CDModel;
+};
 
 export interface SequenceModelRequest {
     filePath: string;
@@ -632,19 +824,23 @@ export const TRIGGER_CHARACTERS = [':', '.', '>', '@', '/', '\\', '?'] as const;
 
 export type TriggerCharacter = typeof TRIGGER_CHARACTERS[number];
 
-export interface ExpressionCompletionsRequest {
-    description?: string;
-    filePath: string;
+export type ExpressionProperty = Property;
+
+export interface ExpressionEditorContext {
     expression: string;
-    branch?: string;
-    property?: string;
     startLine: LinePosition;
     offset: number;
-    context: {
+    codedata: CodeData;
+    property: ExpressionProperty;
+}
+
+export interface ExpressionCompletionsRequest {
+    filePath: string;
+    context: ExpressionEditorContext;
+    completionContext: {
         triggerKind: TriggerKind;
         triggerCharacter?: TriggerCharacter;
     };
-    node?: FlowNode;
 }
 
 export interface ExpressionCompletionItem {
@@ -655,16 +851,15 @@ export interface ExpressionCompletionItem {
     filterText: string;
     insertText: string;
     insertTextFormat: number;
+    additionalTextEdits?: TextEdit[];
 }
 
 export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
 
 export interface SignatureHelpRequest {
     filePath: string;
-    expression: string;
-    startLine: LinePosition;
-    offset: number;
-    context: {
+    context: ExpressionEditorContext;
+    signatureHelpContext: {
         isRetrigger: boolean;
         triggerCharacter?: TriggerCharacter;
         triggerKind: number;
@@ -695,28 +890,525 @@ export interface SignatureHelpResponse {
 export interface VisibleTypesRequest {
     filePath: string;
     position: LinePosition;
+    typeConstraint?: string;
 }
 
-export interface VisibleTypesResponse {
-    types: string[];
+export interface VisibleTypeItem {
+    insertText: string;
+    kind: number;
+    label: string;
+    labelDetails: {
+        description: string;
+        detail: string;
+    }
 }
 
-export interface Info {
-    expression: string;
-    startLine: LinePosition;
-    offset: number;
-    node: FlowNode;
-    branch?: string;
-    property: string;
+export type VisibleTypesResponse = VisibleTypeItem[];
+
+export interface ReferenceLSRequest {
+    textDocument: {
+        uri: string;
+    };
+    position: {
+        character: number;
+        line: number;
+    };
+    context: {
+        includeDeclaration: boolean;
+    };
+}
+export interface Reference {
+    uri: string;
+    range: Range;
 }
 
 export interface ExpressionDiagnosticsRequest {
     filePath: string;
-    context: Info;
+    context: ExpressionEditorContext;
 }
 
 export interface ExpressionDiagnosticsResponse {
     diagnostics: Diagnostic[];
+}
+
+export interface UpdateImportsRequest {
+    filePath: string;
+    importStatement: string;
+}
+
+export interface UpdateImportsResponse {
+    importStatementOffset: number;
+}
+
+export const functionKinds = {
+    CURRENT: 'CURRENT',
+    IMPORTED: 'IMPORTED',
+    AVAILABLE: 'AVAILABLE'
+} as const;
+
+export type FunctionKind = typeof functionKinds[keyof typeof functionKinds];
+
+export interface AddFunctionRequest {
+    filePath: string;
+    codedata: CodeData;
+    kind: FunctionKind;
+    searchKind: SearchKind;
+}
+
+export interface AddFunctionResponse {
+    template: string;
+}
+
+export interface RenameIdentifierRequest {
+    fileName: string;
+    position: Position;
+    newName: string;
+}
+
+// <-------- Trigger Related ------->
+export interface TriggerModelsRequest {
+    organization?: string;
+    packageName?: string;
+    query?: string;
+    keyWord?: string;
+}
+
+export interface TriggerModelsResponse {
+    local: ServiceModel[];
+}
+
+// <-------- Trigger Related ------->
+
+// <-------- Service Designer Related ------->
+export interface ListenersRequest {
+    filePath: string;
+    moduleName: string;
+    orgName?: string;
+    pkgName?: string;
+    listenerTypeName?: string;
+}
+export interface ListenersResponse {
+    hasListeners: boolean;
+    listeners: string[];
+}
+export interface ListenerModelRequest {
+    moduleName: string;
+    orgName?: string;
+    pkgName?: string;
+    listenerTypeName?: string;
+}
+export interface ListenerModelResponse {
+    listener: ListenerModel;
+}
+
+export interface ListenerSourceCodeRequest {
+    filePath: string;
+    listener: ListenerModel;
+}
+export interface ListenerSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+export interface ServiceModelRequest {
+    filePath: string;
+    moduleName: string;
+    listenerName?: string;
+    orgName?: string;
+    pkgName?: string;
+}
+export interface ServiceModelResponse {
+    service: ServiceModel;
+}
+export interface ServiceSourceCodeRequest {
+    filePath: string;
+    service: ServiceModel;
+}
+export interface ServiceSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+
+export interface ClassFieldModifierRequest {
+    filePath: string;
+    field: FieldType;
+}
+
+export interface AddFieldRequest {
+    filePath: string;
+    field: FieldType;
+    codedata: {
+        lineRange: LineRange;
+    };
+}
+
+export interface SourceEditResponse {
+    textEdits?: {
+        [key: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface ServiceClassSourceRequest {
+    filePath: string;
+    serviceClass: ServiceClassModel;
+}
+
+export interface FunctionModelRequest {
+    type: string;
+    functionName: string;
+}
+
+export interface FunctionModelResponse {
+    function: FunctionModel;
+}
+export interface ServiceModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange; // For the entire service
+    };
+}
+export interface ServiceModelFromCodeResponse {
+    service: ServiceModel;
+}
+export interface ListenerModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange; // For the entire service
+    };
+}
+
+export interface ModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange;
+    };
+    context: string;
+}
+
+export interface ServiceClassModelResponse {
+    model?: ServiceClassModel;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+// <-------- Type Related ------->
+
+export interface Type {
+    name: string;
+    editable: boolean;
+    metadata: TypeMetadata;
+    codedata: TypeCodeData;
+    properties: Record<string, TypeProperty>;
+    members: Member[];
+    restMember?: Member;
+    includes?: string[];
+    functions?: TypeFunctionModel[];
+    allowAdditionalFields?: boolean;
+}
+
+type ServiceFunctionKind = "RESOURCE" | "REMOTE" | "FUNCTION";
+
+export interface TypeFunctionModel {
+    qualifiers: string[];
+    accessor: string;
+    kind: ServiceFunctionKind;
+    name?: string;
+    description?: string;
+    parameters: Member[];
+    restParameter?: Member;
+    returnType?: Type | string;
+    refs: string[];
+}
+
+export interface TypeMetadata {
+    label: string;
+    description: string;
+}
+
+export type TypeNodeKind = "RECORD" | "ENUM" | "ARRAY" | "UNION" | "ERROR" | "MAP" | "STREAM" | "FUTURE" |
+    "TYPEDESC" | "CLASS" | "OBJECT" | "INTERSECTION" | "SERVICE_DECLARATION" | "TABLE" | "TUPLE";
+// todo make this consistant
+export interface TypeCodeData {
+    lineRange?: LineRange;
+    node: TypeNodeKind;
+}
+
+export interface TypeProperty {
+    metadata: TypeMetadata;
+    valueType: string;
+    value: string | string[]; // as required for qualifiers
+    optional: boolean;
+    editable: boolean;
+    advanced: boolean;
+}
+
+export interface Member {
+    kind: string;
+    refs: string[];
+    type: string | Type;
+    name?: string;
+    docs?: string;
+    defaultValue?: string;
+    optional?: boolean;
+}
+
+export interface GetGraphqlTypeRequest {
+    filePath: string,
+    linePosition: LinePosition;
+}
+
+export interface GetGraphqlTypeResponse {
+    type: Type;
+    refs: Type[];
+}
+
+export interface GetTypesRequest {
+    filePath: string;
+}
+
+export interface GetTypeRequest {
+    filePath: string;
+    linePosition: LinePosition;
+}
+
+export interface UpdateTypeRequest {
+    filePath: string;
+    description: string;
+    type: Type;
+}
+
+export interface UpdateTypesRequest {
+    filePath: string;
+    types: Type[];
+}
+
+export interface UpdateTypesResponse {
+    textEdits: {
+        [filePath: string]: TextEdit[];
+    };
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export interface GetTypesResponse {
+    types: Type[];
+}
+
+export interface GetTypeResponse {
+    type: Type;
+}
+
+export interface GetRecordConfigRequest {
+    filePath: string;
+    codedata: {
+        org: string;
+        module: string;
+        version: string;
+    };
+    typeConstraint: string;
+}
+
+export interface GetRecordConfigResponse {
+    recordConfig?: TypeField;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+export type RecordSourceGenRequest = {
+    filePath: string;
+    type: TypeField;
+}
+
+export type RecordSourceGenResponse = {
+    errorMessage?: string;
+    stackTrace?: string;
+    recordValue?: string;
+}
+
+export type UpdateRecordConfigRequest = {
+    filePath: string;
+    codedata: {
+        org: string;
+        module: string;
+        version: string;
+    };
+    typeConstraint: string;
+    expr: string;
+}
+
+export type GetRecordModelFromSourceRequest = {
+    filePath: string;
+    typeMembers: PropertyTypeMemberInfo[];
+    expr: string;
+}
+
+export type GetRecordModelFromSourceResponse = {
+    recordConfig: TypeField;
+    typeName: string;
+    errorMsg?: string;
+    stacktrace?: string;
+}
+
+
+export interface TextEditRange {
+    start: {
+        line: number;
+        character: number;
+    };
+    end: {
+        line: number;
+        character: number;
+    };
+}
+
+export interface TextEdit {
+    range: TextEditRange;
+    newText: string;
+}
+
+export interface UpdateTypeResponse {
+    name: string;
+    textEdits: {
+        [filePath: string]: TextEdit[];
+    };
+}
+
+// <-------- Trigger Related ------->
+
+export interface TriggerFunctionResponse {
+
+}
+
+export interface ListenerModelFromCodeResponse {
+    listener: ListenerModel;
+}
+export interface HttpResourceModelRequest {
+    type: "http",
+    functionName: "resource"
+}
+export interface HttpResourceModelResponse {
+    function: FunctionModel;
+}
+export interface FunctionSourceCodeRequest {
+    filePath: string;
+    function: FunctionModel;
+    codedata: {
+        lineRange: LineRange; // For the entire service
+    };
+}
+export interface ResourceSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+// <-------- Service Designer Related ------->
+
+
+export interface FunctionNodeRequest {
+    projectPath?: string;
+    fileName?: string;
+    functionName: string;
+}
+export interface FunctionNodeResponse {
+    functionDefinition: FunctionNode;
+}
+
+// <-------- AI Agent Related ------->
+
+export interface AINodesRequest {
+    filePath: string;
+}
+export interface AINodesResponse {
+    agents?: CodeData[];
+    models?: CodeData[];
+}
+export interface AIModelsResponse {
+    models: string[];
+}
+
+// TODO: Correct the data type
+export interface AIModelsRequest {
+    agent: any;
+    filePath?: string;
+}
+
+export interface AIToolsRequest {
+    filePath: string;
+}
+export interface AIToolsResponse {
+    tools: string[];
+}
+
+export interface AIGentToolsRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    toolName: string;
+    description: string;
+    connection: string;
+}
+
+export interface AIGentToolsResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+
+export interface AIConnectorActionsRequest {
+    filePath: string;
+    flowNode: FlowNode; // Connector flowNode
+}
+export interface AIConnectorActionsResponse {
+    actions: AvailableNode[];
+}
+
+export type OpenAPIClientGenerationRequest = {
+    openApiContractPath: string;
+    projectPath: string;
+    module: string;
+}
+
+interface OpenAPIClientSource {
+    isModuleExists: boolean;
+    textEditsMap: {
+        [key: string]: TextEdit[];
+    };
+}
+
+export type OpenAPIClientGenerationResponse = {
+    source: OpenAPIClientSource;
+}
+
+export type OpenAPIGeneratedModulesRequest = {
+    projectPath: string;
+}
+
+export type OpenAPIGeneratedModulesResponse = {
+    modules: string[];
+}
+
+export type OpenAPIClientDeleteRequest = {
+    projectPath: string;
+    module: string;
+}
+
+export type OpenAPIClientDeleteData = {
+    filesToDelete: string[];
+    textEditsMap: {
+        [key: string]: TextEdit[];
+    };
+}
+
+export type OpenAPIClientDeleteResponse = {
+    deleteData: OpenAPIClientDeleteData
+}
+
+// <-------- Deployment Related ------->
+
+export interface DeploymentResponse {
+    isCompleted: boolean;
 }
 
 // <------------ BI INTERFACES --------->
@@ -736,7 +1428,6 @@ export interface BIInterface extends BaseLangClientInterface {
     getSourceCode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
     getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
     getNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
-    getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
     generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
@@ -746,6 +1437,40 @@ export interface BIInterface extends BaseLangClientInterface {
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
+    getOpenApiGeneratedModules: (params: OpenAPIGeneratedModulesRequest) => Promise<OpenAPIGeneratedModulesResponse>
+
+    // New Service Designer APIs
+    getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
+    getListeners: (params: ListenersRequest) => Promise<ListenersResponse>;
+    getListenerModel: (params: ListenerModelRequest) => Promise<ListenerModelResponse>;
+    addListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
+    getListenerFromSourceCode: (params: ListenerModelFromCodeRequest) => Promise<ListenerModelFromCodeResponse>;
+    getServiceModel: (params: ServiceModelRequest) => Promise<ServiceModelResponse>;
+    addServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
+    getServiceModelFromCode: (params: ServiceModelFromCodeRequest) => Promise<ServiceModelFromCodeResponse>;
+    getHttpResourceModel: (params: HttpResourceModelRequest) => Promise<HttpResourceModelResponse>;
+    addResourceSourceCode: (params: FunctionSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+    addFunctionSourceCode: (params: FunctionSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+
+    // Function APIs
+    getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
+
+    getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
+    getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
+    getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
+    updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    updateImports: (params: UpdateImportsRequest) => Promise<void>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    convertJsonToRecordType: (params: JsonToRecordParams) => Promise<TypeDataWithReferences>;
+    convertXmlToRecordType: (params: XMLToRecordParams) => Promise<TypeDataWithReferences>;
+
+    // AI Agent APIs
+    getAllAgents: (params: AINodesRequest) => Promise<AINodesResponse>;
+    getAllModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
+    getModels: (params: AIModelsRequest) => Promise<AIModelsResponse>;
+    getTools: (params: AIToolsRequest) => Promise<AIToolsResponse>;
+    genTool: (params: AIGentToolsRequest) => Promise<AIGentToolsResponse>;
+    getConnectorActions: (params: AIConnectorActionsRequest) => Promise<AIConnectorActionsResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {
@@ -758,11 +1483,7 @@ export interface ExtendedLangClientInterface extends BIInterface {
     getPackageComponentModels(params: ComponentModelsParams): Promise<ComponentModels>;
     getPersistERModel(params: PersistERModelParams): Promise<PersistERModel>;
     getDiagnostics(params: DiagnosticsParams): Promise<Diagnostics[] | NOT_SUPPORTED_TYPE>;
-    getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE>;
-    getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE>;
-    getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE>;
     getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE>;
-    getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE>;
     getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE>;
     getSymbolDocumentation(params: SymbolInfoParams): Promise<SymbolInfo | NOT_SUPPORTED_TYPE>;
     getTypeFromExpression(params: TypeFromExpressionParams): Promise<TypesFromExpression | NOT_SUPPORTED_TYPE>;

@@ -810,7 +810,7 @@ export function ConfigureView(props: ConfigureViewProps) {
       value: content,
       key: editorKey,
       isConfigured: true,
-      cursorPosition: position.endLine.offset
+      cursorPosition: { line: position.endLine.line, offset: position.endLine.offset }
     }
     updateFormField(updateData);
   }

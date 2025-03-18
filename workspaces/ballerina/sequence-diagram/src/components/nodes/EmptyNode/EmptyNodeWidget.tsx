@@ -10,8 +10,9 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { EmptyNodeModel } from "./EmptyNodeModel";
-import { BORDER_WIDTH, Colors, EMPTY_NODE_WIDTH } from "../../../resources/constants";
+import { BORDER_WIDTH, EMPTY_NODE_WIDTH } from "../../../resources/constants";
 
 namespace EmptyNodeStyles {
     export const Node = styled.div`
@@ -30,9 +31,9 @@ namespace EmptyNodeStyles {
         align-items: center;
         width: ${(props: CircleStyleProp) => (props.show ? EMPTY_NODE_WIDTH : 0)}px;
         height: ${(props: CircleStyleProp) => (props.show ? EMPTY_NODE_WIDTH : 0)}px;
-        border: ${BORDER_WIDTH}px solid ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY : "transparent")};
+        border: ${BORDER_WIDTH}px solid ${(props: CircleStyleProp) => (props.show ? ThemeColors.PRIMARY : "transparent")};
         border-radius: 50%;
-        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY_CONTAINER : "transparent")};
+        background-color: ${(props: CircleStyleProp) => (props.show ? ThemeColors.PRIMARY_CONTAINER : "transparent")};
     `;
 
     export const TopPortWidget = styled(PortWidget)``;

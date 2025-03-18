@@ -1,9 +1,10 @@
 {
-    "name": "kolab",
-    "displayName": "KolaB",
-    "description": "KolaB Extension for Kola.",
-    "version": "0.3.2",
+    "name": "ballerina",
+    "displayName": "Ballerina",
+    "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
+    "version": "5.0.2",
     "publisher": "wso2",
+    "icon": "resources/images/ballerina.png",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
         "url": "https://github.com/wso2/ballerina-plugin-vscode/issues"
@@ -24,10 +25,15 @@
     ],
     "activationEvents": [
         "onLanguage:ballerina",
-        "onCommand:kolab.showExamples",
+        "onCommand:ballerina.showExamples",
         "workspaceContains:**/Ballerina.toml",
-        "onNotebook:kolab-notebook",
-        "onUri"
+        "onNotebook:ballerina-notebook",
+        "onUri",
+        "onCommand:BI.notify-deployment-completion"
+    ],
+    "extensionDependencies": [
+        "anweber.httpbook",
+        "WSO2.wso2-platform"
     ],
     "contributes": {
         "languages": [
@@ -70,120 +76,156 @@
         "configuration": [
             {
                 "type": "object",
-                "title": "Kola B",
+                "title": "Ballerina",
                 "properties": {
-                    "kolab.pluginDevMode": {
+                    "ballerina.pluginDevMode": {
                         "type": "boolean",
-                        "default": true,
+                        "default": false,
                         "description": "Enable plugin development mode."
                     },
-                    "kolab.home": {
+                    "ballerina.home": {
                         "type": "string",
                         "default": "",
                         "description": "Specify the Ballerina home directory path."
                     },
-                    "kolab.debugLog": {
+                    "ballerina.isBI": {
+                        "type": "boolean",
+                        "default": false,
+                        "scope": "resource",
+                        "description": "Activate features for Ballerina Integrator."
+                    },
+                    "ballerina.scope": {
+                        "type": "string",
+                        "default": "any",
+                        "scope": "resource",
+                        "description": "Define the scope of the project.",
+                        "enum": [
+                            "automation",
+                            "ai-agent",
+                            "integration-as-api",
+                            "event-integration",
+                            "file-integration",
+                            "any"
+                        ],
+                        "enumDescriptions": [
+                            "Automation",
+                            "AI Agent",
+                            "Integration as API",
+                            "Event Integration",
+                            "File Integration",
+                            "Any"
+                        ]
+                    },
+                    "ballerina.debugLog": {
                         "type": "boolean",
                         "default": false,
                         "description": "Enable printing debug messages on to the Ballerina output channel."
                     },
-                    "kolab.enableLiveReload": {
+                    "ballerina.enableLiveReload": {
                         "type": "boolean",
                         "default": true,
                         "description": "Enable automatic re-run of Ballerina service projects upon file changes."
                     },
-                    "kolab.traceLog": {
+                    "ballerina.traceLog": {
                         "type": "boolean",
                         "default": false,
                         "description": "Enable printing trace messages on to the Ballerina output channel."
                     },
-                    "kolab.codeLens.all.enabled": {
+                    "ballerina.codeLens.all.enabled": {
                         "type": "boolean",
                         "default": true,
                         "description": "Enable all code lens features."
                     },
-                    "kolab.enableFileWatcher": {
+                    "ballerina.enableFileWatcher": {
                         "type": "boolean",
                         "default": true,
                         "description": "Enable watching file change events of the project."
                     },
-                    "kolab.enableTelemetry": {
+                    "ballerina.enableTelemetry": {
                         "type": "boolean",
                         "default": true,
                         "markdownDescription": "Enable Ballerina telemetry."
                     },
-                    "kolab.enableSemanticHighlighting": {
+                    "ballerina.enableSemanticHighlighting": {
                         "type": "boolean",
                         "default": true,
                         "description": "Enable semantic highlighting for Ballerina source."
                     },
-                    "kolab.enablePerformanceForecast": {
+                    "ballerina.enableBackgroundDriftCheck": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable background drift check for Ballerina source."
+                    },
+                    "ballerina.enablePerformanceForecast": {
                         "type": "boolean",
                         "default": true,
                         "description": "Enable real-time performance forecasting."
                     },
-                    "kolab.enableLanguageServerDebug": {
+                    "ballerina.enableLanguageServerDebug": {
                         "type": "boolean",
                         "default": false,
                         "description": "Enable Language Server debug mode."
                     },
-                    "kolab.experimental": {
+                    "ballerina.experimental": {
                         "type": "boolean",
                         "default": false,
                         "description": "Enable experimental features."
                     },
-                    "kolab.enableNotebookDebug": {
+                    "ballerina.enableNotebookDebug": {
                         "type": "boolean",
                         "default": false,
                         "description": "Enable notebook debug mode."
                     },
-                    "kolab.enableRunFast": {
+                    "ballerina.enableRunFast": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Experimental: Enable compiling & running Ballerina programs inside Language Server resulting in faster execution."
+                        "description": "Enable faster execution by using the Language Server's compilation cache to reduce startup time.",
+                        "tags": [
+                            "experimental"
+                        ]
                     },
-                    "kolab.samplesDownloadDirectory": {
+                    "ballerina.samplesDownloadDirectory": {
                         "type": "string",
                         "default": "",
                         "description": "Specify the directory where you want to download the Ballerina samples. Leave it empty to use the default download directory."
                     },
-                    "kolab.enableInlayHints": {
+                    "ballerina.enableInlayHints": {
                         "type": "boolean",
                         "default": false,
                         "description": "Experimental: Enable inlay hints for Ballerina."
                     },
-                    "kolab.rootUrl": {
+                    "ballerina.rootUrl": {
                         "type": "string",
                         "default": "https://dev-tools.wso2.com/ballerina-copilot/v2.0",
                         "description": "Ballerina AI Backend service"
                     },
-                    "kolab.authOrg": {
+                    "ballerina.authOrg": {
                         "type": "string",
                         "default": "ballerinacopilot",
                         "description": "Asgardeo Organization for Auth Services\nDefault: ballerinacopilot"
                     },
-                    "kolab.authClientID": {
+                    "ballerina.authClientID": {
                         "type": "string",
                         "default": "9rKng8hSZd0VkeA45Lt4LOfCp9Aa",
                         "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: 9rKng8hSZd0VkeA45Lt4LOfCp9Aa"
                     },
-                    "kolab.authRedirectURL": {
+                    "ballerina.authRedirectURL": {
                         "type": "string",
-                        "default": "vscode://wso2.kolab/signin",
-                        "description": "Redirect URL for Auth Service \n Default: vscode://wso2.kolab/signin"
+                        "default": "vscode://wso2.ballerina/signin",
+                        "description": "Redirect URL for Auth Service \n Default: vscode://wso2.ballerina/signin"
                     }
                 }
             },
             {
                 "type": "object",
-                "title": "Kola",
+                "title": "Ballerina Integrator",
                 "properties": {
-                    "kolab.enableSequenceDiagramView": {
+                    "ballerina.enableSequenceDiagramView": {
                         "type": "boolean",
-                        "default": false,
+                        "default": true,
                         "description": "Enable the experimental Sequence Diagram View."
                     },
-                    "kolab.enableAiSuggestions": {
+                    "ballerina.enableAiSuggestions": {
                         "type": "boolean",
                         "default": true,
                         "description": "Enable AI suggestions from WSO2 Copilot."
@@ -208,7 +250,7 @@
         "debuggers": [
             {
                 "type": "ballerina",
-                "label": "KolaB Debug",
+                "label": "Ballerina Debug",
                 "languages": [
                     "ballerina"
                 ],
@@ -304,94 +346,95 @@
         ],
         "commands": [
             {
-                "command": "kolab-setup.installBallerina",
-                "title": "Install Ballerina",
+                "command": "ballerina.update-ballerina-dev-pack",
+                "title": "Update Ballerina Nightly Build",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab-setup.setupKola",
-                "title": "Set up Kola",
-                "category": "Ballerina"
-            },
-            {
-                "command": "kolab-setup.updateKola",
-                "title": "Update Kola",
-                "category": "Ballerina"
-            },
-            {
-                "command": "kolab.showExamples",
+                "command": "ballerina.showExamples",
                 "title": "Show Examples",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.project.test",
-                "title": "Test",
-                "category": "Ballerina"
-            },
-            {
-                "command": "kolab.project.build",
+                "command": "ballerina.project.build",
                 "title": "Build",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.project.pack",
+                "command": "ballerina.project.pack",
                 "title": "Pack",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.create.cloud",
+                "command": "ballerina.create.cloud",
                 "title": "Create Cloud.toml",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.project.doc",
+                "command": "ballerina.login.copilot",
+                "title": "Authorize Github Copilot",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.reset.bi",
+                "title": "Reset BI Auth",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.doc",
                 "title": "Build Documentation",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.project.add",
+                "command": "ballerina.project.add",
                 "title": "Add Module",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.new.module",
+                "command": "ballerina.new.module",
                 "title": "Add Module",
                 "category": "Ballerina",
                 "icon": "$(distro-new-module)"
             },
             {
-                "command": "kolab.refreshPackageTree",
+                "command": "ballerina.refreshPackageTree",
                 "title": "Refresh",
                 "icon": "$(distro-refresh)"
             },
             {
-                "command": "kolab.refreshExplorerTree",
+                "command": "ballerina.refreshExplorerTree",
                 "title": "Refresh",
                 "icon": "$(distro-refresh)"
             },
             {
-                "command": "kolab.newFileExplorerTree",
+                "command": "ballerina.newFileExplorerTree",
                 "title": "New File",
                 "icon": "$(distro-new-file)"
             },
             {
-                "command": "kolab.newFolderExplorerTree",
+                "command": "ballerina.newFolderExplorerTree",
                 "title": "New Folder",
                 "icon": "$(distro-new-folder)"
             },
             {
-                "command": "kolab.deleteFileExplorerTree",
+                "command": "ballerina.deleteFileExplorerTree",
                 "title": "Delete",
                 "icon": "$(distro-delete)"
             },
             {
-                "command": "kolab.show.visualizer",
+                "command": "ballerina.show.visualizer",
                 "title": "Show Visualizer",
                 "icon": "$(distro-design-view)",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.project.run",
+                "command": "ballerina.test.edit.case",
+                "title": "Edit test case",
+                "icon": "$(distro-design-view)",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.run",
                 "title": "Run",
                 "icon": {
                     "dark": "./resources/images/icons/start-inverse.svg",
@@ -400,7 +443,7 @@
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.project.run.config",
+                "command": "ballerina.project.run.config",
                 "title": "Run",
                 "icon": {
                     "dark": "./resources/images/icons/start-inverse.svg",
@@ -408,112 +451,126 @@
                 }
             },
             {
-                "command": "kolab.project.stop",
+                "command": "ballerina.project.stop",
                 "title": "Stop",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.source.debug",
+                "command": "ballerina.source.debug",
                 "title": "Debug",
                 "icon": "$(distro-debug)",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.show.source",
+                "command": "ballerina.show.source",
                 "title": "Show Source",
                 "icon": "$(code)",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.pasteAsRecord",
+                "command": "ballerina.pasteAsRecord",
                 "title": "Paste JSON as Record",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.pasteXMLAsRecord",
+                "command": "ballerina.verifyDocs",
+                "title": "Check drift between code and documentation",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.configureDefaultModelForNaturalFunctions",
+                "title": "Configure default model for natural functions",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.pasteXMLAsRecord",
                 "title": "Paste XML as Record",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.project.config.create",
+                "command": "ballerina.project.config.create",
                 "title": "Create Config.toml",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.notebook.restartNotebook",
+                "command": "ballerina.notebook.restartNotebook",
                 "title": "Restart Notebook",
                 "icon": "$(distro-refresh)",
                 "category": "Ballerina",
-                "when": "notebookType == 'kolab-notebook'"
+                "when": "notebookType == 'ballerina-notebook'"
             },
             {
-                "command": "kolab.notebook.openVariableView",
+                "command": "ballerina.notebook.openVariableView",
                 "title": "Notebook Variables",
                 "icon": "$(notebook)",
                 "category": "Ballerina",
-                "enablement": "notebookType == 'kolab-notebook'"
+                "enablement": "notebookType == 'ballerina-notebook'"
             },
             {
-                "command": "kolab.notebook.openOutlineView",
+                "command": "ballerina.notebook.openOutlineView",
                 "title": "Notebook Outline",
                 "icon": "$(list-unordered)",
                 "category": "Ballerina",
-                "enablement": "notebookType == 'kolab-notebook'"
+                "enablement": "notebookType == 'ballerina-notebook'"
             },
             {
-                "command": "kolab.notebook.debug",
+                "command": "ballerina.notebook.debug",
                 "title": "Debug Cell",
                 "category": "Ballerina",
                 "enablement": "isNotebookDebugModeEnabled"
             },
             {
-                "command": "kolab.notebook.refreshVariableView",
+                "command": "ballerina.notebook.refreshVariableView",
                 "title": "Refresh",
                 "icon": "$(distro-refresh)",
                 "category": "Ballerina",
                 "enablement": "isNotebookVariableViewEnabled"
             },
             {
-                "command": "kolab.notebook.createNotebook",
+                "command": "ballerina.notebook.createNotebook",
                 "title": "Create Notebook",
                 "category": "Ballerina",
                 "icon": "$(notebook)"
             },
             {
-                "command": "kolab.view.architectureView",
-                "title": "Architecture View",
-                "category": "Ballerina"
-            },
-            {
-                "command": "kolab.view.serviceDesigner",
-                "title": "Service Designer View",
-                "category": "Ballerina"
-            },
-            {
-                "command": "kolab.view.cellView",
+                "command": "ballerina.view.cellView",
                 "title": "Cell View",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.view.entityDiagram",
+                "command": "ballerina.view.entityDiagram",
                 "title": "Entity Relationship Diagram",
                 "icon": "$(distro-persist-diagram)",
                 "category": "Ballerina"
             },
             {
-                "command": "kolab.open.ai.panel",
-                "title": "Open AI Panel",
+                "command": "ballerina.tryit",
+                "title": "Open Try It",
                 "category": "Ballerina",
-                "icon": "$(wand)"
+                "icon": "$(server)"
             },
             {
-                "command": "kolab.open.bi.welcome",
+                "command": "ballerina.open.ai.panel",
+                "title": "Open AI Panel",
+                "category": "Ballerina",
+                "icon": {
+                    "dark": "./resources/icons/light-ai-chat.svg",
+                    "light": "./resources/icons/dark-ai-chat.svg"
+                }
+            },
+            {
+                "command": "ballerina.open.bi.welcome",
                 "title": "Open Welcome",
                 "category": "BI"
             },
             {
+                "command": "ballerina.open.bi.new",
+                "title": "New Ballerina Integration",
+                "category": "BI"
+            },
+            {
                 "command": "BI.project.run",
-                "title": "Run",
+                "title": "Run Integration",
                 "icon": {
                     "dark": "./resources/images/icons/start-inverse.svg",
                     "light": "./resources/images/icons/start.svg"
@@ -521,8 +578,35 @@
                 "category": "BI"
             },
             {
+                "command": "BI.project.debug",
+                "title": "Debug Integration",
+                "icon": {
+                    "dark": "./resources/images/icons/debug-inverse.svg",
+                    "light": "./resources/images/icons/debug.svg"
+                },
+                "category": "BI"
+            },
+            {
                 "command": "BI.project-explorer.refresh",
-                "title": "Refresh Kola",
+                "title": "Refresh Ballerina",
+                "category": "BI"
+            },
+            {
+                "command": "BI.test.edit.function",
+                "title": "View test flow",
+                "icon": "$(distro-design-view)",
+                "category": "BI"
+            },
+            {
+                "command": "BI.test.edit.function.def",
+                "title": "Edit test function definition",
+                "icon": "$(edit)",
+                "category": "BI"
+            },
+            {
+                "command": "BI.test.add.function",
+                "title": "Add test case",
+                "icon": "$(add)",
                 "category": "BI"
             },
             {
@@ -572,6 +656,13 @@
                 "category": "BI"
             },
             {
+                "command": "BI.project-explorer.switch-project",
+                "title": "Switch Project",
+                "icon": "$(distro-switch-project)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
                 "command": "BI.project-explorer.add",
                 "title": "Add Construct",
                 "icon": "$(add)",
@@ -582,6 +673,20 @@
                 "command": "BI.project-explorer.overview",
                 "title": "Show Overview",
                 "icon": "$(distro-design-view)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.add-data-mapper",
+                "title": "Add Data Mapper",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.add-natural-function",
+                "title": "Add Natural Function",
+                "icon": "$(add)",
                 "group": "navigation",
                 "category": "BI"
             }
@@ -596,6 +701,12 @@
                 }
             ]
         },
+        "viewsWelcome": [
+            {
+                "view": "testing",
+                "contents": "[Add Unit Test](command:BI.test.add.function)"
+            }
+        ],
         "viewsContainers": {
             "panel": [
                 {
@@ -606,131 +717,165 @@
             ]
         },
         "menus": {
+            "testing/item/context": [
+                {
+                    "command": "BI.test.edit.function.def",
+                    "group": "inline",
+                    "when": "testId not in testGroups"
+                },
+                {
+                    "command": "BI.test.edit.function",
+                    "group": "inline",
+                    "when": "testId not in testGroups"
+                },
+                {
+                    "command": "BI.test.add.function",
+                    "group": "inline",
+                    "when": "testId in testGroups"
+                }
+            ],
             "view/title": [
                 {
-                    "command": "kolab.notebook.refreshVariableView",
+                    "command": "ballerina.notebook.refreshVariableView",
                     "when": "view == ballerinaViewVariables",
+                    "group": "navigation"
+                },
+                {
+                    "command": "BI.test.add.function",
+                    "when": "view == workbench.view.testing",
                     "group": "navigation"
                 }
             ],
             "editor/title": [
                 {
-                    "command": "kolab.project.run",
+                    "command": "ballerina.project.run",
                     "group": "navigation@1",
                     "title": "Run project in terminal",
                     "when": "resourceLangId == ballerina || isBallerinaDiagram"
                 },
                 {
-                    "command": "kolab.project.run.config",
+                    "command": "ballerina.tryit",
+                    "group": "navigation@1",
+                    "title": "Open Try It",
+                    "when": "isBIProjectRunning"
+                },
+                {
+                    "command": "ballerina.project.run.config",
                     "group": "navigation@1",
                     "title": "Run project in terminal",
                     "when": "resourceLangId == toml && isBallerinaProject"
                 },
                 {
-                    "command": "kolab.source.debug",
+                    "command": "ballerina.source.debug",
                     "group": "navigation@2",
                     "title": "Debug project in terminal",
                     "when": "resourceLangId == ballerina"
                 },
                 {
                     "when": "resourceLangId == ballerina && !isPersistModelActive",
-                    "command": "kolab.show.visualizer",
+                    "command": "ballerina.show.visualizer",
                     "group": "navigation@3"
                 },
                 {
                     "when": "resourceLangId == ballerina && isPersistModelActive",
-                    "command": "kolab.view.entityDiagram",
+                    "command": "ballerina.view.entityDiagram",
                     "group": "navigation@3"
                 },
                 {
                     "when": "isBallerinaDiagram",
-                    "command": "kolab.show.source",
+                    "command": "ballerina.show.source",
                     "group": "navigation@4"
                 },
                 {
                     "when": "isBalVisualizerActive && showBalGoToSource",
-                    "command": "kolab.show.source",
-                    "group": "navigation@3",
+                    "command": "ballerina.show.source",
+                    "group": "navigation@4",
                     "title": "Show Source"
                 },
                 {
-                    "command": "kolab.open.ai.panel",
+                    "command": "ballerina.open.ai.panel",
                     "group": "navigation@1",
                     "when": "resourceLangId == ballerina || isBallerinaDiagram || (isBalVisualizerActive && isBIProject)",
                     "title": "Open AI Panel"
                 },
                 {
                     "command": "BI.project.run",
-                    "group": "navigation@1",
-                    "title": "Run project",
+                    "group": "navigation@2",
+                    "title": "Run Integration",
+                    "when": "isBalVisualizerActive && isBIProject"
+                },
+                {
+                    "command": "BI.project.debug",
+                    "group": "navigation@3",
+                    "title": "Debug Integration",
                     "when": "isBalVisualizerActive && isBIProject"
                 }
             ],
             "notebook/toolbar": [
                 {
-                    "command": "kolab.notebook.restartNotebook",
+                    "command": "ballerina.notebook.restartNotebook",
                     "title": "Restart Notebook",
                     "group": "navigation@1",
-                    "when": "notebookType == 'kolab-notebook'"
+                    "when": "notebookType == 'ballerina-notebook'"
                 },
                 {
-                    "command": "kolab.notebook.openVariableView",
+                    "command": "ballerina.notebook.openVariableView",
                     "title": "Variables",
                     "group": "navigation@2",
-                    "when": "notebookType == 'kolab-notebook'"
+                    "when": "notebookType == 'ballerina-notebook'"
                 },
                 {
-                    "command": "kolab.notebook.openOutlineView",
+                    "command": "ballerina.notebook.openOutlineView",
                     "title": "Outline",
                     "group": "navigation@3",
-                    "when": "notebookType == 'kolab-notebook'"
+                    "when": "notebookType == 'ballerina-notebook'"
                 }
             ],
             "notebook/cell/execute": [
                 {
-                    "command": "kolab.notebook.debug",
+                    "command": "ballerina.notebook.debug",
                     "title": "Debug",
                     "group": "navigation@1",
-                    "when": "notebookType == 'kolab-notebook' && isNotebookDebugModeEnabled"
+                    "when": "notebookType == 'ballerina-notebook' && isNotebookDebugModeEnabled"
                 }
             ],
             "explorer/context": [
                 {
-                    "command": "kolab.project.run",
+                    "command": "ballerina.project.run",
                     "group": "Ballerina",
                     "when": "resourceLangId == ballerina"
                 }
             ],
             "commandPalette": [
                 {
-                    "command": "kolab.new.module",
+                    "command": "ballerina.new.module",
                     "when": "editorLangId != ballerina && !isBallerinaDiagram"
                 },
                 {
-                    "command": "kolab.show.source",
+                    "command": "ballerina.show.source",
                     "when": "editorLangId != ballerina && !isBallerinaDiagram"
                 },
                 {
-                    "command": "kolab.show.visualizer",
+                    "command": "ballerina.show.visualizer",
                     "when": "editorLangId == ballerina"
                 },
                 {
-                    "command": "kolab.source.debug",
+                    "command": "ballerina.source.debug",
                     "when": "editorLangId != ballerina && !isBallerinaDiagram"
                 },
                 {
-                    "command": "kolab.notebook.createNotebook"
+                    "command": "ballerina.notebook.createNotebook"
                 },
                 {
-                    "command": "kolab.view.entityDiagram",
+                    "command": "ballerina.view.entityDiagram",
                     "when": "isPersistModelActive"
                 }
             ]
         },
         "notebooks": [
             {
-                "id": "kolab-notebook",
-                "type": "kolab-notebook",
+                "id": "ballerina-notebook",
+                "type": "ballerina-notebook",
                 "displayName": "Ballerina Notebook",
                 "selector": [
                     {
@@ -741,13 +886,13 @@
         ],
         "notebookRenderer": [
             {
-                "id": "kolab-notebook-renderer",
+                "id": "ballerina-notebook-renderer",
                 "displayName": "Ballerina Notebook Renderer",
                 "entrypoint": "resources/jslibs/NotebookRenderer.js",
                 "mimeTypes": [
-                    "kolab-notebook/json-view",
-                    "kolab-notebook/table-view",
-                    "kolab-notebook/xml-view"
+                    "ballerina-notebook/json-view",
+                    "ballerina-notebook/table-view",
+                    "ballerina-notebook/xml-view"
                 ]
             }
         ],
@@ -791,21 +936,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f139"
+                    "fontCharacter": "\\f16a"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1a8"
+                    "fontCharacter": "\\f1de"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f134"
+                    "fontCharacter": "\\f165"
                 }
             },
             "distro-source-view": {
@@ -819,7 +964,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f185"
+                    "fontCharacter": "\\f1b9"
                 }
             },
             "distro-cached-rounded": {
@@ -905,6 +1050,13 @@
                     "fontPath": "./resources/codicons/codicon.ttf",
                     "fontCharacter": "\\eaec"
                 }
+            },
+            "distro-switch-project": {
+                "description": "switch-project",
+                "default": {
+                    "fontPath": "./resources/codicons/codicon.ttf",
+                    "fontCharacter": "\\ea77"
+                }
             }
         },
         "uriHandler": {
@@ -931,7 +1083,7 @@
     },
     "main": "./dist/extension",
     "scripts": {
-        "clean": "del-cli ./dist ./out ./kolab-*.vsix ./coverage ./.nyc_output",
+        "clean": "del-cli ./dist ./out ./ballerina-*.vsix ./coverage ./.nyc_output",
         "compile": "webpack --mode production",
         "watch-ballerina": "webpack --mode none --watch",
         "test-compile": "tsc -p ./",
@@ -983,7 +1135,8 @@
         "vscode-test": "^1.6.1",
         "vscode-uri": "^3.0.8",
         "xml-js": "^1.6.11",
-        "xstate": "^4.38.3"
+        "xstate": "^4.38.3",
+        "uuid": "^11.1.0"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.20.1",

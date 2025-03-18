@@ -18,18 +18,24 @@ export * from "./interfaces/ballerina";
 export * from "./interfaces/bi";
 export * from "./interfaces/common";
 export * from "./interfaces/component";
+export * from "./interfaces/component-diagram";
 export * from "./interfaces/constants";
 export * from "./interfaces/config-spec";
 export * from "./interfaces/event";
 export * from "./interfaces/store";
 export * from "./interfaces/performance";
 export * from "./interfaces/extended-lang-client";
+export * from "./interfaces/service";
+export * from "./interfaces/inline-data-mapper";
 
 // ------ LS Utils -------->
 export * from "./ls-utils/WSConnection";
 export * from "./ls-utils/BallerinaLanguageClient";
 
 // ------ RPC interfaces -------->
+export * from "./rpc-types/ai-agent";
+export * from "./rpc-types/ai-agent/interfaces";
+export * from "./rpc-types/ai-agent/rpc-type";
 export * from "./rpc-types/bi-diagram";
 export * from "./rpc-types/bi-diagram/interfaces";
 export * from "./rpc-types/bi-diagram/rpc-type";
@@ -47,8 +53,6 @@ export * from "./rpc-types/graphql-designer/interfaces";
 export * from "./rpc-types/service-designer";
 export * from "./rpc-types/service-designer/rpc-type";
 export * from "./rpc-types/service-designer/interfaces";
-export * from "./rpc-types/trigger-wizard";
-export * from "./rpc-types/trigger-wizard/rpc-type";
 export * from "./rpc-types/visualizer";
 export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/visualizer/interfaces";
@@ -69,6 +73,14 @@ export * from "./rpc-types/ai-panel/interfaces";
 export * from "./rpc-types/inline-data-mapper";
 export * from "./rpc-types/inline-data-mapper/rpc-type";
 export * from "./rpc-types/inline-data-mapper/interfaces";
+export * from "./rpc-types/test-manager";
+export * from "./rpc-types/test-manager/rpc-type";
+export * from "./rpc-types/icp-service";
+export * from "./rpc-types/icp-service/rpc-type";
+export * from "./rpc-types/agent-chat";
+export * from "./rpc-types/agent-chat/interfaces";
+export * from "./rpc-types/agent-chat/rpc-type";
+
 
 // ------ History class and interface -------->
 export * from "./history";

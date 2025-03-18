@@ -245,11 +245,14 @@
      */
     "postRushBuild": [
       "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
+      "cd workspaces/wso2-platform/wso2-platform-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
       "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot"
+      "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/api-designer/api-designer-extension && pnpm run copyVSIXToRoot"
+
     ]
   },
   /**
@@ -438,6 +441,21 @@
       "versionPolicyName": "service-designer"
     },
     {
+      "packageName": "@wso2-enterprise/wso2-platform-core",
+      "projectFolder": "workspaces/wso2-platform/wso2-platform-core",
+      "versionPolicyName": "wso2-platform-extension"
+    },
+    {
+      "packageName": "wso2-platform",
+      "projectFolder": "workspaces/wso2-platform/wso2-platform-extension",
+      "versionPolicyName": "wso2-platform-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/wso2-platform-vscode-webviews",
+      "projectFolder": "workspaces/wso2-platform/wso2-platform-webviews",
+      "versionPolicyName": "wso2-platform-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/choreo-core",
       "projectFolder": "workspaces/choreo/choreo-core",
       "versionPolicyName": "choreo-extension"
@@ -548,11 +566,6 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/service-designer-view",
-      "projectFolder": "workspaces/ballerina/service-designer-view",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
       "packageName": "@wso2-enterprise/data-mapper-view",
       "projectFolder": "workspaces/ballerina/data-mapper-view",
       "versionPolicyName": "ballerina-extension"
@@ -578,7 +591,7 @@
     //   "versionPolicyName": "ballerina-extension"
     // },
     {
-      "packageName": "@wso2-enterprise/cell-diagram",
+      "packageName": "@wso2-enterprise/choreo-cell-diagram",
       "projectFolder": "workspaces/choreo/cell-diagram",
       "versionPolicyName": "choreo-extension"
     },
@@ -613,7 +626,7 @@
     //   "versionPolicyName": "ballerina-extension"
     // },
     {
-      "packageName": "kolab",
+      "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
       "versionPolicyName": "ballerina-extension"
     },
@@ -665,9 +678,9 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "kola-extension",
+      "packageName": "ballerina-integrator",
       "projectFolder": "workspaces/bi/bi-extension",
-      "versionPolicyName": "kola-extension"
+      "versionPolicyName": "ballerina-extension"
     },
     // {
     //   "packageName": "@wso2-enterprise/bi-diagram",
@@ -694,6 +707,10 @@
       "projectFolder": "workspaces/ballerina/component-diagram",
       "versionPolicyName": "ballerina-extension"
     },
+    {
+      "packageName": "@wso2-enterprise/mi-component-diagram",
+      "projectFolder": "workspaces/mi/mi-component-diagram"
+    },
     // {
     //   "packageName": "@wso2-enterprise/bi-overview",
     //   "projectFolder": "workspaces/bi/bi-overview",
@@ -705,9 +722,30 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/type-editor",
+      "projectFolder": "workspaces/ballerina/type-editor",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/ballerina-inline-data-mapper",
       "projectFolder": "workspaces/ballerina/inline-data-mapper",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "api-designer",
+      "projectFolder": "workspaces/api-designer/api-designer-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/api-designer-core",
+      "projectFolder": "workspaces/api-designer/api-designer-core"
+    },
+    {
+      "packageName": "@wso2-enterprise/api-designer-visualizer",
+      "projectFolder": "workspaces/api-designer/api-designer-visualizer"
+    },
+    {
+      "packageName": "@wso2-enterprise/api-designer-rpc-client",
+      "projectFolder": "workspaces/api-designer/api-designer-rpc-client"
     }
   ]
 }

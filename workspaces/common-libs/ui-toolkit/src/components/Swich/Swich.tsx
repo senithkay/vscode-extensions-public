@@ -86,8 +86,8 @@ export interface SwitchProps {
     className?: string;
     sx?: any;
     checked: boolean;
-    leftLabel: string;
-    rightLabel: string;
+    leftLabel: string|ReactNode;
+    rightLabel: string|ReactNode;
     checkedIcon?: ReactNode;
     uncheckedIcon?: ReactNode;
     checkedColor?: string;
@@ -97,7 +97,7 @@ export interface SwitchProps {
     onChange: () => void;
 }
 
-const getCheckedComponent = (text: string, icon: ReactNode, color: string, transitionEnabled: boolean) => {
+const getCheckedComponent = (text: string|ReactNode, icon: ReactNode, color: string, transitionEnabled: boolean) => {
     return (
         <InnerContainer active={true} color={color} enableTransition={transitionEnabled} >
             <Content>
@@ -114,7 +114,7 @@ const getCheckedComponent = (text: string, icon: ReactNode, color: string, trans
     );
 }
 
-const getUncheckedComponent = (text: string, icon: ReactNode) => {
+const getUncheckedComponent = (text: string|ReactNode, icon: ReactNode) => {
     return (
         <InnerContainer active={false}>
             <Content>

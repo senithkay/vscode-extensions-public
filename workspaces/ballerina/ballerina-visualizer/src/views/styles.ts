@@ -32,3 +32,11 @@ export const BodyTinyInfo = styled(Text)`
     font-size: 12px;
     letter-spacing: 0.39px;
 `;
+
+export const LoadingContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    flex-direction: column;
+`;

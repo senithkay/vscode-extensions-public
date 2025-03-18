@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 export interface RecordSTRequest {
     recordName: string;
@@ -88,3 +88,8 @@ export const responseCodes: ResponseCode[] = [
     { code: 510, title: "510 - Not Extended", source: "http:NotExtended" },
     { code: 511, title: "511 - Network Authentication Required", source: "http:NetworkAuthorizationRequired" }
 ]
+
+export interface SourceUpdateResponse {
+    position: NodePosition;
+    filePath: string;
+}

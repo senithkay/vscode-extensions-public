@@ -18,6 +18,7 @@ interface FormViewProps {
     children: React.ReactNode;
     onClose: () => void; // Added onClose prop
     hideClose?: boolean;
+    maxWidth?: string;
     sx?: any;
 }
 
@@ -33,7 +34,7 @@ const FormViewContainer = styled.div<FormViewContainerProps & { className?: stri
     ${(props: FormViewContainerProps) => props.sx};
 `;
 
-export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hideClose, sx }) => {
+export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hideClose, sx, maxWidth }) => {
     const [isScrolling, setIsScrolling] = useState(false);
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -46,7 +47,7 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
 
     return (
         <FormViewContainer onScroll={handleScroll} className="form-view" sx={sx}>
-            <div style={{ maxWidth: '52em', margin: '0 auto' }}>
+            <div style={{ maxWidth: maxWidth ?? '52em', margin: '0 auto' }}>
                 <div style={{ margin: '0 15px' }}>
                     <div style={{
                         position: 'sticky',
@@ -76,9 +77,10 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
 
 interface FormActionsProps {
     children?: React.ReactNode;
+    sx?: any;
 }
 
-export const FormActions: React.FC<FormActionsProps> = ({ children }) => {
+export const FormActions: React.FC<FormActionsProps> = ({ children, sx }) => {
     return (
         <div className="form-actions" style={{
             display: 'flex',
@@ -89,6 +91,7 @@ export const FormActions: React.FC<FormActionsProps> = ({ children }) => {
             zIndex: 1,
             backgroundColor: 'var(--background)',
             padding: '10px 0px',
+            ...sx,
         }}>
             {children}
         </div>
@@ -98,28 +101,38 @@ interface FormGroupProps {
     title: string;
     children?: React.ReactNode;
     isCollapsed?: boolean;
+    disableCollapse?: boolean;
+    onToggle?: (collapsed: boolean) => void;
+    sx?: any;
 }
 
-export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true }) => {
-    const [collapsed, setCollapsed] = useState(isCollapsed);
+export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true, disableCollapse = false, sx, onToggle }) => {
+    const [collapsed, setCollapsed] = useState(isCollapsed && !disableCollapse);
     
     useEffect(() => {
-        setCollapsed(isCollapsed);
-    }, [isCollapsed]);
+        setCollapsed(isCollapsed && !disableCollapse);
+    }, [isCollapsed, disableCollapse]);
 
-    const toggleCollapse = () => setCollapsed(!collapsed);
+    const toggleCollapse = () => {
+        if (onToggle) {
+            onToggle(!collapsed);
+        }
+        setCollapsed(!collapsed);
+    }
 
     return (
         <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={toggleCollapse}>
                 <Typography variant="h3" sx={{ margin: '0px' }}>{title}</Typography>
                 <hr style={{ flexGrow: 1, margin: '0 10px', borderColor: 'var(--vscode-editorIndentGuide-background)' }} />
-                <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
-                    <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />
-                </Button>
+                {!disableCollapse &&
+                    <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
+                        <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />
+                    </Button>
+                }
             </div>
             {!collapsed &&
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '15px 15px 25px 15px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '15px 15px 25px 15px', ...sx }}>
                     {children}
                 </div>
             }

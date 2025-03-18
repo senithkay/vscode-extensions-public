@@ -23,7 +23,7 @@ import {
 } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId, getRoundedOctagonSVG } from "../cell-util";
-import { CELL_LINE_MIN_WIDTH, MAIN_CELL } from "../../../resources";
+import { CELL_LINE_MIN_WIDTH, CELL_LINE_PREVIEW_WIDTH, ICON_SCALE, MAIN_CELL } from "../../../resources";
 import { GatewayIcon } from "../../../resources/assets/icons/GatewayIcon";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 
@@ -31,8 +31,10 @@ export const generateRoundedOctagonSVG = (diagramHeight: number, radiusMultiplie
     const sideLength = (diagramHeight * 4.14) / 10;
     const { width, height, path } = getRoundedOctagonSVG(sideLength, sideLength * radiusMultiplier);
     return (
-        <svg width={width} height={height} id={MAIN_CELL} transform={`rotate(${45 / 2})`}>
-            <path d={path} />
+        <svg width={width} height={height} id={MAIN_CELL}>
+            <g transform={`rotate(${45 / 2}, ${width/2}, ${height/2})`}>
+                <path d={path} />
+            </g>
         </svg>
     );
 };
@@ -45,7 +47,7 @@ interface CellWidgetProps {
 export function CellWidget(props: CellWidgetProps) {
     const { node, engine } = props;
 
-    const { zoomLevel } = useContext(DiagramContext);
+    const { zoomLevel, previewMode } = useContext(DiagramContext);
     const [cellHeight, setCellHeight] = useState<number>(node.width);
 
     useEffect(() => {
@@ -63,7 +65,8 @@ export function CellWidget(props: CellWidgetProps) {
         engine.repaintCanvas();
     };
 
-    const strokeWidth = node.getDynamicLineWidth(zoomLevel, CELL_LINE_MIN_WIDTH);
+    const strokeWidth = previewMode ? CELL_LINE_PREVIEW_WIDTH : node.getDynamicLineWidth(zoomLevel, CELL_LINE_MIN_WIDTH);
+    const transform = previewMode ? `scale(${ICON_SCALE.PREVIEW})` : "none";
 
     return (
         <CellNode height={cellHeight} borderWidth={strokeWidth}>
@@ -71,7 +74,7 @@ export function CellWidget(props: CellWidgetProps) {
 
             <TopPortCircle show={node.gateways.internet}>
                 <TopIconWrapper>
-                    <GatewayIcon />
+                    <GatewayIcon styles={{ transform }} />
                 </TopIconWrapper>
                 <CellPortWidget
                     port={node.getPort(getCellPortId(node.getID(), CellBounds.NorthBound, PortModelAlignment.TOP))}
@@ -85,7 +88,7 @@ export function CellWidget(props: CellWidgetProps) {
 
             <LeftPortCircle show={node.gateways.intranet}>
                 <IconWrapper>
-                    <GatewayIcon />
+                    <GatewayIcon styles={{ transform }}/>
                 </IconWrapper>
                 <CellPortWidget
                     port={node.getPort(getCellPortId(node.getID(), CellBounds.WestBound, PortModelAlignment.LEFT))}

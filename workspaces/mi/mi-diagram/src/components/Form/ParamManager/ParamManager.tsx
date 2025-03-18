@@ -19,6 +19,8 @@ import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
 import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { FilterType } from '../Keylookup/Keylookup';
 import { ResourceType } from "@wso2-enterprise/mi-core";
+import { Range } from 'vscode-languageserver-types';
+import { VSCodeColors } from '../../../resources/constants';
 
 export interface ParamValue {
     value: string | boolean | ExpressionFieldValue | ParamConfig;
@@ -51,17 +53,18 @@ export interface EnableCondition {
 
 export interface ParamField {
     id?: number;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager";
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager" | "ExprField";
     label?: string;
+    labelAdornment?: React.ReactNode;
     placeholder?: string;
-    defaultValue?: string | boolean;
+    defaultValue?: any;
     isRequired?: boolean;
     values?: string[]; // For Dropdown and AutoComplete
     nullable?: boolean;
     allowItemCreate?: boolean;
     noItemsFoundMessage?: string;
     enableCondition?: (ConditionParams | string | ConditionParams[])[];
-    openExpressionEditor?: () => void; // For ExpressionField
+    openExpressionEditor?: (value: ExpressionFieldValue, setValue: any) => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     filter?: (value: string) => boolean; // For KeyLookup
     filterType?: FilterType | ResourceType[]; // For KeyLookup
@@ -77,12 +80,19 @@ export interface ParamConfig {
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
     openInDrawer?: boolean;
+    allowDuplicates?: boolean;
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
     addParamText?: string;
     allowAddItem?: boolean;
     errorMessage?: string;
+    nodeRange?: Range;
+    sx?: any;
 }
+
+const ParamManagerWrapper = styled.div< { sx: any }>`
+    ${(props: { sx: any }) => props.sx}
+`;
 
 const AddButtonWrapper = styled.div`
 	margin: 8px 0;
@@ -227,6 +237,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
         paramInfo.push({
             id: index,
             label: field.label,
+            labelAdornment: field.labelAdornment,
             type: field.type,
             value: field.defaultValue || field?.paramManager?.paramConfigs,
             values: field.values,
@@ -259,6 +270,11 @@ export function findFieldFromParam(field: ParamField[], value: Param): ParamFiel
 export const getParamFieldLabelFromParamId = (paramFields: ParamField[], paramId: number) => {
     const paramField = paramFields[paramId];
     return paramField?.label;
+}
+
+export const getParamFieldLabelAdornmentFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.labelAdornment;
 }
 
 export const getParamFieldPlaceholderFromParamId = (paramFields: ParamField[], paramId: number) => {
@@ -339,11 +355,12 @@ const getAddParamTextFromParamId = (paramFields: ParamField[], paramId: number) 
 
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs, readonly, openInDrawer,
-        addParamText = "Add Parameter", onChange, allowAddItem = true, errorMessage
+        addParamText = "Add Parameter", onChange, allowAddItem = true, errorMessage, nodeRange, sx, allowDuplicates = true
     } = props;
 
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
+    const [fieldErrorMessage, setFieldErrorMessage] = useState("");
 
     const onEdit = (param: Parameters) => {
         setEditingSegmentId(param.id);
@@ -355,6 +372,7 @@ export function ParamManager(props: ParamManagerProps) {
             const param: Param = {
                 id: id,
                 label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
+                labelAdornment: getParamFieldLabelAdornmentFromParamId(paramConfigs.paramFields, id),
                 type,
                 placeholder: getParamFieldPlaceholderFromParamId(paramConfigs.paramFields, id),
                 value: paramVal.value,
@@ -373,6 +391,7 @@ export function ParamManager(props: ParamManagerProps) {
                 artifactTypes: geArtifactTypeParamFromParamId(paramConfigs.paramFields, id),
                 openInDrawer: getPramOpenInDrawerFromParamId(paramConfigs.paramFields, id),
                 addParamText: getAddParamTextFromParamId(paramConfigs.paramFields, id),
+                nodeRange,
                 ...(type === 'ParamManager') && { paramFields: paramConfigs.paramFields[id].paramManager.paramConfigs.paramFields }
             };
             return param;
@@ -434,6 +453,17 @@ export function ParamManager(props: ParamManagerProps) {
                 paramValues: paramValues
             };
         }
+        if (!allowDuplicates) {
+            const paramKeys = updatedParameters.map(param => {
+                return param?.paramValues[0]?.value;
+            });
+            const hasUniqueKeys = new Set(paramKeys).size === paramKeys.length;
+            if (!hasUniqueKeys) {
+                setFieldErrorMessage("Key should be unique");
+            } else {
+                setFieldErrorMessage("");
+            }
+        }
         onChange({ ...paramConfigs, paramValues: updatedParameters });
     };
 
@@ -471,6 +501,7 @@ export function ParamManager(props: ParamManagerProps) {
                 paramComponents.push(
                     <ParamEditor
                         openInDrawer={openInDrawer}
+                        errorMessage={fieldErrorMessage}
                         parameters={param}
                         paramFields={paramConfigs.paramFields}
                         isTypeReadOnly={false}
@@ -497,7 +528,7 @@ export function ParamManager(props: ParamManagerProps) {
         });
 
     return (
-        <div>
+        <ParamManagerWrapper sx={sx}>
             {paramComponents}
             {(editingSegmentId === -1 && allowAddItem) && (
                 <AddButtonWrapper>
@@ -514,9 +545,9 @@ export function ParamManager(props: ParamManagerProps) {
                             {addParamText}
                         </div>
                     </LinkButton>
-                    {errorMessage && <Typography variant='body1' sx={{ color: "var(--vscode-errorForeground)" }}>{errorMessage}</Typography>}
+                    {errorMessage && <Typography variant='body1' sx={{ color: VSCodeColors.ERROR }}>{errorMessage}</Typography>}
                 </AddButtonWrapper>
             )}
-        </div>
+        </ParamManagerWrapper>
     );
 }

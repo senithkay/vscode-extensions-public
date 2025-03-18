@@ -13,9 +13,9 @@ import { URI, Utils } from "vscode-uri";
 import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
-import { Colors } from "./resources/constants";
 import { ThemeColors, Overlay } from "@wso2-enterprise/ui-toolkit";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
+import { FunctionForm } from "./views/BI";
 
 const ViewContainer = styled.div`
     position: fixed;
@@ -23,8 +23,8 @@ const ViewContainer = styled.div`
     right: 0;
     width: 400px;
     height: 100%;
-    z-index: 3000;
-    background-color: ${Colors.SURFACE_BRIGHT};
+    z-index: 2000;
+    background-color: ${ThemeColors.SURFACE_BRIGHT};
 `;
 
 const TopBar = styled.div`
@@ -61,10 +61,7 @@ const PopupPanel = (props: PopupPanelProps) => {
                     rpcClient.getVisualizerLocation().then((location) => {
                         setViewComponent(
                             <AddConnectionWizard
-                                fileName={
-                                    location.documentUri ||
-                                    Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath
-                                }
+                                fileName={location.documentUri || location.projectUri}
                                 target={machineState.metadata?.target || undefined}
                                 onClose={onClose}
                             />
@@ -76,13 +73,22 @@ const PopupPanel = (props: PopupPanelProps) => {
                         setViewComponent(
                             <>
                                 <EditConnectionWizard
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath}
+                                    fileName={location.documentUri || location.projectUri}
                                     connectionName={machineState?.identifier}
                                     onClose={onClose}
                                 />
-                                <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3` }} />
+                                <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
                             </>
                         );
+                    });
+                    break;
+                case MACHINE_VIEW.BIFunctionForm:
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        let defaultFunctionsFile = Utils.joinPath(URI.file(location.projectUri), 'functions.bal').fsPath;
+                        if (location.documentUri) {
+                            defaultFunctionsFile = location.documentUri
+                        }
+                        setViewComponent(<FunctionForm projectPath={location.projectUri} filePath={defaultFunctionsFile} functionName={location?.identifier} />);
                     });
                     break;
                 default:

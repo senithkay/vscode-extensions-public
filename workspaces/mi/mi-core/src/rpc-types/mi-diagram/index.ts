@@ -87,6 +87,8 @@ import {
     GetProjectUuidResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse,
     CreateDataServiceRequest,
     CreateDataServiceResponse,
     CreateDssDataSourceRequest,
@@ -155,6 +157,8 @@ import {
     GetConnectorConnectionsResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
     GetConnectionFormRequest,
@@ -174,7 +178,6 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
-    UpdateDependencyInPomRequest,
     SwaggerFromAPIResponse,
     StoreConnectorJsonResponse,
     OpenDependencyPomRequest,
@@ -198,7 +201,41 @@ import {
     DriverPathResponse,
     AddDriverToLibRequest,
     AddDriverToLibResponse,
-    APIContextsResponse
+    APIContextsResponse,
+    MediatorTryOutRequest,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadsRequest,
+    GetPayloadsResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    UpdateMediatorRequest,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse,
+    RemoveConnectorRequest,
+    RemoveConnectorResponse,
+    GetHelperPaneInfoRequest,
+    GetHelperPaneInfoResponse,
+    TestConnectorConnectionRequest,
+    TestConnectorConnectionResponse,
+    MiVersionResponse,
+    SaveConfigRequest,
+    SaveConfigResponse,
+    CheckDBDriverResponse,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    GetArtifactTypeRequest,
+    GetArtifactTypeResponse,
+    LocalInboundConnectorsResponse,
+    BuildProjectRequest,
+    DeployProjectRequest,
+    DeployProjectResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -262,6 +299,7 @@ export interface MiDiagramAPI {
     askProjectDirPath: () => Promise<ProjectDirResponse>;
     askProjectImportDirPath: () => Promise<ProjectDirResponse>;
     askFileDirPath: () => Promise<FileDirResponse>;
+    askOpenAPIDirPath: () => Promise<FileDirResponse>;
     createProject: (params: CreateProjectRequest) => Promise<CreateProjectResponse>;
     importProject: (params: ImportProjectRequest) => Promise<ImportProjectResponse>;
     migrateProject: (params: MigrateProjectRequest) => Promise<MigrateProjectResponse>;
@@ -280,6 +318,8 @@ export interface MiDiagramAPI {
     createRegistryResource: (params: CreateRegistryResourceRequest) => Promise<CreateRegistryResourceResponse>;
     getAvailableResources: (params: GetAvailableResourcesRequest) => Promise<GetAvailableResourcesResponse>;
     createClassMediator: (params: CreateClassMediatorRequest) => Promise<CreateClassMediatorResponse>;
+    createBallerinaModule: (params: CreateBallerinaModuleRequest) => Promise<CreateBallerinaModuleResponse>;
+    buildBallerinaModule: (projectPath: string) => Promise<void>;
     getSelectiveWorkspaceContext: () => Promise<GetSelectiveWorkspaceContextResponse>;
     getSelectiveArtifacts: (params: GetSelectiveArtifactsRequest) => Promise<GetSelectiveArtifactsResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
@@ -288,9 +328,13 @@ export interface MiDiagramAPI {
     getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
+    copyConnectorZip: (params: CopyConnectorZipRequest) => Promise<CopyConnectorZipResponse>;
+    copyArtifact: (params: CopyArtifactRequest) => Promise<CopyArtifactResponse>;
+    askImportFileDir: () => Promise<FileDirResponse>;
     downloadInboundConnector: (params: DownloadInboundConnectorRequest) => Promise<DownloadInboundConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
+    removeConnector: (params: RemoveConnectorRequest) => Promise<RemoveConnectorResponse>;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
@@ -304,10 +348,14 @@ export interface MiDiagramAPI {
     getConnectorConnections: (params: GetConnectorConnectionsRequest) => Promise<GetConnectorConnectionsResponse>;
     logoutFromMIAccount: () => void;
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
+    getAllResourcePaths: () => Promise<GetAllResourcePathsResponse>;
+    getConfigurableEntries: () => Promise<GetConfigurableEntriesResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
+    getArtifactType: (params: GetArtifactTypeRequest) => Promise<GetArtifactTypeResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
     getAllAPIcontexts: () => Promise<APIContextsResponse>;
-    buildProject: () => void;
+    buildProject: (params: BuildProjectRequest) => void;
+    deployProject: (params: DeployProjectRequest) => Promise<DeployProjectResponse>;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
@@ -321,7 +369,6 @@ export interface MiDiagramAPI {
     updateMockService: (params: UpdateMockServiceRequest) => Promise<UpdateMockServiceResponse>;
     getAllTestSuites: () => Promise<GetAllTestSuitsResponse>;
     getAllMockServices: () => Promise<GetAllMockServicesResponse>;
-    updateDependencyInPom: (params: UpdateDependencyInPomRequest) => Promise<void>;
     openDependencyPom: (params: OpenDependencyPomRequest) => Promise<void>;
     getAllDependencies: (params: getAllDependenciesRequest) => Promise<GetAllDependenciesResponse>;
     testDbConnection: (params: TestDbConnectionRequest) => Promise<TestDbConnectionResponse>;
@@ -329,8 +376,25 @@ export interface MiDiagramAPI {
     getSubFolderNames: (path: GetSubFoldersRequest) => Promise<GetSubFoldersResponse>;
     renameFile: (params: FileRenameRequest) => Promise<void>;
     openUpdateExtensionPage: () => void;
-    checkDBDriver: (className: string) => Promise<boolean>;
+    checkDBDriver: (className: string) => Promise<CheckDBDriverResponse>;
     addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
+    removeDBDriver: (params: AddDriverRequest) => Promise<boolean>;
+    modifyDBDriver: (params: AddDriverRequest) => Promise<boolean>;
     generateDSSQueries: (params: ExtendedDSSQueryGenRequest) => Promise<boolean>;
     fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
+    tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
+    shutDownTryoutServer: () => Promise<boolean>;
+    getMIVersionFromPom: () => Promise<MiVersionResponse>;
+    saveInputPayload: (params: SavePayloadRequest) => Promise<boolean>;
+    getInputPayloads: (params: GetPayloadsRequest) => Promise<GetPayloadsResponse>;
+    getMediatorInputOutputSchema: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
+    getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
+    getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
+    updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
+    getLocalInboundConnectors: () => Promise<LocalInboundConnectorsResponse>;
+    getConnectionSchema: (param: GetConnectionSchemaRequest) => Promise<GetConnectionSchemaResponse>;
+    getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
+    getHelperPaneInfo: (params: GetHelperPaneInfoRequest) => Promise<GetHelperPaneInfoResponse>;
+    testConnectorConnection: (params: TestConnectorConnectionRequest) => Promise<TestConnectorConnectionResponse>;
+    saveConfig: (params: SaveConfigRequest) => Promise<SaveConfigResponse>;
 }

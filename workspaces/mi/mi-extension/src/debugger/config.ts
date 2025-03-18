@@ -19,6 +19,8 @@ export class DebuggerConfig {
     private static host: string = 'localhost';
     private static internalOffset = 10;
     private static envVariables: { [key: string]: string } = {};
+    private static vmArgs: string[] = [];
+    private static vmArgsPortOffset: number = 0;
 
     //Capps and Libs copied to the MI server
     private static copiedCappUri: string[] = [];
@@ -81,6 +83,9 @@ export class DebuggerConfig {
     }
 
     public static getServerPort(): number {
+        if (this.vmArgsPortOffset !== 0) {
+            return this.baseServerPort + this.vmArgsPortOffset - this.internalOffset;
+        }
         if (this.portOffset !== undefined) {
             return this.baseServerPort + this.portOffset - this.internalOffset;
         }
@@ -88,6 +93,9 @@ export class DebuggerConfig {
     }
 
     public static getServerReadinessPort(): number {
+        if (this.vmArgsPortOffset !== 0) {
+            return this.serverReadinessPort + this.vmArgsPortOffset - this.internalOffset;
+        }
         if (this.portOffset !== undefined) {
             return this.serverReadinessPort + this.portOffset - this.internalOffset;
         }
@@ -95,6 +103,9 @@ export class DebuggerConfig {
     }
 
     public static getManagementPort(): number {
+        if (this.vmArgsPortOffset !== 0) {
+            return this.managementPort + this.vmArgsPortOffset - this.internalOffset;
+        }
         if (this.portOffset !== undefined) {
             return this.managementPort + this.portOffset - this.internalOffset;
         }
@@ -119,5 +130,18 @@ export class DebuggerConfig {
 
     public static setManagementPassword(password: string): void {
         this.managementPassword = password;
+    }
+    public static getVmArgs(): string[] {
+        return this.vmArgs;
+    }
+
+    public static setVmArgs(vmArgs: string[]): void {
+        this.vmArgs = vmArgs;
+        for (const arg of this.vmArgs) {
+            const match = arg.match(/-DportOffset=(\d+)/);
+            if (match) {
+                this.vmArgsPortOffset = parseInt(match[1]);
+            }
+        }
     }
 }

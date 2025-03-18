@@ -7,61 +7,48 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { FormField } from '../Form/types';
-import { Control, Controller, FieldValues, UseFormClearErrors, UseFormSetError, UseFormWatch } from 'react-hook-form';
-import { Button, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
-import { useMutation } from '@tanstack/react-query';
-import styled from '@emotion/styled';
-import { useFormContext } from '../../context';
-import { ConfigurePanelData, LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
 import { debounce } from 'lodash';
-import { Colors } from '../../resources/constants';
-import { sanitizeType } from './utils';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
+import styled from '@emotion/styled';
+import {
+    Button,
+    CompletionItem,
+    ErrorBanner,
+    FormExpressionEditor,
+    FormExpressionEditorRef,
+    HelperPaneHeight,
+    RequiredFormInput,
+    ThemeColors
+} from '@wso2-enterprise/ui-toolkit';
+import { getPropertyFromFormField, sanitizeType } from './utils';
+import { FormField, FormExpressionEditorProps } from '../Form/types';
+import { useFormContext } from '../../context';
+import {
+    LineRange,
+    RecordTypeField,
+    SubPanel,
+    SubPanelView,
+    SubPanelViewProps
+} from '@wso2-enterprise/ballerina-core';
 
-type ContextAwareExpressionEditorProps = {
+export type ContextAwareExpressionEditorProps = {
     field: FormField;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
-}
-
-type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
-    control: Control<FieldValues, any>;
-    watch: UseFormWatch<any>;
-    setError: UseFormSetError<FieldValues>;
-    clearErrors: UseFormClearErrors<FieldValues>;
-    completions: CompletionItem[];
-    triggerCharacters?: readonly string[];
-    autoFocus?: boolean;
-    retrieveCompletions?: (
-        value: string,
-        offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
-    ) => Promise<void>;
-    extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
-        label: string;
-        args: string[];
-        currentArgIndex: number;
-    }>;
-    getExpressionDiagnostics?: (
-        showDiagnostics: boolean,
-        expression: string,
-        key: string,
-        setError: UseFormSetError<FieldValues>,
-        clearErrors: UseFormClearErrors<FieldValues>
-    ) => Promise<void>;
-    onFocus?: () => void | Promise<void>;
-    onBlur?: () => void | Promise<void>;
-    onCompletionSelect?: (value: string) => void | Promise<void>;
-    onSave?: (value: string) => void | Promise<void>;
-    onCancel: () => void;
-    onRemove?: () => void;
-    targetLineRange?: LineRange;
-    fileName: string;
+    visualizable?: boolean;
+    recordTypeField?: RecordTypeField;
 };
+
+type ExpressionEditorProps = ContextAwareExpressionEditorProps &
+    FormExpressionEditorProps & {
+        control: Control<FieldValues, any>;
+        watch: UseFormWatch<any>;
+        targetLineRange?: LineRange;
+        fileName: string;
+    };
 
 export namespace S {
     export const Container = styled.div({
@@ -69,7 +56,7 @@ export namespace S {
         display: 'flex',
         flexDirection: 'column',
         gap: '4px',
-        fontFamily: 'var(--font-family)',
+        fontFamily: 'var(--font-family)'
     });
 
     export const TitleContainer = styled.div`
@@ -80,26 +67,26 @@ export namespace S {
 
     export const LabelContainer = styled.div({
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'center'
     });
 
     export const HeaderContainer = styled.div({
         display: 'flex',
         alignItems: 'flex-end',
-        justifyContent: 'space-between',
+        justifyContent: 'space-between'
     });
 
     export const Header = styled.div({
         display: 'flex',
         flexDirection: 'column',
-        gap: '4px',
+        gap: '4px'
     });
 
     export const Type = styled.div<{ isVisible: boolean }>(({ isVisible }) => ({
-        color: Colors.PRIMARY,
+        color: ThemeColors.PRIMARY,
         fontFamily: 'monospace',
         fontSize: '12px',
-        border: `1px solid ${Colors.PRIMARY}`,
+        border: `1px solid ${ThemeColors.PRIMARY}`,
         borderRadius: '999px',
         padding: '2px 8px',
         display: 'inline-block',
@@ -122,114 +109,130 @@ export namespace S {
 
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
-        textTransform: 'capitalize',
+        textTransform: 'capitalize'
     });
 
     export const Description = styled.div({
-        color: 'var(--vscode-list-deemphasizedForeground)',
+        color: 'var(--vscode-list-deemphasizedForeground)'
     });
 
-    export const EndAdornment = styled(Button)`
-        & > vscode-button {
-            color: var(--vscode-button-secondaryForeground);
-            font-size: 10px;
-        }
-    `;
-
-    export const EndAdornmentText = styled.p`
+    export const DataMapperBtnTxt = styled.p`
         font-size: 10px;
         margin: 0;
+        color: var(--vscode-button-background);
+    `;
+
+    export const AddNewButton = styled(Button)`
+        & > vscode-button {
+            color: var(--vscode-textLink-activeForeground);
+            border-radius: 0px;
+            padding: 3px 5px;
+            margin-top: 4px;
+        }
+        & > vscode-button > * {
+            margin-right: 6px;
+        }
     `;
 }
 
-export const ContextAwareExpressionEditor = forwardRef<ExpressionBarRef, ContextAwareExpressionEditorProps>((props, ref) => {
-    const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
+export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, ContextAwareExpressionEditorProps>(
+    (props, ref) => {
+        const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
 
-    return (
-        <ExpressionEditor
-            ref={ref}
-            fileName={fileName}
-            {...targetLineRange}
-            {...props}
-            {...form}
-            {...expressionEditor}
-        />
-    );
-});
+        return (
+            <ExpressionEditor
+                ref={ref}
+                fileName={fileName}
+                {...targetLineRange}
+                {...props}
+                {...form}
+                {...expressionEditor}
+            />
+        );
+    }
+);
 
-export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorProps>((props, ref) => {
+export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEditorProps>((props, ref) => {
     const {
+        autoFocus,
         control,
         field,
         watch,
-        setError,
-        clearErrors,
         completions,
         triggerCharacters,
         retrieveCompletions,
         extractArgsFromFunction,
-        getExpressionDiagnostics,
+        getExpressionEditorDiagnostics,
+        getHelperPane,
         onFocus,
         onBlur,
-        onCompletionSelect,
+        onCompletionItemSelect,
         onSave,
         onCancel,
         onRemove,
         openSubPanel,
-        isActiveSubPanel,
+        handleOnFieldFocus,
+        subPanelView,
         targetLineRange,
         fileName,
-        handleOnFieldFocus,
-        autoFocus
+        visualizable,
+        helperPaneOrigin,
+        helperPaneHeight,
+        recordTypeField,
+        rawExpression, // original expression
+        sanitizedExpression // sanitized expression that will be rendered in the editor
     } = props as ExpressionEditorProps;
-    const [focused, setFocused] = useState(false);
-    
+    const [focused, setFocused] = useState<boolean>(false);
+
     // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
     const { targetLineRange: contextTargetLineRange, fileName: contextFileName } = useFormContext();
     const effectiveTargetLineRange = targetLineRange ?? contextTargetLineRange;
     const effectiveFileName = fileName ?? contextFileName;
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
+    /* Define state to retrieve helper pane data */
+
+    const exprRef = useRef<FormExpressionEditorRef>(null);
+    const anchorRef = useRef<HTMLDivElement>(null);
 
     // Use to fetch initial diagnostics
     const fetchInitialDiagnostics = useRef<boolean>(true);
-    const fieldValue = watch(field.key);
+    const fieldValue = rawExpression ? rawExpression(watch(field.key)) : watch(field.key);
 
     useImperativeHandle(ref, () => exprRef.current);
 
     // Initial render
     useEffect(() => {
         // Fetch initial diagnostics
-        if (fieldValue !== undefined && fetchInitialDiagnostics.current) {
+        if (getExpressionEditorDiagnostics && fieldValue !== undefined && fetchInitialDiagnostics.current) {
             fetchInitialDiagnostics.current = false;
-            getExpressionDiagnostics(
-                !field.optional || fieldValue !== "",
+            getExpressionEditorDiagnostics(
+                !field.optional || fieldValue !== '',
                 fieldValue,
                 field.key,
-                setError,
-                clearErrors
+                getPropertyFromFormField(field)
             );
         }
     }, [fieldValue]);
 
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
-    // Use to disable the expression editor on save and completion selection
-    const useTransaction = (fn: (...args: any[]) => Promise<any>) => {
-        return useMutation({
-            mutationFn: fn,
-            networkMode: 'always',
-        });
-    };
-
-    const handleFocus = async (value?: string) => {
-        // Retrieve the cursor position from the expression editor
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-
+    const handleFocus = async () => {
         setFocused(true);
+
+        // Retrive completions
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+        cursorPositionRef.current = cursorPosition;
+        const triggerCharacter =
+            cursorPosition > 0 ? triggerCharacters.find((char) => fieldValue[cursorPosition - 1] === char) : undefined;
+        if (triggerCharacter) {
+            await retrieveCompletions(fieldValue, getPropertyFromFormField(field), cursorPosition, triggerCharacter);
+        } else {
+            await retrieveCompletions(fieldValue, getPropertyFromFormField(field), cursorPosition);
+        }
+
         // Trigger actions on focus
         await onFocus?.();
-        await retrieveCompletions(value, cursorPosition, undefined, true);
         handleOnFieldFocus?.(field.key);
     };
 
@@ -242,9 +245,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         cursorPositionRef.current = undefined;
     };
 
-    const handleCompletionSelect = async (value: string) => {
+    const handleCompletionSelect = async (value: string, item: CompletionItem) => {
         // Trigger actions on completion select
-        await onCompletionSelect?.(value);
+        await onCompletionItemSelect?.(value, item.additionalTextEdits);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -258,77 +261,67 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         });
     };
 
-    const endAdornment: InputProps = {
-        endAdornment: (
-            <S.EndAdornment
-                appearance="icon"
-                tooltip="Create using Data Mapper"
-                onClick={() => handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-                    // TODO: get filePath and range from getFlowModel API
-                    filePath: "path/to/file",
-                    range: {
-                        start: { line: 0, character: 0 },
-                        end: { line: 0, character: 0 },
-                    }
-                }})}
-                disabled={true} // TODO: enable when file path and range are available
-            >
-                <S.EndAdornmentText>DM</S.EndAdornmentText>
-            </S.EndAdornment>
-        )
-    };
-
-    const handleHelperPaneOpen = () => {
-        if (effectiveTargetLineRange && effectiveFileName) {
-            const subPanelProps: SubPanelViewProps = {
-                sidePanelData: {
+    const handleInlineDataMapperOpen = (isUpdate: boolean) => {
+        if (subPanelView === SubPanelView.INLINE_DATA_MAPPER && !isUpdate) {
+            openSubPanel({ view: SubPanelView.UNDEFINED });
+        } else {
+            handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, {
+                inlineDataMapper: {
                     filePath: effectiveFileName,
-                    range: {
-                        startLine: effectiveTargetLineRange.startLine,
-                        endLine: effectiveTargetLineRange.endLine,
+                    flowNode: undefined, // This will be updated in the Form component
+                    position: {
+                        line: effectiveTargetLineRange.startLine.line,
+                        offset: effectiveTargetLineRange.startLine.offset
                     },
+                    propertyKey: field.key,
                     editorKey: field.key
                 }
-            };
-            if (field.type === 'RECORD_EXPRESSION') { // TODO: update the type based on the LS API
-                const configurePanelData: ConfigurePanelData = {
-                    isEnable: true,
-                    name: field.label,
-                    documentation: field.documentation,
-                    value: field.value
-                };
-                subPanelProps.sidePanelData.configurePanelData = configurePanelData;
-            }
-
-            handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
+            });
             handleOnFieldFocus?.(field.key);
         }
     };
 
-    const updateSubPanelData = (value: string) => {
-        if (isActiveSubPanel && effectiveTargetLineRange && effectiveFileName && field.type === 'RECORD_EXPRESSION') {
-            const subPanelProps: SubPanelViewProps = {
-                sidePanelData: {
-                    filePath: effectiveFileName,
-                    range: {
-                        startLine: effectiveTargetLineRange.startLine,
-                        endLine: effectiveTargetLineRange.endLine,
-                    },
-                    editorKey: field.key,
-                    configurePanelData: {
-                        isEnable: true,
-                        name: field.label,
-                        documentation: field.documentation,
-                        value: value
-                    }
-                }
-            };
 
-            handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
-        };
+    const handleChangeHelperPaneState = (isOpen: boolean) => {
+        setIsHelperPaneOpen(isOpen);
+    };
+
+    const handleGetHelperPane = (
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        helperPaneHeight: HelperPaneHeight
+    ) => {
+        return getHelperPane?.(
+            exprRef,
+            anchorRef,
+            field.placeholder,
+            value,
+            onChange,
+            handleChangeHelperPaneState,
+            helperPaneHeight,
+            recordTypeField
+        );
+    };
+
+    const updateSubPanelData = (value: string) => {
+        if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+            handleInlineDataMapperOpen(true);
+        }
+    };
+
+    const handleExtractArgsFromFunction = async (value: string, cursorPosition: number) => {
+        return await extractArgsFromFunction(value, getPropertyFromFormField(field), cursorPosition);
     };
 
     const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
+
+    const codeActions = [
+        visualizable && (
+            <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
+                <S.DataMapperBtnTxt>Map Data Inline</S.DataMapperBtnTxt>
+            </Button>
+        )
+    ];
 
     return (
         <S.Container>
@@ -340,7 +333,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     </S.LabelContainer>
                     <S.Description>{field.documentation}</S.Description>
                 </S.Header>
-                {field.valueType && <S.Type isVisible={focused} title={field.valueType}>{sanitizeType(field.valueType)}</S.Type>}
+                {field.valueTypeConstraint && (
+                    <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
+                        {sanitizeType(field.valueTypeConstraint as string)}
+                    </S.Type>
+                )}
             </S.HeaderContainer>
             <Controller
                 control={control}
@@ -348,50 +345,65 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                 rules={{ required: !field.optional && !field.placeholder }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
-                        <ExpressionBar
+                        <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
+                            anchorRef={anchorRef}
                             name={name}
                             completions={completions}
-                            value={value}
-                            autoFocus={props.autoFocus}
-                            onChange={async (value: string, updatedCursorPosition: number) => {
-                                onChange(value);
-                                debouncedUpdateSubPanelData(value);
+                            value={sanitizedExpression ? sanitizedExpression(value) : value}
+                            autoFocus={autoFocus}
+                            onChange={async (newValue: string, updatedCursorPosition: number) => {
+                                const rawValue = rawExpression ? rawExpression(newValue) : newValue;
+                                onChange(rawValue);
+                                debouncedUpdateSubPanelData(rawValue);
+                                cursorPositionRef.current = updatedCursorPosition;
 
-                                getExpressionDiagnostics(
-                                    !field.optional || value !== "",
-                                    value,
-                                    field.key,
-                                    setError,
-                                    clearErrors
-                                );
+                                if (getExpressionEditorDiagnostics) {
+                                    getExpressionEditorDiagnostics(
+                                        !field.optional || rawValue !== '',
+                                        rawValue,
+                                        field.key,
+                                        getPropertyFromFormField(field)
+                                    );
+                                }
 
                                 // Check if the current character is a trigger character
-                                cursorPositionRef.current = updatedCursorPosition;
                                 const triggerCharacter =
                                     updatedCursorPosition > 0
-                                        ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
+                                        ? triggerCharacters.find((char) => rawValue[updatedCursorPosition - 1] === char)
                                         : undefined;
                                 if (triggerCharacter) {
-                                    await retrieveCompletions(value, updatedCursorPosition, triggerCharacter);
+                                    await retrieveCompletions(
+                                        rawValue,
+                                        getPropertyFromFormField(field),
+                                        updatedCursorPosition,
+                                        triggerCharacter
+                                    );
                                 } else {
-                                    await retrieveCompletions(value, updatedCursorPosition);
+                                    await retrieveCompletions(
+                                        rawValue,
+                                        getPropertyFromFormField(field),
+                                        updatedCursorPosition
+                                    );
                                 }
                             }}
-                            extractArgsFromFunction={extractArgsFromFunction}
+                            extractArgsFromFunction={handleExtractArgsFromFunction}
                             onCompletionSelect={handleCompletionSelect}
-                            onFocus={() => handleFocus(value)}
+                            onFocus={handleFocus}
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={onCancel}
                             onRemove={onRemove}
-                            useTransaction={useTransaction}
-                            shouldDisableOnSave={false}
-                            inputProps={endAdornment}
-                            handleHelperPaneOpen={handleHelperPaneOpen}
+                            isHelperPaneOpen={isHelperPaneOpen}
+                            changeHelperPaneState={handleChangeHelperPaneState}
+                            helperPaneOrigin={helperPaneOrigin}
+                            getHelperPane={handleGetHelperPane}
+                            helperPaneHeight={helperPaneHeight}
+                            helperPaneWidth={recordTypeField ? 400 : undefined}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
+                            codeActions={codeActions}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>

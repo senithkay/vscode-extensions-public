@@ -1,28 +1,53 @@
 {
 	"folders": [
 		{
+			"path": "workspaces/ballerina/ballerina-visualizer"
+		},
+		{
+			"path": "workspaces/ballerina/ballerina-extension"
+		},
+		{
+			"path": "workspaces/ballerina/component-diagram"
+		},
+		{
 			"path": "workspaces/bi/bi-extension"
 		},
 		{
-			"path": "workspaces/bi/webview"
+			"path": "workspaces/ballerina/ballerina-core"
 		},
 		{
-			"path": "workspaces/bi/bi-diagram-2"
+			"path": "workspaces/ballerina/ballerina-rpc-client"
+		},
+		{
+			"path": "workspaces/ballerina/ballerina-side-panel"
+		},
+		{
+			"path": "workspaces/ballerina/ballerina-service-designer"
+		},
+		{
+			"path": "workspaces/common-libs/service-designer"
 		},
 		{
 			"path": "workspaces/common-libs/ui-toolkit"
 		},
 		{
-			"path": "workspaces/bi/bi-core"
+			"path": "workspaces/ballerina/type-diagram"
 		},
 		{
-			"path": "workspaces/bi/bi-rpc-client"
+			"path": "workspaces/ballerina/record-creator"
 		},
 		{
-			"path": "workspaces/bi/bi-overview"
+			"path": "workspaces/ballerina/type-editor"
+		},
+		{
+			"path": "workspaces/common-libs/font-wso2-vscode"
+		},
+		{
+			"path": "workspaces/ballerina/bi-diagram"
+		},
+		{
+			"path": "workspaces/ballerina/data-mapper-view"
 		}
 	],
-	"settings": {
-		"typescript.tsc.autoDetect": "off"
-	}
+	"settings": {}
 }

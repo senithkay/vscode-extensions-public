@@ -9,42 +9,74 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIChatSummary,
     AddToProjectRequest,
-    GetFromFileRequest,
     DeleteFromProjectRequest,
+    DeveloperDocument,
+    FetchDataRequest,
+    GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
-    GenerateTestRequest,
-    GeneratedTestSource,
-    GenerteMappingsFromRecordRequest,
+    GenerateTypesFromRecordRequest,
+    GetFromFileRequest,
     NotifyAIMappingsRequest,
+    PostProcessRequest,
     ProjectSource,
+    RequirementSpecification,
+    SourceFile,
+    TestGenerationRequest,
+    TestGenerationResponse,
+    abortTestGeneration,
+    addChatSummary,
     addToProject,
     applyDoOnFailBlocks,
-    getFromFile,
-    deleteFromProject,
+    checkSyntaxError,
     clearInitialPrompt,
+    createTestDirecoryIfNotExists,
+    deleteFromProject,
+    fetchData,
     generateMappings,
     getAccessToken,
+    getActiveFile,
     getAiPanelState,
     getBackendURL,
-    getGeneratedTest,
+    getDriftDiagnosticContents,
+    getFileExists,
+    getFromDocumentation,
+    getFromFile,
+    getGeneratedTests,
     getInitialPrompt,
     getMappingsFromRecord,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
+    getResourceMethodAndPaths,
+    getResourceSourceForMethodAndPath,
+    getServiceNames,
+    getServiceSourceForName,
     getShadowDiagnostics,
-    checkSyntaxError,
     getTestDiagnostics,
+    getTypesFromRecord,
+    isCopilotSignedIn,
+    isRequirementsSpecificationFileExist,
+    isWSO2AISignedIn,
     login,
     logout,
+    markAlertShown,
     notifyAIMappings,
+    openChat,
+    openSettings,
     postProcess,
+    promptGithubAuthorize,
     promptLogin,
+    promptWSO2AILogout,
+    readDeveloperMdFile,
     refreshAccessToken,
+    refreshFile,
+    showSignInAlert,
     stopAIMappings,
+    updateDevelopmentDocument,
     updateProject,
-    PostProcessRequest
+    updateRequirementSpecification
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AiPanelRpcManager } from "./rpc-manager";
@@ -58,23 +90,49 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAiPanelState, () => rpcManger.getAiPanelState());
     messenger.onRequest(getAccessToken, () => rpcManger.getAccessToken());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
+    messenger.onRequest(fetchData, (args: FetchDataRequest) => rpcManger.fetchData(args));
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onNotification(addToProject, (args: AddToProjectRequest) => rpcManger.addToProject(args));
     messenger.onRequest(getFromFile, (args: GetFromFileRequest) => rpcManger.getFromFile(args));
+    messenger.onRequest(getFileExists, (args: GetFromFileRequest) => rpcManger.getFileExists(args));
     messenger.onNotification(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
     messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
     messenger.onRequest(generateMappings, (args: GenerateMappingsRequest) => rpcManger.generateMappings(args));
     messenger.onRequest(notifyAIMappings, (args: NotifyAIMappingsRequest) => rpcManger.notifyAIMappings(args));
     messenger.onRequest(stopAIMappings, () => rpcManger.stopAIMappings());
     messenger.onRequest(promptLogin, () => rpcManger.promptLogin());
-    messenger.onRequest(getProjectSource, () => rpcManger.getProjectSource());
+    messenger.onRequest(getProjectSource, (args: string) => rpcManger.getProjectSource(args));
     messenger.onRequest(getShadowDiagnostics, (args: ProjectSource) => rpcManger.getShadowDiagnostics(args));
     messenger.onRequest(checkSyntaxError, (args: ProjectSource) => rpcManger.checkSyntaxError(args));
     messenger.onRequest(getInitialPrompt, () => rpcManger.getInitialPrompt());
     messenger.onNotification(clearInitialPrompt, () => rpcManger.clearInitialPrompt());
-    messenger.onRequest(getGeneratedTest, (args: GenerateTestRequest) => rpcManger.getGeneratedTest(args));
-    messenger.onRequest(getTestDiagnostics, (args: GeneratedTestSource) => rpcManger.getTestDiagnostics(args));
-    messenger.onRequest(getMappingsFromRecord, (args: GenerteMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
-    messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
+    messenger.onNotification(refreshFile, (args: SourceFile) => rpcManger.refreshFile(args));
+    messenger.onRequest(getGeneratedTests, (args: TestGenerationRequest) => rpcManger.getGeneratedTests(args));
+    messenger.onRequest(getTestDiagnostics, (args: TestGenerationResponse) => rpcManger.getTestDiagnostics(args));
+    messenger.onRequest(getServiceSourceForName, (args: string) => rpcManger.getServiceSourceForName(args));
+    messenger.onRequest(getResourceSourceForMethodAndPath, (args: string) => rpcManger.getResourceSourceForMethodAndPath(args));
+    messenger.onRequest(getServiceNames, () => rpcManger.getServiceNames());
+    messenger.onRequest(getResourceMethodAndPaths, () => rpcManger.getResourceMethodAndPaths());
+    messenger.onNotification(abortTestGeneration, () => rpcManger.abortTestGeneration());
+    messenger.onRequest(getMappingsFromRecord, (args: GenerateMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
+    messenger.onRequest(getTypesFromRecord, (args: GenerateTypesFromRecordRequest) => rpcManger.getTypesFromRecord(args));
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
+    messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
+    messenger.onRequest(getActiveFile, () => rpcManger.getActiveFile());
+    messenger.onNotification(openSettings, () => rpcManger.openSettings());
+    messenger.onNotification(openChat, () => rpcManger.openChat());
+    messenger.onRequest(promptGithubAuthorize, () => rpcManger.promptGithubAuthorize());
+    messenger.onRequest(promptWSO2AILogout, () => rpcManger.promptWSO2AILogout());
+    messenger.onRequest(isCopilotSignedIn, () => rpcManger.isCopilotSignedIn());
+    messenger.onRequest(isWSO2AISignedIn, () => rpcManger.isWSO2AISignedIn());
+    messenger.onRequest(showSignInAlert, () => rpcManger.showSignInAlert());
+    messenger.onNotification(markAlertShown, () => rpcManger.markAlertShown());
+    messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
+    messenger.onRequest(isRequirementsSpecificationFileExist, (args: string) => rpcManger.isRequirementsSpecificationFileExist(args));
+    messenger.onRequest(getDriftDiagnosticContents, (args: string) => rpcManger.getDriftDiagnosticContents(args));
+    messenger.onNotification(addChatSummary, (args: AIChatSummary) => rpcManger.addChatSummary(args));
+    messenger.onRequest(readDeveloperMdFile, (args: string) => rpcManger.readDeveloperMdFile(args));
+    messenger.onNotification(updateDevelopmentDocument, (args: DeveloperDocument) => rpcManger.updateDevelopmentDocument(args));
+    messenger.onNotification(updateRequirementSpecification, (args: RequirementSpecification) => rpcManger.updateRequirementSpecification(args));
+    messenger.onNotification(createTestDirecoryIfNotExists, (args: string) => rpcManger.createTestDirecoryIfNotExists(args));
 }

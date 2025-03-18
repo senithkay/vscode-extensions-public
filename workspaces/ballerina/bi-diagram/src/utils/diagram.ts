@@ -23,8 +23,10 @@ import { ButtonNodeFactory } from "../components/nodes/ButtonNode";
 import { NodeTypes } from "../resources/constants";
 import { CommentNodeFactory } from "../components/nodes/CommentNode";
 import { WhileNodeFactory } from "../components/nodes/WhileNode";
-import { CodeBlockNodeFactory } from "../components/nodes/CodeBlockNode";
 import { EndNodeFactory } from "../components/nodes/EndNode";
+import { ErrorNodeFactory } from "../components/nodes/ErrorNode";
+import { AgentCallNodeFactory } from "../components/nodes/AgentCallNode/AgentCallNodeFactory";
+import { PromptNodeFactory } from "../components/nodes/PromptNode/PromptNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -37,6 +39,7 @@ export function generateEngine(): DiagramEngine {
     engine.getLinkFactories().registerFactory(new NodeLinkFactory());
 
     engine.getNodeFactories().registerFactory(new BaseNodeFactory());
+    engine.getNodeFactories().registerFactory(new PromptNodeFactory());
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
     engine.getNodeFactories().registerFactory(new IfNodeFactory());
     engine.getNodeFactories().registerFactory(new WhileNodeFactory());
@@ -44,9 +47,10 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new ApiCallNodeFactory());
     engine.getNodeFactories().registerFactory(new DraftNodeFactory());
     engine.getNodeFactories().registerFactory(new CommentNodeFactory());
-    engine.getNodeFactories().registerFactory(new CodeBlockNodeFactory());
     engine.getNodeFactories().registerFactory(new ButtonNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
+    engine.getNodeFactories().registerFactory(new ErrorNodeFactory());
+    engine.getNodeFactories().registerFactory(new AgentCallNodeFactory());
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
@@ -114,8 +118,9 @@ export const saveDiagramZoomAndPosition = (model: DiagramModel) => {
 };
 
 // load diagram zoom level and position from local storage
-export const loadDiagramZoomAndPosition = (engine: DiagramEngine) => {
+export const loadDiagramZoomAndPosition = (engine: DiagramEngine, node?: NodeModel) => {
     const zoomLevel = JSON.parse(localStorage.getItem("diagram-zoom-level") || "100");
+
     const offsetX = JSON.parse(localStorage.getItem("diagram-offset-x") || "0");
     const offsetY = JSON.parse(localStorage.getItem("diagram-offset-y") || "0");
 

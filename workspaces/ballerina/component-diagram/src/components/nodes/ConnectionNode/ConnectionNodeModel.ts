@@ -10,17 +10,16 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
-import { Connection } from "../../../utils/types";
-import { getNodeId } from "../../../utils/diagram";
+import { CDConnection } from "@wso2-enterprise/ballerina-core";
 
 export class ConnectionNodeModel extends NodeModel {
-    readonly node: Connection;
+    readonly node: CDConnection;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
-    constructor(node: Connection) {
+    constructor(node: CDConnection) {
         super({
-            id: getNodeId(NodeTypes.CONNECTION_NODE, node.id),
+            id: node.uuid,
             type: NodeTypes.CONNECTION_NODE,
             locked: NODE_LOCKED,
         });
@@ -59,5 +58,9 @@ export class ConnectionNodeModel extends NodeModel {
 
     getHeight(): number {
         return this.height;
+    }
+    
+    hasLinks(): boolean {
+        return Object.keys(this.portIn.getLinks()).length > 0 || Object.keys(this.portOut.getLinks()).length > 0;
     }
 }

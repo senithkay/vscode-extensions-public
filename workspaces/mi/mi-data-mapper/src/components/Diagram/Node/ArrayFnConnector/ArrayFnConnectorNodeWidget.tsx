@@ -10,18 +10,14 @@
 import * as React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import { TypeKind } from '@wso2-enterprise/mi-core';
 import classnames from 'classnames';
 
 import { useIntermediateNodeStyles } from '../../../../components/styles';
 import { ArrayFnConnectorNode } from './ArrayFnConnectorNode';
 import { DataMapperPortWidget, InputOutputPortModel } from '../../Port';
-import { genArrayElementAccessRepr, getMapFnIndex, getMapFnViewLabel, hasElementAccessExpression } from '../../utils/common-utils';
-import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../../utils/constants';
-import { getSourceNodeType } from '../../utils/node-utils';
-import { SubMappingInfo, View } from '../../../../components/DataMapper/Views/DataMapperView';
-import { ElementAccessExpression, PropertyAssignment } from 'ts-morph';
+import { expandArrayFn, genArrayElementAccessRepr, hasElementAccessExpression } from '../../utils/common-utils';
 import { useDMExpressionBarStore } from "../../../../store/store";
+import { PropertyAssignment } from 'ts-morph';
 
 export interface ArrayFnConnectorNodeWidgetWidgetProps {
     node: ArrayFnConnectorNode;
@@ -31,9 +27,7 @@ export interface ArrayFnConnectorNodeWidgetWidgetProps {
 export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidgetProps) {
     const { node, engine } = props;
     const { context, sourcePort, targetPort, inPort, outPort, hidden } = node;
-    const { addView, views } = context;
-    const isSourcePortSubMapping = sourcePort.portName.startsWith(SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX);
-    const sourceNodeType = getSourceNodeType(sourcePort);
+    
     const isValueNodeForgotten = node.parentNode.wasForgotten();
     const hasElementAccessExpr = !isValueNodeForgotten && hasElementAccessExpression(node.parentNode);
 
@@ -43,67 +37,6 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const classes = useIntermediateNodeStyles();
 
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
-
-
-    const onClickOnExpand = () => {
-        let label = getMapFnViewLabel(targetPort, views);
-        let targetFieldFQN = targetPort.fieldFQN;
-        let sourceFieldFQN = isSourcePortSubMapping
-            ? sourcePort.fieldFQN
-            : sourcePort.fieldFQN.split('.').slice(1).join('.');
-        let mapFnIndex: number | undefined = undefined;
-        let prevViewSubMappingInfo: SubMappingInfo = undefined;
-
-        if (views.length > 1) {
-            const prevView = views[views.length - 1];
-
-            if (prevView.subMappingInfo) {
-                // Navigating into map function within focused sub-mapping view
-                prevViewSubMappingInfo = prevView.subMappingInfo;
-                const { mappingName: prevViewMappingName, mapFnIndex: prevViewMapFnIndex } = prevViewSubMappingInfo;
-                targetFieldFQN = targetFieldFQN ?? prevViewMappingName;
-            } else {
-                // Navigating into another map function within the current map function
-                if (!prevView.targetFieldFQN) {
-                    // The visiting map function is declaired at the return statement of the current map function
-                    if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
-                        // The root of the current map function is the return statement of the transformation function
-                        mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
-                    }
-                } else {
-                    if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
-                        // The visiting map function is declaired at the return statement of the current map function
-                        targetFieldFQN = prevView.targetFieldFQN;
-                        mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
-                    } else {
-                        targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
-                    }
-                }
-            }
-            if (!!prevView.sourceFieldFQN) {
-                sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
-            }
-        } else {
-            // Navigating into the root map function
-            if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
-                // The visiting map function is the return statement of the transformation function
-                mapFnIndex = 0;
-            }
-        }
-
-        const newView: View = { targetFieldFQN, sourceFieldFQN, sourceNodeType, label, mapFnIndex };
-
-        if (prevViewSubMappingInfo) {
-            const newViewSubMappingInfo = {
-                ...prevViewSubMappingInfo,
-                focusedOnSubMappingRoot: false,
-                mapFnIndex: prevViewSubMappingInfo.mapFnIndex !== undefined ? prevViewSubMappingInfo.mapFnIndex + 1 : 0
-            };
-            newView.subMappingInfo = newViewSubMappingInfo;
-        }
-
-        addView(newView);
-    }
 
     const deleteLink = async () => {
         setDeleteInProgress(true);
@@ -145,7 +78,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                                     </Button>) : (<Button
                                         appearance="icon"
                                         tooltip="Map array elements"
-                                        onClick={onClickOnExpand}
+                                        onClick={()=> expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context)}
                                         data-testid={`expand-array-fn-${node?.targetFieldFQN}`}
                                     >
                                         <Codicon name="export" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />

@@ -35,6 +35,9 @@ jobs:
           # Pull changes from release branch
           git pull --rebase origin $RELEASE_BRANCH
 
+          # Push changes to the temporary branch
+          git push origin $TEMP_BRANCH
+
       - name: Create Pull Request
         id: commit
         env:

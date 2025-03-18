@@ -198,7 +198,7 @@ function parseNonLiteral(
         type: 'ENUM',
       }
     case 'NAMED_SCHEMA':
-      return newInterface(schema as SchemaSchema, options, processed, usedNames, keyName)
+      return newInterface(schema as SchemaSchema, options, processed, usedNames, keyName, keyNameFromDefinition)
     case 'NEVER':
       return {
         deprecated: schema.deprecated,

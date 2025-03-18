@@ -77,10 +77,7 @@ export const useIONodesStyles = () => ({
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",
-        color: "inherit",
-        "&:hover": {
-            overflow: "visible"
-        },
+        color: "inherit"
     }),
     filterPortWrap: css({
         width: IO_NODE_DEFAULT_WIDTH,
@@ -167,14 +164,7 @@ export const useIONodesStyles = () => ({
         }
     }),
     addArrayElementButton: css({
-        "& > vscode-button": {
-            padding: "5px",
-            textTransform: "none",
-            ...addElementButton
-        },
-        "& > vscode-button > *": {
-            margin: "0px 6px"
-        }
+        paddingInline: "8px"
     }),
     addSubMappingButton: css({
         "& > vscode-button": {

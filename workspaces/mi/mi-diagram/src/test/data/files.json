@@ -110,7 +110,7 @@
     ]
   },
   {
-    "file": "CallDataService.xml",
+    "file": "CallDataservice.xml",
     "resources": [
       {
         "path": "/",
@@ -121,7 +121,7 @@
     ]
   },
   {
-    "file": "CallDataServiceWithDescription.xml",
+    "file": "CallDataserviceWithDescription.xml",
     "resources": [
       {
         "path": "/",
@@ -154,7 +154,7 @@
     ]
   },
   {
-    "file": "CallSequence.xml",
+    "file": "Sequence.xml",
     "resources": [
       {
         "path": "/",
@@ -165,7 +165,7 @@
     ]
   },
   {
-    "file": "CallSequenceWithDescription.xml",
+    "file": "SequenceWithDescription.xml",
     "resources": [
       {
         "path": "/",
@@ -1389,6 +1389,83 @@
         "path": "/",
         "methods": [
           "GET"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "ThrowError.xml",
+    "resources": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "ThrowErrorWithDescription.xml",
+    "resources": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "Variable.xml",
+    "resources": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "VariableWithDescription.xml",
+    "resources": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "ScatterGather.xml",
+    "resources": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "ScatterGatherWithDescription.xml",
+    "resources": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "GroupNodeMediators.xml",
+    "resources": [
+      {
+        "path": "/",
+        "methods": [
+          "POST"
         ]
       }
     ]

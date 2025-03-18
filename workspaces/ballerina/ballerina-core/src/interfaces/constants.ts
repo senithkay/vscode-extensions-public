@@ -8,16 +8,18 @@
  */
 
 export enum SHARED_COMMANDS {
-    SHOW_VISUALIZER = 'kolab.show.visualizer',
-    OPEN_BI_WELCOME = 'kolab.open.bi.welcome',
-    OPEN_SERVICE_FORM = 'kolab.open.service.form',
-    OPEN_AI_PANEL = 'kolab.open.ai.panel',
-    CLEAR_AI_PROMPT = 'kolab.clear.ai.prompt',
+    SHOW_VISUALIZER = 'ballerina.show.visualizer',
+    OPEN_BI_WELCOME = 'ballerina.open.bi.welcome',
+    OPEN_BI_NEW_PROJECT = 'ballerina.open.bi.new',
+    OPEN_SERVICE_FORM = 'ballerina.open.service.form',
+    OPEN_AI_PANEL = 'ballerina.open.ai.panel',
+    CLEAR_AI_PROMPT = 'ballerina.clear.ai.prompt',
+    OPEN_AGENT_CHAT = 'ballerina.open.agent.chat'
 }
-
 
 export const BI_COMMANDS = {
     BI_RUN_PROJECT: 'BI.project.run',
+    BI_DEBUG_PROJECT: 'BI.project.debug',
     REFRESH_COMMAND: 'BI.project-explorer.refresh',
     FOCUS_PROJECT_EXPLORER: 'BI.project-explorer.focus',
     PROJECT_EXPLORER: 'BI.project-explorer',
@@ -29,5 +31,12 @@ export const BI_COMMANDS = {
     OPEN_TYPE_DIAGRAM: 'BI.view.typeDiagram',
     ADD_CONFIGURATION: 'BI.project-explorer.add-configuration',
     ADD_PROJECT: 'BI.project-explorer.add',
-    SHOW_OVERVIEW: 'BI.project-explorer.overview'
+    SHOW_OVERVIEW: 'BI.project-explorer.overview',
+    SWITCH_PROJECT: 'BI.project-explorer.switch-project',
+    ADD_DATA_MAPPER: 'BI.project-explorer.add-data-mapper',
+    BI_EDIT_TEST_FUNCTION: 'BI.test.edit.function',
+    BI_ADD_TEST_FUNCTION: 'BI.test.add.function',
+    BI_EDIT_TEST_FUNCTION_DEF: 'BI.test.edit.function.def',
+    ADD_NATURAL_FUNCTION: 'BI.project-explorer.add-natural-function',
+    NOTIFY_DEPLOYMENT_COMPLETION: 'BI.notify-deployment-completion'
 };

@@ -8,10 +8,9 @@
  */
 
 import React, { useState } from "react";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { CallIcon, LogIcon } from "../../resources";
-import { Colors } from "../../resources/constants";
 import { Category, Node } from "./../NodeList/types";
 
 namespace S {
@@ -24,7 +23,7 @@ namespace S {
         width: 100%;
         padding: 8px 0;
         border-radius: 5px;
-        background-color: ${Colors.SURFACE_DIM_2};
+        background-color: ${ThemeColors.SURFACE_DIM_2};
     `;
 
     export const Row = styled.div<{}>`
@@ -38,7 +37,7 @@ namespace S {
         width: 100%;
     `;
 
-    export const TitleRow = styled(Row) <{}>`
+    export const TitleRow = styled(Row)<{}>`
         cursor: pointer;
         padding: 0 5px;
     `;
@@ -68,37 +67,48 @@ namespace S {
         margin-left: auto;
     `;
 
-    export const Component = styled.div<{ enabled?: boolean }>`
+    export const Component = styled.div<{ enabled?: boolean; expanded?: boolean }>`
         display: flex;
         flex-direction: row;
         align-items: center;
         gap: 5px;
         padding: 5px;
-        border: 1px solid ${Colors.OUTLINE_VARIANT};
+        border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 5px;
-        height: 36px;
+        height: ${({ expanded }) => expanded ? 'auto' : '36px'};
+        min-height: 36px;
         cursor: ${({ enabled }) => (enabled ? "pointer" : "not-allowed")};
         font-size: 14px;
+        transition: all 0.3s ease;
         ${({ enabled }) => !enabled && "opacity: 0.5;"}
+        ${({ expanded }) => expanded && `
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid ${ThemeColors.PRIMARY};
+            background-color: ${ThemeColors.PRIMARY_CONTAINER};
+            z-index: 10;
+            position: relative;
+        `}
         &:hover {
             ${({ enabled }) =>
             enabled &&
             `
-        background-color: ${Colors.PRIMARY_CONTAINER};
-        border: 1px solid ${Colors.PRIMARY};
+        background-color: ${ThemeColors.PRIMARY_CONTAINER};
+        border: 1px solid ${ThemeColors.PRIMARY};
     `}
         }
     `;
 
-    export const ComponentTitle = styled.div`
+    export const ComponentTitle = styled.div<{ expanded?: boolean }>`
         text-overflow: ellipsis;
         overflow: hidden;
-        white-space: nowrap;
-        width: 115px;
-        word-break: break-all;
+        white-space: ${({ expanded }) => (expanded ? 'normal' : 'nowrap')};
+        width: 280px;
+        word-break: ${({ expanded }) => expanded ? 'normal' : 'break-all'};
+        overflow-wrap: break-word;
+        transition: all 0.3s ease;
     `;
 
-    export const ComponentIcon = styled.div`
+    export const ComponentIcon = styled.div<{ expanded?: boolean }>`
         padding: 0 8px;
         display: flex;
         align-items: center;
@@ -106,8 +116,8 @@ namespace S {
         & svg {
             height: 16px;
             width: 16px;
-            fill: ${Colors.ON_SURFACE};
-            stroke: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
+            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 }
@@ -122,12 +132,21 @@ export function GroupList(props: GroupListProps) {
     const { category, expand, onSelect } = props;
 
     const [showList, setShowList] = useState(expand ?? false);
+    const [expandedTitleIndex, setExpandedTitleIndex] = useState<number | null>(null);
 
     const nodes = category.items as Node[];
     const openList = expand || showList;
 
     const handleToggleList = () => {
         setShowList(!showList);
+    };
+
+    const handleComponentMouseEnter = (index: number) => {
+        setExpandedTitleIndex(index);
+    };
+
+    const handleComponentMouseLeave = () => {
+        setExpandedTitleIndex(null);
     };
 
     if (nodes.length === 0) {
@@ -146,18 +165,26 @@ export function GroupList(props: GroupListProps) {
             {openList && (
                 <>
                     <S.BodyText>{category.description}</S.BodyText>
-                    <S.Grid columns={2}>
-                        {nodes.map((node, index) => (
-                            <S.Component
-                                key={node.id + index}
-                                enabled={node.enabled}
-                                onClick={() => onSelect(node, category.title)}
-                                title={node.label}
-                            >
-                                <S.ComponentIcon>{node.icon || <CallIcon />}</S.ComponentIcon>
-                                <S.ComponentTitle >{node.label}</S.ComponentTitle>
-                            </S.Component>
-                        ))}
+                    <S.Grid columns={1}>
+                        {nodes
+                            .filter((node) => node.enabled)
+                            .map((node, index) => (
+                                <S.Component
+                                    key={node.id + index}
+                                    enabled={node.enabled}
+                                    expanded={expandedTitleIndex === index}
+                                    onClick={() => onSelect(node, category.title)}
+                                    onMouseEnter={() => handleComponentMouseEnter(index)}
+                                    onMouseLeave={handleComponentMouseLeave}
+                                >
+                                    <S.ComponentIcon expanded={expandedTitleIndex === index}>
+                                        {node.icon || <CallIcon />}
+                                    </S.ComponentIcon>
+                                    <S.ComponentTitle expanded={expandedTitleIndex === index}>
+                                        {getComponentTitle(node)}
+                                    </S.ComponentTitle>
+                                </S.Component>
+                            ))}
                     </S.Grid>
                 </>
             )}
@@ -166,3 +193,25 @@ export function GroupList(props: GroupListProps) {
 }
 
 export default GroupList;
+
+// Hide http client method descriptions since verbs are more user friendly
+function getComponentTitle(node: Node) {
+    // if label contains http verbs, return the label
+    const httpVerbs = [
+        "get",
+        "post",
+        "put",
+        "delete",
+        "patch",
+        "head",
+        "options",
+        "forward",
+        "redirect",
+        "trace",
+        "connect",
+    ];
+    if (httpVerbs.includes(node.label.toLowerCase()) && node.description.includes("HTTP")) {
+        return node.label;
+    }
+    return node.description || node.label;
+}

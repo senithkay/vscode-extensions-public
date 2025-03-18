@@ -10,8 +10,8 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Block, Node, ReturnStatement, SyntaxKind } from "ts-morph";
+import { Button, Codicon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
+import { ArrayLiteralExpression, Block, Node, ReturnStatement, SyntaxKind } from "ts-morph";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -28,6 +28,7 @@ import { IOType } from "@wso2-enterprise/mi-core";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { createSourceForUserInput, modifyChildFieldsOptionality } from "../../utils/modification-utils";
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
+import { OutputFieldPreviewWidget } from "./OutputFieldPreviewWidget";
 export interface ArrayOutputWidgetProps {
 	id: string;
 	dmTypeWithValue: DMTypeWithValue;
@@ -52,7 +53,8 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	} = props;
 	const { views } = context;
 	const focusedView = views[views.length - 1];
-	const focusedOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+	const focusedOnSubMappingRoot = focusedView.subMappingInfo?.focusedOnSubMappingRoot;
+	const focusedOnRoot = views.length === 1;
 
 	const classes = useIONodesStyles();
 
@@ -115,14 +117,13 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		&& Node.isPropertyAssignment(dmTypeWithValue.value)
 		&& dmTypeWithValue.value;
 	const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
-	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type.kind) === value.trim();
+	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type) === value.trim();
 
-	const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+	const handleExpand = (expanded: boolean) => {
 		if (!expanded) {
-			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+			collapsedFieldsStore.expandField(id, dmTypeWithValue.type.kind);
 		} else {
-			collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+			collapsedFieldsStore.collapseField(id, dmTypeWithValue.type.kind);
 		}
 	};
 
@@ -141,36 +142,31 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		}
 	};
 
-	const handleArrayDeletion = async () => {
-		setLoading(true);
-		try {
-			await deleteField(dmTypeWithValue.value);
-		} finally {
-			setLoading(false);
+	const handleAddArrayElement = async () => {
+		setIsAddingElement(true);
+		
+		const defaultValue = getDefaultValue(dmTypeWithValue.type?.memberType);
+		const bodyNodeForgotten = body && body.wasForgotten();
+		const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
+		const arrayLitExpr = dmTypeWithValue && Node.isArrayLiteralExpression(valExpr) ? valExpr : null;
+
+		let targetExpr = arrayLitExpr;
+		if (!body) {
+			const fnBody = context.functionST.getBody() as Block;
+			fnBody.addStatements([`return [];`]);
+			const returnStatement = fnBody.getStatements()
+				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
+			targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
 		}
-	};
-
-	const handleEditValue = () => {
-		if (portIn)
-			setExprBarFocusedPort(portIn);
-	};
-
-	const onRightClick = (event: React.MouseEvent) => {
-		event.preventDefault();
-		if (focusedOnSubMappingRoot) {
-			onSubMappingEditBtnClick();
-		} else {
-			setIOConfigPanelType(IOType.Output);
-			setIsSchemaOverridden(true);
-			setIsIOConfigPanelOpen(true);
+		const updatedTargetExpr = targetExpr.addElement(defaultValue);
+		await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
+		
+		if(!expanded){
+			handleExpand(false);
 		}
-	};
+		
+		setIsAddingElement(false);
 
-	const onSubMappingEditBtnClick = () => {
-		setSubMappingConfig({
-			...subMappingConfig,
-			isSMConfigPanelOpen: true
-		});
 	};
 
 	const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
@@ -181,8 +177,26 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		}
 	};
 
+	const handleChangeSchema = () => {
+		if (focusedOnSubMappingRoot) {
+			setSubMappingConfig({
+				...subMappingConfig,
+				isSMConfigPanelOpen: true
+			});
+		} else {
+			setIOConfigPanelType(IOType.Output);
+			setIsSchemaOverridden(true);
+			setIsIOConfigPanelOpen(true);
+		}
+	};
+	
+	const onRightClick = (event: React.MouseEvent) => {
+		event.preventDefault();
+		if (focusedOnRoot || focusedOnSubMappingRoot) handleChangeSchema();
+	};
+
 	const label = (
-		<span style={{ marginRight: "auto" }}>
+		<TruncatedLabel style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
@@ -192,7 +206,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
 				{typeName || ''}
 			</span>
-		</span>
+		</TruncatedLabel>
 	);
 
 
@@ -203,8 +217,8 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 				onClick: handleArrayInitialization
 			}
 			: {
-				title: ValueConfigOption.EditValue,
-				onClick: handleEditValue
+				title: ValueConfigOption.AddElement,
+				onClick: handleAddArrayElement
 			},
 		{
 			title: ValueConfigOption.MakeChildFieldsOptional,
@@ -236,10 +250,10 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 					<span className={classes.label}>
 						<FieldActionWrapper>
 							<Button
-								id={"expand-or-collapse-" + id} 
+								id={"expand-or-collapse-" + id}
 								appearance="icon"
 								tooltip="Expand/Collapse"
-								onClick={handleExpand}
+								onClick={() => handleExpand(expanded)}
 								data-testid={`${id}-expand-icon-mapping-target-node`}
 								sx={{ marginLeft: indentation }}
 							>
@@ -248,20 +262,19 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</FieldActionWrapper>
 						{label}
 					</span>
-					{focusedOnSubMappingRoot && (
-						<FieldActionWrapper>
-							<Button
-								appearance="icon"
-								data-testid={"edit-sub-mapping-btn"}
-								tooltip="Edit name and type of the sub mapping "
-								onClick={onSubMappingEditBtnClick}
-							>
-								<Codicon
-									name="settings-gear"
-									iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
-								/>
-							</Button>
-						</FieldActionWrapper>
+					{(focusedOnRoot || focusedOnSubMappingRoot) && (
+						<Button
+							appearance="icon"
+							data-testid={"change-output-schema-btn"}
+							tooltip={focusedOnRoot ? "Change output schema" : "Edit name and type of the sub mapping"}
+							onClick={handleChangeSchema}
+							data-field-action
+						>
+							<Codicon
+								name="edit"
+								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+							/>
+						</Button>
 					)}
 					{(isLoading) ? (
 						<ProgressRing />
@@ -275,7 +288,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</FieldActionWrapper>
 					))}
 				</TreeHeader>
-				{expanded && dmTypeWithValue && isBodyArrayLitExpr && (
+				{expanded && hasValue && isBodyArrayLitExpr && (
 					<TreeBody>
 						<ArrayOutputFieldWidget
 							key={id}
@@ -287,6 +300,17 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 							context={context}
 							deleteField={deleteField}
 							asOutput={true}
+						/>
+					</TreeBody>
+				)}
+				{expanded && !hasValue && (
+					<TreeBody>
+						<OutputFieldPreviewWidget
+							engine={engine}
+							dmType={{...dmTypeWithValue.type.memberType, fieldName: `<${dmTypeWithValue.type.fieldName}Item>`}}
+							getPort={getPort}
+							parentId={id}
+							treeDepth={1}
 						/>
 					</TreeBody>
 				)}

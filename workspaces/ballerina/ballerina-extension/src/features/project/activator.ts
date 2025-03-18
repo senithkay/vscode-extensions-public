@@ -19,13 +19,14 @@ import { activatePackCommand } from "./cmds/pack";
 import { activateRenameCommand } from "./cmds/rename";
 import { activateExtractCommand } from "./cmds/extract";
 import { activateConfigRunCommand } from "./cmds/configRun";
+import { activateTryItCommand } from "../tryit/activator";
 
 export * from "./cmds/cmd-runner";
 
 export function activate() {
     // activate ballerina test command
     activateTestRunner();
-
+    
     // activate ballerina build command
     activateBuildCommand();
 

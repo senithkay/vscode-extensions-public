@@ -9,7 +9,8 @@
 
 import { Query } from "@wso2-enterprise/mi-syntax-tree/src";
 
-export function getDSInputMappingsFromSTNode(data: { [key: string]: any }, node: Query) {
+export function getDSInputMappingsFromSTNode(node: Query) {
+    const data: any = {};
     data.validators = [];
     data.inputMappings = node?.params.map((param) => {
         return [
@@ -59,7 +60,8 @@ export function getDSInputMappingsFromSTNode(data: { [key: string]: any }, node:
     return data;
 }
 
-export function getDSQueryFromSTNode(data: { [key: string]: any }, node: Query) {
+export function getDSQueryFromSTNode(node: Query) {
+    const data: any = {};
     data.queryId = node?.id;
     data.datasource = node?.useConfig ?? "";
     data.sqlQuery = node.sql !== undefined ? node.sql.textNode : node.expression !== undefined ? node.expression.textNode : "",
@@ -75,7 +77,8 @@ export function getDSQueryFromSTNode(data: { [key: string]: any }, node: Query) 
     return data;
 }
 
-export function getDSTransformationFromSTNode(data: { [key: string]: any }, node: Query) {
+export function getDSTransformationFromSTNode(node: Query) {
+    const data: any = {};
     const result = node?.result;
     if (result) {
         data.outputType = result.outputType === undefined ? "XML" : result.outputType === "json" ? "JSON" : "RDF";
@@ -91,8 +94,8 @@ export function getDSTransformationFromSTNode(data: { [key: string]: any }, node
     return data;
 }
 
-export function getDSOutputMappingsFromSTNode(data: { [key: string]: any }, node: Query) {
-
+export function getDSOutputMappingsFromSTNode(node: Query) {
+    const data: any = {};
     const result = node?.result;
     if (result) {
         const attributes = result.attributes?.map((attr) => {

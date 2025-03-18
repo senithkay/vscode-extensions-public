@@ -22,6 +22,7 @@ import { TestConnectionForm } from "./TestConnectionForm";
 import { DatabaseDriverForm } from "./DatabaseDriverForm";
 import { driverMap } from "../../../DataSourceForm/types";
 import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import { openPopup } from "@wso2-enterprise/mi-diagram/lib/components/Form/common";
 
 export interface DataServiceDataSourceWizardProps {
     datasource?: any;
@@ -30,6 +31,7 @@ export interface DataServiceDataSourceWizardProps {
     datasources?: any;
     setValue?: any;
     isPopup?: boolean;
+    fromSidePanel?: boolean;
     handlePopupClose?: () => void;
 }
 
@@ -542,28 +544,24 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
 
     useEffect(() => {
         (async () => {
-            if (props.path !== undefined) {
-                if (props.datasource !== undefined && typeof props.datasource === 'string' && props.datasource === "") {
-                    setIsCreate(true);
-                    reset(newDataSource);
-                    setDatasourceConfigurations([]);
-                } else if (props.datasource !== undefined && typeof props.datasource === 'string' && props.datasource !== "") {
-                    setIsCreate(false);
-                    const existingDataService = await rpcClient.getMiDiagramRpcClient().getDataService({ path: props.path });
-                    const existingDataSource = existingDataService.datasources.find(
-                        (datasource: any) => datasource.dataSourceName === props.datasource
-                    );
-                    const currentDatasource = restructureDatasource(existingDataSource);
-                    reset(currentDatasource);
-                    setDatasourceConfigurations(currentDatasource.dsConfigurations);
-                    setIsEditDatasource(true);
-                }
-            } else {
-                if (props.datasource !== undefined) {
-                    reset(props.datasource);
-                    setDatasourceConfigurations(props.datasource.dsConfigurations);
-                    setIsEditDatasource(true);
-                }
+            if (props.datasource !== undefined && typeof props.datasource === 'string' && props.datasource === "") {
+                setIsCreate(true);
+                reset(newDataSource);
+                setDatasourceConfigurations([]);
+            } else if (props.datasource !== undefined && typeof props.datasource === 'string' && props.datasource !== "") {
+                setIsCreate(false);
+                const existingDataService = await rpcClient.getMiDiagramRpcClient().getDataService({ path: props.path });
+                const existingDataSource = existingDataService.datasources.find(
+                    (datasource: any) => datasource.dataSourceName === props.datasource
+                );
+                const currentDatasource = restructureDatasource(existingDataSource);
+                reset(currentDatasource);
+                setDatasourceConfigurations(currentDatasource.dsConfigurations);
+                setIsEditDatasource(true);
+            } else if (props.datasource !== undefined) {
+                reset(props.datasource);
+                setDatasourceConfigurations(props.datasource.dsConfigurations);
+                setIsEditDatasource(true);
             }
         })();
     }, [props.path, props.datasource]);
@@ -612,7 +610,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
             delete values.rdbms.port;
             delete values.rdbms.databaseName;
         }
-        
+
         return values;
     }
 
@@ -628,7 +626,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                 datasourceProperties: values.dataSourceType === "RDBMS" ? filterRDBMSvalues(configToProperties(values.rdbms)) :
                     values.dataSourceType === "MongoDB" ? configToProperties(values.mongodb) :
                         values.dataSourceType === "Cassandra" ? configToProperties(values.cassandra) :
-                                configToProperties(values.carbonDatasource)
+                            configToProperties(values.carbonDatasource)
             };
             await rpcClient.getMiDiagramRpcClient().createDssDataSource({
                 directory: props.path, ...data, type: isCreate ? 'create' : 'edit'
@@ -651,17 +649,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     };
 
     const handleNext = async (values: any) => {
-        if (step === 1) {
-            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('rdbms.driverClassName'));
-
-            if (driverClassAvailable) {
-                setStep(3);
-            } else {
-                setStep(2);
-            }
-        } else {
-            setStep(step + 1);
-        }
+        setStep(step + 1);
     }
 
     const renderProps = (fieldName: keyof DataSourceFields) => {
@@ -697,23 +685,25 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     };
 
     const handleBack = async () => {
-        if (step === 3) {
-            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('rdbms.driverClassName'));
-
-            if (driverClassAvailable) {
-                setStep(1);
-            } else {
-                setStep(2);
-            }
-        } else {
-            setStep(step - 1);
-        }
+        setStep(step - 1);
     }
 
     const showNextButton = watch('dataSourceType') === 'RDBMS' && step === 1;
 
+    const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
+        const datasourceFolderPath = props.path.replace(/data-services.*|dataServices.*/, 'data-sources');
+
+        openPopup(
+            rpcClient,
+            "datasource",
+            fetchItems,
+            handleValueChange,
+            datasourceFolderPath,
+            { type: "dataSource" });
+    };
+
     return (
-        <FormView sx={{minHeight: 300}} title='Create Datasource' onClose={props.handlePopupClose ?? handleCancel} >
+        <FormView sx={{ minHeight: 300 }} title='Create Datasource' onClose={props.handlePopupClose ?? handleCancel} >
             <FormProvider {...formMethods}>
                 {step === 1 ? (
                     <>
@@ -723,9 +713,9 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                             size={100}
                             {...renderProps('dataSourceName')}
                         />
-                        <Dropdown label="Datasource Type" required items={datasourceTypes} {...renderProps('dataSourceType')} sx={{zIndex: 2}} />
+                        <Dropdown label="Datasource Type" required items={datasourceTypes} {...renderProps('dataSourceType')} sx={{ zIndex: 2 }} />
                         {watch('dataSourceType') === 'RDBMS' && (
-                            <DataSourceRDBMSForm 
+                            <DataSourceRDBMSForm
                                 renderProps={renderPropsForObject}
                                 watch={watch}
                                 setValue={setValue}
@@ -749,8 +739,10 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                                 control={control}
                                 label="Datasource Name"
                                 filterType="dataSource"
-                                allowItemCreate={false}
+                                allowItemCreate={true}
+                                requireValidation={false}
                                 required
+                                onCreateButtonClick={!props.fromSidePanel ? onCreateButtonClick : undefined}
                                 {...renderPropsForObject('carbonDatasource.carbon_datasource_name')}
                             />
                         )}

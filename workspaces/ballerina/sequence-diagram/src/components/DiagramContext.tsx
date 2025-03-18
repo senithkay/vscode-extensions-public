@@ -9,9 +9,13 @@
 
 import React from "react";
 import { Flow } from "../utils/types";
+import { SqParticipantType } from "@wso2-enterprise/ballerina-core";
+import { SqParticipant } from "@wso2-enterprise/ballerina-core";
 
 export interface DiagramContextState {
     flow: Flow;
+    onClickParticipant: (participant: SqParticipant) => void;
+    onAddParticipant: (kind: SqParticipantType) => void;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
@@ -23,6 +27,8 @@ export const DiagramContext = React.createContext<DiagramContextState>({
             endLine: { line: 0, offset: 0 },
         },
     },
+    onClickParticipant: () => {},
+    onAddParticipant: () => {},
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

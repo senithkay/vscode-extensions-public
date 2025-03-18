@@ -14,6 +14,8 @@ import { ExtensionContext } from "vscode";
 export class ExtensionVariables {
     public context!: ExtensionContext;
     public langClient!: ExtendedLangClientInterface;
+    public projectPath: string;
+    public biSupported?: boolean;
 }
 
 export const extension = new ExtensionVariables();

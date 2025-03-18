@@ -9,52 +9,81 @@
 
 import React from "react";
 
-import { NodeKind, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, RecordTypeField, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 
 import { FormField } from "../Form/types";
 import { MultiSelectEditor } from "./MultiSelectEditor";
 import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
-import { ExpressionBarRef } from "@wso2-enterprise/ui-toolkit";
+import { FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 import { ParamManagerEditor } from "../ParamManager/ParamManager";
 import { DropdownEditor } from "./DropdownEditor";
+import { FileSelect } from "./FileSelect";
 import { CheckBoxEditor } from "./CheckBoxEditor";
+import { ArrayEditor } from "./ArrayEditor";
+import { MapEditor } from "./MapEditor";
+import { ChoiceForm } from "./ChoiceForm";
+import { FormMapEditor } from "./FormMapEditor";
+import { TextAreaEditor } from "./TextAreaEditor";
+import { DropdownChoiceForm } from "./DropdownChoiceForm";
+import { IdentifierEditor } from "./IdentifierEditor";
+import { ReadonlyField } from "./ReadonlyField";
+import { ContextAwareRawExpressionEditor } from "./RawExpressionEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
     selectedNode?: NodeKind;
     openRecordEditor?: (open: boolean) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
+    handleOnTypeChange?: () => void;
+    visualizableFields?: string[];
+    recordTypeFields?: RecordTypeField[];
 }
 
-export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
-    const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus, autoFocus } =
-        props;
-
-    if (field.type === "MULTIPLE_SELECT") {
-        // Enum is a dropdown field
-        let label: string;
-        switch (selectedNode) {
-            case "DATA_MAPPER":
-                label = "Add Another Input";
-                break;
-            default:
-                label = "Add Another";
-                break;
-        }
-        return <MultiSelectEditor field={field} label={label} />;
+export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormFieldEditorProps>((props, ref) => {
+    const {
+        field,
+        selectedNode,
+        openRecordEditor,
+        openSubPanel,
+        subPanelView,
+        handleOnFieldFocus,
+        autoFocus,
+        handleOnTypeChange,
+        visualizableFields,
+        recordTypeFields
+    } = props;
+    if (!field.enabled || field.hidden) {
+        return <></>;
+    } else if (field.type === "MULTIPLE_SELECT") {
+        return <MultiSelectEditor field={field} label={"Add Another"} openSubPanel={openSubPanel} />;
+    } else if (field.type === "CHOICE") {
+        return <ChoiceForm field={field} />;
+    } else if (field.type === "DROPDOWN_CHOICE") {
+        return <DropdownChoiceForm field={field} />;
+    } else if (field.type === "TEXTAREA") {
+        return <TextAreaEditor field={field} />;
+    } else if (field.type === "EXPRESSION_SET") {
+        return <ArrayEditor field={field} label={"Add Another Value"} />;
+    } else if (field.type === "MAPPING_EXPRESSION_SET") {
+        return <MapEditor field={field} label={"Add Another Key-Value Pair"} />;
     } else if (field.type === "FLAG") {
         return <CheckBoxEditor field={field} />;
+    } else if (field.type === "EXPRESSION" && field.key === "resourcePath") {
+        // HACK: this should fixed with the LS API. this is used to avoid the expression editor for resource path field.
+        return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
     } else if (field.type.toUpperCase() === "ENUM") {
         // Enum is a dropdown field
         return <DropdownEditor field={field} />;
+    } else if (field.type === "FILE_SELECT" && field.editable) {
+        return <FileSelect field={field} />;
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
-        return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
+        return <DropdownEditor field={field} openSubPanel={openSubPanel} />;
     } else if (!field.items && (field.key === "type" || field.type === "TYPE") && field.editable) {
         // Type field is a type editor
         return (
@@ -63,6 +92,7 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 openRecordEditor={openRecordEditor}
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
+                handleOnTypeChange={handleOnTypeChange}
             />
         );
     } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
@@ -72,8 +102,18 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 ref={ref}
                 field={field}
                 openSubPanel={openSubPanel}
-                isActiveSubPanel={isActiveSubPanel}
+                subPanelView={subPanelView}
                 handleOnFieldFocus={handleOnFieldFocus}
+                autoFocus={autoFocus}
+                visualizable={visualizableFields?.includes(field.key)}
+                recordTypeField={recordTypeFields?.find(recordField => recordField.key === field.key)}
+            />
+        );
+    } else if (!field.items && field.type === "RAW_TEMPLATE" && field.editable) {
+        return (
+            <ContextAwareRawExpressionEditor
+                ref={ref}
+                field={field}
                 autoFocus={autoFocus}
             />
         );
@@ -81,7 +121,13 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
         // Skip this property
         return <></>;
     } else if (field.type === "PARAM_MANAGER") {
-        return <ParamManagerEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
+        return <ParamManagerEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} selectedNode={selectedNode} />;
+    } else if (field.type === "REPEATABLE_PROPERTY") {
+        return <FormMapEditor field={field} label={"Add Another Key-Value Pair"} />;
+    } else if (field.type === "IDENTIFIER" && !field.editable && field?.lineRange) {
+        return <IdentifierEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
+    } else if (field.type !== "IDENTIFIER" && !field.editable) {
+        return <ReadonlyField field={field} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor

@@ -21,6 +21,7 @@ export interface ExpressionLabelOptions extends BaseModelOptions {
 	link?: DataMapperLinkModel;
 	field?: Node;
 	editorLabel?: string;
+	isSubLinkLabel?: boolean;
 	deleteLink?: () => void;
 }
 
@@ -32,6 +33,7 @@ export class ExpressionLabelModel extends LabelModel {
 	field?: Node;
 	editorLabel?: string;
 	pendingMappingType?: MappingType;
+	isSubLinkLabel?: boolean;
 	deleteLink?: () => void;
 
 	constructor(options: ExpressionLabelOptions = {}) {
@@ -45,6 +47,7 @@ export class ExpressionLabelModel extends LabelModel {
 		this.link = options.link;
 		this.field = options.field;
 		this.editorLabel = options.editorLabel;
+		this.isSubLinkLabel = options.isSubLinkLabel;
 		this.updateSource = this.updateSource.bind(this);
 		this.deleteLink = options.deleteLink;
 	}

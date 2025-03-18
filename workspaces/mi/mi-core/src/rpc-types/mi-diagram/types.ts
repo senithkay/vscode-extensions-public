@@ -9,7 +9,8 @@
  */
 
 import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
+import { Diagnostic, Position, TextDocumentIdentifier, TextEdit } from "vscode-languageserver-types";
+import { HelperPaneData } from '../../interfaces/mi-diagram';
 
 interface Record {
     name: string;
@@ -21,6 +22,16 @@ export interface ApplyEditRequest {
     documentUri: string;
     range: Range;
     disableFormatting?: boolean;
+    disableUndoRedo?: boolean;
+    addNewLine?: boolean;
+}
+
+export interface ApplyEditsRequest {
+    documentUri: string;
+    edits: ExtendedTextEdit[];
+    disableFormatting?: boolean;
+    disableUndoRedo?: boolean;
+    addNewLine?: boolean;
 }
 
 export interface ApplyEditResponse {
@@ -37,6 +48,7 @@ export interface CreateAPIRequest {
     wsdlType?: "file" | "url";
     wsdlDefPath?: string;
     wsdlEndpointName?: string;
+    projectDir?: string;
 }
 
 export interface EditAPIRequest {
@@ -338,6 +350,7 @@ export interface CreateProjectRequest {
     groupID?: string;
     artifactID?: string;
     version?: string;
+    miVersion: string;
 }
 
 export interface ImportProjectRequest {
@@ -356,8 +369,25 @@ export interface Connector {
     description: string;
     icon: string;
 }
+
+export interface ConnectorOperation {
+    name: string;
+    description: string;
+    isHidden: boolean;
+}
 export interface ConnectorsResponse {
     data: Connector[];
+}
+
+export interface UpdatePOMRequest {
+    documentUri: string;
+    groupId: string;
+    artifactId: string;
+    version: string;
+}
+
+export interface UpdatePOMResponse {
+    textEdits: TextEdit[];
 }
 
 export interface ESBConfigsResponse {
@@ -416,6 +446,7 @@ export interface ShowErrorMessageRequest {
 
 export interface OpenDiagramRequest {
     path: string;
+    beside?: boolean;
 }
 
 export interface CreateAPIResponse {
@@ -939,6 +970,8 @@ export interface CreateTemplateRequest {
     statisticsEnabled: boolean;
     parameters: any;
     getContentOnly: boolean;
+    isEdit: boolean;
+    range?: Range;
 }
 
 export interface CreateTemplateResponse {
@@ -1314,6 +1347,7 @@ export interface BrowseFileRequest {
     defaultUri: string;
     title: string;
     openLabel?: string;
+    filters?: { [key: string]: string[] };
 }
 
 export type ResourceType =
@@ -1340,6 +1374,7 @@ export type ResourceType =
     | "xsl"
     | "xslt"
     | "yaml"
+    | "crt"
     | "registry";
 
 export interface MultipleResourceType {
@@ -1366,12 +1401,23 @@ export interface CreateClassMediatorRequest {
 export interface CreateClassMediatorResponse {
     path: string;
 }
+
+export interface CreateBallerinaModuleRequest {
+    projectDirectory: string;
+    moduleName: string;
+    version: string;
+}
+
+export interface CreateBallerinaModuleResponse {
+    path: string;
+}
+
 export interface GetBackendRootUrlResponse {
     url: string;
 }
 export interface ListRegistryArtifactsRequest {
     path: string;
-    withAdditionalData?:boolean
+    withAdditionalData?: boolean
 }
 export interface ListRegistryArtifactsResponse {
     artifacts: RegistryArtifact[];
@@ -1430,6 +1476,14 @@ export interface GetAvailableConnectorResponse {
     actions?: any[];
 }
 
+export interface ConnectorDependency {
+    artifactId: string;
+    version: string;
+    connectorPath?: string;
+    isBallerinaModule?: boolean;
+    ballerinaModulePath?: string;
+}
+
 export interface UpdateConnectorRequest {
     documentUri: string;
 }
@@ -1452,8 +1506,21 @@ export interface GetConnectionFormResponse {
 }
 
 export interface StoreConnectorJsonResponse {
-    outboundConnectors: any[];
-    inboundConnectors: any[];
+    outboundConnectors?: any[];
+    inboundConnectors?: any[];
+    connectors?: any[];
+}
+
+export interface LocalInboundConnectorsResponse {
+    "inbound-connector-data"?: any;
+}
+
+export interface RemoveConnectorRequest {
+    connectorPath: string;
+}
+
+export interface RemoveConnectorResponse {
+    success: boolean;
 }
 
 export interface CreateDataSourceResponse {
@@ -1527,8 +1594,8 @@ export interface GetConnectorConnectionsResponse {
 }
 
 export interface SaveInboundEPUischemaRequest {
-    connectorName:string;
-    uiSchema:string;
+    connectorName: string;
+    uiSchema: string;
 }
 
 export interface GetInboundEPUischemaRequest {
@@ -1548,6 +1615,19 @@ export interface GetAllRegistryPathsRequest {
 export interface GetAllRegistryPathsResponse {
     registryPaths: string[];
 }
+
+export interface GetAllResourcePathsResponse {
+    resourcePaths: string[];
+}
+
+export interface GetConfigurableEntriesRequest {
+    configurableEntryType: string;
+}
+
+export interface GetConfigurableEntriesResponse {
+    configurableEntries: { name: string; type: string }[];
+}
+
 export interface GetAllArtifactsRequest {
     path: string;
 }
@@ -1563,6 +1643,16 @@ export interface DeleteArtifactRequest {
 
 export interface APIContextsResponse {
     contexts: string[]
+}
+
+export interface BuildProjectRequest {
+    buildType?: 'docker' | 'capp';
+}
+
+export interface DeployProjectRequest {
+}
+export interface DeployProjectResponse {
+    success: boolean;
 }
 
 export interface ExportProjectRequest {
@@ -1669,10 +1759,6 @@ export interface Dependency {
     range?: Range;
 }
 
-export interface UpdateDependencyInPomRequest extends Dependency {
-    file: string
-}
-
 export interface OpenDependencyPomRequest {
     name: string;
     file: string
@@ -1701,9 +1787,30 @@ export interface TestDbConnectionResponse {
     success: boolean;
 }
 
-export interface AddDriverRequest {
-    className: string;
+export interface CheckDBDriverResponse {
+    isDriverAvailable: boolean;
+    driverVersion: string;
     driverPath: string;
+}
+
+export interface AddDriverRequest {
+    addDriverPath: string;
+    removeDriverPath: string;
+    className: string;
+}
+
+export interface RemoveDBDriverResponse {
+    isDriverRemoved: boolean;
+    driverFilePath: string;
+}
+
+export interface CopyConnectorZipRequest {
+    connectorPath: string;
+}
+
+export interface CopyConnectorZipResponse {
+    success: boolean;
+    connectorPath?: string;
 }
 
 export interface DSSQueryGenRequest {
@@ -1738,7 +1845,17 @@ export interface DSSFetchTablesResponse {
 export interface MarkAsDefaultSequenceRequest {
     path: string;
     remove?: boolean;
+    name?: string
 }
+
+export const SCOPE = {
+    AUTOMATION: 'automation',
+    INTEGRATION_AS_API: 'integration-as-api',
+    EVENT_INTEGRATION: 'event-integration',
+    FILE_INTEGRATION: 'file-integration',
+    AI_AGENT: 'ai-agent',
+    ANY: 'any'
+};
 
 export interface GetSubFoldersRequest {
     path: string;
@@ -1751,4 +1868,226 @@ export interface GetSubFoldersResponse {
 export interface FileRenameRequest {
     existingPath: string;
     newPath: string;
+}
+
+export interface MiVersionResponse {
+    version: string;
+}
+
+export interface MediatorTryOutRequest {
+    file: string;
+    line: number;
+    column: number;
+    inputPayload?: string;
+    mediatorType?: string;
+    mediatorInfo?: MediatorTryOutInfo,
+    tryoutId?: string;
+    isServerLess: boolean;
+    edits?: {
+        text: string;
+        range: Range;
+    }[]
+}
+
+export interface MediatorTryOutResponse {
+    id: string,
+    input: MediatorTryOutInfo;
+    output: MediatorTryOutInfo;
+    error?: string;
+}
+
+export interface MediatorTryOutInfo {
+    payload: string;
+    headers: Header[];
+    params: Params;
+    variables: { [key: string]: string };
+    properties: MediatorProperties;
+}
+
+export interface MediatorProperties {
+    synapse: { [key: string]: any };
+    axis2: { [key: string]: any };
+    axis2Client: { [key: string]: any };
+    axis2Transport: { [key: string]: any };
+    axis2Operation: { [key: string]: any };
+}
+
+export interface Header {
+    key: string;
+    value: string;
+}
+
+export interface Params {
+    functionParams: string[];
+    queryParams: string[];
+    uriParams: string[];
+}
+
+export interface SavePayloadRequest {
+    payload: string;
+}
+
+export interface GetPayloadsRequest {
+    documentUri: string;
+}
+
+export interface GetPayloadsResponse {
+    payloads: InputPayload[];
+}
+
+export interface InputPayload {
+    name: string;
+    content: string;
+}
+
+export interface GetMediatorsRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export interface GetMediatorsResponse {
+    [key: string]: {
+        items: Mediator[] | MediatorCategory[],
+        isConnector?: boolean;
+        isSupportCategories?: boolean;
+        artifactId?: string;
+        version?: string;
+        connectorPath?: string;
+        isBallerinaModule?: boolean;
+        ballerinaModulePath?: string
+    };
+}
+
+export interface Mediator {
+    title: string;
+    tag: string;
+    type: string;
+    description: string;
+    icon: string;
+    operationName?: string;
+    iconPath?: string;
+    tooltip?: string;
+}
+
+export interface MediatorCategory {
+    [key: string]: Mediator[];
+}
+
+export interface GetMediatorRequest {
+    mediatorType?: string;
+    documentUri: string;
+    range: Range;
+    isEdit?: boolean;
+}
+
+export interface GetMediatorResponse {
+    form?: any;
+    title: string;
+    onSubmit?: string;
+}
+
+export interface UpdateMediatorRequest {
+    documentUri: string;
+    range: Range;
+    mediatorType: string;
+    oldValues?: any;
+    values: any;
+    dirtyFields?: string[];
+    trailingSpace?: string;
+}
+
+export interface UpdateMediatorResponse {
+    textEdits: ExtendedTextEdit[];
+}
+
+export interface ExtendedTextEdit extends TextEdit {
+    documentUri?: string;
+    isCreateNewFile?: boolean;
+}
+
+export interface GetConnectionSchemaRequest {
+    connectorName?: string;
+    connectionType?: string;
+    documentUri?: string;
+}
+
+export interface GetConnectionSchemaResponse {
+    form?: any;
+}
+export interface ExpressionCompletionsRequest {
+    documentUri: string;
+    expression: string;
+    position: Position;
+    offset: number;
+}
+
+export interface ExpressionCompletionItem {
+    label: string;
+    kind: number;
+    detail: string;
+    sortText: string;
+    filterText: string;
+    insertText: string;
+    insertTextFormat: number;
+}
+
+export type ExpressionCompletionsResponse = {
+    isIncomplete: boolean;
+    items: ExpressionCompletionItem[];
+};
+
+export interface GenerateConnectorRequest {
+    openAPIPath: string;
+    connectorProjectPath: string;
+}
+export interface GenerateConnectorResponse {
+    buildStatus: boolean;
+    connectorPath: string;
+}
+
+export interface GetHelperPaneInfoRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export type GetHelperPaneInfoResponse = HelperPaneData;
+
+export interface TestConnectorConnectionRequest {
+    connectorName: string;
+    connectionType: string;
+    parameters: any;
+}
+export interface TestConnectorConnectionResponse {
+    isConnectionTested: boolean;
+    isConnectionValid: boolean;
+    errorMessage: string;
+}
+
+export interface SaveConfigRequest {
+    configName: string;
+    configType: "string" | "cert";
+}
+
+export interface SaveConfigResponse {
+    success: boolean;
+}
+
+export interface CopyArtifactRequest {
+    sourceFilePath: string;
+    artifactType: string;
+    artifactFolder: string;
+}
+
+export interface CopyArtifactResponse {
+    success: boolean;
+    error?: string;
+}
+
+export interface GetArtifactTypeRequest {
+    filePath: string;
+}
+
+export interface GetArtifactTypeResponse {
+    artifactType: string;
+    artifactFolder: string;
 }

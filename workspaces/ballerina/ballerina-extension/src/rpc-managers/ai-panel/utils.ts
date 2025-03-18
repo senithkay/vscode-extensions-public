@@ -7,45 +7,44 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FunctionDefinition, ModulePart, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
+import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 
 import { StateMachine } from "../../stateMachine";
 import {
     ENDPOINT_REMOVED,
     INVALID_PARAMETER_TYPE,
     INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY,
-    MODIFIYING_ERROR,
     PARSING_ERROR,
     TIMEOUT,
     UNAUTHORIZED,
-    UNKNOWN_ERROR,
-    USER_ABORTED
+    USER_ABORTED,
+    SERVER_ERROR,
+    TOO_MANY_REQUESTS,
+    INVALID_RECORD_UNION_TYPE
 } from "../../views/ai-panel/errorCodes";
 import { hasStopped } from "./rpc-manager";
 import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import axios from "axios";
 import { getPluginConfig } from "../../../src/utils";
+import path from "path";
+import * as fs from 'fs';
 
 export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
-const REQUEST_TIMEOUT = 40000;
+const BACKEND_BASE_URL = BACKEND_API_URL_V2.replace(/\/v2\.0$/, "");
+//TODO: Temp workaround as custom domain seem to block file uploads
+const CONTEXT_UPLOAD_URL_V1 = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/ballerina-copilot/context-upload-api/v1.0";
+// const CONTEXT_UPLOAD_URL_V1 = BACKEND_BASE_URL + "/context-api/v1.0";
+const ASK_API_URL_V1 = BACKEND_BASE_URL + "/ask-api/v1.0";
+
+const REQUEST_TIMEOUT = 2000000;
 
 let abortController = new AbortController();
 let nestedKeyArray: string[] = [];
-
-export interface ParameterMetadata {
-    inputs: object;
-    output: object;
-    inputMetadata: object;
-    outputMetadata: object;
-}
-
-export interface RecordDefinitonObject {
-    recordFields: object;
-    recordFieldsMetadata: object;
-}
+const primitiveTypes = ["string", "int", "float", "decimal", "boolean"];
 
 export async function getAccessToken(): Promise<string> {
     let token:string = await extension.context.secrets.get("BallerinaAIUser");
@@ -82,14 +81,14 @@ export function handleStop() {
 export async function getParamDefinitions(
     fnSt: FunctionDefinition,
     fileUri: string
-): Promise<ParameterMetadata | ErrorCode> {
-
+): Promise<ParameterDefinitions| ErrorCode> {
     let inputs: { [key: string]: any } = {};
     let inputMetadata: { [key: string]: any } = {};
     let output: { [key: string]: any } = {};
     let outputMetadata: { [key: string]: any } = {};
     let hasArrayParams = false;
     let arrayParams = 0;
+    let isErrorExists = false;
 
     for (const parameter of fnSt.functionSignature.parameters) {
         if (!STKindChecker.isRequiredParam(parameter)) {
@@ -113,22 +112,48 @@ export async function getParamDefinitions(
             paramType = param.typeName.source;
         }
 
-        const parameterDefinition = await StateMachine.langClient().getTypeFromSymbol({
+        const position = param.typeName.kind === "QualifiedNameReference"
+            ? {
+                line: (param.typeName as QualifiedNameReference).identifier.position.startLine,
+                offset: (param.typeName as QualifiedNameReference).identifier.position.startColumn
+            }
+            : {
+                line: parameter.position.startLine,
+                offset: parameter.position.startColumn
+            };
+        const inputTypeDefinition = await StateMachine.langClient().getTypeFromSymbol({
             documentIdentifier: {
                 uri: fileUri
             },
-            positions: [{ "line": parameter.position.startLine, "offset": parameter.position.startColumn }]
+            positions: [position]
         });
 
-        if ('types' in parameterDefinition && parameterDefinition.types.length > 1) {
+        if ('types' in inputTypeDefinition && inputTypeDefinition.types.length > 1) {
             return INVALID_PARAMETER_TYPE;
         }
 
-        let inputDefinition;
-        if ('types' in parameterDefinition && parameterDefinition.types[0].type.hasOwnProperty('fields')) {
-            inputDefinition = navigateTypeInfo(parameterDefinition.types[0].type.fields, false);
+        if ('types' in inputTypeDefinition && !inputTypeDefinition.types[0].hasOwnProperty('type')) {
+            if (parameter.typeName.kind === "QualifiedNameReference") {
+                throw new Error(`"${parameter.typeName["identifier"].value}" does not exist in the package "${parameter.typeName["modulePrefix"].value}". Please verify the record name or ensure that the correct package is imported.`);
+            } 
+            return INVALID_PARAMETER_TYPE;
+        }
+
+        if (inputTypeDefinition["types"] && inputTypeDefinition["types"].length > 0) {
+            const type = inputTypeDefinition["types"][0].type;
+            if (type.typeName === "union" && type.members) {
+                const hasFields = type.members.some(member => member.fields && member.fields.length > 0);
+                if (hasFields) {
+                    return INVALID_RECORD_UNION_TYPE;
+                }
+            }
+        }
+
+        let inputDefinition: ErrorCode | RecordDefinitonObject;
+        if ('types' in inputTypeDefinition && inputTypeDefinition.types[0].type.hasOwnProperty('fields')) {
+            inputDefinition = navigateTypeInfo(inputTypeDefinition.types[0].type.fields, false);
         } else {
-            let singleFieldType = 'types' in parameterDefinition && parameterDefinition.types[0].type;
+            let singleFieldType = 'types' in inputTypeDefinition && inputTypeDefinition.types[0].type;
             inputDefinition = {
                 "recordFields": { [paramName]: { "type": singleFieldType.typeName, "comment": "" } },
                 "recordFieldsMetadata": {
@@ -142,15 +167,54 @@ export async function getParamDefinitions(
                 }
             };
         }
+
+        if (isErrorCode(inputDefinition)) {
+            return inputDefinition as ErrorCode;
+        }
+        
         inputs = { ...inputs, [paramName]: (inputDefinition as RecordDefinitonObject).recordFields };
-        inputMetadata = { ...inputMetadata, [paramName]: { "isArrayType": parameter.typeName.kind === "ArrayTypeDesc"? true : false ,"parameterName": paramName, "parameterType": paramType, "type": parameter.typeName.kind === "ArrayTypeDesc" ? "record[]" : "record", "fields": (inputDefinition as RecordDefinitonObject).recordFieldsMetadata } };
-            
+        inputMetadata = {
+            ...inputMetadata,
+            [paramName]: {
+                "isArrayType": parameter.typeName.kind === "ArrayTypeDesc",
+                "parameterName": paramName,
+                "parameterType": paramType,
+                "type": parameter.typeName.kind === "ArrayTypeDesc" ? "record[]" : "record",
+                "fields": (inputDefinition as RecordDefinitonObject).recordFieldsMetadata
+            }
+        };
         if (parameter.typeName.kind === "ArrayTypeDesc") {
             hasArrayParams = true;
         }
     }
 
-    if (STKindChecker.isArrayTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
+    if (STKindChecker.isUnionTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
+        let unionType = fnSt.functionSignature.returnTypeDesc.type;
+        let leftType = unionType.leftTypeDesc;
+        let rightType = unionType.rightTypeDesc;
+
+        if (STKindChecker.isArrayTypeDesc(leftType) && STKindChecker.isErrorTypeDesc(rightType)) {
+            if (!STKindChecker.isSimpleNameReference(leftType.memberTypeDesc)) {
+                return INVALID_PARAMETER_TYPE;
+            }
+            isErrorExists = true;
+        } else if (STKindChecker.isArrayTypeDesc(rightType) && STKindChecker.isErrorTypeDesc(leftType)) {
+            if (!STKindChecker.isSimpleNameReference(rightType.memberTypeDesc)) {
+                return INVALID_PARAMETER_TYPE;
+            }
+            isErrorExists = true;
+        } else if (
+            (STKindChecker.isSimpleNameReference(leftType) || STKindChecker.isQualifiedNameReference(leftType)) &&
+            STKindChecker.isErrorTypeDesc(rightType)) {
+            isErrorExists = true;
+        } else if (
+            (STKindChecker.isSimpleNameReference(rightType) || STKindChecker.isQualifiedNameReference(rightType)) &&
+            STKindChecker.isErrorTypeDesc(leftType)) {
+            isErrorExists = true;
+        } else {
+            return INVALID_PARAMETER_TYPE;
+        }
+    } else if (STKindChecker.isArrayTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
         if (arrayParams > 1) {
             return INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY;
         }
@@ -160,19 +224,57 @@ export async function getParamDefinitions(
         if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type.memberTypeDesc)) {
             return INVALID_PARAMETER_TYPE;
         }
-    } else if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type)) {
-        return INVALID_PARAMETER_TYPE;
-    } 
+    } else {
+        if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type) &&
+            !STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type)) {
+                return INVALID_PARAMETER_TYPE;
+        }
+    }    
+
+    let returnType = fnSt.functionSignature.returnTypeDesc.type;
+
+    const returnTypePosition = STKindChecker.isUnionTypeDesc(returnType)
+        ? {
+            line: STKindChecker.isErrorTypeDesc(returnType.leftTypeDesc)
+                ? returnType.rightTypeDesc.position.startLine
+                : returnType.leftTypeDesc.position.startLine,
+            offset: STKindChecker.isErrorTypeDesc(returnType.leftTypeDesc)
+                ? returnType.rightTypeDesc.position.startColumn
+                : returnType.leftTypeDesc.position.startColumn
+        }
+        : STKindChecker.isQualifiedNameReference(returnType)
+            ? {
+                line: returnType.identifier.position.startLine,
+                offset: returnType.identifier.position.startColumn
+            }
+            : {
+                line: returnType.position.startLine,
+                offset: returnType.position.startColumn
+            };
 
     const outputTypeDefinition = await StateMachine.langClient().getTypeFromSymbol({
         documentIdentifier: {
             uri: fileUri
         },
-        positions: [{
-            "line": fnSt.functionSignature.returnTypeDesc.type.position.startLine,
-            "offset": fnSt.functionSignature.returnTypeDesc.type.position.startColumn
-        }]
+        positions: [returnTypePosition]
     });
+
+    if ('types' in outputTypeDefinition && !outputTypeDefinition.types[0].hasOwnProperty('type')) {
+        if (returnType.kind === "QualifiedNameReference") {
+            throw new Error(`"${returnType["identifier"].value}" does not exist in the package "${returnType["modulePrefix"].value}". Please verify the record name or ensure that the correct package is imported.`);
+        } 
+        return INVALID_PARAMETER_TYPE;
+    }
+
+    if (outputTypeDefinition["types"] && outputTypeDefinition["types"].length > 0) {
+        const type = outputTypeDefinition["types"][0].type;
+        if (type.typeName === "union" && type.members) {
+            const hasFields = type.members.some(member => member.fields && member.fields.length > 0);
+            if (hasFields) {
+                return INVALID_RECORD_UNION_TYPE;
+            }
+        }
+    }
 
     const outputDefinition = navigateTypeInfo('types' in outputTypeDefinition && outputTypeDefinition.types[0].type.fields, false);
 
@@ -190,33 +292,61 @@ export async function getParamDefinitions(
         outputMetadata
     };
 
-    return response;
+    return {
+        parameterMetadata: response,
+        errorStatus: isErrorExists
+    };
 }
 
 export async function processMappings(
     fnSt: FunctionDefinition,
-    fileUri: string
+    fileUri: string,
+    file?: AttachmentResult
 ): Promise<SyntaxTree | ErrorCode> {
-    const parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
+    let result = await getParamDefinitions(fnSt, fileUri);
+    if (isErrorCode(result)) {
+        return result as ErrorCode;
+    }
+    let parameterDefinitions = (result as ParameterDefinitions).parameterMetadata;
+    const isErrorExists = (result as ParameterDefinitions).errorStatus;
 
-    if (isErrorCode(parameterDefinitions)) {
-        return parameterDefinitions as ErrorCode;
+    if (file) {
+        let mappedResult = await mappingFileParameterDefinitions(file, parameterDefinitions);
+        if (isErrorCode(mappedResult)) {
+            return mappedResult as ErrorCode;
+        }
+        parameterDefinitions = mappedResult as ParameterMetadata; 
     }
 
     const codeObject = await getDatamapperCode(parameterDefinitions);
-    if (isErrorCode(codeObject)) {
+    if (isErrorCode(codeObject) || Object.keys(codeObject).length === 0) {
         return codeObject as ErrorCode;
     }
 
-    let codeString: string = constructRecord(codeObject);
-    if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
-        const parameter = fnSt.functionSignature.parameters[0];
-        const param = parameter as RequiredParam;
-        const paramName = param.paramName.value;
-        codeString = codeString.startsWith(":") ? codeString.substring(1) : codeString;
-        codeString = `=> from var ${paramName}Item in ${paramName}\n select ${codeString};`;
+    const { recordString, isCheckError } = await constructRecord(codeObject);
+    let codeString: string;
+    const parameter = fnSt.functionSignature.parameters[0] as RequiredParam;
+    const paramName = parameter.paramName.value;
+    const formattedRecordString = recordString.startsWith(":") ? recordString.substring(1) : recordString;
+
+    let returnType = fnSt.functionSignature.returnTypeDesc.type;
+
+    if (STKindChecker.isUnionTypeDesc(returnType)) {
+        const { leftTypeDesc: leftType, rightTypeDesc: rightType } = returnType;
+
+        if (STKindChecker.isArrayTypeDesc(leftType) || STKindChecker.isArrayTypeDesc(rightType)) {
+            codeString = isCheckError && !isErrorExists
+                ? `|error => from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`
+                : `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
+        } else {
+            codeString = isCheckError && !isErrorExists ? `|error => ${recordString};` : `=> ${recordString};`;
+        }
+    } else if (STKindChecker.isArrayTypeDesc(returnType)) {
+        codeString = isCheckError
+            ? `|error => from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`
+            : `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
     } else {
-        codeString = `=> ${codeString};`;
+        codeString = isCheckError ? `|error => ${recordString};` : `=> ${recordString};`;
     }
 
     const modifications: STModification[] = [];
@@ -240,15 +370,34 @@ export async function processMappings(
 }
 
 
-export async function generateBallerinaCode(response: object, parameterDefinitions: ParameterMetadata, nestedKey: string = ""): Promise<object> {
+export async function generateBallerinaCode(response: object, parameterDefinitions: ParameterMetadata | ErrorCode, nestedKey: string = ""): Promise<object|ErrorCode> {
     let recordFields: { [key: string]: any } = {};
+    const arrayRecords = [
+        "record[]", "record[]|()", "(readonly&record)[]", "(readonly&record)[]|()",
+        "(record|())[]", "(record|())[]|()", "(readonly&record|())[]", "(readonly&record|())[]|()",
+    ];
+    const arrayEnumUnion = ["enum[]", "union[]", "intersection[]", "enum[]|()", "union[]|()", "intersection[]|()"];
+    const recordTypes = [
+        "record", "record|()", "readonly&record", "readonly&record|()",
+        "record[]", "record[]|()", "(readonly&record)[]", "(readonly&record)[]|()",
+        "(record|())[]", "(record|())[]|()", "(readonly&record|())[]", "(readonly&record|())[]|()",
+    ];
+    const unionEnumIntersectionTypes = [
+        "enum", "union", "intersection", "enum[]", 
+        "enum[]|()", "union[]", "union[]|()", "intersection[]", "intersection[]|()"];
 
     if (response.hasOwnProperty("code") && response.hasOwnProperty("message")) {
         return response as ErrorCode;
     }
 
     if (response.hasOwnProperty("operation") && response.hasOwnProperty("parameters") && response.hasOwnProperty("targetType")) {
-        let path = getMappingString(response, parameterDefinitions);
+        let path = await getMappingString(response, parameterDefinitions, nestedKey, recordTypes, unionEnumIntersectionTypes, arrayRecords, arrayEnumUnion);
+        if (isErrorCode(path)) {
+            return {};
+        }        
+        if (path === "") {
+            return {};
+        }
         let parameters: string[] = response["parameters"];
         let paths = parameters[0].split(".");
         let recordFieldName: string = nestedKey || paths[1];
@@ -263,7 +412,7 @@ export async function generateBallerinaCode(response: object, parameterDefinitio
             if (!subRecord.hasOwnProperty("operation") && !subRecord.hasOwnProperty("parameters") && !subRecord.hasOwnProperty("targetType")) {
                 nestedKeyArray.push(key);
                 let responseRecord = await generateBallerinaCode(subRecord, parameterDefinitions, key);
-                let recordFieldDetails = await handleRecordArrays(key, nestedKey, responseRecord, parameterDefinitions);
+                let recordFieldDetails = await handleRecordArrays(key, nestedKey, responseRecord, parameterDefinitions, arrayRecords, arrayEnumUnion);
                 nestedKeyArray.pop();
                 recordFields = { ...recordFields, ...recordFieldDetails };
             } else {
@@ -276,29 +425,117 @@ export async function generateBallerinaCode(response: object, parameterDefinitio
     }
 }
 
-function getMappingString(mapping: object, parameterDefinitions: ParameterMetadata): string {
+// Get union types from the combination of union types
+function getUnionTypes(types: string[]) {
+    const result = new Set<string>(); // Use a Set to avoid duplicates
+    const len = types.length;
+
+    // Generate combinations of at least two elements
+    for (let i = 2; i <= len; i++) {
+        generateCombinations(types, i, 0, [], result);
+    }
+
+    return Array.from(result);
+}
+
+// Generate union combination
+function generateCombinations(arr: string[], size: number, start: number, current: string[], result: Set<string>) {
+    if (current.length === size) {
+        result.add(current.slice().sort().join("|")); // Sort to ensure order consistency
+        return;
+    }
+    for (let i = start; i < arr.length; i++) {
+        generateCombinations(arr, size, i + 1, [...current, arr[i]], result);
+    }
+}
+
+// Function to check if a given type is a valid union type (order-independent)
+function isUnionType(type: string): boolean {
+    const sortedType = type.split("|").sort().join("|"); // Sort input type for consistency
+    const validUnionTypes = getUnionTypes(primitiveTypes); // Get valid union types
+    return validUnionTypes.includes(sortedType); // Check against Set
+}
+
+async function getMappingString(mapping: object, parameterDefinitions: ParameterMetadata | ErrorCode, nestedKey:string, recordTypes: string[], unionEnumIntersectionTypes: string[], arrayRecords: string[], arrayEnumUnion: string[]): Promise<string | ErrorCode>  {
     let operation: string = mapping["operation"];
     let targetType: string = mapping["targetType"];
     let parameters: string[] = mapping["parameters"];
     
     let path: string = "";
+    let modifiedPaths: string[] = [];
+    let inputTypeName: string = "";
     let inputType: string = "";
+    let baseType: string = "";
+    let baseTargetType: string = "";
+    let outputType: string = "";
+    let baseOutputType: string = "";
+    let baseInputType: string = "";
+    let modifiedInput: object;
+    let outputObject: object;
+    let isInputNullableArray: boolean;
+    let isOutputNullableArray: boolean;
+
+    let paths = parameters[0].split(".");
+    let recordObjectName: string = paths[0];
+
+    // Retrieve inputType
+    if (paths.length > 2) {
+        modifiedInput = await getNestedType(paths.slice(1), parameterDefinitions["inputMetadata"][recordObjectName]);
+    } else {
+        modifiedInput = parameterDefinitions["inputMetadata"][recordObjectName]["fields"][paths[1]];
+    }
+
+    // Resolve output metadata
+    if (nestedKeyArray.length > 0) {
+        outputObject = await resolveMetadata(parameterDefinitions, nestedKeyArray, nestedKey, "outputMetadata");
+        if (!outputObject) { throw new Error(`Metadata not found for ${nestedKey}.`); }
+    } else if (parameterDefinitions["outputMetadata"].hasOwnProperty("fields") || !parameterDefinitions["outputMetadata"][nestedKey]) {
+        throw new Error(`Invalid or missing metadata for nestedKey: ${nestedKey}.`);
+    } else {
+        outputObject = parameterDefinitions["outputMetadata"][nestedKey];
+    }
+
+    baseTargetType= targetType.replace(/\|\(\)$/, "");
+
+    inputTypeName = modifiedInput["typeName"];
+    baseType = inputTypeName.replace(/\|\(\)$/, "");
+
+    inputType = modifiedInput["type"];
+    baseInputType = inputType.replace(/\|\(\)$/, "");
+
+    outputType = outputObject["type"];
+    baseOutputType = outputType.replace(/\|\(\)$/, "");
 
     if (operation === "DIRECT") {
         if (parameters.length > 1) {
             return "";
         }
-        let paths = parameters[0].split(".");
-        let recordObjectName: string = paths[0];
-        let modifiedPaths: string[] = accessMetadata(paths, 1, parameterDefinitions["inputMetadata"][recordObjectName], false);
-        
-        // Retrieve inputType
-        if (paths.length > 2) {
-            inputType = getNestedType(paths.slice(1), parameterDefinitions["inputMetadata"][recordObjectName]);
-        } else {
-            inputType = parameterDefinitions["inputMetadata"][recordObjectName]["fields"][paths[1]]["type"];
+        // Helper function to check if type contains []
+        const hasArrayNotation = (type: string) => type.includes("[]");
+        if (recordTypes.includes(baseType)) {
+            // Both baseType and baseTargetType either contain "[]" or do not
+            if (!(hasArrayNotation(baseType) === hasArrayNotation(baseTargetType))) {
+                return ""; 
+            } 
+        } else if (unionEnumIntersectionTypes.includes(baseOutputType)) {
+            // Both baseInputType and baseOutputType either contain "[]" or do not
+            if (!(hasArrayNotation(baseInputType) === hasArrayNotation(baseOutputType))) {
+                return "";
+            } 
         }
-
+        modifiedPaths = await accessMetadata(
+            paths, 
+            parameterDefinitions, 
+            outputObject, 
+            baseType, 
+            baseTargetType,
+            nestedKey, 
+            operation,
+            unionEnumIntersectionTypes,
+            recordTypes,
+            arrayRecords,
+            arrayEnumUnion
+        );
         for (let index = 0; index < modifiedPaths.length; index++) {
             if (index > 0 && modifiedPaths[index] === modifiedPaths[index - 1]) {
                 continue;
@@ -309,7 +546,7 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
             path = `${path}${modifiedPaths[index]}`;
         }
         // Add split operation if inputType is "string" and targetType is "string[]"
-        if (inputType === "string" && targetType === "string[]") {
+        if (baseType === "string" && baseTargetType === "string[]") {
             return `re \`,\`.split(${path})`;
         }
 
@@ -323,35 +560,93 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
 
         const numericConversions: { [key: string]: { [key: string]: string } } = {
             float: {
-                int: `check ${path}.ensureType()`,
-                decimal: `check ${path}.ensureType()`
+                int: `check (${path}).ensureType()`,
+                decimal: `check (${path}).ensureType()`
             },
             int: {
-                float: `check ${path}.ensureType()`,
-                decimal: `check ${path}.ensureType()`
+                float: `check (${path}).ensureType()`,
+                decimal: `check (${path}).ensureType()`
             },
             decimal: {
-                int: `check ${path}.ensureType()`,
-                float: `check ${path}.ensureType()`
+                int: `check (${path}).ensureType()`,
+                float: `check (${path}).ensureType()`
             }
         };
 
-        if (inputType !== targetType) {
-            if (inputType === "string") {
-                path = stringConversions[targetType] ? `${stringConversions[targetType]}(${path})` : path;
-            } else if (numericConversions[inputType] && numericConversions[inputType][targetType]) {
-                path = `${numericConversions[inputType][targetType]}`;
-            } else if (targetType === "string") {
-                path = `${path}.toString()`;
+        function convertUnionTypes(inputType: string, targetType: string, variablePath: string) {
+            const inputTypes = inputType.split("|").filter(type => primitiveTypes.includes(type));
+            
+            if (targetType === "string") {
+                return `(${variablePath}).toString()`;
+            }
+            
+            if (inputTypes.includes("string") && ["int", "float", "decimal", "boolean"].includes(targetType)) {
+                return `(${variablePath}) is string ? check ${targetType}:fromString((${variablePath}).toString()) : check (${variablePath}).ensureType()`;
+            }
+            
+            if (["int", "float", "decimal", "boolean"].includes(targetType)) {
+                return `check (${variablePath}).ensureType()`;
+            }
+            
+            return `${variablePath}`;
+        }
+
+        isOutputNullableArray = outputObject["nullableArray"];
+        isInputNullableArray = modifiedInput["nullableArray"];
+
+        const isStringInput = ["string", "string|()"].includes(inputTypeName);
+        const isStringTarget = ["string", "string|()"].includes(targetType);
+        if (primitiveTypes.includes(baseTargetType) && primitiveTypes.includes(baseType)) {
+            if (inputTypeName === targetType || inputTypeName === baseTargetType) {
+                path = `${path}`;
+            } else if (isStringInput) {
+                const conversion = stringConversions[baseTargetType];
+                if (conversion) {
+                    path = `${conversion}(${path})`;
+                } else if (!isStringTarget) {
+                    return "";
+                }
+            } else if (isStringTarget) {
+                path = `(${path}).toString()`;
+            } else {
+                const conversion = numericConversions[inputTypeName]?.[targetType];
+                if (conversion && baseTargetType !== "boolean") {
+                    path = conversion;
+                } else if (baseType === baseTargetType) {
+                    path = `${path}`;
+                } else if ((targetType.includes("|()") && inputTypeName !== baseTargetType) || inputTypeName.includes("|()") && baseTargetType !== "boolean") {
+                    path = `check (${path}).ensureType()`;
+                } else {
+                    return "";
+                }
+            }
+        } else if (unionEnumIntersectionTypes.includes(inputType)) {
+            if (isUnionType(baseType)) {
+                path = convertUnionTypes(baseType, baseTargetType, path);
+            } else {
+                path = `${path}`;
+                if (isInputNullableArray && !isOutputNullableArray) {
+                    path = `check (${path}).cloneWithType()`;
+                }
             }
         }
     } else if (operation === "LENGTH") {
         if (parameters.length > 1) {
             return "";
         }
-        let paths = parameters[0].split(".");
-        let recordObjectName: string = paths[0];
-        let modifiedPaths: string[] = accessMetadata(paths, 1, parameterDefinitions["inputMetadata"][recordObjectName], false);
+        modifiedPaths = await accessMetadata(
+            paths, 
+            parameterDefinitions, 
+            outputObject, 
+            baseType, 
+            baseTargetType,
+            nestedKey, 
+            operation,
+            unionEnumIntersectionTypes,
+            recordTypes,
+            arrayRecords,
+            arrayEnumUnion
+        );
         for (let index = 0; index < modifiedPaths.length; index++) {
             if (path !== "") {
                 path = `${path}.`;
@@ -363,16 +658,26 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
         if (parameters.length > 2) {
             return "";
         }
-        let paths = parameters[0].split(".");
-        let recordObjectName: string = paths[0];
-        let modifiedPaths: string[] = accessMetadata(paths, 1, parameterDefinitions["inputMetadata"][recordObjectName], false);
+        modifiedPaths = await accessMetadata(
+            paths, 
+            parameterDefinitions, 
+            outputObject, 
+            baseType, 
+            baseTargetType,
+            nestedKey, 
+            operation,
+            unionEnumIntersectionTypes,
+            recordTypes,
+            arrayRecords,
+            arrayEnumUnion
+        );
         for (let index = 0; index < modifiedPaths.length; index++) {
             if (path !== "") {
                 path = `${path}.`;
             }
             path = `${path}${modifiedPaths[index]}`;
         }
-        path = `re \`${parameters[1]}\`.split(${parameters[0]})`;
+        path = `re \`${parameters[1]}\`.split(${path})`;
     }
     return path;
 }
@@ -414,84 +719,603 @@ export async function refreshAccessToken(): Promise<string> {
     }
 }
 
-function navigateTypeInfo(typeInfos: FormField[], isNill: boolean): RecordDefinitonObject | ErrorCode {
-    let recordFields: { [key: string]: any } = {};
-    let recordFieldsMetadata: { [key: string]: any } = {};
-    for (const field of typeInfos) {
-        if (field.typeName === "record") {
-            const temporaryRecord = navigateTypeInfo(field.fields, false);
-            recordFields = { ...recordFields, [field.name]: (temporaryRecord as RecordDefinitonObject).recordFields };
-            recordFieldsMetadata = {
-                ...recordFieldsMetadata,
-                [field.name]: {
-                    "nullable": isNill,
-                    "optional": field.optional,
-                    "type": "record",
-                    "typeInstance": field.name,
-                    "typeName": field.typeName,
-                    "fields": (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
-                }
-            };
-        } else if (field.typeName === "union" || field.typeName === "intersection") {
-            for (const member of field.members) {
-                if (member.typeName === "()") {
-                    continue;
-                } 
-                if (!("fields" in member)) {
-                    const typeName = field.typeInfo.name;
-                    recordFields[field.name] = { "type": typeName, "comment": "" };
-                    recordFieldsMetadata[field.name] = {
-                        "nullable": true,
-                        "optional": field.optional,
-                        "typeName": typeName,
-                        "type": typeName,
-                        "typeInstance": field.name
-                    };
-                }
+//Define interfaces for the visitor pattern
+interface TypeInfoVisitor {
+    visitField(field: FormField, context: VisitorContext): void;
+    visitMember(member: any, context: VisitorContext): { typeName: string, member: any };
+    visitRecord(field: FormField, context: VisitorContext): void;
+    visitUnionOrIntersection(field: FormField, context: VisitorContext): void;
+    visitArray(field: FormField, context: VisitorContext): void;
+    visitEnum(field: FormField, context: VisitorContext): void;
+    visitPrimitive(field: FormField, context: VisitorContext): void;
+}
+
+//Context object to maintain state during traversal
+interface VisitorContext {
+    recordFields: { [key: string]: any };
+    recordFieldsMetadata: { [key: string]: any };
+    memberRecordFields: { [key: string]: any };
+    memberFieldsMetadata: { [key: string]: any };
+    fieldMetadata: { [key: string]: any };
+    isNill: boolean;
+    isNullable: boolean;
+    isArray: boolean;
+    isRecord: boolean;
+    isSimple: boolean;
+    isUnion: boolean;
+    isArrayNullable: boolean;
+    isRecordNullable: boolean;
+    memberName: string;
+}
+
+// Implementation of the visitor
+class TypeInfoVisitorImpl implements TypeInfoVisitor {
+    constructor() {}
+
+    visitField(field: FormField, context: VisitorContext): void {
+        // Reset state for each field
+        this.resetContext(context);
+        
+        const typeName = field.typeName;
+        
+        if (!typeName) {
+            this.handleTypeInfo(field, context);
+            return;
+        }
+        
+        switch (typeName) {
+            case "record":
+                this.visitRecord(field, context);
+                break;
+            case "union":
+            case "intersection":
+                this.visitUnionOrIntersection(field, context);
+                break;
+            case "array":
+                this.visitArray(field, context);
+                break;
+            case "enum":
+                this.visitEnum(field, context);
+                break;
+            default:
+                this.visitPrimitive(field, context);
+                break;
+        }
+    }
+    
+    visitMember(member: any, context: VisitorContext): { typeName: string, member: any } {
+        let typeName: string;
+        if (member.typeName === "record" && member.fields) {
+            typeName = this.handleRecordMember(member, context);
+        } else if (member.typeName === "array") {
+            const result = this.handleArrayMember(member, context);
+            typeName = result.typeName;
+            member = result.member;
+        } else if (["union", "intersection", "enum"].includes(member.typeName)) {
+            typeName = this.handleCompositeMember(member, context);
+        } else if (member.typeName === "()") {
+            typeName = this.handleNullMember(member, context);
+        } else {
+            typeName = this.handleSimpleMember(member, context);
+        }
+        return { typeName, member };
+    }
+    
+    visitRecord(field: FormField, context: VisitorContext): void {
+        const temporaryRecord = navigateTypeInfo(field.fields, false);
+        context.isRecord = true;
+        
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = (temporaryRecord as RecordDefinitonObject).recordFields;
+        context.recordFieldsMetadata[fieldName] = {
+            nullable: context.isNill,
+            optional: field.optional,
+            type: "record",
+            typeInstance: fieldName,
+            typeName: field.typeName,
+            fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
+        };
+    }
+    
+    visitUnionOrIntersection(field: FormField, context: VisitorContext): void {
+        let memberTypeNames: string[] = [];
+        let resolvedTypeName: string = "";
+        
+        // Check for record fields in union members and handle appropriately
+        this.processUnionMembers(field.members, context);
+        
+        for (const member of field.members) {
+            const result = this.visitMember(member, context);
+            memberTypeNames.push(result.typeName);
+            if (Object.keys(result.member).length === 0) {
+                field.members = [];
+                break;
             }
-        } else if (field.typeName === "array" && field.memberType.hasOwnProperty("fields")) {
-            let arrayFields = {};
-            let arrayFieldsMetadata = {};
+        }
+
+        if (field.members.length === 0) {
+            context.memberRecordFields = {};
+            context.memberFieldsMetadata = {};
+            return;
+        }
+        
+        resolvedTypeName = this.getResolvedTypeName(field.typeName, memberTypeNames);
+        
+        this.buildFieldMetadata(field, resolvedTypeName, context);
+        this.setFieldAndMetadata(field, resolvedTypeName, context);
+    }
+    
+    visitArray(field: FormField, context: VisitorContext): void {
+        if (field.memberType.hasOwnProperty("members") && 
+            ["union", "intersection", "enum"].includes(field.memberType.typeName)) {
+                
+            // Handle array with union/intersection/enum member type
+            this.processUnionMembers(field.memberType.members, context);
             
-            const temporaryRecord = navigateTypeInfo(field.memberType.fields, false);
-            arrayFields = { ...arrayFields, ...(temporaryRecord as RecordDefinitonObject).recordFields };
-            arrayFieldsMetadata = { ...arrayFieldsMetadata, ...(temporaryRecord as RecordDefinitonObject).recordFieldsMetadata };
+            if (field.memberType.members.length === 0) {
+                context.memberRecordFields = {};
+                context.memberFieldsMetadata = {};
+                return;
+            }
             
-            recordFields = { ...recordFields, [field.name]: arrayFields };
-            recordFieldsMetadata = {
-                ...recordFieldsMetadata,
-                [field.name]: {
-                    "typeName": "record[]",
-                    "type": "record[]",
-                    "typeInstance": field.name,
-                    "nullable": isNill,
-                    "optional": field.optional,
-                    "fields": arrayFieldsMetadata
-                }
+            this.handleArrayWithCompositeType(field, context);
+        } else if (field.memberType.hasOwnProperty("fields") && field.memberType.typeName === "record") {
+            this.handleArrayWithRecordType(field, context);
+        } else {
+            this.handleSimpleArray(field, context);
+        }
+    }
+    
+    visitEnum(field: FormField, context: VisitorContext): void {
+        let memberTypeNames: string[] = [];
+        
+        for (const member of field.members) {
+            const result = this.visitMember(member, context);
+            memberTypeNames.push(result.typeName);
+        }
+        
+        const resolvedTypeName = memberTypeNames.join("|");
+        
+        this.buildFieldMetadata(field, resolvedTypeName, context);
+        this.setFieldAndMetadata(field, resolvedTypeName, context);
+    }
+    
+    visitPrimitive(field: FormField, context: VisitorContext): void {
+        const typeName = field.typeName;
+        
+        if (field.hasOwnProperty("name")) {
+            const fieldName = getBalRecFieldName(field.name);
+            context.recordFields[fieldName] = { type: typeName, comment: "" };
+            context.recordFieldsMetadata[fieldName] = {
+                typeName: typeName,
+                type: typeName,
+                typeInstance: fieldName,
+                nullable: context.isNill,
+                optional: field.optional
             };
         } else {
-            let typeName = field.typeName;
-            if (field.typeName === "array") {
-                typeName = `${field.memberType.typeName}[]`;
+            context.recordFields[typeName] = { type: "string", comment: "" };
+            context.recordFieldsMetadata[typeName] = {
+                typeName: typeName,
+                type: "string",
+                typeInstance: typeName,
+                nullable: context.isNill,
+                optional: field.optional
+            };
+        }
+    }
+    
+    private handleTypeInfo(field: FormField, context: VisitorContext): void {
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = { type: field.typeInfo.name, comment: "" };
+        context.recordFieldsMetadata[fieldName] = {
+            typeName: field.typeInfo.name,
+            type: field.typeInfo.name,
+            typeInstance: fieldName,
+            nullable: context.isNill,
+            optional: field.optional
+        };
+    }
+    
+    private handleRecordMember(member: any, context: VisitorContext): string {
+        const temporaryRecord = navigateTypeInfo(member.fields, false);
+        context.isRecord = true;
+        let memberName: string;
+        
+        if (context.isUnion && member.hasOwnProperty("name")) {
+            memberName = member.name;
+            const fieldName = getBalRecFieldName(memberName);
+            context.memberRecordFields[fieldName] = (temporaryRecord as RecordDefinitonObject).recordFields;
+            context.memberFieldsMetadata[fieldName] = {
+                nullable: context.isNill,
+                optional: member.optional,
+                type: "record",
+                typeInstance: fieldName,
+                typeName: member.typeName,
+                fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata 
+            };
+        } else {
+            memberName = "record";
+            context.memberRecordFields = {
+                ...context.memberRecordFields,
+                ...(temporaryRecord as RecordDefinitonObject).recordFields
+            };
+            context.memberFieldsMetadata = {
+                ...context.memberFieldsMetadata,
+                ...((temporaryRecord as RecordDefinitonObject).recordFieldsMetadata)
+            };
+        }
+        
+        return memberName;
+    }
+    
+    private handleArrayMember(member: any, context: VisitorContext): { typeName: string, member: any } {
+        context.isArray = true;
+        let memberName: string;
+        
+        if (member.memberType.hasOwnProperty("fields") && member.memberType.typeName === "record") {
+            const temporaryRecord = navigateTypeInfo(member.memberType.fields, false);
+            memberName = `${member.memberType.typeName}[]`;
+            context.memberRecordFields = {
+                ...context.memberRecordFields,
+                ...(temporaryRecord as RecordDefinitonObject).recordFields
+            };
+            context.memberFieldsMetadata = {
+                ...context.memberFieldsMetadata,
+                ...((temporaryRecord as RecordDefinitonObject).recordFieldsMetadata)
+            };
+        } else if (member.memberType.hasOwnProperty("members") && 
+                  ["union", "intersection", "enum"].includes(member.memberType.typeName)) {
+            
+            // Process union members to handle records appropriately
+            this.processUnionMembers(member.memberType.members, context);
+            
+            if (member.memberType.members.length === 0) {
+                memberName = "";
+                member = [];
+            } else {
+                memberName = this.handleArrayWithCompositeTypeMember(member, context);
             }
-            recordFields = { ...recordFields, [field.name]: { "type": typeName, "comment": "" } };
-            recordFieldsMetadata = {
-                ...recordFieldsMetadata,
-                [field.name]: {
-                    "typeName": typeName,
-                    "type": typeName,
-                    "typeInstance": field.name,
-                    "nullable": isNill,
-                    "optional": field.optional
+        } else if (member.memberType.hasOwnProperty("typeInfo")) {
+            if (member.memberType.hasOwnProperty("name") && !member.memberType.hasOwnProperty("typeName")) {
+                memberName = `${member.memberType.name}[]`;
+            } else {
+                memberName = "record[]"; 
+            }
+        } else {
+            memberName = `${member.memberType.typeName}[]`;
+        }
+        
+        return { typeName: memberName, member };
+    }
+    
+    private handleArrayWithCompositeTypeMember(member: any, context: VisitorContext): string {
+        let memberTypes: string[] = [];
+        const members = member.memberType.members;
+        
+        this.determineIfUnion(members, context);
+        
+        for (const innerMember of members) {
+            const result = this.visitMember(innerMember, context);
+            memberTypes.push(result.typeName);
+        }
+        
+        context.isSimple = false;
+        
+        if (member.memberType.typeName === "intersection") {
+            return `(${memberTypes.join("&")})[]`;
+        } else {
+            return `(${memberTypes.join("|")})[]`;
+        }
+    }
+    
+    private handleCompositeMember(member: any, context: VisitorContext): string {
+        let memberTypeNames: string[] = [];
+        
+        for (const innerMember of member.members) {
+            const result = this.visitMember(innerMember, context);
+            memberTypeNames.push(result.typeName);
+        }
+        
+        if (member.typeName === "intersection") {
+            return `${memberTypeNames.join("&")}`;
+        } else {
+            return `${memberTypeNames.join("|")}`;
+        }
+    }
+    
+    private handleNullMember(member: any, context: VisitorContext): string {
+        const memberName = member.typeName;
+        
+        if (context.isArray) {
+            context.isArrayNullable = true;
+        } 
+        if (context.isRecord) {
+            context.isRecordNullable = true;
+        } 
+        if (context.isSimple) { 
+            context.isNullable = true;
+        }
+        
+        return memberName;
+    }
+    
+    private handleSimpleMember(member: any, context: VisitorContext): string {
+        context.isSimple = true;
+        let memberName: string;
+        
+        if (member.hasOwnProperty("typeName")) {
+            memberName = member.typeName;
+            
+            if (member.hasOwnProperty("name")) {
+                this.addNamedSimpleMember(member, memberName, context);
+            } else {
+                this.addUnnamedSimpleMember(memberName, member, context);
+            }
+        } else {
+            memberName = member.name;
+        }
+        
+        return memberName;
+    }
+    
+    private addNamedSimpleMember(member: any, memberName: string, context: VisitorContext): void {
+        const fieldName = getBalRecFieldName(member.name);
+        context.memberRecordFields = {
+            ...context.memberRecordFields,
+            [fieldName]: {
+                type: memberName,
+                comment: ""
+            }
+        };
+        context.memberFieldsMetadata = {
+            ...context.memberFieldsMetadata,
+            [fieldName]: {
+                typeName: memberName,
+                type: memberName,
+                typeInstance: fieldName,
+                nullable: context.isNill,
+                optional: member.optional
+            }
+        };
+    }
+    
+    private addUnnamedSimpleMember(memberName: string, member: any, context: VisitorContext): void {
+        // Check if typeName is not one of the BasicTypes types
+        const BasicTypes = ["int", "string", "float", "boolean", "decimal", "readonly"];
+        if (!BasicTypes.includes(memberName)) {
+            const fieldName = getBalRecFieldName(memberName);
+            context.memberFieldsMetadata = {
+                ...context.memberFieldsMetadata,
+                [fieldName]: {
+                    typeName: fieldName,
+                    type: fieldName,
+                    typeInstance: fieldName,
+                    nullable: context.isNill,
+                    optional: member.optional
                 }
             };
         }
     }
-    const response = { "recordFields": recordFields, "recordFieldsMetadata": recordFieldsMetadata };
-    return response;
+    
+    private handleArrayWithCompositeType(field: FormField, context: VisitorContext): void {
+        let memberTypeNames: string[] = [];
+        
+        for (const member of field.memberType.members) {
+            const result = this.visitMember(member, context);
+            memberTypeNames.push(result.typeName);
+        }
+        
+        context.isArray = true;
+        let resolvedTypeName: string = "";
+        
+        if (field.memberType.typeName === "intersection") {
+            resolvedTypeName = `${memberTypeNames.join("&")}`;
+        } else {
+            resolvedTypeName = `${memberTypeNames.join("|")}`;
+        }
+
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = Object.keys(context.memberRecordFields).length > 0 
+                                     ? context.memberRecordFields 
+                                     : { type: `(${resolvedTypeName})[]`, comment: "" };
+        
+        this.buildArrayFieldMetadata(field, resolvedTypeName, context);
+    }
+    
+    private handleArrayWithRecordType(field: FormField, context: VisitorContext): void {
+        const temporaryRecord = navigateTypeInfo(field.memberType.fields, false);
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = (temporaryRecord as RecordDefinitonObject).recordFields;
+        context.isArray = true;
+        context.isRecord = true;
+        
+        context.fieldMetadata = {
+            optional: field.optional,
+            typeName: "record[]",
+            type: "record[]",
+            typeInstance: fieldName,
+            fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
+        };
+        
+        this.applyNullabilityToFieldMetadata(context);
+        context.recordFieldsMetadata[field.name] = context.fieldMetadata;
+    }
+    
+    private handleSimpleArray(field: FormField, context: VisitorContext): void {
+        let typeName: string;
+        
+        if (field.memberType.hasOwnProperty("typeInfo")) {
+            typeName = "record[]";
+        } else {
+            typeName = `${field.memberType.typeName}[]`;
+        }
+        
+        if (field.memberType.members && field.memberType.members.length === 0) {
+            context.memberRecordFields = {};
+            context.memberFieldsMetadata = {};
+        } else {
+            const fieldName = getBalRecFieldName(field.name);
+            context.recordFields[fieldName] = { type: typeName, comment: "" };
+            context.recordFieldsMetadata[fieldName] = {
+                typeName: typeName,
+                type: typeName,
+                typeInstance: fieldName,
+                nullable: context.isNill,
+                optional: field.optional
+            };
+        }
+    }
+    
+    private processUnionMembers(members: any[], context: VisitorContext): void {
+        this.determineIfUnion(members, context);
+        
+        if (members.length > 2) {
+            // If at least one member has fields, remove that field
+            for (let i = members.length - 1; i >= 0; i--) {
+                if (members[i].fields) {
+                    members.length = 0;
+                    break;
+                }
+            }
+        } else if (members.length === 2) {
+            // If one member is "()" proceed normally, else if one member has fields, remove it
+            for (let i = members.length - 1; i >= 0; i--) {
+                if (members[i].fields && context.isUnion) {
+                    members.length = 0;
+                    break;
+                }
+            }
+        }
+    }
+    
+    private determineIfUnion(members: any[], context: VisitorContext): void {
+        if (members.length > 2) {
+            context.isUnion = members.some((member) => member.typeName === "()");
+        } else if (members.length === 2) {
+            context.isUnion = !members.some(member => member.typeName === "()");
+        } else {
+            context.isUnion = false;
+        }
+    }
+    
+    private getResolvedTypeName(typeName: string, memberTypeNames: string[]): string {
+        if (typeName === "intersection") {
+            return `${memberTypeNames.join("&")}`;
+        } else {
+            return `${memberTypeNames.join("|")}`;
+        }
+    }
+    
+    private buildFieldMetadata(field: FormField, resolvedTypeName: string, context: VisitorContext): void {
+        context.fieldMetadata = {
+            optional: field.optional,
+            typeName: resolvedTypeName,
+            type: context.isArray
+                ? (context.isArrayNullable
+                    ? `${field.typeName}[]|()` : `${field.typeName}[]`)
+                : field.typeName,
+            typeInstance: field.name,
+            ...(Object.keys(context.memberFieldsMetadata).length > 0 && { members: context.memberFieldsMetadata })
+        };
+        
+        this.applyNullabilityToFieldMetadata(context);
+    }
+    
+    private buildArrayFieldMetadata(field: FormField, resolvedTypeName: string, context: VisitorContext): void {
+        context.fieldMetadata = {
+            optional: field.optional,
+            typeName: `(${resolvedTypeName})[]`,
+            type: `${field.memberType.typeName}[]`,
+            typeInstance: field.name,
+            ...(Object.keys(context.memberFieldsMetadata).length > 0 && { members: context.memberFieldsMetadata })
+        };
+        
+        this.applyNullabilityToFieldMetadata(context);
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFieldsMetadata[fieldName] = context.fieldMetadata;
+    }
+    
+    private applyNullabilityToFieldMetadata(context: VisitorContext): void {
+        // Apply nullableArray property
+        if (context.isArray) {
+            if (context.isRecord) {
+                context.fieldMetadata.nullableArray = context.isRecordNullable;
+            } else {
+                context.fieldMetadata.nullableArray = context.isNullable;
+            }
+        }
+        
+        // Apply nullable property
+        if (context.isArray) {
+            context.fieldMetadata.nullable = context.isArrayNullable;
+        } else if (context.isRecord) {
+            context.fieldMetadata.nullable = context.isRecordNullable;
+        } else if (context.isSimple) {
+            context.fieldMetadata.nullable = context.isNullable;
+        }
+    }
+    
+    private setFieldAndMetadata(field: FormField, resolvedTypeName: string, context: VisitorContext): void {
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = Object.keys(context.memberRecordFields).length > 0 
+                                     ? context.memberRecordFields 
+                                     : { type: resolvedTypeName, comment: "" };
+        context.recordFieldsMetadata[fieldName] = context.fieldMetadata;
+    }
+    
+    private resetContext(context: VisitorContext): void {
+        context.memberRecordFields = {};
+        context.memberFieldsMetadata = {};
+        context.fieldMetadata = {};
+        context.isArrayNullable = false;
+        context.isRecordNullable = false;
+        context.isNullable = false;
+        context.isArray = false;
+        context.isRecord = false;
+        context.isSimple = false;
+        context.isUnion = false;
+    }
 }
 
-export async function getDatamapperCode(parameterDefinitions): Promise<object | ErrorCode> {
+function navigateTypeInfo(
+    typeInfos: FormField[],
+    isNill: boolean
+): RecordDefinitonObject | ErrorCode {
+    const context: VisitorContext = {
+        recordFields: {},
+        recordFieldsMetadata: {},
+        memberRecordFields: {},
+        memberFieldsMetadata: {},
+        fieldMetadata: {},
+        isNill,
+        isNullable: false,
+        isArray: false,
+        memberName: '',
+        isRecord: false,
+        isArrayNullable: false,
+        isRecordNullable: false,
+        isSimple: false,
+        isUnion: false
+    };
+    
+    const visitor = new TypeInfoVisitorImpl();
+
+    for (const field of typeInfos) {
+        visitor.visitField(field, context);
+    }
+    
+    return { 
+        "recordFields": context.recordFields, 
+        "recordFieldsMetadata": context.recordFieldsMetadata 
+    };
+}
+
+export function getBalRecFieldName(fieldName: string) {
+    return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;
+}
+
+export async function getDatamapperCode(parameterDefinitions: ErrorCode | ParameterMetadata): Promise<object | ErrorCode> {
     console.log(JSON.stringify(parameterDefinitions));
     try {
         const accessToken = await getAccessToken().catch((error) => {
@@ -519,42 +1343,49 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
             }
 
             retryResponse = (retryResponse as Response);
-            let intermediateMapping = JSON.parse(await filterResponse(retryResponse) as string); 
+            let intermediateMapping = await filterResponse(retryResponse); 
             let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
             return finalCode;
         }
-        let intermediateMapping = JSON.parse(await filterResponse(response) as string);
+        let intermediateMapping = await filterResponse(response);
         let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
-        return finalCode;
+        return finalCode; 
     } catch (error) {
         console.error(error);
-        return UNKNOWN_ERROR;
+        return TIMEOUT;
     }
 }
 
-export function constructRecord(codeObject: object): string {
+export async function constructRecord(codeObject: object): Promise<{ recordString: string; isCheckError: boolean; }> {
     let recordString: string = ""; 
+    let isCheckError: boolean = false;
     let objectKeys = Object.keys(codeObject);
     for (let index = 0; index < objectKeys.length; index++) {
         let key = objectKeys[index];
         let mapping = codeObject[key];
-        if (typeof codeObject[key] == "string") {
-            if (recordString != "") {
+        if (typeof mapping === "string") {
+            if (mapping.includes("check ")) {
+                isCheckError = true; 
+            }
+            if (recordString !== "") {
                 recordString += ",\n";
             }
             recordString += `${key}:${mapping}`;
         } else {
-            let subRecordString = constructRecord(codeObject[key]);
-            if (recordString != "") {
+            let subRecordResult = await constructRecord(mapping);
+            if (subRecordResult.isCheckError) {
+                isCheckError = true; 
+            }
+            if (recordString !== "") {
                 recordString += ",\n";
             }
-            recordString += `${key}:${subRecordString}`;
+            recordString += `${key}:${subRecordResult.recordString}`;
         }
     }
-    return `{${recordString}}`;
+    return { recordString: `{\n${recordString}}`, isCheckError };
 }
 
-export function getFunction(modulePart: ModulePart, functionName: string) {
+export async function getFunction(modulePart: ModulePart, functionName: string) {
     const fns = modulePart.members.filter((mem) =>
         STKindChecker.isFunctionDefinition(mem)
     ) as FunctionDefinition[];
@@ -567,7 +1398,7 @@ export function notifyNoGeneratedMappings() {
     window.showInformationMessage(msg);
 }
 
-async function sendDatamapperRequest(parameterDefinitions, accessToken): Promise<Response | ErrorCode> {
+async function sendDatamapperRequest(parameterDefinitions: ParameterMetadata | ErrorCode, accessToken: string | ErrorCode): Promise<Response | ErrorCode> {
     const response = await fetchWithTimeout(BACKEND_API_URL_V2 + "/datamapper", {
         method: "POST",
         headers: {
@@ -580,6 +1411,191 @@ async function sendDatamapperRequest(parameterDefinitions, accessToken): Promise
     }, REQUEST_TIMEOUT);
 
     return response;
+}
+
+async function sendMappingFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetchWithToken(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_mapping_instruction", {
+        method: "POST",
+        body: formData
+    });
+    return response;
+}
+
+export async function searchDocumentation(message: string): Promise<string | ErrorCode> {
+    const response = await fetchWithToken(ASK_API_URL_V1 + "/documentation-assistant", {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "query": `${message}`
+        })
+    });
+
+    if (response as Response) {
+        return await filterDocumentation(response as Response);
+    } else {
+        return SERVER_ERROR;
+    }
+    
+}
+
+export async function filterDocumentation(resp: Response): Promise<string | ErrorCode> {
+    let responseContent: string;
+    if (resp.status == 200 || resp.status == 201) {
+        const data = (await resp.json()) as any;
+        console.log("data",data.response);
+        const finalResponse = await (data.response.content).replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+        const referenceSources = data.response.references;
+        if (referenceSources.length > 0) {
+            responseContent = `${finalResponse}  \nreference sources:  \n${referenceSources.join('  \n')}`;
+        }else{
+            responseContent = finalResponse;
+        }
+
+        return responseContent;
+    }
+    if (resp.status == 404) {
+        return ENDPOINT_REMOVED;
+    }
+    if (resp.status == 400) {
+        const data = (await resp.json()) as any;
+        console.log(data);
+        return PARSING_ERROR;
+    } 
+}
+
+async function filterMappingResponse(resp: Response): Promise<string| ErrorCode> {
+    if (resp.status == 200 || resp.status == 201) {
+        const data = (await resp.json()) as any;
+        return data.file_content;
+    }
+    if (resp.status == 404) {
+        return ENDPOINT_REMOVED;
+    }
+    if (resp.status == 400) {
+        const data = (await resp.json()) as any;
+        console.log(data);
+        return PARSING_ERROR;
+    } if (resp.status == 429) {
+        return TOO_MANY_REQUESTS;
+    } 
+    if (resp.status == 500) {
+        return SERVER_ERROR;
+    } else {
+        //TODO: Handle more error codes
+        return { code: 4, message: `An unknown error occured1. ${resp.statusText}.` };
+    }
+}
+
+export async function getMappingFromFile(file: Blob): Promise<MappingFileRecord | ErrorCode> {
+    try {
+        let response = await sendMappingFileUploadRequest(file);
+        if (isErrorCode(response)) {
+            return response as ErrorCode;
+        }
+        response = response as Response;
+        let mappingContent = JSON.parse((await filterMappingResponse(response)) as string);
+        if (isErrorCode(mappingContent)) {
+            return mappingContent as ErrorCode;
+        }
+        return mappingContent;
+    } catch (error) {
+        console.error(error);
+        return TIMEOUT;
+    }
+}
+
+async function sendTypesFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetchWithToken(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_record", {
+        method: "POST",
+        body: formData
+    });
+    return response;
+}
+
+export async function getTypesFromFile(file: Blob): Promise<string | ErrorCode> {
+    try {
+        let response = await sendTypesFileUploadRequest(file);
+        if (isErrorCode(response)) {
+            return response as ErrorCode;
+        }
+        response = response as Response;
+        let typesContent = await filterMappingResponse(response) as string;
+        return typesContent;
+    } catch (error) {
+        console.error(error);
+        return TIMEOUT;
+    }
+}
+
+export async function mappingFileParameterDefinitions(file: AttachmentResult, parameterDefinitions: ErrorCode | ParameterMetadata): Promise<ParameterMetadata | ErrorCode> {
+    if (!file) { return parameterDefinitions; }
+
+    const convertedFile = convertBase64ToBlob(file);
+    if (!convertedFile) { throw new Error("Invalid file content"); }
+
+    let mappingFile = await getMappingFromFile(convertedFile);
+    if (isErrorCode(mappingFile)) { return mappingFile as ErrorCode; }
+
+    mappingFile = mappingFile as MappingFileRecord;
+
+    return {
+        ...parameterDefinitions,
+        mapping_fields: mappingFile.mapping_fields,
+    };
+}
+
+export async function typesFileParameterDefinitions(file: AttachmentResult): Promise<string | ErrorCode> {
+    if (!file) { throw new Error("File is undefined"); }
+
+    const convertedFile = convertBase64ToBlob(file);
+    if (!convertedFile) { throw new Error("Invalid file content"); }
+
+    let typesFile = await getTypesFromFile(convertedFile);
+    if (isErrorCode(typesFile)) { return typesFile as ErrorCode; }
+
+    return typesFile;
+}
+
+function convertBase64ToBlob(file: AttachmentResult): Blob | null {
+    try {
+        const { content: base64Content, name: fileName } = file;
+        const binaryString = atob(base64Content);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        const mimeType = determineMimeType(fileName);
+        return new Blob([bytes], { type: mimeType });
+    } catch (error) {
+        console.error("Error converting Base64 to Blob", error);
+        return null;
+    }
+}
+
+function determineMimeType(fileName: string): string {
+    const extension = fileName.split(".").pop()?.toLowerCase();
+    switch (extension) {
+        case "pdf": return "application/pdf";
+        case "txt": return "text/plain";
+        case "jpg":
+        case "jpeg": return "image/jpeg";
+        case "png": return "image/png";
+        case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        case "doc": return "application/msword";
+        case "heic":
+        case "heif": return "image/heif";
+        default: return "application/octet-stream";
+    }
 }
 
 async function fetchWithTimeout(url, options, timeout = 100000): Promise<Response | ErrorCode> {
@@ -596,7 +1612,7 @@ async function fetchWithTimeout(url, options, timeout = 100000): Promise<Respons
             return USER_ABORTED;
         } else {
             console.error(error);
-            return UNKNOWN_ERROR;
+            return SERVER_ERROR;
         }
     }
 }
@@ -605,58 +1621,189 @@ export function isErrorCode(error: any): boolean {
     return error.hasOwnProperty("code") && error.hasOwnProperty("message");
 }
 
-function accessMetadata(paths: string[], index: number, parameterDefinitions: ParameterMetadata, isContinued: boolean): string[] {
-    if (index == paths.length) {
-        return paths;
-    } else {
-        let modifiedInputs: object = parameterDefinitions;
-        if (parameterDefinitions["type"] == "typeReference" || parameterDefinitions["type"] == "record" || parameterDefinitions["type"] == "record[]") {
-            modifiedInputs = parameterDefinitions["fields"];
-        }
-        let pathIndex: string = paths[index];
-        let tempObject = modifiedInputs[pathIndex];
-        if (!tempObject) {
-            throw new Error(`Field ${pathIndex} not found in metadata.`);
-        }
-        let isNullable: boolean = tempObject["nullable"];
-        let isOptional: boolean = tempObject["optional"];
+async function accessMetadata(
+    paths: string[],
+    parameterDefinitions: ParameterMetadata | ErrorCode,
+    outputObject: object,
+    baseType: string,
+    baseTargetType: string,
+    nestedKey: string,
+    operation: string,
+    unionEnumIntersectionTypes: string[],
+    recordTypes: string[],
+    arrayRecords: string[],
+    arrayEnumUnion: string[]
+): Promise<string[]> {
+    let newPath: string[] = [...paths];
+    let isOutputNullable = false;
+    let isOutputOptional = false;
+    let isUsingDefault = false;
+    let isUsingArray = false;
+    let defaultValue: string;
+    let isOutputRecordNullable = false;
+    let modifiedBaseType: string;
 
-        if (index == paths.length - 1) {
-            if (!isNullable && !isOptional && isContinued) {
-                let dataType: string = tempObject["typeName"];
-                if (!dataType) {
-                    throw new Error(`Type name for field ${pathIndex} is not specified.`);
+    const outputMetadataType = outputObject["typeName"];
+    baseTargetType = outputMetadataType.replace(/\|\(\)$/, "");
+    isOutputNullable = outputObject["nullable"];
+    isOutputOptional = outputObject["optional"];
+    isOutputRecordNullable = outputObject["nullableArray"];
+
+    // Process paths for metadata
+    for (let index = 1; index < paths.length; index++) {
+        const pathIndex = paths[index];
+        let inputObject = await resolveMetadata(parameterDefinitions, paths, pathIndex, "inputMetadata");
+        if (!inputObject) { throw new Error(`Field ${pathIndex} not found in metadata.`); }
+
+        const isInputNullable = inputObject["nullable"];
+        const isInputOptional = inputObject["optional"];
+        const isInputNullableArray = inputObject["nullableArray"];
+
+        if (inputObject.hasOwnProperty("members") || inputObject.hasOwnProperty("fields") || operation === "LENGTH") {
+            const inputMetadataType = inputObject["type"];
+            const metadataTypeName = inputObject["typeName"];
+            const isInputRecordNullableArray = inputObject["nullableArray"];
+            const isInputRecordNullable = inputObject["nullable"];
+            const isInputRecordOptional = inputObject["optional"];
+            if (!["enum", "enum|()"].includes(inputMetadataType)) {
+                isUsingDefault = false;
+            }
+            
+            if (arrayRecords.includes(metadataTypeName) || arrayEnumUnion.includes(inputMetadataType)) {
+                if (isInputRecordNullableArray) {
+                    isUsingArray = true;
+                } else {
+                    isUsingArray = false;
                 }
-                let defaultValue = getDefaultValue(dataType);
-                paths[index] = `${paths[index]}?:${defaultValue}`;
             }
-        } else if (isNullable || isOptional) {
-            if (index == 0) {
-                throw new Error(`Nullable or optional field ${pathIndex} at the root level is not supported.`);
+            if (isUsingArray && recordTypes.includes(metadataTypeName)) {
+                newPath[index] = `${paths[index]}?`;
             }
-            paths[index] = `${paths[index]}?`;
-            isContinued = true;
+            if (isInputRecordNullable || isInputRecordOptional) {
+                // Handle record types
+                if (recordTypes.includes(metadataTypeName)) {
+                    if (!metadataTypeName.includes("[]")) {
+                        if (index !== (paths.length - 1)) {
+                            newPath[index] = `${paths[index]}?`;
+                            isUsingDefault = true;
+                        }
+                    }
+                    if (metadataTypeName.includes("[]") && operation === "LENGTH") {
+                        let lastInputObject = await resolveMetadata(parameterDefinitions, paths, paths[paths.length - 1], "inputMetadata");
+                        let inputDataType = lastInputObject["typeName"].replace(/\|\(\)$/, "");
+                        defaultValue = await getDefaultValue(inputDataType);
+                        newPath[paths.length - 1] = `${paths[paths.length - 1]}?:${defaultValue}`;
+                    }
+                    if (isInputRecordNullable && isInputRecordOptional) {
+                        newPath[index - 1] = `${paths[index - 1]}?`;
+                    }
+                // Handle enum, union, and intersection types    
+                } else if (unionEnumIntersectionTypes.includes(inputMetadataType)) {
+                    if (isInputRecordNullable && isInputRecordOptional) {
+                        newPath[index - 1] = `${paths[index - 1]}?`;
+                    }  
+                    if (inputMetadataType.includes("[]") && operation === "LENGTH") {
+                        let lastInputObject = await resolveMetadata(parameterDefinitions, paths, paths[paths.length - 1], "inputMetadata");
+                        let inputDataType = lastInputObject["type"].replace(/\|\(\)$/, "");
+                        defaultValue = await getDefaultValue(inputDataType);
+                        newPath[paths.length - 1] = `${paths[paths.length - 1]}?:${defaultValue}`;
+                    } else if (!isOutputNullable && !isOutputOptional) {   
+                        if (unionEnumIntersectionTypes.includes(inputObject["type"]) && inputObject["members"]) {
+                            if (!isInputRecordNullableArray || isOutputRecordNullable){
+                                let typeName = inputMetadataType.includes("[]")
+                                    ? inputMetadataType.replace(/\|\(\)$/, "")
+                                    : (inputObject as any).members[Object.keys((inputObject as any).members)[0]].typeName;
+                        
+                                let defaultValue = await getDefaultValue(typeName);
+                                newPath[paths.length - 1] = `${paths[paths.length - 1]}?:${defaultValue !== "void" ? defaultValue : JSON.stringify(typeName)}`;
+                            }
+                        }
+                        return newPath;
+                    }
+                }
+            } else {
+                if (isUsingDefault && unionEnumIntersectionTypes.includes(inputObject["type"]) && inputObject["members"]) {
+                    if (!isOutputNullable && !isOutputOptional) {
+                        let typeName = inputMetadataType.includes("[]") 
+                            ? inputMetadataType.replace("|()", "") 
+                            : (inputObject as any).members[Object.keys((inputObject as any).members)[0]].typeName;
+                        
+                        let defaultValue = await getDefaultValue(typeName);
+                        newPath[paths.length - 1] = `${paths[paths.length - 1]}?:${defaultValue !== "void" ? defaultValue : JSON.stringify(typeName)}`;
+                    }
+                }
+            }
+        } else {
+            if (isInputNullable && isInputOptional) {
+                newPath[index - 1] = `${paths[index - 1]}?`;
+            }
+            if (!primitiveTypes.includes(baseType)) {
+                if (baseType.includes("[]")) {
+                    if (!isInputNullableArray || isOutputRecordNullable){
+                        defaultValue = `[]`;
+                    }
+                } else {
+                    let cleanedBaseType = baseType.replace(/[\[\]()]*/g, ""); 
+                    if (cleanedBaseType.includes("|")) {
+                        modifiedBaseType = cleanedBaseType.split("|")[0].trim();
+                    } else {
+                        modifiedBaseType = cleanedBaseType;
+                    }
+                    defaultValue = await getDefaultValue(modifiedBaseType);
+                }
+            } else {
+                defaultValue = await getDefaultValue(baseType);
+            }           
+
+            if (isUsingArray) {
+                newPath[index] = `${pathIndex}?:${defaultValue}`;
+            }
+
+            if (isUsingDefault && !isOutputNullable && !isOutputOptional) {
+                newPath[index] = `${pathIndex}?:${defaultValue}`;
+            } else if ((isInputNullable || isInputOptional)) { 
+                if (!isOutputNullable && !isOutputOptional) {
+                    if (!isInputNullableArray && isOutputRecordNullable) {
+                        newPath[index] = `${pathIndex}?:${defaultValue}`;
+                    } else {
+                        newPath[index] = baseType === "string" || baseType === baseTargetType
+                            ? `${pathIndex}?:${defaultValue}`
+                            : `${pathIndex}`;
+                    }
+                } else {
+                    newPath[index] = baseType !== baseTargetType && baseType === "string"
+                        ? `${pathIndex}?:${defaultValue}`
+                        : `${pathIndex}`;
+                }
+            }
+            return newPath;
         }
-        return accessMetadata(paths, index + 1, tempObject, isContinued);
     }
+    return newPath;
 }
 
-function getDefaultValue(dataType: string): string {
+async function getDefaultValue(dataType: string): Promise<string> {
     switch (dataType) {
         case "string":
             return "\"\"";
         case "int":
             return "0";
         case "decimal":
-            return "0d";
+            return "0.0";
         case "float":
-            return "0f";
+            return "0.0";
         case "boolean":
             return "false";
         case "int[]":
         case "string[]":
         case "float[]":
         case "decimal[]":
+        case "boolean[]":
+        case "record[]":
+        case "(readonly&record)[]":
+        case "enum[]":
+        case "union[]":
+        case "intersection[]":
             return "[]";
         default:
             // change the following to a appropriate value
@@ -664,58 +1811,80 @@ function getDefaultValue(dataType: string): string {
     }
 }
 
-function getNestedType(paths: string[], metadata: object): string {
+async function getNestedType(paths: string[], metadata: object): Promise<object> {
     let currentMetadata = metadata;
     for (let i = 0; i < paths.length; i++) {
         let cleanPath = paths[i].replace(/\?.*$/, "");
         if (currentMetadata["fields"] && currentMetadata["fields"][cleanPath]) {
             currentMetadata = currentMetadata["fields"][cleanPath];
+        } else if (currentMetadata["members"] && currentMetadata["members"][cleanPath]) {
+            currentMetadata = currentMetadata["members"][cleanPath];
         } else {
             throw new Error(`Field ${cleanPath} not found in metadata.`);
         }
     }
-    return currentMetadata["type"];
+    return currentMetadata;
 }
 
-function resolveMetadataType(parameterDefinitions: ParameterMetadata, nestedKeyArray: string[], key: string, metadataKey: "inputMetadata" | "outputMetadata"): string {
+async function resolveMetadata(parameterDefinitions: ParameterMetadata | ErrorCode, nestedKeyArray: string[], key: string, metadataKey: "inputMetadata" | "outputMetadata"): Promise<object|null> {
     let metadata = parameterDefinitions[metadataKey];
-    let type:string = "";
-
     for (let nk of nestedKeyArray) {
-        if (metadata[nk] && metadata[nk]["fields"]) {
+        if (metadata[nk] && (metadata[nk]["fields"] || metadata[nk]["members"])) {
             if (nk === key){
-                type = metadata[nk]["type"];
-                return type;
+                return metadata[nk];
             }
-            metadata = metadata[nk]["fields"];
+            metadata = metadata[nk]["fields"] || metadata[nk]["members"];
         } else {
-            return "";
+            return metadata[key];
         }
     }
+    return metadata[key];
 }
 
-async function handleRecordArrays(key: string, nestedKey:string, responseRecord: object, parameterDefinitions: ParameterMetadata) {
+async function handleRecordArrays(key: string, nestedKey: string, responseRecord: object, parameterDefinitions: ParameterMetadata | ErrorCode, arrayRecords: string[], arrayEnumUnion: string[]) {
     let recordFields: { [key: string]: any } = {};
     let subObjectKeys = Object.keys(responseRecord);
 
     let formattedRecordsArray: string[] = [];
     let itemKey: string = "";
     let combinedKey: string = "";
-    let outputMetadataType: string;
+    let modifiedOutput: object;
+    let outputMetadataType: string = "";
+    let outputMetadataTypeName: string = "";
 
     for (let subObjectKey of subObjectKeys) {
         if (!nestedKey) {
-            outputMetadataType = parameterDefinitions["outputMetadata"][key]["type"];
+            modifiedOutput = parameterDefinitions["outputMetadata"][key];
         } else {
-            outputMetadataType = resolveMetadataType(parameterDefinitions, nestedKeyArray, key, "outputMetadata");
+            modifiedOutput = await resolveMetadata(parameterDefinitions, nestedKeyArray, key, "outputMetadata");
+            if (!modifiedOutput) {
+                throw new Error(`Metadata not found for ${nestedKey}.`);
+            }
         }
+        outputMetadataTypeName = modifiedOutput["typeName"];
+        outputMetadataType = modifiedOutput["type"];
+        let isDeeplyNested = (arrayRecords.includes(outputMetadataTypeName) || arrayEnumUnion.includes(outputMetadataType));
 
-        let isDeeplyNested = outputMetadataType === "record[]";
-        let { parentKey, itemKey: currentItemKey, combinedKey: currentCombinedKey } = extractKeys(responseRecord[subObjectKey], parameterDefinitions);
-        if (outputMetadataType === "record[]" ||  outputMetadataType === "record" ) {
+        let { itemKey: currentItemKey, combinedKey: currentCombinedKey, inputArrayNullable:currentArrayNullable } = await extractKeys(responseRecord[subObjectKey], parameterDefinitions, arrayRecords, arrayEnumUnion);
+        if (currentItemKey.includes('?')) {
+            currentItemKey = currentItemKey.replace('?', '');
+        }
+        if (modifiedOutput.hasOwnProperty("fields") || modifiedOutput.hasOwnProperty("members")) {
             if (isDeeplyNested) {
-                let subArrayRecord = responseRecord[subObjectKey];
-                formattedRecordsArray.push(`${subObjectKey}: ${subArrayRecord.replace(new RegExp(`${currentCombinedKey}\.`, 'g'), `${currentItemKey}Item.`)}`);
+                const subArrayRecord = responseRecord[subObjectKey];
+                const isCombinedKeyModified = currentCombinedKey.endsWith('?');
+                const replacementKey = currentArrayNullable || isCombinedKeyModified 
+                    ? `${currentItemKey}Item?.` 
+                    : `${currentItemKey}Item.`;
+        
+                const regex = new RegExp(
+                    currentCombinedKey.replace(/\?/g, '\\?').replace(/\./g, '\\.') + '\\.', 'g'
+                );
+        
+                formattedRecordsArray.push(
+                    `${subObjectKey}: ${subArrayRecord.replace(regex, replacementKey)}`
+                );
+
                 itemKey = currentItemKey;
                 combinedKey = currentCombinedKey;
             } else {
@@ -727,21 +1896,25 @@ async function handleRecordArrays(key: string, nestedKey:string, responseRecord:
     }
 
     if (formattedRecordsArray.length > 0 && itemKey && combinedKey) {
-        let formattedRecords = formattedRecordsArray.join(",\n");
-        recordFields[key] = `from var ${itemKey}Item in ${combinedKey}\n select {\n ${formattedRecords}\n}`;
+        const formattedRecords = formattedRecordsArray.join(",\n");
+        const keyToReplace = combinedKey.endsWith('?') ? combinedKey.replace(/\?$/, '') : combinedKey;
+        const processedKeys = await processCombinedKey(combinedKey, parameterDefinitions, arrayRecords, arrayEnumUnion);
+        const combinedKeyExpression = (processedKeys.isinputRecordArrayNullable || processedKeys.isinputRecordArrayOptional || processedKeys.isinputArrayNullable || processedKeys.isinputArrayOptional || processedKeys.isinputNullableArray)
+            ? `${keyToReplace} ?: []`
+            : keyToReplace;
+        recordFields[key] = `from var ${itemKey}Item in ${combinedKeyExpression}\n select {\n ${formattedRecords}\n}`;
     } else {
-        let formattedRecords = formattedRecordsArray.join(",\n");
-        recordFields[key] = `{\n ${formattedRecords} \n}`;
+        recordFields[key] = `{\n ${formattedRecordsArray.join(",\n")} \n}`;
     }
 
     return { ...recordFields };
 }
 
-async function filterResponse(resp: Response): Promise<string | ErrorCode> {
+async function filterResponse(resp: Response): Promise<object | ErrorCode> {
     if (resp.status == 200 || resp.status == 201) {
         const data = (await resp.json()) as any;
         console.log(JSON.stringify(data.mappings));
-        return JSON.stringify(data.mappings);
+        return data.mappings;
     }
     if (resp.status == 404) {
         return ENDPOINT_REMOVED;
@@ -750,30 +1923,60 @@ async function filterResponse(resp: Response): Promise<string | ErrorCode> {
         const data = (await resp.json()) as any;
         console.log(data);
         return PARSING_ERROR;
-    }
-    else {
+    } 
+    if (resp.status == 429) {
+        return TOO_MANY_REQUESTS;
+    } 
+    if (resp.status == 500) {
+        return SERVER_ERROR;
+    } else {
         //TODO: Handle more error codes
-        return { code: 4, message: `An unknown error occured. ${resp.statusText}.` };
+        return TIMEOUT;
     }
 }
 
-function extractKeys(key: string, parameterDefinitions: ParameterMetadata ): { parentKey: string[], itemKey:string, combinedKey: string } {
+async function extractKeys(
+    key: string,
+    parameterDefinitions: ParameterMetadata | ErrorCode,
+    arrayRecords: string[],
+    arrayEnumUnion: string[]
+): Promise<{
+    itemKey: string;
+    combinedKey: string;
+    inputArrayNullable: boolean;
+}> {
     let innerKey: string;
     let itemKey: string = "";
     let combinedKey: string = "";
+    let inputArrayNullable: boolean = false;
 
     // Handle the key for nullable and optional fields
-    key = key.replace(/\?.*$/, "");
-    if (key.startsWith("{") && key.endsWith("}")) {
+    key = key.replace(/\?*$/, "");
+
+    // Check for a nested mapping like 'from var ... in ...'
+    const nestedMappingMatch = key.match(/from\s+var\s+(\w+)\s+in\s+([\w?.]+)/);
+    if (nestedMappingMatch) {
+        itemKey = nestedMappingMatch[1];
+        innerKey = nestedMappingMatch[2];
+
+        const keys = innerKey.split(".");
+        combinedKey = keys.slice(0, keys.length - 1).join(".");
+    } else if (key.startsWith("{") && key.endsWith("}")) {
+        // Handle complex nested mappings in braces
         const matches = key.match(/\{\s*([^}]+)\s*\}/);
         innerKey = matches ? matches[1] : key;
-        const firstKey = innerKey.split(",").map(kv => kv.split(":")[1].trim())[0];
-        innerKey = firstKey || ""; 
-    } 
-    else if (key.includes('from var') && key.includes('select')) {
-        const match = key.match(/from\s+var\s+\w+\s+in\s+([\w.]+)\s+/);
-        innerKey = match ? match[1] : key;
+
+        // Use regex to find each deeply nested mapping within braces
+        const nestedKeys = innerKey.match(/[\w\s]+:\s*([\w?.]+)/g);
+        if (nestedKeys) {
+            const parsedKeys = nestedKeys.map(kv => kv.split(":")[1].trim());
+            innerKey = parsedKeys[0] || ""; // Assume the first entry for simplicity if multiple mappings
+        } else {
+            // Fallback for simpler cases
+            innerKey = innerKey.split(",").map(kv => kv.split(":")[1].trim())[0] || "";
+        }
     } else {
+        // Standard case
         innerKey = key.match(/\(([^)]+)\)/)?.[1] || key;
 
         innerKey = innerKey
@@ -781,41 +1984,210 @@ function extractKeys(key: string, parameterDefinitions: ParameterMetadata ): { p
             .replace(/\.ensureType\(\)$/, '')
             .replace(/\.toString\(\)$/, '');
     }
+    // Call the helper function to process parent keys
+    const processedKeys = await processParentKey(innerKey, parameterDefinitions, arrayRecords, arrayEnumUnion);
+    itemKey = processedKeys.itemKey;
+    combinedKey = processedKeys.combinedKey;
+    inputArrayNullable = processedKeys.inputArrayNullable;
+    return { itemKey, combinedKey, inputArrayNullable };
+}
 
+async function processParentKey(
+    innerKey: string, 
+    parameterDefinitions: ParameterMetadata | ErrorCode, 
+    arrayRecords: string[],
+    arrayEnumUnion: string[]
+): Promise<{ 
+    itemKey: string; 
+    combinedKey: string; 
+    inputArrayNullable: boolean;
+}> {
+    let inputMetadataType: string = "";
+    let inputMetadataTypeName: string = "";
+    let itemKey: string = "";
+    let combinedKey: string = "";
+    let refinedInnerKey: string;
+    let isSet: boolean = false;
+    let inputArrayNullable: boolean = false;
+
+    // Split the innerKey to get parent keys and field name
     let keys = innerKey.split(".");
     let fieldName = keys.pop()!;
     let parentKey = keys.slice(0, keys.length);
-    
-    // Traverse parentKey to check for record[] type and set itemKey and combinedKey accordingly
-    for (let index = parentKey.length - 1; index >= 0; index--) {
-        let inputMetadataType = resolveMetadataType(parameterDefinitions, parentKey, parentKey[index], "inputMetadata");
-        if (inputMetadataType === "record[]") {
+
+    refinedInnerKey = innerKey
+        .replace(/\?\./g, ".") // Replace `?.` with `.`
+        .replace(/\?$/g, "") // Remove a trailing `?`
+        .replace(/\s*\?:.*$/g, "") // Remove `?: <value>`
+        .replace(/[\(\)]/g, ""); // Remove parentheses
+
+    let refinedKeys = refinedInnerKey.split(".");
+    let refinedFieldName = refinedKeys.pop()!;
+    let refinedParentKey = refinedKeys.slice(0, refinedKeys.length);
+
+    for (let index = refinedParentKey.length - 1; index > 0; index--) {
+        const modifiedInputs = await resolveMetadata(parameterDefinitions, refinedParentKey, refinedParentKey[index], "inputMetadata");
+        if (!modifiedInputs) {
+            throw new Error(`Metadata not found for ${refinedParentKey[index]}.`);
+        }
+        inputMetadataTypeName = modifiedInputs["typeName"];
+        inputMetadataType = modifiedInputs["type"];
+        inputArrayNullable = modifiedInputs["nullableArray"];
+
+        if (!isSet && (arrayEnumUnion.includes(inputMetadataType) || arrayRecords.includes(inputMetadataTypeName))) {
             itemKey = parentKey[index];
             combinedKey = parentKey.slice(0, index + 1).join(".");
-            break;
+            isSet = true;
         }
     }
-    return { parentKey, itemKey, combinedKey };
+    return { itemKey, combinedKey, inputArrayNullable };
 }
 
-function checkDeeplyNestedRecordArray(parentKey: string[], parameterDefinitions: ParameterMetadata, metadataType: string): boolean {
-    let currentMetadata = parameterDefinitions[metadataType];
+async function processCombinedKey(
+    combinedKey: string,
+    parameterDefinitions: ParameterMetadata | ErrorCode,
+    arrayRecords: string[],
+    arrayEnumUnion: string[]
+): Promise<{
+    isinputRecordArrayNullable: boolean;
+    isinputRecordArrayOptional: boolean;
+    isinputArrayNullable: boolean;
+    isinputArrayOptional: boolean;
+    isinputNullableArray: boolean;
+}> {
+    let isinputRecordArrayNullable: boolean = false;
+    let isinputRecordArrayOptional: boolean = false;
+    let isinputArrayNullable: boolean = false;
+    let isinputArrayOptional: boolean = false;
+    let currentNullable: boolean = false;
+    let currentOptional: boolean = false;
+    let inputMetadataTypeName: string = "";
+    let inputMetadataType: string = "";
+    let refinedCombinedKey: string = "";
+    let isSet: boolean = false;
+    let isinputNullableArray: boolean = false;
 
-    for (let i = 0; i < parentKey.length; i++) {
-        if (currentMetadata[parentKey[i]]["type"] === "record[]") {
-            if (i === parentKey.length - 1) {
-                return true;
+    // Refine and split the inner key
+    refinedCombinedKey = combinedKey
+        .replace(/\?\./g, ".") // Replace `?.` with `.`
+        .replace(/\?$/g, "") // Remove a trailing `?`
+        .replace(/\s*\?:.*$/g, "") // Remove `?: <value>`
+        .replace(/[\(\)]/g, ""); // Remove parentheses
+
+    let refinedCombinedKeys = refinedCombinedKey.split(".");
+
+    // Iterate through parent keys in reverse
+    let index = refinedCombinedKeys.length - 1;
+    const modifiedInputs = await resolveMetadata(parameterDefinitions, refinedCombinedKeys, refinedCombinedKeys[index], "inputMetadata");
+    if (!modifiedInputs) {
+        throw new Error(`Metadata not found for ${refinedCombinedKeys[index]}.`);
+    }
+
+    currentNullable = modifiedInputs["nullable"];
+    currentOptional = modifiedInputs["optional"];
+    inputMetadataTypeName = modifiedInputs["typeName"];
+    inputMetadataType = modifiedInputs["type"];
+
+    if (!isSet && (arrayRecords.includes(inputMetadataTypeName) || arrayEnumUnion.includes(inputMetadataType))) {
+        isSet = true;
+    }
+
+    if (isSet) {
+        // Update record array flags
+        if (currentNullable) { isinputRecordArrayNullable = true; }
+        if (currentOptional) { isinputRecordArrayOptional = true; }
+
+        // Check preceding elements for non-`record[]` types
+        for (let nextIndex = index - 1; nextIndex >= 0; nextIndex--) {
+            isinputNullableArray = false;
+            const nextModifiedInputs = await resolveMetadata(parameterDefinitions, refinedCombinedKeys, refinedCombinedKeys[nextIndex], "inputMetadata");
+            const nextMetadataTypeName = nextModifiedInputs["typeName"];
+            const nextMetadataType = nextModifiedInputs["type"];
+            const nextNullable = nextModifiedInputs["nullable"];
+            const nextOptional = nextModifiedInputs["optional"];
+            const nextNullableArray = nextModifiedInputs["nullableArray"];
+
+            if (!(arrayRecords.includes(nextMetadataTypeName) || arrayEnumUnion.includes(nextMetadataType))) {
+                if (nextNullable) { isinputArrayNullable = true; }
+                if (nextOptional) { isinputArrayOptional = true; }
             } else {
-                currentMetadata = currentMetadata[parentKey[i]]["fields"];
-            }
-        } else {
-            if (i === parentKey.length - 1) {
-                return false;
-            } else {
-                currentMetadata = currentMetadata[parentKey[i]]["fields"];
-                continue;
+                if (arrayRecords.includes(nextMetadataTypeName) || arrayEnumUnion.includes(nextMetadataType)) {
+                    if (nextNullableArray && (nextIndex === (index - 1))) {isinputNullableArray = true;}
+                }
+                return { isinputRecordArrayNullable, isinputRecordArrayOptional, isinputArrayNullable, isinputArrayOptional, isinputNullableArray };
             }
         }
     }
-    return false;
+    return { isinputRecordArrayNullable, isinputRecordArrayOptional, isinputArrayNullable, isinputArrayOptional, isinputNullableArray };
+}
+
+async function sendRequirementFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetchWithToken(CONTEXT_UPLOAD_URL_V1 + "/file_upload/extract_requirements", {
+        method: "POST",
+        body: formData
+    });
+    return response;
+}
+
+export async function getTextFromRequirements(file: Blob): Promise<string | ErrorCode> {
+    try {
+        let response = await sendRequirementFileUploadRequest(file);
+        if (isErrorCode(response)) {
+            return response as ErrorCode;
+        }
+        response = response as Response;
+        let requirements = await filterMappingResponse(response) as string;
+        return requirements;
+    } catch (error) {
+        console.error(error);
+        return UNKNOWN_ERROR;
+    }
+}
+
+export async function requirementsSpecification(filepath: string): Promise<string | ErrorCode> {
+    if (!filepath) { 
+        throw new Error("File is undefined"); 
+    }
+
+    const convertedFile = convertBase64ToBlob({name: path.basename(filepath), 
+                            content: getBase64FromFile(filepath), status: AttachmentStatus.Unknown});
+    if (!convertedFile) { throw new Error("Invalid file content"); }
+
+    let requirements = await getTextFromRequirements(convertedFile);
+    if (isErrorCode(requirements)) { 
+        return requirements as ErrorCode; 
+    }
+
+    return requirements;
+}
+
+function getBase64FromFile(filePath) {
+    const fileBuffer = fs.readFileSync(filePath);
+    return fileBuffer.toString('base64');
+}
+
+export async function fetchWithToken(url: string, options: RequestInit) {
+    const accessToken = await getAccessToken();
+    options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${accessToken}`,
+        'User-Agent': 'Ballerina-VSCode-Plugin',
+    };
+    let response = await fetch(url, options);
+    console.log("Response status: ", response.status);
+    if (response.status === 401) {
+        console.log("Token expired. Refreshing token...");
+        const newToken = await refreshAccessToken();
+        console.log("refreshed token : " + newToken);
+        if (newToken) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${newToken}`,
+            };
+            response = await fetch(url, options);
+        }
+    }
+    return response;
 }

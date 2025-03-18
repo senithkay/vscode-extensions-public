@@ -2,6 +2,7 @@ packages:
   - 'workspaces/*'
   - 'workspaces/ballerina/*'
   - 'workspaces/choreo/*'
+  - 'workspaces/wso2-platform/*'
   - "workspaces/bi/*"
   - 'workspaces/common-libs/*'
   - 'workspaces/api-chat/*'

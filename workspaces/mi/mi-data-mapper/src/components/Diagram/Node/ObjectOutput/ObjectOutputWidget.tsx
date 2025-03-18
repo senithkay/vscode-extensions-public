@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
 import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -28,11 +28,11 @@ import {
 } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
-import { IOType } from '@wso2-enterprise/mi-core';
+import { DMType, IOType, TypeKind } from '@wso2-enterprise/mi-core';
 import FieldActionWrapper from '../commons/FieldActionWrapper';
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
 import { modifyChildFieldsOptionality } from '../../utils/modification-utils';
-import { set } from 'lodash';
+import { getDefaultValue } from '../../utils/common-utils';
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	dmTypeWithValue: DMTypeWithValue;
@@ -61,11 +61,13 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	} = props;
 	const { views } = context;
 	const focusedView = views[views.length - 1];
-	const focusOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+	const focusedOnSubMappingRoot = focusedView.subMappingInfo?.focusedOnSubMappingRoot;
+	const focusedOnRoot = views.length === 1;
 
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+	const [isLoading, setIsLoading] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const [hasFirstClickOnOutput, setHasFirstClickOnOutput] = useState(false);
 
@@ -101,7 +103,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const indentation = (portIn && (!hasFields || !expanded)) ? 0 : 24;
 
 	useEffect(() => {
-		if (focusOnSubMappingRoot) {
+		if (focusedOnSubMappingRoot) {
 			const dynamicOutputPort = getPort(`${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}.IN`);
 
 			dynamicOutputPort.registerListener({
@@ -116,11 +118,10 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	}, []);
 
 	const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
 		if (!expanded) {
-			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+			collapsedFieldsStore.expandField(id, dmTypeWithValue.type.kind);
 		} else {
-			collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+			collapsedFieldsStore.collapseField(id, dmTypeWithValue.type.kind);
 		}
 	};
 
@@ -136,8 +137,34 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		setIsHovered(false);
 	};
 
+	const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
+		try {
+			await modifyChildFieldsOptionality(dmTypeWithValue, isOptional, context.functionST.getSourceFile(), context.applyModifications);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const handleChangeSchema = () => {
+		if (focusedOnSubMappingRoot) {
+			setSubMappingConfig({
+				...subMappingConfig,
+				isSMConfigPanelOpen: true
+			});
+		} else {
+			setIOConfigPanelType(IOType.Output);
+			setIsSchemaOverridden(true);
+			setIsIOConfigPanelOpen(true);
+		}
+	};
+
+	const onRightClick = (event: React.MouseEvent) => {
+		event.preventDefault();
+		if (focusedOnRoot || focusedOnSubMappingRoot) handleChangeSchema();
+	};
+
 	const label = (
-		<span style={{ marginRight: "auto" }}>
+		<TruncatedLabel style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
@@ -147,34 +174,8 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 			<span className={classes.outputTypeLabel}>
 				{typeName || ''}
 			</span>
-		</span>
+		</TruncatedLabel>
 	);
-
-	const onRightClick = (event: React.MouseEvent) => {
-		event.preventDefault();
-		if (focusOnSubMappingRoot) {
-			onSubMappingEditBtnClick();
-		} else {
-			setIOConfigPanelType(IOType.Output);
-			setIsSchemaOverridden(true);
-			setIsIOConfigPanelOpen(true);
-		}
-	};
-
-	const onSubMappingEditBtnClick = () => {
-		setSubMappingConfig({
-			...subMappingConfig,
-			isSMConfigPanelOpen: true
-		});
-	};
-
-	const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
-		try {
-			await modifyChildFieldsOptionality(dmTypeWithValue, isOptional, context.functionST.getSourceFile(), context.applyModifications);
-		} catch (error) {
-			console.error(error);
-		}
-	};
 
 	const valConfigMenuItems: ValueConfigMenuItem[] = [
 		{
@@ -186,6 +187,36 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 			onClick: () => handleModifyChildFieldsOptionality(false)
 		}
 	];
+
+	// TODO: Create separate node to handle union types and implement this logic there
+	if (dmTypeWithValue.type.kind === TypeKind.Union) {
+		const handleInitAsUnionType = async (resolvedUnionType: DMType) => {
+			setIsLoading(true);
+			try {
+				let node = value;
+				if (Node.isAsExpression(node.getParent())) {
+					node = node.getParent();
+				}
+				let initValue = getDefaultValue(resolvedUnionType);
+				if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
+					initValue += ` as ${resolvedUnionType.typeName}`;
+				}
+				node.replaceWithText(initValue);
+				await context.applyModifications(node.getSourceFile().getFullText());
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		const initAsUnionTypeMenuItems: ValueConfigMenuItem[] =  dmTypeWithValue.type.unionTypes?.map((unionType)=>{
+			return {
+				title: `Initialize as ${unionType.typeName || unionType.kind}`,
+				onClick: () => handleInitAsUnionType(unionType)
+			}
+		});
+
+		valConfigMenuItems.unshift(...initAsUnionTypeMenuItems);
+	}
 
 	return (
 		<>
@@ -222,22 +253,23 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						</FieldActionWrapper>
 						{label}
 					</span>
-					{focusOnSubMappingRoot && (
-						<FieldActionWrapper>
-							<Button
-								appearance="icon"
-								data-testid={"edit-sub-mapping-btn"}
-								tooltip="Edit name and type of the sub mapping "
-								onClick={onSubMappingEditBtnClick}
-							>
-								<Codicon
-									name="settings-gear"
-									iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
-								/>
-							</Button>
-						</FieldActionWrapper>
+					{(focusedOnRoot || focusedOnSubMappingRoot) && (
+						<Button
+							appearance="icon"
+							data-testid={"change-output-schema-btn"}
+							tooltip={focusedOnRoot ? "Change output schema" : "Edit name and type of the sub mapping"}
+							onClick={handleChangeSchema}
+							data-field-action
+						>
+							<Codicon
+								name="edit"
+								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+							/>
+						</Button>
 					)}
-					{(
+					{isLoading ? (
+						<ProgressRing sx={{ height: '16px', width: '16px' }} />
+					) : (
 						<FieldActionWrapper>
 							<ValueConfigMenu
 								menuItems={valConfigMenuItems}
@@ -267,7 +299,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						})}
 					</TreeBody>
 				)}
-				{focusOnSubMappingRoot && isObjectType && (
+				{focusedOnSubMappingRoot && isObjectType && (
 					<ObjectFieldAdder id={`recordfield-${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}`}>
 						<span className={classes.objectFieldAdderLabel}>
 							Dynamically add inputs to output

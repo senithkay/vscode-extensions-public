@@ -15,6 +15,10 @@ import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
+import { getMappingType, isLinkModel } from '../utils/dm-utils';
+import { DataMapperLinkModel } from '../Link';
+import { removePendingMappingTempLinkIfExists, userActionRequiredMapping } from '../Link/link-utils';
+import { DataMapperNodeModel } from '../Node/commons/DataMapperNode';
 
 /**
  * This state is controlling the creation of a link.
@@ -22,9 +26,14 @@ import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
 export class CreateLinkState extends State<DiagramEngine> {
 	sourcePort: PortModel;
 	link: LinkModel;
+	temporaryLink: LinkModel;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'create-new-link' });
+
+		if (resetState) {
+			this.clearState();
+		}
 
 		this.registerAction(
 			new Action({
@@ -32,7 +41,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 
-					if (!(element instanceof PortModel)) {
+					if (element === null) {
+						this.clearState();
+					} else if (!(element instanceof PortModel)) {
 						if (element instanceof MappingConstructorNode
 							|| element instanceof ListConstructorNode
 							|| element instanceof PrimitiveTypeNode
@@ -65,6 +76,15 @@ export class CreateLinkState extends State<DiagramEngine> {
 								}
 							}
 						}
+
+						if (isLinkModel(element)) {
+							element = (element as DataMapperLinkModel).getTargetPort();
+						}
+					}
+
+					if (this.temporaryLink) {
+						removePendingMappingTempLinkIfExists(this.temporaryLink);
+						this.temporaryLink = undefined;
 					}
 
 					if (element instanceof PortModel && !this.sourcePort) {
@@ -78,8 +98,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 								const link = this.sourcePort.createLinkModel();
 								link.setSourcePort(this.sourcePort);
 								link.addLabel(new ExpressionLabelModel({
+									link: link as DataMapperLinkModel,
 									value: undefined,
-									context: undefined
+									context: (element.getNode() as DataMapperNodeModel).context
 								}));
 								this.link = link;
 
@@ -103,13 +124,22 @@ export class CreateLinkState extends State<DiagramEngine> {
 									if (this.sourcePort.canLinkToPort(element)) {
 
 										this.link?.setTargetPort(element);
+
+										const connectingMappingType = getMappingType(this.sourcePort, element);
+										if (userActionRequiredMapping(connectingMappingType, element)) {
+											const label = this.link.getLabels()
+												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
+											label.setPendingMappingType(connectingMappingType);
+											this.temporaryLink = this.link;
+										}
+
 										this.engine.getModel().addAll(this.link)
 										if (this.sourcePort instanceof RecordFieldPortModel) {
 											this.sourcePort.linkedPorts.forEach((linkedPort) => {
 												linkedPort.fireEvent({}, "enableNewLinking")
 											})
 										}
-										this.clearState();
+										this.sourcePort = undefined;
 										this.eject();
 									}
 								}

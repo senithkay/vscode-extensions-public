@@ -11,19 +11,19 @@ import React, { useState } from "react";
 
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { IDMType } from "@wso2-enterprise/ballerina-core";
+import { IOType } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from '../commons/Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
+import { useDMExpandedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/type-utils";
 
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    dmType: IDMType;
+    dmType: IOType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
     valueLabel?: string;
@@ -33,9 +33,9 @@ export interface InputNodeWidgetProps {
 export function InputNodeWidget(props: InputNodeWidgetProps) {
     const { engine, dmType, id, getPort, valueLabel, nodeHeaderSuffix } = props;
     
-    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
-    const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const expandedFieldsStore = useDMExpandedFieldsStore();
 
 	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
 		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
@@ -70,11 +70,11 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     );
 
     const handleExpand = () => {
-        const collapsedFields = collapsedFieldsStore.collapsedFields;
-        if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+        const expandedFields = expandedFieldsStore.fields;
+        if (expanded) {
+            expandedFieldsStore.setFields(expandedFields.filter((element) => element !== id));
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+            expandedFieldsStore.setFields([...expandedFields, id]);
         }
     }
 
@@ -108,6 +108,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                 <span className={classes.label}>
                     {hasFields && (
                         <Button
+                            id={"expand-or-collapse-" + id} 
                             appearance="icon"
                             tooltip="Expand/Collapse"
                             onClick={handleExpand}

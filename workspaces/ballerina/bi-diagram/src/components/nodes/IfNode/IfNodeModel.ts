@@ -64,6 +64,14 @@ export class IfNodeModel extends NodeModel {
         return this.height;
     }
 
+    hasBreakpoint(): boolean {
+        return this.node.hasBreakpoint;
+    }
+
+    isActiveBreakpoint(): boolean {
+        return this.node.isActiveBreakpoint;
+    }
+
     setAroundLinksDisabled(disabled: boolean): void {
         _.forEach(this.ports, (port) => {
             _.forEach(port.getLinks(), (link) => {

@@ -8,11 +8,14 @@
  */
 
 import { cloneDeep } from "lodash";
-import { SWAGGER_PATH_TEMPLATE, SWAGGER_REL_DIR } from "../constants";
+import { COMMANDS, SWAGGER_PATH_TEMPLATE, SWAGGER_REL_DIR } from "../constants";
 import { SwaggerFromAPIResponse } from "@wso2-enterprise/mi-core";
 import { StateMachine } from "../stateMachine";
 import { workspace, window } from "vscode";
 import path from "path";
+import * as vscode from 'vscode';
+import { deleteRegistryResource } from "./fileOperations";
+
 const fs = require('fs');
 
 export interface Swagger {
@@ -276,7 +279,7 @@ export const getResourceInfo = (props: SwaggerUtilProps): ResourceInfoResponse =
 export function generateSwagger(apiPath: string): Promise<SwaggerFromAPIResponse> {
     return new Promise(async (resolve) => {
         const langClient = StateMachine.context().langClient!;
-        const response = await langClient.swaggerFromAPI({apiPath: apiPath});
+        const response = await langClient.swaggerFromAPI({ apiPath: apiPath });
         const generatedSwagger = response.swagger;
         const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
         const dirPath = path.join(workspacePath, SWAGGER_REL_DIR);
@@ -294,10 +297,11 @@ export function deleteSwagger(apiPath: string) {
     const swaggerDir = path.join(projectRoot!, SWAGGER_REL_DIR);
     const swaggerFilePath = path.join(swaggerDir, path.basename(apiPath, path.extname(apiPath)) + '.yaml');
     if (fs.existsSync(swaggerFilePath)) {
-        window.showInformationMessage(`API file ${path.basename(apiPath)} has been deleted. Do you want to delete the related Swagger file?`, 'Yes', 'No').then(answer => {
+        window.showInformationMessage(`API file ${path.basename(apiPath)} has been deleted. Do you want to delete the related Swagger file?`, 'Yes', 'No').then(async answer => {
             if (answer === 'Yes') {
-                fs.unlinkSync(swaggerFilePath);
+                await deleteRegistryResource(swaggerFilePath);
                 window.showInformationMessage(`Swagger file ${path.basename(swaggerFilePath)} has been deleted.`);
+                vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             }
         });
     }

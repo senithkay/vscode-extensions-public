@@ -119,7 +119,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const endpointHasDiagnotics = node.endpointHasDiagnostics();
     const endpointTooltip = endpointHasDiagnotics ? node.getEndpointDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
-    const nodeDescription = getNodeDescription(node.mediatorName, node.stNode);
+    const nodeDescription = getNodeDescription(node.stNode);
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
 
@@ -237,7 +237,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             <S.CircleContainer
                 onMouseEnter={() => setIsHoveredEndpoint(true)}
                 onMouseLeave={() => setIsHoveredEndpoint(false)}
-                onClick={handleOnClickEndpoint}
+                onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
             >
                 <Tooltip content={endpointTooltip} position={'bottom'} >
                     <svg width="110" height="50" viewBox="0 0 103 40">
@@ -288,7 +288,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             </S.CircleContainer>
 
             {node.endpoint ? (
-                <S.EndpointTextWrapper>{getNodeDescription(node.mediatorName, node.endpoint)}</S.EndpointTextWrapper>
+                <S.EndpointTextWrapper>{getNodeDescription(node.endpoint)}</S.EndpointTextWrapper>
             ) : (
                 <S.EndpointContainer>
                     {/* <MediatorIcon appearance="icon" onClick={handlePlusNode}>

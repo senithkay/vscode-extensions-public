@@ -11,6 +11,7 @@
 import {
     AIUserInput,
     AI_EVENT_TYPE,
+    AddDriverRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -57,6 +58,8 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
     DataSourceTemplate,
     Datasource,
     DeleteArtifactRequest,
@@ -72,7 +75,11 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
+    ExtendedDSSQueryGenRequest,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
     FileDirResponse,
+    FileRenameRequest,
     FileStructure,
     GenerateAPIResponse,
     GetAllArtifactsRequest,
@@ -81,6 +88,8 @@ import {
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
     GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -100,14 +109,22 @@ import {
     GetDiagnosticsResponse,
     GetFailoverEPRequest,
     GetFailoverEPResponse,
+    GetHelperPaneInfoRequest,
+    GetHelperPaneInfoResponse,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
     GetLoadBalanceEPRequest,
     GetLoadBalanceEPResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
     GetMessageStoreRequest,
     GetMessageStoreResponse,
     GetProjectRootRequest,
@@ -116,6 +133,7 @@ import {
     GetRecipientEPResponse,
     GetRegistryMetadataRequest,
     GetRegistryMetadataResponse,
+    GetSTFromUriRequest,
     GetSelectiveArtifactsRequest,
     GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
@@ -145,6 +163,7 @@ import {
     ProjectRootResponse,
     Property,
     RangeFormatRequest,
+    RegistryArtifact,
     RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
@@ -160,6 +179,9 @@ import {
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    SaveConfigRequest,
+    SaveConfigResponse,
+    SaveInboundEPUischemaRequest,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     StoreConnectorJsonResponse,
@@ -176,13 +198,13 @@ import {
     UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
-    UpdateDependencyInPomRequest,
     UpdateFailoverEPRequest,
     UpdateFailoverEPResponse,
     UpdateHttpEndpointRequest,
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateMediatorRequest,
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
@@ -201,35 +223,51 @@ import {
     WriteContentToFileResponse,
     getAllDependenciesRequest,
     getSTRequest,
-    GetSTFromUriRequest,
     getSTResponse,
-    onSwaggerSpecReceived,
-    FileRenameRequest,
-    SaveInboundEPUischemaRequest,
-    GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse,
     onDownloadProgress,
-    AddDriverRequest,
-    ExtendedDSSQueryGenRequest,
-    DSSFetchTablesRequest,
-    DSSFetchTablesResponse,
-    DSSQueryGenRequest,
+    MediatorTryOutRequest,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadsRequest,
+    GetPayloadsResponse,
     AddDriverToLibResponse,
     AddDriverToLibRequest,
     APIContextsResponse,
-    RegistryArtifact
+    onSwaggerSpecReceived,
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse,
+    ApplyEditsRequest,
+    RemoveConnectorRequest,
+    RemoveConnectorResponse,
+    TestConnectorConnectionRequest,
+    TestConnectorConnectionResponse,
+    MiVersionResponse,
+    CheckDBDriverResponse,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    GetArtifactTypeRequest,
+    GetArtifactTypeResponse,
+    ExtendedTextEdit,
+    LocalInboundConnectorsResponse,
+    BuildProjectRequest,
+    DeployProjectRequest,
+    DeployProjectResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse,
+    SCOPE
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
-import { copy } from 'fs-extra';
+import { copy, remove } from 'fs-extra';
 import { isEqual, reject } from "lodash";
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
-import { remove } from 'fs-extra';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
@@ -237,20 +275,21 @@ import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
+import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile, getEditTemplateXmlWrapper } from "../../util";
+import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
+import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
@@ -258,6 +297,10 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
+import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule } from "../../util/onboardingUtils";
+import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { checkForDevantExt } from "../../extension";
+
 const AdmZip = require('adm-zip');
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -276,6 +319,67 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 await commands.executeCommand(params.commands[0], ...cmdArgs);
                 resolve({ data: "SUCCESS" });
             }
+        });
+    }
+
+    async saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
+        return new Promise((resolve) => {
+
+            const projectUri = StateMachine.context().projectUri!;
+            const tryout = path.join(projectUri, ".tryout");
+            if (!fs.existsSync(tryout)) {
+                fs.mkdirSync(tryout);
+            }
+            fs.writeFileSync(path.join(tryout, "input.json"), params.payload);
+            resolve(true);
+        });
+    }
+
+    async getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
+        return new Promise((resolve) => {
+            const projectUri = StateMachine.context().projectUri!;
+            const tryout = path.join(projectUri, ".tryout", "input.json");
+            if (fs.existsSync(tryout)) {
+                const payloads = JSON.parse(fs.readFileSync(tryout, "utf8"));
+                resolve({ payloads });
+            } else {
+                resolve({ payloads: [] })
+            }
+        });
+    }
+
+    async tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.tryOutMediator(params);
+            resolve(res);
+        });
+    }
+
+    async shutDownTryoutServer(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.shutdownTryoutServer();
+            resolve(res);
+        });
+    }
+
+    async getMIVersionFromPom(): Promise<MiVersionResponse> {
+        return new Promise(async (resolve) => {
+            const res = await getMIVersionFromPom();
+            resolve({ version: res ?? '' });
+        });
+    }
+
+    async getMediatorInputOutputSchema(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+        return new Promise(async (resolve) => {
+            const projectUri = StateMachine.context().projectUri!;
+            const payloadPath = path.join(projectUri, ".tryout", "input.json");
+            const payload = fs.readFileSync(payloadPath, "utf8");
+            params.inputPayload = payload
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getMediatorInputOutputSchema(params);
+            resolve(res);
         });
     }
 
@@ -300,6 +404,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             );
         }
 
+
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getSyntaxTree({
@@ -307,7 +412,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: documentUri
                 },
             });
-
             resolve(res);
         });
     }
@@ -406,7 +510,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 swaggerDefPath,
                 wsdlType,
                 wsdlDefPath,
-                wsdlEndpointName
+                wsdlEndpointName,
+                projectDir
             } = params;
 
             const getSwaggerName = (swaggerDefPath: string) => {
@@ -417,12 +522,26 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
+                const projectDetailsRes = await langClient?.getProjectDetails();
+                const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+                const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
+
+                const getPublishSwaggerPath = (swaggerDefPath: string) => {
+                    if (isRegistrySupported) {
+                        return `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}`;
+                    } else {
+                        return `gov:mi-resources/api-definitions/${getSwaggerName(swaggerDefPath)}`;
+                    }
+                }
+                if (!isRegistrySupported) {
+                    const swaggerArtifactName = `resources_api-definitions_${getSwaggerName(swaggerDefPath ?? '')}`.replace(/\./g, '_');
+                    addNewEntryToArtifactXML(projectDir ?? '', swaggerArtifactName, getSwaggerName(swaggerDefPath ?? ''), "/_system/governance/mi-resources/api-definitions", "application/yaml", false, false);
+                }
                 if (swaggerDefPath) {
                     response = await langClient.generateAPI({
                         apiName: name,
                         swaggerOrWsdlPath: swaggerDefPath,
-                        publishSwaggerPath:
-                            saveSwaggerDef ? `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}` : undefined,
+                        publishSwaggerPath: saveSwaggerDef ? getPublishSwaggerPath(swaggerDefPath) : undefined,
                         mode: "create.api.from.swagger"
                     });
                 } else if (wsdlDefPath) {
@@ -492,8 +611,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
             if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
+                const originalFileName = `${path.basename(documentUri, path.extname(documentUri))}.yaml`;
+                const originalFilePath = path.join(path.dirname(documentUri), originalFileName);
                 await this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`) });
                 documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
+                // Path to old API file
+                const projectDir = workspace.getWorkspaceFolder(Uri.file(originalFilePath))?.uri.fsPath;
+                const oldAPIXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'api-definitions', originalFileName);
+                // Delete the old API from resources folder
+                if (fs.existsSync(oldAPIXMLPath)) {
+                    fs.unlinkSync(oldAPIXMLPath);
+                }
             }
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
@@ -1457,7 +1585,7 @@ ${endpointAttributes}
         const options = {
             ignoreAttributes: false,
             allowBooleanAttributes: true,
-            attributeNamePrefix: "@_",
+            attributeNamePrefix: "",
             attributesGroupName: "@_"
         };
         const parser = new XMLParser(options);
@@ -1469,10 +1597,10 @@ ${endpointAttributes}
                 const jsonData = parser.parse(xmlData);
 
                 const response: GetTaskResponse = {
-                    name: jsonData.task["@_"]["@_name"],
-                    group: jsonData.task["@_"]["@_group"],
-                    implementation: jsonData.task["@_"]["@_class"],
-                    pinnedServers: jsonData.task["@_"]["@_pinnedServers"],
+                    name: jsonData.task["@_"]["name"],
+                    group: jsonData.task["@_"]["group"],
+                    implementation: jsonData.task["@_"]["class"],
+                    pinnedServers: jsonData.task["@_"]["pinnedServers"],
                     triggerType: 'simple',
                     triggerCount: null,
                     triggerInterval: 1,
@@ -1480,34 +1608,34 @@ ${endpointAttributes}
                     taskProperties: []
                 };
 
-                if (jsonData.task.trigger["@_"]["@_once"] !== undefined) {
+                if (jsonData.task.trigger["@_"]["once"] !== undefined) {
                     response.triggerCount = 1;
-                } else if (jsonData.task.trigger["@_"]["@_interval"] !== undefined) {
-                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
-                    response.triggerCount = jsonData.task.trigger["@_"]?.["@_count"] != null ?
-                        Number(jsonData.task.trigger["@_"]["@_count"]) : null;
+                } else if (jsonData.task.trigger["@_"]["interval"] !== undefined) {
+                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["interval"]);
+                    response.triggerCount = jsonData.task.trigger["@_"]?.["count"] != null ?
+                        Number(jsonData.task.trigger["@_"]["count"]) : null;
                 }
-                else if (jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
+                else if (jsonData.task.trigger["@_"]["cron"] !== undefined) {
                     response.triggerType = 'cron';
-                    response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
+                    response.triggerCron = jsonData.task.trigger["@_"]["cron"];
                 }
                 if (jsonData.task.property) {
                     response.taskProperties = Array.isArray(jsonData.task.property) ?
                         jsonData.task.property.map((prop: any) => ({
-                            key: prop["@_"]["@_name"],
-                            value: prop["@_"]["@_value"],
+                            key: prop["@_"]["name"],
+                            value: prop["@_"]["value"],
                             isLiteral: true
                         })) :
                         [{
-                            key: jsonData.task.property["@_"]["@_name"],
-                            value: jsonData.task.property["@_"]["@_value"],
+                            key: jsonData.task.property["@_"]["name"],
+                            value: jsonData.task.property["@_"]["value"],
                             isLiteral: true
                         }];
                     const builder = new XMLBuilder(options);
-                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["@_name"] === "message");
+                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["name"] === "message");
                     if (message.length > 0) {
                         response.taskProperties = response.taskProperties.filter(prop => prop.key !== "message");
-                        if (message[0]["@_"]["@_value"] === undefined) {
+                        if (message[0]["@_"]["value"] === undefined) {
                             delete message[0]["@_"];
                             let xml = builder.build(message[0]);
                             response.taskProperties.push({
@@ -1518,7 +1646,7 @@ ${endpointAttributes}
                         } else {
                             response.taskProperties.push({
                                 key: "message",
-                                value: message[0]["@_"]["@_value"],
+                                value: message[0]["@_"]["value"],
                                 isLiteral: true
                             });
                         }
@@ -1552,11 +1680,19 @@ ${endpointAttributes}
                 wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled, parameters
             };
 
-            const xmlData = getTemplateXmlWrapper(getTemplateParams);
-            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            let xmlData = getTemplateXmlWrapper(getTemplateParams);
+            let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
+            } else if (params.isEdit && params.range) {
+                const filePath = await this.getFilePath(directory, templateName);
+                xmlData = getEditTemplateXmlWrapper(getTemplateParams);
+                this.applyEdit({
+                    text: xmlData,
+                    documentUri: filePath,
+                    range: params.range
+                });
             } else {
                 const filePath = await this.getFilePath(directory, templateName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
@@ -1571,6 +1707,10 @@ ${endpointAttributes}
                 resolve({ path: filePath, content: "" });
             }
         });
+    }
+
+    async buildBallerinaModule(projectPath: string): Promise<void> {
+        await buildBallerinaModule(projectPath);
     }
 
     async getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
@@ -2379,29 +2519,57 @@ ${endpointAttributes}
         });
     }
 
-    async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
+    async applyEdit(params: ApplyEditRequest | ApplyEditsRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
-            const uri = params.documentUri;
-            let text = params.text;
-            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri);
 
-            if (!document) {
-                document = await workspace.openTextDocument(Uri.file(uri));
+            const getRange = (range: STRange | Range) =>
+                new Range(new Position(range.start.line, range.start.character),
+                    new Position(range.end.line, range.end.character));
+
+            if ('text' in params) {
+                const uri = params.documentUri;
+                const file = Uri.file(uri);
+                const textToInsert = params.addNewLine ? (params.text.endsWith('\n') ? params.text : `${params.text}\n`) : params.text;
+                edit.replace(file, getRange(params.range), textToInsert);
+            } else if ('edits' in params) {
+                params.edits.forEach(editRequest => {
+                    const uri = editRequest.documentUri ?? params.documentUri;
+                    const file = Uri.file(uri);
+
+                    if (editRequest.isCreateNewFile) {
+                        edit.createFile(file);
+                    }
+                    const textToInsert = params.addNewLine ? (editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`) : editRequest.newText;
+                    edit.replace(file, getRange(editRequest.range), textToInsert);
+                });
             }
 
-            const range = new Range(new Position(params.range.start.line, params.range.start.character),
-                new Position(params.range.end.line, params.range.end.character));
-
-            edit.replace(Uri.file(uri), range, text);
             await workspace.applyEdit(edit);
 
             if (!params.disableFormatting) {
-                const formatRange = this.getFormatRange(range, text);
-                await this.rangeFormat({ uri: uri, range: formatRange });
+                const formatEdits = (editRequest: ExtendedTextEdit) => {
+                    const textToInsert = editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`;
+                    const formatRange = this.getFormatRange(getRange(editRequest.range), textToInsert);
+                    return this.rangeFormat({ uri: editRequest.documentUri!, range: formatRange });
+                };
+                if ('text' in params) {
+                    await formatEdits({ range: getRange(params.range), newText: params.text, documentUri: params.documentUri });
+                } else if ('edits' in params) {
+                    await Promise.all(params.edits.map(editRequest => formatEdits({
+                        range: getRange(editRequest.range),
+                        newText: editRequest.newText,
+                        documentUri: editRequest.documentUri ?? params.documentUri
+                    })));
+                }
             }
-            const content = document.getText();
-            undoRedo.addModification(content);
+            if (!params.disableUndoRedo) {
+                const uri = params.documentUri;
+                const file = Uri.file(uri);
+                let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri) || await workspace.openTextDocument(file);
+                const content = document.getText();
+                undoRedo.addModification(content);
+            }
 
             resolve({ status: true });
         });
@@ -2666,7 +2834,7 @@ ${endpointAttributes}
         if (!fs.lstatSync(params.path).isDirectory()) {
             const uri = Uri.file(params.path);
             workspace.openTextDocument(uri).then((document) => {
-                window.showTextDocument(document);
+                window.showTextDocument(document, params.beside ? ViewColumn.Beside : undefined);
             });
         }
     }
@@ -2710,13 +2878,39 @@ ${endpointAttributes}
         });
     }
 
+    async askOpenAPIDirPath(): Promise<FileDirResponse> {
+        return new Promise(async (resolve) => {
+            // open file dialog to select the openapi spec file
+            const options: vscode.OpenDialogOptions = {
+                canSelectMany: false,
+                openLabel: 'Open OpenAPI Spec',
+                filters: {
+                    'OpenAPI Spec': ['json', 'yaml', 'yml']
+                }
+            };
+
+            const selectedFile = await vscode.window.showOpenDialog(options);
+            if (!selectedFile || selectedFile.length === 0) {
+                window.showErrorMessage('A file must be selected to import connector');
+                resolve({ path: "" });
+            } else {
+                const fileDir = selectedFile[0].fsPath;
+                resolve({ path: fileDir });
+            }
+        });
+    }
+
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
             const projectUuid = uuidv4();
-            const { directory, name, open, groupID, artifactID, version } = params;
+            const { directory, name, open, groupID, artifactID, version, miVersion } = params;
+            const connectorStoreResponse = await this.getStoreConnectorJSON(miVersion);
+            const httpConnectorVersion = filterConnectorVersion('HTTP', connectorStoreResponse.connectors);
+            const initialDependencies = generateInitialDependencies(httpConnectorVersion);
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
+                    '.env': '',
                     'src': {
                         'main': {
                             'java': '',
@@ -2738,9 +2932,8 @@ ${endpointAttributes}
                                 'resources': {
                                     'connectors': '',
                                     'metadata': '',
-                                    'registry': {
-                                        'gov': '',
-                                        'conf': '',
+                                    'conf': {
+                                        'config.properties': ''
                                     },
                                 },
                             },
@@ -2760,40 +2953,42 @@ ${endpointAttributes}
                 },
             };
 
-            createFolderStructure(directory, folderStructure);
+            await createFolderStructure(directory, folderStructure);
             copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), path.join(directory, name));
+            copyMavenWrapper(extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')), path.join(directory, name));
+            await createGitignoreFile(path.join(directory, name));
 
             window.showInformationMessage(`Successfully created ${name} project`);
             const projectOpened = StateMachine.context().projectOpened;
 
-            if (open) {
-                if (projectOpened) {
-                    const answer = await window.showInformationMessage(
-                        "Do you want to open the created project in the current window or new window?",
-                        "Current Window",
-                        "New Window"
-                    );
+            commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            resolve({ filePath: path.join(directory, name) });
 
-                    if (answer === "Current Window") {
-                        const folderUri = Uri.file(path.join(directory, name));
+            // FIX ME: Enable when multiproject support provided
+            // if (open) {
+            //     if (projectOpened) {
+            //         const answer = await window.showInformationMessage(
+            //             "Do you want to open the created project in the current window or new window?",
+            //             "Current Window",
+            //             "New Window"
+            //         );
 
-                        // Get the currently opened workspaces
-                        const workspaceFolders = workspace.workspaceFolders || [];
+            //         if (answer === "Current Window") {
+            //             const folderUri = Uri.file(path.join(directory, name));
 
-                        // Check if the folder is not already part of the workspace
-                        if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
-                            workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
-                        }
-                    } else {
-                        commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                        resolve({ filePath: path.join(directory, name) });
-                    }
+            //             // Get the currently opened workspaces
+            //             const workspaceFolders = workspace.workspaceFolders || [];
 
-                } else {
-                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                    resolve({ filePath: path.join(directory, name) });
-                }
-            }
+            //             // Check if the folder is not already part of the workspace
+            //             if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
+            //                 workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
+            //             }
+            //         } else {
+            //             commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            //             resolve({ filePath: path.join(directory, name) });
+            //         }
+
+            //     }
 
             resolve({ filePath: path.join(directory, name) });
         });
@@ -2846,7 +3041,7 @@ ${endpointAttributes}
             if (workspaceFolders) {
                 resolve({ path: workspaceFolders[0].uri.fsPath });
             }
-            resolve({ path: "" });
+            resolve({ path: getDefaultProjectPath() });
         });
     }
 
@@ -3246,6 +3441,87 @@ ${endpointAttributes}
         }
     }
 
+    async copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
+        const { connectorPath } = params;
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const connectorDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors');
+
+            if (!fs.existsSync(connectorDirectory)) {
+                fs.mkdirSync(connectorDirectory, { recursive: true });
+            }
+
+            const destinationPath = path.join(connectorDirectory, path.basename(connectorPath));
+
+            if (fs.existsSync(destinationPath)) {
+                fs.unlinkSync(destinationPath); // Delete the existing file
+            }
+
+            await fs.promises.copyFile(connectorPath, destinationPath);
+
+
+            return new Promise((resolve, reject) => {
+                resolve({ success: true, connectorPath: destinationPath });
+            });
+        } catch (error) {
+            console.error('Error downloading connector:', error);
+            throw new Error('Failed to download connector');
+        }
+    }
+
+    async askImportFileDir(): Promise<FileDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedFile = await askImportFileDir();
+            if (!selectedFile || selectedFile.length === 0) {
+                window.showErrorMessage('A file must be selected to import a artifact');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedFile[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+            const destinationDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'artifacts', params.artifactFolder);
+            // Determine the destination file name
+            let desFileName = path.basename(params.sourceFilePath);
+            // If desFileName does nto contain .xml, append .xml
+            if (desFileName && !desFileName.endsWith('.xml')) {
+                desFileName += '.xml';
+            }
+            const destinationFilePath = path.join(destinationDirectory, desFileName);
+
+            // Ensure the destination directory exists
+            await fs.promises.mkdir(destinationDirectory, { recursive: true });
+
+            // Check if the destination file already exists
+            if (fs.existsSync(destinationFilePath)) {
+                return { success: false, error: 'File already exists' };
+            }
+
+            // Copy the file from the source to the destination
+            const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
+            await fs.promises.copyFile(sourceFilePath, destinationFilePath);
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            return { success: true }; // Return success response
+        } catch (error) {
+            console.error('Error copying artifact:', error);
+            return { success: false, error: error?.toString() as string };
+        }
+    }
+
     async getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         const { uiSchemaPath, operation } = params;
         const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
@@ -3346,6 +3622,7 @@ ${endpointAttributes}
                 canSelectFiles: params.canSelectFiles,
                 canSelectFolders: params.canSelectFolders,
                 canSelectMany: params.canSelectMany,
+                filters: params.filters,
                 defaultUri: params.defaultUri ? Uri.file(params.defaultUri) : Uri.file(os.homedir()),
                 title: params.title,
                 ...params.openLabel && { openLabel: params.openLabel },
@@ -3358,18 +3635,45 @@ ${endpointAttributes}
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
+            const artifactNamePrefix = params.registryRoot === '' ? 'resources/' : params.registryRoot + '/';
+            let artifactName = (artifactNamePrefix + params.registryPath).replace(new RegExp('/', 'g'), "_").replace(/_+/g, '_');
+
             let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 params.projectDirectory = workspaceFolder?.uri.fsPath;
-                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+                if (params.registryRoot === '') {
+                    projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
+                } else {
+                    projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+                }
+            }
+            const getTransformedRegistryRoot = (registryRoot: string) => {
+                if (registryRoot === '') {
+                    return "/_system/governance/mi-resources";
+                } else if (registryRoot === 'gov') {
+                    return "/_system/governance";
+                } else {
+                    return "/_system/config";
+                }
+            }
+            const refreshRegistryResource = (registryRoot: string) => {
+                if (registryRoot === '') {
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                } else {
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                    commands.executeCommand(COMMANDS.REFRESH_REGISTRY_COMMAND);
+                }
             }
             let registryDir = path.join(projectDir, params.registryRoot);
-            let transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
+            let transformedPath = getTransformedRegistryRoot(params.registryRoot);;
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
+                    artifactName = artifactName + "_" + fileName;
+                    artifactName = artifactName.replace(/\./g, '_');
+
                     const registryPath = path.join(registryDir, params.registryPath);
                     const destPath = path.join(registryPath, fileName);
                     if (!fs.existsSync(registryPath)) {
@@ -3380,21 +3684,22 @@ ${endpointAttributes}
                         transformedPath = path.join(transformedPath, params.registryPath, fileName);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         createMetadataFilesForRegistryCollection(destPath, transformedPath);
-                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, "", true);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, "", true, params.registryRoot !== "");
                     } else {
                         fs.copyFileSync(params.filePath, destPath);
                         transformedPath = path.join(transformedPath, params.registryPath);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         const mediaType = await detectMediaType(params.filePath);
-                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType, false);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false, params.registryRoot !== "");
                     }
-                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                    refreshRegistryResource(params.registryRoot);
                     resolve({ path: destPath });
                 }
             } else if (params.createOption === 'entryOnly') {
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
+                artifactName = artifactName + '_' + params.resourceName + '_' + fileData.fileExtension;
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
@@ -3403,26 +3708,27 @@ ${endpointAttributes}
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
 
             } else {
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
+                artifactName = artifactName + '_' + params.resourceName + '_' + fileData.fileExtension;
                 let fileContent = params.content ? params.content : getRegistryResourceContent(params.templateType, params.resourceName);
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
                     fs.mkdirSync(registryPath, { recursive: true });
                 }
-                await replaceFullContentToFile(destPath, fileContent ? fileContent : "");
+                fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
             }
         });
@@ -3450,10 +3756,27 @@ ${endpointAttributes}
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
             await replaceFullContentToFile(filePath, content);
-            const fileUri = Uri.file(params.projectDirectory);
-            const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
-            changeRootPomPackaging(workspaceFolder, "jar");
-            addSynapseDependency(workspaceFolder);
+
+            await changeRootPomForClassMediator();
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async createBallerinaModule(params: CreateBallerinaModuleRequest): Promise<CreateBallerinaModuleResponse> {
+        return new Promise(async (resolve) => {
+            const content = getBallerinaModuleContent();
+            const configContent = getBallerinaConfigContent({ name: params.moduleName, version: params.version });
+            const fullPath = path.join(params.projectDirectory, params.moduleName);
+            fs.mkdirSync(fullPath, { recursive: true });
+            const filePath = path.join(fullPath, `${params.moduleName}-module.bal`);
+            await replaceFullContentToFile(filePath, content);
+            const balFile = await vscode.workspace.openTextDocument(filePath);
+            await balFile.save();
+            const configFilePath = path.join(fullPath, "Ballerina.toml");
+            await replaceFullContentToFile(configFilePath, configContent);
+            const configFile = await vscode.workspace.openTextDocument(configFilePath);
+            await configFile.save();
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -3509,7 +3832,7 @@ ${endpointAttributes}
 
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return new Promise(async (resolve) => {
-            const response = await getAvailableRegistryResources(params.path);
+            const response = getAvailableRegistryResources(params.path);
             const artifacts = response.artifacts;
             var tempArtifactNames: string[] = [];
             for (let i = 0; i < artifacts.length; i++) {
@@ -3517,7 +3840,7 @@ ${endpointAttributes}
             }
             let artifactsWithAdditionalData: RegistryArtifact[] = [];
             if (params.withAdditionalData) {
-                artifactsWithAdditionalData = getAvailableRegistryResources(params.path).artifacts;
+                artifactsWithAdditionalData = response.artifacts;
             }
             resolve({ artifacts: tempArtifactNames, artifactsWithAdditionalData });
         });
@@ -3526,7 +3849,7 @@ ${endpointAttributes}
     async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
         return new Promise(async (resolve) => {
             if (source) {
-                importProject({ source, directory: source, open: true });
+                await importProject({ source, directory: source, open: true });
                 resolve({ filePath: source });
             }
         });
@@ -3555,19 +3878,48 @@ ${endpointAttributes}
         })
     }
 
-    async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
+    async removeConnector(params: RemoveConnectorRequest): Promise<RemoveConnectorResponse> {
+        const { connectorPath } = params;
+        return new Promise((resolve, reject) => {
+            try {
+                if (fs.existsSync(connectorPath)) {
+                    fs.unlink(connectorPath, (err) => {
+                        if (err) {
+                            reject(`Failed to delete the zip file at ${connectorPath}: ${err.message}`);
+                        } else {
+                            resolve({ success: true }); // Successfully deleted the file
+                        }
+                    });
+                } else {
+                    reject(`Zip file at ${connectorPath} does not exist.`);
+                }
+            } catch (error) {
+                console.log("Error removing connector", error);
+                reject("Failed to remove connector.");
+            }
+        });
+    }
+
+    async getStoreConnectorJSON(miVersion?: string): Promise<StoreConnectorJsonResponse> {
         return new Promise(async (resolve) => {
             try {
-                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data')) {
-                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data') });
+                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data') && connectorCache.has('connectors')) {
+                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
+                const runtimeVersion = miVersion ? miVersion : await getMIVersionFromPom();
+
                 const response = await fetch(APIS.CONNECTOR);
+                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
                 const data = await response.json();
+                const connectorStoreData = await connectorStoreResponse.json();
                 if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {
                     connectorCache.set('inbound-connector-data', data['inbound-connector-data']);
                     connectorCache.set('outbound-connector-data', data['outbound-connector-data']);
-                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'] });
+                    if (connectorStoreData) {
+                        connectorCache.set('connectors', connectorStoreData);
+                    }
+                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'], connectors: connectorStoreData });
                 } else {
                     console.log("Failed to fetch connectors. Status: " + data.status + ", Reason: " + data.reason);
                     reject("Failed to fetch connectors.");
@@ -3824,12 +4176,14 @@ ${keyValuesXML}`;
     }
 
     async logoutFromMIAccount(): Promise<void> {
+        const config = vscode.workspace.getConfiguration('MI');
         const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
         if (confirm === 'Yes') {
             const token = await extension.context.secrets.get('MIAIUser');
-            const clientId = 'i42PUygaucczvuPmhZFw5x8Lmswa';
+            const clientId = config.get('authClientID') as string;
+            const authOrg = config.get('authOrg') as string;
 
-            let response = await fetch('https://api.asgardeo.io/t/wso2midev/oauth2/revoke', {
+            let response = await fetch(`https://api.asgardeo.io/t/${authOrg}/oauth2/revoke`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -3853,11 +4207,35 @@ ${keyValuesXML}`;
         });
     }
 
+    async getAllResourcePaths(): Promise<GetAllResourcePathsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getResourceFiles();
+            resolve({ resourcePaths: res });
+        });
+    }
+
+    async getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getConfigurableEntries();
+            resolve({ configurableEntries: res });
+        });
+    }
+
     async getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getArifactFiles(params.path);
             resolve({ artifacts: res });
+        });
+    }
+
+    async getArtifactType(params: GetArtifactTypeRequest): Promise<GetArtifactTypeResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getArtifactType(params.filePath);
+            resolve({ artifactType: res.artifactType, artifactFolder: res.artifactFolder });
         });
     }
 
@@ -4000,15 +4378,82 @@ ${keyValuesXML}`;
         }
     }
 
-    async buildProject(): Promise<void> {
+    async buildProject(params: BuildProjectRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
-            if (selection === "Build CAPP") {
+            let selection = params?.buildType?.toString();
+            if (!selection) {
+                selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
+            }
+            if (selection === "Build CAPP" || selection === "capp") {
                 await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
-            } else if (selection === "Create Docker Image") {
+            } else if (selection === "Create Docker Image" || selection === "docker") {
                 await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE);
             }
             resolve();
+        });
+    }
+
+    async deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
+        return new Promise(async (resolve) => {
+            if (!checkForDevantExt()) {
+                return;
+            }
+            const params = {
+                buildPackLang: "microintegrator",
+                name: path.basename(StateMachine.context().projectUri!),
+                componentDir: StateMachine.context().projectUri
+            };
+
+            const langClient = StateMachine.context().langClient!;
+
+            let integrationType: string | undefined;
+            if (params.componentDir) {
+                const rootPath = (await this.getProjectRoot({ path: params.componentDir })).path;
+                const resp = await langClient.getProjectIntegrationType(rootPath);
+
+                function mapTypeToScope(type: string): string | undefined {
+                    switch (type) {
+                        case 'AUTOMATION':
+                            return SCOPE.AUTOMATION;
+                        case 'INTEGRATION_AS_API':
+                            return SCOPE.INTEGRATION_AS_API;
+                        case 'EVENT_INTEGRATION':
+                            return SCOPE.EVENT_INTEGRATION;
+                        case 'FILE_INTEGRATION':
+                            return SCOPE.FILE_INTEGRATION;
+                        case 'AI_AGENT':
+                            return SCOPE.AI_AGENT;
+                        case 'ANY':
+                            return SCOPE.ANY;
+                    }
+                }
+
+                if (resp.length === 1) {
+                    const type = resp[0]
+                    integrationType = mapTypeToScope(type);
+                } else {
+                    // Show a quick pick to select deployment option
+                    const selectedScope = await window.showQuickPick(resp, {
+                        placeHolder: 'You have different types of artifacts within this project. Select the artifact type to be deployed'
+                    });
+
+                    if (selectedScope) {
+                        integrationType = mapTypeToScope(selectedScope);
+                    }
+                }
+
+                if (!integrationType) {
+                    return { success: false };
+                }
+
+                const paramsWithType = { ...params, integrationType };
+
+                commands.executeCommand(COMMANDS.DEVAN_DEPLOY, paramsWithType);
+                resolve({ success: true });
+
+            } else {
+                resolve({ success: false });
+            }
         });
     }
 
@@ -4462,126 +4907,6 @@ ${keyValuesXML}`;
         });
     }
 
-    async updateDependencyInPom(params: UpdateDependencyInPomRequest): Promise<void> {
-        const showErrorMessage = () => {
-            window.showErrorMessage('Failed to add the dependency to the POM file');
-        }
-
-        return new Promise(async (resolve) => {
-            const { groupId, artifactId, version, file, range } = params;
-            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
-
-            if (!workspaceFolder) {
-                showErrorMessage();
-                throw new Error('Cannot find workspace folder');
-            }
-
-            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
-            const pomContent = fs.readFileSync(pomPath, 'utf-8');
-            const options = {
-                ignoreAttributes: false,
-                attributeNamePrefix: "@_"
-            };
-            const parser = new XMLParser(options);
-            const pom = parser.parse(pomContent);
-
-            if (!pom) {
-                showErrorMessage();
-                throw new Error('Failed to parse POM XML');
-            }
-
-            if (range) {
-                const workspaceEdit = new WorkspaceEdit();
-                const document = await workspace.openTextDocument(pomPath);
-                if (groupId || artifactId || version) {
-                    const originalText = document.getText(new Range(range.start.line, range.start.character, range.end.line, range.end.character));
-                    let updatedText = originalText;
-
-                    if (groupId) {
-                        updatedText = updatedText.replace(/<groupId>.*<\/groupId>/, `<groupId>${groupId}</groupId>`);
-                    }
-                    if (artifactId) {
-                        updatedText = updatedText.replace(/<artifactId>.*<\/artifactId>/, `<artifactId>${artifactId}</artifactId>`);
-                    }
-                    if (version) {
-                        updatedText = updatedText.replace(/<version>.*<\/version>/, `<version>${version}</version>`);
-                    }
-
-
-                    workspaceEdit.replace(Uri.file(pomPath), new Range(range.start.line, range.start.character, range.end.line, range.end.character), updatedText);
-                    await workspace.applyEdit(workspaceEdit);
-                } else {
-                    workspaceEdit.delete(Uri.file(pomPath), new Range(range.start.line, range.start.character, range.end.line, range.end.character));
-                    await workspace.applyEdit(workspaceEdit);
-
-                    const lineText = document.lineAt(range.start.line).text;
-                    if (lineText.trim() === '') {
-                        const deleteEmptyLine = new WorkspaceEdit();
-                        deleteEmptyLine.delete(Uri.file(pomPath), new Range(range.start.line, 0, range.start.line + 1, 0));
-                        await workspace.applyEdit(deleteEmptyLine);
-                    }
-                }
-                resolve();
-                return;
-            }
-
-            let dependencies: any = (await this.getAllDependencies({ file: file }))?.dependencies;
-            let dependencyExists = dependencies.some(dep =>
-                dep.groupId === groupId &&
-                dep.artifactId === artifactId &&
-                dep.version === version
-            );
-
-            if (!dependencyExists) {
-                const newDependency = {
-                    groupId: groupId,
-                    artifactId: artifactId,
-                    version: version
-                };
-
-                const isUpdate = dependencies.length > 0;
-                const tagToFind = !isUpdate ? '</pluginRepositories>' : '</dependencies>';
-                const index = pomContent.lastIndexOf(tagToFind);
-
-                if (!isUpdate) {
-                    dependencies.push(newDependency);
-
-                    dependencies = {
-                        dependencies: dependencies.map(dep => { return { dependency: dep } })
-                    }
-                } else {
-                    dependencies = {
-                        dependency: newDependency
-                    }
-                }
-
-                if (index !== -1) {
-                    let insertIndex = index + (isUpdate ? 0 : tagToFind.length);
-                    const lineString = pomContent.substring(0, insertIndex).split('\n').pop();
-                    const spacesCount = lineString?.match(/^\s*/)?.[0].length ?? 0;
-                    const indentation = ' '.repeat(spacesCount * (isUpdate ? 2 : 1));
-
-                    if (isUpdate) {
-                        insertIndex -= spacesCount;
-                    }
-
-                    const builder = new XMLBuilder({ format: true, oneListGroup: "true" });
-                    let text = builder.build(dependencies);
-                    const lines = text.split('\n');
-                    text = lines.map((line, index) => (index === lines.length - 1) ? line : indentation + line).join('\n');
-                    text = isUpdate ? text : `\n${text}`;
-
-                    await replaceFullContentToFile(pomPath, pomContent.slice(0, insertIndex) + text + pomContent.slice(insertIndex + (isUpdate ? 0 : 1)));
-                } else {
-                    showErrorMessage();
-                    throw new Error(`Failed to find ${tagToFind} tag`);
-                }
-            }
-
-            resolve();
-        });
-    }
-
     async getSelectiveArtifacts(params: GetSelectiveArtifactsRequest): Promise<GetSelectiveArtifactsResponse> {
         return new Promise(async (resolve) => {
             const filePath = params.path;
@@ -4716,68 +5041,8 @@ ${keyValuesXML}`;
 
     async markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const { path: filePath, remove } = params;
-            const langClient = StateMachine.context().langClient;
-
-            if (!langClient) {
-                window.showErrorMessage('Language client is not available');
-                throw new Error('Language client is not available');
-            }
-
-            // Get the syntax tree of the given file path
-            const syntaxTree = await langClient.getSyntaxTree({
-                documentIdentifier: {
-                    uri: filePath
-                },
-            });
-
-            // Get the sequence name from the syntax tree
-            const sequenceName = syntaxTree?.syntaxTree?.sequence?.name;
-            if (!sequenceName) {
-                window.showErrorMessage('Failed to get the sequence name from the syntax tree');
-                throw new Error('Failed to get the sequence name from the syntax tree');
-            }
-
-            // Read the POM file
-            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
-            if (!workspaceFolder) {
-                window.showErrorMessage('Cannot find workspace folder');
-                throw new Error('Cannot find workspace folder');
-            }
-
-            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
-            const pomContent = fs.readFileSync(pomPath, 'utf-8');
-            const mainSequenceTag = `<mainSequence>${sequenceName}</mainSequence>`;
-
-            // Check if the <properties> tag exists
-            const propertiesTagExists = pomContent.includes('<properties>');
-
-            let updatedPomContent;
-            if (propertiesTagExists) {
-                if (remove) {
-                    // Remove the <mainSequence> tag from the POM
-                    updatedPomContent = pomContent.replace(/\s*<mainSequence>.*?<\/mainSequence>/, '');
-                } else {
-                    // Inject the <mainSequence> tag inside the <properties> tag
-                    updatedPomContent = pomContent.replace(/<properties>([\s\S]*?)<\/properties>/, (match, p1) => {
-                        if (p1.includes('<mainSequence>')) {
-                            // Update the existing <mainSequence> tag
-                            return match.replace(/<mainSequence>.*?<\/mainSequence>/, mainSequenceTag);
-                        } else {
-                            // Get the indentation from the <properties> tag
-                            const propertiesIndentation = pomContent.match(/(\s*)<properties>/)?.[1] || '';
-                            const indentedMainSequenceTag = `\t${mainSequenceTag}`;
-                            // Add the <mainSequence> tag
-                            return `<properties>${p1}${indentedMainSequenceTag}${propertiesIndentation}</properties>`;
-                        }
-                    });
-                }
-            } else {
-                window.showErrorMessage('Failed to find the project properties in the POM file');
-            }
-
-            // Write the updated POM content back to the file
-            fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
+            const { path: filePath, remove, name } = params;
+            commands.executeCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, { info: { path: filePath, name } }, remove);
 
             resolve();
         });
@@ -4832,7 +5097,7 @@ ${keyValuesXML}`;
         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
     }
 
-    async checkDBDriver(className: string): Promise<boolean> {
+    async checkDBDriver(className: string): Promise<CheckDBDriverResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.checkDBDriver(className);
@@ -4844,6 +5109,22 @@ ${keyValuesXML}`;
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.addDBDriver(params);
+            resolve(res);
+        });
+    }
+
+    async removeDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.removeDBDriver(params);
+            resolve(res);
+        });
+    }
+
+    async modifyDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.modifyDBDriver(params);
             resolve(res);
         });
     }
@@ -4885,7 +5166,136 @@ ${keyValuesXML}`;
         });
     }
 
+    async getMediators(param: GetMediatorsRequest): Promise<GetMediatorsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getMediators(param);
+            resolve(response);
+        });
+    }
+
+    async getMediator(param: GetMediatorRequest): Promise<GetMediatorResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getMediator(param);
+            resolve(response);
+        });
+    }
+
+    async updateMediator(param: UpdateMediatorRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.generateSynapseConfig(param);
+            if (response && response.textEdits) {
+                let edits = response.textEdits;
+
+                await this.applyEdit({
+                    documentUri: param.documentUri,
+                    edits,
+                    disableUndoRedo: true
+                });
+
+                let document = workspace.textDocuments.find(doc => doc.uri.fsPath === param.documentUri);
+                if (!document) {
+                    return;
+                }
+                const content = document.getText();
+                undoRedo.addModification(content);
+            }
+        });
+    }
+
+    async getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getLocalInboundConnectors();
+            resolve(response);
+        });
+    }
+
+    async getConnectionSchema(param: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getConnectionSchema(param);
+            resolve(response);
+        });
+    }
+
+    async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const langClient = StateMachine.context().langClient!;
+                const res = await langClient.getExpressionCompletions(params);
+                if (!res.isIncomplete) {
+                    resolve(res);
+                } else {
+                    reject(new Error('Incomplete completions'));
+                }
+            } catch (error) {
+                console.error(`Error getting expression completions: ${error}`);
+                reject(error);
+            }
+        });
+    }
+
+    async getHelperPaneInfo(params: GetHelperPaneInfoRequest): Promise<GetHelperPaneInfoResponse> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const langClient = StateMachine.context().langClient!;
+                let response = await langClient.getHelperPaneInfo(params);
+                resolve(response);
+            } catch (error) {
+                console.error(`Error getting helper pane info: ${error}`);
+                reject(error);
+            }
+        });
+    }
+
+    async testConnectorConnection(params: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.testConnectorConnection(params);
+            resolve(res);
+        });
+    }
+
+    async saveConfig(params: SaveConfigRequest): Promise<SaveConfigResponse> {
+        return new Promise(async (resolve, reject) => {
+            const { configName, configType } = params;
+            const projectUri = StateMachine.context().projectUri!;
+
+            try {
+                // Read the config file content
+                const configFilePath = path.join(
+                    projectUri,
+                    'src',
+                    'main',
+                    'wso2mi',
+                    'resources',
+                    'conf',
+                    'config.properties'
+                );
+                const configFileContent = fs.readFileSync(configFilePath, 'utf-8').trim();
+
+                // Derive the updated config file content
+                let updatedConfigFileContent: string;
+                if (configFileContent.length > 0) {
+                    // Add a new line if the file is not empty
+                    updatedConfigFileContent = configFileContent + `\n${configName}:${configType}`;
+                } else {
+                    updatedConfigFileContent = configFileContent + `${configName}:${configType}`;
+                }
+
+                // Write the updated config file content back to the file
+                fs.writeFileSync(configFilePath, updatedConfigFileContent, 'utf-8');
+                resolve({ success: true });
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
 }
+
 
 export async function askProjectPath() {
     return await window.showOpenDialog({
@@ -4925,5 +5335,16 @@ export async function askFilePath() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a file",
+    });
+}
+
+export async function askImportFileDir() {
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a file to import",
+        filters: { 'ATF': ['xml', 'dbs'] }
     });
 }

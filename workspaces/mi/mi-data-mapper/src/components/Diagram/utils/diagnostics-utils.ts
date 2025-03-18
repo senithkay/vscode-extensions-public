@@ -23,7 +23,9 @@ export function filterDiagnosticsForNode(diagnostics: DMDiagnostic[], node: Node
     }
 
     return diagnostics.filter(diagnostic =>
-        diagnostic.start >= targetNode.getStart()
-        && diagnostic.start + diagnostic.length <= targetNode.getEnd()
+        (diagnostic.start >= targetNode.getStart()
+            && diagnostic.start + diagnostic.length <= targetNode.getEnd())
+        || (diagnostic.start <= targetNode.getStart()
+            && diagnostic.start + diagnostic.length >= targetNode.getEnd())
     );
 }

@@ -7,31 +7,35 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
-import { FieldValues, useForm, UseFormClearErrors, UseFormSetError } from "react-hook-form";
+import React, { forwardRef, useMemo, useEffect, useImperativeHandle, useState, useRef } from "react";
+import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
-    CompletionItem,
-    ExpressionBarRef,
+    FormExpressionEditorRef,
     LinkButton,
-    SidePanelBody,
+    ThemeColors,
+    SidePanelBody
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { ExpressionFormField, FormField, FormValues } from "./types";
+import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
-import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
-import { Provider } from "../../context";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty, RecordTypeField } from "@wso2-enterprise/ballerina-core";
+import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
 namespace S {
-    export const Container = styled(SidePanelBody)`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean, compact?: boolean }>`
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: ${({ compact }) => (compact ? "8px" : "20px")};
+        height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
+        overflow-y: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
+        & > :last-child {
+            margin-top: ${({ compact }) => (compact ? "12px" : "0")};
+        }
     `;
 
     export const Row = styled.div<{}>`
@@ -50,8 +54,8 @@ namespace S {
         gap: 12px;
         width: 100%;
         margin-top: 8px;
-        padding-bottom: 14px;
-        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
+        padding-bottom: ${({ showBorder }) => (showBorder ? "14px" : "0")};
+        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
     export const CheckboxRow = styled.div<{}>`
@@ -155,68 +159,75 @@ namespace S {
         }
         align-self: center;
     `;
+
+    export const InfoLabel = styled.div`
+        font-size: var(--vscode-font-size);
+        color: ${ThemeColors.ON_SURFACE_VARIANT};
+    `;
+
+    export const ActionButtonContainer = styled.div`
+        display: flex;
+        justify-content: flex-start;
+    `;
 }
 export interface FormProps {
+    infoLabel?: string;
     formFields: FormField[];
+    submitText?: string;
+    cancelText?: string;
+    actionButton?: React.ReactNode; // Action button to display at the top
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
     onSubmit?: (data: FormValues) => void;
-    openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
+    openRecordEditor?: (isOpen: boolean, fields: FormValues, editingField?: FormField) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
-    expressionEditor?: {
-        completions: CompletionItem[];
-        triggerCharacters?: readonly string[];
-        retrieveCompletions?: (
-            value: string,
-            offset: number,
-            triggerCharacter?: string,
-            onlyVariables?: boolean
-        ) => Promise<void>;
-        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
-        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
-            label: string;
-            args: string[];
-            currentArgIndex: number;
-        }>;
-        getExpressionDiagnostics?: (
-            showDiagnostics: boolean,
-            expression: string,
-            key: string,
-            setError: UseFormSetError<FieldValues>,
-            clearErrors: UseFormClearErrors<FieldValues>
-        ) => Promise<void>;
-        onCompletionSelect?: (value: string) => Promise<void>;
-        onFocus?: () => void | Promise<void>;
-        onBlur?: () => void | Promise<void>;
-        onCancel: () => void;
-    };
+    expressionEditor?: FormExpressionEditorProps;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
+    handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
+    visualizableFields?: string[];
+    recordTypeFields?: RecordTypeField[];
+    nestedForm?: boolean;
+    isInferredReturnType?: boolean;
+    disableSaveButton?: boolean;
+    compact?: boolean;
 }
 
-export function Form(props: FormProps) {
+export const Form = forwardRef((props: FormProps, ref) => {
     const {
+        infoLabel,
         formFields,
         projectPath,
         selectedNode,
+        submitText,
+        cancelText,
+        actionButton,
         onSubmit,
         onCancelForm,
         oneTimeForm,
         openRecordEditor,
         openView,
         openSubPanel,
-        isActiveSubPanel,
+        subPanelView,
         expressionEditor,
         targetLineRange,
         fileName,
         updatedExpressionField,
-        resetUpdatedExpressionField
+        resetUpdatedExpressionField,
+        mergeFormDataWithFlowNode,
+        handleVisualizableFields,
+        visualizableFields,
+        recordTypeFields,
+        nestedForm,
+        compact = false,
+        isInferredReturnType
     } = props;
 
     const {
@@ -230,19 +241,23 @@ export function Form(props: FormProps) {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors }
+        formState: { isValidating, errors, isDirty, isValid: isFormValid },
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
+    const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
         if (!oneTimeForm) {
             // Reset form with new values when formFields change
             const defaultValues: FormValues = {};
+            const diagnosticsMap: FormDiagnostics[] = [];
+            const formValues = getValues();
+            console.log("Existing form values: ", formValues);
             formFields.forEach((field) => {
                 if (isDropdownField(field)) {
                     defaultValues[field.key] = getValueForDropdown(field) ?? "";
@@ -251,41 +266,67 @@ export function Form(props: FormProps) {
                 } else {
                     defaultValues[field.key] = field.value ?? "";
                 }
+
+                if (field.key === "type") {
+                    // Handle the case where the type is changed via 'Add Type'
+                    const existingType = formValues[field.key];
+                    const newType = field.value;
+
+                    if (existingType !== newType) {
+                        setValue(field.key, newType);
+                        mergeFormDataWithFlowNode && getVisualiableFields();
+                    }
+                }
+
+                if (formValues[field.key] !== undefined && formValues[field.key] !== "" && !field.value) {
+                    defaultValues[field.key] = formValues[field.key];
+                }
+                diagnosticsMap.push({ key: field.key, diagnostics: [] });
             });
+            setDiagnosticsInfo(diagnosticsMap);
             reset(defaultValues);
         }
     }, [formFields, reset]);
 
     useEffect(() => {
         if (updatedExpressionField) {
-            const currentValue = getValues(updatedExpressionField.key);
-
-            if (currentValue !== undefined) {
-                let newValue;
-                if (updatedExpressionField?.isConfigured) {
-                    newValue = updatedExpressionField.value;
-                } else {
-                    const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
-                    newValue = currentValue.slice(0, cursorPosition) +
-                        updatedExpressionField.value +
-                        currentValue.slice(cursorPosition);
-                }
-
-                setValue(updatedExpressionField.key, newValue);
+            if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+                const { key, value } = updatedExpressionField;
+                // Update the form field value
+                setValue(key, value);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
+                // Update the inline data mapper view
+                handleOpenSubPanel({
+                    view: SubPanelView.INLINE_DATA_MAPPER,
+                    props: {
+                        inlineDataMapper: {
+                            filePath: fileName,
+                            flowNode: undefined,
+                            position: {
+                                line: updatedExpressionField.cursorPosition.line,
+                                offset: updatedExpressionField.cursorPosition.offset,
+                            },
+                            propertyKey: updatedExpressionField.key,
+                            editorKey: updatedExpressionField.key
+                        }
+                    }
+                });
             }
         }
     }, [updatedExpressionField]);
 
-    console.log(">>> form fields", { formFields, values: getValues() });
-
     const handleOnSave = (data: FormValues) => {
-        console.log(">>> form values", data);
+        console.log(">>> saved form fields", { data });
         onSubmit && onSubmit(data);
     };
 
-    const handleOpenRecordEditor = (open: boolean) => {
-        openRecordEditor?.(open, getValues());
+    // Expose a method to trigger the save
+    useImperativeHandle(ref, () => ({
+        triggerSave: () => handleSubmit(handleOnSave)(), // Call handleSubmit with the save function
+    }));
+
+    const handleOpenRecordEditor = (open: boolean, typeField?: FormField) => {
+        openRecordEditor?.(open, getValues(), typeField);
     };
 
     const handleOnShowAdvancedOptions = () => {
@@ -297,6 +338,8 @@ export function Form(props: FormProps) {
     };
 
     const handleOnFieldFocus = (key: string) => {
+        const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
+
         if (isActiveSubPanel && activeFormField !== key) {
             openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
         }
@@ -317,30 +360,85 @@ export function Form(props: FormProps) {
         }
     };
 
+    const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
+        const otherDiagnostics = diagnosticsInfo?.filter((item) => item.key !== diagnostics.key) || [];
+        setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
+    }
+
+    const handleOpenSubPanel = (subPanel: SubPanel) => {
+        let updatedSubPanel = subPanel;
+        if (subPanel.view === SubPanelView.INLINE_DATA_MAPPER) {
+            const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+            const inlineDMProps = {
+                ...subPanel.props.inlineDataMapper,
+                flowNode: flowNode,
+            };
+            updatedSubPanel = {
+                ...subPanel,
+                props: {
+                    ...subPanel.props,
+                    inlineDataMapper: inlineDMProps,
+                },
+            };
+        }
+        openSubPanel(updatedSubPanel);
+    };
+
+    const handleOnTypeChange = () => {
+        if (mergeFormDataWithFlowNode) {
+            getVisualiableFields();
+        }
+    };
+
+    const getVisualiableFields = () => {
+        if(mergeFormDataWithFlowNode) {
+            const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+            handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
+        }
+    };
+
+    const handleGetExpressionDiagnostics = async (
+        showDiagnostics: boolean,
+        expression: string,
+        key: string,
+        property: ExpressionProperty
+    ) => {
+        // HACK: For variable nodes, update the type value in the node
+        const isVariableNode = selectedNode === "VARIABLE";
+        await expressionEditor?.getExpressionFormDiagnostics?.(
+            showDiagnostics,
+            expression,
+            key,
+            property,
+            handleSetDiagnosticsInfo,
+            isVariableNode,
+            watch("type")
+        );
+    }
+
     // has advance fields
-    const hasAdvanceFields = formFields.some((field) => field.advanced);
-
-    const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
-    const isExistingDataMapper =
-        isDataMapper && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
-    const isNewDataMapper = isDataMapper && !isExistingDataMapper;
-
+    const hasAdvanceFields = formFields.some((field) => field.advanced && field.enabled && !field.hidden);
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
     const prioritizeVariableField = (variableField || typeField) && !dataMapperField;
 
-    const contextValue = {
+    const contextValue: FormContext = {
         form: {
             control,
+            getValues,
             setValue,
             watch,
             register,
             unregister,
             setError,
             clearErrors,
+            formState: { isValidating, errors }
         },
-        expressionEditor,
+        expressionEditor: {
+            ...expressionEditor,
+            getExpressionEditorDiagnostics: handleGetExpressionDiagnostics
+        },
         targetLineRange,
         fileName
     };
@@ -348,37 +446,83 @@ export function Form(props: FormProps) {
     // Find the first editable field
     const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
 
-    const disableSaveButton = Object.keys(errors).length > 0 || isValidating;
+    const isValid = useMemo(() => {
+        if (!diagnosticsInfo) {
+            return true;
+        }
+
+        let hasDiagnostics: boolean = true;
+        for (const diagnosticsInfoItem of diagnosticsInfo) {
+            const key = diagnosticsInfoItem.key;
+            if (!key) {
+                continue;
+            }
+
+            let diagnostics: Diagnostic[] = diagnosticsInfoItem.diagnostics || [];
+            if (diagnostics.length === 0) {
+                clearErrors(key);
+                continue;
+            } else {
+                // Filter the BCE2066 diagnostics
+                diagnostics = diagnostics.filter(d => 
+                    d.code !== "BCE2066" ||
+                    d.message !== "incompatible types: expected 'any', found 'error'"
+                );
+                
+                const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
+                setError(key, { type: "validate", message: diagnosticsMessage });
+
+                // If the severity is not ERROR, don't invalidate
+                const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
+                if (hasErrorDiagnostics) {
+                    hasDiagnostics = false;
+                } else {
+                    continue;
+                }
+            }
+        }
+
+        return hasDiagnostics;
+    }, [diagnosticsInfo])
+
+    const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
 
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
-            <S.Container>
+            <S.Container nestedForm={nestedForm} compact={compact}>
+                {actionButton && <S.ActionButtonContainer>{actionButton}</S.ActionButtonContainer>}
+                {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
                 {prioritizeVariableField && variableField && (
-                    <S.CategoryRow showBorder={true}>
+                    <S.CategoryRow showBorder={!compact}>
                         {variableField &&
                             <EditorFactory
                                 field={variableField}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
+                                visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
                             />
                         }
-                        {typeField && (
+                        {typeField && !isInferredReturnType && (
                             <EditorFactory
                                 field={typeField}
-                                openRecordEditor={handleOpenRecordEditor}
-                                openSubPanel={openSubPanel}
+                                openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))}
+                                openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
+                                handleOnTypeChange={handleOnTypeChange}
+                                visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
                             />
                         )}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
-                    {formFields
+                    {formFields.sort((a, b) => b.groupNo - a.groupNo)
                         .filter((field) => field.type !== "VIEW")
                         .map((field) => {
                             if (
-                                ((field.key === "variable" || field.key === "type") && prioritizeVariableField) ||
+                                ((field.key === "variable" || field.key === "type") && (prioritizeVariableField && variableField)) ||
                                 field.advanced
                             ) {
                                 return;
@@ -389,33 +533,26 @@ export function Form(props: FormProps) {
                                         ref={exprRef}
                                         field={field}
                                         selectedNode={selectedNode}
-                                        openRecordEditor={handleOpenRecordEditor}
-                                        openSubPanel={openSubPanel}
-                                        isActiveSubPanel={isActiveSubPanel}
+                                        openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
+                                        openSubPanel={handleOpenSubPanel}
+                                        subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
+                                        visualizableFields={visualizableFields}
+                                        recordTypeFields={recordTypeFields}
                                     />
                                 </S.Row>
                             );
-                        })}
-                    {isExistingDataMapper && (
-                        <S.DataMapperRow>
-                            <S.UseDataMapperButton
-                                appearance="secondary"
-                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
-                            >
-                                Use Data Mapper
-                            </S.UseDataMapperButton>
-                        </S.DataMapperRow>
-                    )}
+                        })
+                    }
                     {hasAdvanceFields && (
                         <S.Row>
-                            Advance Parameters
+                            Advanced Configurations
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton
                                         onClick={handleOnShowAdvancedOptions}
-                                        sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
+                                        sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
                                     >
                                         <Codicon name={"chevron-down"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                                         Expand
@@ -424,7 +561,7 @@ export function Form(props: FormProps) {
                                 {showAdvancedOptions && (
                                     <LinkButton
                                         onClick={handleOnHideAdvancedOptions}
-                                        sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
+                                        sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
                                     >
                                         <Codicon name={"chevron-up"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                                         Collapsed
@@ -442,10 +579,12 @@ export function Form(props: FormProps) {
                                         <EditorFactory
                                             ref={exprRef}
                                             field={field}
-                                            openRecordEditor={handleOpenRecordEditor}
-                                            openSubPanel={openSubPanel}
-                                            isActiveSubPanel={isActiveSubPanel}
+                                            openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
+                                            openSubPanel={handleOpenSubPanel}
+                                            subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
+                                            visualizableFields={visualizableFields}
+                                            recordTypeFields={recordTypeFields}
                                         />
                                     </S.Row>
                                 );
@@ -454,23 +593,15 @@ export function Form(props: FormProps) {
                 </S.CategoryRow>
                 {onSubmit && (
                     <S.Footer>
-                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
-                        {isNewDataMapper ? (
-                            <S.PrimaryButton
-                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
-                            >
-                                Create Mapping
-                            </S.PrimaryButton>
-                        ) : (
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                                Save
-                            </S.PrimaryButton>
-                        )}
+                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  {cancelText || "Cancel"} </Button>}
+                        <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
+                            {submitText || "Save"}
+                        </S.PrimaryButton>
                     </S.Footer>
                 )}
             </S.Container>
         </Provider>
     );
-}
+});
 
 export default Form;

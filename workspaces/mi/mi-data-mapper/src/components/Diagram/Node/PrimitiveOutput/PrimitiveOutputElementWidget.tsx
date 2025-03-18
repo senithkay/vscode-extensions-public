@@ -24,7 +24,7 @@ import { useIONodesStyles } from "../../../styles";
 import { useDMExpressionBarStore } from "../../../../store/store";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
-import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface PrimitiveOutputElementWidgetWidgetProps {
@@ -97,7 +97,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                 title: ValueConfigOption.DeleteElement,
                 onClick: handleDelete
             });
-        } else if (value !== getDefaultValue(field.type?.kind)) {
+        } else if (value !== getDefaultValue(field.type)) {
             items.push({
                 title: ValueConfigOption.DeleteValue,
                 onClick: handleDelete
@@ -111,7 +111,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }} data-testid={`primitive-array-element-${portIn?.getName()}`}>
+        <TruncatedLabel style={{ marginRight: "auto" }} data-testid={`primitive-array-element-${portIn?.getName()}`}>
             <span className={classes.valueLabel} style={{ marginLeft: "24px" }}>
                 {diagnostic ? (
                     <DiagnosticTooltip
@@ -142,7 +142,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                 )
                 }
             </span>
-        </span>
+        </TruncatedLabel>
     );
 
     return (

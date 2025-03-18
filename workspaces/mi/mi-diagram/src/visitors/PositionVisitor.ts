@@ -21,6 +21,7 @@ import {
     Loopback,
     PayloadFactory,
     Property,
+    Variable,
     PropertyGroup,
     Respond,
     Send,
@@ -43,6 +44,7 @@ import {
     Event,
     DataServiceCall,
     Clone,
+    ScatterGather,
     Aggregate,
     Iterate,
     Switch,
@@ -69,9 +71,11 @@ import {
     ProxyTarget,
     DbMediator,
     Rewrite,
-    Query
+    Query,
+    ThrowError
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
+import { getTextSizes } from "../utils/node";
 
 export class PositionVisitor implements Visitor {
     private position = {
@@ -150,7 +154,7 @@ export class PositionVisitor implements Visitor {
                 } else if (subSequence.tag === "endpoint") {
                     this.setBasicMediatorPosition(subSequence);
                 } else {
-                    subSequence.viewState.w = NODE_DIMENSIONS.EMPTY.WIDTH;
+                    subSequence.viewState.w = node.tag === 'scatter-gather' ? NODE_DIMENSIONS.START.ACTIONED.WIDTH : NODE_DIMENSIONS.EMPTY.WIDTH;
                     this.setBasicMediatorPosition(subSequence);
                 }
                 this.position.x += subSequence.viewState.r + NODE_GAP.BRANCH_X;
@@ -227,6 +231,8 @@ export class PositionVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.setBasicMediatorPosition(node);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.setBasicMediatorPosition(node);
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);
+    beginVisitVariable = (node: Variable): void => this.setBasicMediatorPosition(node);
+    beginVisitThrowError = (node: ThrowError): void => this.setBasicMediatorPosition(node);
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.setBasicMediatorPosition(node);
@@ -318,6 +324,15 @@ export class PositionVisitor implements Visitor {
         this.setAdvancedMediatorPosition(node, targets, NodeTypes.GROUP_NODE, true);
     }
     endVisitClone = (node: Clone): void => this.setSkipChildrenVisit(false);
+
+    beginVisitScatterGather = (node: ScatterGather): void => {
+        let targets: { [key: string]: any } = {}
+        node.targets.map((target, index) => {
+            targets[target.to || index] = target.endpoint || target.sequence || target
+        });
+        this.setAdvancedMediatorPosition(node, targets, NodeTypes.GROUP_NODE, true);
+    }
+    endVisitScatterGather = (node: ScatterGather): void => this.setSkipChildrenVisit(false);
 
     beginVisitDataServiceCall = (node: DataServiceCall): void => {
         this.setBasicMediatorPosition(node);
@@ -483,6 +498,35 @@ export class PositionVisitor implements Visitor {
     beginVisitConnector = (node: Connector): void => {
         this.skipChildrenVisit = true;
         this.setBasicMediatorPosition(node);
+
+        if (node.connectorName === 'ai') {
+            const tools = node.tools;
+            const toolsList = tools?.tools;
+
+            if (tools) {
+                const systemPrompt = node?.parameters?.filter((property: any) => property.name === "system")[0]?.value;
+                const prompt = node?.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
+                const systenPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160, 8);
+                const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160, 8);
+                const systemPromptHeight = systemPrompt ? 36 + systenPromptSize.height : 0;
+                const promptHeight = prompt ? 36 + promptSize.height : 0;
+                const toolsStartY = node.viewState.y + NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight + 30;
+
+                let y = toolsStartY;
+                if (toolsList?.length > 0) {
+                    for (let i = 0; i < toolsList.length; i++) {
+                        const toolNode = toolsList[i];
+
+                        toolNode.viewState.x = this.position.x - (toolNode.viewState.w / 2);
+                        toolNode.viewState.y = y;
+                        y = toolNode.viewState.y + toolNode.viewState.h + NODE_GAP.AI_AGENT_TOOLS_Y;
+                    }
+                }
+
+                tools.viewState.x = this.position.x - (NODE_DIMENSIONS.PLUS.WIDTH / 2);
+                tools.viewState.y = Math.max(y, toolsStartY);
+            }
+        }
     }
     endVisitConnector(node: Connector): void {
         this.skipChildrenVisit = false;

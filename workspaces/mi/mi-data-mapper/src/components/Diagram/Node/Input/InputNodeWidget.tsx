@@ -9,9 +9,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
-import { DMType, IOType } from "@wso2-enterprise/mi-core";
+import { DMType, IOType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from '../commons/Search';
@@ -21,18 +21,20 @@ import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
 import { ARRAY_FILTER_NODE_PREFIX } from "../../utils/constants";
-
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
+    context: IDataMapperContext;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
 }
 
 export function InputNodeWidget(props: InputNodeWidgetProps) {
-    const { engine, dmType, id, getPort, valueLabel, nodeHeaderSuffix } = props;
+    const { engine, dmType, id, getPort, context, valueLabel, nodeHeaderSuffix } = props;
+    const focusedOnRoot = context.views.length === 1;
     
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -49,7 +51,13 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
 
     const portOut = getPort(`${id}.OUT`);
 
-    const hasFields = !!dmType?.fields?.length;
+    let fields: DMType[];
+
+    if (dmType?.kind === TypeKind.Interface) {
+        fields = dmType.fields;
+    } else if (dmType.kind === TypeKind.Array) {
+        fields = [{...dmType.memberType, fieldName: `<${dmType.fieldName}Item>`}];
+    }
 
     let expanded = true;
     if (portOut && portOut.collapsed) {
@@ -60,7 +68,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     const invisiblePort = getPort(`${ARRAY_FILTER_NODE_PREFIX}`);
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <TruncatedLabel style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel}>
                 <InputSearchHighlight>{valueLabel ? valueLabel : id}</InputSearchHighlight>
                 {typeName && ":"}
@@ -70,15 +78,14 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                     {typeName}
                 </span>
             )}
-        </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {
-        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+            collapsedFieldsStore.expandField(id, dmType.kind);
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+            collapsedFieldsStore.collapseField(id, dmType.kind);
         }
     }
 
@@ -94,11 +101,15 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
         setIsHovered(false);
     };
 
-    const onRightClick = (event: React.MouseEvent) => {
-        event.preventDefault(); 
+    const handleChangeSchema = () => {
         setIOConfigPanelType(IOType.Input);
         setIsSchemaOverridden(true);
         setIsIOConfigPanelOpen(true);
+    };
+
+    const onRightClick = (event: React.MouseEvent) => {
+        event.preventDefault();
+        if (focusedOnRoot) handleChangeSchema();
     };
 
     return (
@@ -113,7 +124,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                 onMouseLeave={onMouseLeave}
             >
                 <span className={classes.label}>
-                    {hasFields && (
+                    {fields && (
                         <Button
                             id={"expand-or-collapse-" + id} 
                             appearance="icon"
@@ -127,16 +138,31 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
+                {focusedOnRoot && (
+                    <Button
+                        appearance="icon"
+                        data-testid={"change-input-schema-btn"}
+                        tooltip="Change input schema"
+                        sx={{ marginRight: "5px" }}
+                        onClick={handleChangeSchema}
+                        data-field-action
+                    >
+                        <Codicon
+                            name="edit"
+                            iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+                        />
+                    </Button>
+                )}
                 <span className={classes.outPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
             </TreeHeader>
-            {expanded && hasFields && (
+            {expanded && fields && (
                 <TreeBody>
                     {
-                        dmType.fields.map((field, index) => {
+                        fields.map((field, index) => {
                             return (
                                 <InputNodeTreeItemWidget
                                     key={index}

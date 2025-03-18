@@ -46,6 +46,7 @@ import {
 	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
 	OpenExternal,
+	OpenExternalChoreo,
 	OpenSubDialogRequest,
 	type OpenTestViewReq,
 	type ProxyConfig,
@@ -159,6 +160,9 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	messenger.onRequest(OpenExternal, (url: string) => {
 		vscode.env.openExternal(vscode.Uri.parse(url));
 	});
+	messenger.onRequest(OpenExternalChoreo, (choreoPath: string) => {
+		vscode.env.openExternal(vscode.Uri.joinPath(vscode.Uri.parse(choreoEnvConfig.getConsoleUrl()), choreoPath));
+	});
 	messenger.onRequest(SetWebviewCache, async (params) => {
 		await ext.context.workspaceState.update(params.cacheKey, params.data);
 	});
@@ -218,6 +222,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		outputChanelMap.get(params.key)?.show();
 	});
 	messenger.onRequest(ViewRuntimeLogs, async ({ orgName, projectName, componentName, deploymentTrackName, envName, type }) => {
+		// todo: export the env from here
 		if (getChoreoEnv() !== "prod") {
 			window.showErrorMessage("Choreo extension currently displays runtime logs is only if 'Advanced.ChoreoEnvironment' is set to 'prod'");
 			return;

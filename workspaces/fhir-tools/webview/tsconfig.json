@@ -32,7 +32,10 @@
       "noImplicitAny": true,
       "typeRoots": [
         "node_modules/@types"
-      ]
+      ],
+      "paths": {
+        "react": ["./node_modules/@types/react"]
+      }
     },
     "include": ["src"],
     "exclude": [

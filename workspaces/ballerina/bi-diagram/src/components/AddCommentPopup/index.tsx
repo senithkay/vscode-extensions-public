@@ -11,21 +11,20 @@ import React, { useEffect, useState } from "react";
 import { LinePosition } from "../../utils/types";
 import { useDiagramContext } from "../DiagramContext";
 import styled from "@emotion/styled";
-import { Colors, NODE_PADDING, POPUP_BOX_HEIGHT, POPUP_BOX_WIDTH } from "../../resources/constants";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { NODE_PADDING, POPUP_BOX_WIDTH } from "../../resources/constants";
+import { PromptTextField, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export namespace PopupStyles {
     export const Container = styled.div`
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         width: ${POPUP_BOX_WIDTH}px;
-        height: ${POPUP_BOX_HEIGHT}px;
-        padding: 0 ${NODE_PADDING}px;
-        border-radius: 10px;
-        background-color: ${Colors.SURFACE};
-        color: ${Colors.ON_SURFACE};
+        padding: ${NODE_PADDING / 2}px ${NODE_PADDING}px;
+        border-radius: 4px;
+        background-color: ${ThemeColors.SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
     `;
 
     export const Row = styled.div`
@@ -40,9 +39,8 @@ export namespace PopupStyles {
     export const InfoText = styled.div`
         font-size: 11px;
         font-family: monospace;
-        color: ${Colors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         opacity: 0.7;
-        height: 14px;
     `;
 }
 
@@ -61,9 +59,6 @@ export function AddCommentPopup(props: AddCommentPopupProps) {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 onClose();
-            }
-            if (event.key === "Enter") {
-                handleAddComment();
             }
         };
 
@@ -88,11 +83,12 @@ export function AddCommentPopup(props: AddCommentPopupProps) {
 
     return (
         <PopupStyles.Container>
-            <TextField
-                placeholder="Add a comment here"
-                onTextChange={handleOnCommentChange}
+             <PromptTextField
+                placeholder="Enter a comment here"
                 value={comment}
-                sx={{ width: "100%", height: 28 }}
+                onTextChange={handleOnCommentChange}
+                onEnter={handleAddComment}
+                sx={{ width: "100%" }}
             />
             <PopupStyles.InfoText>Press Enter to add a comment. Press Esc to cancel.</PopupStyles.InfoText>
         </PopupStyles.Container>

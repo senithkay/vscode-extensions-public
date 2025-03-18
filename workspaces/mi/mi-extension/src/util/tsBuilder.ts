@@ -16,23 +16,29 @@ import { JSONSchema3or4 } from 'to-json-schema';
 import * as ts from "typescript";
 import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME } from "../constants";
 import { DMProject } from '../datamapper/DMProject';
-import { navigate } from '../stateMachine';
+import { refreshUI } from '../stateMachine';
 import { IOType } from '@wso2-enterprise/mi-core';
 
-export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string, addMetaDataComment: boolean = true): Promise<string> {
-  const ts = compile(schema, "Schema", schemaTitle, { bannerComment: "" }, addMetaDataComment);
+export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string, addMetaDataComment: boolean = true, usedNames?: Set<string>): Promise<string> {
+  const ts = compile(schema, "Schema", schemaTitle, { bannerComment: "" }, addMetaDataComment, usedNames);
   return ts;
 }
 
 export async function updateTsFileIoTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: IOType): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   if (workspaceFolder) {
-    const dataMapperConfigFolder = path.join(
-      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    let dataMapperConfigFolder;
+    if (path.normalize(sourcePath).includes(path.normalize(path.join('wso2mi', 'resources', 'registry')))) {
+        dataMapperConfigFolder = path.join(
+            workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    } else {
+        dataMapperConfigFolder = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+    }
     const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
     const tsSource = getTsAST(tsFilepath);
     const tsSources = separateInterfacesWithComments(tsSource);
     const functionSource = getFunctionFromSource(tsSource, "mapFunction");
+    const usedNames = getUsedNames(tsSource);
     let tsContent = "";
 
     const inputSchemaTitle = getTitleFromComment(tsSources, IOType.Input);
@@ -48,7 +54,8 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
         schema.type = "object";
         schema.properties = schema.items[0].properties;
       }
-      const tsInterfaces = schema ? await generateTSInterfacesFromSchemaFile(schema, schemaTitle)
+      usedNames.delete(schema.title);
+      const tsInterfaces = schema ? await generateTSInterfacesFromSchemaFile(schema, schemaTitle, true, usedNames)
         : `interface ${defaultTitle} {\n}\n\n`;
       return { tsInterfaces, isSchemaArray, schemaTitle };
     };
@@ -97,8 +104,13 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
 export async function updateTsFileCustomTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, typeName: string): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   if (workspaceFolder) {
-    const dataMapperConfigFolder = path.join(
-      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    let dataMapperConfigFolder;
+    if (path.normalize(sourcePath).includes(path.normalize(path.join('wso2mi', 'resources', 'registry')))) {
+        dataMapperConfigFolder = path.join(
+            workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    } else {
+        dataMapperConfigFolder = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
+    }
     const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
 
     const readAndConvertSchema = async (schema: JSONSchema3or4, title: string) => {
@@ -122,7 +134,7 @@ export async function updateTsFileCustomTypes(dmName: string, sourcePath: string
     sourceFile.insertText(interfaces[interfaces.length - 1]?.getEnd() + 1 || 0, "\n" + customInterfaceText);
     sourceFile.formatText();
     await sourceFile.save();
-    navigate();
+    refreshUI();
 
   }
   return "";
@@ -173,9 +185,9 @@ function getInterfaceNameFromSource(source: ts.SourceFile): string {
   const visit = (node: ts.Node) => {
     if (ts.isInterfaceDeclaration(node)) {
       interfaceName = node.name.text;
-      return;
+      return true;
     }
-    ts.forEachChild(node, visit);
+    return ts.forEachChild(node, visit);
   };
   visit(source);
   return interfaceName;
@@ -249,4 +261,28 @@ function getFunctionMetaDataComment(inputSchemaTitle: string, outputSchemaTitle:
   let functionName = `map_S_${getTitleSegment(inputSchemaTitle)}_S_${getTitleSegment(outputSchemaTitle)}`;
   let inputVariable = `input${inputSchemaTitle.replace(":", "_")}`;
   return `/**\n * functionName : ${functionName}\n * inputVariable : ${inputVariable}\n*/\n`;
+}
+
+function getUsedNames(source: ts.SourceFile): Set<string> {
+  const names = new Set<string>();
+
+  const addName = (identifire: string) => {
+    // Should remove this check if interface names are allowed to start with lower case
+    if (!identifire.match(/^[a-z]/)) {
+      names.add(identifire);
+    }
+  };
+
+  const visit = (node: ts.Node) => {
+    if(ts.isInterfaceDeclaration(node)) {
+      addName(node.name.text);
+      return;
+    }
+    if (ts.isIdentifier(node)) {
+      addName(node.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return names;
 }

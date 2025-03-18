@@ -18,9 +18,10 @@ export interface DataMapperSearchState {
     resetSearchStore: () => void;
 }
 
-export interface DataMapperCollapsedFieldsState {
-    collapsedFields: string[];
-    setCollapsedFields: (fields: string[]) => void;
+export interface DataMapperFieldsState {
+    fields: string[];
+    setFields: (fields: string[]) => void;
+    resetFields: () => void;
 }
 
 export interface DataMapperIOConfigPanelState {
@@ -51,9 +52,16 @@ export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
     resetSearchStore: () => set({ inputSearch: '', outputSearch: '' })
 }));
 
-export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>((set) => ({
-    collapsedFields: [],
-    setCollapsedFields: (collapsedFields: string[])  => set({ collapsedFields }),
+export const useDMCollapsedFieldsStore = create<DataMapperFieldsState>((set) => ({
+    fields: [],
+    setFields: (fields: string[])  => set({ fields }),
+    resetFields: () => set({ fields: [] })
+}));
+
+export const useDMExpandedFieldsStore = create<DataMapperFieldsState>((set) => ({
+    fields: [],
+    setFields: (fields: string[])  => set({ fields }),
+    resetFields: () => set({ fields: [] })
 }));
 
 export const useDMIOConfigPanelStore = create<DataMapperIOConfigPanelState>((set) => ({

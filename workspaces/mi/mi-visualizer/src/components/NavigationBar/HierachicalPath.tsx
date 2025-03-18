@@ -52,6 +52,10 @@ export function HierachicalPath(props: HierachicalPathProps) {
         const segments: Segment[] = [];
         const updateSegments = async () => {
 
+            if (!pathItems || pathItems.length === 0) {
+                return;
+            }
+
             for (const pathItem of pathItems) {
                 if (pathItem.endsWith(".xml")) {
                     try {

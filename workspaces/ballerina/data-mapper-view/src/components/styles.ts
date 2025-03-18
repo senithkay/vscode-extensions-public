@@ -83,9 +83,8 @@ export const useIONodesStyles = () => ({
         },
     }),
     queryPortWrap: css({
-        width: 85,
-        display: 'flex',
-        justifyContent: 'center'
+        width: IO_NODE_DEFAULT_WIDTH,
+        position: "absolute"
     }),
     nodeType: css({
         float: 'right',
@@ -179,17 +178,9 @@ export const useIONodesStyles = () => ({
     }),
     addLocalVariableButton: css({
         "& > vscode-button": {
-            ...addElementButton,
-            width: `${IO_NODE_DEFAULT_WIDTH}px`,
             height: "40px",
-            border: "1px solid var(--vscode-welcomePage-tileBorder)",
-            color: "var(--button-primary-foreground)",
-            backgroundColor: "var(--vscode-button-secondaryBackground)",
-            borderRadius: "0px",
-            textTransform: "none",
-            "&:hover": {
-                backgroundColor: "var(--vscode-button-secondaryHoverBackground)"
-            },
+            width: `${IO_NODE_DEFAULT_WIDTH}px`,
+            border: "none",
         },
         "& > vscode-button > *": {
             margin: "0px 6px"

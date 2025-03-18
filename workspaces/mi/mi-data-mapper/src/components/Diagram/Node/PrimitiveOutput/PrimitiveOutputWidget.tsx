@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Node } from "ts-morph";
 
@@ -39,8 +39,7 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const { views } = context;
 	const focusedView = views[views.length - 1];
-	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
-
+	const focusedOnSubMappingRoot = focusedView.subMappingInfo?.focusedOnSubMappingRoot;
 
 	const classes = useIONodesStyles();
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
@@ -63,7 +62,7 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 	const indentation = (portIn && !expanded) ? 0 : 24;
 
 	const label = (
-		<span style={{ marginRight: "auto" }}>
+		<TruncatedLabel style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
@@ -71,21 +70,20 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 				</span>
 			)}
 			<span className={classes.outputTypeLabel}>{type}</span>
-		</span>
+		</TruncatedLabel>
 	);
 
 	const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
 		if (!expanded) {
-			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter(element => element !== fieldId));
+			collapsedFieldsStore.expandField(fieldId, field.type.kind);
 		} else {
-			collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+			collapsedFieldsStore.collapseField(fieldId, field.type.kind);
 		}
 	};
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
-		onSubMappingEditBtnClick();
+		if(focusedOnSubMappingRoot) onSubMappingEditBtnClick();
 	};
 
 	const onSubMappingEditBtnClick = () => {
@@ -116,20 +114,19 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 					</FieldActionWrapper>
 					{label}
 				</span>
-				{focuesOnSubMappingRoot && (
-					<FieldActionWrapper>
+				{focusedOnSubMappingRoot && (
 						<Button
 							appearance="icon"
 							data-testid={"edit-sub-mapping-btn"}
-							tooltip="Edit name and type of the sub mapping "
+							tooltip="Edit name and type of the sub mapping"
 							onClick={onSubMappingEditBtnClick}
+							data-field-action
 						>
 							<Codicon
-								name="settings-gear"
+								name="edit"
 								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
 							/>
 						</Button>
-					</FieldActionWrapper>
 				)}
 			</TreeHeader>
 			{expanded && field && (

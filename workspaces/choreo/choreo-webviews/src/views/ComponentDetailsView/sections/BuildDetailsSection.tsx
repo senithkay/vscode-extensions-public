@@ -18,6 +18,7 @@ import {
 	DeploymentStepStatus,
 	type Organization,
 	type ProjectBuildLogsData,
+	getComponentKindRepoSource,
 	getTimeAgo,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
@@ -95,7 +96,7 @@ export const BuildDetailsSection: FC<Props> = ({ component, data, loadingData, i
 								<CommitLink
 									commitHash={buildItem.spec?.revision}
 									commitMessage={buildItem.status?.gitCommit?.message}
-									repoPath={component?.spec?.source?.github?.repository}
+									repoPath={getComponentKindRepoSource(component?.spec?.source).repo}
 								/>
 							</div>
 						</div>
@@ -121,102 +122,99 @@ export const BuildDetailsSection: FC<Props> = ({ component, data, loadingData, i
 					))
 				) : (
 					<>
-						{data && (
-							<>
-								{isGitProxy ? (
-									<>
-										<BuildDetailsSectionItem
-											title="Initialization"
-											steps={data.init?.steps}
-											conclusion={data.init?.status}
-											// todo: check console behavior
-											// logs={data?.oasValidation?.log}
-											isVisible={isVisible}
-											buildId={buildId}
-											component={component}
-											org={org}
-											buildConclusion={buildConclusion}
-										/>
-										<Divider className="opacity-50" />
-										<BuildDetailsSectionItem
-											title="API definition validation"
-											steps={data.oasValidation?.steps}
-											conclusion={data.oasValidation?.status}
-											// todo: check console behavior
-											// logs={data?.oasValidation?.log}
-											isVisible={isVisible}
-											buildId={buildId}
-											component={component}
-											org={org}
-											buildConclusion={buildConclusion}
-										/>
-										<Divider className="opacity-50" />
-										<BuildDetailsSectionItem
-											title="API update"
-											steps={data.updateApi?.steps}
-											conclusion={data.updateApi?.status}
-											// todo: check console behavior
-											// logs={data?.updateApi?.log}
-											isVisible={isVisible}
-											buildId={buildId}
-											component={component}
-											org={org}
-											buildConclusion={buildConclusion}
-										/>
-										<Divider className="opacity-50" />
-										<BuildDetailsSectionItem
-											title="API governance"
-											steps={data.governanceCheck?.steps}
-											conclusion={data.governanceCheck?.status}
-											// todo: check console behavior
-											// logs={data?.governanceCheck?.log}
-											isVisible={isVisible}
-											buildId={buildId}
-											component={component}
-											org={org}
-											buildConclusion={buildConclusion}
-										/>
-									</>
-								) : (
-									<>
-										<BuildDetailsSectionItem
-											title="Initialization"
-											steps={data.init?.steps}
-											conclusion={data.init?.status}
-											logs={data?.init?.log}
-											isVisible={isVisible}
-											buildId={buildId}
-											component={component}
-											org={org}
-											buildConclusion={buildConclusion}
-										/>
-										<Divider className="opacity-50" />
-										<BuildDetailsSectionItem
-											title="Build"
-											steps={data.build?.steps}
-											conclusion={data.build?.status}
-											logs={data?.build?.log}
-											isVisible={isVisible}
-											buildId={buildId}
-											component={component}
-											org={org}
-											buildConclusion={buildConclusion}
-										/>
-										<Divider className="opacity-50" />
-										<BuildDetailsSectionItem
-											title="Finalization"
-											steps={data.deploy?.steps}
-											conclusion={data.deploy?.status}
-											isVisible={isVisible}
-											buildId={buildId}
-											component={component}
-											org={org}
-											buildConclusion={buildConclusion}
-										/>
-									</>
-								)}
-							</>
-						)}
+						{data &&
+							(isGitProxy ? (
+								<>
+									<BuildDetailsSectionItem
+										title="Initialization"
+										steps={data.init?.steps}
+										conclusion={data.init?.status}
+										// todo: check console behavior
+										// logs={data?.oasValidation?.log}
+										isVisible={isVisible}
+										buildId={buildId}
+										component={component}
+										org={org}
+										buildConclusion={buildConclusion}
+									/>
+									<Divider className="opacity-50" />
+									<BuildDetailsSectionItem
+										title="API definition validation"
+										steps={data.oasValidation?.steps}
+										conclusion={data.oasValidation?.status}
+										// todo: check console behavior
+										// logs={data?.oasValidation?.log}
+										isVisible={isVisible}
+										buildId={buildId}
+										component={component}
+										org={org}
+										buildConclusion={buildConclusion}
+									/>
+									<Divider className="opacity-50" />
+									<BuildDetailsSectionItem
+										title="API update"
+										steps={data.updateApi?.steps}
+										conclusion={data.updateApi?.status}
+										// todo: check console behavior
+										// logs={data?.updateApi?.log}
+										isVisible={isVisible}
+										buildId={buildId}
+										component={component}
+										org={org}
+										buildConclusion={buildConclusion}
+									/>
+									<Divider className="opacity-50" />
+									<BuildDetailsSectionItem
+										title="API governance"
+										steps={data.governanceCheck?.steps}
+										conclusion={data.governanceCheck?.status}
+										// todo: check console behavior
+										// logs={data?.governanceCheck?.log}
+										isVisible={isVisible}
+										buildId={buildId}
+										component={component}
+										org={org}
+										buildConclusion={buildConclusion}
+									/>
+								</>
+							) : (
+								<>
+									<BuildDetailsSectionItem
+										title="Initialization"
+										steps={data.init?.steps}
+										conclusion={data.init?.status}
+										logs={data?.init?.log}
+										isVisible={isVisible}
+										buildId={buildId}
+										component={component}
+										org={org}
+										buildConclusion={buildConclusion}
+									/>
+									<Divider className="opacity-50" />
+									<BuildDetailsSectionItem
+										title="Build"
+										steps={data.build?.steps}
+										conclusion={data.build?.status}
+										logs={data?.build?.log}
+										isVisible={isVisible}
+										buildId={buildId}
+										component={component}
+										org={org}
+										buildConclusion={buildConclusion}
+									/>
+									<Divider className="opacity-50" />
+									<BuildDetailsSectionItem
+										title="Finalization"
+										steps={data.deploy?.steps}
+										conclusion={data.deploy?.status}
+										isVisible={isVisible}
+										buildId={buildId}
+										component={component}
+										org={org}
+										buildConclusion={buildConclusion}
+									/>
+								</>
+							))}
 					</>
 				)}
 			</div>

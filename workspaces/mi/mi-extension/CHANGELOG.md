@@ -2,6 +2,104 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.1.1] - 2025-03-17
+
+### Fixed
+
+Fixed: Unable to Create RabbitMQ Inbound Endpoint in WSO2 MI – 'Create Event Integration' Window Fails to Open ([#959](https://github.com/wso2/mi-vscode/issues/959))
+
+## [2.1.0] - 2025-03-15
+
+### New Features
+
+Added: Support for Creating AI Agents ([#956](https://github.com/wso2/mi-vscode/issues/956))
+
+### Fixed
+
+Fixed: Clicking on the "Open Graphical VIew" from the source view of an API resource does not open the graphical view ([#794](https://github.com/wso2/mi-vscode/issues/794))  
+
+### Improvements
+
+Improved: Devant integration UX
+
+## [2.0.4] - 2025-03-10
+
+### Fixed
+
+Fixed: Artifact creation in windows ([#943](https://github.com/wso2/mi-vscode/issues/943))
+
+
+## [2.0.3] - 2025-03-09
+
+### New Features
+
+Added: Devant support ([#290](https://github.com/wso2-enterprise/devant/issues/290))  
+Added: Ballerina modules generation support ([#942](https://github.com/wso2/mi-vscode/issues/942))
+
+### Fixed
+
+Fixed: After creating proxy, wrong redirection ([#635](https://github.com/wso2/mi-vscode/issues/635))  
+Fixed: Resource Path gets overwritten by default values in "Create New Resource" form ([#788](https://github.com/wso2/mi-vscode/issues/788))  
+Fixed: Can create a new project with existing project name ([#839](https://github.com/wso2/mi-vscode/issues/839))  
+Fixed: When creating an API with openAPI definition without the swagger file the `create` button is enabled. ([#908](https://github.com/wso2/mi-vscode/issues/908))  
+
+
+## [2.0.2] - 2025-03-03
+
+### Fixed
+
+Fixed: Editing Task Properties Adds Invalid @_xmlns Attribute to XML in the VSCode Extension ([#512](https://github.com/wso2/mi-vscode/issues/512))  
+Fixed: Can add duplicate config values ([#682](https://github.com/wso2/mi-vscode/issues/682))  
+Fixed: Adding connector operations in a switch case make the connector icon in left case hidden from the right one. ([#692](https://github.com/wso2/mi-vscode/issues/692))  
+Fixed: Cancel button in some template forms not working. ([#808](https://github.com/wso2/mi-vscode/issues/808))  
+Fixed: Syntax issue in Scheduled Task xml after adding a new property ([#844](https://github.com/wso2/mi-vscode/issues/844))  
+Fixed: Required `Template` field is not indicated in template endpoint ([#858](https://github.com/wso2/mi-vscode/issues/858))  
+Fixed: Generating incorrect code when updating the task ([#899](https://github.com/wso2/mi-vscode/issues/899))  
+Fixed: Debezium CDC Connector form doesn't work properly ([#915](https://github.com/wso2/mi-vscode/issues/915))  
+Fixed: State changing issue in the checkbox component ([#919](https://github.com/wso2/mi-vscode/issues/919))  
+Fixed: Copy pasting values for Inline Expression editors gets ignored. ([#922](https://github.com/wso2/mi-vscode/issues/922))  
+
+## [2.0.1] - 2025-02-25
+
+### Improvements
+- Add support to download older connector versions
+- Add support to mark the automation sequence from project explorer view
+- Add minor UI improvements
+
+## [2.0.0] - 2025-02-20
+
+### Improvements
+
+- New mediators
+  - Scatter-Gather: Clones a message into several and aggregates the responses into a single message. Supports parallel or sequential execution, with output to a variable or message body
+  - Foreach v2: Supports parallel or sequential iteration and allows updating the original array or outputting results to a variable
+  - ThrowError: Enables throwing an error from the mediation flow
+- Enhanced mediator functionality
+  - Inline expression support for PayloadFactory Mediator and Log Mediator
+  - UI Enhancements for the commonly used mediators
+- Mediator tryout functionality
+- Simplified onboarding experience
+- Synapse expression support: A new simplified expression type offering advanced message manipulation and greater flexibility
+- Environment variable injection for all environment-specific parameters
+- JDK 21 support
+- Dependency management for connectors
+- Newly introduced HTTP connector
+- Improvements to the data mapper
+- Framework for building GenAI applications
+
+
+## [1.1.6] - 2024-11-26
+
+### Improvements
+
+Improved: Improve array mapping experience in Data Mapper ([#527](https://github.com/wso2/mi-vscode/issues/527), [#527](https://github.com/wso2/mi-vscode/issues/528))  
+Improved: Improve Data Mapper expression bar completion experience ([#524](https://github.com/wso2/mi-vscode/issues/524), [#513](https://github.com/wso2/mi-vscode/issues/513))
+
+### Fixed
+
+Fixed: Issue in the Data Mapper ([#511](https://github.com/wso2/mi-vscode/issues/511))  
+
+
 ## [1.1.4] - 2024-11-06
 
 ### Fixed

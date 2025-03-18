@@ -20,7 +20,7 @@ export class EntryNodeFactory extends AbstractReactFactory<EntryNodeModel, Diagr
     }
 
     generateModel(event: GenerateModelEvent): EntryNodeModel {
-        return new EntryNodeModel(event.initialConfig);
+        return new EntryNodeModel(event.initialConfig, event.initialConfig.type);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<EntryNodeModel>) {

@@ -9,15 +9,6 @@
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { MEDIATORS, NODE_GAP } from "../resources/constants";
-import { getLogDescription } from "./template-engine/mustach-templates/core/log";
-import { getFilterDescription } from "./template-engine/mustach-templates/filter/filter";
-import { getPropertyDescription } from "./template-engine/mustach-templates/core/property";
-import { getSwitchDescription } from "./template-engine/mustach-templates/filter/switch";
-import { getSequenceDescription } from "./template-engine/mustach-templates/core/sequence";
-import { getDataMapperDescription } from "./template-engine/mustach-templates/transformation/datamapper";
-import { getDSCallDescription } from "./template-engine/mustach-templates/data/dataServiceCall";
-import { getAggregateDescription } from "./template-engine/mustach-templates/eip/aggregate";
-import { getTargetDescription } from "./template-engine/mustach-templates/advanced/clone";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -33,12 +24,13 @@ export function getNodeIdFromModel(model: STNode, prefix?: string) {
     return Date.now().toString();
 }
 
-export function getNodeDescription(name: string, stNode: any): string {
+export function getNodeDescription(stNode: any): string {
     if (stNode.description) {
         return stNode.description;
     }
 
-    switch (name) {
+    // TODO: Move to LS
+    switch (stNode.tag.toLowerCase()) {
         case "endpoint": {
             if (stNode.key) {
                 return stNode.key;
@@ -48,44 +40,131 @@ export function getNodeDescription(name: string, stNode: any): string {
             }
             return;
         }
-        case (MEDIATORS.FILTER): {
-            return getFilterDescription(stNode);
+        case (MEDIATORS.FILTER.toLowerCase()): {
+            if (stNode.regex && stNode.source) {
+                return `${stNode.source} matches ${stNode.regex}`;
+            }
+            if (stNode.regex) {
+                return stNode.regex;
+            } else if (stNode.source) {
+                return stNode.source;
+            } else if (stNode.xpath) {
+                return stNode.xpath;
+            }
+            return;
         }
-        case (MEDIATORS.LOG): {
-            return getLogDescription(stNode);
+        case (MEDIATORS.LOG.toLowerCase()): {
+            if (stNode.property) {
+                return stNode.property.map((property: any) => {
+                    return property.name;
+                }).join(", ");
+            }
+            return;
         }
-        case (MEDIATORS.PROPERTY): {
-            return getPropertyDescription(stNode);
+        case (MEDIATORS.PROPERTY.toLowerCase()): {
+            if (stNode.name) {
+                return stNode.name;
+            }
+            return;
         }
-        case (MEDIATORS.SEQUENCE): {
+        case (MEDIATORS.SEQUENCE.toLowerCase()): {
             if (stNode.tag === "target") {
-                return getTargetDescription(stNode);
+                return stNode.sequenceAttribute;
             }
 
-            return getSequenceDescription(stNode);
+            const description = stNode.staticReferenceKey || stNode.dynamicReferenceKey || stNode.key;
+            if (description) {
+                return description.split(".")[0];
+            }
+            return;
         }
-        case (MEDIATORS.SWITCH): {
-            return getSwitchDescription(stNode);
+        case (MEDIATORS.SWITCH.toLowerCase()): {
+            return stNode.source;
         }
-        case (MEDIATORS.DATAMAPPER): {
-            return getDataMapperDescription(stNode);
+        case (MEDIATORS.DATAMAPPER.toLowerCase()): {
+            const description = stNode.config;
+            if (description) {
+                const match = description.match(/\/([^\/]+)\.dmc$/);
+                return match ? match[1] : null;
+            }
+            return;
         }
-        case (MEDIATORS.DATASERVICECALL): {
-            return getDSCallDescription(stNode);
+        case (MEDIATORS.DATASERVICECALL.toLowerCase()): {
+            return stNode.serviceName;
         }
-        case (MEDIATORS.AGGREGATE): {
-            return getAggregateDescription(stNode);
+        case (MEDIATORS.AGGREGATE.toLowerCase()): {
+            const onComplete = stNode?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
+            const isSequnceReference = onComplete.sequenceAttribute !== undefined;
+
+            return isSequnceReference ? onComplete.sequenceAttribute.split(".")[0] : undefined;
+        }
+        case (MEDIATORS.VARIABLE.toLowerCase()): {
+            return stNode.name;
         }
         default:
             return;
     }
 }
 
-export function getTextWidth(text: any, font?: any) {
+export function getTextSizes(text: any, fontSize?: any, fontWidth?: string, fontFamily?: string, containerWidth?: number, maxLineCount?: number) {
+    function getCssStyle(element: Element, prop: string) {
+        return window.getComputedStyle(element, null).getPropertyValue(prop);
+    }
+    function getCanvasFont(el = document.body) {
+        const fontW = fontWidth ?? (getCssStyle(el, 'font-weight') || 'normal');
+        const fontS = fontSize ?? (getCssStyle(el, 'font-size') || '16px');
+        const fontF = fontFamily ?? (getCssStyle(el, 'font-family') || 'Times New Roman');
+
+        return `${fontW} ${fontS} ${fontF}`;
+    }
+
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
-    context.font = font || getComputedStyle(document.body).font;
+    context.font = getCanvasFont();
 
-    return context.measureText(text).width + 5.34 + NODE_GAP.TEXT_NODE_GAP;
+    const metrics = context.measureText(text);
+    const width = metrics.width;
+
+    if (!text) {
+        return { width: 0, height: 0 };
+    }
+
+    // Split text into lines if container width is provided
+    if (containerWidth) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+            const word = words[i];
+            const testLine = currentLine + ' ' + word;
+            const testWidth = context.measureText(testLine).width;
+
+            if (testWidth <= containerWidth) {
+                currentLine = testLine;
+            } else {
+                lines.push(currentLine);
+                currentLine = word;
+            }
+
+            // Return early if maxLineCount is hit
+            if (maxLineCount && lines.length >= maxLineCount) {
+                const lineHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+                const height = lineHeight * maxLineCount;
+                return { width: containerWidth, height, lineCount: maxLineCount };
+            }
+        }
+        lines.push(currentLine);
+
+        // Calculate total height based on line count
+        const lineHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+        const height = lineHeight * lines.length;
+
+        return { width: containerWidth, height, lineCount: lines.length };
+    }
+
+    // Return single line metrics if no container width
+    const height = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+    return { width, height, lineCount: 1 };
 }

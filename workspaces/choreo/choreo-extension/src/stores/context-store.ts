@@ -9,15 +9,17 @@
 
 import { existsSync, readFileSync } from "fs";
 import * as path from "path";
-import type {
-	ComponentKind,
-	ContextItem,
-	ContextItemDir,
-	ContextItemEnriched,
-	ContextStoreComponentState,
-	ContextStoreState,
-	Organization,
-	Project,
+import {
+	type ComponentKind,
+	type ContextItem,
+	type ContextItemDir,
+	type ContextItemEnriched,
+	type ContextStoreComponentState,
+	type ContextStoreState,
+	type Organization,
+	type Project,
+	getComponentKindRepoSource,
+	parseGitURL,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { ProgressLocation, window, workspace } from "vscode";
@@ -25,7 +27,7 @@ import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { showProjectWorkspaceCreateNotification } from "../cmds/create-project-workspace-cmd";
 import { ext } from "../extensionVariables";
-import { getGitRemotes, getGitRoot, parseGitURL } from "../git/util";
+import { getGitRemotes, getGitRoot } from "../git/util";
 import { isSubpath } from "../utils";
 import { authStore } from "./auth-store";
 import { dataCacheStore } from "./data-cache-store";
@@ -301,7 +303,7 @@ const mapComponentList = async (components: ComponentKind[], selected?: ContextI
 				const gitRoot = await getGitRoot(ext.context, item.projectRootFsPath);
 				if (gitRoot) {
 					const remotes = await getGitRemotes(ext.context, gitRoot);
-					const repoUrl = componentItem.spec.source.github?.repository || componentItem.spec.source.bitbucket?.repository;
+					const repoUrl = getComponentKindRepoSource(componentItem.spec.source).repo;
 					const parsedRepoUrl = parseGitURL(repoUrl);
 					if (parsedRepoUrl) {
 						const [repoOrg, repoName, repoProvider] = parsedRepoUrl;
@@ -314,7 +316,7 @@ const mapComponentList = async (components: ComponentKind[], selected?: ContextI
 						});
 
 						if (hasMatchingRemote) {
-							const subPathDir = path.join(gitRoot, componentItem.spec.source.github?.path || componentItem.spec.source.bitbucket?.path || "");
+							const subPathDir = path.join(gitRoot, getComponentKindRepoSource(componentItem.spec.source)?.path);
 							const isSubPath = isSubpath(item.dirFsPath, subPathDir);
 							if (isSubPath && existsSync(subPathDir) && !comps.some((item) => item.component?.metadata?.id === componentItem.metadata?.id)) {
 								comps.push({

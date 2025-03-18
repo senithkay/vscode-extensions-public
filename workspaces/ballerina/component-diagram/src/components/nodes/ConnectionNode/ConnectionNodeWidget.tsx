@@ -11,129 +11,111 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectionNodeModel } from "./ConnectionNodeModel";
-import {
-    Colors,
-    NODE_BORDER_WIDTH,
-    CON_NODE_WIDTH,
-    NEW_CONNECTION,
-    CON_NODE_HEIGHT,
-} from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { NODE_BORDER_WIDTH, CON_NODE_WIDTH, CON_NODE_HEIGHT } from "../../../resources/constants";
+import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
-import { DatabaseIcon, LinkIcon, PlusIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
+import ConnectionIcon from "../../ConnectionIcon";
 
-export namespace NodeStyles {
-    export type NodeStyleProp = {
-        hovered: boolean;
-        inactive?: boolean;
-    };
-    export const Node = styled.div<NodeStyleProp>`
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        /* width: ${CON_NODE_WIDTH}px; */
-        height: ${CON_NODE_HEIGHT}px;
-        color: ${Colors.ON_SURFACE};
-        cursor: pointer;
-    `;
+type NodeStyleProp = {
+    hovered: boolean;
+    inactive?: boolean;
+};
 
-    export const Header = styled.div`
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        gap: 6px;
-        padding: 8px;
-    `;
+const Node = styled.div<NodeStyleProp>`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: ${CON_NODE_HEIGHT}px;
+    color: ${ThemeColors.ON_SURFACE};
+    cursor: pointer;
+`;
 
-    export const Circle = styled.div<NodeStyleProp>`
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: ${CON_NODE_HEIGHT}px;
-        height: ${CON_NODE_HEIGHT}px;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-        border-radius: 50%;
-        background-color: ${Colors.SURFACE_DIM};
-        color: ${Colors.ON_SURFACE};
-    `;
+const Header = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 6px;
+`;
 
-    export const StyledButton = styled(Button)`
-        border-radius: 5px;
-        position: absolute;
-        right: 6px;
-    `;
+const Circle = styled.div<NodeStyleProp>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: ${CON_NODE_HEIGHT}px;
+    height: ${CON_NODE_HEIGHT}px;
+    border: ${NODE_BORDER_WIDTH}px solid
+        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+    border-radius: 50%;
+    background-color: ${ThemeColors.SURFACE_DIM};
+    color: ${ThemeColors.ON_SURFACE};
+`;
 
-    export const MenuButton = styled(Button)`
-        border-radius: 5px;
-    `;
+const MenuButton = styled(Button)`
+    border-radius: 5px;
+`;
 
-    export const TopPortWidget = styled(PortWidget)`
-        margin-top: -3px;
-    `;
+const LeftPortWidget = styled(PortWidget)`
+    margin-top: -3px;
+`;
 
-    export const BottomPortWidget = styled(PortWidget)`
-        margin-bottom: -2px;
-    `;
+const RightPortWidget = styled(PortWidget)`
+    margin-bottom: -2px;
+`;
 
-    export const StyledText = styled.div`
-        font-size: 14px;
-    `;
+const StyledText = styled.div`
+    font-size: 14px;
+`;
 
-    export const Icon = styled.div`
-        padding: 4px;
-        svg {
-            fill: ${Colors.ON_SURFACE};
-        }
-    `;
+const StyledConnectionIcon = styled(ConnectionIcon)`
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+    svg {
+        fill: ${ThemeColors.ON_SURFACE};
+    }
+`;
 
-    export const Title = styled(StyledText) <NodeStyleProp>`
-        max-width: ${CON_NODE_WIDTH - 50}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: "GilmerMedium";
-        color: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
-        opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
-    `;
+const Title = styled(StyledText)<NodeStyleProp>`
+    max-width: ${CON_NODE_WIDTH - 50}px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: "GilmerMedium";
+    color: ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE)};
+    opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
+`;
 
-    export const Description = styled(StyledText)`
-        font-size: 12px;
-        max-width: ${CON_NODE_WIDTH - 80}px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: monospace;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        color: ${Colors.ON_SURFACE};
-        opacity: 0.7;
-    `;
+const Description = styled(StyledText)`
+    font-size: 12px;
+    max-width: ${CON_NODE_WIDTH - CON_NODE_HEIGHT}px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: monospace;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    color: ${ThemeColors.ON_SURFACE};
+    opacity: 0.7;
+`;
 
-    export const Row = styled.div<NodeStyleProp>`
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 6px;
-        width: 100%;
-        padding: 0 8px;
-    `;
-
-    export const Hr = styled.hr`
-        width: 100%;
-    `;
-}
+const Row = styled.div<NodeStyleProp>`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+`;
 
 interface ConnectionNodeWidgetProps {
     model: ConnectionNodeModel;
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<ConnectionNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<ConnectionNodeWidgetProps, "children"> {}
 
 export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     const { model, engine } = props;
@@ -141,7 +123,7 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
 
-    const { onAddConnection, onConnectionSelect, onDeleteComponent } = useDiagramContext();
+    const { onConnectionSelect, onDeleteComponent } = useDiagramContext();
     // TODO: fix this database icon hack with icon prop from node model
     const databaseNames = [
         "MySQL",
@@ -154,14 +136,10 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
         "MongoDB",
         "MariaDB",
     ];
-    const hasDatabaseName = databaseNames.some((name) => model.node.name.toLowerCase().includes(name.toLowerCase()));
+    const hasDatabaseName = databaseNames.some((name) => model.node.symbol?.toLowerCase().includes(name.toLowerCase()));
 
     const handleOnClick = () => {
-        if (model.node.id === NEW_CONNECTION) {
-            onAddConnection();
-        } else {
-            onConnectionSelect(model.node);
-        }
+        onConnectionSelect(model.node);
     };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
@@ -173,31 +151,42 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
         setMenuAnchorEl(null);
     };
 
+    const getNodeTitle = () => {
+        return model.node.symbol;
+    };
+
+    const getNodeDescription = () => {
+        return "Connection";
+    };
+
     const menuItems: Item[] = [
         { id: "edit", label: "Edit", onClick: () => handleOnClick() },
-        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }
+        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
     ];
 
     return (
-        <NodeStyles.Node
+        <Node
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
         >
-            <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Row hovered={isHovered}>
-                <NodeStyles.Circle hovered={isHovered}>
-                    <NodeStyles.Icon>{hasDatabaseName ? <DatabaseIcon /> : <LinkIcon />}</NodeStyles.Icon>
-                </NodeStyles.Circle>
-                <NodeStyles.Header>
-                    <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>
-                    {<NodeStyles.Description>Connection</NodeStyles.Description>}
-                </NodeStyles.Header>
-                <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+            <LeftPortWidget port={model.getPort("in")!} engine={engine} />
+            <Row hovered={isHovered}>
+                <Circle hovered={isHovered}>
+                    <StyledConnectionIcon
+                        url={model.node.icon || ""}
+                        fallbackIcon={<Icon name="bi-connection" />}
+                    />
+                </Circle>
+                <Header>
+                    <Title hovered={isHovered}>{getNodeTitle()}</Title>
+                    <Description>{getNodeDescription()}</Description>
+                </Header>
+                <MenuButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />
-                </NodeStyles.MenuButton>
-            </NodeStyles.Row>
+                </MenuButton>
+            </Row>
             <Popover
                 open={isMenuOpen}
                 anchorEl={menuAnchorEl}
@@ -213,7 +202,7 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
                     ))}
                 </Menu>
             </Popover>
-            <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
-        </NodeStyles.Node>
+            <RightPortWidget port={model.getPort("out")!} engine={engine} />
+        </Node>
     );
 }

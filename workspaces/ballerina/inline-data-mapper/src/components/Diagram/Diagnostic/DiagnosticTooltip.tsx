@@ -15,7 +15,7 @@ import { useStyles } from "./style";
 interface Props {
     placement: "top" | "bottom" | "left" | "right";
     children: React.ReactNode;
-    diagnostic: any;
+    diagnostic: string;
     value?: string
     onClick?: () => void;
 }
@@ -25,9 +25,6 @@ export const DiagnosticTooltipID = "data-mapper-diagnostic-tooltip";
 export function DiagnosticTooltip(props: Partial<Props>) {
     const { diagnostic, value, children, onClick } = props;
     const classes = useStyles();
-    const source = diagnostic.source || value;
-    // const diagnosticMsg = getDiagnosticMessage(diagnostic);
-    const diagnosticMsg = "";
 
     const Code = () => (
         <>
@@ -37,7 +34,7 @@ export function DiagnosticTooltip(props: Partial<Props>) {
                     data-lang="typescript"
                     className={classes.code}
                 >
-                    {source.trim()}
+                    {value.trim()}
                 </code>
                 <Button
                     appearance="icon"
@@ -63,15 +60,15 @@ export function DiagnosticTooltip(props: Partial<Props>) {
             >
                 <Icon name="error-icon" iconSx={{ color: "var(--vscode-errorForeground)" }} />
             </Button>
-            <div className={classes.diagnosticWrapper}>{diagnosticMsg}</div>
+            <div className={classes.diagnosticWrapper}>{diagnostic}</div>
         </>
 
     );
 
     const tooltipTitleComponent = (
         <pre className={classes.pre}>
-            {diagnosticMsg && <DiagnosticC />}
-            {source && <Code />}
+            {diagnostic && <DiagnosticC />}
+            {value && <Code />}
         </pre>
     );
 

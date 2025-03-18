@@ -6,8 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IOTypeRequest, IOTypeResponse } from "./interfaces";
+import {
+    AddArrayElementRequest,
+    InlineDataMapperModelRequest,
+    InlineDataMapperModelResponse,
+    InlineDataMapperSourceRequest,
+    InlineDataMapperSourceResponse,
+    VisualizableFieldsRequest,
+    VisualizableFieldsResponse
+} from "../../interfaces/extended-lang-client";
 
 export interface InlineDataMapperAPI {
-    getIOTypes: (params: IOTypeRequest) => Promise<IOTypeResponse>;
+    getDataMapperModel: (params: InlineDataMapperModelRequest) => Promise<InlineDataMapperModelResponse>;
+    getDataMapperSource: (params: InlineDataMapperSourceRequest) => Promise<InlineDataMapperSourceResponse>;
+    getVisualizableFields: (params: VisualizableFieldsRequest) => Promise<VisualizableFieldsResponse>;
+    addNewArrayElement: (params: AddArrayElementRequest) => Promise<InlineDataMapperSourceResponse>;
 }

@@ -50,6 +50,7 @@ jobs:
       isPreRelease: ${{ inputs.isPreRelease }}
       enableCache: false
       ballerina: false
+      wso2-platform: false
       choreo: false
       apk: false
       version: ${{ inputs.version }}
@@ -62,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ExtBuild
           path: ./
@@ -79,7 +80,7 @@ jobs:
           registry-url: "https://npm.pkg.github.com"
   
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           cache-rush: false

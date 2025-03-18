@@ -10,6 +10,8 @@
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
+import { Type } from "./interfaces/extended-lang-client";
+import { DevantComponent } from "./rpc-types/bi-diagram/interfaces";
 
 export type MachineStateValue =
     | 'initialize'
@@ -36,10 +38,20 @@ export enum EVENT_TYPE {
     CLOSE_VIEW = "CLOSE_VIEW"
 }
 
+export enum SCOPE {
+    AUTOMATION = "automation",
+    INTEGRATION_AS_API = "integration-as-api",
+    EVENT_INTEGRATION = "event-integration",
+    FILE_INTEGRATION = "file-integration",
+    AI_AGENT = "ai-agent",
+    ANY = "any"
+}
+
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export enum MACHINE_VIEW {
     Overview = "Overview",
+    BallerinaUpdateView = "Ballerina Update View",
     SequenceDiagram = "Sequence Diagram",
     ServiceDesigner = "Service Designer",
     ERDiagram = "ER Diagram",
@@ -51,13 +63,24 @@ export enum MACHINE_VIEW {
     BIWelcome = "BI Welcome",
     BIProjectForm = "BI Project Form",
     BIComponentView = "BI Component View",
-    BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
     ViewConfigVariables = "View Config Variables",
     EditConfigVariables = "Edit Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
+    BINPFunctionForm = "Add Natural Function",
+    BITestFunctionForm = "Add Test Function",
+    BIServiceWizard = "Service Wizard",
+    BIServiceConfigView = "Service Config View",
+    BIListenerConfigView = "Listener Config View",
+    BIServiceClassDesigner = "Service Class Designer",
+    BIServiceClassConfigView = "Service Class Config View",
+    BIDataMapperForm = "Add Data Mapper",
+    AIAgentWizard = "AI Agent Wizard",
+    AIAgentEditView = "AI Agent Edit View",
+    AIAgentDesigner = "AI Agent Designer",
+    AIChatAgentWizard = "AI Chat Agent Wizard",
 }
 
 export interface MachineEvent {
@@ -70,6 +93,12 @@ export interface CommandProps {
     isService?: boolean
 }
 
+export const FOCUS_FLOW_DIAGRAM_VIEW = {
+    NP_FUNCTION: "NP_FUNCTION",
+} as const;
+
+export type FocusFlowDiagramView = typeof FOCUS_FLOW_DIAGRAM_VIEW[keyof typeof FOCUS_FLOW_DIAGRAM_VIEW];
+
 // State Machine context values
 export interface VisualizerLocation {
     view?: MACHINE_VIEW | null;
@@ -79,15 +108,21 @@ export interface VisualizerLocation {
     position?: NodePosition;
     syntaxTree?: STNode;
     isBI?: boolean;
-    haveServiceType?: boolean;
+    focusFlowDiagramView?: FocusFlowDiagramView;
+    serviceType?: string;
+    type?: Type;
+    isGraphql?: boolean;
     metadata?: VisualizerMetadata;
+    scope?: SCOPE;
 }
 
 export interface VisualizerMetadata {
     haveLS?: boolean;
+    isBISupported?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
     target?: LinePosition;
+    devantComponent?: DevantComponent;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
@@ -118,8 +153,10 @@ export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { metho
 export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
 export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation> = { method: 'getPopupVisualizerState' };
 
+export const breakpointChanged: NotificationType<boolean> = { method: 'breakpointChanged' };
+
 // ------------------> AI Related state types <----------------------- 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled' | 'Settings';
 
 export enum AI_EVENT_TYPE {
     LOGIN = "LOGIN",
@@ -131,6 +168,8 @@ export enum AI_EVENT_TYPE {
     DISPOSE = "DISPOSE",
     CANCEL = "CANCEL",
     RETRY = "RETRY",
+    SETUP = "SETUP",
+    CHAT = "CHAT",
 }
 
 export enum AI_MACHINE_VIEW {

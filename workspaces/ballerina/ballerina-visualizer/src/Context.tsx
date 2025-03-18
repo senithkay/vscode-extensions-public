@@ -10,7 +10,7 @@
 import React, { ReactNode, useRef, useState, createContext, useContext } from "react";
 import { BallerinaRpcClient, VisualizerContext as RpcContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { ConnectorInfo } from "@wso2-enterprise/ballerina-core";
+import { ConnectorInfo, TriggerModelsResponse } from "@wso2-enterprise/ballerina-core";
 
 export function RpcContextProvider({ children }: { children: ReactNode }) {
     const rpcClient = useRef(new BallerinaRpcClient());
@@ -65,6 +65,8 @@ interface VisualizerContext {
     setActiveFileInfo?: (activeFileInfo: ActiveFileInfo) => void;
     componentInfo?: ComponentInfo;
     setComponentInfo?: (componentInfo: ComponentInfo) => void;
+    cacheTriggers: TriggerModelsResponse,
+    setCacheTriggers: (componentInfo: TriggerModelsResponse) => void;
 }
 
 export const VisualizerContext = createContext({
@@ -76,6 +78,8 @@ export const VisualizerContext = createContext({
     setActiveFileInfo: (activeFileInfo: ActiveFileInfo) => { },
     componentInfo: undefined,
     setComponentInfo: (componentInfo: ComponentInfo) => { },
+    cacheTriggers: undefined,
+    setCacheTriggers: (triggers: TriggerModelsResponse) => { },
 
 } as VisualizerContext);
 
@@ -87,6 +91,7 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
     const [statementPosition, setStatementPosition] = useState<NodePosition>();
     const [componentInfo, setComponentInfo] = useState<ComponentInfo>();
     const [activeFileInfo, setActiveFileInfo] = useState<ActiveFileInfo>();
+    const [cacheTriggers, setCacheTriggers] = useState<TriggerModelsResponse>({ local: [] });
 
 
     const contextValue: VisualizerContext = {
@@ -104,6 +109,8 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
         setActiveFileInfo: setActiveFileInfo,
         componentInfo: componentInfo,
         setComponentInfo: setComponentInfo,
+        cacheTriggers: cacheTriggers,
+        setCacheTriggers: setCacheTriggers
     };
 
     return <VisualizerContext.Provider value={contextValue}>{children}</VisualizerContext.Provider>;

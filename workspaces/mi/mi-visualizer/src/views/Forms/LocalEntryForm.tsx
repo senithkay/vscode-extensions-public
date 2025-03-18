@@ -22,6 +22,8 @@ import * as yup from "yup";
 import CardWrapper from "./Commons/CardWrapper";
 import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "./AddToRegistry";
 import { TypeChip } from "./Commons";
+import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { RUNTIME_VERSION_440 } from "../../constants";
 
 const SourceURLContainer = styled.div({
     display: "flex", 
@@ -88,6 +90,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         text: ""
     });
     const [prevName, setPrevName] = useState<string | null>(null);
+    const [isRegistryContentVisible, setIsRegistryContentVisible] = useState(false);
 
     const schema = yup.object({
         name: yup.string().required("Local Entry Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Local Entry name")
@@ -165,6 +168,9 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
+            const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
+            const runtimeVersion = response.primaryDetails.runtimeVersion.value;
+            setIsRegistryContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0);
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
@@ -292,8 +298,9 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
+    const title = !props.path.endsWith(".xml") ? "Create New Local Entry" : "Edit Local Entry : "  + getValues("name");
     return (
-        <FormView title="Local Entry" onClose={handleOnClose}>
+        <FormView title={title} onClose={handleOnClose}>
             {type === "" ? <CardWrapper cardsType="LOCAL_ENTRY" setType={setLocalEntryType} /> :
                 <>
                     <TypeChip type={type} onClick={handleBackButtonClick} showButton={isNewTask} />
@@ -369,12 +376,12 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                     )}
                     {isNewTask && (
                         <>
-                            <FormCheckBox
+                            {isRegistryContentVisible && <FormCheckBox
                                 label="Save the local entry in registry"
                                 {...register("saveInReg")}
                                 control={control}
-                            />
-                            {watch("saveInReg") && (<>
+                            />}
+                            {isRegistryContentVisible && watch("saveInReg") && (<>
                                 <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
                             </>)}
                             <FormActions>

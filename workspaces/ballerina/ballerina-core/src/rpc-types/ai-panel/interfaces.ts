@@ -14,10 +14,20 @@ import { AIMachineStateValue } from "../../state-machine-types";
 export type ErrorCode = {
     code: number;
     message: string;
-};
+}
+
+export interface FetchDataRequest {
+    url: string;
+    options: RequestInit;
+}
+
+export interface FetchDataResponse {
+    response: Response
+}
 
 export interface ProjectSource {
     projectModules?: ProjectModule[];
+    projectTests?: SourceFile[];
     sourceFiles: SourceFile[];
 }
 
@@ -66,6 +76,7 @@ export interface DeleteFromProjectRequest {
 export interface GenerateMappingsRequest {
     position: NodePosition;
     filePath: string;
+    file?: AttachmentResult;
 }
 
 export interface GenerateMappingsResponse {
@@ -80,17 +91,50 @@ export interface NotifyAIMappingsRequest {
     filePath: string;
 }
 
-export interface GenerateTestRequest {
-    backendUri: string;
-    token: string;
-    serviceName: string;
-    existingSource?: GeneratedTestSource;
-    diagnostics?: ProjectDiagnostics;
+export interface ParameterMetadata {
+    inputs: object;
+    output: object;
+    inputMetadata: object;
+    outputMetadata: object;
+    mapping_fields?: object;
 }
 
-export interface GeneratedTestSource {
-    testContent: string;
-    configContent?: string;
+export interface RecordDefinitonObject {
+    recordFields: object;
+    recordFieldsMetadata: object;
+}
+
+export interface MappingFileRecord {
+    mapping_fields: object;
+}
+
+export interface ParameterDefinitions {
+    parameterMetadata: ParameterMetadata,
+    errorStatus: boolean
+}
+
+// Test-generator related interfaces
+export enum TestGenerationTarget {
+    Service = "service",
+    Function = "function"
+}
+
+export interface TestGenerationRequest {
+    backendUri: string;
+    targetType: TestGenerationTarget;
+    targetIdentifier: string;
+    testPlan?: string;
+    diagnostics?: ProjectDiagnostics;
+    existingTests?: string;
+}
+
+export interface TestGenerationResponse {
+    testSource: string;
+    testConfig?: string;
+}
+
+export interface TestGenerationMentions {
+    mentions: string[];
 }
 
 export interface DataMappingRecord {
@@ -99,16 +143,41 @@ export interface DataMappingRecord {
     filePath: string;
 }
 
-export interface GenerteMappingsFromRecordRequest {
+export interface GenerateMappingsFromRecordRequest {
     backendUri: string;
     token: string;
     inputRecordTypes: DataMappingRecord[];
     outputRecordType: DataMappingRecord;
     functionName: string;
+    imports: { moduleName: string; alias?: string }[];
+    inputNames?: string[];
+    attachment?: AttachmentResult[]
+}
+
+export interface GenerateTypesFromRecordRequest {
+    backendUri: string;
+    token: string;
+    attachment?: AttachmentResult[]
+}
+
+export interface AttachmentResult {
+    name: string;
+    content?: string;
+    status: AttachmentStatus;
+}
+
+export enum AttachmentStatus {
+    Success = "Success",
+    FileSizeError = "FileSizeError",
+    FileFormatError = "FileFormatError",
+    Unknown = "Unknown"
 }
 
 export interface GenerateMappingFromRecordResponse {
     mappingCode: string;
+}
+export interface GenerateTypesFromRecordResponse {
+    typesCode: string;
 }
 export interface MappingParameters{
     inputRecord: string[];
@@ -124,4 +193,29 @@ export interface PostProcessRequest {
 export interface PostProcessResponse {
     assistant_response: string;
     diagnostics: ProjectDiagnostics;
+}
+
+export interface AIChatSummary {
+    filepath: string;
+    summary: string;
+}
+
+export interface DeveloperDocument {
+    filepath: string;
+    content: string;
+}
+
+export interface RequirementSpecification {
+    filepath: string;
+    content: string;
+}
+
+export interface DocAssistantResponse {
+    content: string;
+    references: string[];
+}
+
+export interface LLMDiagnostics {
+    statusCode: number;
+    diags: string;
 }

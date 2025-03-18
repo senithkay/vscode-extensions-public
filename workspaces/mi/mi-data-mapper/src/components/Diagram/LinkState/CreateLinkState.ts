@@ -18,9 +18,10 @@ import { IntermediatePortModel } from '../Port/IntermediatePort';
 import { isInputNode, isLinkModel, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
-import { getMappingType, isConnectingArrays } from '../utils/common-utils';
+import { getMappingType, isPendingMappingRequired } from '../utils/common-utils';
 import { DataMapperLinkModel } from '../Link/DataMapperLink';
 import { removePendingMappingTempLinkIfExists } from '../utils/link-utils';
+import { DataMapperNodeModel } from '../Node/commons/DataMapperNode';
 /**
  * This state is controlling the creation of a link.
  */
@@ -50,7 +51,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 						this.clearState();
 					} else if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
-							const targetElement = event.target as Element;
+							const targetElement = actionEvent.event.target as Element;
 							const recordFieldElement = targetElement.closest('div[id^="recordfield"]');
 							const isNotFieldAction = targetElement.closest('[data-field-action]') == null;
 							if (recordFieldElement && isNotFieldAction) {
@@ -63,10 +64,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 						}
 
 						if (isInputNode(element)) {
-							const isGoToSubMappingBtn = (actionEvent.event.target as Element)
-								.closest('div[id^="go-to-sub-mapping-btn"]');
-							if (isGoToSubMappingBtn) return;
-							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]');
+							const targetElement = actionEvent.event.target as Element;
+							const isFieldAction = targetElement.closest('[data-field-action]');
+							if (isFieldAction) return;
+							const recordFieldElement = targetElement.closest('div[id^="recordfield"]');
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".OUT";
 								const portModel = (element as any).getPort(fieldId) as InputOutputPortModel;
@@ -103,7 +104,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								link.addLabel(new ExpressionLabelModel({
 									link: link as DataMapperLinkModel,
 									value: undefined,
-									context: undefined
+									context: (element.getNode() as DataMapperNodeModel).context
 								}));
 								this.link = link;
 							} else {
@@ -133,7 +134,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 										this.link?.setTargetPort(element);
 
 										const connectingMappingType = getMappingType(this.sourcePort, element);
-										if (isConnectingArrays(connectingMappingType)) {
+										if (isPendingMappingRequired(connectingMappingType)) {
 											const label = this.link.getLabels()
 												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
 											label.setPendingMappingType(connectingMappingType);

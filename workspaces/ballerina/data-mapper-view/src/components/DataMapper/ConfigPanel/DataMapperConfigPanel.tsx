@@ -54,11 +54,6 @@ export interface DataMapperConfigPanelProps {
     filePath: string;
     inputs: DataMapperInputParam[];
     output: DataMapperOutputParam;
-    currentFile?: {
-        content: string,
-        path: string,
-        size: number
-    };
     ballerinaVersion: string;
     onSave: (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => void;
     onClose: () => void;
@@ -77,7 +72,6 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         filePath,
         inputs,
         output,
-        currentFile,
         ballerinaVersion,
         onSave,
         onClose,
@@ -386,6 +380,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         // only show confirm popover if something has changed and if its the edit flow
         if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
             const outputChanged =
+                output.type &&
                 outputType.type !== output?.type ||
                 outputType?.isArray !== output?.isArray;
             const inputsChanged = !inputs?.every((item) =>
@@ -504,6 +499,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                 onConfirm={handleOnConfirm}
                                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                sx={{zIndex: 2000}}
                             />
                         </>
                     )}

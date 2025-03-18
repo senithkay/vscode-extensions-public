@@ -36,10 +36,10 @@ enum EXEC_ARG {
     TESTS = '--tests'
 }
 
-export const INTERNAL_DEBUG_COMMAND = "kolab.internal.debug";
+export const INTERNAL_DEBUG_COMMAND = "ballerina.internal.debug";
 
-const SOURCE_DEBUG_COMMAND = "kolab.source.debug";
-const TEST_DEBUG_COMMAND = "kolab.test.debug";
+const SOURCE_DEBUG_COMMAND = "ballerina.source.debug";
+const TEST_DEBUG_COMMAND = "ballerina.test.debug";
 const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 export class ExecutorCodeLensProvider implements CodeLensProvider {
@@ -162,9 +162,11 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 }
 
-async function startDebugging(uri: Uri, testDebug: boolean)
-    : Promise<boolean> {
+export async function startDebugging(uri: Uri, testDebug: boolean = false, suggestTryit: boolean = false, noDebugMode: boolean = false): Promise<boolean> {
     const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
     const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug);
+    debugConfig.suggestTryit = suggestTryit;
+    debugConfig.noDebug = noDebugMode;
+
     return debug.startDebugging(workspaceFolder, debugConfig);
 }

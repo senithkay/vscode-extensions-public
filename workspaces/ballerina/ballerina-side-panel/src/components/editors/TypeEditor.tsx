@@ -7,28 +7,28 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Codicon,
     ErrorBanner,
-    ExpressionBar,
-    ExpressionBarRef,
+    FormExpressionEditor,
+    FormExpressionEditorRef,
+    HelperPaneHeight,
     RequiredFormInput,
-    ThemeColors,
     Typography
 } from "@wso2-enterprise/ui-toolkit";
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
-import { TIcon } from "@wso2-enterprise/ballerina-core";
-import {S} from "../editors/ExpressionEditor";
+import { S } from "./ExpressionEditor";
 import { sanitizeType } from "./utils";
+import { debounce } from "lodash";
 
 interface TypeEditorProps {
     field: FormField;
     openRecordEditor: (open: boolean) => void;
     handleOnFieldFocus?: (key: string) => void;
+    handleOnTypeChange?: () => void;
     autoFocus?: boolean;
 }
 
@@ -41,41 +41,40 @@ const getDefaultCompletion = () => (
     </S.TitleContainer>
 );
 
-const getExpressionBarIcon = () => <TIcon sx={{ stroke: ThemeColors.PRIMARY }} />;
-
 export function TypeEditor(props: TypeEditorProps) {
-    const { field, openRecordEditor, handleOnFieldFocus, autoFocus } = props;
+    const { field, openRecordEditor, handleOnFieldFocus, handleOnTypeChange, autoFocus } = props;
     const { form, expressionEditor } = useFormContext();
     const { control } = form;
     const {
-        completions,
+        types,
+        helperPaneOrigin: typeHelperOrigin,
+        helperPaneHeight: typeHelperHeight,
         retrieveVisibleTypes,
+        getTypeHelper,
         onFocus,
         onBlur,
-        onCompletionSelect,
+        onCompletionItemSelect,
         onSave,
         onCancel,
     } = expressionEditor;
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
+    const typeBrowserRef = useRef<HTMLDivElement>(null);
+
     const cursorPositionRef = useRef<number | undefined>(undefined);
     const [showDefaultCompletion, setShowDefaultCompletion] = useState<boolean>(false);
     const [focused, setFocused] = useState<boolean>(false);
 
-    // Use to disable the expression editor on save and completion selection
-    const useTransaction = (fn: (...args: any[]) => Promise<any>) => {
-        return useMutation({
-            mutationFn: fn,
-            networkMode: 'always',
-        });
-    };
+    const [isTypeHelperOpen, setIsTypeHelperOpen] = useState<boolean>(false);
 
     const handleFocus = async (value: string) => {
         setFocused(true);
         // Trigger actions on focus
         await onFocus?.();
-        await retrieveVisibleTypes(value, value.length);
-        setShowDefaultCompletion(true);
+        await retrieveVisibleTypes(value, value.length, field.valueTypeConstraint as string);
+        if (openRecordEditor) {
+            setShowDefaultCompletion(true);
+        }
         handleOnFieldFocus?.(field.key);
     };
 
@@ -90,7 +89,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCompletionSelect = async (value: string) => {
         // Trigger actions on completion select
-        await onCompletionSelect?.(value);
+        await onCompletionItemSelect?.(value);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -100,6 +99,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCancel = () => {
         onCancel?.();
+        handleChangeTypeHelperState(false);
         setShowDefaultCompletion(false);
     }
 
@@ -107,6 +107,58 @@ export function TypeEditor(props: TypeEditorProps) {
         openRecordEditor(true);
         handleCancel();
     }
+
+    const handleTypeEdit = (value: string) => {
+        handleOnTypeChange && handleOnTypeChange();
+    };
+
+    const debouncedTypeEdit = debounce(handleTypeEdit, 300);
+
+    const handleChangeTypeHelperState = (isOpen: boolean) => {
+        setIsTypeHelperOpen(isOpen);
+    };
+
+    const handleGetTypeHelper = (
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        helperPaneHeight: HelperPaneHeight
+    ) => {
+        return getTypeHelper(
+            typeBrowserRef,
+            value,
+            cursorPositionRef.current,
+            isTypeHelperOpen,
+            onChange,
+            handleChangeTypeHelperState,
+            helperPaneHeight
+        );
+    }
+
+    /* Track cursor position */
+    const handleSelectionChange = () => {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+
+        if (exprRef.current?.parentElement.contains(range.startContainer)) {
+            cursorPositionRef.current = exprRef.current?.inputElement?.selectionStart ?? 0;
+        }
+    }
+
+    useEffect(() => {
+        const typeField = exprRef.current;
+        if (!typeField) {
+            return;
+        }
+
+        document.addEventListener('selectionchange', handleSelectionChange);
+        return () => {
+            document.removeEventListener('selectionchange', handleSelectionChange);
+        }
+    }, [exprRef.current]);
 
     return (
         <S.Container>
@@ -118,44 +170,55 @@ export function TypeEditor(props: TypeEditorProps) {
                     </S.LabelContainer>
                     <S.Description>{field.documentation}</S.Description>
                 </S.Header>
-                {field.valueType && <S.Type isVisible={focused} title={field.valueType}>{sanitizeType(field.valueType)}</S.Type>}
+                {field.valueTypeConstraint && 
+                    <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>{sanitizeType(field.valueTypeConstraint as string)}</S.Type>}
             </S.HeaderContainer>
             <Controller
                 control={control}
                 name={field.key}
                 defaultValue={field.value}
-                rules={{ required: !field.optional && !field.placeholder }}
+                rules={{
+                    required: {
+                        value: !field.optional,
+                        message: `${field.label} is required`
+                    }
+                }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
-                        <ExpressionBar
+                        <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
+                            anchorRef={typeBrowserRef}
                             name={name}
-                            completions={completions}
-                            getExpressionBarIcon={getExpressionBarIcon}
+                            completions={types}
                             showDefaultCompletion={showDefaultCompletion}
                             getDefaultCompletion={getDefaultCompletion}
                             value={value}
                             onChange={async (value: string, updatedCursorPosition: number) => {
                                 onChange(value);
+                                debouncedTypeEdit(value);
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Retrieve visible types
-                                await retrieveVisibleTypes(value, updatedCursorPosition);
+                                await retrieveVisibleTypes(value, updatedCursorPosition, field.valueTypeConstraint as string);
                             }}
                             onCompletionSelect={handleCompletionSelect}
                             onDefaultCompletionSelect={handleDefaultCompletionSelect}
                             onFocus={() => handleFocus(value)}
+                            isHelperPaneOpen={isTypeHelperOpen}
+                            changeHelperPaneState={handleChangeTypeHelperState}
+                            getHelperPane={handleGetTypeHelper}
+                            helperPaneOrigin={typeHelperOrigin}
+                            helperPaneHeight={typeHelperHeight}
+                            expressionEditorIconName="bi-type"
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={handleCancel}
-                            useTransaction={useTransaction}
-                            shouldDisableOnSave={false}
                             placeholder={field.placeholder}
                             autoFocus={autoFocus}
                             sx={{ paddingInline: '0' }}
                         />
-                        {error && <ErrorBanner errorMsg={error.message.toString()} />}
+                        {error?.message && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>
                 )}
             />

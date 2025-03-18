@@ -25,6 +25,7 @@ export class InitVisitor implements BaseVisitor {
     private callerId: string;
     private participantIndex = 0;
     private lastParticipantIndex = 0;
+    private otherParticipantIndex = 0;
     private activeParticipant: Participant | undefined;
 
     constructor(flow: Flow, callerId?: string, participantIndex = 1) {
@@ -33,6 +34,7 @@ export class InitVisitor implements BaseVisitor {
         this.callerId = callerId;
         this.participantIndex = participantIndex;
         this.lastParticipantIndex = participantIndex;
+        this.otherParticipantIndex = flow.participants?.length ?? 0;
     }
 
     getLatestParticipantIndex(): number {
@@ -44,6 +46,18 @@ export class InitVisitor implements BaseVisitor {
             participant.viewState = getInitialParticipantViewState(this.participantIndex);
         }
         this.activeParticipant = participant;
+    }
+
+    endVisitParticipant(participant: Participant): void {
+        // flow.others list as participants in the diagram
+        if (this.flow.others) {
+            this.flow.others.forEach((participant: Participant) => {
+                if (!participant.viewState) {
+                    this.otherParticipantIndex++;
+                    participant.viewState = getInitialParticipantViewState(this.otherParticipantIndex);
+                }
+            });
+        }
     }
 
     beginVisitNode(node: Node, parent?: DiagramElement): void {
@@ -65,6 +79,9 @@ export class InitVisitor implements BaseVisitor {
             ) as Participant;
             const nodeId = getNodeId(node);
             let nextParticipantIndex = this.lastParticipantIndex;
+            if (!targetParticipant) {
+                return;
+            }
             if (!targetParticipant.viewState?.xIndex) {
                 // update participant index only if it is not already set
                 nextParticipantIndex = this.lastParticipantIndex + 1;
@@ -90,6 +107,11 @@ export class InitVisitor implements BaseVisitor {
             node.viewStates = [];
         }
 
+        // if node is empty then don't add view state
+        if (node.branches?.length === 0 || node.branches?.every((branch) => branch.children?.length === 0)) {
+            return;
+        }
+
         const nodeId = getNodeId(node);
         const nodeViewState = getInitialIfNodeViewState(nodeId);
         node.viewStates.push(nodeViewState);
@@ -100,6 +122,11 @@ export class InitVisitor implements BaseVisitor {
             node.viewStates = [];
         }
 
+        // if branch is empty then don't add view state
+        if (node.children?.length === 0) {
+            return;
+        }
+
         const nodeId = getBranchId(node, parent);
         const nodeViewState = getInitialIfNodeViewState(nodeId);
         node.viewStates.push(nodeViewState);
@@ -107,6 +134,10 @@ export class InitVisitor implements BaseVisitor {
 
     beginVisitIf(node: Node, parent?: DiagramElement): void {
         logger(`Init visitor: beginVisitIf ${getNodeId(node)}`, ConsoleColor.GREEN, { node });
+        if (!node.viewStates || node.viewStates.length === 0) {
+            console.warn(">> View state not found for if block", node);
+            return;
+        }
         this.initIfBlock(node);
     }
 

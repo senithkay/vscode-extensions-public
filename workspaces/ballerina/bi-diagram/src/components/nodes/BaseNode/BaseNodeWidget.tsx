@@ -11,27 +11,28 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import {
-    Colors,
     DRAFT_NODE_BORDER_WIDTH,
     NODE_BORDER_WIDTH,
     NODE_HEIGHT,
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { ELineRange, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { nodeHasError } from "../../../utils/node";
+import { getNodeTitle, nodeHasError } from "../../../utils/node";
+import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
         disabled: boolean;
         hovered: boolean;
         hasError: boolean;
+        isActiveBreakpoint?: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
@@ -41,13 +42,14 @@ export namespace NodeStyles {
         width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
-        background-color: ${Colors.SURFACE_DIM};
-        color: ${Colors.ON_SURFACE};
+        background-color: ${(props: NodeStyleProp) =>
+            props?.isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM};
+        color: ${ThemeColors.ON_SURFACE};
         opacity: ${(props: NodeStyleProp) => (props.disabled ? 0.7 : 1)};
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
         border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
         border-color: ${(props: NodeStyleProp) =>
-            props.hasError ? Colors.ERROR : props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            props.hasError ? ThemeColors.ERROR : props.hovered && !props.disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT};
         border-radius: 10px;
         cursor: pointer;
     `;
@@ -78,7 +80,7 @@ export namespace NodeStyles {
         font-size: 20px;
         width: 20px;
         height: 20px;
-        color: ${Colors.ERROR};
+        color: ${ThemeColors.ERROR};
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -96,7 +98,7 @@ export namespace NodeStyles {
     export const Icon = styled.div`
         padding: 4px;
         svg {
-            fill: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
         }
     `;
 
@@ -116,7 +118,7 @@ export namespace NodeStyles {
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
-        color: ${Colors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         opacity: 0.7;
         white-space: normal;
         font-size: 12px;
@@ -153,16 +155,19 @@ export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
+    const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode, removeBreakpoint, addBreakpoint, readOnly } =
+        useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
+    const hasBreakpoint = model.hasBreakpoint();
+    const isActiveBreakpoint = model.isActiveBreakpoint();
 
     const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
             // Handle action when cmd key is pressed
-            if (model.node.codedata.node === "DATA_MAPPER") {
+            if (model.node.codedata.node === "DATA_MAPPER_DEFINITION") {
                 openDataMapper();
             } else if (model.node.codedata.node === "FUNCTION_CALL") {
                 viewFunction();
@@ -187,6 +192,16 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
 
     const deleteNode = () => {
         onDeleteNode && onDeleteNode(model.node);
+        setMenuAnchorEl(null);
+    };
+
+    const onAddBreakpoint = () => {
+        addBreakpoint && addBreakpoint(model.node);
+        setMenuAnchorEl(null);
+    };
+
+    const onRemoveBreakpoint = () => {
+        removeBreakpoint && removeBreakpoint(model.node);
         setMenuAnchorEl(null);
     };
 
@@ -236,7 +251,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
-    if (model.node.codedata.node === "DATA_MAPPER") {
+    if (model.node.codedata.node === "DATA_MAPPER_DEFINITION") {
         menuItems.splice(1, 0, {
             id: "openDataMapper",
             label: "View",
@@ -256,11 +271,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         });
     }
 
-    // show module name in the title if org is ballerina
-    const nodeTitle =
-        model.node.codedata?.org === "ballerina"
-            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
-            : model.node.metadata.label;
+    const nodeTitle = getNodeTitle(model.node);
 
     const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
 
@@ -284,13 +295,26 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             hovered={isHovered}
             disabled={model.node.suggested}
             hasError={hasError}
+            isActiveBreakpoint={isActiveBreakpoint}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
+            {hasBreakpoint && (
+                <div
+                    style={{
+                        position: "absolute",
+                        left: -5,
+                        width: 15,
+                        height: 15,
+                        borderRadius: "50%",
+                        backgroundColor: "red",
+                    }}
+                />
+            )}
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Icon onClick={handleOnClick}>
-                    <NodeIcon type={model.node.codedata.node} />
+                    <NodeIcon type={model.node.codedata.node} size={24} />
                     {/* {model.node.properties.variable?.value && (
                         <NodeStyles.Description>{model.node.properties.variable.value}</NodeStyles.Description>
                     )} */}
@@ -302,9 +326,11 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                     </NodeStyles.Header>
                     <NodeStyles.ActionButtonGroup>
                         {hasError && <DiagnosticsPopUp node={model.node} />}
-                        <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
-                            <MoreVertIcon />
-                        </NodeStyles.MenuButton>
+                        {!readOnly && (
+                            <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                                <MoreVertIcon />
+                            </NodeStyles.MenuButton>
+                        )}
                     </NodeStyles.ActionButtonGroup>
                 </NodeStyles.Row>
                 <Popover
@@ -317,9 +343,16 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                     }}
                 >
                     <Menu>
-                        {menuItems.map((item) => (
-                            <MenuItem key={item.id} item={item} />
-                        ))}
+                        <>
+                            {menuItems.map((item) => (
+                                <MenuItem key={item.id} item={item} />
+                            ))}
+                            <BreakpointMenu
+                                hasBreakpoint={hasBreakpoint}
+                                onAddBreakpoint={onAddBreakpoint}
+                                onRemoveBreakpoint={onRemoveBreakpoint}
+                            />
+                        </>
                     </Menu>
                 </Popover>
             </NodeStyles.Row>

@@ -82,7 +82,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const description = getNodeDescription(node.mediatorName, node.stNode);
+    const description = getNodeDescription(node.stNode);
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
 
@@ -151,7 +151,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                     )}
 
                     <S.Header showBorder={description !== undefined}>
-                        <Name>{FirstCharToUpperCase(node.stNode.tag)}</Name>
+                        <Name>{node.stNode.displayName || node.mediatorName}</Name>
                     </S.Header>
                     <S.Body>
                         <Tooltip content={description} position={'bottom'} >

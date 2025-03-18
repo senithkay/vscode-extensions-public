@@ -6,8 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
 
 export function validateJSON(fileContent: string) {
     JSON.parse(fileContent);
@@ -29,20 +27,6 @@ export function validateXML(fileContent: string) {
     const parsedDocument = parser.parseFromString(fileContent, "application/xml");
     const parserError = parsedDocument.getElementsByTagName("parsererror");
     if (parserError.length > 0) {
-        throw new Error();
-    }
-};
-
-export function validateJSONSchema(fileContent: string) {
-    const ajv = new Ajv();
-    addFormats(ajv);
-    try {
-        const schema = JSON.parse(fileContent);
-        const valid = ajv.validateSchema(schema);
-        if (!valid) {
-            throw new Error();
-        }
-    } catch (error) {
         throw new Error();
     }
 };

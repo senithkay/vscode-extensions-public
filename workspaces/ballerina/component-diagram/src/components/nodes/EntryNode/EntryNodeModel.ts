@@ -10,31 +10,42 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
-import { EntryPoint } from "../../../utils/types";
-import { getNodeId } from "../../../utils/diagram";
+import { EntryPoint, EntryPointType } from "../../../utils/types";
+import { CDFunction, CDResourceFunction, CDService } from "@wso2-enterprise/ballerina-core";
+import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
 
 export class EntryNodeModel extends NodeModel {
     readonly node: EntryPoint;
-    protected portIn: NodePortModel;
-    protected portOut: NodePortModel;
+    readonly type: EntryPointType;
+    protected inPort: NodePortModel;
+    protected outPorts: NodePortModel[];
 
-    constructor(node: EntryPoint) {
+    constructor(node: EntryPoint, type: EntryPointType) {
         super({
-            id: getNodeId(NodeTypes.ENTRY_NODE, node.id),
+            id: node.uuid,
             type: NodeTypes.ENTRY_NODE,
             locked: NODE_LOCKED,
         });
         this.node = node;
+        this.type = type || "service";
+
+        this.outPorts = [];
         this.addInPort("in");
         this.addOutPort("out");
+        (node as CDService).remoteFunctions?.forEach((func) => {
+            this.addOutPort(getEntryNodeFunctionPortName(func));
+        });
+        (node as CDService).resourceFunctions?.forEach((func) => {
+            this.addOutPort(getEntryNodeFunctionPortName(func));
+        });
     }
 
     addPort<T extends NodePortModel>(port: T): T {
         super.addPort(port);
         if (port.getOptions().in) {
-            this.portIn = port;
+            this.inPort = port;
         } else {
-            this.portOut = port;
+            this.outPorts.push(port);
         }
         return port;
     }
@@ -50,11 +61,19 @@ export class EntryNodeModel extends NodeModel {
     }
 
     getInPort(): NodePortModel {
-        return this.portIn;
+        return this.inPort;
     }
 
     getOutPort(): NodePortModel {
-        return this.portOut;
+        return this.outPorts.find((port) => port.getOptions().name === "out");
+    }
+
+    getOutPorts(): NodePortModel[] {
+        return this.outPorts;
+    }
+
+    getFunctionPort(func: CDFunction | CDResourceFunction): NodePortModel | undefined {
+        return this.outPorts.find((port) => port.getOptions().name === getEntryNodeFunctionPortName(func));
     }
 
     getHeight(): number {

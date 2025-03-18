@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { Block, InterfaceDeclaration, Node, PropertySignature } from "ts-morph";
 import classnames from "classnames";
@@ -29,6 +29,7 @@ import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
+import { DataMapperLinkModel } from "../../Link";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -76,7 +77,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const typeName = getTypeName(field.type);
     const typeKind = field.type.kind;
     const isArray = typeKind === TypeKind.Array;
-    const isInterface = typeKind === TypeKind.Interface;
+    const isInterface = typeKind === TypeKind.Interface || (typeKind === TypeKind.Union && field.type.resolvedUnionType?.kind === TypeKind.Interface);
 
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
@@ -97,9 +98,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         && propertyAssignment.getInitializer();
     const hasValue = initializer
         && !!initializer.getText()
-        && initializer.getText() !== getDefaultValue(field.type.kind)
+        && initializer.getText() !== getDefaultValue(field.type)
         && initializer.getText() !== "null";
-    const hasDefaultValue = initializer && initializer.getText() === getDefaultValue(field.type.kind);
+    const hasDefaultValue = initializer && initializer.getText() === getDefaultValue(field.type); 
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
@@ -112,9 +113,41 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            const defaultValue = getDefaultValue(field.type.kind);
+            const defaultValue = getDefaultValue(field.type);
             const fnBody = context.functionST.getBody() as Block;
             await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleInitUnionTypeValue = async (resolvedUnionType: DMType) => {
+        setIsLoading(true);
+        try {
+            let initValue = getDefaultValue(resolvedUnionType);
+            if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
+                initValue += ` as ${resolvedUnionType.typeName}`;
+            }
+            const fnBody = context.functionST.getBody() as Block;
+            await createSourceForUserInput(field, objectLiteralExpr, initValue, fnBody, context.applyModifications);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleInitUnionTypeArrayElement = async (resolvedUnionType: DMType) => {
+        setIsLoading(true);
+        try {
+            let initValue = getDefaultValue(resolvedUnionType);
+            if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
+                initValue += ` as ${resolvedUnionType.typeName}`;
+            }
+            let node = field.value;
+            if (Node.isAsExpression(node.getParent())) {
+                node = node.getParent();
+            }
+            node.replaceWithText(initValue);
+            await context.applyModifications(node.getSourceFile().getFullText());
         } finally {
             setIsLoading(false);
         }
@@ -152,11 +185,10 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleExpand = () => {
-        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
+            collapsedFieldsStore.expandField(fieldId, field.type.kind);
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+            collapsedFieldsStore.collapseField(fieldId, field.type.kind);
         }
     };
 
@@ -176,7 +208,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     if (!isDisabled) {
         if (portIn?.parentModel
-            && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)
+            && (Object.values(portIn.parentModel.links)
+            .filter(link => (link instanceof DataMapperLinkModel) && link.isActualLink).length > 0 
+            || portIn?.parentModel.ancestorHasValue)
         ) {
             portIn.ancestorHasValue = true;
             isDisabled = true;
@@ -196,8 +230,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         fieldName = elementName ? `${elementName}Item` : 'item';
     }
 
-    const label = !isArray && (
-        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
+    const label = (
+        <TruncatedLabel style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
@@ -248,12 +282,27 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     )}
                 </span>
             )}
-        </span>
+        </TruncatedLabel>
     );
 
-    const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue || hasDefaultValue
-        ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
-        : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
+    const initAsUnionTypeMenuItems: ValueConfigMenuItem[] =  field.type.unionTypes?.map((unionType)=>{
+        return {
+            title: `Initialize as ${unionType.typeName || unionType.kind}`,
+            onClick: () => handleInitUnionTypeValue(unionType)
+        }
+    });
+
+    const addOrEditValueMenuItems: ValueConfigMenuItem[] = hasValue || hasDefaultValue ?
+        [{
+            title: ValueConfigOption.EditValue,
+            onClick: handleEditValue
+        }] :
+        field.type.kind === TypeKind.Union ?
+            initAsUnionTypeMenuItems :
+            [{
+                title: ValueConfigOption.InitializeWithValue,
+                onClick: handleAddValue
+            }];
 
     const deleteValueMenuItem: ValueConfigMenuItem = {
         title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
@@ -276,12 +325,26 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const valConfigMenuItems = [
-        !isWithinArray && addOrEditValueMenuItem,
         (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
         !isWithinArray && modifyFieldOptionalityMenuItem,
         !isWithinArray && isInterface && makeChildFieldsOptionalMenuItem,
         !isWithinArray && isInterface && makeChildFieldsRequiredMenuItem
     ];
+
+    
+    if(isWithinArray){
+        if(field.type.kind === TypeKind.Union){
+            const initUnionTypeArrayElementMenuItems: ValueConfigMenuItem[] =  field.type.unionTypes?.map((unionType)=>{
+                return {
+                    title: `Initialize as ${unionType.typeName || unionType.kind}`,
+                    onClick: () => handleInitUnionTypeArrayElement(unionType)
+                }
+            });
+            valConfigMenuItems.unshift(...initUnionTypeArrayElementMenuItems);
+        }
+    } else {
+        valConfigMenuItems.unshift(...addOrEditValueMenuItems);
+    }
 
     return (
         <>
@@ -324,6 +387,14 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             </FieldActionWrapper>
                         )}
                         {label}
+                        {field.type.isRecursive && (
+                            <span
+                                className={classes.outputNodeValue}
+                                style={{ paddingInline: "3px" }}
+                                title="Recursive type. Initialize to access child fields.">
+                                ∞
+                            </span>
+                        )}
                     </span>
                     {(!isDisabled || hasValue) && (
                         <>

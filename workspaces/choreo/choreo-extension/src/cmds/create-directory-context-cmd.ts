@@ -11,11 +11,19 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmdirSync, unlinkSync
 import * as os from "os";
 import * as path from "path";
 import { dirname } from "path";
-import { CommandIds, type ContextItem, type Organization, type Project, type UserInfo } from "@wso2-enterprise/choreo-core";
+import {
+	CommandIds,
+	type ContextItem,
+	type Organization,
+	type Project,
+	type UserInfo,
+	getComponentKindRepoSource,
+	parseGitURL,
+} from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
-import { getGitRemotes, getGitRoot, parseGitURL } from "../git/util";
+import { getGitRemotes, getGitRoot } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
 import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
@@ -90,7 +98,7 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 					if (components.length > 0) {
 						// Check if user is trying to link with the correct Git directory
 						const hasMatchingRemote = components.some((componentItem) => {
-							const repoUrl = componentItem.spec.source.github?.repository || componentItem.spec.source.bitbucket?.repository;
+							const repoUrl = getComponentKindRepoSource(componentItem.spec.source).repo;
 							const parsedRepoUrl = parseGitURL(repoUrl);
 							if (parsedRepoUrl) {
 								const [repoOrg, repoName, repoProvider] = parsedRepoUrl;

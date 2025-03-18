@@ -12,11 +12,9 @@ import styled from "@emotion/styled";
 import { EVENT_TYPE, FlowNode, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectionConfigView from "../ConnectionConfigView";
-import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
-import { ExpressionFormField, FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { cloneDeep } from "lodash";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../../../resources/constants";
+import { getFormProperties } from "../../../../utils/bi";
+import { ExpressionFormField, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { InlineDataMapper } from "../../../InlineDataMapper";
 import { HelperView } from "../../HelperView";
 
@@ -42,7 +40,6 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
     const { fileName, connectionName, onClose } = props;
     const { rpcClient } = useRpcContext();
 
-    const [fields, setFields] = useState<FormField[]>([]);
     const [connection, setConnection] = useState<FlowNode>();
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [showSubPanel, setShowSubPanel] = useState(false);
@@ -63,32 +60,22 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 );
                 if (!connector) {
                     console.error(">>> Error finding connector", { connectionName });
+                    onClose?.();
                     return;
                 }
                 setConnection(connector);
                 const formProperties = getFormProperties(connector);
                 console.log(">>> Connector form properties", formProperties);
-                setFields(convertNodePropertiesToFormFields(formProperties));
             });
     }, [connectionName]);
 
-    const handleOnFormSubmit = async (data: FormValues) => {
-        console.log(">>> on form submit", data);
+    const handleOnFormSubmit = async (node: FlowNode) => {
+        console.log(">>> on form submit", node);
         if (connection) {
             setUpdatingContent(true);
-            let updatedNode: FlowNode = cloneDeep(connection);
-
-            if (connection.properties) {
-                // node properties
-                const updatedNodeProperties = updateNodeProperties(data, connection.properties);
-                updatedNode.properties = updatedNodeProperties;
-            } else {
-                console.error(">>> Error updating source code. No properties found");
-            }
-            console.log(">>> Updated node", updatedNode);
 
             if (fileName === "") {
-                console.error(">>> Error updating source code. No connections.bal file found");
+                console.error(">>> Error updating source code. No source file found");
                 setUpdatingContent(false);
                 return;
             }
@@ -97,14 +84,13 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 .getBIDiagramRpcClient()
                 .getSourceCode({
                     filePath: fileName,
-                    flowNode: updatedNode,
+                    flowNode: node,
                     isConnector: true,
                 })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
                     if (response.textEdits) {
                         // clear memory
-                        setFields([]);
                         if (onClose) {
                             onClose();
                         } else {
@@ -144,8 +130,9 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
             case SubPanelView.INLINE_DATA_MAPPER:
                 return (
                     <InlineDataMapper
-                        filePath={subPanel.props?.inlineDataMapper?.filePath}
-                        range={subPanel.props?.inlineDataMapper?.range}
+                        onClosePanel={handleSubPanel}
+                        updateFormField={updateExpressionField}
+                        {...subPanel.props?.inlineDataMapper}
                     />
                 );
             case SubPanelView.HELPER_PANEL:
@@ -172,7 +159,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
         <Container>
             {!connection && (
                 <SpinnerContainer>
-                    <ProgressRing color={Colors.PRIMARY} />
+                    <ProgressRing color={ThemeColors.PRIMARY} />
                 </SpinnerContainer>
             )}
             {connection && (
@@ -187,19 +174,16 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 >
                     {updatingContent ? (
                         <SpinnerContainer>
-                            <ProgressRing color={Colors.PRIMARY} />
+                            <ProgressRing color={ThemeColors.PRIMARY} />
                         </SpinnerContainer>
                     ) : (
                         <ConnectionConfigView
                             fileName={fileName}
-                            fields={fields}
                             selectedNode={connection}
                             onSubmit={handleOnFormSubmit}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                             openSubPanel={handleSubPanel}
-                            isActiveSubPanel={showSubPanel}
-
                         />
                     )}
                 </PanelContainer>

@@ -38,7 +38,7 @@ export function DataServiceTransportWizard(props: DataServiceTransportWizardProp
 
     return (
         <>
-            <span>Select the transports:</span>
+            <span>Select the Transports:</span>
             <CheckBoxContainer>
                 {transportTypes.map(transportType => (
                     <FormCheckBox

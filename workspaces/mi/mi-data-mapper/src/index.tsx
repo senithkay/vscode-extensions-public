@@ -12,8 +12,8 @@ import React, { useMemo, useState } from "react";
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DMType } from "@wso2-enterprise/mi-core";
-import { Project, SyntaxKind } from "ts-morph";
+import { DMType, IOTypeResponse } from "@wso2-enterprise/mi-core";
+import { Project, SyntaxKind, FunctionDeclaration } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
@@ -43,19 +43,40 @@ export interface DataMapperViewProps {
     filePath: string;
     fileContent: string;
     functionName: string;
-    inputTrees: DMType[];
-    outputTree: DMType;
+    dmIOTypes: IOTypeResponse;
     configName: string;
     updateFileContent: (fileContent: string) => Promise<void>;
 }
+
+// Function to check if input and output trees are non-empty and if the return statement is not empty (i.e. mappings exist)
+export function doesMappingExist(
+    fnST: FunctionDeclaration | undefined,
+    inputTrees: DMType[],
+    outputTree: DMType
+  ): boolean {
+    const hasNonEmptyIOTrees = inputTrees.every((tree) => hasFields(tree)) && hasFields(outputTree);
+    if (!hasNonEmptyIOTrees) {
+      // If input or output trees are empty, we cannot have mappings
+      return false;
+    }
+    // Check if the return statement is empty
+    const returnStatement = fnST?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
+    const isEmptyReturnStatement =
+      // If return type is an object
+      returnStatement?.getExpressionIfKind(SyntaxKind.ObjectLiteralExpression)?.getProperties().length === 0 ||
+      // If return type is an array
+      returnStatement?.getExpressionIfKind(SyntaxKind.ArrayLiteralExpression)?.getElements().length === 0;
+    // Mappings exist if the return statement is not empty
+    return !isEmptyReturnStatement;
+  }
+  
 
 export function DataMapperView(props: DataMapperViewProps) {
     const {
         filePath,
         fileContent,
         functionName,
-        inputTrees,
-        outputTree,
+        dmIOTypes,
         updateFileContent,
         configName
     } = props;
@@ -74,16 +95,7 @@ export function DataMapperView(props: DataMapperViewProps) {
         const sourceFile = project.createSourceFile(filePath, fileContent);
         const fnST = sourceFile.getFunction(functionName);
 
-        const hasNonEmptyIOTrees = inputTrees.every(tree => hasFields(tree)) && hasFields(outputTree);
-
-        // Check if the return statement is empty
-        const returnStatement = fnST?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
-        const isEmptyReturnStatement =
-            // If return type is an object
-            returnStatement?.getExpressionIfKind(SyntaxKind.ObjectLiteralExpression)?.getProperties().length === 0
-            // If return type is an array
-            || returnStatement?.getExpressionIfKind(SyntaxKind.ArrayLiteralExpression)?.getElements().length === 0;
-        if (hasNonEmptyIOTrees && isEmptyReturnStatement) {
+        if (!doesMappingExist(fnST, dmIOTypes.inputTrees, dmIOTypes.outputTree)) {
             rpcClient.getMiVisualizerRpcClient().retrieveContext({
                 key: "showDmLandingMessage",
                 contextType: "workspace"
@@ -120,8 +132,7 @@ export function DataMapperView(props: DataMapperViewProps) {
                 <Global styles={globalStyles} />
                 <MIDataMapper
                     fnST={functionST}
-                    inputTrees={inputTrees}
-                    outputTree={outputTree}
+                    dmIOTypes={dmIOTypes}
                     fileContent={fileContent}
                     applyModifications={applyModifications}
                     filePath={filePath}

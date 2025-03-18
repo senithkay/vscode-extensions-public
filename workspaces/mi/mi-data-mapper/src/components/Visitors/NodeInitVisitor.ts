@@ -185,8 +185,7 @@ export class NodeInitVisitor implements Visitor {
         // Create link connector node for expressions within return statements
         if (this.isWithinArrayFn === 0
             && this.isWithinVariableStmt === 0
-            && !Node.isObjectLiteralExpression(returnExpr)
-            && !Node.isArrayLiteralExpression(returnExpr)
+            && !isObjectOrArrayLiteralExpression(returnExpr)
         ) {
             const inputAccessNodes = getInputAccessNodes(returnExpr);
             if (canConnectWithLinkConnector(inputAccessNodes, returnExpr)) {

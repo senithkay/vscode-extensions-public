@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "API Designer Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_WATCH_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/api-designer/api-designer-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/api-designer/api-designer-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-api-designer"
+        },
+        {
             "name": "Ballerina & BI Extensions",
             "type": "extensionHost",
             "request": "launch",
@@ -83,6 +99,24 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/out/test/**/*.js"
             ]
+        },
+        {
+            "name": "WSO2 Platform Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_DEV_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
+                "CELL_VIEW_DEV_MODE": "true",
+                "CELL_VIEW_DEV_HOST": "http://localhost:3001/cellDiagram.js"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/wso2-platform/wso2-platform-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/wso2-platform/wso2-platform-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-wso2-platform"
         },
         {
             "name": "Choreo Extension",

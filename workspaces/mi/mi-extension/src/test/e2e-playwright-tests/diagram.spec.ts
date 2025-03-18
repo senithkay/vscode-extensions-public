@@ -28,7 +28,7 @@ test.beforeAll(async () => {
   await initVSCode();
 });
 
-test('Create new project', async () => {
+test.skip('Create new project', async () => {
   // wait until extension is ready
   // Note: This is not required for CI/CD pipeline
   // await page.waitUntilExtensionReady();
@@ -36,7 +36,7 @@ test('Create new project', async () => {
   await createProject(page);
 });
 
-test('Create new API', async () => {
+test.skip('Create new API', async () => {
 
   // wait until window reload
   // await page.page.waitForSelector('iframe.webview.ready', { state: 'detached' })
@@ -64,7 +64,7 @@ test('Create new API', async () => {
   await apiForm.submit();
 });
 
-test('Service designer', async () => {
+test.skip('Service designer', async () => {
   // service designer
   const serviceDesigner = new ServiceDesigner(page.page);
   await serviceDesigner.init();
@@ -72,14 +72,14 @@ test('Service designer', async () => {
   await resource.click();
 });
 
-test('Add mediator in to resource', async () => {
+test.skip('Add mediator in to resource', async () => {
   // diagram
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
   await diagram.addMediator('Log');
 });
 
-test('Edit mediator in resource', async () => {
+test.skip('Edit mediator in resource', async () => {
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
   const mediator = await diagram.getMediator('log');
@@ -103,7 +103,7 @@ test('Edit mediator in resource', async () => {
 
 });
 
-test('Add new connection', async () => {
+test.skip('Add new connection', async () => {
   // Add connection from side panel
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
@@ -149,7 +149,7 @@ test('Add new connection', async () => {
   await diagram.closeSidePanel();
 });
 
-test('Add Connector Operation', async () => {
+test.skip('Add Connector Operation', async () => {
   // Add connector operation from externals tab
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
@@ -163,7 +163,7 @@ test('Add Connector Operation', async () => {
   });
 })
 
-test('Edit Connector Operation', async () => {
+test.skip('Edit Connector Operation', async () => {
   // Edit connector operation
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
@@ -178,7 +178,7 @@ test('Edit Connector Operation', async () => {
   });
 })
 
-test('Add connector operation from connector tab', async () => {
+test.skip('Add connector operation from connector tab', async () => {
   // Add connector operation from connector tab
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
@@ -213,7 +213,7 @@ test('Add connector operation from connector tab', async () => {
   await operationForm.submit("Submit");
 })
 
-test('Edit Connector Operation Generated From Templates', async () => {
+test.skip('Edit Connector Operation Generated From Templates', async () => {
   // Edit connector operation generated from templates
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();

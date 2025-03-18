@@ -75,3 +75,31 @@ const ContextMenuPosition = () => {
 };
 
 storiesOf("Context Menu").add("Context Menu Position", () => <ContextMenuPosition />);
+
+const VericleSubMenu = () => {
+    return (
+        <ContextMenu 
+            iconSx={verticalIconStyles}
+            menuItems={[{
+                id: "",
+                label: <>Test Item 1</>,
+                onClick: () => {}, // Add this line
+                sunMenuItems: [{
+                    id: "",
+                    label: <>Sub Menu Item 1</>,
+                    onClick: () => {console.log("Sub Menu Item 1 Selected")}
+                }, {
+                    id: "",
+                    label: <>Sub Menu Item 2</>,
+                    onClick: () => {console.log("Sub Menu Item 2 Selected")}
+                }
+                ]
+            },
+            {id: "", label: <>Test Item 2</>, onClick: () => {console.log("Item Selected")}},
+            {id: "", label: <>Test Item 3</>, onClick: () => {console.log("Item Selected")}}
+            ]}
+        />
+    );
+};
+
+storiesOf("Context Menu").add("Verticle Sub Menu", () => <VericleSubMenu />);

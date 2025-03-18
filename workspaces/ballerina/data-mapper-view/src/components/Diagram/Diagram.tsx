@@ -12,7 +12,6 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useEffect, useRef, useState } from 'react';
 
-import { css } from '@emotion/css';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
 	DefaultDiagramState,
@@ -33,39 +32,20 @@ import { ErrorNodeKind } from "../DataMapper/Error/RenderingError";
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
-import * as Labels from "./Label";
-import * as Links from "./Link";
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
-import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { LinkConnectorNode } from './Node/LinkConnector';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
-import * as Ports from "./Port";
-import { useDiagramModel, useRepositionedNodes } from '../Hooks';
+import { useDiagramModel, useRepositionedNodes, useSearchScrollReset } from '../Hooks';
 import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
 import { ArrowLinkFactory } from './Link/ArrowLink';
-
-const classes = {
-	iconWrap: css({
-		marginBottom: 10,
-		background: "var(--vscode-input-background)",
-		height: 32,
-		width: 32,
-		borderRadius: 32,
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
-		cursor: 'pointer',
-		transitionDuration: '0.2s',
-		'&:hover': { opacity: 0.5 },
-	}),
-};
+import { useDMSearchStore } from '../../store/store';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -75,14 +55,6 @@ interface DataMapperDiagramProps {
 }
 
 function initDiagramEngine() {
-	// START TODO: clear this up
-	// this is a hack to load all modules for DI to work properly
-	const _NF = Nodes;
-	const _PF = Ports;
-	const _LF = Links;
-	const _LAF = Labels;
-	// END TODO
-
 	const diContext = container.resolve(DataMapperDIContext);
 
 	const engine = new DiagramEngine({
@@ -133,14 +105,22 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	const getScreenWidthRef = useRef(() => screenWidth);
+	const devicePixelRatioRef = useRef(window.devicePixelRatio);
 	const [, forceUpdate] = useState({});
+
+	const { inputSearch, outputSearch } = useDMSearchStore.getState();
 
 	const zoomLevel = calculateZoomLevel(screenWidth);
 
 	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
 	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel, screenWidth);
+	useSearchScrollReset(diagramModel);
 
 	engine.setModel(diagramModel);
+
+	useEffect(() => {
+		engine.getStateMachine().pushState(new LinkState(true));
+	}, [inputSearch, outputSearch]);
 
 	useEffect(() => {
 		getScreenWidthRef.current = () => screenWidth;
@@ -148,9 +128,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const handleResize = throttle(() => {
 		const newScreenWidth = window.innerWidth;
-		if (newScreenWidth !== getScreenWidthRef.current()) {
+		const newDevicePixelRatio = window.devicePixelRatio;
+
+		if (newDevicePixelRatio === devicePixelRatioRef.current && newScreenWidth !== getScreenWidthRef.current()) {
 			setScreenWidth(newScreenWidth);
 		}
+		devicePixelRatioRef.current = newDevicePixelRatio;
 	}, 100);
 
 	useEffect(() => {
@@ -168,16 +151,22 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
-			engine.getModel().getNodes().forEach((node) => {
-				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
-					node.initLinks();
-					const targetPortPosition = node.targetPort?.getPosition();
-					if (targetPortPosition) {
-						node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
-						forceUpdate({} as any);
-					}
+			const modelNodes = engine.getModel().getNodes();
+			const nodesToUpdate = modelNodes.filter(node => 
+				node instanceof LinkConnectorNode || node instanceof QueryExpressionNode
+			);
+
+			nodesToUpdate.forEach((node: LinkConnectorNode | QueryExpressionNode) => {
+				node.initLinks();
+				const targetPortPosition = node.targetPort?.getPosition();
+				if (targetPortPosition) {
+					node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
 				}
 			});
+	
+			if (nodesToUpdate.length > 0) {
+				forceUpdate({});
+			}
 		}
 	}, [diagramModel, isFetching, screenWidth]);
 

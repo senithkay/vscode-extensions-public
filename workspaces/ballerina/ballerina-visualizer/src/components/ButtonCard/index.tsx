@@ -8,36 +8,50 @@
  */
 
 import React from "react";
-import { Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { Colors } from "../../resources/constants";
+import { BetaSVG } from "../../views/Connectors/Marketplace/BetaSVG";
+
+const Card = styled.div<{ active?: boolean; appearance?: ButtonCardAppearance, disabled?: boolean }>`
+    gap: 16px;
+    max-width: 42rem;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid
+        ${(props: { active: boolean }) => (props.active ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+    background-color: ${(props: { active: boolean }) =>
+        props.active ? ThemeColors.PRIMARY_CONTAINER : ThemeColors.SURFACE_DIM};
+    cursor: ${(props: { disabled: boolean }) => (props.disabled ? 'not-allowed' : 'pointer')};;
+    &:hover {
+        background-color: ${ThemeColors.PRIMARY_CONTAINER};
+        border: 1px solid ${ThemeColors.PRIMARY};
+    };
+`;
 
 const CardContainer = styled.div<{ active?: boolean }>`
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 16px;
-    width: 100%;
-    padding: 16px;
-    border-radius: 4px;
-    border: 2px solid ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-    background-color: ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY_CONTAINER : Colors.SURFACE_DIM)};
-    cursor: pointer;
-    &:hover {
-        background-color: ${Colors.PRIMARY_CONTAINER};
-        border: 2px solid ${Colors.PRIMARY};
-    }
+    gap: 12px;
+    align-items: center;
 `;
 
 const Text = styled.p`
-    font-size: 14px;
-    color: ${Colors.ON_SURFACE};
+    font-size: 13px;
+    color: ${ThemeColors.ON_SURFACE};
     margin: 0;
 `;
 
-const Title = styled(Text)`
+interface TextProps {
+    truncate?: boolean;
+}
+
+const Title = styled(Text)<TextProps>`
     font-weight: bold;
+    white-space: ${(props: TextProps) => (props.truncate ? "nowrap" : "normal")};
+    overflow: ${(props: TextProps) => (props.truncate ? "hidden" : "visible")};
+    text-overflow: ${(props: TextProps) => (props.truncate ? "ellipsis" : "clip")};
+    display: flex;
+    align-items: center;
+    gap: 8px;
 `;
 
 const Caption = styled(Text)`
@@ -46,49 +60,93 @@ const Caption = styled(Text)`
     opacity: 0.6;
 `;
 
-const Description = styled(Text)`
+const Description = styled(Text)<TextProps>`
     opacity: 0.8;
     margin-top: 4px;
+    overflow: hidden;
+    display: ${(props: TextProps) => (props.truncate ? "block" : "-webkit-box")};
+    white-space: ${(props: TextProps) => (props.truncate ? "nowrap" : "normal")};
+    text-overflow: ${(props: TextProps) => (props.truncate ? "ellipsis" : "clip")};
+    ${(props: TextProps) =>
+        !props.truncate &&
+        `
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+    `}
 `;
 
 const ContentContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 4px;
+    flex: 1;
+    overflow: hidden;
 `;
 
 const IconContainer = styled.div`
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    max-width: 24px;
+    > div:first-child {
+        width: 24px;
+        height: 24px;
+        font-size: 24px;
+    }
 `;
 
-const ActionButton = styled(LinkButton)`
-    padding: 8px 4px;
-`;
+export type ButtonCardAppearance = "large" | "small";
 
 export interface ButtonCardProps {
     title: string;
     caption?: string;
-    description: string;
+    description?: string;
     icon?: React.ReactNode;
     active?: boolean;
+    appearance?: ButtonCardAppearance;
+    truncate?: boolean;
     onClick: () => void;
+    disabled?: boolean;
+    tooltip?: string;
 }
 
 export function ButtonCard(props: ButtonCardProps) {
-    const { title, caption, description, icon, active, onClick } = props;
+    const {
+        title,
+        caption,
+        description,
+        icon,
+        active,
+        appearance = "large",
+        truncate: explicitTruncate,
+        onClick,
+        disabled,
+        tooltip
+    } = props;
+
+    // Apply truncation by default for small appearance if not explicitly set
+    const truncate = explicitTruncate !== undefined ? explicitTruncate : appearance === "small";
+
     return (
-        <CardContainer onClick={onClick} active={active ?? false}>
-            {icon && <IconContainer>{icon}</IconContainer>}
-            <ContentContainer>
-                {caption && <Caption>{caption}</Caption>}
-                <Title>{title}</Title>
-                <Description>{description}</Description>
-            </ContentContainer>
-        </CardContainer>
+        <Tooltip content={tooltip}>
+            <Card
+                onClick={disabled ? undefined : onClick}
+                active={active ?? false}
+                appearance={appearance}
+                disabled={disabled}
+            >
+                <CardContainer>
+                    {icon && <IconContainer>{icon}</IconContainer>}
+                    <ContentContainer>
+                        {caption && <Caption>{caption}</Caption>}
+                        <Title
+                            truncate={truncate}
+                        >
+                            {title}
+                        </Title>
+                        {description && <Description truncate={truncate}>{description}</Description>}
+                    </ContentContainer>
+                </CardContainer>
+            </Card>
+        </Tooltip>
     );
 }
 

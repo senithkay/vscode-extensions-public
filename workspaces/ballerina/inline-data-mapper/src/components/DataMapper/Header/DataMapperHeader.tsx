@@ -9,14 +9,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 import styled from "@emotion/styled";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 import HeaderSearchBox from "./HeaderSearchBox";
 
 export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
-    onClose?: () => void;
+    onClose: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
@@ -24,62 +23,47 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 
     return (
         <HeaderContainer>
-            <HeaderContent>
-                <BreadCrumb>
-                    <Title> DATA MAPPER </Title>
-                </BreadCrumb>
-                {!hasEditDisabled && !onClose && (
-                    <>
-                        <IOFilterBar>
-                            <HeaderSearchBox />
-                        </IOFilterBar>
-                    </>
+            <Title>Data Mapper</Title>
+            <RightSection>
+                {!hasEditDisabled && (
+                    <IOFilterBar>
+                        <HeaderSearchBox />
+                    </IOFilterBar>
                 )}
-                {onClose && (
-                    <VSCodeButton 
-                        appearance="icon"
-                        onClick={onClose}
-                        style={{ marginLeft: "15px" }}
-                    >
-                        <Codicon name="chrome-close" />
-                    </VSCodeButton>
-                )}
-            </HeaderContent>
+                <Button appearance="icon" onClick={onClose}>
+                    <Codicon name="close" />
+                </Button>
+            </RightSection>
         </HeaderContainer>
     );
 }
 
 const HeaderContainer = styled.div`
-    height: 72px;
+    height: 56px;
     width: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 12px;
     background-color: var(--vscode-editorWidget-background);
 `;
 
-const HeaderContent = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 15px;
-`;
-
 const Title = styled.h3`
-    width: 18%;
-    margin: 0 10px 0 0;
-    color: var(--vscode-sideBarSectionHeader-foreground);
+    margin: 0;
+    color: var(--vscode-foreground);
     font-size: var(--vscode-font-size);
 `;
 
-const BreadCrumb = styled.div`
-    width: 70%;
+const RightSection = styled.div`
     display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
 `;
 
 const IOFilterBar = styled.div`
-    flex: 3;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    margin-bottom: 3px;
+    max-width: 300px;
+    min-width: 200px;
 `;

@@ -11,10 +11,6 @@ import styled from '@emotion/styled';
 import React, { forwardRef, ReactNode } from 'react';
 import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
-import { Button } from '../Button/Button';
-import { ThemeColors } from '../../styles';
-import { Icon } from '../Icon/Icon';
-import { Codicon } from '../Codicon/Codicon';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -70,6 +66,7 @@ export type CompletionItem = {
     args?: string[];
     replacementSpan?: number;
     sortText?: string;
+    cursorOffset?: number;
 };
 
 export type ExpressionBarBaseProps = {
@@ -86,9 +83,7 @@ export type ExpressionBarBaseProps = {
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
     onClose?: () => void;
-    onRemove?: () => void;
-    useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
-    shouldDisableOnSave?: boolean;
+    useTransaction?: (fn: (...args: any[]) => Promise<any>) => any;
 
     // Completion item props
     // - The list of completions to be displayed
@@ -97,12 +92,16 @@ export type ExpressionBarBaseProps = {
     getExpressionBarIcon?: () => ReactNode;
     // - Should display the default completion item at the top of the completion list
     showDefaultCompletion?: boolean;
+    // - Should auto select the first completion item in the list
+    autoSelectFirstItem?: boolean;
     // - Get default completion item to be displayed at the top of the completion list
     getDefaultCompletion?: () => ReactNode;
     // - The function to be called when a completion is selected
     onCompletionSelect?: (value: string) => void | Promise<void>;
     // - The function to be called when the default completion is selected
     onDefaultCompletionSelect?: () => void | Promise<void>;
+    // - The function to be called when a manual completion request is made (when ctrl+space pressed)
+    onManualCompletionRequest?: () => void | Promise<void>;
 
     // Function signature props
     // - Returns information about the function that is currently being edited
@@ -114,7 +113,7 @@ export type ExpressionBarBaseProps = {
         args: string[];
         currentArgIndex: number;
     }>;
-    handleHelperPaneOpen?: () => void;
+    actionButtons?: ReactNode[];
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
@@ -128,7 +127,6 @@ export type ExpressionBarRef = {
     focus: () => void;
     blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
     saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
-    setCursor: (position: number) => void; // Sets the cursor position in the expression editor
 };
 
 // Styled Components
@@ -138,7 +136,7 @@ namespace Ex {
         display: flex;
         color: var(--vscode-foreground);
         align-items: center;
-        min-height: 32px;
+        min-height: 28px;
         gap: 8px;
         box-sizing: border-box;
 
@@ -151,30 +149,26 @@ namespace Ex {
         display: flex;
         flex: 1 1 auto;
     `;
+
+    export const InlineDMButtonText = styled.p`
+        font-size: 10px;
+        margin: 0;
+    `;
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, handleHelperPaneOpen, getExpressionBarIcon, onRemove, ...rest } = props;
+    const { id, actionButtons, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
-            {(handleHelperPaneOpen || getExpressionBarIcon) && (
-                <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
-                    {getExpressionBarIcon ? (
-                        getExpressionBarIcon()
-                    ) : (
-                        <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
-                    )}
-                </Button>
-            )}
-            {onRemove && (
-                <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
-                    <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
-                </Button>
-            )}
+            {actionButtons?.map((button, index) => (
+                <React.Fragment key={index}>
+                    {button}
+                </React.Fragment>
+            ))}
         </Ex.Container>
     );
 });

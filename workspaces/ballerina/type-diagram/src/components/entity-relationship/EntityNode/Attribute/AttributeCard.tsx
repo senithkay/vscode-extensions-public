@@ -9,29 +9,29 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-core';
+import { Member, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
 import { CtrlClickGo2Source, DiagramContext } from '../../../common';
-import { extractAttributeType } from '../entity-utils';
+import { getAttributeType } from '../../../../utils/utils';
 
 interface AttributeProps {
     node: EntityModel;
     engine: DiagramEngine;
-    attribute: Attribute;
+    attribute: Member | TypeFunctionModel;
     isSelected: boolean;
 }
 
 export function AttributeWidget(props: AttributeProps) {
     const { node, engine, attribute, isSelected } = props;
-    const { setFocusedNodeId } = useContext(DiagramContext);
+    const { setSelectedNodeId } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const attributePorts = useRef<PortModel[]>([]);
 
-    let attributeType: string = extractAttributeType(attribute.type);
+    let attributeType: string = getAttributeType(attribute);// TODO: FIX for anynnymous records
 
     useEffect(() => {
         attributePorts.current.push(node.getPortFromID(`left-${node.getID()}/${attribute.name}`));
@@ -44,12 +44,13 @@ export function AttributeWidget(props: AttributeProps) {
     }
 
     const onClickOnType = () => {
-        setFocusedNodeId(attribute?.associations[0]?.associate); 
-        // TODO: We are adding composition diagram, we need to check if its Type
+        if (attribute?.refs[0]) {
+            setSelectedNodeId(attribute.refs[0]);
+        }
     }
 
     return (
-        <CtrlClickGo2Source location={attribute.sourceLocation}>
+        <CtrlClickGo2Source node={node.entityObject}>
             <AttributeContainer
                 isSelected={isSelected || isHovered}
                 onMouseOver={() => handleOnHover('SELECT')}
@@ -59,17 +60,19 @@ export function AttributeWidget(props: AttributeProps) {
                     port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
                     engine={engine}
                 />
-                    <AttributeName>{attribute.name}</AttributeName>
+                <AttributeName>{attribute.name}</AttributeName>
+                {node.entityObject?.codedata?.node !== 'UNION' &&
                     <AttributeType
-                        isAnonymous={node.entityObject.isAnonymous}
+                        isAnonymous={false}
                         isSelected={isSelected || isHovered}
                         onClick={onClickOnType}
                     >
                         {attributeType}
                     </AttributeType>
-                    {/* {isHovered && attribute.sourceLocation && editingEnabled &&
+                }
+                {/* {isHovered && attribute.sourceLocation && editingEnabled &&
                         <NodeMenuWidget
-                            background={Colors.SECONDARY}
+                            background={ThemeColors.SECONDARY}
                             location={attribute.sourceLocation}
                         />
                     } */}

@@ -83,6 +83,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                 <span className={classes.label}>
                 {isRecord && hasFields && (
                     <Button
+                        id={"expand-or-collapse-" + id}
                         appearance="icon"
                         tooltip="Expand/Collapse"
                         onClick={handleExpand}

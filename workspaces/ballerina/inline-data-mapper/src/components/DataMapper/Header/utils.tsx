@@ -43,14 +43,6 @@ export function getInputOutputSearchTerms(searchTerm: string): [SearchTerm, Sear
     ];
 }
 
-export function isFocusedOnMapFunction(views: View[]): boolean {
-    const noOfViews = views.length;
-    const focusedView = views[noOfViews - 1];
-
-    return noOfViews > 1
-        && (!focusedView.subMappingInfo || !focusedView.subMappingInfo.focusedOnSubMappingRoot);
-}
-
 export function getFilterExpression(callExpr: any): Node | undefined {
     // const firstArg = callExpr.getArguments()[0];
     let filterExpr: Node;

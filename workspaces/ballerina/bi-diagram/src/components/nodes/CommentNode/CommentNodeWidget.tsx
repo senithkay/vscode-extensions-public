@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CommentNodeModel } from "./CommentNodeModel";
 import {
-    Colors,
+    COMMENT_NODE_CIRCLE_WIDTH,
     COMMENT_NODE_GAP,
     COMMENT_NODE_WIDTH,
     DRAFT_NODE_BORDER_WIDTH,
@@ -21,7 +21,7 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, Tooltip, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -50,8 +50,8 @@ export namespace NodeStyles {
         width: ${COMMENT_NODE_WIDTH - COMMENT_NODE_GAP}px;
         height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
-        background-color: ${Colors.SURFACE};
-        color: ${Colors.ON_SURFACE};
+        background-color: ${ThemeColors.SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         border: ${NODE_BORDER_WIDTH}px;
         border-style: none;
         border-radius: 10px;
@@ -59,11 +59,11 @@ export namespace NodeStyles {
     `;
 
     export const Circle = styled.div`
-        width: ${NODE_PADDING}px;
-        height: ${NODE_PADDING}px;
+        width: ${COMMENT_NODE_CIRCLE_WIDTH}px;
+        height: ${COMMENT_NODE_CIRCLE_WIDTH}px;
         border-radius: 50%;
-        border: ${DRAFT_NODE_BORDER_WIDTH}px solid ${Colors.PRIMARY};
-        background-color: ${Colors.PRIMARY_CONTAINER};
+        border: ${DRAFT_NODE_BORDER_WIDTH}px solid ${ThemeColors.PRIMARY};
+        background-color: ${ThemeColors.PRIMARY_CONTAINER};
         display: flex;
         justify-content: center;
         align-items: flex-end;
@@ -100,7 +100,7 @@ export namespace NodeStyles {
     export const Icon = styled.div`
         padding: 4px;
         svg {
-            fill: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
         }
     `;
 
@@ -121,7 +121,7 @@ export namespace NodeStyles {
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
-        color: ${Colors.ON_SURFACE};
+        color: ${ThemeColors.ON_SURFACE};
         opacity: 0.7;
     `;
 
@@ -148,7 +148,7 @@ export interface NodeWidgetProps extends Omit<CommentNodeWidgetProps, "children"
 
 export function CommentNodeWidget(props: CommentNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode, readOnly } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -212,9 +212,11 @@ export function CommentNodeWidget(props: CommentNodeWidgetProps) {
                             <NodeStyles.Description>{model.node.metadata.description || "..."}</NodeStyles.Description>
                         </Tooltip>
                     </NodeStyles.Header>
-                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                        <MoreVertIcon />
-                    </NodeStyles.StyledButton>
+                    {!readOnly && (
+                        <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                            <MoreVertIcon />
+                        </NodeStyles.StyledButton>
+                    )}
                     <Popover
                         open={isMenuOpen}
                         anchorEl={anchorEl}

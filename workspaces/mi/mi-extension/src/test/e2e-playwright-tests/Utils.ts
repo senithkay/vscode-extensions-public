@@ -15,7 +15,7 @@ import { ElectronApplication } from "@playwright/test";
 
 export const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
-const vscodeVersion = '1.91.1';
+const vscodeVersion = 'latest';
 export const resourcesFolder = path.join(__dirname, '..', 'test-resources');
 export const newProjectPath = path.join(dataFolder, 'new-projects');
 export let vscode: ElectronApplication | undefined;

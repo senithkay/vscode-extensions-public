@@ -30,6 +30,9 @@ import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
 import { DMProject } from './datamapper/DMProject';
+import { setupEnvironment } from './util/onboardingUtils';
+import { MiDiagramRpcManager } from './rpc-managers/mi-diagram/rpc-manager';
+const fs = require('fs');
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -52,6 +55,10 @@ const stateMachine = createMachine<MachineContext>({
                 src: checkIfMiProject,
                 onDone: [
                     {
+                        target: 'environmentSetup',
+                        cond: (context, event) => (event.data.isProject === true || event.data.isOldProject === true) && event.data.isEnvironmentSetUp === false,
+                    },
+                    {
                         target: 'oldProjectDetected',
                         cond: (context, event) =>
                             // Assuming true means old project detected
@@ -68,7 +75,8 @@ const stateMachine = createMachine<MachineContext>({
                         cond: (context, event) =>
                             event.data.isOldProject || event.data.isProject,
                         actions: assign({
-                            view: (context, event) => event.data.emptyProject ? MACHINE_VIEW.ADD_ARTIFACT : MACHINE_VIEW.Overview,
+                            view: (context, event) => event.data.view,
+                            customProps: (context, event) => event.data.customProps,
                             projectUri: (context, event) => event.data.projectUri,
                             isOldProject: (context, event) => event.data.isOldProject,
                             displayOverview: (context, event) => event.data.displayOverview
@@ -214,7 +222,8 @@ const stateMachine = createMachine<MachineContext>({
                                 dataMapperProps: (context, event) => event.viewLocation.dataMapperProps,
                                 stNode: (context, event) => undefined,
                                 diagnostics: (context, event) => undefined,
-                                type: (context, event) => event.type
+                                type: (context, event) => event.type,
+                                previousContext: (context, event) => context
                             })
                         },
                         REPLACE_VIEW: {
@@ -286,6 +295,34 @@ const stateMachine = createMachine<MachineContext>({
                     }
                 }
             }
+        },
+        environmentSetup: {
+            initial: "viewLoading",
+            states: {
+                viewLoading: {
+                    invoke: [
+                        {
+                            src: 'openWebPanel',
+                            onDone: {
+                                target: 'viewReady'
+                            }
+                        },
+                        {
+                            src: 'focusProjectExplorer',
+                            onDone: {
+                                target: 'viewReady'
+                            }
+                        }
+                    ]
+                },
+                viewReady: {
+                    on: {
+                        REFRESH_ENVIRONMENT: {
+                            target: '#mi.initialize'
+                        }
+                    }
+                }
+            }
         }
     }
 }, {
@@ -352,14 +389,12 @@ const stateMachine = createMachine<MachineContext>({
                         const filePath = context.documentUri;
                         const functionName = DM_FUNCTION_NAME;
                         DMProject.refreshProject(filePath);
-                        const [fnSource, interfacesSrc] = getSources(filePath);
-                        const functionIOTypes = getFunctionIOTypes(filePath, functionName);
+                        const [fileContent, nonMappingFileContent] = getSources(filePath, functionName);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
-                            functionIOTypes: functionIOTypes,
-                            fileContent: fnSource,
-                            interfacesSource: interfacesSrc,
+                            fileContent: fileContent,
+                            nonMappingFileContent: nonMappingFileContent,
                             configName: deriveConfigName(filePath)
                         };
                         viewLocation.view = MACHINE_VIEW.DataMapperView;
@@ -464,15 +499,22 @@ const stateMachine = createMachine<MachineContext>({
                     history.pop();
                 }
                 if (!context.view?.includes("Form")) {
-                    history.push({
+                    const ctx = context?.previousContext ? context?.previousContext : context;
+                    const historyStack = history.get();
+                    const lastEntry = historyStack[historyStack.length - 1];
+                    const newEntry = {
                         location: {
-                            view: context.view,
-                            documentUri: context.documentUri,
-                            position: context.position,
-                            identifier: context.identifier,
-                            dataMapperProps: context?.dataMapperProps
+                            view: ctx?.view,
+                            documentUri: ctx?.documentUri,
+                            position: ctx?.position,
+                            identifier: ctx?.identifier,
+                            dataMapperProps: ctx?.dataMapperProps
                         }
-                    });
+                    };
+
+                    if (!lastEntry || JSON.stringify(lastEntry) !== JSON.stringify(newEntry)) {
+                        history.push(newEntry);
+                    }
                 }
                 StateMachinePopup.resetState();
                 resolve(true);
@@ -494,6 +536,12 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 vscode.commands.executeCommand('setContext', 'MI.status', 'disabled');
                 updateProjectExplorer(context);
+                resolve(true);
+            });
+        },
+        focusProjectExplorer: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
                 resolve(true);
             });
         }
@@ -536,9 +584,21 @@ export function navigate(entry?: HistoryEntry) {
             stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
         }
     } else {
-        const location = historyStack[historyStack.length - 1].location;
+        const location = entry ? entry.location : historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
+}
+
+export function refreshUI() {
+    const context = StateMachine.context();
+    const location = {
+        view: context?.view,
+        documentUri: context?.documentUri,
+        position: context?.position,
+        identifier: context?.identifier,
+        dataMapperProps: context?.dataMapperProps
+    };
+    stateService.send({ type: "NAVIGATE", viewLocation: location });
 }
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
@@ -566,14 +626,17 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
                 dark: Uri.file(path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)),
             };;
         }
+    } else if (location?.view) {
+        VisualizerWebview.currentPanel = new VisualizerWebview(location?.view, extension.webviewReveal);
     }
 }
 
 async function checkIfMiProject() {
     log('Detecting project ' + new Date().toLocaleTimeString());
 
-    let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
+    let isProject = false, isOldProject = false, displayOverview = true, view = MACHINE_VIEW.Overview, isEnvironmentSetUp = false;
     let projectUri = '';
+    const customProps: any = {};
     try {
         // Check for pom.xml files excluding node_modules directory
         const pomFiles = await vscode.workspace.findFiles('pom.xml', '**/node_modules/**', 1);
@@ -605,7 +668,24 @@ async function checkIfMiProject() {
         // Check if the project is empty
         const files = await vscode.workspace.findFiles('src/main/wso2mi/artifacts/*/*.xml', '**/node_modules/**', 1);
         if (files.length === 0) {
-            emptyProject = true;
+            const config = vscode.workspace.getConfiguration('MI', vscode.workspace.workspaceFolders?.[0].uri);
+            const scope = config.get<string>("Scope");
+            switch (scope) {
+                case "integration-as-api":
+                    view = MACHINE_VIEW.APIForm;
+                    break;
+                case "automation":
+                    view = MACHINE_VIEW.TaskForm;
+                    customProps.type = "external";
+                    break;
+                case "event-integration":
+                case "file-integration":
+                    view = MACHINE_VIEW.InboundEPForm;
+                    break;
+                default:
+                    view = MACHINE_VIEW.ADD_ARTIFACT;
+                    break;
+            }
         }
 
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
@@ -624,15 +704,37 @@ async function checkIfMiProject() {
     }
 
     if (projectUri) {
+        isEnvironmentSetUp = await setupEnvironment(projectUri, isOldProject);
+        if (!isEnvironmentSetUp) {
+            vscode.commands.executeCommand('setContext', 'MI.status', 'notSetUp');
+        }
         // Log project path
         log(`Current workspace path: ${projectUri}`);
     }
 
     // Register Project Creation command in any of the above cases
-    vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
-        log('Create New Project');
-    });
+    if (!(await vscode.commands.getCommands()).includes(COMMANDS.CREATE_PROJECT_COMMAND)) {
+        vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, async (args) => {
+            if (args && args.name && args.path && args.scope) {
+                const rpcManager = new MiDiagramRpcManager();
+                if (rpcManager) {
+                    await rpcManager.createProject(
+                        {
+                            directory: path.dirname(args.path),
+                            name: path.basename(args.path),
+                            open: false,
+                            miVersion: "4.4.0"
+                        }
+                    );
+                    await createSettingsFile(args);
+                    vscode.commands.executeCommand('workbench.action.closeFolder');
+                }
+            } else {
+                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
+                log('Create New Project');
+            }
+        });
+    }
 
     log('Project detection completed ' + new Date().toLocaleTimeString());
     return {
@@ -640,8 +742,27 @@ async function checkIfMiProject() {
         isOldProject,
         displayOverview,
         projectUri, // Return the path of the detected project
-        emptyProject
+        view,
+        customProps,
+        isEnvironmentSetUp
     };
+}
+
+async function createSettingsFile(args) {
+    const projectPath = args.path;
+    const settingsPath = path.join(projectPath, '.vscode', 'settings.json');
+    try {
+        const vscodeDir = path.join(projectPath, '.vscode');
+        if (!fs.existsSync(vscodeDir)) {
+            fs.mkdirSync(vscodeDir);
+        }
+        const settings = {
+            "MI.Scope": args.scope
+        };
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
+    } catch (error: any) {
+        vscode.window.showErrorMessage(`Failed to create settings file: ${error.message}`);
+    }
 }
 
 function findViewIcon(view) {

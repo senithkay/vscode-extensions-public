@@ -9,6 +9,7 @@
 import { Diagnostic } from "vscode-languageserver-types";
 
 export interface STNode {
+    displayName: string;
     hasTextNode: boolean;
     selfClosed: boolean;
     textNode: string;
@@ -180,6 +181,12 @@ export interface Foreach extends STNode {
     sequenceAttribute: string;
     id: string;
     description: string;
+    version: string;
+    collection: string;
+    executeParallel: boolean;
+    resultTarget: string;
+    resultType: string;
+    counterVariableName: string;
 }
 
 export interface PayloadFactoryFormat extends STNode {
@@ -1008,6 +1015,35 @@ export interface Property extends STNode {
     expression: string;
 }
 
+export interface Variable extends STNode {
+    type: string;
+    description: string;
+    name: string;
+    action: string;
+    value: string;
+    expression: string;
+}
+
+export interface ScatterGather extends STNode {
+    targets: CloneTarget[];
+    executeParallel: boolean;
+    description: string;
+    valueExpression: string;
+    condition: string;
+    resultTarget: string;
+    variableName: string;
+    contentType: string;
+    completeTimeout: string;
+    minMessages: string;
+    maxMessages: string;
+}
+
+export interface ThrowError extends STNode {
+    type: string;
+    description: string;
+    errorMessage: string;
+}
+
 export interface APIHandlersHandlerProperty extends STNode {
     name: string;
     value: string;
@@ -1809,6 +1845,30 @@ export interface Connector extends STNode {
     method: string;
     parameters: ConnectorParameter[];
     configKey?: string;
+    tools?: Tools;
+}
+
+export interface AIConnector extends Connector {
+    connections: { [key: string]: AIConnectorConnection };
+}
+
+export interface AIConnectorConnection {
+    name: string;
+    path: string;
+    connectionType?: string;
+    connectorName?: string;
+    parameters: any[]
+}
+
+export interface Tools extends STNode {
+    tools: Tool[];
+}
+
+export interface Tool extends STNode {
+    name: string;
+    description: string;
+    template: string;
+    mediator: Connector;
 }
 
 export interface ConnectorParameter extends STNode {

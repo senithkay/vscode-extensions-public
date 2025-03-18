@@ -13,14 +13,16 @@ import { InputOutputPortModel } from "../Port";
 
 export function isSourcePortArray(port: PortModel): boolean {
     if (port instanceof InputOutputPortModel) {
-        return port.field.kind === TypeKind.Array;
+        const field = port.field;
+        return field.kind === TypeKind.Array;
     }
     return false;
 }
 
 export function isTargetPortArray(port: PortModel): boolean {
     if (port instanceof InputOutputPortModel) {
-        return port.field.kind === TypeKind.Array;
+        const field = port.field;
+        return field.kind === TypeKind.Array;
     }
     return false;
 }

@@ -10,7 +10,6 @@
  */
 import {
     AIUserInput,
-    UpdateDependencyInPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -65,6 +64,8 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
     FileDirResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
@@ -72,6 +73,8 @@ import {
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
     GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -91,6 +94,8 @@ import {
     GetDiagnosticsResponse,
     GetFailoverEPRequest,
     GetFailoverEPResponse,
+    GetHelperPaneInfoRequest,
+    GetHelperPaneInfoResponse,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
     GetInboundEndpointRequest,
@@ -145,6 +150,8 @@ import {
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    SaveConfigRequest,
+    SaveConfigResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     SwaggerFromAPIResponse,
@@ -179,7 +186,6 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    updateDependencyInPom,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -192,6 +198,7 @@ import {
     compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
+    createBallerinaModule,
     createConnection,
     createDataService,
     createDataSource,
@@ -221,6 +228,8 @@ import {
     getAllDependenciesRequest,
     getAllMockServices,
     getAllRegistryPaths,
+    getAllResourcePaths,
+    getConfigurableEntries,
     getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
@@ -239,7 +248,9 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getExpressionCompletions,
     getFailoverEndpoint,
+    getHelperPaneInfo,
     getHttpEndpoint,
     getIconPathUri,
     getInboundEndpoint,
@@ -279,6 +290,7 @@ import {
     rangeFormat,
     redo,
     refreshAccessToken,
+    saveConfig,
     showErrorMessage,
     undo,
     updateAPIFromSwagger,
@@ -332,7 +344,59 @@ import {
     AddDriverToLibRequest,
     AddDriverToLibResponse,
     APIContextsResponse,
-    getAllAPIcontexts
+    getAllAPIcontexts,
+    MediatorTryOutRequest,
+    tryOutMediator,
+    getInputPayloads,
+    saveInputPayload,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadsRequest,
+    GetPayloadsResponse,
+    getMediatorInputOutputSchema,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
+    UpdateMediatorRequest,
+    getMediator,
+    getMediators,
+    updateMediator,
+    GetConnectionSchemaRequest,
+    getConnectionSchema,
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse,
+    copyConnectorZip,
+    askOpenAPIDirPath,
+    RemoveConnectorRequest,
+    removeConnector,
+    RemoveConnectorResponse,
+    TestConnectorConnectionRequest,
+    TestConnectorConnectionResponse,
+    testConnectorConnection,
+    shutDownTryoutServer,
+    MiVersionResponse,
+    getMIVersionFromPom,
+    CheckDBDriverResponse,
+    removeDBDriver,
+    modifyDBDriver,
+    CopyArtifactRequest,
+    CopyArtifactResponse,
+    copyArtifact,
+    GetArtifactTypeRequest,
+    getArtifactType,
+    GetArtifactTypeResponse,
+    askImportFileDir,
+    LocalInboundConnectorsResponse,
+    getLocalInboundConnectors,
+    BuildProjectRequest,
+    deployProject,
+    DeployProjectRequest,
+    DeployProjectResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse,
+    buildBallerinaModule
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -584,6 +648,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(askFileDirPath, HOST_EXTENSION);
     }
 
+    askOpenAPIDirPath(): Promise<FileDirResponse> {
+        return this._messenger.sendRequest(askOpenAPIDirPath, HOST_EXTENSION);
+    }
+
     createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return this._messenger.sendRequest(createProject, HOST_EXTENSION, params);
     }
@@ -656,6 +724,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createClassMediator, HOST_EXTENSION, params);
     }
 
+    createBallerinaModule(params: CreateBallerinaModuleRequest): Promise<CreateBallerinaModuleResponse> {
+        return this._messenger.sendRequest(createBallerinaModule, HOST_EXTENSION, params);
+    }
+
+    buildBallerinaModule(projectPath: string): Promise<void> {
+        return this._messenger.sendRequest(buildBallerinaModule, HOST_EXTENSION, projectPath);
+    }
+
     getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
         return this._messenger.sendRequest(getSelectiveWorkspaceContext, HOST_EXTENSION);
     }
@@ -690,6 +766,22 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     downloadInboundConnector(params: DownloadInboundConnectorRequest): Promise<DownloadInboundConnectorResponse> {
         return this._messenger.sendRequest(downloadInboundConnector, HOST_EXTENSION, params);
+    }
+
+    copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
+        return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params)
+    }
+
+    copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {
+        return this._messenger.sendRequest(copyArtifact, HOST_EXTENSION, params);
+    }
+
+    askImportFileDir(): Promise<FileDirResponse> {
+        return this._messenger.sendRequest(askImportFileDir, HOST_EXTENSION);
+    }
+
+    removeConnector(params: RemoveConnectorRequest): Promise<RemoveConnectorResponse> {
+        return this._messenger.sendRequest(removeConnector, HOST_EXTENSION, params);
     }
 
     getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
@@ -752,8 +844,20 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
     }
 
+    getAllResourcePaths(): Promise<GetAllResourcePathsResponse> {
+        return this._messenger.sendRequest(getAllResourcePaths, HOST_EXTENSION);
+    }
+
+    getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
+        return this._messenger.sendRequest(getConfigurableEntries, HOST_EXTENSION);
+    }
+
     getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
+    }
+
+    getArtifactType(params: GetArtifactTypeRequest): Promise<GetArtifactTypeResponse> {
+        return this._messenger.sendRequest(getArtifactType, HOST_EXTENSION, params);
     }
 
     deleteArtifact(params: DeleteArtifactRequest): void {
@@ -764,8 +868,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAllAPIcontexts, HOST_EXTENSION);
     }
 
-    buildProject(): void {
-        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
+    buildProject(params: BuildProjectRequest): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION, params);
+    }
+
+    deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
+        return this._messenger.sendRequest(deployProject, HOST_EXTENSION, params);
     }
 
     refreshAccessToken(): Promise<void> {
@@ -820,10 +928,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAllMockServices, HOST_EXTENSION);
     }
 
-    updateDependencyInPom(params: UpdateDependencyInPomRequest): Promise<void> {
-        return this._messenger.sendRequest(updateDependencyInPom, HOST_EXTENSION, params);
-    }
-
     openDependencyPom(params: OpenDependencyPomRequest): Promise<void> {
         return this._messenger.sendRequest(openDependencyPom, HOST_EXTENSION, params);
     }
@@ -839,11 +943,11 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return this._messenger.sendRequest(markAsDefaultSequence, HOST_EXTENSION, params);
     }
-  
+
     getSubFolderNames(params: GetSubFoldersRequest): Promise<GetSubFoldersResponse> {
         return this._messenger.sendRequest(getSubFolderNames, HOST_EXTENSION, params);
     }
-  
+
     renameFile(params: FileRenameRequest): Promise<void> {
         return this._messenger.sendRequest(renameFile, HOST_EXTENSION, params);
     }
@@ -852,12 +956,20 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendNotification(openUpdateExtensionPage, HOST_EXTENSION);
     }
 
-    checkDBDriver(params: string): Promise<boolean> {
+    checkDBDriver(params: string): Promise<CheckDBDriverResponse> {
         return this._messenger.sendRequest(checkDBDriver, HOST_EXTENSION, params);
     }
 
     addDBDriver(params: AddDriverRequest): Promise<boolean> {
         return this._messenger.sendRequest(addDBDriver, HOST_EXTENSION, params);
+    }
+
+    removeDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return this._messenger.sendRequest(removeDBDriver, HOST_EXTENSION, params);
+    }
+
+    modifyDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return this._messenger.sendRequest(modifyDBDriver, HOST_EXTENSION, params);
     }
 
     generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
@@ -866,5 +978,64 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return this._messenger.sendRequest(fetchDSSTables, HOST_EXTENSION, params);
+    }
+
+    tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+        return this._messenger.sendRequest(tryOutMediator, HOST_EXTENSION, params);
+    }
+
+    shutDownTryoutServer(): Promise<boolean> {
+        return this._messenger.sendRequest(shutDownTryoutServer, HOST_EXTENSION);
+    }
+
+    getMIVersionFromPom(): Promise<MiVersionResponse> {
+        return this._messenger.sendRequest(getMIVersionFromPom, HOST_EXTENSION);
+    }
+
+    getMediatorInputOutputSchema(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+        return this._messenger.sendRequest(getMediatorInputOutputSchema, HOST_EXTENSION, params);
+    }
+
+    saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
+        return this._messenger.sendRequest(saveInputPayload, HOST_EXTENSION, params);
+    }
+    getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
+        return this._messenger.sendRequest(getInputPayloads, HOST_EXTENSION, params);
+    }
+
+    getMediators(params: GetMediatorsRequest): Promise<GetMediatorsResponse> {
+        return this._messenger.sendRequest(getMediators, HOST_EXTENSION, params);
+    }
+
+    getMediator(params: GetMediatorRequest): Promise<GetMediatorResponse> {
+        return this._messenger.sendRequest(getMediator, HOST_EXTENSION, params);
+    }
+
+    updateMediator(params: UpdateMediatorRequest): Promise<void> {
+        return this._messenger.sendRequest(updateMediator, HOST_EXTENSION, params);
+    }
+
+    getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return this._messenger.sendRequest(getLocalInboundConnectors, HOST_EXTENSION);
+    }
+
+    getConnectionSchema(params: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
+        return this._messenger.sendRequest(getConnectionSchema, HOST_EXTENSION, params);
+    }
+
+    getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
+    }
+
+    getHelperPaneInfo(params: GetHelperPaneInfoRequest): Promise<GetHelperPaneInfoResponse> {
+        return this._messenger.sendRequest(getHelperPaneInfo, HOST_EXTENSION, params);
+    }
+
+    testConnectorConnection(params: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
+        return this._messenger.sendRequest(testConnectorConnection, HOST_EXTENSION, params);
+    }
+
+    saveConfig(params: SaveConfigRequest): Promise<SaveConfigResponse> {
+        return this._messenger.sendRequest(saveConfig, HOST_EXTENSION, params);
     }
 }

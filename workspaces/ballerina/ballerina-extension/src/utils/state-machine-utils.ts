@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { FOCUS_FLOW_DIAGRAM_VIEW, HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
@@ -18,7 +18,7 @@ import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-v
 import { getConstructBodyString } from "./history/util";
 import { ballerinaExtInstance } from "../core";
 
-export async function getView(documentUri: string, position: NodePosition): Promise<HistoryEntry> {
+export async function getView(documentUri: string, position: NodePosition, projectUri?: string): Promise<HistoryEntry> {
 
     const req = getSTByRangeReq(documentUri, position);
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
@@ -37,7 +37,46 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.TypeDiagram,
                         documentUri: documentUri,
                         position: position,
-                        identifier: nodeId
+                        identifier: name,
+                        projectUri: projectUri
+                    }
+                };
+            }
+        }
+        if (STKindChecker.isClassDefinition(node.syntaxTree)) {
+            const classST = node.syntaxTree;
+            const name = classST.className?.value;
+            const module = classST.typeData?.symbol?.moduleID;
+            if (!name || !module) {
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate class nodeId to render composition view', classST);
+            } else {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: documentUri,
+                        position: position,
+                        identifier: name,
+                        projectUri: projectUri
+                    }
+                };
+            }
+        }
+        if (STKindChecker.isEnumDeclaration(node.syntaxTree)) {
+            const enumST = node.syntaxTree;
+            const name = enumST?.identifier?.value;
+            const module = enumST.typeData?.symbol?.moduleID;
+            if (!name || !module) {
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate enum nodeId to render composition view', enumST);
+            } else {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: documentUri,
+                        position: position,
+                        identifier: name,
+                        projectUri: projectUri
                     }
                 };
             }
@@ -52,7 +91,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             const connectionName = node.syntaxTree.typedBindingPattern.bindingPattern.variableName.value;
             if (!connectionName) {
                 // tslint:disable-next-line
-                console.error("Couldn't capture connection from STNode", {STNode : node.syntaxTree});
+                console.error("Couldn't capture connection from STNode", { STNode: node.syntaxTree });
             } else {
                 return {
                     location: {
@@ -61,6 +100,18 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                     },
                 };
             }
+        }
+
+        if (STKindChecker.isListenerDeclaration(node.syntaxTree)) {
+            const listenerST = node.syntaxTree;
+            const variablePosition = listenerST.variableName.position;
+            return {
+                location: {
+                    view: MACHINE_VIEW.BIListenerConfigView,
+                    documentUri: documentUri,
+                    position: variablePosition
+                }
+            };
         }
 
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
@@ -75,7 +126,8 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.GraphQLDiagram,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position
+                        position: position,
+                        projectUri: projectUri
                     }
                 };
             } else {
@@ -84,8 +136,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.ServiceDesigner,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position,
-                        haveServiceType: haveServiceType
+                        position: position
                     }
                 };
             }
@@ -103,36 +154,39 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                 dataMapperDepth: 0
             };
         } else if (
-            STKindChecker.isFunctionDefinition(node.syntaxTree)
-            || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
+            STKindChecker.isFunctionDefinition(node.syntaxTree) &&
+            node.syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
         ) {
-            if (StateMachine.context().isBI) {
-                return {
-                    location: {
-                        view: MACHINE_VIEW.BIDiagram,
-                        documentUri: documentUri,
-                        position: node.syntaxTree.position,
-                        metadata: {
-                            enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
-                        }
-                    },
-                    dataMapperDepth: 0
-                };
-            }
             return {
                 location: {
-                    view: MACHINE_VIEW.SequenceDiagram,
+                    view: MACHINE_VIEW.BIDiagram,
                     documentUri: documentUri,
-                    position: position
+                    position: node.syntaxTree.position,
+                    focusFlowDiagramView: FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION,
                 },
                 dataMapperDepth: 0
             };
-
+        } else if (
+            STKindChecker.isFunctionDefinition(node.syntaxTree)
+            || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
+            || STKindChecker.isObjectMethodDefinition(node.syntaxTree)
+        ) {
+            return {
+                location: {
+                    view: MACHINE_VIEW.BIDiagram,
+                    documentUri: documentUri,
+                    position: node.syntaxTree.position,
+                    metadata: {
+                        enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+                    }
+                },
+                dataMapperDepth: 0
+            };
         }
 
         // config variables
 
-        if (STKindChecker.isConfigurableKeyword(node.syntaxTree.qualifiers[0]) && 
+        if (STKindChecker.isConfigurableKeyword(node.syntaxTree.qualifiers[0]) &&
             STKindChecker.isCaptureBindingPattern(node.syntaxTree.typedBindingPattern.bindingPattern)) {
             return {
                 location: {

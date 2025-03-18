@@ -21,3 +21,4 @@ export * from "./LinkConnector";
 export * from "./ModuleVariable";
 export * from "./UnionType";
 export * from "./UnsupportedIO";
+export * from "./ExpandedMappingHeader";

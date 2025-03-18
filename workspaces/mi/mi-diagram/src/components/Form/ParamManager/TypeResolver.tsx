@@ -15,6 +15,8 @@ import { AutoComplete, Dropdown, TextArea, TextField } from "@wso2-enterprise/ui
 import { FilterType, Keylookup } from "../Keylookup/Keylookup";
 import styled from "@emotion/styled";
 import { ResourceType } from "@wso2-enterprise/mi-core";
+import { FormExpressionField } from "../FormExpressionField";
+import { Range } from 'vscode-languageserver-types';
 
 const ParamManagerContainer = styled.div`
     display: flex;
@@ -28,6 +30,7 @@ const ParamManagerContainer = styled.div`
 export interface Param {
     id: number;
     label: string;
+    labelAdornment?: React.ReactNode;
     placeholder?: string;
     type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete" | "KeyLookup" | "ParamManager";
     value: string | boolean | ExpressionFieldValue | ParamConfig; // Boolean is for Checkbox
@@ -43,12 +46,13 @@ export interface Param {
     filterType?: FilterType | ResourceType[]; // For KeyLookup
     artifactTypes?: { registryArtifacts: boolean, artifacts: boolean }; //For KeyLookup
     values?: string[]; // For Dropdown
-    openExpressionEditor?: () => void; // For ExpressionField
+    openExpressionEditor?: (value: ExpressionFieldValue, setValue: any) => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     openInDrawer?: boolean; // For ParamManager
     addParamText?: string; // For ParamManager
     paramFields?: ParamField[]; // For ParamManager
     additionalData?: any;
+    nodeRange?: Range;
 }
 
 interface TypeResolverProps {
@@ -58,8 +62,8 @@ interface TypeResolverProps {
 
 export function TypeResolver(props: TypeResolverProps) {
     const { param, onChange } = props;
-    const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, paramFields,
-        canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType, placeholder, artifactTypes } = param;
+    const { id, label, labelAdornment, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, paramFields,
+        canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType, placeholder, artifactTypes, nodeRange } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
         onChange({ ...param, value: newValue }, param.enableCondition);
@@ -87,6 +91,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     sx={{ marginBottom: 5 }}
                     id={`txt-field-${id}`}
                     label={label}
+                    labelAdornment={labelAdornment}
                     value={value as string}
                     disabled={disabled}
                     errorMsg={errorMessage}
@@ -130,23 +135,27 @@ export function TypeResolver(props: TypeResolverProps) {
                     value={value as string}
                     disabled={disabled}
                     label={label}
+                    labelAdornment={labelAdornment}
                     errorMsg={errorMessage}
                     onTextChange={handleOnChange}
                 />
             );
         case "ExprField":
             return (
-                <ExpressionField
+                <FormExpressionField
                     sx={{ marginBottom: 5 }}
                     id={`txt-area-${id}`}
                     value={value as ExpressionFieldValue}
                     openExpressionEditor={openExpressionEditor}
                     disabled={disabled}
                     label={label}
+                    labelAdornment={labelAdornment}
                     placeholder={placeholder}
                     errorMsg={errorMessage}
-                    onChange={handleOnChange}
+                    onChange={(newValue: any) => handleOnChange(newValue)}
                     canChange={canChange}
+                    nodeRange={nodeRange}
+                    required={isRequired}
                 />
             );
         case "AutoComplete":
@@ -155,6 +164,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     sx={{ marginBottom: 5 }}
                     id={`auto-complete-${id}`}
                     label={label}
+                    labelAdornment={labelAdornment}
                     value={value as string}
                     required={isRequired}
                     onValueChange={handleOnChange}
@@ -170,6 +180,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     sx={{ marginBottom: 5 }}
                     id={`key-lookup-${id}`}
                     label={label}
+                    labelAdornment={labelAdornment}
                     value={value as string}
                     required={isRequired}
                     onValueChange={handleOnExprChange}

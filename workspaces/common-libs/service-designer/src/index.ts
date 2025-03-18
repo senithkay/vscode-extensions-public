@@ -8,4 +8,5 @@
  */
 export * from './components/ServiceDesigner/ServiceDesigner';
 export * from './components/ResourceAccordion/ResourceAccordion';
+export * from './components/AccordionTable/AccordionTable';
 export * from './definitions';

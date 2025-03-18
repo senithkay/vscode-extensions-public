@@ -9,13 +9,13 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Button, Codicon, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Dropdown, OptionProps, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
-import { Colors } from "../../resources/constants";
+import { SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 
 namespace S {
     export const Container = styled.div({
@@ -28,6 +28,7 @@ namespace S {
     export const LabelContainer = styled.div({
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'space-between'
     });
 
     export const Label = styled.label({
@@ -58,9 +59,16 @@ namespace S {
         };
     `;
 
+    export const AddNewButtonOption = styled.div({
+        width: '100%',
+        display: 'flex',
+        padding: '5px',
+        gap: '8px',
+    });
+
     export const DeleteButton = styled(Button)`
         & > vscode-button {
-            color: ${Colors.ERROR};
+            color: ${ThemeColors.ERROR};
         }
     `;
 }
@@ -68,19 +76,25 @@ namespace S {
 interface MultiSelectEditorProps {
     field: FormField;
     label: string;
+    openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 export function MultiSelectEditor(props: MultiSelectEditorProps) {
-    const { field, label } = props;
+    const { field, label, openSubPanel } = props;
     const { form } = useFormContext();
     const { register, unregister, setValue, watch } = form;
 
-    const noOfSelectedValues = field.value === "" ? 1 : field.value.length;
+    const NEW_OPTION = "Create New Tool";
+
+    const noOfSelectedValues = field.items.length === 0 ? 0 : (field.value === "" ? 1 : field.value.length);
     const [dropdownCount, setDropdownCount] = useState(noOfSelectedValues);
 
     // Watch all the individual dropdown values, including the default value
     const values = [...Array(dropdownCount)].map((_, index) => {
         const value = watch(`${field.key}-${index}`);
+        if (value === NEW_OPTION) {
+            return;
+        }
         return value || getValueForDropdown(field, index);
     }).filter(Boolean);
 
@@ -92,6 +106,11 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
     // HACK: create values for Scope field
     if (field.key === "scope") {
         field.items = ["Global", "Local"];
+    }
+
+    const getItemsList = (): OptionProps[] => {
+        const items = field.items?.map((item) => ({ id: item, content: item, value: item }));
+        return items;
     }
 
     const onAddAnother = () => {
@@ -106,7 +125,7 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
         for (let i = indexToDelete + 1; i < dropdownCount; i++) {
             const value = watch(`${field.key}-${i}`);
             unregister(`${field.key}-${i}`);
-            setValue(`${field.key}-${i-1}`, value);
+            setValue(`${field.key}-${i - 1}`, value);
         }
 
         // Update the main field value
@@ -125,15 +144,17 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                 <S.DropdownContainer key={`${field.key}-${index}`}>
                     <Dropdown
                         id={`${field.key}-${index}`}
-                        {...register(`${field.key}-${index}`, { 
+                        {...register(`${field.key}-${index}`, {
                             required: !field.optional && index === 0,
                             value: getValueForDropdown(field, index)
                         })}
-                        items={field.items?.map((item) => ({ id: item, content: item, value: item }))}
+                        items={getItemsList()}
                         required={!field.optional && index === 0}
                         disabled={!field.editable}
                         sx={{ width: "100%" }}
                         containerSx={{ width: "100%" }}
+                        addNewBtnClick={field.addNewButton ? () => openSubPanel({ view: SubPanelView.ADD_NEW_FORM }) : undefined}
+                        addNewBtnLabel={field.addNewButton ? (field.addNewButtonLabel || field.label) : undefined}
                     />
                     {
                         <S.DeleteButton
@@ -147,14 +168,36 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                     }
                 </S.DropdownContainer>
             ))}
-            <S.AddNewButton
-                appearance='icon'
-                aria-label="add"
-                onClick={onAddAnother}
-            >
-                <Codicon name="add" />
-                {label}
-            </S.AddNewButton>
+            {(field.addNewButton && field.items.length > dropdownCount) &&
+                <S.AddNewButton
+                    appearance='icon'
+                    aria-label="add"
+                    onClick={onAddAnother}
+                >
+                    <Codicon name="add" />
+                    {label}
+                </S.AddNewButton>
+            }
+            {(!field.addNewButton && field.items.length > 0) &&
+                <S.AddNewButton
+                    appearance='icon'
+                    aria-label="add"
+                    onClick={onAddAnother}
+                >
+                    <Codicon name="add" />
+                    {label}
+                </S.AddNewButton>
+            }
+            {field.items.length === 0 && openSubPanel && field.addNewButton &&
+                <S.AddNewButton
+                    appearance='icon'
+                    aria-label="add"
+                    onClick={() => { openSubPanel({ view: SubPanelView.ADD_NEW_FORM }); onAddAnother(); }}
+                >
+                    <Codicon name="add" />
+                    {field.addNewButtonLabel || field.label}
+                </S.AddNewButton>
+            }
         </S.Container>
     );
 }

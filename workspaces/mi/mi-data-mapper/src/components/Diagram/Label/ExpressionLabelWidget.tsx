@@ -17,12 +17,13 @@ import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel, MappingType } from '../Port';
-import { getMappingType, isInputAccessExpr } from '../utils/common-utils';
+import { expandArrayFn, getMappingType, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { generateArrayMapFunction, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
+import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
+import { mapUsingCustomFunction } from '../utils/modification-utils';
 
 export const useStyles = () => ({
     container: css({
@@ -90,13 +91,14 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [mappingType, setMappingType] = React.useState<MappingType>(MappingType.Default);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
-    const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const isCollapsedField = useDMCollapsedFieldsStore(state => state.isCollapsedField);
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
 
     const classes = useStyles();
     const { link, value, valueNode, context, deleteLink } = props.model;
-    const source = link?.getSourcePort();
-    const target = link?.getTargetPort();
+
+    const sourcePort = link?.getSourcePort() as InputOutputPortModel;
+    const targetPort = link?.getTargetPort() as InputOutputPortModel;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
     useEffect(() => {
@@ -107,7 +109,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                 },
             });
             
-            const mappingType = getMappingType(source, target);
+            const mappingType = getMappingType(sourcePort, targetPort);
             setMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
@@ -165,9 +167,9 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         ),
     ];
 
-    const onClickMapViaArrayFn = async () => {
-        if (target instanceof InputOutputPortModel) {
-            const targetPortField = target.field;
+    const onClickMapViaArrayFunction = async () => {
+        if (targetPort instanceof InputOutputPortModel) {
+            const targetPortField = targetPort.field;
 
             if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
                 await applyArrayFunction(link, targetPortField.memberType);
@@ -198,20 +200,31 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
             const mapFnSrc = generateArrayMapFunction(linkModelValue.getText(), targetType, isSourceOptional);
 
+            expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context);
+
             const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
             await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         }
+    };
+
+    const onClickMapViaCustomFn = async () => {
+        await mapUsingCustomFunction(sourcePort, targetPort, context, true);
     };
 
     const codeActions = [];
     if (mappingType === MappingType.ArrayToArray) {
         codeActions.push({
             title: "Map array elements individually",
-            onClick: onClickMapViaArrayFn
+            onClick: onClickMapViaArrayFunction
         });
     } else if (mappingType === MappingType.ArrayToSingleton) {
         // TODO: Add impl
     }
+
+    codeActions.push({
+        title: "Map using custom function",
+        onClick: onClickMapViaCustomFn
+    });
 
     if (codeActions.length > 0) {
         elements.push(<div className={classes.separator} />);
@@ -240,30 +253,29 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     let isSourceCollapsed = false;
     let isTargetCollapsed = false;
-    const collapsedFields = collapsedFieldsStore.collapsedFields;
 
-    if (source instanceof InputOutputPortModel) {
-        if (source?.parentId) {
-            const fieldName = source.field.fieldName;
-            isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
+    if (sourcePort instanceof InputOutputPortModel) {
+        if (sourcePort?.parentId) {
+            const fieldName = sourcePort.field.fieldName;
+            isSourceCollapsed = isCollapsedField(`${sourcePort.parentId}.${fieldName}`, sourcePort.field.kind)
         } else {
-            isSourceCollapsed = collapsedFields?.includes(source.portName)
+            isSourceCollapsed = isCollapsedField(sourcePort.portName, sourcePort.field.kind)
         }
     }
 
-    if (target instanceof InputOutputPortModel) {
-        if (target?.parentId) {
-            const fieldName = target.field.fieldName;
-            isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
+    if (targetPort instanceof InputOutputPortModel) {
+        if (targetPort?.parentId) {
+            const fieldName = targetPort.field.fieldName;
+            isTargetCollapsed = isCollapsedField(`${targetPort.parentId}.${fieldName}`, targetPort.field.kind);
         } else {
-            isTargetCollapsed = collapsedFields?.includes(target.portName)
+            isTargetCollapsed = isCollapsedField(targetPort.portName, targetPort.field.kind);
         }
     }
 
-    if (valueNode && isSourceCollapsed && isTargetCollapsed) {
+    if (valueNode && isSourceCollapsed && isTargetCollapsed && sourcePort.field.kind !== TypeKind.Array && targetPort.field.kind !== TypeKind.Array) {
         // for direct links, disable link widgets if both sides are collapsed
         return null
-    } else if (!valueNode && (isSourceCollapsed || isTargetCollapsed)) {
+    } else if (!valueNode && ((isSourceCollapsed && sourcePort.field.kind !== TypeKind.Array) || (isTargetCollapsed && targetPort.field.kind !== TypeKind.Array))) {
         // for links with intermediary nodes,
         // disable link widget if either source or target port is collapsed
         return null;

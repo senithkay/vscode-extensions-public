@@ -35,6 +35,7 @@ export const SequenceTemplateView = ({ model: SequenceModel, documentUri, diagno
                     path={documentUri}
                     type="Sequence Template"
                     onCancel={() => setFormOpen(false)}
+                    model={model}
                 /> :
                 <>
                     <ViewHeader title={`Sequence: ${model.name}`} icon="sequence-template" onEdit={handleEditSequence} />

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { FlowNode, RecordTypeField } from "./bi";
 
 /**
 * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
@@ -22,7 +23,8 @@ export declare enum BallerinaComponentTypes {
 export enum SubPanelView {
     INLINE_DATA_MAPPER = "inlineDataMapper",
     HELPER_PANEL = "helperPanel",
-    UNDEFINED = "undefined",
+    ADD_NEW_FORM = "addNewForm",
+    UNDEFINED = undefined,
 }
 
 export interface DocumentIdentifier {
@@ -30,6 +32,7 @@ export interface DocumentIdentifier {
 }
 
 export interface LineRange {
+    fileName?: string;
     startLine: LinePosition;
     endLine: LinePosition;
 }
@@ -72,6 +75,7 @@ export interface SidePanelData {
     range: LineRange;
     editorKey: string;
     configurePanelData?: ConfigurePanelData;
+    recordField: RecordTypeField;
 }
 
 export interface ConfigurePanelData {
@@ -83,5 +87,8 @@ export interface ConfigurePanelData {
 
 interface InlineDataMapperProps {
     filePath: string;
-    range: Range;
+    flowNode: FlowNode;
+    propertyKey: string;
+    editorKey: string;
+    position: LinePosition;
 }

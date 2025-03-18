@@ -8,7 +8,6 @@
  */
 import { PrimitiveBalType, STModification, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
-    CaptureBindingPattern,
     ExpressionFunctionBody,
     NodePosition,
     QueryExpression,
@@ -68,6 +67,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
 
     public targetFieldFQN: string;
     public hidden: boolean;
+    public hasInitialized: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -270,8 +270,11 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             });
         }
 
-        if (this.targetPort?.hidden){
-            this.hidden = true;
+        const previouslyHidden = this.hidden;
+        this.hidden = this.targetPort?.hidden;
+    
+        if (this.hidden !== previouslyHidden) {
+            this.hasInitialized = false;
         }
         while (this.targetPort && this.targetPort.hidden){
             this.targetPort = this.targetPort.parentModel;
@@ -279,6 +282,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
+        if (this.hasInitialized) {
+            return;
+        }
         if (!this.hidden) {
             // Currently, we create links from "IN" ports and back tracing the inputs.
             if (this.sourcePort && this.inPort) {
@@ -342,6 +348,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 this.getModel().addAll(link);
             }
         }
+        this.hasInitialized = true;
     }
 
     public updatePosition() {

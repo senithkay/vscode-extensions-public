@@ -19,6 +19,10 @@ hbsInstance.registerHelper('checkConfigurable', (listenerParam: Parameter[]) => 
     const data = listenerParam.find((params) => params.name === 'listenerConfig');
     return !!data;
 });
+hbsInstance.registerHelper('checkBootstrapServers', (listenerParam: Parameter[]) => {
+    const data = listenerParam?.find((params) => params.name === 'bootstrapServers');
+    return !!data;
+});
 
 export async function getInsertComponentSource(insertTempName: string, config: { [key: string]: any }) {
     const hbTemplate = hbsInstance.compile(await getInsertTemplate(insertTempName));

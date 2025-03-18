@@ -135,7 +135,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const hasDiagnotics = node.hasDiagnotics();
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
-    const description = getNodeDescription(node.mediatorName, node.stNode);
+    const description = getNodeDescription(node.stNode);
 
     const tooltip = hasDiagnotics
         ? node
@@ -192,7 +192,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>
-                                    <Name>{node.mediatorName}</Name>
+                                    <Name>{node.stNode.displayName || node.mediatorName}</Name>
                                 </Header>
                                 <Body>
                                     <Tooltip content={description} position={'bottom'} >

@@ -23,12 +23,6 @@ export const EditorContainer = styled.div<CSSObject>`
     border: 1px solid var(--vscode-dropdown-border);
 `;
 
-export const EditorContent = styled.div<CSSObject>`
-    display: flex;
-    flex-direction: column;
-    padding: 10px 0;
-`;
-
 export const ActionWrapper = styled.div`
     display: flex;
     flex-direction: row;

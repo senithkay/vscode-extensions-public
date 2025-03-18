@@ -31,6 +31,7 @@ import {
 	ChoreoRpcGetConnectionGuide,
 	ChoreoRpcGetConnectionItem,
 	ChoreoRpcGetConnections,
+	ChoreoRpcGetCredentialsRequest,
 	ChoreoRpcGetDeploymentStatusRequest,
 	ChoreoRpcGetDeploymentTracksRequest,
 	ChoreoRpcGetEndpointsRequest,
@@ -66,6 +67,7 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 	messenger.onRequest(ChoreoRpcGetBuildPacksRequest, (params) => rpcClient.getBuildPacks(params));
 	messenger.onRequest(ChoreoRpcGetBranchesRequest, (params) => rpcClient.getRepoBranches(params));
 	messenger.onRequest(ChoreoRpcIsRepoAuthorizedRequest, (params) => rpcClient.isRepoAuthorized(params));
+	messenger.onRequest(ChoreoRpcGetCredentialsRequest, (params) => rpcClient.getCredentials(params));
 	messenger.onRequest(ChoreoRpcDeleteComponentRequest, async (params) => {
 		return window.withProgress({ title: `Deleting component ${params.componentName}...`, location: ProgressLocation.Notification }, () =>
 			rpcClient.deleteComponent(params),

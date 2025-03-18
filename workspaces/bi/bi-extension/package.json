@@ -1,9 +1,10 @@
 {
-    "name": "kola-extension",
-    "displayName": "Kola",
-    "description": "Project Kola.",
-    "version": "0.3.2",
+    "name": "ballerina-integrator",
+    "displayName": "Ballerina Integrator",
+    "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
+    "version": "0.9.6",
     "publisher": "wso2",
+    "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
         "url": "http://repo.url"
     },
@@ -18,37 +19,47 @@
     ],
     "main": "./out/extension",
     "extensionDependencies": [
-        "wso2.kolab"
+        "wso2.ballerina"
     ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "kola-integrator",
-                    "title": "Kola Integrator",
-                    "icon": "$(circuit-board)"
+                    "id": "ballerina-integrator",
+                    "title": "Ballerina Integrator - Beta",
+                    "icon": "assets/icon.svg"
                 }
             ]
         },
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
+                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator! The Kola distribution is required but not found. [Set up Kola distribution](command:kolab.open.bi.welcome) to get started.",
+                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 12 or above.\n[Update Now](command:ballerina.update-ballerina)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "when": "BI.status == 'updateNeed'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Ballerina Integrator for VS Code! Ballerina distribution is required but not found. [Set up Ballerina distribution](command:ballerina.open.bi.welcome) to get started.\nExplore more at [ballerina.io](https://ballerina.io)",
                 "when": "BI.status == 'noLS'"
             },
             {
                 "view": "BI.project-explorer",
                 "contents": "Loading your workspace, please wait...",
                 "when": "BI.status == 'loading'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Activating Language Server, please wait...",
+                "when": "BI.status == 'loadingLS'"
             }
         ],
         "views": {
-            "kola-integrator": [
+            "ballerina-integrator": [
                 {
                     "id": "BI.project-explorer",
                     "name": ""
@@ -58,7 +69,7 @@
         "menus": {
             "view/item/context": [
                 {
-                    "command": "kolab.show.visualizer",
+                    "command": "ballerina.show.visualizer",
                     "when": "view == BI.project-explorer && viewItem == bi-project",
                     "group": "inline"
                 },
@@ -69,7 +80,7 @@
                 },
                 {
                     "command": "BI.project-explorer.delete",
-                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration",
+                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == listener || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration || viewItem == dataMapper || viewItem == naturalFunction || viewItem == localConnector",
                     "group": "inline"
                 },
                 {
@@ -91,9 +102,29 @@
                     "command": "BI.project-explorer.add-configuration",
                     "when": "view == BI.project-explorer && viewItem == configurations",
                     "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-data-mapper",
+                    "when": "view == BI.project-explorer && viewItem == dataMappers",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-natural-function",
+                    "when": "view == BI.project-explorer && viewItem == naturalFunctions",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-connection",
+                    "when": "view == BI.project-explorer && viewItem == localConnectors",
+                    "group": "inline"
                 }
             ],
             "view/title": [
+                {
+                    "command": "BI.project-explorer.switch-project",
+                    "when": "view == BI.project-explorer && BI.project == true && BI.isMultiRoot == true",
+                    "group": "navigation"
+                },
                 {
                     "command": "BI.project-explorer.add",
                     "when": "view == BI.project-explorer && BI.project == true",
