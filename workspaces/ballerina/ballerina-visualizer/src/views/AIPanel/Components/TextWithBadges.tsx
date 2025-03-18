@@ -20,12 +20,21 @@ const BadgeContainer = styled.div`
     color: var(--vscode-editorWidget-foreground);
     padding: 4px;
     border-radius: 4px;
-    display: inline-flex;
+    display: inline-block;
     align-items: center;
     line-height: 1;
     font-family: "Source Code Pro", monospace;
     margin-right: 2px;
     user-select: text;
+    white-space: nowrap;
+`;
+
+const TextContainer = styled.div`
+    display: flex;
+    flex-wrap: wrap; /* Allows content to wrap within the parent */
+    align-items: center;
+    word-break: break-word;
+    padding: 16px 0;
 `;
 
 const Badge: React.FC<BadgeProps> = ({ text }) => {
@@ -61,12 +70,7 @@ const TextWithBadges: React.FC<TextWithBadgesProps> = ({ text }) => {
         parts.push(<span key={lastIndex}>{remainingText}</span>);
     }
 
-    return (
-        <>
-            <br />
-            <span>{parts}</span>
-        </>
-    );
+    return <TextContainer>{parts}</TextContainer>;
 };
 
 export default TextWithBadges;

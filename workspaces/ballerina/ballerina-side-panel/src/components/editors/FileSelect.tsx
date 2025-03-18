@@ -15,6 +15,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { FormField } from "../Form/types";
 import { capitalize, getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
+import { Controller } from "react-hook-form";
 
 interface DropdownEditorProps {
     field: FormField;
@@ -23,7 +24,7 @@ interface DropdownEditorProps {
 export function FileSelect(props: DropdownEditorProps) {
     const { field } = props;
     const { form } = useFormContext();
-    const { setValue } = form;
+    const { setValue, control } = form;
 
     const { rpcClient } = useRpcContext();
     const [filePath, setFilePath] = useState("");
@@ -31,15 +32,22 @@ export function FileSelect(props: DropdownEditorProps) {
     const handleFileSelect = async () => {
         const projectDirectory = await rpcClient.getCommonRpcClient().selectFileOrDirPath({ isFile: true });
         setFilePath(projectDirectory.path);
-        setValue(field.key, projectDirectory.path)
+        setValue(field.key, projectDirectory.path, { shouldValidate: true });
     };
 
     return (
-        <LocationSelector
-            label={`Select ${field.label} File`}
-            btnText="Select File"
-            selectedFile={filePath}
-            onSelect={handleFileSelect}
+        <Controller
+            control={control}
+            name={field.key}
+            rules={{ required: !field.optional && !field.placeholder }}
+            render={({ field: { value }, fieldState: { error } }) => (
+                <LocationSelector
+                    label={`Select ${field.label} File`}
+                    btnText="Select File"
+                    selectedFile={value}
+                    onSelect={handleFileSelect}
+                />
+            )}
         />
     );
 }

@@ -30,6 +30,11 @@ inputs:
     description: 'Is Ballerina'    
     type: boolean
     default: false
+    required: true  
+  bi:
+    description: 'Is BI'    
+    type: boolean
+    default: false    
   apk:
     description: 'Is APK'
     type: boolean
@@ -61,6 +66,11 @@ runs:
         if: ${{ inputs.ballerina == 'true' }}
         shell: bash
         run: git add workspaces/ballerina/*/*.json
+
+      - name: Add BI git changes
+        if: ${{ inputs.bi == 'true' }}
+        shell: bash
+        run: git add workspaces/bi/*/*.json
 
       - name: Add WSO2 Platform git changes
         if: ${{ inputs.wso2-platform == 'true' }}
@@ -101,7 +111,23 @@ runs:
           git remote set-url origin https://${{ inputs.bot_username }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
           git tag ${{ inputs.version }}
           git push origin "refs/heads/${{ inputs.version }}" "refs/tags/${{ inputs.version }}"
-          pr=$(gh pr create -B release-mi -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into release-mi' --body '$subject')
+          baseBranch=""
+          if [ "${{ inputs.ballerina }}" == 'true' ]; then
+            baseBranch="release-ballerina"
+          elif [ "${{ inputs.bi }}" == 'true' ]; then
+            baseBranch="release-bi"
+          elif [ "${{ inputs.wso2-platform }}" == 'true' ]; then
+            baseBranch="release-platform"
+          elif [ "${{ inputs.choreo }}" == 'true' ]; then
+            baseBranch="release-choreo"
+          elif [ "${{ inputs.apk }}" == 'true' ]; then
+            baseBranch="release-apk"
+          elif [ "${{ inputs.apiChat }}" == 'true' ]; then
+            baseBranch="release-api-chat"
+          elif [ "${{ inputs.mi }}" == 'true' ]; then
+            baseBranch="release-mi"
+          fi
+          pr=$(gh pr create -B "$baseBranch" -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into "$baseBranch"' --body '$subject')
           echo "prURL=$pr" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ inputs.bot_token }}

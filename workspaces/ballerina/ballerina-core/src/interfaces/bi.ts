@@ -140,6 +140,7 @@ export type CodeData = {
     inferredReturnType?: string;
     version?: string;
     isNew?: boolean;
+    isGenerated?: boolean;
 };
 
 export type Branch = {
@@ -198,7 +199,8 @@ export enum DIRECTORY_MAP {
     ENUMS = "enums",
     CLASSES = "classes",
     NATURAL_FUNCTIONS = "naturalFunctions",
-    AGENTS = "agents"
+    AGENTS = "agents",
+    LOCAL_CONNECTORS = "localConnectors",
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -213,6 +215,7 @@ export enum DIRECTORY_SUB_TYPE {
     DATA_MAPPER = "dataMapper",
     NATURAL_FUNCTION = "naturalFunction",
     AGENTS = "agents",
+    LOCAL_CONNECTORS = "localConnector",
 }
 
 export enum FUNCTION_TYPE {
@@ -237,6 +240,7 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.NATURAL_FUNCTIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.LOCAL_CONNECTORS]: ProjectStructureArtifactResponse[];
     };
 }
 

@@ -14,15 +14,15 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, ProgressRing, SearchBox, Typography, View } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
-import { BodyText } from "../../../styles";
+import { BodyText, BodyTinyInfo } from "../../../styles";
 import { ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import { TitleBar } from "../../../../components/TitleBar";
 import { TopNavigationBar } from "../../../../components/TopNavigationBar";
 
-const ViewWrapper = styled.div<{ isHalfView?: boolean; }>`
+const ViewWrapper = styled.div<{ isHalfView?: boolean }>`
     display: flex;
     flex-direction: column;
-    height: ${(props: { isHalfView: boolean; }) => props.isHalfView ? '40vh' : '100vh'};
+    height: ${(props: { isHalfView: boolean }) => (props.isHalfView ? "40vh" : "100vh")};
     width: 100%;
 `;
 
@@ -31,21 +31,22 @@ const Container = styled.div`
     width: 100%;
 `;
 
-const ListContainer = styled.div<{ isHalfView?: boolean; }>`
+const ListContainer = styled.div<{ isHalfView?: boolean }>`
     display: flex;
     flex-direction: column;
     gap: 16px;
     margin-top: 24px;
-    height: ${(props: { isHalfView: boolean; }) => props.isHalfView ? '30vh' : '80vh'};
+    height: ${(props: { isHalfView: boolean }) => (props.isHalfView ? "30vh" : "80vh")};
     gap: 8px;
     height: 80vh;
     overflow-y: scroll;
     margin-top: 16px;
 `;
 
-const GridContainer = styled.div<{ isHalfView?: boolean; }>`
+const GridContainer = styled.div<{ isHalfView?: boolean }>`
     display: grid;
-    grid-template-columns: ${(props: { isHalfView: boolean; }) => props.isHalfView ? 'unset' : 'repeat(auto-fill, minmax(200px, 1fr))'};
+    grid-template-columns: ${(props: { isHalfView: boolean }) =>
+        props.isHalfView ? "unset" : "repeat(auto-fill, minmax(200px, 1fr))"};
     gap: 16px;
     gap: 12px;
     width: 100%;
@@ -57,6 +58,13 @@ const Row = styled.div`
     align-items: center;
     gap: 8px;
     margin-top: 32px;
+    width: 100%;
+`;
+
+const LabelRow = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
 `;
 
@@ -75,13 +83,22 @@ interface ConnectorViewProps {
     fileName: string;
     targetLinePosition: LinePosition;
     onSelectConnector: (connector: AvailableNode) => void;
+    onAddGeneratedConnector: () => void;
     fetchingInfo: boolean;
     onClose?: () => void;
     hideTitle?: boolean;
 }
 
 export function ConnectorView(props: ConnectorViewProps) {
-    const { fileName, targetLinePosition, onSelectConnector, onClose, fetchingInfo, hideTitle } = props;
+    const {
+        fileName,
+        targetLinePosition,
+        onSelectConnector,
+        onAddGeneratedConnector,
+        onClose,
+        fetchingInfo,
+        hideTitle,
+    } = props;
     const { rpcClient } = useRpcContext();
 
     const [connectors, setConnectors] = useState<Category[]>([]);
@@ -92,6 +109,12 @@ export function ConnectorView(props: ConnectorViewProps) {
         setIsSearching(true);
         getConnectors();
     }, []);
+
+    rpcClient?.onProjectContentUpdated((state: boolean) => {
+        if (state) {
+            getConnectors();
+        }
+    });
 
     const getConnectors = () => {
         rpcClient
@@ -105,9 +128,11 @@ export function ConnectorView(props: ConnectorViewProps) {
                 queryMap: { limit: 60 },
                 searchKind: "CONNECTOR",
             })
-            .then((model) => {
+            .then(async (model) => {
                 console.log(">>> bi connectors", model);
-                setConnectors(model.categories);
+                const filtered = await filterCategories(model.categories);
+                console.log(">>> bi filtered connectors", filtered);
+                setConnectors(filtered);
             })
             .finally(() => {
                 setIsSearching(false);
@@ -132,9 +157,11 @@ export function ConnectorView(props: ConnectorViewProps) {
                 queryMap: { q: text, limit: 60 },
                 searchKind: "CONNECTOR",
             })
-            .then((model) => {
+            .then(async (model) => {
                 console.log(">>> bi searched connectors", model);
-                setConnectors(model.categories);
+                const filtered = await filterCategories(model.categories);
+                console.log(">>> bi filtered connectors", filtered);
+                setConnectors(filtered);
             })
             .finally(() => {
                 setIsSearching(false);
@@ -177,6 +204,24 @@ export function ConnectorView(props: ConnectorViewProps) {
         category.items = filterItems(category.items);
         return category;
     });
+
+    async function filterCategories(categories: Category[]): Promise<Category[]> {
+        const localConnectors = (
+            await rpcClient.getBIDiagramRpcClient().getOpenApiGeneratedModules({ projectPath: "" })
+        ).modules;
+        return categories.map((category) => {
+            if (category.metadata.label === "Local") {
+                const filteredItems = category.items.filter(
+                    (item): item is AvailableNode =>
+                        "codedata" in item && localConnectors.includes(item.codedata.module || "")
+                );
+
+                return { ...category, items: filteredItems };
+            }
+
+            return category;
+        });
+    }
 
     const isFullView = onClose === undefined;
     const isLoading = isSearching || fetchingInfo;
@@ -231,40 +276,63 @@ export function ConnectorView(props: ConnectorViewProps) {
                         {/* Default connectors of LS is hardcoded and is sent with categories with item field */}
                         {filteredCategories[0]?.items ? (
                             filteredCategories.map((category, index) => {
-                                if (!category.items || category.items.length === 0) {
+                                const isLocalConnectorCategory = category.metadata.label === "Local";
+                                const itemCount = category.items?.length || 0;
+                                const isLocalConnectorsEmpty = isLocalConnectorCategory && itemCount === 0;
+
+                                if (!isLocalConnectorCategory && (!category.items || category.items.length === 0)) {
                                     return null;
                                 }
+
                                 return (
                                     <div key={category.metadata.label + index}>
-                                        <Typography variant="h3">{category.metadata.label}</Typography>
-                                        <GridContainer isHalfView={hideTitle}>
-                                            {category.items?.map((connector, index) => {
-                                                return (
-                                                    <ButtonCard
-                                                        key={connector.metadata.label + index}
-                                                        title={connector.metadata.label}
-                                                        description={
-                                                            (connector as AvailableNode).codedata.org +
-                                                            " / " +
-                                                            (connector as AvailableNode).codedata.module
-                                                        }
-                                                        truncate={true}
-                                                        icon={
-                                                            connector.metadata.icon ? (
-                                                                <ConnectorIcon
-                                                                    node={connector as unknown as FlowNode}
-                                                                />
-                                                            ) : (
-                                                                <Codicon name="package" />
-                                                            )
-                                                        }
-                                                        onClick={() => {
-                                                            onSelectConnector(connector as AvailableNode);
-                                                        }}
-                                                    />
-                                                );
-                                            })}
-                                        </GridContainer>
+                                        <LabelRow>
+                                            <Typography variant="h3">{category.metadata.label}</Typography>
+                                            {isLocalConnectorCategory && (
+                                                <Button
+                                                    appearance="icon"
+                                                    tooltip={"Add a Connector from OpenAPI"}
+                                                    onClick={onAddGeneratedConnector}
+                                                >
+                                                    <Codicon name="add" />
+                                                </Button>
+                                            )}
+                                        </LabelRow>
+                                        {isLocalConnectorsEmpty ? (
+                                            <BodyTinyInfo style={{ textAlign: "center" }}>
+                                                No local connectors found. You can create one by importing an OpenAPI
+                                                spec.
+                                            </BodyTinyInfo>
+                                        ) : (
+                                            <GridContainer isHalfView={hideTitle}>
+                                                {category.items?.map((connector, index) => {
+                                                    return (
+                                                        <ButtonCard
+                                                            key={connector.metadata.label + index}
+                                                            title={connector.metadata.label}
+                                                            description={
+                                                                (connector as AvailableNode).codedata.org +
+                                                                " / " +
+                                                                (connector as AvailableNode).codedata.module
+                                                            }
+                                                            truncate={true}
+                                                            icon={
+                                                                connector.metadata.icon ? (
+                                                                    <ConnectorIcon
+                                                                        node={connector as unknown as FlowNode}
+                                                                    />
+                                                                ) : (
+                                                                    <Codicon name="package" />
+                                                                )
+                                                            }
+                                                            onClick={() => {
+                                                                onSelectConnector(connector as AvailableNode);
+                                                            }}
+                                                        />
+                                                    );
+                                                })}
+                                            </GridContainer>
+                                        )}
                                     </div>
                                 );
                             })

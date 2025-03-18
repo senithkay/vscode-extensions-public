@@ -127,11 +127,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             filePath: projectPath,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -145,22 +145,6 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                 convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
             );
             return;
-        }
-        // filter "Current Integration" category items to support isIsolatedFunction
-        const currentIntegrationCategory = response.categories.find(
-            (category) => category.metadata.label === "Current Integration"
-        );
-        if (currentIntegrationCategory) {
-            currentIntegrationCategory.items = currentIntegrationCategory.items.filter(
-                (item, index) => {
-                    // check key isIsolatedFunction in item.metadata.data
-                    if (!item.metadata.data || !item.metadata.data.hasOwnProperty('isIsolatedFunction')) {
-                        return true;
-                    }
-                    // if key exists return value of isIsolatedFunction
-                    return item.metadata.data.isIsolatedFunction;
-                }
-            );
         }
         if (!response || !response.categories) {
             return [];
@@ -198,9 +182,12 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     };
 
     const handleToolSubmit = (data: FormValues) => {
-        console.log("Tool name", data);
+        // Safely convert name to camelCase, handling any input
+        const name = data["name"] || "";
+        const cleanName = name.trim().replace(/[^a-zA-Z0-9]/g, "") || "newTool";
+
         const toolModel: AgentToolRequest = {
-            toolName: data["name"],
+            toolName: cleanName,
             description: data["description"],
             selectedCodeData: selectedNodeCodeData,
         };

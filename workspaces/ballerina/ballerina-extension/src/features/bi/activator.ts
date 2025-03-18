@@ -102,6 +102,8 @@ export function activate(context: BallerinaExtension) {
             await handleComponentDeletion('configurableVariables', item.label, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.NATURAL_FUNCTION) {
             await handleComponentDeletion('naturalFunctions', item.label, item.info);
+        } else if (item.contextValue === DIRECTORY_SUB_TYPE.LOCAL_CONNECTORS) {
+            await handleLocalModuleDeletion(item.label, item.info);
         }
     });
 
@@ -122,7 +124,7 @@ export function activate(context: BallerinaExtension) {
     });
 
     //HACK: Open all Ballerina files in the project
-    openAllBallerinaFiles(context);
+    // openAllBallerinaFiles(context);
 }
 
 function openAllBallerinaFiles(context: BallerinaExtension) {
@@ -195,6 +197,14 @@ const handleComponentDeletion = async (componentType: string, itemLabel: string,
                 });
             });
         });
+    });
+};
+
+const handleLocalModuleDeletion = async (moduleName: string, filePath: string) => {
+    const rpcClient = new BiDiagramRpcManager();
+    // Note: Project path is overriden at rpc-client level.
+    rpcClient.deleteOpenApiGeneratedModules({ projectPath: "", module: moduleName }).then((response) => {
+        console.log(">>> Updated source code after local connector delete", response);
     });
 };
 

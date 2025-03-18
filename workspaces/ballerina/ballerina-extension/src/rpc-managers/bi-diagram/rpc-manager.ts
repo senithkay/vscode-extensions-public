@@ -60,6 +60,7 @@ import {
     FunctionNode,
     FunctionNodeRequest,
     FunctionNodeResponse,
+    GeneratedClientSaveResponse,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
     GetRecordModelFromSourceRequest,
@@ -72,6 +73,11 @@ import {
     ImportStatements,
     LinePosition,
     ModelFromCodeRequest,
+    OpenAPIClientDeleteRequest,
+    OpenAPIClientDeleteResponse,
+    OpenAPIClientGenerationRequest,
+    OpenAPIGeneratedModulesRequest,
+    OpenAPIGeneratedModulesResponse,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -275,14 +281,21 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         } catch (error) {
             console.log(">>> error updating source", error);
         }
-        if (!isConnector && !isFunctionNodeUpdate) {
-            updateView();
-        }
     }
 
     async applyTextEdits(filePath: string, textEdits: TextEdit[]): Promise<void> {
         const workspaceEdit = new vscode.WorkspaceEdit();
         const fileUri = Uri.file(filePath);
+
+        const dirPath = path.dirname(filePath);
+        const dirUri = vscode.Uri.file(dirPath);
+
+        try {
+            await vscode.workspace.fs.createDirectory(dirUri);
+            workspaceEdit.createFile(fileUri, { ignoreIfExists: true });
+        } catch (error) {
+            console.error("Error creating file or directory:", error);
+        }
 
         for (const edit of textEdits) {
             const range = new vscode.Range(
@@ -306,6 +319,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             console.log(">>> document");
             console.log(document.getText());
             console.log(">>> end document");
+
+            await document.save();
+
             await StateMachine.langClient().didChange({
                 textDocument: {
                     uri: fileUri.toString(),
@@ -1498,10 +1514,10 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getFunctionNames(): Promise<RecordsInWorkspaceMentions> {
         const projectComponents = await this.getProjectComponents();
-        
+
         // Extracting all function names
         const functionNames: string[] = [];
-        
+
         if (projectComponents?.components?.packages) {
             for (const pkg of projectComponents.components.packages) {
                 for (const module of pkg.modules || []) {
@@ -1513,8 +1529,92 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 }
             }
         }
-        
+
         return { mentions: functionNames };
+    }
+
+    async generateOpenApiClient(params: OpenAPIClientGenerationRequest): Promise<GeneratedClientSaveResponse> {
+        return new Promise((resolve, reject) => {
+            const projectPath = StateMachine.context().projectUri;
+            const request: OpenAPIClientGenerationRequest = {
+                openApiContractPath: params.openApiContractPath,
+                projectPath: projectPath,
+                module: params.module
+            };
+            StateMachine.langClient().openApiGenerateClient(request).then((res) => {
+                if (!res.source || !res.source.textEditsMap) {
+                    console.error("textEditsMap is undefined or null");
+                    reject(new Error("textEditsMap is undefined or null"));
+                    return;
+                }
+
+                if (res.source.isModuleExists) {
+                    console.error("Module already exists");
+                    resolve({ errorMessage: "Module already exists" });
+                    return;
+                }
+
+                // Convert the plain object back to a Map
+                const textEditsMap = new Map(Object.entries(res.source.textEditsMap));
+                textEditsMap.forEach(async (value, key) => {
+                    await this.applyTextEdits(key, value);
+                });
+                resolve({});
+            }).catch((error) => {
+                console.log(">>> error generating openapi client", error);
+                reject(error);
+            });
+        });
+    }
+
+    async getOpenApiGeneratedModules(params: OpenAPIGeneratedModulesRequest): Promise<OpenAPIGeneratedModulesResponse> {
+        return new Promise((resolve, reject) => {
+            const projectPath = StateMachine.context().projectUri;
+            const request: OpenAPIGeneratedModulesRequest = {
+                projectPath: projectPath
+            };
+            StateMachine.langClient().getOpenApiGeneratedModules(request).then((res) => {
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting openapi generated modules", error);
+                reject(error);
+            });
+        });
+    }
+
+    async deleteOpenApiGeneratedModules(params: OpenAPIClientDeleteRequest): Promise<OpenAPIClientDeleteResponse> {
+        return new Promise((resolve, reject) => {
+            const projectPath = StateMachine.context().projectUri;
+            const request: OpenAPIClientDeleteRequest = {
+                projectPath: projectPath,
+                module: params.module
+            };
+            StateMachine.langClient().deleteOpenApiGeneratedModule(request).then(async (res) => {
+                for (const [key, value] of Object.entries(res.deleteData.textEditsMap)) {
+                    await this.applyTextEdits(key, value);
+                }
+                for (const file of res.deleteData.filesToDelete) {
+                    await this.applyTextEdits(file, [{
+                        newText: "",
+                        range: {
+                            start: {
+                                character: 0,
+                                line: 0,
+                            },
+                            end: {
+                                character: Number.MAX_VALUE,
+                                line: Number.MAX_VALUE,
+                            }
+                        }
+                    }]);
+                }
+                updateView();
+                resolve(res);
+            }).catch((error) => {
+                console.log(">>> error getting openapi generated modules", error);
+                reject(error);
+            });
+        });
     }
 }
 

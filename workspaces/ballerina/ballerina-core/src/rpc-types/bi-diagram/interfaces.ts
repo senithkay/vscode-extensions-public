@@ -165,3 +165,7 @@ export interface DevantComponent {
     project: string;
     component: string;
 }
+
+export interface GeneratedClientSaveResponse {
+    errorMessage?: string;
+}
