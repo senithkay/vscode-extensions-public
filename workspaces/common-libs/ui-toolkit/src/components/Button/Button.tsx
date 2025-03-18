@@ -22,7 +22,6 @@ export interface ButtonProps {
     disabled?: boolean;
     sx?: React.CSSProperties;
     buttonSx?: React.CSSProperties;
-    'data-testid'?: string;
     onClick?: (() => void) | ((event: React.MouseEvent<HTMLElement | SVGSVGElement>) => void);
 }
 

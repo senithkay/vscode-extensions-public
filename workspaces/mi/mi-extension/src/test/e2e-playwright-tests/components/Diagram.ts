@@ -126,7 +126,6 @@ export class Diagram {
 
     private async clickPlusButtonByIndex(index: number) {
         const plusBtns = (await this.getDiagramContainer()).getByTestId("add-mediator-button");
-        //Why no waitFor here?
         if (await plusBtns.count() > 1) {
             await plusBtns.nth(index).hover();
             await plusBtns.nth(index).click();
