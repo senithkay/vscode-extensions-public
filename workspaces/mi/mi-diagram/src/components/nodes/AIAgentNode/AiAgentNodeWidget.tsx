@@ -272,6 +272,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
 
     const ConnectionCircle = (connection: AIConnectorConnection, marginTop: string, type: string) => {
         const [connectionIconPath, setConnectionIconPath] = useState(null);
+        const [isLoading, setIsLoading] = useState(true);
 
         useEffect(() => {
             node.setSelected(sidePanelContext?.node === node);
@@ -292,7 +293,8 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     path: path.join(connectorData.iconPath, 'connections'),
                     name: connectionType
                 });
-                setConnectionIconPath(connectionIconPath?.uri ?? iconPath);
+                setConnectionIconPath(connectionIconPath?.uri);
+                setIsLoading(false);
             }
             fetchData(connection.name);
         }, [connection.name]);
@@ -341,9 +343,9 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                         style={{ stroke: isHovered[type as keyof typeof isHovered] ? Colors.SECONDARY : Colors.OUTLINE_VARIANT }}
                     />
 
-                    {connectionIconPath && <g transform="translate(88,7)">
+                    {!isLoading && <g transform="translate(88,7)">
                         <foreignObject width="25" height="25">
-                            <img src={connectionIconPath} alt="Icon" />
+                            <img src={connectionIconPath ?? iconPath} alt="Icon" />
                         </foreignObject>
                     </g>}
 
