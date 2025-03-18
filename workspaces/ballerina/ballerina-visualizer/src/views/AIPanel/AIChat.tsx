@@ -22,6 +22,7 @@ import {
     TestGenerationTarget,
     LLMDiagnostics,
     ImportStatement,
+    DiagnosticEntry,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -126,12 +127,12 @@ const TEMPLATE_GENERATE = [
     "generate an integration according to the given Readme file",
 ];
 const TEMPLATE_TESTS = [
-    "generate test using <servicename> service",
-    "generate test for resource <method(space)path> function",
+    "generate tests for <servicename> service",
+    "generate tests for resource <method(space)path> function",
 ];
 const TEMPLATE_DATAMAP = [
-    "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
-    "generate mapping using input as <recordname(s)> and output as <recordname>",
+    "generate mappings using input as <recordname(s)> and output as <recordname> using the function <functionname>",
+    "generate mappings for the <functionname> function"
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
 const TEMPLATE_DOCUMENTATION: string[] = [];
@@ -592,6 +593,12 @@ export function AIChat() {
                     case COMMAND_DATAMAP: {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
                             await processMappingParameters(cleanedMessage, token, parameters, attachments);
+                        } else if (messageBody.includes("function")) {
+                            await processMappingParameters(cleanedMessage, token, {
+                                inputRecord: [],
+                                outputRecord: "",
+                                functionName:parameters.functionName
+                            }, attachments);
                         } else {
                             throw new Error(
                                 `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
@@ -672,21 +679,20 @@ export function AIChat() {
             }
         }
         return "";
-    }
+    }  
 
     function extractParameters(command: string, messageBody: string): MappingParameters | null {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
-                .replace(/<servicename>/g, "(\\S+?)")
+                .replace(/<servicename>/g, "(.+?)")
                 .replace(
                     /<recordname\(s\)>/g,
                     "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)"
                 )
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
-                .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<requirements>/g, "([\\s\\S]+?)")
-                .replace(/<functionname>/g, "(\\S+?)")
+                .replace(/<functionname>/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");
 
@@ -707,10 +713,17 @@ export function AIChat() {
                     }
 
                     const outputRecordName = match[2].trim();
-                    const functionName = match[3]?.trim() || "";
+                    let functionName = match[3]?.trim() || "";
                     return {
                         inputRecord: inputRecordList,
                         outputRecord: outputRecordName,
+                        functionName,
+                    };
+                } else if (command === COMMAND_DATAMAP && template.includes("<functionname>")) {
+                    let functionName = match[1].trim();
+                    return {
+                        inputRecord: [],
+                        outputRecord: "",
                         functionName,
                     };
                 }
@@ -785,7 +798,11 @@ export function AIChat() {
                 return [];
             }
             case COMMAND_DATAMAP: {
-                return (await rpcClient.getBIDiagramRpcClient().getRecordNames()).mentions;
+                if (template.includes("<recordname(s)>") && template.includes("<recordname>") ) {
+                    return (await rpcClient.getBIDiagramRpcClient().getRecordNames()).mentions;
+                } else {
+                    return (await rpcClient.getBIDiagramRpcClient().getFunctionNames()).mentions;
+                }
             }
             case COMMAND_TYPECREATOR: {
                 return [];
@@ -887,13 +904,20 @@ export function AIChat() {
                 // Update the functions state instead of the global variable
                 setFunctions(event.body);
             } else if (event.event == "message_stop") {
-                const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
-                    assistant_response: assistant_response,
-                });
-                assistant_response = postProcessResp.assistant_response;
-                const diagnostics = postProcessResp.diagnostics.diagnostics;
-                console.log("Initial Diagnostics : ", diagnostics);
-                setCurrentDiagnostics(diagnostics);
+                let diagnostics: DiagnosticEntry[] = [];
+                try {
+                    const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                        assistant_response: assistant_response,
+                    });
+                    assistant_response = postProcessResp.assistant_response;
+                    diagnostics = postProcessResp.diagnostics.diagnostics;
+                    console.log("Initial Diagnostics : ", diagnostics);
+                    setCurrentDiagnostics(diagnostics);
+                } catch (error) {
+                    // Add this catch block because `Add to Integration` button not appear for `/generate`
+                    // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
+                    diagnostics = [];
+                }
                 if (diagnostics.length > 0) {
                     const diagReq = {
                         response: assistant_response,
@@ -999,6 +1023,47 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
+    // Helper function to escape regex special characters in a string
+    function escapeRegexString(str: string): string {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // Function to create regex for finding a function without error type
+    function createFunctionWithoutErrorTypeRegex(functionName: string, returnType: string): RegExp {
+        const escapedReturnType = escapeRegexString(returnType);
+        return new RegExp(
+            `function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?!\\|error)\\s*(?:=>|\\{)`, 
+            's'
+        );
+    }
+
+    // Function to create regex for adding error type to a function signature
+    function createAddErrorTypeRegex(functionName: string, returnType: string): RegExp {
+        const escapedReturnType = escapeRegexString(returnType);
+        return new RegExp(
+            `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType})\\s*(=>|\\{)`, 
+            's'
+        );
+    }
+
+    // Function to create regex for arrow function signatures
+    function createArrowFunctionSignatureRegex(functionName: string, returnType: string): RegExp {
+        const escapedReturnType = escapeRegexString(returnType);
+        return new RegExp(
+            `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*=>\\s*\\{[^}]*\\}`, 
+            's'
+        );
+    }
+
+    // Function to create regex for regular function signatures
+    function createRegularFunctionSignatureRegex(functionName: string, returnType: string): RegExp {
+        const escapedReturnType = escapeRegexString(returnType);
+        return new RegExp(
+            `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*\\{[^}]*\\}`, 
+            's'
+        );
+    }
+
     const handleAddAllCodeSegmentsToWorkspace = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
@@ -1024,7 +1089,36 @@ export function AIChat() {
             if (command === "ai_map") {
                 const importRegex = /import\s+[^;]+;/g;
                 const commentRegex = /^(?:(\/\/.*|#.*)\n)+/; // Matches both `//` and `#` comment blocks at the top
+                const functionRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^={|]+)(?:\|error)?\s*=>\s*\{([\s\S]*)\}\s*;?/;
+    
+                // Check if we're dealing with a function that should be merged
+                const functionMatch = segmentText.match(functionRegex);
+                let shouldMergeFunction = false;
+                let functionName = "";
+                let functionBody = "";
+                let returnType = "";
+                let hasErrorType = false;
+                
+                if (functionMatch) {
+                    functionName = functionMatch[1];
+                    const params = functionMatch[2];
+                    returnType = functionMatch[3].trim();
+                    functionBody = functionMatch[4].trim();
+                    
+                    // Check if new function has error return type
+                    hasErrorType = segmentText.includes(`returns ${returnType}|error`);         
+                    // This regex now correctly handles both with and without |error in existing functions
+                    const existingFunctionRegex = new RegExp(
+                        `function\\s+${functionName}\\s*(?:\\([^)]*\\))?\\s*(?:returns\\s+[^={|]+(?:\\|error)?)?\\s*(?:=>\\s*\\{[^}]*\\}|\\{[^}]*\\}|=>\\s*;)?`, 
+                        's'
+                    );
+                    const existingFunctionMatch = originalContent.match(existingFunctionRegex);
 
+                    if (existingFunctionMatch) {
+                        shouldMergeFunction = true;
+                    }
+                }
+    
                 const imports = segmentText.match(importRegex) || [];
                 const codeWithoutImports = segmentText.replace(importRegex, "").trim();
 
@@ -1047,9 +1141,39 @@ export function AIChat() {
                         updatedImports += `${imp}\n`;
                     }
                 });
+    
+                if (shouldMergeFunction) {
+                    const existingFunctionWithoutErrorRegex = createFunctionWithoutErrorTypeRegex(functionName, returnType);
+                    const missingErrorType = existingFunctionWithoutErrorRegex.test(updatedContent) && hasErrorType;
 
-                updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}\n${codeWithoutImports}`;
+                    if (missingErrorType) {
+                        const addErrorTypeRegex = createAddErrorTypeRegex(functionName, returnType);
+                        updatedContent = updatedContent.replace(
+                            addErrorTypeRegex,
+                            `$1|error $2`
+                        );
+                    }
+
+                    const arrowFunctionSignatureRegex = createArrowFunctionSignatureRegex(functionName, returnType);
+                    const regularFunctionSignatureRegex = createRegularFunctionSignatureRegex(functionName, returnType);
+                    if (arrowFunctionSignatureRegex.test(updatedContent)) {
+                        updatedContent = updatedContent.replace(arrowFunctionSignatureRegex, (match, signature) => {
+                            return `${signature} => {\n    ${functionBody}\n}`;
+                        });
+                    } 
+                    else if (regularFunctionSignatureRegex.test(updatedContent)) {
+                        updatedContent = updatedContent.replace(regularFunctionSignatureRegex, (match, signature) => {
+                            return `${signature} {\n    ${functionBody}\n}`;
+                        });
+                    }
+                    
+                    updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}`;
+                } else {
+                    updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}\n${codeWithoutImports}`;
+                }                                     
+                
                 segmentText = updatedContent.trim();
+                rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: segmentText });
             } else if (command === "test") {
                 segmentText = `${originalContent}\n\n${segmentText}`;
             } else {
@@ -1135,6 +1259,7 @@ export function AIChat() {
                     isTestCode = true;
                 }
                 const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
+                rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: revertContent });
                 await rpcClient
                     .getAiPanelRpcClient()
                     .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
@@ -1468,11 +1593,18 @@ export function AIChat() {
         let newImports;
         const recordMap = new Map();
         const importsMap = new Map();
+        let inputs: DataMappingRecord[];
+        let output;
+        let inputParams;
+        let outputParam;
+        let functionSignatureMatch = false;
+        let functionNameMatch = false;
+        let matchingFunctionFile = "";
+        let matchingFunctionFilePath = "";
+        let inputNames: string[] = [];
         setIsLoading(true);
 
-        const inputParams = parameters.inputRecord;
-        const outputParam = parameters.outputRecord;
-        const functionName = parameters.functionName || "transform";
+        const functionName = parameters.functionName;
 
         const invalidPattern = /[<>\/\(\)\{\}\[\]\\!@#$%^&*_+=|;:'",.?`~]/;
 
@@ -1492,7 +1624,8 @@ export function AIChat() {
                 });
             }
         });
-
+    
+        const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number; }[] = [];
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
                 let filepath = pkg.filePath;
@@ -1503,106 +1636,198 @@ export function AIChat() {
                     const recFilePath = filepath + rec.filePath;
                     recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
                 });
+                
+                // Collect functions
+                mod.functions?.forEach((func) => {
+                    if (func.name === functionName) {
+                        existingFunctions.push({
+                            name: func.name,
+                            filePath: filepath + func.filePath,
+                            startLine: func.startLine,
+                            endLine: func.endLine
+                        });
+                    }
+                });
             });
         });
 
-        const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
-            const isArray = param.endsWith("[]");
-            const importedRecordName = param.replace(/\[\]$/, "");
-            const rec = recordMap.get(importedRecordName);
+        if (!(parameters.inputRecord.length === 0 && parameters.outputRecord === "")) {
+            inputParams = parameters.inputRecord;
+            outputParam = parameters.outputRecord;
+    
+            inputs = inputParams.map((param: string) => {
+                const isArray = param.endsWith("[]");
+                const importedRecordName = param.replace(/\[\]$/, "");
+                const rec = recordMap.get(importedRecordName);
+    
+                if (!rec) {
+                    if (importedRecordName.includes(":")) {
+                        if (!importedRecordName.includes("/")) {
+                            const [moduleName, recordName] = importedRecordName.split(":");
+                            const matchedImport = allImports.find((imp) => {
+                                if (imp.alias) {
+                                    return importedRecordName.startsWith(imp.alias);
+                                }
+                                const moduleNameParts = imp.moduleName.split(".");
+                                const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                                return importedRecordName.startsWith(inferredAlias);
+                            });
 
-            if (!rec) {
-                if (importedRecordName.includes(":")) {
-                    if (!importedRecordName.includes("/")) {
-                        const [moduleName, recordName] = importedRecordName.split(":");
+                            if (!matchedImport) {
+                                return INVALID_RECORD_REFERENCE;
+                            }
+                            importsMap.set(importedRecordName, {
+                                moduleName: matchedImport.moduleName,
+                                alias: matchedImport.alias,
+                                recordName: recordName,
+                            });
+                        } else {
+                            const [moduleName, recordName] = importedRecordName.split(":");
+                            importsMap.set(importedRecordName, {
+                                moduleName: moduleName,
+                                recordName: recordName,
+                            });
+                        }
+                        return { type: `${importedRecordName}`, isArray, filePath: null };
+                    } else {
+                        throw new Error(`${importedRecordName} is not defined.`);
+                    }
+                }
+                return { ...rec, isArray };
+            });
+
+            const parts = outputParam.split("|");
+            const validParts = parts.filter((name) => name !== "error");
+            if (validParts.length > 1) {
+                throw new Error(
+                    `Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`
+                );
+            }
+            const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
+
+            const outputRecordName = cleanedOutputRecordName.replace(/\[\]$/, "");
+            const outputIsArray = cleanedOutputRecordName.endsWith("[]");
+
+            output = recordMap.get(outputRecordName);
+
+            if (!output) {
+                if (outputRecordName.includes(":")) {
+                    if (!outputRecordName.includes("/")) {
+                        const [moduleName, recordName] = outputRecordName.split(":");
                         const matchedImport = allImports.find((imp) => {
                             if (imp.alias) {
-                                // Match using alias if it exists
-                                return importedRecordName.startsWith(imp.alias);
+                                return outputRecordName.startsWith(imp.alias);
                             }
-                            // If alias doesn't exist, match using the last part of the module name
                             const moduleNameParts = imp.moduleName.split(".");
                             const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                            return importedRecordName.startsWith(inferredAlias);
+                            return outputRecordName.startsWith(inferredAlias);
                         });
 
                         if (!matchedImport) {
                             return INVALID_RECORD_REFERENCE;
                         }
-                        // Use the actual alias if present, otherwise infer from the module name
-                        const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                        importsMap.set(importedRecordName, {
+                        importsMap.set(outputRecordName, {
                             moduleName: matchedImport.moduleName,
                             alias: matchedImport.alias,
                             recordName: recordName,
                         });
                     } else {
-                        const [moduleName, recordName] = importedRecordName.split(":");
-                        importsMap.set(importedRecordName, {
+                        const [moduleName, recordName] = outputRecordName.split(":");
+                        importsMap.set(outputRecordName, {
                             moduleName: moduleName,
                             recordName: recordName,
                         });
                     }
-                    return { type: `${importedRecordName}`, isArray, filePath: null };
+                    output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
                 } else {
-                    throw new Error(`${importedRecordName} is not defined.`);
+                    throw new Error(`${outputRecordName} is not defined.`);
                 }
-            }
-            return { ...rec, isArray };
-        });
-
-        const parts = outputParam.split("|");
-        const validParts = parts.filter((name) => name !== "error");
-        if (validParts.length > 1) {
-            throw new Error(
-                `Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`
-            );
-        }
-        const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
-
-        const outputRecordName = cleanedOutputRecordName.replace(/\[\]$/, "");
-        const outputIsArray = cleanedOutputRecordName.endsWith("[]");
-
-        let output = recordMap.get(outputRecordName);
-
-        if (!output) {
-            if (outputRecordName.includes(":")) {
-                if (!outputRecordName.includes("/")) {
-                    const [moduleName, recordName] = outputRecordName.split(":");
-                    const matchedImport = allImports.find((imp) => {
-                        if (imp.alias) {
-                            // Match using alias if it exists
-                            return outputRecordName.startsWith(imp.alias);
-                        }
-                        // If alias doesn't exist, match using the last part of the module name
-                        const moduleNameParts = imp.moduleName.split(".");
-                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                        return outputRecordName.startsWith(inferredAlias);
-                    });
-
-                    if (!matchedImport) {
-                        return INVALID_RECORD_REFERENCE;
-                    }
-                    // Use the actual alias if present, otherwise infer from the module name
-                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                    importsMap.set(outputRecordName, {
-                        moduleName: matchedImport.moduleName,
-                        alias: matchedImport.alias,
-                        recordName: recordName,
-                    });
-                } else {
-                    const [moduleName, recordName] = outputRecordName.split(":");
-                    importsMap.set(outputRecordName, {
-                        moduleName: moduleName,
-                        recordName: recordName,
-                    });
-                }
-                output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
             } else {
-                throw new Error(`${outputRecordName} is not defined.`);
+                output = { ...output, isArray: outputIsArray };
             }
         } else {
-            output = { ...output, isArray: outputIsArray };
+            let extractedInputs = [];
+            let extractedOutput = null;
+
+            if (existingFunctions.length > 0) {
+                for (const func of existingFunctions) {
+                    const functionContent = await rpcClient.getAiPanelRpcClient().getFromFile({
+                        filePath: func.filePath.split("/").pop(),
+                    });
+                    matchingFunctionFilePath = func.filePath.split("/").pop();
+
+                    const fileName = func.filePath.split("/").pop();
+                    const signatureRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^{=]+)(?:\s*=>\s*)?/;
+                    const match = functionContent.match(signatureRegex);
+
+                    if (match) {
+                        const funcName = match[1];
+                        if (funcName === functionName) {
+                            functionNameMatch = true;
+                            matchingFunctionFile = fileName;
+
+                            const paramString = match[2].trim();
+                            const params = paramString ? paramString.split(',').map(p => p.trim()) : [];
+
+                            extractedInputs = params.map(param => {
+                                const parts = param.trim().split(/\s+/);
+                                const paramType = parts[0];
+                                const paramName = parts[1];
+                                if (paramName && inputNames) {
+                                    inputNames.push(paramName);
+                                }
+                                const isArray = paramType.endsWith("[]");
+                                const baseType = paramType.replace(/\[\]$/, "");
+
+                                const rec = recordMap.get(baseType);
+                                if (rec) {
+                                    return { ...rec, isArray };
+                                } else {
+                                    if (baseType.includes(":")) {
+                                        return { type: baseType, isArray, filePath: null };
+                                    } else {
+                                        return { type: baseType, isArray, filePath: null };
+                                    }
+                                }
+                            });
+
+                            const returnTypeStr = match[3].trim();
+                            const outputTypeStr = returnTypeStr.replace(/\|error/g, "").trim();
+                            const outputIsArray = outputTypeStr.endsWith("[]");
+                            const outputBaseType = outputTypeStr.replace(/\[\]$/, "");
+
+                            const outputRec = recordMap.get(outputBaseType);
+                            if (outputRec) {
+                                extractedOutput = { ...outputRec, isArray: outputIsArray };
+                            } else {
+                                extractedOutput = { type: outputBaseType, isArray: outputIsArray, filePath: null };
+                            }
+                            functionSignatureMatch = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (functionSignatureMatch) {
+                    inputs = extractedInputs;
+                    output = extractedOutput;
+                    inputParams = extractedInputs.map(input =>
+                        input.type + (input.isArray ? "[]" : "")
+                    );
+
+                    outputParam = output.type + (output.isArray ? "[]" : "");
+                    if (outputParam.includes("|error")) {
+                        outputParam = outputParam;
+                    }
+                } else if (functionNameMatch) {
+                    throw new Error(`A function named ${functionName} exists in '${matchingFunctionFile}'. Please provide a valid function name.`);
+                } else {
+                    throw new Error(`The function "${functionName}" was not found in the project.`);
+                }
+            } else {
+                throw new Error(`The function "${functionName}" was not found in the project. Please provide a valid function name.`);
+
+            }
         }
 
         const requestPayload: any = {
@@ -1612,6 +1837,7 @@ export function AIChat() {
             outputRecordType: output,
             functionName,
             imports: Array.from(importsMap.values()),
+            inputNames: inputNames
         };
         if (attachments && attachments.length > 0) {
             requestPayload.attachment = attachments;
@@ -1627,9 +1853,15 @@ export function AIChat() {
         }
         assistant_response += `- **Output Record**: ${outputParam}\n`;
         assistant_response += `- **Function Name**: ${functionName}\n`;
-
+    
+        if (functionSignatureMatch) {
+            assistant_response += `\n**Note**: When you click **Add to Integration**, it will override your existing mappings.\n`;
+        }
+        
         let filePath;
-        if (activeFile && activeFile.endsWith(".bal")) {
+        if (functionSignatureMatch) {
+            filePath = matchingFunctionFile;
+        } else if (activeFile && activeFile.endsWith(".bal")) {
             filePath = activeFile;
         } else {
             filePath = "data_mappings.bal";
@@ -1732,7 +1964,6 @@ export function AIChat() {
         try {
             console.log("Searching for: " + message, +"Token: ", token);
             assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
-            //console.log("Assistant Response: " + assistant_response);
 
             formatted_response = assistant_response.replace(
                 /```ballerina\s*([\s\S]+?)\s*```/g,
@@ -1760,13 +1991,12 @@ export function AIChat() {
             setIsLoading(false);
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Failed fetching data from documentation: ${error}`;
+                newMessages[newMessages.length - 1].content += `An unknown error occurred while fetching data from the documentation`;
                 newMessages[newMessages.length - 1].type = "Error";
                 return newMessages;
             });
-            throw new Error("Failed fetching");
+            return;
         }
-
         addChatEntry("user", message);
         addChatEntry("assistant", formatted_response);
     }
@@ -2250,7 +2480,8 @@ export function AIChat() {
 
             fixedResponse = postProcessResp.assistant_response;
             setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
-
+            const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(fixedResponse);
+            setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
                 newMessages[newMessages.length - 1].content = fixedResponse;

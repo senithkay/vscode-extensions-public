@@ -195,7 +195,14 @@ import {
     GetRecordModelFromSourceRequest,
     GetRecordModelFromSourceResponse,
     UpdateTypesRequest,
-    UpdateTypesResponse
+    UpdateTypesResponse,
+    DidChangeWatchedFileParams,
+    OpenAPIClientGenerationRequest,
+    OpenAPIClientGenerationResponse,
+    OpenAPIGeneratedModulesRequest,
+    OpenAPIGeneratedModulesResponse,
+    OpenAPIClientDeleteResponse,
+    OpenAPIClientDeleteRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -333,7 +340,10 @@ enum EXTENDED_APIS {
     BI_IS_ICP_ENABLED = 'icpService/isIcpEnabled',
     BI_ADD_ICP = 'icpService/addICP',
     BI_DISABLE_ICP = 'icpService/disableICP',
-    BI_SEARCH = 'flowDesignService/search'
+    BI_SEARCH = 'flowDesignService/search',
+    OPEN_API_GENERATE_CLIENT = 'openAPIService/genClient',
+    OPEN_API_GENERATED_MODULES = 'openAPIService/getModules',
+    OPEN_API_CLIENT_DELETE = 'openAPIService/deleteModule',
 }
 
 enum EXTENDED_APIS_ORG {
@@ -372,7 +382,8 @@ enum VSCODE_APIS {
     DOC_SYMBOL = 'textDocument/documentSymbol',
     CODE_ACTION = 'textDocument/codeAction',
     EXECUTE_CMD = 'workspace/executeCommand',
-    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics'
+    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics',
+    DID_CHANGE_WATCHED_FILES = 'workspace/didChangeWatchedFiles'
 }
 
 export class ExtendedLangClient extends LanguageClient implements ExtendedLangClientInterface {
@@ -406,6 +417,11 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     didChange(params: DidChangeParams): void {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
         this.sendNotification(VSCODE_APIS.DID_CHANGE, params);
+    }
+
+    didChangedWatchedFiles(params: DidChangeWatchedFileParams): void {
+        debug(`didChangedWatchedFiles at ${new Date()} - ${new Date().getTime()}`);
+        this.sendNotification(VSCODE_APIS.DID_CHANGE_WATCHED_FILES, params);
     }
 
     registerPublishDiagnostics(): void {
@@ -1028,7 +1044,17 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<BISearchResponse>(EXTENDED_APIS.BI_SEARCH, params);
     }
 
+    async openApiGenerateClient(params: OpenAPIClientGenerationRequest): Promise<OpenAPIClientGenerationResponse> {
+        return this.sendRequest<OpenAPIClientGenerationResponse>(EXTENDED_APIS.OPEN_API_GENERATE_CLIENT, params);
+    }
 
+    async getOpenApiGeneratedModules(params: OpenAPIGeneratedModulesRequest): Promise<OpenAPIGeneratedModulesResponse> {
+        return this.sendRequest<OpenAPIGeneratedModulesResponse>(EXTENDED_APIS.OPEN_API_GENERATED_MODULES, params);
+    }
+
+    async deleteOpenApiGeneratedModule(params: OpenAPIClientDeleteRequest): Promise<OpenAPIClientDeleteResponse> {
+        return this.sendRequest<OpenAPIClientDeleteResponse>(EXTENDED_APIS.OPEN_API_CLIENT_DELETE, params);
+    }
 
     // <------------ BI APIS END --------------->
 

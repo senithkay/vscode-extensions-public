@@ -13,12 +13,12 @@ import { FlowNode } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertConfig } from "../../../utils/bi";
-import { URI, Utils } from "vscode-uri";
 import ConfigForm from "./ConfigForm";
 import { cloneDeep } from "lodash";
+import { findAgentNodeFromAgentCallNode, getAgentFilePath } from "./utils";
 
 const Container = styled.div`
-    padding: 16px;
+    padding: 16px 0 16px 16px;
 `;
 
 const Row = styled.div`
@@ -58,29 +58,14 @@ export function AgentConfig(props: AgentConfigProps): JSX.Element {
 
     const initPanel = async () => {
         // get agent file path
-        const filePath = await rpcClient.getVisualizerLocation();
-        agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
+        agentFilePath.current = await getAgentFilePath(rpcClient);
         // fetch agent node
         await fetchAgentNode();
         await fetchAgentCallNode();
     };
 
     const fetchAgentNode = async () => {
-        console.log(">>> agentNode");
-        // get module nodes
-        const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
-        console.log(">>> module nodes", moduleNodes);
-        // get agent name
-        const agentName = agentCallNode.properties.connection.value;
-        // get agent node
-        const agentNode = moduleNodes.flowModel.connections.find(
-            (node) => node.properties.variable.value === agentName
-        );
-        if (!agentNode) {
-            console.error("Agent node not found");
-            return;
-        }
-        console.log(">>> agent node", agentNode);
+        const agentNode = await findAgentNodeFromAgentCallNode(agentCallNode, rpcClient);
         setAgentNode(agentNode);
     };
 

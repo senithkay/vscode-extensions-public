@@ -34,6 +34,7 @@ import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 import _ from "lodash";
+import { PlusNodeModel } from "./nodes/PlusNode/PlusNodeModel";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -350,8 +351,8 @@ export function Diagram(props: DiagramProps) {
                     const position = isAddBtn ? node.getAddButtonPosition() : node.getPosition();
                     nodeX = position.x * zoomLevel;
                     nodeY = position.y * zoomLevel;
-                    nodeWidth = node.nodeWidth * zoomLevel;
-                    nodeHeight = node.nodeHeight * zoomLevel;
+                    nodeWidth = (isAddBtn ? node.nodeWidth : node.stNode?.viewState?.w) * zoomLevel;
+                    nodeHeight = (isAddBtn ? node.nodeHeight : node.stNode?.viewState?.h) * zoomLevel;
                 }
 
                 const scroll = scrollRef?.current as any;

@@ -45,6 +45,9 @@ export function Diagram(props: DiagramProps) {
     }, [flow]);
 
     const getDiagramData = () => {
+        if (!flow || !flow.participants || flow.participants.length === 0) {
+            return { nodes: [], links: [] };
+        }
         // get entry participant
         const entryParticipant = getEntryParticipant(flow);
         if (!entryParticipant) {

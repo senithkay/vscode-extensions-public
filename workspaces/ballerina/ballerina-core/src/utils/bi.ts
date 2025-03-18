@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { ComponentInfo } from "../interfaces/ballerina";
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "../interfaces/bi";
 import { BallerinaProjectComponents, ExtendedLangClientInterface } from "../interfaces/extended-lang-client";
@@ -33,7 +33,8 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.DATA_MAPPERS]: [],
             [DIRECTORY_MAP.ENUMS]: [],
             [DIRECTORY_MAP.CLASSES]: [],
-            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: []
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: [],
+            [DIRECTORY_MAP.LOCAL_CONNECTORS]: [],
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
@@ -43,13 +44,25 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
         projectPath: projectDir
     });
     await traverseComponents(components, result, langClient, componentModel?.designModel);
+    await populateLocalConnectors(projectDir, result, langClient);
     return result;
 }
 
 async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface, designModel: CDModel) {
     const designServices: ComponentInfo[] = [];
-
+    const connectionServices: ComponentInfo[] = [];
     if (designModel) {
+        designModel.connections.forEach(connection => {
+            const connectionInfo: ComponentInfo = {
+                name: connection.symbol,
+                filePath: path.basename(connection.location.filePath),
+                startLine: connection.location.startLine.line,
+                startColumn: connection.location.startLine.offset,
+                endLine: connection.location.endLine.line,
+                endColumn: connection.location.endLine.offset,
+            }
+            connectionServices.push(connectionInfo);
+        });
         designModel?.services.forEach(service => {
             const resources: ComponentInfo[] = [];
             service.resourceFunctions.forEach(func => {
@@ -93,10 +106,10 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
         response.projectName = pkg.name;
         for (const module of pkg.modules) {
             response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "task", DIRECTORY_MAP.AUTOMATION));
-            response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
+            response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, designServices.length > 0 && !module?.name ? designServices : module.services, pkg.filePath, "http-service", DIRECTORY_MAP.SERVICES));
             response.directoryMap[DIRECTORY_MAP.LISTENERS].push(...await getComponents(langClient, module.listeners, pkg.filePath, "http-service", DIRECTORY_MAP.LISTENERS, designModel));
             response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function", DIRECTORY_MAP.FUNCTIONS));
-            response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
+            response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables.filter(item => connectionServices.map(conItem => conItem.name).includes(item.name.trim())), pkg.filePath, "connection", DIRECTORY_MAP.CONNECTIONS));
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.ENUMS].push(...await getComponents(langClient, module.enums, pkg.filePath, "type"));
@@ -111,7 +124,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
     response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
     for (const func of functions) {
         try {
-            const st = await langClient.getSTByRange({
+            const res = await langClient.getSTByRange({
                 documentIdentifier: { uri: URI.file(func.path).toString() },
                 lineRange: {
                     start: {
@@ -123,17 +136,22 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
                         character: func.position.endColumn
                     }
                 }
-            }) as STNode;
-            if (st && STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
-                func.icon = "dataMapper";
-                response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
-            } else {
-                response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
+            });
+            if (res && 'syntaxTree' in res) {
+                const funcST = res.syntaxTree;
+                if (funcST
+                    && STKindChecker.isFunctionDefinition(funcST)
+                    && STKindChecker.isExpressionFunctionBody(funcST.functionBody)
+                ) {
+                    func.icon = "dataMapper";
+                    response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
+                } else {
+                    response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
+                }
             }
         } catch (error) {
             console.log("Data mapper ST fetch failed:", error);
         }
-
     }
 }
 
@@ -188,14 +206,19 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
 
 
         const fileEntry: ProjectStructureArtifactResponse = {
-            name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || comp.filePath.replace(".bal", "") : comp.name,
+            name: dtype === DIRECTORY_MAP.SERVICES ? getComponentName(comp.name, serviceModel) || comp.filePath.replace(".bal", "") : getComponentName(comp.name, serviceModel),
             path: componentFile,
             type: compType,
             icon: iconValue,
             context: comp.name,
             serviceModel: serviceModel,
-            resources: comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
-            position: {
+            resources: serviceModel?.listenerProtocol === "agent" ? [] : comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
+            position: serviceModel?.listenerProtocol === "agent" ? {
+                endColumn: comp.resources[0].endColumn,
+                endLine: comp.resources[0].endLine,
+                startColumn: comp.resources[0].startColumn,
+                startLine: comp.resources[0].startLine
+            } : {
                 endColumn: comp.endColumn,
                 endLine: comp.endLine,
                 startColumn: comp.startColumn,
@@ -213,6 +236,34 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
 
     }
     return entries;
+}
+
+function getComponentName(name: string, serviceModel: ServiceModel) {
+    if (serviceModel?.listenerProtocol === "agent") {
+        return name.startsWith('/') ? name.substring(1) : name;
+    }
+    return name;
+}
+
+async function populateLocalConnectors(projectDir: string, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface) {
+    const filePath = `${projectDir}/Ballerina.toml`;
+    const localConnectors = (await langClient.getOpenApiGeneratedModules({ projectPath: projectDir })).modules;
+    const mappedEntries: ProjectStructureArtifactResponse[] = localConnectors.map(moduleName => ({
+        name: moduleName,
+        path: filePath,
+        type: "HTTP",
+        icon: "connection",
+        context: moduleName,
+        resources: [],
+        position: {
+            endColumn: 61,
+            endLine: 8,
+            startColumn: 0,
+            startLine: 5
+        }
+    }));
+
+    response.directoryMap[DIRECTORY_MAP.LOCAL_CONNECTORS].push(...mappedEntries);
 }
 
 function getCustomEntryNodeIcon(type: string) {
@@ -241,6 +292,10 @@ function getCustomEntryNodeIcon(type: string) {
             return "bi-salesforce";
         case "asb":
             return "bi-asb";
+        case "ftp":
+            return "bi-ftp";
+        case "file":
+            return "bi-file";
         default:
             return "bi-http-service";
     }

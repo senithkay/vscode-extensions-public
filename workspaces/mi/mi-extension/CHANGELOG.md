@@ -2,6 +2,26 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.1.1] - 2025-03-17
+
+### Fixed
+
+Fixed: Unable to Create RabbitMQ Inbound Endpoint in WSO2 MI – 'Create Event Integration' Window Fails to Open ([#959](https://github.com/wso2/mi-vscode/issues/959))
+
+## [2.1.0] - 2025-03-15
+
+### New Features
+
+Added: Support for Creating AI Agents ([#956](https://github.com/wso2/mi-vscode/issues/956))
+
+### Fixed
+
+Fixed: Clicking on the "Open Graphical VIew" from the source view of an API resource does not open the graphical view ([#794](https://github.com/wso2/mi-vscode/issues/794))  
+
+### Improvements
+
+Improved: Devant integration UX
+
 ## [2.0.4] - 2025-03-10
 
 ### Fixed

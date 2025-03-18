@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { FunctionNode, LineRange, NodeKind, NodeProperties } from "@wso2-enterprise/ballerina-core";
+import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodePropertyKey } from "@wso2-enterprise/ballerina-core";
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -69,7 +69,7 @@ export function FunctionForm(props: FunctionFormProps) {
             setFormSubtitle('Create mappings on how to convert the inputs into a single output');
         } else if (isNpFunction) {
             nodeKind = 'NP_FUNCTION_DEFINITION';
-            formType.current = 'Natural Programming Function';
+            formType.current = 'Natural Function';
             setTitleSubtitle('Build a flow using a natural language description');
             setFormSubtitle('Describe what you need in a prompt and let AI handle the implementation');
         } else {
@@ -107,7 +107,30 @@ export function FunctionForm(props: FunctionFormProps) {
                 filePath: Utils.joinPath(URI.file(projectPath), fileName).fsPath,
                 id: { node: kind },
             });
-        const flowNode = res.flowNode;
+        let flowNode = res.flowNode;
+        if (isNpFunction) {
+            /* 
+            * TODO: Remove this once the LS is updated
+            * HACK: Add the advanced fields under parameters.advanceProperties
+            */ 
+            // Get all the advanced fields
+            let properties = flowNode.properties as NodeProperties;
+            const advancedProperties = Object.fromEntries(
+                Object.entries(properties).filter(([_, property]) => property.advanced)
+            );
+            // Remove the advanced fields from properties
+            properties = Object.fromEntries(
+                Object.entries(properties).filter(([_, property]) => !property.advanced)
+            );
+            flowNode.properties = properties;
+
+            // Add the all the advanced fields to advanceProperties
+            flowNode.properties.parameters = {
+                ...flowNode.properties.parameters,
+                advanceProperties: advancedProperties
+            }
+        }
+
         setFunctionNode(flowNode);
         console.log("Function Node: ", flowNode);
     }
@@ -120,7 +143,30 @@ export function FunctionForm(props: FunctionFormProps) {
                 fileName,
                 projectPath
             });
-        const flowNode = res.functionDefinition;
+        let flowNode = res.functionDefinition;
+        if (isNpFunction) {
+            /* 
+            * TODO: Remove this once the LS is updated
+            * HACK: Add the advanced fields under parameters.advanceProperties
+            */ 
+            // Get all the advanced fields
+            let properties = flowNode.properties as NodeProperties;
+            const advancedProperties = Object.fromEntries(
+                Object.entries(properties).filter(([_, property]) => property.advanced)
+            );
+            // Remove the advanced fields from properties
+            properties = Object.fromEntries(
+                Object.entries(properties).filter(([_, property]) => !property.advanced)
+            );
+            flowNode.properties = properties;
+
+            // Add the all the advanced fields to advanceProperties
+            flowNode.properties.parameters = {
+                ...flowNode.properties.parameters,
+                advanceProperties: advancedProperties
+            }
+        }
+
         setFunctionNode(flowNode);
         console.log("Existing Function Node: ", flowNode);
     }
@@ -129,6 +175,41 @@ export function FunctionForm(props: FunctionFormProps) {
         console.log("Function Form Data: ", data);
     
         const functionNodeCopy = { ...functionNode };
+
+        /**
+         * TODO: Remove this once the LS is updated
+         * HACK: Add the advanced fields under parameters.advanceProperties back to properties
+         */
+        if (isNpFunction) {
+            // Add values back to properties
+            const properties = functionNodeCopy.properties;
+            functionNodeCopy.properties = {
+                ...properties,
+                ...properties.parameters.advanceProperties,
+            }
+
+            // Remove the advanceProperties from parameters
+            delete properties.parameters.advanceProperties;
+        }
+
+        if (isNpFunction) {
+            // Handle advance properties
+            const enrichFlowNodeForAdvanceProperties = (data: FormValues) => {
+                for (const value of Object.values(data)) {
+                    const nestedData = value.advanceProperties;
+                    if (nestedData) {
+                        for (const [advanceKey, advanceValue] of Object.entries(nestedData)) {
+                            functionNodeCopy.properties[advanceKey as NodePropertyKey].value = advanceValue;
+                        }
+
+                        delete value.advanceProperties;
+                    }
+                }
+            }
+
+            enrichFlowNodeForAdvanceProperties(data);
+        }
+
         for (const [dataKey, dataValue] of Object.entries(data)) {
             const properties = functionNodeCopy.properties as NodeProperties;
             for (const [key, property] of Object.entries(properties)) {

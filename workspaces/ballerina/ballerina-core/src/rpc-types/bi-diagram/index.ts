@@ -70,7 +70,12 @@ import {
     GetRecordModelFromSourceRequest,
     UpdateTypesRequest,
     UpdateTypesResponse,
-    DeploymentResponse
+    DeploymentResponse,
+    OpenAPIClientGenerationRequest,
+    OpenAPIGeneratedModulesRequest,
+    OpenAPIGeneratedModulesResponse,
+    OpenAPIClientDeleteRequest,
+    OpenAPIClientDeleteResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -91,7 +96,8 @@ import {
     EndOfFileRequest,
     RecordsInWorkspaceMentions,
     BuildMode,
-    DevantComponentResponse
+    DevantComponent,
+    GeneratedClientSaveResponse
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -150,5 +156,9 @@ export interface BIDiagramAPI {
     getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
     search: (params: BISearchRequest) => Promise<BISearchResponse>;
     getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
-    getDevantComponent: () => Promise<DevantComponentResponse | undefined>;
+    getFunctionNames: () => Promise<RecordsInWorkspaceMentions>;
+    getDevantComponent: () => Promise<DevantComponent | undefined>;
+    generateOpenApiClient: (params: OpenAPIClientGenerationRequest) => Promise<GeneratedClientSaveResponse>;
+    getOpenApiGeneratedModules: (params: OpenAPIGeneratedModulesRequest) => Promise<OpenAPIGeneratedModulesResponse>;
+    deleteOpenApiGeneratedModules: (params: OpenAPIClientDeleteRequest) => Promise<OpenAPIClientDeleteResponse>;
 }

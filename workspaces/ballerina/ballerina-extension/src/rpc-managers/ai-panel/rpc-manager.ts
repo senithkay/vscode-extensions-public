@@ -44,7 +44,7 @@ import {
     SyntaxTree,
     TestGenerationMentions,
     TestGenerationRequest,
-    TestGenerationResponse,
+    TestGenerationResponse
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -598,8 +598,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
         let remainingDiags: Diagnostics[] = await attemptRepairProject(langClient, tempDir);
 
         const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(remainingDiags);
-        await closeAllBallerinaFiles(tempDir);
         const newAssistantResponse = getModifiedAssistantResponse(assist_resp, tempDir, project);
+        await closeAllBallerinaFiles(tempDir);
         return {
             assistant_response: newAssistantResponse,
             diagnostics: {
@@ -871,6 +871,11 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!fs.existsSync(testDirName)) {
             fs.mkdirSync(testDirName, { recursive: true }); // Add recursive: true
         }
+    }
+
+    async refreshFile(params: SourceFile): Promise<void> {
+        modifyFileContent({ filePath : params.filePath, content: params.content });
+        updateView();
     }
 }
 

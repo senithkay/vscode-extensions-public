@@ -284,7 +284,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     setViewComponent(<ProxyServiceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TaskForm:
-                    setViewComponent(<TaskForm path={machineView.documentUri} />);
+                    setViewComponent(<TaskForm path={machineView.documentUri} type={machineView?.customProps?.type} />);
                     break;
                 case MACHINE_VIEW.TaskView:
                     setViewComponent(<TaskView

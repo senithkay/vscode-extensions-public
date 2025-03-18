@@ -28,7 +28,7 @@ export interface ApplyEditRequest {
 
 export interface ApplyEditsRequest {
     documentUri: string;
-    edits: TextEdit[];
+    edits: ExtendedTextEdit[];
     disableFormatting?: boolean;
     disableUndoRedo?: boolean;
     addNewLine?: boolean;
@@ -1845,7 +1845,17 @@ export interface DSSFetchTablesResponse {
 export interface MarkAsDefaultSequenceRequest {
     path: string;
     remove?: boolean;
+    name?: string
 }
+
+export const SCOPE = {
+    AUTOMATION: 'automation',
+    INTEGRATION_AS_API: 'integration-as-api',
+    EVENT_INTEGRATION: 'event-integration',
+    FILE_INTEGRATION: 'file-integration',
+    AI_AGENT: 'ai-agent',
+    ANY: 'any'
+};
 
 export interface GetSubFoldersRequest {
     path: string;
@@ -1964,7 +1974,7 @@ export interface MediatorCategory {
 }
 
 export interface GetMediatorRequest {
-    mediatorType: string;
+    mediatorType?: string;
     documentUri: string;
     range: Range;
     isEdit?: boolean;
@@ -1987,7 +1997,12 @@ export interface UpdateMediatorRequest {
 }
 
 export interface UpdateMediatorResponse {
-    textEdits: TextEdit[];
+    textEdits: ExtendedTextEdit[];
+}
+
+export interface ExtendedTextEdit extends TextEdit {
+    documentUri?: string;
+    isCreateNewFile?: boolean;
 }
 
 export interface GetConnectionSchemaRequest {

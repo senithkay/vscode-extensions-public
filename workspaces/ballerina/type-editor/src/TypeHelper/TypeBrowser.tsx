@@ -18,7 +18,7 @@ type TypeBrowserProps = {
     loadingTypeBrowser: boolean;
     typeBrowserTypes: TypeHelperCategory[];
     onSearchTypeBrowser: (searchText: string) => void;
-    onTypeItemClick: (item: TypeHelperItem) => void;
+    onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
     onChange: (newType: string, newCursorPosition: number) => void;
     onClose: () => void;
 };
@@ -52,20 +52,25 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
         }
     }, [typeBrowserTypes]);
 
-    const handleTypeItemClick = (item: TypeHelperItem) => {
-        const prefixRegex = /[a-zA-Z0-9_']*$/;
-        const suffixRegex = /^[a-zA-Z0-9_']*/;
+    const handleTypeItemClick = async (item: TypeHelperItem) => {
+        const prefixRegex = /[a-zA-Z0-9_':]*$/;
+        const suffixRegex = /^[a-zA-Z0-9_':]*/;
         const prefixMatch = currentType.slice(0, currentCursorPosition).match(prefixRegex);
         const suffixMatch = currentType.slice(currentCursorPosition).match(suffixRegex);
         const prefixCursorPosition = currentCursorPosition - (prefixMatch?.[0]?.length ?? 0);
         const suffixCursorPosition = currentCursorPosition + (suffixMatch?.[0]?.length ?? 0);
 
-        onChange(
-            currentType.slice(0, prefixCursorPosition) + item.insertText + currentType.slice(suffixCursorPosition),
-            prefixCursorPosition + item.insertText.length
-        );
-
-        onTypeItemClick(item);
+        try {
+            const updateText = await onTypeItemClick(item);
+            if (updateText) {
+                onChange(
+                    currentType.slice(0, prefixCursorPosition) + updateText + currentType.slice(suffixCursorPosition),
+                    prefixCursorPosition + updateText.length
+                );
+            }
+        } catch (error) {
+            console.error(error);
+        }
 
         // Close the type browser
         onClose();

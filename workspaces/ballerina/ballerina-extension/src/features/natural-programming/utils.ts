@@ -165,7 +165,7 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
     let range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0));
     const filePath = uri.fsPath;
     let document = null;
-    if (fs.existsSync(filePath)) {
+    if ((isSolutionsAvailable || isDocChangeSolutionsAvailable) && fs.existsSync(filePath)) {
         document = await vscode.workspace.openTextDocument(uri);
     }
 
@@ -298,7 +298,17 @@ export function extractResponseAsJsonFromString(jsonString: string): any {
 
 export async function createDiagnosticList(data: DriftResponseData, projectPath: string, diagnostics: Diagnostic[]) {
     for (const result of data.results) {
-        const uri = vscode.Uri.file(path.join(projectPath, result.fileName));
+        let fileName = result.fileName;
+
+        if (isSkippedDiagnostic(result)) {
+            continue;
+        }
+
+        if (result.codeFileName != undefined && result.codeFileName != null && result.codeFileName != "") {
+            fileName = result.codeFileName;
+        }
+
+        const uri = vscode.Uri.file(path.join(projectPath, fileName));
         const diagnostic = await createDiagnostic(result, uri);  // Wait for each createDiagnostic call to complete
         diagnostics.push(diagnostic);  // Push the diagnostic result after it's created
     }
@@ -537,6 +547,14 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
         }
     }
     fs.writeFileSync(configFilePath, fileContent);
+}
+
+export function getTokenForNaturalFunction() {
+    try {
+        return refreshAccessToken();
+    } catch (error) {
+        throw error;
+    }
 }
 
 function isSkippedDiagnostic(result: ResultItem) {

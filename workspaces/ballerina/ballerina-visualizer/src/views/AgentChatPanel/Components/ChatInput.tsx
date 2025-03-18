@@ -158,6 +158,9 @@ const StyledInput = forwardRef<StyledInputRef, StyledInputProps>(({ value, onCha
                 flex: 1,
                 outline: "none",
                 whiteSpace: "pre-wrap",
+                overflowWrap: "break-word",
+                wordBreak: "break-word",
+                hyphens: "auto",
                 // Limit to about 5 lines:
                 lineHeight: "1.4",
                 maxHeight: "calc(1.4em * 5)",

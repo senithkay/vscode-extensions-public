@@ -147,8 +147,31 @@ const AddConnector = (props: AddConnectorProps) => {
     function getNameForController(name: string | number) {
         return String(name).replace('.', '__dot__');
     }
-    
-    const addNewConnection = async () => {
+
+
+    function getInputType(formData: any, paramName: string): string {
+        let inputType = null;
+
+        function traverseElements(elements: any) {
+            for (let element of elements) {
+                if (element.type === 'attribute' && element.value.name === paramName) {
+                    inputType = element.value.inputType;
+                    return;
+                }
+
+                if (element.type === 'attributeGroup') {
+                    traverseElements(element.value.elements);
+                }
+            }
+        }
+
+        traverseElements(formData.elements);
+
+        return inputType;
+    }
+
+    const addNewConnection = async (name?: string, allowedConnectionTypes?: string) => {
+        const connectionTypes = allowedConnectionTypes ?? findAllowedConnectionTypes(props.formData.elements ?? "");
 
         rpcClient.getMiVisualizerRpcClient().openView({
             type: POPUP_EVENT_TYPE.OPEN_VIEW,
@@ -156,7 +179,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 documentUri: props.documentUri,
                 view: MACHINE_VIEW.ConnectorStore,
                 customProps: {
-                    allowedConnectionTypes: findAllowedConnectionTypes(props.formData.elements ?? ""),
+                    allowedConnectionTypes: connectionTypes,
                 }
             },
             isPopup: true
@@ -165,7 +188,7 @@ const AddConnector = (props: AddConnectorProps) => {
         rpcClient.onParentPopupSubmitted(async (data: ParentPopupData) => {
             if (data.recentIdentifier) {
                 await fetchConnections();
-                setValue('configKey', data.recentIdentifier);
+                setValue(name ?? 'configKey', data.recentIdentifier);
             }
         });
     }
@@ -313,7 +336,9 @@ const AddConnector = (props: AddConnectorProps) => {
                     <>
                         {/* {renderForm(props.formData.elements)} */}
                         <FormGenerator
+                            documentUri={props.documentUri}
                             formData={formData}
+                            connectorName={props.connectorName}
                             control={control}
                             errors={errors}
                             setValue={setValue}
@@ -322,7 +347,6 @@ const AddConnector = (props: AddConnectorProps) => {
                             getValues={getValues}
                             skipGeneralHeading={true}
                             ignoreFields={props.connectionName ? ["configRef"] : []}
-                            connections={connections}
                             addNewConnection={addNewConnection}
                             range={props.nodePosition} />
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>

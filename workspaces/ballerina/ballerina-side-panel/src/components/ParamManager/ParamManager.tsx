@@ -12,12 +12,14 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ParamEditor } from './ParamEditor';
 import { ParamItem } from './ParamItem';
-import { Codicon, ErrorBanner, LinkButton, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ErrorBanner, LinkButton, RequiredFormInput, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { FormField, FormValues } from '../Form/types';
 import { Controller } from 'react-hook-form';
 import { useFormContext } from '../../context';
 import { NodeKind } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { EditorFactory } from '../editors/EditorFactory';
+import { getFieldKeyForAdvanceProp } from '../editors/utils';
 
 export interface Parameter {
     id: number;
@@ -72,6 +74,27 @@ const Label = styled.label`
     color: var(--vscode-editor-foreground);
 `;
 
+const Row = styled.div<{}>`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-inline: 8px;
+    margin-bottom: 8px;
+`;
+
+const EditorContainer = styled.div<{}>`
+    padding-inline: 8px;
+`
+
+const ButtonContainer = styled.div<{}>`
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    justify-content: flex-end;
+`;
+
 export interface ParamManagerEditorProps {
     field: FormField;
     handleOnFieldFocus?: (key: string) => void;
@@ -82,7 +105,19 @@ export interface ParamManagerEditorProps {
 export function ParamManagerEditor(props: ParamManagerEditorProps) {
     const { field, openRecordEditor, selectedNode } = props;
     const { form } = useFormContext();
-    const { control, setValue } = form;
+    const { control, setValue, getValues } = form;
+
+    const hasAdvancedFields = field.advanceProps?.length > 0;
+    const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+
+    const handleOnShowAdvancedOptions = () => {
+        setShowAdvancedOptions(true);
+    }
+
+    const handleOnHideAdvancedOptions = () => {
+        setShowAdvancedOptions(false);
+    }
+
     return (
         <ParamContainer>
             <HeaderContainer>
@@ -115,6 +150,42 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
                     </>
                 )}
             />
+            {hasAdvancedFields && (
+                <Row>
+                    Advanced Configurations
+                    <ButtonContainer>
+                        {!showAdvancedOptions && (
+                            <LinkButton
+                                onClick={handleOnShowAdvancedOptions}
+                                sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
+                            >
+                                <Codicon name={"chevron-down"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                                Expand
+                            </LinkButton>
+                        )}
+                        {showAdvancedOptions && (
+                            <LinkButton
+                                onClick={handleOnHideAdvancedOptions}
+                                sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
+                            >
+                                <Codicon name={"chevron-up"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                                Collapsed
+                            </LinkButton>
+                        )}
+                    </ButtonContainer>
+                </Row>
+            )}
+            {hasAdvancedFields && showAdvancedOptions && (
+                <EditorContainer>
+                    {field.advanceProps.map((advanceProp) => {
+                        advanceProp.key = getFieldKeyForAdvanceProp(field.key, advanceProp.key);
+                        if (getValues(advanceProp.key) === undefined) {
+                            setValue(advanceProp.key, advanceProp.value);
+                        }
+                        return <EditorFactory field={advanceProp} />
+                    })}
+                </EditorContainer>
+            )}
         </ParamContainer>
     );
 

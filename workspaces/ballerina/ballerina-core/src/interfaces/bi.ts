@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
 import { ServiceModel } from "./service";
@@ -68,6 +68,8 @@ export type Metadata = {
     draft?: boolean; // for diagram draft nodes
     data?: {
         isDataMappedFunction?: boolean;
+        isAgentTool?: boolean;
+        isIsolatedFunction?: boolean;
         tools?: ToolData[];
         model?: ToolData;
         agent?: AgentData;
@@ -92,6 +94,7 @@ export type Property = {
     diagnostics?: Diagnostic;
     valueType: string;
     value: string | ELineRange | NodeProperties | string[];
+    advanceProperties?: NodeProperties;
     optional: boolean;
     editable: boolean;
     advanced?: boolean;
@@ -137,6 +140,7 @@ export type CodeData = {
     inferredReturnType?: string;
     version?: string;
     isNew?: boolean;
+    isGenerated?: boolean;
 };
 
 export type Branch = {
@@ -195,7 +199,8 @@ export enum DIRECTORY_MAP {
     ENUMS = "enums",
     CLASSES = "classes",
     NATURAL_FUNCTIONS = "naturalFunctions",
-    AGENTS = "agents"
+    AGENTS = "agents",
+    LOCAL_CONNECTORS = "localConnectors",
 }
 
 export enum DIRECTORY_SUB_TYPE {
@@ -210,6 +215,7 @@ export enum DIRECTORY_SUB_TYPE {
     DATA_MAPPER = "dataMapper",
     NATURAL_FUNCTION = "naturalFunction",
     AGENTS = "agents",
+    LOCAL_CONNECTORS = "localConnector",
 }
 
 export enum FUNCTION_TYPE {
@@ -234,6 +240,7 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.NATURAL_FUNCTIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.LOCAL_CONNECTORS]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -285,7 +292,9 @@ export type NodePropertyKey =
     | "tools"
     | "query"
     | "functionName"
-    | "systemPrompt";
+    | "systemPrompt"
+    | "prompt"
+    | "enableModelContext";
 
 export type BranchKind = "block" | "worker";
 

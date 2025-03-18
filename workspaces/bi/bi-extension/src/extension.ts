@@ -16,6 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 	if (ballerinaExt) {
 		extension.context = context;
 		extension.langClient = ballerinaExt.exports.ballerinaExtInstance.langClient;
+		extension.biSupported = ballerinaExt.exports.ballerinaExtInstance.biSupported;
 		extension.projectPath = ballerinaExt.exports.projectPath;
 		StateMachine.initialize();
 		return;

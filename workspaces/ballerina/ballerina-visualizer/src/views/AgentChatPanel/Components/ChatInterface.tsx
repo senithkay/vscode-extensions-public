@@ -15,6 +15,7 @@ import ChatInput from "./ChatInput";
 import LoadingIndicator from "./LoadingIndicator";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import ReactMarkdown from "react-markdown";
 
 enum ChatMessageType {
     MESSAGE = "message",
@@ -72,7 +73,7 @@ const ChatContainer = styled.div`
     flex-direction: column;
     flex: 1;
     overflow: hidden;
-    margin: 16px 0;
+    margin: 20px 0 32px 0;
 `;
 
 const Messages = styled.div`
@@ -101,12 +102,11 @@ const ProfilePic = styled.div`
     object-fit: cover;
 `;
 
-const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean }>`
+const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean; isLoading?: boolean }>`
     position: relative;
-    padding: 10px 14px;
+    padding: ${({ isLoading }: { isLoading?: boolean }) => (isLoading ? "10px 14px" : "0 14px")};
     max-width: 55%;
     align-self: ${({ isUser }: { isUser: boolean }) => (isUser ? "flex-end" : "flex-start")};
-    white-space: pre-wrap;
     overflow-wrap: break-word;
     word-break: break-word;
     hyphens: auto;
@@ -118,8 +118,8 @@ const MessageBubble = styled.div<{ isUser: boolean; isError?: boolean }>`
         position: absolute;
         inset: 0;
         background-color: ${({ isUser }: { isUser: boolean }) =>
-            isUser ? "var(--vscode-button-background)" : "var(--vscode-editorWidget-background)"};
-        opacity: 0.3; /* 70% transparent */
+            isUser ? "var(--vscode-button-background)" : "var(--vscode-tab-inactiveBackground)"};
+        opacity: ${({ isUser }: { isUser: boolean }) => (isUser ? "0.3" : "1")};
         border-radius: inherit;
         z-index: -1;
     }
@@ -226,7 +226,7 @@ const ChatInterface: React.FC = () => {
                                 </ProfilePic>
                             )}
                             <MessageBubble isUser={msg.isUser} isError={false}>
-                                {msg.text}
+                                <ReactMarkdown>{msg.text}</ReactMarkdown>
                             </MessageBubble>
                             {msg.isUser && (
                                 <ProfilePic>
@@ -258,7 +258,7 @@ const ChatInterface: React.FC = () => {
                                     }}
                                 />
                             </ProfilePic>
-                            <MessageBubble isUser={false}>
+                            <MessageBubble isUser={false} isLoading={true}>
                                 <LoadingIndicator />
                             </MessageBubble>
                         </MessageContainer>

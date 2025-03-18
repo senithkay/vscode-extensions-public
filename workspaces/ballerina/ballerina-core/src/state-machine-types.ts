@@ -11,6 +11,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
+import { DevantComponent } from "./rpc-types/bi-diagram/interfaces";
 
 export type MachineStateValue =
     | 'initialize'
@@ -50,6 +51,7 @@ export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export enum MACHINE_VIEW {
     Overview = "Overview",
+    BallerinaUpdateView = "Ballerina Update View",
     SequenceDiagram = "Sequence Diagram",
     ServiceDesigner = "Service Designer",
     ERDiagram = "ER Diagram",
@@ -116,9 +118,11 @@ export interface VisualizerLocation {
 
 export interface VisualizerMetadata {
     haveLS?: boolean;
+    isBISupported?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
     target?: LinePosition;
+    devantComponent?: DevantComponent;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

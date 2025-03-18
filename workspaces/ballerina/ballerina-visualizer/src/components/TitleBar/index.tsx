@@ -90,11 +90,10 @@ interface TitleBarProps {
     actions?: ReactNode;
     hideBack?: boolean;
     onBack?: () => void; // Override back functionality
-    isBetaFeature?: boolean;
 }
 
 export function TitleBar(props: TitleBarProps) {
-    const { title, subtitle, subtitleElement, actions, hideBack, onBack, isBetaFeature } = props;
+    const { title, subtitle, subtitleElement, actions, hideBack, onBack } = props;
     const { rpcClient } = useRpcContext();
 
     const handleBackButtonClick = () => {
@@ -118,11 +117,6 @@ export function TitleBar(props: TitleBarProps) {
                     {subtitle && <SubTitle>{subtitle}</SubTitle>}
                     {subtitleElement && subtitleElement}
                 </TitleSection>
-                {isBetaFeature && (
-                    <BetaSVGWrapper>
-                        <BetaSVG width={45} height={18} />
-                    </BetaSVGWrapper>
-                )}
             </LeftContainer>
             <RightContainer>{actions && <ActionsContainer>{actions}</ActionsContainer>}</RightContainer>
         </TitleBarContainer>

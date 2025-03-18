@@ -13,14 +13,14 @@ import { CodeData, FlowNode, NodeProperties } from "@wso2-enterprise/ballerina-c
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertConfig } from "../../../utils/bi";
-import { URI, Utils } from "vscode-uri";
 import ConfigForm from "./ConfigForm";
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep } from "lodash";
 import { RelativeLoader } from "../../../components/RelativeLoader";
+import { findAgentNodeFromAgentCallNode, getAgentFilePath } from "./utils";
 
 const Container = styled.div`
-    padding: 16px;
+    padding: 16px 0 16px 16px;
     height: 100%;
 `;
 
@@ -74,9 +74,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
 
     const initPanel = async () => {
         setLoading(true);
-        // get file path
-        const filePath = await rpcClient.getVisualizerLocation();
-        agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
+        agentFilePath.current = await getAgentFilePath(rpcClient);
         // fetch all models
         await fetchModels();
         // fetch selected agent model
@@ -110,6 +108,10 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         // get agent node
         const agentNode = moduleConnectionNodes.current.find((node) => node.properties.variable.value === agentName);
         console.log(">>> agent node", agentNode);
+        if (!agentNode) {
+            console.error("Agent node not found", agentCallNode);
+            return;
+        }
         // get model name
         const modelName = agentNode?.properties.model.value;
         console.log(">>> model name", modelName);
@@ -135,7 +137,11 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         }
         console.log(">>> node properties", nodeProperties);
         // use same variable name for model fields
-        nodeProperties.variable = selectedModel?.properties.variable;
+        if (selectedModel?.properties.variable) {
+            nodeProperties.variable.value = selectedModel?.properties.variable.value;
+        } else {
+            console.error("Already assigned model node variable not found", selectedModel);
+        }
 
         const modelFields = convertConfig(nodeProperties);
         setSelectedModelFields(modelFields);

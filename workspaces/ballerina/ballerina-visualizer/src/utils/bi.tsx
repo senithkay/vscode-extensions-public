@@ -166,7 +166,8 @@ export function convertNodePropertyToFormField(
         hidden: property.hidden,
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
-        valueType: getFormFieldValueType(property),
+        advanceProps: convertNodePropertiesToFormFields(property.advanceProperties),
+        valueType: property.valueType,
         items: getFormFieldItems(property, connections),
         diagnostics: property.diagnostics?.diagnostics || [],
         valueTypeConstraint: property.valueTypeConstraint,
@@ -647,7 +648,7 @@ const isCategoryType = (item: Item): item is Category => {
     return !(item as AvailableNode)?.codedata;
 };
 
-const getFunctionItemKind = (category: string): FunctionKind => {
+export const getFunctionItemKind = (category: string): FunctionKind => {
     if (category.includes("Current")) {
         return functionKinds.CURRENT;
     } else if (category.includes("Imported")) {

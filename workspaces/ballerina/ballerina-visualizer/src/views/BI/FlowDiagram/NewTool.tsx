@@ -12,9 +12,9 @@ import styled from "@emotion/styled";
 import { AgentToolRequest, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { URI, Utils } from "vscode-uri";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { cloneDeep } from "lodash";
 import { AIAgentSidePanel } from "../AIAgents/AIAgentSidePanel";
 import { RelativeLoader } from "../../../components/RelativeLoader";
+import { addToolToAgentNode, findAgentNodeFromAgentCallNode } from "./utils";
 
 const LoaderContainer = styled.div`
     display: flex;
@@ -39,6 +39,7 @@ export function NewTool(props: NewToolProps): JSX.Element {
     const [savingForm, setSavingForm] = useState<boolean>(false);
 
     const agentFilePath = useRef<string>("");
+    const projectUri = useRef<string>("");
 
     useEffect(() => {
         initPanel();
@@ -48,96 +49,85 @@ export function NewTool(props: NewToolProps): JSX.Element {
         // get agent file path
         const filePath = await rpcClient.getVisualizerLocation();
         agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
+        projectUri.current = filePath.projectUri;
         // fetch tools and agent node
         await fetchAgentNode();
     };
 
     const fetchAgentNode = async () => {
-        // get module nodes
-        const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
-        console.log(">>> module nodes", moduleNodes);
-        // get agent name
-        const agentName = agentCallNode.properties.connection.value;
-        // get agent node
-        const agentNode = moduleNodes.flowModel.connections.find(
-            (node) => node.properties.variable.value === agentName
-        );
-        if (!agentNode) {
-            console.error("Agent node not found");
-            return;
-        }
-        console.log(">>> agent node", agentNode);
+        const agentNode = await findAgentNodeFromAgentCallNode(agentCallNode, rpcClient);
         setAgentNode(agentNode);
     };
 
     const handleOnSubmit = async (data: AgentToolRequest) => {
         console.log(">>> submit value", { data });
-
-        // get nodeTemplate
-        const nodeTemplate = await rpcClient.getBIDiagramRpcClient().getNodeTemplate({
-            position: { line: 0, offset: 0 },
-            filePath: agentFilePath.current,
-            id: data.selectedCodeData,
-        });
-        console.log(">>> node template", { nodeTemplate });
-        if (!nodeTemplate.flowNode) {
-            console.error("Node template not found");
+        setSavingForm(true);
+        if (!data.toolName) {
+            console.error("Tool name is required");
             return;
         }
-        // save tool
-        setSavingForm(true);
-        const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
-            toolName: data.toolName,
-            description: data.description,
-            filePath: agentFilePath.current,
-            flowNode: nodeTemplate.flowNode,
-            connection: data.selectedCodeData.parentSymbol || "",
-        });
-        console.log(">>> response save tool", { toolResponse });
-
-        // wait for 2 seconds
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        // agent node with tools
-        // update the agent node
-        const updatedAgentNode = cloneDeep(agentNode);
-        let toolsValue = updatedAgentNode.properties.tools.value;
-
-        // Simple string manipulation to add the new tool
-        const selectedTool = data.toolName;
-        if (!selectedTool) {
-        } else if (!toolsValue || toolsValue === "[]") {
-            toolsValue = `[${selectedTool}]`;
-        } else if (typeof toolsValue === "string") {
-            if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-                const toolsString = toolsValue.substring(1, toolsValue.length - 1);
-                const existingTools = toolsString.split(",").map((t) => t.trim());
-
-                if (!existingTools.includes(selectedTool)) {
-                    toolsValue = toolsValue.substring(0, toolsValue.length - 1);
-                    if (toolsValue.length > 1) {
-                        toolsValue += ", ";
-                    }
-                    toolsValue += selectedTool + "]";
-                }
-            } else {
-                toolsValue = `[${selectedTool}]`;
-            }
-        } else if (Array.isArray(toolsValue)) {
-            if (!toolsValue.includes(selectedTool)) {
-                toolsValue.push(selectedTool);
-            }
-            toolsValue = `[${toolsValue.join(", ")}]`;
-        } else {
-            toolsValue = `[${selectedTool}]`;
-        }
-
-        updatedAgentNode.properties.tools.value = toolsValue;
-
+        const updatedAgentNode = await addToolToAgentNode(agentNode, data.toolName);
+        // generate the source code
         const agentResponse = await rpcClient
             .getBIDiagramRpcClient()
             .getSourceCode({ filePath: agentFilePath.current, flowNode: updatedAgentNode });
         console.log(">>> response getSourceCode with template ", { agentResponse });
+
+        // wait for 2 seconds
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // add tools
+        if (data.selectedCodeData.node === "FUNCTION_CALL") {
+            // create tool from existing function
+            // get function definition
+            const functionDefinition = await rpcClient.getBIDiagramRpcClient().getFunctionNode({
+                functionName: data.selectedCodeData.symbol,
+                fileName: "functions.bal",
+                projectPath: projectUri.current,
+            });
+            console.log(">>> response get function definition", { functionDefinition });
+            if (!functionDefinition.functionDefinition) {
+                console.error("Function definition not found");
+                return;
+            }
+            if (functionDefinition.functionDefinition?.codedata) {
+                functionDefinition.functionDefinition.codedata.isNew = true;
+            }
+            // save tool
+            const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
+                toolName: data.toolName,
+                description: data.description,
+                filePath: agentFilePath.current,
+                flowNode: functionDefinition.functionDefinition as FlowNode,
+                connection: "",
+            });
+            console.log(">>> response save tool", { toolResponse });
+        } else {
+            // create tool from existing connection
+            // get nodeTemplate
+            const nodeTemplate = await rpcClient.getBIDiagramRpcClient().getNodeTemplate({
+                position: { line: 0, offset: 0 },
+                filePath: agentFilePath.current,
+                id: data.selectedCodeData,
+            });
+            console.log(">>> node template", { nodeTemplate });
+            if (!nodeTemplate.flowNode) {
+                console.error("Node template not found");
+                return;
+            }
+            if (nodeTemplate.flowNode?.codedata) {
+                nodeTemplate.flowNode.codedata.isNew = true;
+            }
+            // save tool
+            const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
+                toolName: data.toolName,
+                description: data.description,
+                filePath: agentFilePath.current,
+                flowNode: nodeTemplate.flowNode,
+                connection: data.selectedCodeData.parentSymbol || "",
+            });
+            console.log(">>> response save tool", { toolResponse });
+        }
 
         setSavingForm(false);
         onSave?.();
