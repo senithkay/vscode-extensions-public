@@ -292,7 +292,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                     path: path.join(connectorData.iconPath, 'connections'),
                     name: connectionType
                 });
-                setConnectionIconPath(connectionIconPath?.uri ?? iconPath);
+                setConnectionIconPath(connectionIconPath?.uri);
             }
             fetchData(connection.name);
         }, [connection.name]);
@@ -341,11 +341,11 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                         style={{ stroke: isHovered[type as keyof typeof isHovered] ? Colors.SECONDARY : Colors.OUTLINE_VARIANT }}
                     />
 
-                    {connectionIconPath && <g transform="translate(88,7)">
+                    <g transform="translate(88,7)">
                         <foreignObject width="25" height="25">
-                            <img src={connectionIconPath} alt="Icon" />
+                            <img src={connectionIconPath ?? iconPath} alt="Icon" />
                         </foreignObject>
-                    </g>}
+                    </g>
 
                     <text
                         x="100"
