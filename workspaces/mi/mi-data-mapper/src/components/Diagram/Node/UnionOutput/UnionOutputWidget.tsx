@@ -82,11 +82,8 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 	const portIn = getPort(`${id}.IN`);
 	const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
-	let expanded = true;
-	if ((portIn && portIn.collapsed)) {
-		expanded = false;
-	}
 	const isDisabled = portIn?.descendantHasValue;
+	const hasLinks = Object.keys(portIn?.links ?? {}).length > 0;
 
 	const handlePortState = (state: PortState) => {
 		setPortState(state)
@@ -187,7 +184,7 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 								engine={engine}
 								port={portIn}
 								handlePortState={handlePortState}
-								disable={isDisabled && !expanded}
+								disable={isDisabled}
 							/>)
 						}
 					</span>
@@ -220,11 +217,13 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 						</FieldActionWrapper>
 					)}
 				</TreeHeader>
-				<TreeBody>
-					<UnionTypeSelector
-						unionTypes={dmTypeWithValue.type.unionTypes}
-						onHandleSelect={handleInitAsUnionType} />
-				</TreeBody>
+				{!hasLinks && (
+					<TreeBody>
+						<UnionTypeSelector
+							unionTypes={dmTypeWithValue.type.unionTypes}
+							onHandleSelect={handleInitAsUnionType} />
+					</TreeBody>
+				)}
 			</TreeContainer>
 		</>
 	);
