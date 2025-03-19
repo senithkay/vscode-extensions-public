@@ -11,6 +11,11 @@ on:
         type: boolean
         required: true
         default: false
+      bi:
+        description: Release BI extension
+        type: boolean
+        required: true
+        default: false
       wso2-platform:
         description: Release WSO2 Platform extension
         type: boolean
@@ -28,11 +33,6 @@ on:
         default: false
       apk:
         description: Release APK extension
-        type: boolean
-        required: true
-        default: false
-      bi:
-        description: Release BI extension
         type: boolean
         required: true
         default: false
@@ -102,30 +102,24 @@ jobs:
         id: vsix
         run: |
           if [[ "${{ github.event.inputs.ballerina }}" == "true" ]]; then
-            file=$(ls ballerina*.vsix)
-            fileName=${file#*-}
-            version=ballerina-${fileName%.*}
+            file=$(ls ballerina-[0-9]*.[0-9]*.[0-9]*.vsix)
           fi  
+          if [[ "${{ github.event.inputs.bi }}" == "true" ]]; then
+            file=$(ls ballerina-integrator*.vsix)
+          fi
           if [[ "${{ github.event.inputs.wso2-platform }}" == "true" ]]; then
             file=$(ls wso2-platform*.vsix)
-            fileName=${file#*-}
-            version=$version+wso2-platform-${fileName%.*}
           fi  
           if [[ "${{ github.event.inputs.choreo }}" == "true" ]]; then
             file=$(ls choreo*.vsix)
-            fileName=${file#*-}
-            version=$version+choreo-${fileName%.*}
           fi  
           if [[ "${{ github.event.inputs.api-chat }}" == "true" ]]; then
             file=$(ls api-chat*.vsix)
-            fileName=${file#*-}
-            version=$version+api-chat-${fileName%.*}  
           fi  
           if [[ "${{ github.event.inputs.mi }}" == "true" ]]; then
             file=$(ls micro-integrator*.vsix)
-            fileName=${file#*-}
-            version=$version+micro-integrator-${fileName%.*}  
           fi
+          version=$(basename "$file" .vsix)
           echo $version
           echo "version=$version" >> $GITHUB_OUTPUT
 
@@ -146,7 +140,16 @@ jobs:
           name: ballerina
           token: ${{ secrets.PUBLISH_PAT }}
           chatAPI: ${{ steps.chat.outputs.chatAPI }}
-
+  
+      - name: Create a release in wso2/bi-vscode repo
+        if: ${{ github.event.inputs.bi == 'true' }}
+        uses: ./.github/actions/release
+        with:
+          repo: wso2/bi-vscode
+          name: ballerina-integrator
+          token: ${{ secrets.PUBLISH_PAT }}
+          chatAPI: ${{ steps.chat.outputs.chatAPI }}
+          
       - name: Create a release in wso2/platform-vscode repo
         if: ${{ github.event.inputs.wso2-platform == 'true' }}
         uses: ./.github/actions/release
@@ -195,13 +198,14 @@ jobs:
       - name: Create PR and notify
         uses: ./.github/actions/pr
         with:
-          version: v${{ steps.vsix.outputs.version }}
+          version: ${{ steps.vsix.outputs.version }}
           threadId: ${{ github.run_id }}
           bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
           bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           ref_name: ${{ github.ref_name }}
           ballerina: ${{ inputs.ballerina }}
+          bi: ${{ inputs.bi }}
           wso2-platform: ${{ inputs.wso2-platform }}
           choreo: ${{ inputs.choreo }}
           apk: ${{ inputs.apk }}

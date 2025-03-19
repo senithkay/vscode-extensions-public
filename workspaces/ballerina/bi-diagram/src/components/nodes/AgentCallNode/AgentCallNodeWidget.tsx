@@ -348,11 +348,6 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
         {
             id: "edit",
             label: "Edit",
-            onClick: () => onEditTool(tool),
-        },
-        {
-            id: "implement",
-            label: "View",
             onClick: () => onImplementTool(tool),
         },
         {
@@ -555,10 +550,13 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                             style={{ pointerEvents: "none" }}
                         >
                             <div className="connector-icon">
-                                <ConnectorIcon
-                                    url={tool.path}
-                                    fallbackIcon={<Icon name="bi-function" sx={{ fontSize: "24px" }} />}
-                                />
+                                {tool.path && (
+                                    <ConnectorIcon
+                                        url={tool.path}
+                                        fallbackIcon={<Icon name="bi-function" sx={{ fontSize: "24px" }} />}
+                                    />
+                                )}
+                                {!tool.path && <Icon name="bi-function" sx={{ fontSize: "24px" }} />}
                             </div>
                         </foreignObject>
                         <text

@@ -2,6 +2,12 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.1.2] - 2025-03-17
+
+### Fixed
+
+Fixed: Connection icons in AI connector
+
 ## [2.1.1] - 2025-03-17
 
 ### Fixed

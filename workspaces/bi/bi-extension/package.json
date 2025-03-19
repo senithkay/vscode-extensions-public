@@ -2,7 +2,7 @@
     "name": "ballerina-integrator",
     "displayName": "Ballerina Integrator",
     "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
-    "version": "0.9.5",
+    "version": "0.9.6",
     "publisher": "wso2",
     "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
@@ -80,7 +80,7 @@
                 },
                 {
                     "command": "BI.project-explorer.delete",
-                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == listener || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration || viewItem == dataMapper || viewItem == naturalFunction",
+                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == listener || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration || viewItem == dataMapper || viewItem == naturalFunction || viewItem == localConnector",
                     "group": "inline"
                 },
                 {
@@ -111,6 +111,11 @@
                 {
                     "command": "BI.project-explorer.add-natural-function",
                     "when": "view == BI.project-explorer && viewItem == naturalFunctions",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-connection",
+                    "when": "view == BI.project-explorer && viewItem == localConnectors",
                     "group": "inline"
                 }
             ],
