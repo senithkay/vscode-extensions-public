@@ -198,7 +198,7 @@ jobs:
       - name: Create PR and notify
         uses: ./.github/actions/pr
         with:
-          version: v${{ steps.vsix.outputs.version }}
+          version: ${{ steps.vsix.outputs.version }}
           threadId: ${{ github.run_id }}
           bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
           bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
