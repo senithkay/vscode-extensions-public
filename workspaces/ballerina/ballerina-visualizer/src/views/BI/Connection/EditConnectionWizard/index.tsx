@@ -60,6 +60,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 );
                 if (!connector) {
                     console.error(">>> Error finding connector", { connectionName });
+                    onClose?.();
                     return;
                 }
                 setConnection(connector);
@@ -74,7 +75,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
             setUpdatingContent(true);
 
             if (fileName === "") {
-                console.error(">>> Error updating source code. No connections.bal file found");
+                console.error(">>> Error updating source code. No source file found");
                 setUpdatingContent(false);
                 return;
             }

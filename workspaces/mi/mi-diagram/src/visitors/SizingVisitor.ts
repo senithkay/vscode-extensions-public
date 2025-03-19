@@ -74,11 +74,14 @@ import {
     DbMediator,
     Rewrite,
     Query,
-    ThrowError
+    ThrowError,
+    Connector
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 import { StartNodeType } from "../components/nodes/StartNode/StartNodeModel";
+import { AIConnector, Tool } from "@wso2-enterprise/mi-syntax-tree/src";
+import { getTextSizes } from "../utils/node";
 
 export interface DiagramDimensions {
     width: number;
@@ -554,9 +557,71 @@ export class SizingVisitor implements Visitor {
     endVisitRewrite = (node: Rewrite): void => this.calculateBasicMediator(node);
 
     // Connectors
-    beginVisitConnector = (node: any): void => { this.skipChildrenVisit = true; }
-    endVisitConnector = (node: any): void => {
-        node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONNECTOR.WIDTH, fw: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CONNECTOR.WIDTH / 2, r: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH - NODE_DIMENSIONS.CONNECTOR.WIDTH / 2 };
+    beginVisitConnector = (node: AIConnector): void => { this.skipChildrenVisit = true; }
+    endVisitConnector = (node: AIConnector): void => {
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.AI_AGENT.WIDTH);
+        if (node.connectorName === 'ai') {
+            const tools = node.tools;
+            const toolsList = tools?.tools;
+            const systemPrompt = node?.parameters?.filter((property: any) => property.name === "system")[0]?.value;
+            const prompt = node?.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
+            let toolsWidth = 0;
+            let toolsHeight = 0;
+            let r = NODE_DIMENSIONS.AI_AGENT.WIDTH / 2;
+
+            const connections: any[] = [];
+            if (node.connections?.["LLM Connection"]) connections.push(node.connections["LLM Connection"]);
+            if (node.connections?.["Memory Connection"]) connections.push(node.connections["Memory Connection"]);
+            if (node.connections?.["Embedding Connection"]) connections.push(node.connections["Embedding Connection"]);
+            if (node.connections?.["Vector Store Connection"]) connections.push(node.connections["Vector Store Connection"]);
+            const connectionsHeight = (NODE_DIMENSIONS.CONNECTOR.HEIGHT + NODE_GAP.CONNECTION_CIRCLE_Y) * connections.length;
+            r += connections.length > 0 ? NODE_DIMENSIONS.AI_AGENT.CONNECTION_PART_WIDTH : 0;
+
+            if (tools) {
+                if (toolsList?.length > 0) {
+                    for (let i = 0; i < toolsList.length; i++) {
+                        const toolNode = toolsList[i];
+                        const isConnector = toolNode.mediator?.connectorName !== undefined;
+                        toolNode.viewState = {
+                            x: 0,
+                            y: 0,
+                            w: isConnector ? NODE_DIMENSIONS.CONNECTOR.WIDTH : NODE_DIMENSIONS.DEFAULT.WIDTH,
+                            fw: isConnector ? NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH : NODE_DIMENSIONS.DEFAULT.WIDTH,
+                            h: NODE_DIMENSIONS.DEFAULT.HEIGHT,
+                            l: isConnector ? NODE_DIMENSIONS.CONNECTOR.WIDTH / 2 : NODE_DIMENSIONS.DEFAULT.WIDTH / 2,
+                            r: isConnector ? NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH - NODE_DIMENSIONS.CONNECTOR.WIDTH / 2 : NODE_DIMENSIONS.DEFAULT.WIDTH / 2
+                        }
+                        const isLastChild = i === toolsList.length - 1;
+                        const nodeGap = isLastChild ? 0 : NODE_GAP.AI_AGENT_TOOLS_Y;
+
+                        toolsHeight += toolNode.viewState.h + nodeGap;
+                        toolsWidth = Math.max(toolsWidth, NODE_DIMENSIONS.DEFAULT.WIDTH);
+                        r = Math.max(r, toolNode.viewState.r);
+                    }
+                    toolsHeight += NODE_GAP.AI_AGENT_TOOLS_Y;
+                }
+                toolsHeight += NODE_DIMENSIONS.PLUS.HEIGHT + 40;
+                this.calculateBasicMediator(tools, NODE_DIMENSIONS.PLUS.WIDTH, NODE_DIMENSIONS.PLUS.HEIGHT);
+                tools.viewState.fh = toolsHeight;
+                tools.viewState.fw = toolsWidth;
+            }
+
+            const systemPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160, 8);
+            const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160, 8);
+            const systemPromptHeight = systemPrompt ? 36 + systemPromptSize.height : 0;
+            const promptHeight = prompt ? 36 + promptSize.height : 0;
+
+            const topGap = Math.max((NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight), connectionsHeight);
+            const bottomGap = NODE_GAP.AI_AGENT_BOTTOM;
+
+            node.viewState.fh = topGap + toolsHeight + bottomGap;
+            node.viewState.fw = Math.max(toolsWidth, NODE_DIMENSIONS.AI_AGENT.WIDTH);
+            node.viewState.l = node.viewState.fw / 2 + NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING;
+            node.viewState.r = Math.max(r, (node.viewState.fw / 2 + NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING));
+        } else {
+            node.viewState = { x: 0, y: 0, w: NODE_DIMENSIONS.CONNECTOR.WIDTH, fw: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH, h: NODE_DIMENSIONS.DEFAULT.HEIGHT, l: NODE_DIMENSIONS.CONNECTOR.WIDTH / 2, r: NODE_DIMENSIONS.CONNECTOR.FULL_WIDTH - NODE_DIMENSIONS.CONNECTOR.WIDTH / 2 };
+        }
+
         this.skipChildrenVisit = false;
     }
 

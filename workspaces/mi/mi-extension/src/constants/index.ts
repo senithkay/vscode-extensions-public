@@ -82,12 +82,15 @@ export const COMMANDS = {
     EDIT_REGISTRY_RESOURCE_METADATA_COMMAND: 'MI.registry-explorer.edit-reg-metadata',
     ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
+    ADD_BALLERINA_MODULE_COMMAND: 'MI.project-explorer.add-ballerina-module',
+    EDIT_BALLERINA_MODULE_COMMAND: 'MI.project-explorer.edit-ballerina-module',
     DELETE_PROJECT_EXPLORER_ITEM: 'MI.project-explorer.delete',
     CHANGE_SERVER_PATH: 'MI.change.server',
     CHANGE_JAVA_HOME: 'MI.change.java',
     BUILD_PROJECT: 'MI.build-project',
     CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
+    BUILD_BAL_MODULE: 'MI.build-bal-module',
     ADD_DATA_SOURCE_COMMAND: 'MI.project-explorer.add-data-source',
     SHOW_DATA_SOURCE: 'MI.show.data-source',
     SHOW_DATA_MAPPER: 'MI.show.data-mapper',
@@ -101,6 +104,13 @@ export const COMMANDS = {
     EDIT_MOCK_SERVICE: 'MI.test.edit.mock-service',
     OPEN_RUNTIME_VIEW: 'MI.Open-runtime-service-view',
     REVEAL_TEST_PANE: 'MI.mock-services.focus',
+
+    DEVAN_DEPLOY: 'wso2.wso2-platform.create.component',
+    DEVAN_OPEN_COMPONENT: 'wso2.wso2-platform.open.component.src',
+
+    BI_EXTENSION: 'WSO2.ballerina-integrator',
+    BI_OPEN_COMMAND: 'ballerina.open.bi.welcome',
+    INSTALL_EXTENSION_COMMAND: 'workbench.extensions.installExtension'
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
@@ -169,7 +179,7 @@ export const APIS = {
     CONNECTOR_SEARCH: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
 }
 
-export const DM_OPERATORS_FILE_NAME="dm-utils";
-export const DM_OPERATORS_IMPORT_NAME="dmUtils";
+export const DM_OPERATORS_FILE_NAME = "dm-utils";
+export const DM_OPERATORS_IMPORT_NAME = "dmUtils";
 export const LAST_EXPORTED_CAR_PATH = "last-exported-car-path";
 export const RUNTIME_VERSION_440 = "4.4.0";

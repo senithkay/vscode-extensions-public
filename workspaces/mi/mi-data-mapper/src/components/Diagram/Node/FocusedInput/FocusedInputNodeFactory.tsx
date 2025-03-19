@@ -35,6 +35,7 @@ export class FocusedInputNodeFactory extends AbstractReactFactory<FocusedInputNo
                 id={`${FOCUSED_INPUT_SOURCE_PORT_PREFIX}.${event.model.nodeLabel}`}
                 dmType={event.model.dmType}
                 getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
+                context={event.model.context}
                 valueLabel={event.model.nodeLabel}
             />
         );

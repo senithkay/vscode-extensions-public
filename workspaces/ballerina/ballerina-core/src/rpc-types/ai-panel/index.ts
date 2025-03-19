@@ -7,7 +7,7 @@
 * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
-import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics, SourceFile } from "./interfaces";
 
 export interface AIPanelAPI {
     getBackendURL: () => Promise<string>;
@@ -28,11 +28,12 @@ export interface AIPanelAPI {
     notifyAIMappings: (params: NotifyAIMappingsRequest) => Promise<boolean>;
     stopAIMappings: () => Promise<GenerateMappingsResponse>;
     promptLogin: () => Promise<boolean>;
-    getProjectSource: () => Promise<ProjectSource>;
+    getProjectSource: (requestType: string) => Promise<ProjectSource>;
     getShadowDiagnostics: (project: ProjectSource) => Promise<ProjectDiagnostics>;
     checkSyntaxError: (project: ProjectSource) => Promise<boolean>;
     getInitialPrompt: () => Promise<InitialPrompt>;
     clearInitialPrompt: () => void;
+    refreshFile:(params: SourceFile) => void;
     // Test-generator related functions
     getGeneratedTests: (params: TestGenerationRequest) => Promise<TestGenerationResponse>;
     getTestDiagnostics: (params: TestGenerationResponse) => Promise<ProjectDiagnostics>;
@@ -40,6 +41,7 @@ export interface AIPanelAPI {
     getResourceSourceForMethodAndPath: (params: string) => Promise<string>;
     getServiceNames: () => Promise<TestGenerationMentions>;
     getResourceMethodAndPaths: () => Promise<TestGenerationMentions>;
+    abortTestGeneration: () => void;
     getMappingsFromRecord: (params: GenerateMappingsFromRecordRequest) => Promise<GenerateMappingFromRecordResponse>;
     getTypesFromRecord: (params: GenerateTypesFromRecordRequest) => Promise<GenerateTypesFromRecordResponse>;
     applyDoOnFailBlocks: () => void;
@@ -54,4 +56,11 @@ export interface AIPanelAPI {
     showSignInAlert: () => Promise<boolean>;
     markAlertShown: () => void;
     getFromDocumentation: (content: string) => Promise<string>;
+    isRequirementsSpecificationFileExist:(filePath: string) => Promise<boolean>;
+    getDriftDiagnosticContents:(projectPath: string) => Promise<LLMDiagnostics>;
+    addChatSummary:(filepathAndSummary: AIChatSummary) => void;
+    readDeveloperMdFile:(directoryPath: string) => Promise<string>;
+    updateDevelopmentDocument:(developerDocument: DeveloperDocument) => void;
+    updateRequirementSpecification:(requirementsSpecification: RequirementSpecification) => void;
+    createTestDirecoryIfNotExists:(directoryPath: string) => void;
 }

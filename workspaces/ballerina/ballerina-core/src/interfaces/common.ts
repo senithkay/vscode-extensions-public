@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { FlowNode } from "./bi";
+import { FlowNode, RecordTypeField } from "./bi";
 
 /**
 * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
@@ -75,6 +75,7 @@ export interface SidePanelData {
     range: LineRange;
     editorKey: string;
     configurePanelData?: ConfigurePanelData;
+    recordField: RecordTypeField;
 }
 
 export interface ConfigurePanelData {

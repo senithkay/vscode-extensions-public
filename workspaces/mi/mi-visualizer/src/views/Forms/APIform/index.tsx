@@ -274,7 +274,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         }
         if (!apiData) {
             // Create API
-            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path;
+            const projectDir = path ? (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path : (await rpcClient.getVisualizerState()).projectUri;
             const artifactDir = pathLib.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts');
 
             let createAPIParams: CreateAPIRequest = {
@@ -394,6 +394,9 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     const handleOnClose = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
+
+    // If apiCreateOption is "swagger-to-api" or "wsdl-to-api", save button is disabled until the file is selected
+    const isSaveDisabled = (apiCreateOption === "swagger-to-api" && !swaggerDefPath) || (apiCreateOption === "wsdl-to-api" && !wsdlDefPath);
 
     const getAdvanceAPICreationOptions = () => {
         switch (apiCreateOption) {
@@ -572,7 +575,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateAPI)}
-                    disabled={!isDirty}
+                    disabled={!isDirty || isSaveDisabled || Object.keys(errors).length > 0}
                 >
                     {apiData ? "Save changes" : "Create"}
                 </Button>

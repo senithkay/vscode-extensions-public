@@ -28,7 +28,7 @@ export interface ApplyEditRequest {
 
 export interface ApplyEditsRequest {
     documentUri: string;
-    edits: TextEdit[];
+    edits: ExtendedTextEdit[];
     disableFormatting?: boolean;
     disableUndoRedo?: boolean;
     addNewLine?: boolean;
@@ -1401,6 +1401,17 @@ export interface CreateClassMediatorRequest {
 export interface CreateClassMediatorResponse {
     path: string;
 }
+
+export interface CreateBallerinaModuleRequest {
+    projectDirectory: string;
+    moduleName: string;
+    version: string;
+}
+
+export interface CreateBallerinaModuleResponse {
+    path: string;
+}
+
 export interface GetBackendRootUrlResponse {
     url: string;
 }
@@ -1469,6 +1480,8 @@ export interface ConnectorDependency {
     artifactId: string;
     version: string;
     connectorPath?: string;
+    isBallerinaModule?: boolean;
+    ballerinaModulePath?: string;
 }
 
 export interface UpdateConnectorRequest {
@@ -1496,6 +1509,10 @@ export interface StoreConnectorJsonResponse {
     outboundConnectors?: any[];
     inboundConnectors?: any[];
     connectors?: any[];
+}
+
+export interface LocalInboundConnectorsResponse {
+    "inbound-connector-data"?: any;
 }
 
 export interface RemoveConnectorRequest {
@@ -1626,6 +1643,16 @@ export interface DeleteArtifactRequest {
 
 export interface APIContextsResponse {
     contexts: string[]
+}
+
+export interface BuildProjectRequest {
+    buildType?: 'docker' | 'capp';
+}
+
+export interface DeployProjectRequest {
+}
+export interface DeployProjectResponse {
+    success: boolean;
 }
 
 export interface ExportProjectRequest {
@@ -1818,7 +1845,17 @@ export interface DSSFetchTablesResponse {
 export interface MarkAsDefaultSequenceRequest {
     path: string;
     remove?: boolean;
+    name?: string
 }
+
+export const SCOPE = {
+    AUTOMATION: 'automation',
+    INTEGRATION_AS_API: 'integration-as-api',
+    EVENT_INTEGRATION: 'event-integration',
+    FILE_INTEGRATION: 'file-integration',
+    AI_AGENT: 'ai-agent',
+    ANY: 'any'
+};
 
 export interface GetSubFoldersRequest {
     path: string;
@@ -1909,12 +1946,15 @@ export interface GetMediatorsRequest {
 }
 
 export interface GetMediatorsResponse {
-    [key: string]: { 
-        items: Mediator[],
+    [key: string]: {
+        items: Mediator[] | MediatorCategory[],
         isConnector?: boolean;
+        isSupportCategories?: boolean;
         artifactId?: string;
         version?: string;
         connectorPath?: string;
+        isBallerinaModule?: boolean;
+        ballerinaModulePath?: string
     };
 }
 
@@ -1929,8 +1969,12 @@ export interface Mediator {
     tooltip?: string;
 }
 
+export interface MediatorCategory {
+    [key: string]: Mediator[];
+}
+
 export interface GetMediatorRequest {
-    mediatorType: string;
+    mediatorType?: string;
     documentUri: string;
     range: Range;
     isEdit?: boolean;
@@ -1953,7 +1997,12 @@ export interface UpdateMediatorRequest {
 }
 
 export interface UpdateMediatorResponse {
-    textEdits: TextEdit[];
+    textEdits: ExtendedTextEdit[];
+}
+
+export interface ExtendedTextEdit extends TextEdit {
+    documentUri?: string;
+    isCreateNewFile?: boolean;
 }
 
 export interface GetConnectionSchemaRequest {

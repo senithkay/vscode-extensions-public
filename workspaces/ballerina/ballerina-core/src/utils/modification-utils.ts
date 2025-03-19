@@ -26,7 +26,8 @@ export const keywords = [
     "base16", "base64", "conflict", "outer", "equals", "boolean", "int",
     "float", "string", "decimal", "handle", "var", "any", "anydata", "byte",
     "future", "typedesc", "map", "json", "xml", "error", "never", "readonly",
-    "distinct", "stream"
+    "distinct", "stream", "isolated", "configurable", "class", "order", "by", 
+    "ascending", "descending", "!is", "fail", "re", "group", "collect"
 ];
 
 export async function InsertorDelete(

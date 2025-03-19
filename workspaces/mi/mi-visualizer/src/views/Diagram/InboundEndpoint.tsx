@@ -13,7 +13,7 @@ import { Diagram } from "@wso2-enterprise/mi-diagram";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { Button, Codicon, Icon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Icon, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
 
 
 export interface InboundEPViewProps {
@@ -44,6 +44,13 @@ export const InboundEPView = ({ path, model, diagnostics }: InboundEPViewProps) 
             type: EVENT_TYPE.OPEN_VIEW,
             location: { view: MACHINE_VIEW.Overview }
         });
+    }
+
+    // TODO: Fix from statemachine
+    if (!model) {
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <ProgressRing />
+        </div>
     }
 
     return (

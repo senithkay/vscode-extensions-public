@@ -8,8 +8,9 @@
  */
 
 import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord } from "@wso2-enterprise/ballerina-core";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
+import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 
 import { StateMachine } from "../../stateMachine";
 import {
@@ -29,9 +30,16 @@ import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import axios from "axios";
 import { getPluginConfig } from "../../../src/utils";
+import path from "path";
+import * as fs from 'fs';
 
 export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
-export const CONTEXT_UPLOAD_URL_V1 = getPluginConfig().get('contextUploadServiceUrl') as string;
+const BACKEND_BASE_URL = BACKEND_API_URL_V2.replace(/\/v2\.0$/, "");
+//TODO: Temp workaround as custom domain seem to block file uploads
+const CONTEXT_UPLOAD_URL_V1 = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/ballerina-copilot/context-upload-api/v1.0";
+// const CONTEXT_UPLOAD_URL_V1 = BACKEND_BASE_URL + "/context-api/v1.0";
+const ASK_API_URL_V1 = BACKEND_BASE_URL + "/ask-api/v1.0";
+
 const REQUEST_TIMEOUT = 2000000;
 
 let abortController = new AbortController();
@@ -797,12 +805,13 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         const temporaryRecord = navigateTypeInfo(field.fields, false);
         context.isRecord = true;
         
-        context.recordFields[field.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
-        context.recordFieldsMetadata[field.name] = {
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = (temporaryRecord as RecordDefinitonObject).recordFields;
+        context.recordFieldsMetadata[fieldName] = {
             nullable: context.isNill,
             optional: field.optional,
             type: "record",
-            typeInstance: field.name,
+            typeInstance: fieldName,
             typeName: field.typeName,
             fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
         };
@@ -875,11 +884,12 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         const typeName = field.typeName;
         
         if (field.hasOwnProperty("name")) {
-            context.recordFields[field.name] = { type: typeName, comment: "" };
-            context.recordFieldsMetadata[field.name] = {
+            const fieldName = getBalRecFieldName(field.name);
+            context.recordFields[fieldName] = { type: typeName, comment: "" };
+            context.recordFieldsMetadata[fieldName] = {
                 typeName: typeName,
                 type: typeName,
-                typeInstance: field.name,
+                typeInstance: fieldName,
                 nullable: context.isNill,
                 optional: field.optional
             };
@@ -896,11 +906,12 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     }
     
     private handleTypeInfo(field: FormField, context: VisitorContext): void {
-        context.recordFields[field.name] = { type: field.typeInfo.name, comment: "" };
-        context.recordFieldsMetadata[field.name] = {
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = { type: field.typeInfo.name, comment: "" };
+        context.recordFieldsMetadata[fieldName] = {
             typeName: field.typeInfo.name,
             type: field.typeInfo.name,
-            typeInstance: field.name,
+            typeInstance: fieldName,
             nullable: context.isNill,
             optional: field.optional
         };
@@ -913,12 +924,13 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         
         if (context.isUnion && member.hasOwnProperty("name")) {
             memberName = member.name;
-            context.memberRecordFields[member.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
-            context.memberFieldsMetadata[member.name] = {
+            const fieldName = getBalRecFieldName(memberName);
+            context.memberRecordFields[fieldName] = (temporaryRecord as RecordDefinitonObject).recordFields;
+            context.memberFieldsMetadata[fieldName] = {
                 nullable: context.isNill,
                 optional: member.optional,
                 type: "record",
-                typeInstance: member.name,
+                typeInstance: fieldName,
                 typeName: member.typeName,
                 fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata 
             };
@@ -1048,19 +1060,20 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     }
     
     private addNamedSimpleMember(member: any, memberName: string, context: VisitorContext): void {
+        const fieldName = getBalRecFieldName(member.name);
         context.memberRecordFields = {
             ...context.memberRecordFields,
-            [member.name]: {
+            [fieldName]: {
                 type: memberName,
                 comment: ""
             }
         };
         context.memberFieldsMetadata = {
             ...context.memberFieldsMetadata,
-            [member.name]: {
+            [fieldName]: {
                 typeName: memberName,
                 type: memberName,
-                typeInstance: member.name,
+                typeInstance: fieldName,
                 nullable: context.isNill,
                 optional: member.optional
             }
@@ -1071,12 +1084,13 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         // Check if typeName is not one of the BasicTypes types
         const BasicTypes = ["int", "string", "float", "boolean", "decimal", "readonly"];
         if (!BasicTypes.includes(memberName)) {
+            const fieldName = getBalRecFieldName(memberName);
             context.memberFieldsMetadata = {
                 ...context.memberFieldsMetadata,
-                [memberName]: {
-                    typeName: memberName,
-                    type: memberName,
-                    typeInstance: memberName,
+                [fieldName]: {
+                    typeName: fieldName,
+                    type: fieldName,
+                    typeInstance: fieldName,
                     nullable: context.isNill,
                     optional: member.optional
                 }
@@ -1100,8 +1114,9 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         } else {
             resolvedTypeName = `${memberTypeNames.join("|")}`;
         }
-        
-        context.recordFields[field.name] = Object.keys(context.memberRecordFields).length > 0 
+
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = Object.keys(context.memberRecordFields).length > 0 
                                      ? context.memberRecordFields 
                                      : { type: `(${resolvedTypeName})[]`, comment: "" };
         
@@ -1110,7 +1125,8 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     
     private handleArrayWithRecordType(field: FormField, context: VisitorContext): void {
         const temporaryRecord = navigateTypeInfo(field.memberType.fields, false);
-        context.recordFields[field.name] = (temporaryRecord as RecordDefinitonObject).recordFields;
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = (temporaryRecord as RecordDefinitonObject).recordFields;
         context.isArray = true;
         context.isRecord = true;
         
@@ -1118,7 +1134,7 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
             optional: field.optional,
             typeName: "record[]",
             type: "record[]",
-            typeInstance: field.name,
+            typeInstance: fieldName,
             fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
         };
         
@@ -1139,11 +1155,12 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
             context.memberRecordFields = {};
             context.memberFieldsMetadata = {};
         } else {
-            context.recordFields[field.name] = { type: typeName, comment: "" };
-            context.recordFieldsMetadata[field.name] = {
+            const fieldName = getBalRecFieldName(field.name);
+            context.recordFields[fieldName] = { type: typeName, comment: "" };
+            context.recordFieldsMetadata[fieldName] = {
                 typeName: typeName,
                 type: typeName,
-                typeInstance: field.name,
+                typeInstance: fieldName,
                 nullable: context.isNill,
                 optional: field.optional
             };
@@ -1215,7 +1232,8 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         };
         
         this.applyNullabilityToFieldMetadata(context);
-        context.recordFieldsMetadata[field.name] = context.fieldMetadata;
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFieldsMetadata[fieldName] = context.fieldMetadata;
     }
     
     private applyNullabilityToFieldMetadata(context: VisitorContext): void {
@@ -1239,10 +1257,11 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
     }
     
     private setFieldAndMetadata(field: FormField, resolvedTypeName: string, context: VisitorContext): void {
-        context.recordFields[field.name] = Object.keys(context.memberRecordFields).length > 0 
+        const fieldName = getBalRecFieldName(field.name);
+        context.recordFields[fieldName] = Object.keys(context.memberRecordFields).length > 0 
                                      ? context.memberRecordFields 
                                      : { type: resolvedTypeName, comment: "" };
-        context.recordFieldsMetadata[field.name] = context.fieldMetadata;
+        context.recordFieldsMetadata[fieldName] = context.fieldMetadata;
     }
     
     private resetContext(context: VisitorContext): void {
@@ -1290,6 +1309,10 @@ function navigateTypeInfo(
         "recordFields": context.recordFields, 
         "recordFieldsMetadata": context.recordFieldsMetadata 
     };
+}
+
+export function getBalRecFieldName(fieldName: string) {
+    return keywords.includes(fieldName) ? `'${fieldName}` : fieldName;
 }
 
 export async function getDatamapperCode(parameterDefinitions: ErrorCode | ParameterMetadata): Promise<object | ErrorCode> {
@@ -1393,7 +1416,7 @@ async function sendDatamapperRequest(parameterDefinitions: ParameterMetadata | E
 async function sendMappingFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
     const formData = new FormData();
     formData.append("file", file);
-    const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_mapping_instruction", {
+    const response = await fetchWithToken(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_mapping_instruction", {
         method: "POST",
         body: formData
     });
@@ -1401,8 +1424,7 @@ async function sendMappingFileUploadRequest(file: Blob): Promise<Response | Erro
 }
 
 export async function searchDocumentation(message: string): Promise<string | ErrorCode> {
-    const BACKEND_API_URL ="https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/ballerina-copilot/documentation-assist/v1.0";
-    const response = await fetch(BACKEND_API_URL + "/documentation-assistant", {
+    const response = await fetchWithToken(ASK_API_URL_V1 + "/documentation-assistant", {
         method: "POST",
         headers: {
             'Accept': 'application/json',
@@ -1490,7 +1512,7 @@ export async function getMappingFromFile(file: Blob): Promise<MappingFileRecord 
 async function sendTypesFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
     const formData = new FormData();
     formData.append("file", file);
-    const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_record", {
+    const response = await fetchWithToken(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_record", {
         method: "POST",
         body: formData
     });
@@ -2097,4 +2119,75 @@ async function processCombinedKey(
         }
     }
     return { isinputRecordArrayNullable, isinputRecordArrayOptional, isinputArrayNullable, isinputArrayOptional, isinputNullableArray };
+}
+
+async function sendRequirementFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetchWithToken(CONTEXT_UPLOAD_URL_V1 + "/file_upload/extract_requirements", {
+        method: "POST",
+        body: formData
+    });
+    return response;
+}
+
+export async function getTextFromRequirements(file: Blob): Promise<string | ErrorCode> {
+    try {
+        let response = await sendRequirementFileUploadRequest(file);
+        if (isErrorCode(response)) {
+            return response as ErrorCode;
+        }
+        response = response as Response;
+        let requirements = await filterMappingResponse(response) as string;
+        return requirements;
+    } catch (error) {
+        console.error(error);
+        return UNKNOWN_ERROR;
+    }
+}
+
+export async function requirementsSpecification(filepath: string): Promise<string | ErrorCode> {
+    if (!filepath) { 
+        throw new Error("File is undefined"); 
+    }
+
+    const convertedFile = convertBase64ToBlob({name: path.basename(filepath), 
+                            content: getBase64FromFile(filepath), status: AttachmentStatus.Unknown});
+    if (!convertedFile) { throw new Error("Invalid file content"); }
+
+    let requirements = await getTextFromRequirements(convertedFile);
+    if (isErrorCode(requirements)) { 
+        return requirements as ErrorCode; 
+    }
+
+    return requirements;
+}
+
+function getBase64FromFile(filePath) {
+    const fileBuffer = fs.readFileSync(filePath);
+    return fileBuffer.toString('base64');
+}
+
+export async function fetchWithToken(url: string, options: RequestInit) {
+    const accessToken = await getAccessToken();
+    options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${accessToken}`,
+        'User-Agent': 'Ballerina-VSCode-Plugin',
+    };
+    let response = await fetch(url, options);
+    console.log("Response status: ", response.status);
+    if (response.status === 401) {
+        console.log("Token expired. Refreshing token...");
+        const newToken = await refreshAccessToken();
+        console.log("refreshed token : " + newToken);
+        if (newToken) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${newToken}`,
+            };
+            response = await fetch(url, options);
+        }
+    }
+    return response;
 }

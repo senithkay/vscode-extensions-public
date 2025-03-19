@@ -134,6 +134,10 @@ export class InitVisitor implements BaseVisitor {
 
     beginVisitIf(node: Node, parent?: DiagramElement): void {
         logger(`Init visitor: beginVisitIf ${getNodeId(node)}`, ConsoleColor.GREEN, { node });
+        if (!node.viewStates || node.viewStates.length === 0) {
+            console.warn(">> View state not found for if block", node);
+            return;
+        }
         this.initIfBlock(node);
     }
 

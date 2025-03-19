@@ -24,7 +24,8 @@ export async function generateDataMapping(
   projectRoot: string,
   request: GenerateMappingsFromRecordRequest
 ): Promise<GenerateMappingFromRecordResponse> {
-    const source = createDataMappingFunctionSource(request.inputRecordTypes, request.outputRecordType, request.functionName);
+    const source = createDataMappingFunctionSource(request.inputRecordTypes, request.outputRecordType, request.functionName, 
+      request.inputNames);
     const file = request.attachment && request.attachment.length > 0
       ? request.attachment[0]
       : undefined;
@@ -110,7 +111,7 @@ async function getUpdatedFunctionSource(
     return fn.source;
 }
 
-function createDataMappingFunctionSource(inputParams: DataMappingRecord[], outputParam: DataMappingRecord, functionName: string): string {
+function createDataMappingFunctionSource(inputParams: DataMappingRecord[], outputParam: DataMappingRecord, functionName: string, inputNames:string[]): string {
   const finalFunctionName = functionName || "transform";
 
   function processType(type: string): string {
@@ -123,7 +124,10 @@ function createDataMappingFunctionSource(inputParams: DataMappingRecord[], outpu
   }
 
   const parametersStr = inputParams
-    .map(item => `${processType(item.type)}${item.isArray ? '[]' : ''} ${camelCase(processType(item.type))}`)
+    .map((item, index) => {
+      const paramName = inputNames[index] || camelCase(processType(item.type));
+      return `${processType(item.type)}${item.isArray ? '[]' : ''} ${paramName}`;
+    })
     .join(", ");
 
   const returnTypeStr = `returns ${processType(outputParam.type)}${outputParam.isArray ? '[]' : ''}`;

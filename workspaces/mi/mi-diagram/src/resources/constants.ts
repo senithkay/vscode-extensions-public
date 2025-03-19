@@ -62,7 +62,10 @@ export enum VSCodeColors {
 
     WARNING = "var(--vscode-editorWarning-foreground)",
 
-    BUTTON_HOVER = "var(--vscode-pickerGroup-border)"
+    BUTTON_HOVER = "var(--vscode-pickerGroup-border)",
+
+    TILE_BACKGROUND = "var(--vscode-welcomePage-tileBackground)",
+    TILE_HOVER_BACKGROUND = "var(--vscode-welcomePage-tileHoverBackground)",
 }
 
 export const Colors = {
@@ -104,26 +107,13 @@ export const Colors = {
 
     SECONDARY_TEXT: VSCodeColors.SECONDARY_TEXT,
 
-    BUTTON_HOVER: VSCodeColors.BUTTON_HOVER
+    BUTTON_HOVER: VSCodeColors.BUTTON_HOVER,
+
+    TILE_BACKGROUND: VSCodeColors.TILE_BACKGROUND,
+    TILE_HOVER_BACKGROUND: VSCodeColors.TILE_HOVER_BACKGROUND,
 };
 
 export const SIDE_PANEL_WIDTH = 450;
-
-export const NODE_GAP = {
-    START_X: 0,
-    START_Y: 40,
-    END_Y: 40,
-    X: 0,
-    Y: 50,
-    BRANCH_X: 50,
-    BRANCH_TOP: 60,
-    BRANCH_BOTTOM: 0,
-    SEQUENCE_Y: 100,
-    GROUP_NODE_START_Y: 50,
-    GROUP_NODE_END_Y: 50,
-    GROUP_NODE_HORIZONTAL_PADDING: 22,
-    TEXT_NODE_GAP: 25,
-};
 
 export const NODE_DIMENSIONS = {
     DEFAULT: {
@@ -179,8 +169,14 @@ export const NODE_DIMENSIONS = {
     },
     CONNECTOR: {
         WIDTH: 150,
-        FULL_WIDTH: 150 + 110,
         HEIGHT: 60,
+        CONNECTION_PART_WIDTH: 110,
+        FULL_WIDTH: 150 + 110,
+    },
+    AI_AGENT: {
+        WIDTH: 200,
+        CONNECTION_PART_WIDTH: 135,
+        FULL_WIDTH: 200 + 135,
     },
     DATA_SERVICE: {
         WIDTH: 150,
@@ -190,6 +186,24 @@ export const NODE_DIMENSIONS = {
     BORDER: 1,
 };
 
+export const NODE_GAP = {
+    START_X: 0,
+    START_Y: 40,
+    END_Y: 40,
+    X: 0,
+    Y: 50,
+    BRANCH_X: 50,
+    BRANCH_TOP: 60,
+    BRANCH_BOTTOM: 0,
+    SEQUENCE_Y: 100,
+    GROUP_NODE_START_Y: 50,
+    GROUP_NODE_END_Y: 50,
+    GROUP_NODE_HORIZONTAL_PADDING: 22,
+    AI_AGENT_TOP: 65,
+    AI_AGENT_BOTTOM: 10,
+    AI_AGENT_TOOLS_Y: 20,
+    CONNECTION_CIRCLE_Y: 20,
+};
 
 // MEDIATOR NAMES
 export const MEDIATORS = {
@@ -283,6 +297,7 @@ export enum NodeTypes {
     EMPTY_NODE = "empty-node",
     CONNECTOR_NODE = "connector-node",
     DATA_SERVICE_NODE = "data-service-node",
+    AI_AGENT_NODE = "ai-agent-node",
 }
 
 export const NODE_LINK = "node-link";

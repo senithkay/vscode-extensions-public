@@ -96,7 +96,9 @@ export function TopNavigationBar(props: TopNavigationBarProps) {
             rpcClient.getVisualizerRpcClient().goSelected(index);
         }
     };
-
+    // HACK: To remove forms from breadcrumb. Will have to fix from the state machine side
+    const hackToSkipForms = ["overview", "automation", "service", "function", "add natural function", "data mapper", "connection"];
+    const existingLabels = new Set<string>();
     return (
         <NavContainer>
             {onBack && (
@@ -108,17 +110,24 @@ export function TopNavigationBar(props: TopNavigationBarProps) {
                 <Icon name="bi-home" iconSx={{ color: "var(--vscode-foreground)" }} />
             </IconButton>
             <BreadcrumbContainer>
-                {history.map((crumb, index) => (
-                    <React.Fragment key={index}>
-                        {index > 0 && <BreadcrumbSeparator>/</BreadcrumbSeparator>}
-                        <BreadcrumbItem
-                            clickable={index < history.length - 1}
-                            onClick={() => index < history.length - 1 && handleCrumbClick(index)}
-                        >
-                            {getShortNames(crumb.location.view)}
-                        </BreadcrumbItem>
-                    </React.Fragment>
-                ))}
+                {history.map((crumb, index) => {
+                    const shortName = getShortNames(crumb.location.view);
+                    if (index === history.length - 1 || !existingLabels.has(shortName) && !hackToSkipForms.includes(shortName.toLowerCase())) {
+                        existingLabels.add(shortName);
+                        return (
+                            <React.Fragment key={index}>
+                                {index > 0 && <BreadcrumbSeparator>/</BreadcrumbSeparator>}
+                                <BreadcrumbItem
+                                    clickable={index < history.length - 1}
+                                    onClick={() => index < history.length - 1 && handleCrumbClick(index)}
+                                >
+                                    {shortName}
+                                </BreadcrumbItem>
+                            </React.Fragment>
+                        );
+                    }
+                    return null;
+                })}
             </BreadcrumbContainer>
         </NavContainer>
     );
@@ -129,7 +138,7 @@ function getShortNames(name: string) {
         case "BI Diagram":
             return "Diagram";
         case "BI Component View":
-            return "Constructs";
+            return "Artifacts";
         case "BI Welcome":
             return "Welcome";
         case "BI Project Form":

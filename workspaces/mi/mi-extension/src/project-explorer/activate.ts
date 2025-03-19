@@ -95,7 +95,8 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 	commands.registerCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, async (entry: ProjectExplorerEntry) => {
 		const filePath = entry.info?.path;
-		await setDefaultSequence(filePath, false);
+		const seqName = entry.info?.name;
+		await setDefaultSequence(filePath, false, seqName);
 	});
 
 	commands.registerCommand(COMMANDS.UNMARK_SEQUENCE_AS_DEFAULT, async (entry: ProjectExplorerEntry) => {
@@ -121,6 +122,18 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.ADD_CLASS_MEDIATOR_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ClassMediatorForm, documentUri: entry.info?.path });
 		console.log('Add Class Mediator');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_BALLERINA_MODULE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BallerinaModuleForm, documentUri: entry.info?.path });
+		console.log('Add Ballerina Module');
+	});
+
+	commands.registerCommand(COMMANDS.EDIT_BALLERINA_MODULE_COMMAND, async (entry: string) => {
+		workspace.openTextDocument(entry).then((doc) => {
+			window.showTextDocument(doc, { preview: false });
+		});
+		commands.executeCommand('workbench.files.action.focusFilesExplorer');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_DATA_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -547,7 +560,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		}
 	});
 
-	async function setDefaultSequence(filePath?: string, remove?: boolean) {
+	async function setDefaultSequence(filePath?: string, remove?: boolean, seqName?: string) {
 		const langClient = StateMachine.context().langClient;
 
 		if (!filePath) {
@@ -577,18 +590,22 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			throw new Error('Language client is not available');
 		}
 
-		// Get the syntax tree of the given file path
-		const syntaxTree = await langClient.getSyntaxTree({
-			documentIdentifier: {
-				uri: filePath
-			},
-		});
+		let sequenceName = seqName;
 
-		// Get the sequence name from the syntax tree
-		const sequenceName = syntaxTree?.syntaxTree?.sequence?.name;
-		if (!sequenceName) {
-			window.showErrorMessage('Failed to get the sequence name from the syntax tree');
-			throw new Error('Failed to get the sequence name from the syntax tree');
+		if (!seqName) {
+			// Get the syntax tree of the given file path
+			const syntaxTree = await langClient.getSyntaxTree({
+				documentIdentifier: {
+					uri: filePath
+				},
+			});
+
+			// Get the sequence name from the syntax tree
+			const sequenceName = syntaxTree?.syntaxTree?.sequence?.name;
+			if (!sequenceName) {
+				window.showErrorMessage('Failed to get the sequence name from the syntax tree');
+				throw new Error('Failed to get the sequence name from the syntax tree');
+			}
 		}
 
 		const mainSequenceTag = `<mainSequence>${sequenceName}</mainSequence>`;

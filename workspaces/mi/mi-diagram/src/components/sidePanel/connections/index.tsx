@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Codicon, ComponentCard, IconLabel, LinkButton, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, LinkButton, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
@@ -18,28 +18,7 @@ import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from "@wso2-enterpris
 import path from "path";
 import { MediatorPage } from "../mediators/Mediator";
 import { DEFAULT_ICON } from "../../../resources/constants";
-
-const VersionTag = styled.div`
-    color: #808080;
-    font-size: 10px;
-    padding-left: 2px;
-`;
-
-const CardContent = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-`;
-
-const CardLabel = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-self: flex-start;
-    width: 100%;
-    gap: 10px;
-`;
+import { ButtonGroup, GridButton } from "../commons/ButtonGroup";
 
 const MessageWrapper = styled.div`
     display: flex;
@@ -62,22 +41,6 @@ const ConnectionWrapper = styled.div`
     flex-direction: column;
 `;
 
-const IconContainer = styled.div`
-    width: 35px;
-
-    & img {
-        width: 35px;
-    }
-`;
-
-const SmallIconContainer = styled.div`
-    width: 25px;
-
-    & img {
-        width: 25px;
-    }
-`;
-
 const SectionTitleWrapper = styled.div`
     display: flex;
     justify-content: space-between;
@@ -88,13 +51,6 @@ const SectionTitleWrapper = styled.div`
 
 const SectionContainer = styled.div`
     width: 390px;
-`;
-
-const OperationGrid = styled.div`
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px 5px;
-    padding-top: 10px;
 `;
 
 const ExternalsContainer = styled.div`
@@ -178,6 +134,9 @@ export function ConnectionPage(props: ConnectorPageProps) {
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedValue(props.searchValue);
+            if (!props.searchValue) {
+                setExpandedConnections([]);
+            }
         }, 400);
 
         return () => {
@@ -210,6 +169,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                         return false;
                     });
 
+                    (nameMatch || operationMatch) && setExpandedConnections(prev => [...prev, connection]);
                     return nameMatch || operationMatch;
                 });
 
@@ -262,10 +222,8 @@ export function ConnectionPage(props: ConnectorPageProps) {
         let operationsFiltered = [];
 
         if (debouncedValue) {
-            setExpandedConnections([]);
             connectionsFiltered = searchConnections();
             operationsFiltered = searchOperations();
-
             setFilteredOperations(operationsFiltered);
         } else {
             setFilteredOperations([]);
@@ -273,18 +231,6 @@ export function ConnectionPage(props: ConnectorPageProps) {
 
         setFilteredConnections(connectionsFiltered);
     }, [debouncedValue, connections]);
-
-    const reloadConnectionList = async () => {
-        fetchConnections();
-    }
-
-    const selectConnection = async (connectorName: string, connection: Connection) => {
-        if (expandedConnections.includes(connection)) {
-            setExpandedConnections(expandedConnections.filter(item => item !== connection));
-        } else {
-            setExpandedConnections([...expandedConnections, connection]);
-        }
-    }
 
     const addNewConnection = async () => {
         rpcClient.getMiVisualizerRpcClient().openView({
@@ -351,10 +297,6 @@ export function ConnectionPage(props: ConnectorPageProps) {
         sidepanelAddPage(sidePanelContext, page, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, icon);
     }
 
-    const getConnectionLabel = (connectorName: string, connectionType: string) => {
-        return `${FirstCharToUpperCase(connectorName)} ${connectionType ? `- ${connectionType} Connection` : ''}`;
-    }
-
     const ConnectionList = () => {
 
         return (
@@ -394,135 +336,47 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                 <div key={key}>
                                                     {filteredConnections[key].connections.map((connection, index) => (
                                                         connection && (
-                                                            <div key={index} style={{
-                                                                backgroundColor: 'var(--vscode-editorWidget-background)',
-                                                                border: '0px',
-                                                                borderRadius: 2,
-                                                                cursor: 'pointer',
-                                                                display: 'flex',
-                                                                justifyContent: 'left',
-                                                                transition: '0.3s',
-                                                                flexDirection: 'column',
-                                                                marginBottom: '15px'
-                                                            }}>
-                                                                <ComponentCard
-                                                                    id={connection.name}
-                                                                    key={connection.name}
-                                                                    onClick={() => selectConnection(key, connection)}
-                                                                    sx={{
-                                                                        border: '0px',
-                                                                        borderRadius: 2,
-                                                                        padding: '6px 10px',
-                                                                        width: 'auto',
-                                                                        height: '32px'
-                                                                    }}
-                                                                >
-                                                                    <CardContent>
-                                                                        <CardLabel>
-                                                                            <IconContainer>
-                                                                                <img
-                                                                                    src={connection.connectionIconPath}
-                                                                                    alt="Icon"
-                                                                                    onError={(e) => {
-                                                                                        const target = e.target as HTMLImageElement;
-                                                                                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
-                                                                                    }}
-                                                                                />
-                                                                            </IconContainer>
-                                                                            <div style={{
-                                                                                width: '100%',
-                                                                                overflow: 'hidden',
-                                                                                textOverflow: 'ellipsis',
-                                                                                whiteSpace: 'nowrap',
-                                                                                textAlign: 'left',
-                                                                                display: 'flex',
-                                                                                flexDirection: 'column',
-                                                                                justifyContent: 'center'
-                                                                            }}>
-                                                                                <IconLabel>
-                                                                                    {connection.name}
-                                                                                </IconLabel>
-                                                                                <VersionTag>
-                                                                                    {getConnectionLabel(key, connection.connectionType)}
-                                                                                </VersionTag>
-                                                                            </div>
-                                                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                                                {expandedConnections.includes(connection) ?
-                                                                                    <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
+                                                            <div key={key} data-key={key}>
+                                                                <ButtonGroup
+                                                                    key={key}
+                                                                    title={connection.name}
+                                                                    isCollapsed={!expandedConnections.includes(connection)}
+                                                                    iconUri={connection.connectionIconPath}>
+                                                                    <>
+                                                                        {((filteredOperations.find(([filteredConnection]) => filteredConnection === connection)?.slice(1)[0])
+                                                                            || filteredConnections[key].connectorData?.actions).map((operation: any) => {
+                                                                                const allowedTypes = operation.allowedConnectionTypes;
+                                                                                if (operation.isHidden || (!(allowedTypes?.some((type: string) => type.toLowerCase() === connection.connectionType.toLowerCase())))) {
+                                                                                    return null;
                                                                                 }
-                                                                            </div>
-                                                                        </CardLabel>
-                                                                    </CardContent>
-                                                                </ComponentCard>
-                                                                {(filteredOperations?.some(
-                                                                    ([filteredConnector]) =>
-                                                                        filteredConnector.name === connection.name
-                                                                )
-                                                                    || (expandedConnections && expandedConnections.includes(connection))) &&
-                                                                    <div style={{ padding: 10 }}>
-                                                                        <div style={{ width: '100%', textAlign: 'left' }}>Select Operation</div>
-                                                                        <OperationGrid>
-                                                                            {((filteredOperations.find(([filteredConnection]) => filteredConnection === connection)?.slice(1)[0])
-                                                                                || filteredConnections[key].connectorData?.actions).map((operation: any) => {
-                                                                                    const allowedTypes = operation.allowedConnectionTypes;
-                                                                                    if (operation.isHidden || (!(allowedTypes?.some((type: string) => type.toLowerCase() === connection.connectionType.toLowerCase())))) {
-                                                                                        return null;
-                                                                                    }
 
-                                                                                    return (
-                                                                                        <ComponentCard
-                                                                                            id={operation.name}
+                                                                                return (
+                                                                                    <Tooltip content={operation?.tooltip} position='bottom' key={operation.name}>
+                                                                                        <GridButton
                                                                                             key={operation.name}
-                                                                                            onClick={() => generateForm(
-                                                                                                connection,
-                                                                                                operation.name,
-                                                                                                filteredConnections[key].connectorData
-                                                                                            )}
-                                                                                            sx={{
-                                                                                                '&:hover, &.active': {
-                                                                                                    '.icon svg g': {
-                                                                                                        fill: 'var(--vscode-editor-foreground)'
-                                                                                                    },
-                                                                                                    backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                                                                    border: '0.5px solid var(--vscode-focusBorder)'
-                                                                                                },
-                                                                                                alignItems: 'center',
-                                                                                                border: '0.5px solid var(--vscode-editor-foreground)',
-                                                                                                borderRadius: 2,
-                                                                                                cursor: 'pointer',
-                                                                                                display: 'flex',
-                                                                                                height: 20,
-                                                                                                justifyContent: 'left',
-                                                                                                marginBottom: 10,
-                                                                                                padding: 10,
-                                                                                                transition: '0.3s',
-                                                                                                width: '160px'
-                                                                                            }}
-                                                                                        >
-                                                                                            <SmallIconContainer>
+                                                                                            title={FirstCharToUpperCase(operation.name)}
+                                                                                            description={operation.description}
+                                                                                            icon={
                                                                                                 <img
                                                                                                     src={connection.connectionIconPath}
                                                                                                     alt="Icon"
                                                                                                     onError={(e) => {
                                                                                                         const target = e.target as HTMLImageElement;
-                                                                                                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
+                                                                                                        target.src = DEFAULT_ICON;
                                                                                                     }}
                                                                                                 />
-                                                                                            </SmallIconContainer>
-                                                                                            <div style={{
-                                                                                                width: '120px',
-                                                                                                overflow: 'hidden',
-                                                                                                textOverflow: 'ellipsis',
-                                                                                                whiteSpace: 'nowrap'
-                                                                                            }}>
-                                                                                                <IconLabel>{FirstCharToUpperCase(operation.name)}</IconLabel>
-                                                                                            </div>
-                                                                                        </ComponentCard>
-                                                                                    );
-                                                                                })}
-                                                                        </OperationGrid>
-                                                                    </div>
-                                                                }
+                                                                                            }
+                                                                                            onClick={() => generateForm(
+                                                                                                connection,
+                                                                                                operation.name,
+                                                                                                filteredConnections[key].connectorData
+                                                                                            )}
+                                                                                        />
+                                                                                    </Tooltip>
+                                                                                );
+                                                                            })}
+                                                                    </>
+                                                                </ButtonGroup >
                                                             </div>
                                                         )
                                                     ))}

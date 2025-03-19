@@ -52,6 +52,22 @@ export function getPropertyFromFormField(field: FormField): ExpressionProperty {
         editable: field.editable,
         advanced: field.advanced,
         placeholder: field.placeholder,
-        valueTypeConstraint: field.valueTypeConstraint
+        valueTypeConstraint: field.valueTypeConstraint,
+        codedata: field.codedata,
     }
+}
+
+export const getFieldKeyForAdvanceProp = (fieldKey: string, advancePropKey: string) => {
+    // Get the parent key for the advance prop
+    let parentKeyForAdvanceProp = advancePropKey;
+    const splitedAdvanceProp = advancePropKey.split('.advanceProperties.');
+    if (splitedAdvanceProp.length > 1) {
+        parentKeyForAdvanceProp = splitedAdvanceProp.slice(0, -1).join('.advanceProperties.');
+    }
+    
+    if (parentKeyForAdvanceProp === fieldKey) {
+        return advancePropKey;
+    }
+
+    return `${fieldKey}.advanceProperties.${advancePropKey}`;
 }

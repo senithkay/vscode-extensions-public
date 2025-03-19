@@ -149,6 +149,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: functionFilePath.fsPath,
                 position: { line: 0, offset: 0 },
+                typeConstraint: "anydata"
             });
 
             visibleTypes = convertToVisibleTypes(response.types);
@@ -533,7 +534,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             <TitleBar title="Test" subtitle="Create a new test for your integration" />
             <ViewContent padding>
                 <Container>
-                    <FormHeader title={formTitle} subtitle={`Define a test case that can be used within the integration.`} />
+                    <FormHeader title={formTitle} />
                     <FormContainer>
                         <Form
                             formFields={formFields}

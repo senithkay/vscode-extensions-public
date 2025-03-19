@@ -26,6 +26,7 @@ import {
     COMMAND_GENERATE,
     COMMAND_TESTS,
     COMMAND_TYPECREATOR,
+    COMMAND_NATURAL_PROGRAMMING,
     getFileTypesForCommand,
 } from "../AIChat";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
@@ -93,20 +94,23 @@ const SuggestionsList = styled.ul`
     z-index: 1000;
 `;
 
-const AT_MENTION_SUGGESTIONS = ["Apple", "Mango", "Banana"];
-
 // Suggestion item styling
 interface SuggestionItemProps {
     active: boolean;
 }
 
 const SuggestionItem = styled.li<SuggestionItemProps>`
-    padding: 8px 12px;
+    padding: 6px 12px;
     cursor: pointer;
     background-color: ${(props: SuggestionItemProps) =>
         props.active ? "var(--vscode-list-activeSelectionBackground)" : "var(--vscode-editor-background)"};
     color: ${(props: SuggestionItemProps) =>
         props.active ? "var(--vscode-list-activeSelectionForeground)" : "var(--vscode-editor-foreground)"};
+
+    &:hover {
+        background-color: ${(props: SuggestionItemProps) =>
+            props.active ? "var(--vscode-list-activeSelectionBackground)" : "var(--vscode-editor-hoverBackground)"};
+    }
 `;
 
 const ActionButton = styled.button`
@@ -154,6 +158,9 @@ const StyledInput = styled.div`
     white-space: pre-wrap;
     overflow-y: auto;
     max-height: calc(1em * 8);
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
 
     &:focus {
         outline: none;
@@ -186,13 +193,13 @@ interface StyledInputProps {
     onChange: (value: string) => void;
     onInput: (e: React.ChangeEvent<HTMLDivElement>) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+    onBlur: (e: React.FocusEvent<HTMLDivElement>) => void;
     placeholder: string;
 }
 
 const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
-    ({ value, onChange, onInput, onKeyDown, placeholder }, ref) => {
+    ({ value, onChange, onInput, onKeyDown, onBlur, placeholder }, ref) => {
         const [content, setContent] = useState<string>(value);
-        const [isFocused, setIsFocused] = useState<boolean>(false);
         const divRef = useRef<HTMLDivElement>(null);
 
         const getCursorPosition = () => {
@@ -320,8 +327,7 @@ const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
                 suppressContentEditableWarning={true}
                 role="textbox"
                 aria-multiline="true"
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
+                onBlur={onBlur}
                 data-placeholder={placeholder}
             />
         );
@@ -732,6 +738,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                 attachmentHandler = new DataMapperAttachment(activeCommand);
                 break;
             case COMMAND_GENERATE:
+            case COMMAND_NATURAL_PROGRAMMING:
                 attachmentHandler = new GenerateAttachment(activeCommand);
                 break;
             case COMMAND_TESTS:
@@ -773,6 +780,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                         onChange={setInputValue}
                         onInput={handleInputChange}
                         onKeyDown={handleKeyDown}
+                        onBlur={() => setShowSuggestions(false)}
                         placeholder="Describe your integration..."
                     />
                     {/* 3. Attachments Display */}
@@ -839,7 +847,6 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                                 ref={isActive ? activeSuggestionRef : null}
                                 active={isActive}
                                 onClick={() => handleSuggestionClick(suggestion)}
-                                onMouseEnter={() => setActiveSuggestion(index, filteredSuggestions)}
                                 onMouseDown={handleSuggestionMouseDown}
                                 role="option"
                                 aria-selected={isActive}

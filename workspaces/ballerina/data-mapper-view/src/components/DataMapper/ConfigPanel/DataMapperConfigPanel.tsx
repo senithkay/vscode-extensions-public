@@ -54,11 +54,6 @@ export interface DataMapperConfigPanelProps {
     filePath: string;
     inputs: DataMapperInputParam[];
     output: DataMapperOutputParam;
-    currentFile?: {
-        content: string,
-        path: string,
-        size: number
-    };
     ballerinaVersion: string;
     onSave: (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => void;
     onClose: () => void;
@@ -77,7 +72,6 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         filePath,
         inputs,
         output,
-        currentFile,
         ballerinaVersion,
         onSave,
         onClose,

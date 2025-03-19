@@ -2,6 +2,54 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.1.2] - 2025-03-17
+
+### Fixed
+
+Fixed: Connection icons in AI connector
+
+## [2.1.1] - 2025-03-17
+
+### Fixed
+
+Fixed: Unable to Create RabbitMQ Inbound Endpoint in WSO2 MI – 'Create Event Integration' Window Fails to Open ([#959](https://github.com/wso2/mi-vscode/issues/959))
+
+## [2.1.0] - 2025-03-15
+
+### New Features
+
+Added: Support for Creating AI Agents ([#956](https://github.com/wso2/mi-vscode/issues/956))
+
+### Fixed
+
+Fixed: Clicking on the "Open Graphical VIew" from the source view of an API resource does not open the graphical view ([#794](https://github.com/wso2/mi-vscode/issues/794))  
+
+### Improvements
+
+Improved: Devant integration UX
+
+## [2.0.4] - 2025-03-10
+
+### Fixed
+
+Fixed: Artifact creation in windows ([#943](https://github.com/wso2/mi-vscode/issues/943))
+
+
+## [2.0.3] - 2025-03-09
+
+### New Features
+
+Added: Devant support ([#290](https://github.com/wso2-enterprise/devant/issues/290))  
+Added: Ballerina modules generation support ([#942](https://github.com/wso2/mi-vscode/issues/942))
+
+### Fixed
+
+Fixed: After creating proxy, wrong redirection ([#635](https://github.com/wso2/mi-vscode/issues/635))  
+Fixed: Resource Path gets overwritten by default values in "Create New Resource" form ([#788](https://github.com/wso2/mi-vscode/issues/788))  
+Fixed: Can create a new project with existing project name ([#839](https://github.com/wso2/mi-vscode/issues/839))  
+Fixed: When creating an API with openAPI definition without the swagger file the `create` button is enabled. ([#908](https://github.com/wso2/mi-vscode/issues/908))  
+
+
 ## [2.0.2] - 2025-03-03
 
 ### Fixed

@@ -18,18 +18,19 @@ interface ParamItemProps {
     method: HTTP_METHOD;
     response: StatusCodeResponse;
     readonly: boolean;
+    hideCode?: boolean;
     onDelete?: () => void;
     onEditClick?: (param: StatusCodeResponse) => void;
 }
 
 export function ResponseItem(props: ParamItemProps) {
-    const { response, readonly, onDelete, onEditClick, method } = props;
+    const { response, readonly, hideCode, onDelete, onEditClick, method } = props;
 
     const handleDelete = () => {
         onDelete();
     };
     const handleEdit = () => {
-        if (!readonly) {
+        if (!readonly && !hideCode) {
             onEditClick(response);
         }
     };
@@ -44,15 +45,17 @@ export function ResponseItem(props: ParamItemProps) {
 
     return (
         <HeaderLabel data-testid={`${response.statusCode.value}-item`}>
-            <IconTextWrapper onClick={handleEdit}>
-                <IconWrapper>
-                    <Icon name="header" />
-                </IconWrapper>
-                <OptionLabel>
-                    {getFormattedResponse(response, method)}
-                </OptionLabel>
-            </IconTextWrapper>
-            <ContentSection>
+            {!hideCode &&
+                <IconTextWrapper onClick={handleEdit}>
+                    <IconWrapper>
+                        <Icon name="header" />
+                    </IconWrapper>
+                    <OptionLabel>
+                        {getFormattedResponse(response, method)}
+                    </OptionLabel>
+                </IconTextWrapper>
+            }
+            <ContentSection justifyEnd={hideCode}>
                 <div
                     data-test-id={`${response.body.value}-resp`}
                     className={readonly ? disabledHeaderLabel : headerLabelStyles}
@@ -62,9 +65,11 @@ export function ResponseItem(props: ParamItemProps) {
                 </div>
                 {!readonly && (
                     <ActionIconWrapper>
-                        <EditIconWrapper>
-                            <Codicon name="edit" onClick={handleEdit} />
-                        </EditIconWrapper>
+                        {!hideCode &&
+                            <EditIconWrapper>
+                                <Codicon name="edit" onClick={handleEdit} />
+                            </EditIconWrapper>
+                        }
                         <DeleteIconWrapper>
                             <Codicon name="trash" onClick={handleDelete} />
                         </DeleteIconWrapper>

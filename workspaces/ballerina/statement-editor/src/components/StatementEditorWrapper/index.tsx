@@ -53,7 +53,7 @@ export interface LowCodeEditorProps {
     isModuleVar?: boolean;
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
     isExpressionMode?: boolean;
-    mappingCounstructor ?: string;
+    mappingCounstructor?: string;
     modelTargetSource?: NodePosition;
     ballerinaVersion?: string;
     isCodeServerInstance?: boolean;
@@ -71,12 +71,12 @@ export interface StatementEditorWrapperProps extends LowCodeEditorProps {
 
 const queryClient = new QueryClient({
     defaultOptions: {
-      queries: {
-        retry: false,
-        refetchOnWindowFocus: false,
-        staleTime: 1000,
-        cacheTime: 1000,
-      },
+        queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+            staleTime: 1000,
+            cacheTime: 1000,
+        },
     },
 });
 
@@ -129,8 +129,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 const partialST =
                     isConfigurableStmt || isModuleVar
                         ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, langServerRpcClient)
-                        : (isExpressionMode ? await getPartialSTForExpression({codeSnippet: initialSource.trim()}, langServerRpcClient)
-                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim()}, langServerRpcClient));
+                        : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: initialSource.trim() }, langServerRpcClient)
+                            : await getPartialSTForStatement({ codeSnippet: initialSource.trim() }, langServerRpcClient));
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     model = partialST;
@@ -196,10 +196,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         });
     };
 
-    const addConfigurable = async (newLabel: string, newPosition: NodePosition,
-                                   newSource: string, isExistingStmt: boolean = false) => {
+    const addConfigurable = async (newLabel: string, newPosition: NodePosition, newSource: string, isExistingStmt: boolean = false) => {
         const partialST = await getPartialSTForModuleMembers(
-            {codeSnippet: newSource.trim()}, langServerRpcClient);
+            { codeSnippet: newSource.trim() }, langServerRpcClient);
 
         const newEditor: EditorModel = {
             label: newLabel,
@@ -227,7 +226,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             <SidePanel
                 isOpen={true}
                 alignment="right"
-                sx={{transition: "all 0.3s ease-in-out", width: 600}}
+                sx={{ transition: "all 0.3s ease-in-out", width: 600, zIndex: 3000 }}
                 data-testid="property-form"
             >
                 {!editor && (
@@ -236,47 +235,47 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                     </div>
                 )}
                 {editor && (
-                        <>
-                            <StatementEditor
-                                editor={editor}
-                                editorManager={{
-                                    switchEditor,
-                                    updateEditor,
-                                    dropLastEditor,
-                                    addConfigurable,
-                                    activeEditorId,
-                                    editors
-                                }}
-                                onWizardClose={onWizardClose}
-                                onCancel={onCancel}
-                                config={config}
-                                formArgs={formArgs}
-                                langServerRpcClient={langServerRpcClient}
-                                libraryBrowserRpcClient={libraryBrowserRpcClient}
-                                applyModifications={applyModifications}
-                                currentFile={
-                                    {
-                                        ...currentFile,
-                                        content: fullSource,
-                                        originalContent: fullSource
-                                    }
+                    <>
+                        <StatementEditor
+                            editor={editor}
+                            editorManager={{
+                                switchEditor,
+                                updateEditor,
+                                dropLastEditor,
+                                addConfigurable,
+                                activeEditorId,
+                                editors
+                            }}
+                            onWizardClose={onWizardClose}
+                            onCancel={onCancel}
+                            config={config}
+                            formArgs={formArgs}
+                            langServerRpcClient={langServerRpcClient}
+                            libraryBrowserRpcClient={libraryBrowserRpcClient}
+                            applyModifications={applyModifications}
+                            currentFile={
+                                {
+                                    ...currentFile,
+                                    content: fullSource,
+                                    originalContent: fullSource
                                 }
-                                importStatements={importStatements}
-                                syntaxTree={syntaxTree}
-                                stSymbolInfo={stSymbolInfo}
-                                extraModules={extraModules}
-                                experimentalEnabled={experimentalEnabled}
-                                runBackgroundTerminalCommand={runBackgroundTerminalCommand}
-                                isExpressionMode={isExpressionMode}
-                                skipSemicolon={skipSemicolon}
-                                ballerinaVersion={ballerinaVersion}
-                                isCodeServerInstance={isCodeServerInstance}
-                                openExternalUrl={openExternalUrl}
-                                isHeaderHidden={isHeaderHidden}
-                                currentReferences={currentReferences}
-                            />
-                        </>
-                    )}
+                            }
+                            importStatements={importStatements}
+                            syntaxTree={syntaxTree}
+                            stSymbolInfo={stSymbolInfo}
+                            extraModules={extraModules}
+                            experimentalEnabled={experimentalEnabled}
+                            runBackgroundTerminalCommand={runBackgroundTerminalCommand}
+                            isExpressionMode={isExpressionMode}
+                            skipSemicolon={skipSemicolon}
+                            ballerinaVersion={ballerinaVersion}
+                            isCodeServerInstance={isCodeServerInstance}
+                            openExternalUrl={openExternalUrl}
+                            isHeaderHidden={isHeaderHidden}
+                            currentReferences={currentReferences}
+                        />
+                    </>
+                )}
             </SidePanel>
         </QueryClientProvider>
     )
