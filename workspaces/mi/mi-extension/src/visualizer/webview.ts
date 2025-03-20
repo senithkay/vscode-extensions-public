@@ -11,7 +11,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import { Uri, ViewColumn } from 'vscode';
+import {Uri, ViewColumn, workspace} from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
@@ -100,7 +100,18 @@ export class VisualizerWebview {
             // Generate Swagger file for API files
             const apiDir = path.join(projectUri!, 'src', 'main', "wso2mi", "artifacts", "apis");
             if (document?.uri.fsPath.includes(apiDir)) {
-                generateSwagger(document.uri.fsPath);
+                const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+                const dirPath = path.join(workspacePath, SWAGGER_REL_DIR);
+                const swaggerOriginalPath = path.join(dirPath, path.basename(document.uri.fsPath, path.extname(document.uri.fsPath)) + '_original.yaml');
+                const swaggerPath = path.join(dirPath, path.basename(document.uri.fsPath, path.extname(document.uri.fsPath)) + '.yaml');
+                if (fs.readFileSync(document.uri.fsPath, 'utf-8').split('\n').length > 3) {
+                    if (fs.existsSync(swaggerOriginalPath)) {
+                        fs.copyFileSync(swaggerOriginalPath, swaggerPath);
+                        fs.rmSync(swaggerOriginalPath);
+                    } else {
+                        generateSwagger(document.uri.fsPath);
+                    }
+                }
             }
 
             if (currentView !== 'Connector Store Form') {
