@@ -526,6 +526,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
             let fileName: string;
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
                 const projectDetailsRes = await langClient?.getProjectDetails();
@@ -570,7 +571,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fileName = `${name}${apiVersion !== "" ? `_v${apiVersion}` : ''}`;
 
                 if (saveSwaggerDef && swaggerDefPath) {
-                    const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
                     const swaggerRegPath = path.join(
                         workspacePath,
                         SWAGGER_REL_DIR,
@@ -599,7 +599,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
             });
             
-            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const metadataPath = path.join(workspacePath, "src", "main", "wso2mi", "resources", "metadata", name + "_" + apiVersion + "_metadata.yaml");
             fs.writeFileSync(metadataPath, getAPIMetadata({ name: name, version: apiVersion == "" ? "1.0.0" : apiVersion, context: apiContext, versionType: apiVersionType ? (apiVersionType == "url" ? apiVersionType : false) : false }));
 
