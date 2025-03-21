@@ -8,6 +8,7 @@
  */
 
 import { Locator, Page } from "@playwright/test";
+import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
 export class Welcome {
@@ -17,7 +18,7 @@ export class Welcome {
     }
 
     public async init() {
-        const webview = await switchToIFrame("Design View", this._page, 240000)
+        const webview = await switchToIFrame(MACHINE_VIEW.Welcome, this._page, 60000)
         if (!webview) {
             throw new Error("Failed to switch to Design View iframe");
         }
@@ -26,5 +27,37 @@ export class Welcome {
     public async createNewProject() {
         const btn = await getVsCodeButton(this.container, 'Create New Project', 'primary');
         await btn.click();
+    }
+    public async setupEnvironment() {
+        let webview;
+        try {
+            webview = await switchToIFrame(MACHINE_VIEW.SETUP_ENVIRONMENT, this._page, 5000);
+        } catch (error) {
+            return true;
+        }
+
+        if (!webview) {
+            return true;
+        }
+        const container = webview.locator('div#root');
+        const javaErrorMessage = container.locator('div:has-text("Java is not properly setup")');
+        if (await javaErrorMessage.count() > 0) {
+            const downloadJava = await getVsCodeButton(container, 'Download Java', 'primary');
+            await downloadJava.click();
+
+            // Wait for Java to be downloaded
+            await container.locator('div:has-text("Java is setup")').first().waitFor({ timeout: 180000 });
+        }
+        const microIntegratorErrorMessage = container.locator('div:has-text("Micro Integrator is not available")');
+        if (await microIntegratorErrorMessage.count() > 0) {
+            const downloadMI = await getVsCodeButton(container, 'Download Micro Integrator', 'primary');
+            await downloadMI.click();
+
+            // Wait for MI to be downloaded
+            await container.locator('div:has-text("Micro Integrator is setup")').first().waitFor({ timeout: 180000 });
+        }
+
+        const continueBtn = await getVsCodeButton(container, 'Continue', 'primary');
+        await continueBtn.click();
     }
 }

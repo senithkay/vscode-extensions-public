@@ -79,6 +79,7 @@ export enum MACHINE_VIEW {
     ManageDependencies = "Manage Dependencies",
     ManageConfigurables = "Manage Configurables",
     ProjectInformationForm = "Project Information Form",
+    SETUP_ENVIRONMENT = "Setup Environment",
 }
 
 export enum AI_MACHINE_VIEW {
