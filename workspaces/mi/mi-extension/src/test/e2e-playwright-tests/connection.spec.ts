@@ -12,7 +12,7 @@ import * as path from 'path';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ConnectorStore } from './components/ConnectorStore';
-import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder } from './Utils';
+import { clearNotificationAlerts, createProject, initVSCode, newProjectPath, page, resourcesFolder } from './Utils';
 import { ProjectExplorer } from './components/ProjectExplorer';
 const fs = require('fs');
 
@@ -66,7 +66,7 @@ test('Create new Connection', async () => {
             }
         }
     });
-    await closeNotification(page);
+    await clearNotificationAlerts(page);
     await connectionForm.submit('Add');
 
     const projectExplorer = new ProjectExplorer(page.page);

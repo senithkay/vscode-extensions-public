@@ -10,6 +10,7 @@
 import { Locator, Page } from "@playwright/test";
 import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { clearNotificationAlerts } from "../Utils";
 
 export class Welcome {
     private container!: Locator;
