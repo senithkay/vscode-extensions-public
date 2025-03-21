@@ -12,7 +12,7 @@ import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { Form, FormFillProps } from "./Form";
 
 export class Diagram {
-    public diagramWebView!: Frame;
+    private diagramWebView!: Frame;
 
     constructor(private _page: Page, private type: 'Resource' | 'Sequence' | 'Inbound EP') {
     }
@@ -28,6 +28,10 @@ export class Diagram {
     public async edit() {
         const editButton = await this.diagramWebView.waitForSelector('vscode-button[title="Edit"]');
         await editButton.click();
+    }
+
+    public getWebView() {
+        return this.diagramWebView;
     }
 
     public async getDiagramTitle() {
