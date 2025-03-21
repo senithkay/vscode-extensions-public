@@ -12,7 +12,7 @@ import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { Form, FormFillProps } from "./Form";
 
 export class Diagram {
-    private diagramWebView!: Frame;
+    public diagramWebView!: Frame;
 
     constructor(private _page: Page, private type: 'Resource' | 'Sequence' | 'Inbound EP') {
     }
@@ -124,7 +124,7 @@ export class Diagram {
         await link.getByTestId("add-mediator-button").click();
     }
 
-    private async clickPlusButtonByIndex(index: number) {
+    public async clickPlusButtonByIndex(index: number) {
         const plusBtns = (await this.getDiagramContainer()).getByTestId("add-mediator-button");
         if (await plusBtns.count() > 1) {
             await plusBtns.nth(index).hover();
