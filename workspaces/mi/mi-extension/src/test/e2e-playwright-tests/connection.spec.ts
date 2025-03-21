@@ -13,7 +13,7 @@ import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ConnectorStore } from './components/ConnectorStore';
 import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder } from './Utils';
-import { Overview } from './components/Overview';
+import { ProjectExplorer } from './components/ProjectExplorer';
 const fs = require('fs');
 
 test.describe.configure({ mode: 'serial' });
@@ -28,11 +28,11 @@ test.beforeAll(async () => {
     await initVSCode();
 });
 
-test.skip('Create new project', async () => {
+test('Create new project', async () => {
     await createProject(page);
 });
 
-test.skip('Create new Connection', async () => {
+test('Create new Connection', async () => {
     // Create connection
     const addArtifactPage = new AddArtifact(page.page);
     await addArtifactPage.init();
@@ -41,7 +41,8 @@ test.skip('Create new Connection', async () => {
     const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
     await connectorStore.init();
     await connectorStore.search('Email');
-    await connectorStore.selectConnector('Email');
+    await connectorStore.selectOperation('Imap');
+    await connectorStore.confirmDownloadDependency();
 
     const connectionForm = new Form(page.page, 'Connector Store Form');
     await connectionForm.switchToFormView();
@@ -51,19 +52,15 @@ test.skip('Create new Connection', async () => {
                 type: 'input',
                 value: 'email_connection',
             },
-            'Connection Type': {
-                type: 'combo',
-                value: 'IMAPS'
-            },
             'Host*': {
                 type: 'expression',
-                value: 'example.com',
+                value: 'http://localhost'
             },
             'Port*': {
                 type: 'expression',
                 value: '80',
             },
-            'Username': {
+            'Username*': {
                 type: 'expression',
                 value: 'exampleusername'
             }
@@ -72,16 +69,14 @@ test.skip('Create new Connection', async () => {
     await closeNotification(page);
     await connectionForm.submit('Add');
 
-    const overviewPage = new Overview(page.page);
-    await overviewPage.init();
-    expect(await overviewPage.checkForArtifact('Connections', 'email_connection')).toBeTruthy();
+    const projectExplorer = new ProjectExplorer(page.page);
+    await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection"]);
 });
 
-test.skip('Edit Connection', async () => {
+test('Edit Connection', async () => {
     // Edit connection
-    const overviewPage = new Overview(page.page);
-    await overviewPage.init();
-    await overviewPage.selectArtifact('Connections', 'email_connection');
+    const projectExplorer = new ProjectExplorer(page.page);
+    await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection"], true);
 
     const connectionForm = new Form(page.page, 'Connection Creation Form');
     await connectionForm.switchToFormView();
@@ -89,6 +84,10 @@ test.skip('Edit Connection', async () => {
     expect(connectionName).toBe('email_connection');
     await connectionForm.fill({
         values: {
+            'Connection Name*': {
+                type: 'input',
+                value: 'email_connection2',
+            },
             'Host*': {
                 type: 'expression',
                 value: 'example2.com',
@@ -100,7 +99,7 @@ test.skip('Edit Connection', async () => {
         }
     });
     await connectionForm.submit('Update');
-    expect(await overviewPage.checkForArtifact('Connections', 'email_connection')).toBeTruthy();
+    await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection2"]);
 });
 
 test.afterAll(async () => {
@@ -108,7 +107,7 @@ test.afterAll(async () => {
     const video = page.page.video()
     const videoDir = path.resolve(resourcesFolder, 'videos')
     const videoPath = await video?.path()
-    
+
     if (video && videoPath) {
         video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
     }

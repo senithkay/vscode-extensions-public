@@ -111,7 +111,7 @@ test.skip('Add new connection', async () => {
 
   const connectorStore = new ConnectorStore(page.page, 'Resource View');
   await connectorStore.init();
-  await connectorStore.selectConnector('File');
+  await connectorStore.selectOperation('File');
 
   const connectionForm = new Form(page.page, 'Resource View');
   await connectionForm.switchToFormView();
