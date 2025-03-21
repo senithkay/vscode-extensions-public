@@ -34,7 +34,7 @@ export class DataMapper {
             throw new Error("Failed to switch to Data Mapper View iframe");
         }
         this.webView = webview;
-        this.tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
+        this.tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'datamapper', this._name, `${this._name}.ts`);
         this.comparingFolder = path.join(dataFolder, 'datamapper-files', this._name);
     }
 
@@ -191,7 +191,7 @@ export class DataMapper {
 
     public verifyFileCreation() {
         const configFolder = path.join(
-            newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name);
+            newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'datamapper', this._name);
 
         const operatorsFile = path.join(configFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
 
@@ -199,8 +199,7 @@ export class DataMapper {
     }
 
     public overwriteTsFile(newTsFile: string) {
-        const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
-        fs.writeFileSync(tsFile, fs.readFileSync(newTsFile, 'utf8'));
+        fs.writeFileSync(this.tsFile, fs.readFileSync(newTsFile, 'utf8'));
     }
 
 }

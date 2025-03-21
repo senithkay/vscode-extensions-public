@@ -21,7 +21,7 @@ const fs = require('fs');
 test.describe.configure({ mode: 'serial' });
 
 const NEED_INITIAL_SETUP = true;
-const NEED_CLEANUP = true;
+const NEED_CLEANUP = false;
 
 if (NEED_INITIAL_SETUP) initProject();
 else resumeProject();
@@ -386,18 +386,20 @@ function finishUp() {
 async function addDataMapper(name: string) {
   // add data mapper to the service designer, return the data mapper object , should be used inside a test
   const diagram = new Diagram(page.page, 'Resource');
-  await diagram.init();
-  await diagram.addMediator('Data Mapper', 0, {
-    values: {
-      'Name*': {
-        type: 'input',
-        value: name,
-      }
-    }
-  }, "Create Mapping");
 
-  const dm = new DataMapper(page.page, name);
-  await dm.init();
+  await diagram.init();
+  await diagram.clickPlusButtonByIndex(0);
+  
+  const diagramWebView = diagram.diagramWebView;
+
+  await diagramWebView.locator('[id="card-select-Data\\ Mapper"]').click();
+  await diagramWebView.getByText('Add new').click();
+  await diagramWebView.getByRole('textbox', { name: 'Name' }).click();
+  await diagramWebView.getByRole('textbox', { name: 'Name' }).fill(name);
+  await diagramWebView.getByRole('button', { name: 'Create' }).click();
+  await diagramWebView.getByRole('button', { name: 'Add' }).click();
+  
+  const dm = await openDataMapperFromTreeView(name);
   expect(dm.verifyFileCreation()).toBeTruthy();
   return dm;
 }
@@ -417,11 +419,11 @@ async function openDataMapperFromResourceView(name: string) {
 
 async function openDataMapperFromTreeView(name: string) {
   // open data mapper from tree view
-  const dmLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
-  await dmLabel.click();
-  await page.page.waitForTimeout(1000);
-  const dmItem = await page.page.waitForSelector(`div[aria-label="${name}"]`, { timeout: 180000 });
-  await dmItem.click();
+
+  await page.page.getByRole('treeitem', { name: 'Other Artifacts' }).locator('a').click({ timeout: 180000 });
+  await page.page.getByRole('treeitem', { name: 'Data Mappers' }).locator('a').click();
+  await page.page.getByRole('treeitem', { name }).locator('a').click();
+
 
   const dm = new DataMapper(page.page, name);
   await dm.init();
