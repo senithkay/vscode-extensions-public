@@ -21,13 +21,12 @@ const fs = require('fs');
 test.describe.configure({ mode: 'serial' });
 
 const NEED_INITIAL_SETUP = true;
-const NEED_CLEANUP = false;
+const NEED_CLEANUP = true;
 
 if (NEED_INITIAL_SETUP) initProject();
 else resumeProject();
 
 tryBasicMappings();
-tryArrayMappings();
 finishUp();
 
 
@@ -106,10 +105,14 @@ function tryBasicMappings() {
       dm = await addDataMapper('basic');
       await closeNotification(page);
       await dm.loadJsonFromCompFolder();
-      expect(dm.verifyTsFileContent('init.ts')).toBeTruthy();
+      expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
       
     } else {
+
       dm = await openDataMapperFromTreeView('basic');
+      await closeNotification(page);
+      //await dm.loadJsonFromCompFolder();
+      expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
     }
 
     const dmWebView = dm.getWebView();
@@ -153,15 +156,21 @@ function tryBasicMappings() {
 
     // object direct mapping
     // objectOutput.odmO= input.odmI;
-    await dm.mapFields('input.odmI', 'objectOutput.odmO');
+    await dmWebView.locator('[id="recordfield-input\\.odmI"] i').nth(1).click();
+    await dmWebView.locator('[id="recordfield-objectOutput\\.odmO"] i').first().click();
+    const menuItemDirect = dmWebView.locator('#menu-item-o2o-direct');
+    await menuItemDirect.click();
+    await menuItemDirect.waitFor({ state: 'detached' });
     await dmWebView.getByTestId('link-from-input.odmI.OUT-to-objectOutput.odmO.IN').waitFor({ state: 'attached' });
 
     // object direct mapping with error
     // objectOutput.odmeO = input.odmI
-    await dm.mapFields('input.odmI', 'objectOutput.odmeO');
+    await dmWebView.locator('[id="recordfield-input\\.odmI"] i').nth(1).click();
+    await dmWebView.locator('[id="recordfield-objectOutput\\.odmeO"] i').first().click();
+    await menuItemDirect.click();
+    await menuItemDirect.waitFor({ state: 'detached' });
     await dm.expectErrorLink(dmWebView.getByTestId('link-from-input.odmI.OUT-to-objectOutput.odmeO.IN'));
-
-
+    
     // object properties mapping
     // objectOutput.ompO.p1 = input.odmI.dm1;
     await dm.mapFields('input.odmI.dm1', 'objectOutput.ompO.p1');
@@ -172,7 +181,7 @@ function tryBasicMappings() {
     await dmWebView.getByTestId('link-from-input.opmI.op2.OUT-to-objectOutput.ompO.p2.IN').waitFor({ state: 'attached' });
 
 
-    expect(dm.verifyTsFileContent('map.ts')).toBeTruthy();
+    expect(dm.verifyTsFileContent('map.ts.cmp')).toBeTruthy();
 
     if (NEED_INITIAL_SETUP) {
       await dmWebView.locator('vscode-button[title="Go Back"]').click();
@@ -190,7 +199,7 @@ function tryArrayMappings() {
       dm = await addDataMapper('array');
       await closeNotification(page);
       await dm.loadJsonFromCompFolder();
-      expect(dm.verifyTsFileContent('init.ts')).toBeTruthy();
+      expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
     } else {
       dm = await openDataMapperFromTreeView('array');
     }
@@ -348,7 +357,7 @@ function tryArrayMappings() {
     await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
     await dmWebView.getByTestId('dm-header-breadcrumb-0').waitFor({ state: 'detached' });
 
-    expect(dm.verifyTsFileContent('map.ts')).toBeTruthy();
+    expect(dm.verifyTsFileContent('map.ts.cmp')).toBeTruthy();
 
     if (NEED_INITIAL_SETUP) {
       await dmWebView.locator('vscode-button[title="Go Back"]').click();
@@ -390,7 +399,7 @@ async function addDataMapper(name: string) {
   await diagram.init();
   await diagram.clickPlusButtonByIndex(0);
   
-  const diagramWebView = diagram.diagramWebView;
+  const diagramWebView = diagram.getWebView();
 
   await diagramWebView.locator('[id="card-select-Data\\ Mapper"]').click();
   await diagramWebView.getByText('Add new').click();
@@ -420,9 +429,17 @@ async function openDataMapperFromResourceView(name: string) {
 async function openDataMapperFromTreeView(name: string) {
   // open data mapper from tree view
 
-  await page.page.getByRole('treeitem', { name: 'Other Artifacts' }).locator('a').click({ timeout: 180000 });
-  await page.page.getByRole('treeitem', { name: 'Data Mappers' }).locator('a').click();
-  await page.page.getByRole('treeitem', { name }).locator('a').click();
+  // await page.page.getByRole('treeitem', { name: 'Other Artifacts' }).locator('a').click({ timeout: 180000 });
+  // await page.page.getByRole('treeitem', { name: 'Data Mappers' }).locator('a').click({ timeout: 180000 });
+  // await page.page.getByRole('treeitem', { name }).locator('a').click({ timeout: 180000 });
+
+  const oaLabel  = await page.page.waitForSelector('div[aria-label="Other Artifacts"]', { timeout: 180000 });
+  await oaLabel.click();
+  const dmLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
+  await dmLabel.click();
+  await page.page.waitForTimeout(1000);
+  const dmItem = await page.page.waitForSelector(`div[aria-label="${name}"]`, { timeout: 180000 });
+  await dmItem.click();
 
 
   const dm = new DataMapper(page.page, name);

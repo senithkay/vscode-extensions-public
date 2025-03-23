@@ -75,8 +75,8 @@ export class DataMapper {
     }
 
     public async importSchema(ioType: IOType, schemaType: SchemaTypeLabel, schemaFile: string) {
-        // const importNode = this.webView.getByTestId(`${ioType}-data-import-node`);
-        const importNode = this.webView.getByText(`Import ${ioType} schema`);
+        const importNode = this.webView.getByTestId(`${ioType}-data-import-node`);
+        // const importNode = this.webView.getByText(`Import ${ioType} schema`);
 
         await importNode.waitFor();
         await importNode.click();
@@ -200,6 +200,10 @@ export class DataMapper {
 
     public overwriteTsFile(newTsFile: string) {
         fs.writeFileSync(this.tsFile, fs.readFileSync(newTsFile, 'utf8'));
+    }
+
+    public resetTsFile() {
+        this.overwriteTsFile(path.join(dataFolder, 'datamapper-files', 'reset.ts.cmp'));
     }
 
 }
