@@ -100,17 +100,15 @@ function tryBasicMappings() {
   test('Try Basic Mappings', async () => {
 
     let dm: DataMapper;
+    
+    await closeNotification(page);
 
     if (NEED_INITIAL_SETUP) {
       dm = await addDataMapper('basic');
-      await closeNotification(page);
       await dm.loadJsonFromCompFolder();
       expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
-      
     } else {
-
       dm = await openDataMapperFromTreeView('basic');
-      await closeNotification(page);
       //await dm.loadJsonFromCompFolder();
       expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
     }
