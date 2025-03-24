@@ -34,7 +34,11 @@ export const startVSCode = async (resourcesFolder: string, vscodeVersion: string
     const window = await vscode.firstWindow();
 
     // Direct Electron console to Node terminal.
-    window.on('console', console.log);
+    window.on('console', (msg) => {
+        if (!/^Received response for untracked message id:|^Received notification with unknown method:/.test(msg.text())) {
+            console.log(msg.text());
+        }
+    });
 
     // wait for the window to be ready
     await window.waitForEvent('domcontentloaded');

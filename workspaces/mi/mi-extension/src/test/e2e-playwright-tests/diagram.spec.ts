@@ -13,7 +13,7 @@ import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
+import { clearNotificationAlerts, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
 import { ConnectorStore } from './components/ConnectorStore';
 const fs = require('fs');
 test.describe.configure({ mode: 'serial' });
@@ -111,7 +111,7 @@ test.skip('Add new connection', async () => {
 
   const connectorStore = new ConnectorStore(page.page, 'Resource View');
   await connectorStore.init();
-  await connectorStore.selectConnector('File');
+  await connectorStore.selectOperation('File');
 
   const connectionForm = new Form(page.page, 'Resource View');
   await connectionForm.switchToFormView();
@@ -143,7 +143,7 @@ test.skip('Add new connection', async () => {
       }
     }
   });
-  await closeNotification(page);
+  await clearNotificationAlerts(page);
   await connectionForm.submit('Add');
   expect(await diagram.verifyConnection("file_connection", "File - FTPS Connection")).toBeTruthy();
   await diagram.closeSidePanel();
