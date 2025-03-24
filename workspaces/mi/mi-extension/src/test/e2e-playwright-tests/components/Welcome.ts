@@ -9,17 +9,18 @@
 
 import { Locator, Page } from "@playwright/test";
 import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ExtendedPage, getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { clearNotificationAlerts } from "../Utils";
+import { t } from "xstate";
 
 export class Welcome {
     private container!: Locator;
 
-    constructor(private _page: Page) {
+    constructor(private page: ExtendedPage) {
     }
 
     public async init() {
-        const webview = await switchToIFrame(MACHINE_VIEW.Welcome, this._page, 60000)
+        const webview = await switchToIFrame(MACHINE_VIEW.Welcome, this.page.page, 60000)
         if (!webview) {
             throw new Error("Failed to switch to Design View iframe");
         }
@@ -32,7 +33,7 @@ export class Welcome {
     public async setupEnvironment() {
         let webview;
         try {
-            webview = await switchToIFrame(MACHINE_VIEW.SETUP_ENVIRONMENT, this._page, 5000);
+            webview = await switchToIFrame(MACHINE_VIEW.SETUP_ENVIRONMENT, this.page.page, 5000);
         } catch (error) {
             return true;
         }
@@ -42,7 +43,11 @@ export class Welcome {
         }
         console.log('Setting up environment');
         const container = webview.locator('div#root');
+        await clearNotificationAlerts(this.page);
         const javaErrorMessage = container.locator('div:has-text("Java is not properly setup")');
+        await javaErrorMessage.waitFor({ timeout: 5000 }).catch(() => {
+            console.log('Java is already setup');
+        });
         if (await javaErrorMessage.count() > 0) {
             console.log('Java is not setup');
             const downloadJava = await getVsCodeButton(container, 'Download Java', 'primary');
