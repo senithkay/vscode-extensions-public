@@ -12,10 +12,10 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectionNodeModel } from "./ConnectionNodeModel";
 import { NODE_BORDER_WIDTH, CON_NODE_WIDTH, CON_NODE_HEIGHT } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
-import { DatabaseIcon, LinkIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
+import ConnectionIcon from "../../ConnectionIcon";
 
 type NodeStyleProp = {
     hovered: boolean;
@@ -69,8 +69,10 @@ const StyledText = styled.div`
     font-size: 14px;
 `;
 
-const Icon = styled.div`
-    padding: 4px;
+const StyledConnectionIcon = styled(ConnectionIcon)`
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
     svg {
         fill: ${ThemeColors.ON_SURFACE};
     }
@@ -172,7 +174,10 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
             <LeftPortWidget port={model.getPort("in")!} engine={engine} />
             <Row hovered={isHovered}>
                 <Circle hovered={isHovered}>
-                    <Icon>{hasDatabaseName ? <DatabaseIcon /> : <LinkIcon />}</Icon>
+                    <StyledConnectionIcon
+                        url={model.node.icon || ""}
+                        fallbackIcon={<Icon name="bi-connection" />}
+                    />
                 </Circle>
                 <Header>
                     <Title hovered={isHovered}>{getNodeTitle()}</Title>

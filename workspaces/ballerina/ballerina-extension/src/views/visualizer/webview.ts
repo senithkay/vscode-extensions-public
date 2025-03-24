@@ -38,9 +38,11 @@ export class VisualizerWebview {
             }
         }, 500);
 
-        vscode.workspace.onDidChangeTextDocument(async function (document) {
-            if (document && document.document.languageId === LANGUAGE.BALLERINA) {
-                await document.document.save();
+        vscode.workspace.onDidChangeTextDocument(async (document) => {
+            await document.document.save();
+            const state = StateMachine.state();
+            const machineReady = typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
+            if (this._panel?.active && machineReady && document && document.document.languageId === LANGUAGE.BALLERINA) {
                 sendUpdateNotificationToWebview(true);
             }
         }, extension.context);
@@ -55,7 +57,7 @@ export class VisualizerWebview {
             const state = StateMachine.state();
             const machineReady = typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
             if (this._panel?.active && machineReady) {
-                sendUpdateNotificationToWebview();
+                sendUpdateNotificationToWebview(true);
             }
         });
 

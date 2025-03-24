@@ -274,6 +274,18 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     naturalFunctions.children = getComponents(components.directoryMap[DIRECTORY_MAP.NATURAL_FUNCTIONS], DIRECTORY_MAP.NATURAL_FUNCTIONS);
     entries.push(naturalFunctions);
 
+    // Local Connectors
+    const localConnectors = new ProjectExplorerEntry(
+        "Local Connectors",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'connection',
+        false
+    );
+    localConnectors.contextValue = "localConnectors";
+    localConnectors.children = getComponents(components.directoryMap[DIRECTORY_MAP.LOCAL_CONNECTORS], DIRECTORY_MAP.LOCAL_CONNECTORS);
+    entries.push(localConnectors);
+
     return entries;
 }
 
@@ -311,7 +323,8 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.CLASSES]: DIRECTORY_SUB_TYPE.TYPE,
             [DIRECTORY_MAP.DATA_MAPPERS]: DIRECTORY_SUB_TYPE.DATA_MAPPER,
             [DIRECTORY_MAP.AGENTS]: DIRECTORY_SUB_TYPE.AGENTS,
-            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: DIRECTORY_SUB_TYPE.NATURAL_FUNCTION
+            [DIRECTORY_MAP.NATURAL_FUNCTIONS]: DIRECTORY_SUB_TYPE.NATURAL_FUNCTION,
+            [DIRECTORY_MAP.LOCAL_CONNECTORS]: DIRECTORY_SUB_TYPE.LOCAL_CONNECTORS,
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;

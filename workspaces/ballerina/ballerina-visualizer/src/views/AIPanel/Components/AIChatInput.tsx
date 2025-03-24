@@ -158,6 +158,9 @@ const StyledInput = styled.div`
     white-space: pre-wrap;
     overflow-y: auto;
     max-height: calc(1em * 8);
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
 
     &:focus {
         outline: none;

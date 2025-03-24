@@ -33,8 +33,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
-import _ from "lodash";
-import { PlusNodeModel } from "./nodes/PlusNode/PlusNodeModel";
+import { debounce } from "lodash";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -94,14 +93,15 @@ export function Diagram(props: DiagramProps) {
     const [diagramViewStateKey, setDiagramViewStateKey] = useState("");
     const scrollRef = useRef();
 
+    const updateScrollPosition = debounce((e: any) => {
+        localStorage.setItem(diagramViewStateKey, JSON.stringify({ scrollPosition: e.target.scrollTop, scrollPositionX: e.target.scrollLeft }));
+    }, 300);
+
     const handleScroll = (e: any) => {
-        if (!diagramViewStateKey || diagramViewStateKey === "" || !e?.target?.scrollTop || !e?.target?.scrollLeft) {
+        if (!diagramViewStateKey || diagramViewStateKey === "" || e?.target?.scrollTop == undefined || e?.target?.scrollLeft == undefined) {
             return
         }
-        const debounce = _.debounce(() => {
-            localStorage.setItem(diagramViewStateKey, JSON.stringify({ scrollPosition: e.target.scrollTop, scrollPositionX: e.target.scrollLeft }));
-        }, 300);
-        debounce();
+        updateScrollPosition(e);
     };
 
     useEffect(() => {

@@ -64,7 +64,10 @@ export class CommonRpcManager implements CommonRPCAPI {
 
     async goToSource(params: GoToSourceRequest): Promise<void> {
         const context = StateMachine.context();
-        const filePath = params?.filePath || context.documentUri!;
+        let filePath = params?.filePath || context.documentUri!;
+        if (params?.fileName && context?.projectUri) {
+            filePath = path.join(context.projectUri, params.fileName);
+        }
         goToSource(params.position, filePath);
     }
 

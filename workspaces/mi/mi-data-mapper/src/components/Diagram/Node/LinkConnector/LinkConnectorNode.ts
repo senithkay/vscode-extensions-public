@@ -280,7 +280,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         if ((!targetField?.fieldName
             && targetField?.kind !== TypeKind.Array
             && targetField?.kind !== TypeKind.Interface)
-                || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)))
+                || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)) 
+                || Node.isCallExpression(this.valueNode))
         {
             let targetNode = this.valueNode;
             if (Node.isVariableStatement) {
