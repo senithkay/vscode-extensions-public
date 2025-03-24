@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Dispatch, SetStateAction } from 'react';
 import {
     AutoComplete,
     CheckBox,
@@ -85,6 +85,7 @@ export interface FormGeneratorProps {
     addNewConnection?: any;
     autoGenerateSequences?: boolean;
     range?: Range;
+    setIsNewDataMapper?: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface Element {
@@ -146,7 +147,8 @@ export function FormGenerator(props: FormGeneratorProps) {
         skipGeneralHeading,
         ignoreFields,
         addNewConnection,
-        range
+        range,
+        setIsNewDataMapper
     } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
@@ -474,7 +476,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, { type: keyType });
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, {type: keyType});
+                        setIsNewDataMapper(true);
                     }
                 }
 
