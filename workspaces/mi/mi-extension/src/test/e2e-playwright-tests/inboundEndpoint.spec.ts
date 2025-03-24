@@ -24,7 +24,7 @@ test.beforeAll(async () => {
     await resumeVSCode();
 });
 
-test.skip('Create new HTTPS inbound endpoint', async () => {
+test('Create new HTTPS inbound endpoint', async () => {
     // Create HTTPS inbound endpoint with automatically generated sequences
     const overviewPage = new Overview(page.page);
     await overviewPage.init();
@@ -63,7 +63,7 @@ test.skip('Create new HTTPS inbound endpoint', async () => {
     expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP');
 });
 
-test.skip('Edit Inbound Endpoint', async () => {
+test('Edit Inbound Endpoint', async () => {
     // Edit Inbound Endpoint
 
     const diagram = new Diagram(page.page, 'Event Integration');
