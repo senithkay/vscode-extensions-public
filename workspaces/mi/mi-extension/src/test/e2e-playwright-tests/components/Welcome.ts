@@ -45,9 +45,7 @@ export class Welcome {
         const container = webview.locator('div#root');
         await clearNotificationAlerts(this.page);
         const javaErrorMessage = container.locator('div:has-text("Java is not properly setup")');
-        await javaErrorMessage.waitFor({ timeout: 5000 }).catch(() => {
-            console.log('Java is already setup');
-        });
+        await javaErrorMessage.waitFor({ timeout: 8000 }).catch(() => {});
         if (await javaErrorMessage.count() > 0) {
             console.log('Java is not setup');
             const downloadJava = await getVsCodeButton(container, 'Download Java', 'primary');
@@ -55,7 +53,7 @@ export class Welcome {
 
             // Wait for Java to be downloaded
             await container.locator('div:has-text("Java is setup")').first().waitFor({ timeout: 180000 });
-            console.log('Java is setup');
+            console.log('Java setup done');
         }
         const microIntegratorErrorMessage = container.locator('div:has-text("Micro Integrator is not available")');
         if (await microIntegratorErrorMessage.count() > 0) {
@@ -65,9 +63,10 @@ export class Welcome {
 
             // Wait for MI to be downloaded
             await container.locator('div:has-text("Micro Integrator is setup")').first().waitFor({ timeout: 180000 });
-            console.log('Micro Integrator is setup');
+            console.log('Micro Integrator setup done');
         }
 
+        console.log('Environment setup done');
         const continueBtn = await getVsCodeButton(container, 'Continue', 'primary');
         await continueBtn.click();
     }
