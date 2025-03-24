@@ -56,8 +56,7 @@ export class Form {
     }
 
     public async submit(btnText: string = "Create") {
-        const submitBtn = this.container.locator(`vscode-button:has-text("${btnText}")`);
-        await submitBtn.waitFor();
+        const submitBtn = await getVsCodeButton(this.container, btnText, "primary");
         expect(await submitBtn.isEnabled()).toBeTruthy();
         await submitBtn.click();
     }
@@ -101,8 +100,10 @@ export class Form {
                         break;
                     }
                     case 'expression': {
-                        const input = await getWebviewInput(this.container, `EX${key}`);
-                        await input.fill(data.value);
+                        const container = this.container.locator(`div[data-test-id="EX${key}"]`);
+                        await container.waitFor();
+                        const textInput = container.locator('textarea');
+                        await textInput.fill(data.value);
                         break;
                     }
                     case 'file': {

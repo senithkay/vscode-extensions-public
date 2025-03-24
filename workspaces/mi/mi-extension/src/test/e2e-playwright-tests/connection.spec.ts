@@ -12,8 +12,8 @@ import * as path from 'path';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ConnectorStore } from './components/ConnectorStore';
-import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder } from './Utils';
-import { Overview } from './components/Overview';
+import { clearNotificationAlerts, createProject, initVSCode, newProjectPath, page, resourcesFolder } from './Utils';
+import { ProjectExplorer } from './components/ProjectExplorer';
 const fs = require('fs');
 
 test.describe.configure({ mode: 'serial' });
@@ -28,67 +28,74 @@ test.beforeAll(async () => {
     await initVSCode();
 });
 
-test.skip('Create new project', async () => {
+test('Create new project', async () => {
     await createProject(page);
 });
 
-test.skip('Create new Connection', async () => {
-    // Create connection
+test('Create new Connection', async () => {
+    console.log('Initializing AddArtifact page for connection creation');
     const addArtifactPage = new AddArtifact(page.page);
     await addArtifactPage.init();
     await addArtifactPage.add('Connection');
 
     const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
     await connectorStore.init();
+    console.log('Searching for Email connector');
     await connectorStore.search('Email');
-    await connectorStore.selectConnector('Email');
+    await connectorStore.selectOperation('Imap');
+    console.log('Confirming download of dependencies');
+    await connectorStore.confirmDownloadDependency();
 
     const connectionForm = new Form(page.page, 'Connector Store Form');
     await connectionForm.switchToFormView();
+    console.log('Filling out connection form');
     await connectionForm.fill({
         values: {
             'Connection Name*': {
                 type: 'input',
                 value: 'email_connection',
             },
-            'Connection Type': {
-                type: 'combo',
-                value: 'IMAPS'
-            },
             'Host*': {
                 type: 'expression',
-                value: 'example.com',
+                value: 'http://localhost'
             },
             'Port*': {
                 type: 'expression',
                 value: '80',
             },
-            'Username': {
+            'Username*': {
                 type: 'expression',
                 value: 'exampleusername'
             }
         }
     });
-    await closeNotification(page);
+    await clearNotificationAlerts(page);
     await connectionForm.submit('Add');
 
-    const overviewPage = new Overview(page.page);
-    await overviewPage.init();
-    expect(await overviewPage.checkForArtifact('Connections', 'email_connection')).toBeTruthy();
+    console.log('Finding created connection in Project Explorer');
+    const projectExplorer = new ProjectExplorer(page.page);
+    await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection"]);
 });
 
-test.skip('Edit Connection', async () => {
-    // Edit connection
-    const overviewPage = new Overview(page.page);
-    await overviewPage.init();
-    await overviewPage.selectArtifact('Connections', 'email_connection');
+test('Edit Connection', async () => {
+    console.log('Editing connection: email_connection');
+    const projectExplorer = new ProjectExplorer(page.page);
+    console.log('Finding existing connection in Project Explorer');
+    await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection"], true);
 
     const connectionForm = new Form(page.page, 'Connection Creation Form');
     await connectionForm.switchToFormView();
     const connectionName = await connectionForm.getInputValue('Connection Name*');
+    console.log(`Current connection name is: ${connectionName}`);
     expect(connectionName).toBe('email_connection');
+
+    console.log('Filling out the connection form with new values');
     await connectionForm.fill({
         values: {
+            'Connection Name*': {
+                type: 'input',
+                value: 'email_connection2',
+            },
             'Host*': {
                 type: 'expression',
                 value: 'example2.com',
@@ -100,7 +107,9 @@ test.skip('Edit Connection', async () => {
         }
     });
     await connectionForm.submit('Update');
-    expect(await overviewPage.checkForArtifact('Connections', 'email_connection')).toBeTruthy();
+
+    console.log('Verifying the updated connection in Project Explorer');
+    await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection2"]);
 });
 
 test.afterAll(async () => {
@@ -108,7 +117,7 @@ test.afterAll(async () => {
     const video = page.page.video()
     const videoDir = path.resolve(resourcesFolder, 'videos')
     const videoPath = await video?.path()
-    
+
     if (video && videoPath) {
         video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
     }

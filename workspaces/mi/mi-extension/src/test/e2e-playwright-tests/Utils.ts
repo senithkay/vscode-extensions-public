@@ -42,7 +42,7 @@ export async function resumeVSCode() {
 export async function createProject(page: ExtendedPage) {
     await page.selectSidebarItem('Micro Integrator');
     await page.page.waitForTimeout(5000); // To fix intermittent issue
-    const welcomePage = new Welcome(page.page);
+    const welcomePage = new Welcome(page);
     await welcomePage.init();
     await welcomePage.createNewProject();
 
@@ -62,11 +62,16 @@ export async function createProject(page: ExtendedPage) {
     });
     await createNewProjectForm.submit();
     await page.page.waitForTimeout(5000); // Page detaching after project creation
+    const setupEnvPage = new Welcome(page);
+    
+    await setupEnvPage.setupEnvironment();
 }
 
-export async function closeNotification(page: ExtendedPage) {
-    const notificationsCloseButton = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
-    while (await notificationsCloseButton.count() > 0) {
-        await notificationsCloseButton.first().click({ force: true });
+export async function clearNotificationAlerts(page: ExtendedPage) {
+    const notificationsCloseButtons = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
+    const count = await notificationsCloseButtons.count();
+    console.log(`Clearing ${count} notifications`);
+    for (let i = 0; i < count; i++) {
+        notificationsCloseButtons.nth(i).click();
     }
 }

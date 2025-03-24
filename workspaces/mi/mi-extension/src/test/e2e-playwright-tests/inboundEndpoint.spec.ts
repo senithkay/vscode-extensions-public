@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test';
 import * as path from 'path';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
-import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
+import { clearNotificationAlerts, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
 import { InboundEPForm } from './components/InboundEp';
 import { Diagram } from './components/Diagram';
 const fs = require('fs');
@@ -56,7 +56,7 @@ test.skip('Create new HTTPS inbound endpoint', async () => {
             }
         }
     });
-    await closeNotification(page);
+    await clearNotificationAlerts(page);
     await inboundEPForm.submit('Create');
 
     const diagram = new Diagram(page.page, 'Inbound EP');

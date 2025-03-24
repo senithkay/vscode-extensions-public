@@ -13,7 +13,7 @@ import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { closeNotification, createProject, dataFolder, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from './Utils';
+import { clearNotificationAlerts, createProject, dataFolder, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from './Utils';
 import { DataMapper } from './components/DataMapper';
 
 const fs = require('fs');
@@ -101,7 +101,7 @@ function tryBasicMappings() {
 
     let dm: DataMapper;
     
-    await closeNotification(page);
+    await clearNotificationAlerts(page);
 
     if (NEED_INITIAL_SETUP) {
       dm = await addDataMapper('basic');
@@ -125,7 +125,7 @@ function tryBasicMappings() {
     await dm.mapFields('input.dmeI', 'objectOutput.dmeO');
     await dm.expectErrorLink(dmWebView.getByTestId('link-from-input.dmeI.OUT-to-objectOutput.dmeO.IN'));
 
-    await closeNotification(page);
+    await clearNotificationAlerts(page);
 
     // many-one mapping
     // objectOutput.moO = input.mo1I + input.mo2I + input.mo3I;
@@ -195,7 +195,7 @@ function tryArrayMappings() {
 
     if (NEED_INITIAL_SETUP) {
       dm = await addDataMapper('array');
-      await closeNotification(page);
+      await clearNotificationAlerts(page);
       await dm.loadJsonFromCompFolder();
       expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
     } else {
@@ -226,7 +226,7 @@ function tryArrayMappings() {
     await dmWebView.getByTestId('link-from-focusedInput.m1IItem.OUT-to-primitiveOutput.number.IN').waitFor({ state: 'attached' });
 
     await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
-    await closeNotification(page);
+    await clearNotificationAlerts(page);
 
     // object array mapping with mapping function
     await dmWebView.locator('[id="recordfield-input\\.m1objI"] i').click();

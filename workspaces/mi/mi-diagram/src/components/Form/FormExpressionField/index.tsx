@@ -410,7 +410,11 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     }, [value.value, extractExpressionValue]);
 
     return (
-        <S.Container id={id} sx={sx}>
+        <S.Container
+            id={id}
+            sx={sx}
+            data-test-id={`EX${label}${required ? '*' : ''}`}
+        >
             <S.Header>
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
