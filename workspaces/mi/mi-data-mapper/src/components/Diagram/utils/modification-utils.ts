@@ -19,6 +19,7 @@ import {
 	SourceFile,
 	TypeLiteralNode
 } from "ts-morph";
+import { lowerFirst, upperFirst } from "lodash";
 
 import { DataMapperLinkModel } from "../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../Port";
@@ -33,9 +34,7 @@ import {
 	isMapFunction,
 	getDefaultValue,
 	getTypeAnnotation,
-	getEditorLineAndColumn,
-	toFirstLetterLowerCase,
-	toFirstLetterUpperCase
+	getEditorLineAndColumn
 } from "./common-utils";
 import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
@@ -557,39 +556,46 @@ export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, t
 
 
 function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
-	let targetFieldName = targetPort.field.fieldName;
-	let targetTypeWithName = targetPort.typeWithValue;
 
-	while (!Boolean(targetTypeWithName?.type.fieldName)) {
-		if (targetTypeWithName) {
-			targetTypeWithName = targetTypeWithName.parentType;
-			targetFieldName = `${targetTypeWithName?.type.fieldName}Item`;
-		} else {
-			targetFieldName = toFirstLetterLowerCase(targetPort.field.typeName || targetPort.field.kind);
-			break;
-		}
-	}
+	const formattedSourceTypeName = getSimpleTypeName(sourcePort.field);
+	const formattedTargetTypeName = getSimpleTypeName(targetPort.field);
+
+	let customFunctionName = `map${formattedSourceTypeName}To${formattedTargetTypeName}`;
 
 	const localFunctionNames = new Set(sourceFile.getFunctions().map(fn => fn.getName()));
 	const importedFunctionNames = new Set(sourceFile.getImportDeclarations()
 		.flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName())));
 
-	const formattedSourceFieldName = toFirstLetterLowerCase(sourcePort.field.fieldName);
-	const formattedTargetFieldName = toFirstLetterUpperCase(targetFieldName);
-	let customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}`;
-	let i = 1;
+	let i = 0;
 	while (localFunctionNames.has(customFunctionName) || importedFunctionNames.has(customFunctionName)) {
-		customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}${isNaN(Number(formattedTargetFieldName.charAt(formattedTargetFieldName.length - 1))) ? '' : '_'
+		customFunctionName = `map${formattedSourceTypeName
+			}To${formattedTargetTypeName
+			}${isNaN(Number(formattedTargetTypeName.charAt(formattedTargetTypeName.length - 1))) ? '' : '_'
 			}${++i}`;
 	}
 
 	return {
 		name: customFunctionName,
-		parameters: [{ name: sourcePort.field.fieldName, type: getTypeAnnotation(sourcePort.field) }],
+		parameters: [{
+			name: sourcePort.field.fieldName ||
+				sourcePort.optionalOmittedFieldFQN?.replaceAll('.', '_') ||
+				lowerFirst(sourcePort.field.typeName) ||
+				sourcePort.field.kind,
+			type: getTypeAnnotation(sourcePort.field)
+		}],
 		returnType: getTypeAnnotation(targetPort.field),
 		statements: [
 			`return ${getDefaultValue(targetPort.field)};`
 		]
+	}
+
+	function getSimpleTypeName(field: DMType): string {
+		let isArray = false;
+		while (field.kind === TypeKind.Array) {
+			isArray = true;
+			field = field.memberType;
+		}
+		return upperFirst(field.typeName || field.kind) + (isArray ? "Array" : "");
 	}
 
 }

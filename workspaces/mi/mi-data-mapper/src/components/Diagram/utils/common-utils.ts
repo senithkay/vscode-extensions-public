@@ -346,6 +346,8 @@ export function getTypeAnnotation(field: DMType): string {
 		typeName = `${getTypeAnnotation(field.memberType) || "any"}[]`;
 	} else if (field.kind === TypeKind.Union){
         typeName = `(${field.unionTypes.map(unionType => getTypeAnnotation(unionType)).join(" | ")})`;
+    } else if (field.kind === TypeKind.Interface && field.typeName === "Object") {
+        typeName = "any";
     }
 
 	return typeName;
@@ -695,14 +697,6 @@ export function genVariableName(originalName: string, existingNames: string[]): 
 		modifiedName = originalName + index;
 	}
 	return modifiedName;
-}
-
-export function toFirstLetterLowerCase(identifierName: string){
-    return identifierName.charAt(0).toLowerCase() + identifierName.slice(1);
-}
-
-export function toFirstLetterUpperCase(identifierName: string){
-    return identifierName.charAt(0).toUpperCase() + identifierName.slice(1);
 }
 
 export function isMapFnAtPropAssignment(focusedST: Node) {
