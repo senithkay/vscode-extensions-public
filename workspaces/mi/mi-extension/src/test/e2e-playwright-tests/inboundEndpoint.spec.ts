@@ -11,42 +11,38 @@ import { expect, test } from '@playwright/test';
 import * as path from 'path';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
-import { clearNotificationAlerts, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
+import { clearNotificationAlerts, page, resourcesFolder, resumeVSCode, vscode } from './Utils';
 import { InboundEPForm } from './components/InboundEp';
 import { Diagram } from './components/Diagram';
+import { Overview } from './components/Overview';
 const fs = require('fs');
 
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
-    console.log('Starting connection tests')
-    // delete and recreate folder
-    if (fs.existsSync(newProjectPath)) {
-        fs.rmSync(newProjectPath, { recursive: true });
-    }
-    fs.mkdirSync(newProjectPath, { recursive: true });
-    await initVSCode();
-});
-
-test.skip('Create new project', async () => {
-    await createProject(page);
+    console.log('Starting inbound ep tests')
+    await resumeVSCode();
 });
 
 test.skip('Create new HTTPS inbound endpoint', async () => {
     // Create HTTPS inbound endpoint with automatically generated sequences
+    const overviewPage = new Overview(page.page);
+    await overviewPage.init();
+    await overviewPage.goToAddArtifact();
+
     const addArtifactPage = new AddArtifact(page.page);
     await addArtifactPage.init();
-    await addArtifactPage.add('Listener');
+    await addArtifactPage.add('Event Integration');
 
     const inboundEPSelector = new InboundEPForm(page.page);
     await inboundEPSelector.init();
     await inboundEPSelector.selectType('HTTPS');
 
-    const inboundEPForm = new Form(page.page, 'Inbound EP Form');
+    const inboundEPForm = new Form(page.page, 'Event Integration Form');
     await inboundEPForm.switchToFormView();
     await inboundEPForm.fill({
         values: {
-            'Inbound Endpoint Name*': {
+            'Event Integration Name*': {
                 type: 'input',
                 value: 'HTTPS_inboundEP',
             },
@@ -59,22 +55,22 @@ test.skip('Create new HTTPS inbound endpoint', async () => {
     await clearNotificationAlerts(page);
     await inboundEPForm.submit('Create');
 
-    const diagram = new Diagram(page.page, 'Inbound EP');
+    const diagram = new Diagram(page.page, 'Event Integration');
     await diagram.init();
     await diagram.addMediator('Log');
     const diagramTitle = diagram.getDiagramTitle();
 
-    expect(await diagramTitle).toBe('Inbound Endpoint: HTTPS_inboundEP');
+    expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP');
 });
 
 test.skip('Edit Inbound Endpoint', async () => {
     // Edit Inbound Endpoint
 
-    const diagram = new Diagram(page.page, 'Inbound EP');
+    const diagram = new Diagram(page.page, 'Event Integration');
     await diagram.init();
     await diagram.edit();
 
-    const inboundEPForm = new Form(page.page, 'Inbound EP Form');
+    const inboundEPForm = new Form(page.page, 'Event Integration Form');
     await inboundEPForm.switchToFormView();
     await inboundEPForm.fill({
         values: {
@@ -93,7 +89,7 @@ test.skip('Edit Inbound Endpoint', async () => {
 
     await diagram.init();
     const diagramTitle = diagram.getDiagramTitle();
-    expect(await diagramTitle).toBe('Inbound Endpoint: HTTPS_inboundEP2');
+    expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP2');
 });
 
 
