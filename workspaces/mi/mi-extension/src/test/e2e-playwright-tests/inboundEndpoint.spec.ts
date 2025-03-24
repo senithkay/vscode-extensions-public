@@ -74,7 +74,7 @@ test('Edit Inbound Endpoint', async () => {
     await inboundEPForm.switchToFormView();
     await inboundEPForm.fill({
         values: {
-            'Inbound Endpoint Name*': {
+            'Event Integration Name*': {
                 type: 'input',
                 value: 'HTTPS_inboundEP2',
             },
