@@ -29,6 +29,9 @@
 		},
 		{
 			"path": "workspaces/mi/mi-data-mapper"
+		},
+		{
+			"path": "workspaces/common-libs/playwright-vscode-tester"
 		}
 	]
 }

@@ -54,7 +54,7 @@ export async function createProject(page: ExtendedPage) {
     await createNewProjectForm.submit();
     await page.page.waitForTimeout(5000); // Page detaching after project creation
     const setupEnvPage = new Welcome(page);
-    
+
     await setupEnvPage.setupEnvironment();
 }
 
@@ -68,10 +68,9 @@ export async function resumeVSCode() {
 }
 
 export async function clearNotificationAlerts(page: ExtendedPage) {
-    const notificationsCloseButtons = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
-    const count = await notificationsCloseButtons.count();
-    console.log(`Clearing ${count} notifications`);
-    for (let i = 0; i < count; i++) {
-        notificationsCloseButtons.nth(i).click();
+    console.log(`Clearing notifications`);
+    const notifications = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
+    while (await notifications.count() > 0) {
+        await notifications.first().click();
     }
 }
