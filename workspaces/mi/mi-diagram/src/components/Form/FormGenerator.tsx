@@ -85,7 +85,6 @@ export interface FormGeneratorProps {
     addNewConnection?: any;
     autoGenerateSequences?: boolean;
     range?: Range;
-    setIsNewDataMapper?: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface Element {
@@ -147,8 +146,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         skipGeneralHeading,
         ignoreFields,
         addNewConnection,
-        range,
-        setIsNewDataMapper
+        range
     } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
@@ -476,8 +474,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, {type: keyType});
-                        setIsNewDataMapper(true);
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, {type: keyType}, sidePanelContext);
                     }
                 }
 

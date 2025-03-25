@@ -42,7 +42,6 @@ export function MediatorForm(props: MediatorFormProps) {
     const { control, errors, setValue, reset, watch, getValues, dirtyFields, handleSubmit, mediatorData, mediatorType, isUpdate, documentUri, range } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = useContext(SidePanelContext);
-    const [isNewDataMapper, setIsNewDataMapper] = useState(false);
 
     const handleOnSubmit = async (values: any) => {
         setDiagramLoading(true);
@@ -73,7 +72,7 @@ export function MediatorForm(props: MediatorFormProps) {
         if (mediatorData.onSubmit) {
             switch (mediatorData.onSubmit) {
                 case "openDataMapperEditor":
-                    if (isNewDataMapper) {
+                    if (sidePanelContext?.newDataMapperName === values.name) {
                         const projectDetails = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
                         const runtimeVersion = await projectDetails.primaryDetails.runtimeVersion.value;
                         createAndopenDataMapper(documentUri, values, rpcClient, runtimeVersion)();
@@ -107,7 +106,6 @@ export function MediatorForm(props: MediatorFormProps) {
                 getValues={getValues}
                 skipGeneralHeading={true}
                 range={range}
-                setIsNewDataMapper={setIsNewDataMapper}
             />
             <FormActions>
                 <Button
