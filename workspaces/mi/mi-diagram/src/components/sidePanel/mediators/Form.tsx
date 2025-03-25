@@ -8,7 +8,7 @@
  */
 
 import { FormActions, Button, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import FormGenerator from "../../Form/FormGenerator";
 import styled from "@emotion/styled";
 import { sidepanelGoBack } from "..";
