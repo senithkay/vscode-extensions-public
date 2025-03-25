@@ -17,7 +17,7 @@ import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
-import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { UNION_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     findInputNode,
     getDefaultValue,
@@ -82,7 +82,7 @@ export class UnionOutputNode extends DataMapperNodeModel {
             this.hasNoMatchingFields = hasNoOutputMatchFound(this.originalType, valueEnrichedType);
     
             const parentPort = this.addPortsForHeader(
-                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                this.dmType, this.rootName, "IN", UNION_OUTPUT_TARGET_PORT_PREFIX,
                 isCollapsedField, valueEnrichedType, this.isMapFn
             );
     
@@ -92,7 +92,7 @@ export class UnionOutputNode extends DataMapperNodeModel {
                 if (this.dmTypeWithValue.childrenTypes?.length) {
                     this.dmTypeWithValue.childrenTypes.forEach(field => {
                         this.addPortsForOutputField(
-                            field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                            field, "IN", this.rootName, undefined, UNION_OUTPUT_TARGET_PORT_PREFIX,
                             parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
                         );
                     });
@@ -134,7 +134,7 @@ export class UnionOutputNode extends DataMapperNodeModel {
                 inPort = getInputPort(inputNode, value);
             }
             const [outPort, mappedOutPort] = getOutputPort(
-                fields, this.dmTypeWithValue, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                fields, this.dmTypeWithValue, UNION_OUTPUT_TARGET_PORT_PREFIX,
                 (portId: string) =>  this.getPort(portId) as InputOutputPortModel
             );
 

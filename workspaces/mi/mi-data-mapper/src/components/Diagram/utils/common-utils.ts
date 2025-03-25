@@ -38,7 +38,8 @@ import {
     OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX,
     OBJECT_OUTPUT_TARGET_PORT_PREFIX,
     PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX,
-    SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX
+    SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
+    UNION_OUTPUT_TARGET_PORT_PREFIX
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
@@ -507,7 +508,7 @@ export function getTargetPortPrefix(node: NodeModel): string {
         case node instanceof PrimitiveOutputNode:
             return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
         case node instanceof UnionOutputNode:
-            return OBJECT_OUTPUT_TARGET_PORT_PREFIX;
+            return UNION_OUTPUT_TARGET_PORT_PREFIX;
         // TODO: Update cases for other node types
 		default:
 			return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
