@@ -14,7 +14,7 @@ import { Form, FormFillProps } from "./Form";
 export class Diagram {
     private diagramWebView!: Frame;
 
-    constructor(private _page: Page, private type: 'Resource' | 'Sequence' | 'Inbound EP') {
+    constructor(private _page: Page, private type: 'Resource' | 'Sequence' | 'Event Integration') {
     }
 
     public async init() {
@@ -191,7 +191,7 @@ class SidePanel {
         await formDiv.waitFor();
 
         const form = new Form(undefined, undefined, formDiv);
-        await form.submit("Submit");
+        await form.submit("Add");
     }
 
     public async updateMediator(props: FormFillProps) {

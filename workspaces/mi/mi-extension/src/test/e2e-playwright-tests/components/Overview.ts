@@ -17,7 +17,7 @@ export class Overview {
     }
 
     public async init() {
-        const webview = await switchToIFrame("Project Settings", this._page)
+        const webview = await switchToIFrame("Project Overview", this._page)
         if (!webview) {
             throw new Error("Failed to switch to Overview iframe");
         }
@@ -44,7 +44,7 @@ export class Overview {
     }
 
     public async goToAddArtifact() {
-        const addArtifactBtn = await this.webView.waitForSelector(`vscode-button:text("Add Artifact)`);
+        const addArtifactBtn = await this.webView.waitForSelector(`vscode-button:text("Add Artifact")`);
         await addArtifactBtn.click();
     }
 }
