@@ -10,6 +10,8 @@
 import { test } from '@playwright/test';
 import connectionTests from './connectionTests/connection.spec';
 import inboundEpTests from './connectionTests/inboundEndpoint.spec';
+import datamapperTests from './datamapper.spec';
 
 test.describe(connectionTests);
 test.describe(inboundEpTests);
+test.describe(datamapperTests);

@@ -92,7 +92,7 @@ export default function createTests() {
     });
 
     test.afterAll(async () => {
-        await vscode?.close();
+        // await vscode?.close();
 
         const videoTitle = new Date().toLocaleString().replace(/,|:|\/| /g, '_');
         const video = page.page.video()
