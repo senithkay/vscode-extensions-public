@@ -122,10 +122,5 @@ test.afterAll(async () => {
         video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
     }
 
-    // cleanup
-    if (fs.existsSync(newProjectPath)) {
-        fs.rmSync(newProjectPath, { recursive: true });
-    }
-
     console.log('Connection tests completed');
 });

@@ -67,6 +67,15 @@ export async function createProject(page: ExtendedPage) {
     await setupEnvPage.setupEnvironment();
 }
 
+export async function resumeVSCode() {
+    if (vscode || page) {
+        await page.executePaletteCommand('Reload Window');
+    } else {
+        vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, path.join(newProjectPath, 'testProject'));
+    }
+    page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
+}
+
 export async function clearNotificationAlerts(page: ExtendedPage) {
     const notificationsCloseButtons = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
     const count = await notificationsCloseButtons.count();
