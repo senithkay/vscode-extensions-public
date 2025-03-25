@@ -68,10 +68,8 @@ export async function createProject(page: ExtendedPage) {
 }
 
 export async function clearNotificationAlerts(page: ExtendedPage) {
-    const notificationsCloseButtons = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
-    const count = await notificationsCloseButtons.count();
-    console.log(`Clearing ${count} notifications`);
-    for (let i = 0; i < count; i++) {
-        notificationsCloseButtons.nth(i).click();
+    const notificationsCloseButton = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
+    while (await notificationsCloseButton.count() > 0) {
+        await notificationsCloseButton.first().click({ force: true });
     }
 }
