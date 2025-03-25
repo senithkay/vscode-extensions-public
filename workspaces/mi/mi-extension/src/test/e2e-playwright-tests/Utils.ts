@@ -63,7 +63,7 @@ export async function createProject(page: ExtendedPage) {
     await createNewProjectForm.submit();
     await page.page.waitForTimeout(5000); // Page detaching after project creation
     const setupEnvPage = new Welcome(page);
-    
+
     await setupEnvPage.setupEnvironment();
 }
 
