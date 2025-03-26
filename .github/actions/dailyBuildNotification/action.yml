@@ -31,6 +31,7 @@ runs:
       with:
         path: ${{ steps.vsix.outputs.fileName }}
         name: Vsix-Artifact-${{ inputs.fileName }}
+        retention-days: 3
 
     - name: "Release Notification"
       shell: bash
