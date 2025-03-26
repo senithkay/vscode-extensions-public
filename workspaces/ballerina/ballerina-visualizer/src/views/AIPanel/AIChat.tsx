@@ -36,8 +36,6 @@ import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Comp
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { findRegexMatches } from "../../utils/utils";
-import { Collapse } from "react-collapse";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import {
     Footer,
@@ -58,6 +56,7 @@ import { TestGeneratorIntermediaryState } from "./features/testGenerator";
 import TextWithBadges from "./Components/TextWithBadges";
 import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
 import { MarkdownRenderer } from "./Components/MarkdownRenderer";
+import { CodeSection } from "./Components/CodeSection";
 
 interface CodeBlock {
     filePath: string;
@@ -623,7 +622,7 @@ export function AIChat() {
                         break;
                     }
                     case COMMAND_DOCUMENTATION: {
-                        await findInDocumentation(parameters.inputRecord[0], token);
+                        await findInDocumentation(token, parameters.inputRecord[0], message);
                         break;
                     }
                     case COMMAND_OPENAPI: {
@@ -648,7 +647,7 @@ export function AIChat() {
                         return;
                     }
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
-                    await findInDocumentation(messageBody, token);
+                    await findInDocumentation(token, messageBody, message);
                     return;
                 } else if (commandKey === COMMAND_HEALTHCARE) {
                     await processHealthcareCodeGeneration(token, messageBody, message);
@@ -1956,13 +1955,12 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    async function findInDocumentation(message: string, token: string) {
+    async function findInDocumentation(token: string, messageBody: string, message: string) {
         let assistant_response = "";
         let formatted_response = ";";
         setIsLoading(true);
         try {
-            console.log("Searching for: " + message, +"Token: ", token);
-            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
+            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);
 
             formatted_response = assistant_response.replace(
                 /```ballerina\s*([\s\S]+?)\s*```/g,
@@ -2831,215 +2829,6 @@ export function AIChat() {
     );
 }
 
-// ---------- CODE-SEGMENT ----------
-
-interface EntryContainerProps {
-    isOpen: boolean;
-}
-
-const EntryContainer = styled.div<{ hasErrors: boolean }>(({ hasErrors }: { hasErrors: boolean }) => ({
-    display: "flex",
-    alignItems: "center",
-    marginTop: "10px",
-    cursor: "pointer",
-    padding: "10px",
-    backgroundColor: "var(--vscode-list-hoverBackground)",
-    // backgroundColor: hasErrors 
-    // ? "var(--vscode-inputValidation-warningBackground)" 
-    // : "var(--vscode-list-hoverBackground)",
-    "&:hover": {
-        backgroundColor: "var(--vscode-badge-background)",
-    },
-}));
-
-const CodeSegmentHeader = styled.div({
-    display: "flex",
-    alignItems: "center",
-    marginTop: "10px",
-    cursor: "pointer",
-    padding: "6px 8px",
-    backgroundColor: "var(--vscode-list-hoverBackground)",
-});
-
-interface CodeSegmentProps {
-    source: string;
-    fileName: string;
-    language?: string;
-}
-
-const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <div>
-            <CodeSegmentHeader onClick={() => setIsOpen(!isOpen)}>
-                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                    {isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                    {fileName}
-                </div>
-            </CodeSegmentHeader>
-            <Collapse isOpened={isOpen}>
-                <div style={{ backgroundColor: "var(--vscode-list-hoverBackground)", padding: "6px" }}>
-                    <pre
-                        style={{
-                            backgroundColor: "var(--vscode-editorWidget-background)",
-                            borderRadius: 8,
-                        }}
-                    >
-                        <MarkdownRenderer markdownContent={`\`\`\`${language}\n${source}\n\`\`\``}/>
-                    </pre>
-                </div>
-            </Collapse>
-        </div>
-    );
-};
-
-interface CodeSectionProps {
-    codeSegments: CodeSegmentProps[];
-    loading: boolean;
-    isReady: boolean;
-    handleAddAllCodeSegmentsToWorkspace: (
-        codeSegment: any,
-        setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
-    ) => void;
-    handleRevertChanges: (
-        codeSegment: any,
-        setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
-    ) => void;
-    message: { role: string; content: string; type: string };
-    buttonsActive: boolean;
-    isSyntaxError: boolean;
-    command: string;
-    diagnostics: any[],
-    onRetryRepair: () => {},
-}
-
-const CodeSection: React.FC<CodeSectionProps> = ({
-    codeSegments,
-    loading,
-    isReady,
-    handleAddAllCodeSegmentsToWorkspace,
-    handleRevertChanges,
-    message,
-    buttonsActive,
-    isSyntaxError,
-    command,
-    diagnostics = [],
-    onRetryRepair = () => { },
-}) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isCodeAdded, setIsCodeAdded] = useState(false);
-
-    const language = "ballerina";
-    let isTestCode = false;
-    if (command === "test") {
-        isTestCode = true;
-    }
-    let name = loading
-        ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
-        : isTestCode
-            ? "Ballerina Tests"
-            : "Ballerina Integration";
-
-    const allCodeSegments = splitContent(message.content)
-        .filter((segment) => segment.type === SegmentType.Code)
-        .map((segment) => ({ segmentText: segment.text, filePath: segment.fileName }));
-
-    function isRepairButtonVisisble() {
-        return !loading && isReady && diagnostics.length > 0 && command === "code" && !isCodeAdded
-    }
-        
-    return (
-        <div>
-            <EntryContainer hasErrors={isRepairButtonVisisble()} onClick={() => !loading && setIsOpen(!isOpen)}>
-                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                    {!loading && isReady && language === "ballerina" && (
-                        !isOpen ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />
-                    )}
-                    {/* Show spinner during generation or repair */}
-                    {(loading) && <Spinner className="codicon codicon-loading spin"role="img"></Spinner>}
-                    {name}
-                </div>
-
-                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
-
-                    {/* Show warning icon if diagnostics exist */}
-                    {isRepairButtonVisisble() && (
-                        <Button
-                            appearance="icon"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onRetryRepair();
-                            }}
-                            disabled={loading}
-                            tooltip={`Click to auto-resolve errors of the generated integration with AI: \nErrors:\n${diagnostics.map(d => d.message).join("\n")}`}                        >
-                            <Codicon name="sync" />
-                        </Button>
-                    )}
-
-                    {/* TODO see why Add to integration either Revert button is visible */}
-                    {!loading && isReady && language === "ballerina" && (
-                        <>
-                            {!isCodeAdded ? (
-                                <Button
-                                    appearance="icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAddAllCodeSegmentsToWorkspace(allCodeSegments, setIsCodeAdded, command);
-                                    }}
-                                    tooltip={
-                                        isSyntaxError
-                                            ? "Syntax issues detected in generated integration. Reattempt required"
-                                            : ""
-                                    }
-                                    disabled={!buttonsActive || isSyntaxError}
-                                >
-                                    <Codicon name="add" />
-                                    &nbsp;&nbsp;Add to Integration
-                                </Button>
-                            ) : (
-                                <Button
-                                    appearance="icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
-                                    }}
-                                    disabled={!buttonsActive}
-                                >
-                                    <Codicon name="history" />
-                                    &nbsp;&nbsp;Revert to Checkpoint
-                                </Button>
-                            )}
-                        </>
-                    )}
-                </div>
-            </EntryContainer>
-            <Collapse isOpened={isOpen}>
-                <div
-                    style={{
-                        backgroundColor: "var(--vscode-editorWidget-background)",
-                        padding: "8px",
-                        gap: "8px",
-                        display: "flex",
-                        flexDirection: "column",
-                    }}
-                >
-                    {codeSegments.map((segment, index) => (
-                        <CodeSegment
-                            key={index}
-                            source={segment.source}
-                            fileName={segment.fileName}
-                            language={segment.language}
-                        />
-                    ))}
-                </div>
-            </Collapse>
-        </div>
-    );
-};
-
 export function replaceCodeBlocks(originalResp: string, newResp: string): string {
     // Create a map to store new code blocks by filename
     const newCodeBlocks = new Map<string, string>();
@@ -3184,7 +2973,7 @@ export function getProjectFromResponse(req: string): ProjectSource {
     return { sourceFiles };
 }
 
-enum SegmentType {
+export enum SegmentType {
     Code = "Code",
     Text = "Text",
     Progress = "Progress",

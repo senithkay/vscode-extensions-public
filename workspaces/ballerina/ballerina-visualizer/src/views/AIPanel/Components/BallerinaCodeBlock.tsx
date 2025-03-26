@@ -9,26 +9,24 @@
 
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
-import { darcula } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
 const CodeBlockContainer = styled.div`
     overflow: hidden;
-    margin: 0;
-    padding: 6px;
+    margin: 16px 0;
     position: relative;
-    background-color: var(--vscode-list-hoverBackground);
+    background: var(--vscode-toolbar-activeBackground);
+    border-radius: 4px;
 `;
 
 const Header = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--vscode-list-hoverBackground);
     padding: 8px 16px;
     color: var(--vscode-editor-foreground);
+    border-radius: 4px 4px 0 0;
 `;
 
 const Title = styled.div`
@@ -36,14 +34,25 @@ const Title = styled.div`
 `;
 
 const CopyButton = styled.button<{ copied: boolean }>`
-    background: ${({ copied }: { copied: boolean }) => (copied ? "var(--vscode-badge-background)" : "transparent")};
+    background: transparent;
     border: none;
     color: var(--vscode-editor-foreground);
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.75rem;
     padding: 4px 8px;
-    border-radius: 4px;
-    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+`;
+
+const ContentWrapper = styled.div`
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+
+    pre {
+        margin: 0 !important;
+    }
 `;
 
 interface BallerinaCodeBlockProps {
@@ -67,11 +76,14 @@ const BallerinaCodeBlock: React.FC<BallerinaCodeBlockProps> = ({ code }) => {
         <CodeBlockContainer>
             <Header>
                 <Title>Ballerina</Title>
-                <CopyButton onClick={handleCopy} copied={copied} title="Copy code">
-                    <Codicon name="copy" />
+                <CopyButton onClick={handleCopy} copied={copied} title={copied ? "Copied" : "Copy code"}>
+                    <Codicon name={copied ? "check" : "copy"} />
+                    {copied ? "Copied" : "Copy"}
                 </CopyButton>
             </Header>
-            <MarkdownRenderer markdownContent={`\`\`\`ballerina\n${code}\n\`\`\``} />
+            <ContentWrapper>
+                <MarkdownRenderer markdownContent={`\`\`\`ballerina\n${code}\n\`\`\``} />
+            </ContentWrapper>
         </CodeBlockContainer>
     );
 };
