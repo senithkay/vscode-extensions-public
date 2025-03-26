@@ -6,11 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ComponentProps, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ComponentProps, ReactNode, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import styled from '@emotion/styled';
+import { calculateTextAreaRows, getLineCount, getLineHeight, getRawScrollHeight, setTextAreaRows } from './utils';
 
 interface IconProps {
     iconComponent: ReactNode;
@@ -37,7 +38,7 @@ export interface TextAreaProps extends ComponentProps<"textarea"> {
     onTextChange?: (text: string) => void;
 }
 
-export interface AutoResizeTextAreaProps extends TextAreaProps {
+export interface AutoResizeTextAreaProps extends Omit<TextAreaProps, 'rows'> {
     growRange: {
         start: number;
         offset: number;
@@ -106,33 +107,59 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
 export const AutoResizeTextArea = React.forwardRef<HTMLTextAreaElement, AutoResizeTextAreaProps>(
     (props, ref) => {
         const { growRange, onChange, ...rest } = props;
-        const [rows, setRows] = useState<number>(props.rows || growRange.start || 1);
-        const initialRender = useRef<boolean>(true);
+        const lineHeight = useRef<number | undefined>(undefined);
+        const [rows, setRows] = useState<number>(growRange.start);
 
-        const growTextArea = useCallback((text: string) => {
-            const { start, offset } = growRange;
-            const lineCount = text.split("\n").length;
-            const newRows = Math.max(start, Math.min(start + offset, lineCount));
+        const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+        useImperativeHandle(ref, () => textAreaRef.current);
+
+        const updateRows = useCallback(() => {
+            const textAreaComponent = textAreaRef.current?.shadowRoot?.querySelector('textarea');
+            if (!textAreaComponent) {
+                return;
+            }
+
+            // set the number of rows based on the number of lines
+            const lineCount = getLineCount(textAreaComponent.value);
+            const tempRows = calculateTextAreaRows(lineCount, growRange);
+            setTextAreaRows(textAreaComponent, tempRows);
+
+            // get the raw scroll height of the text area without paddings
+            const scrollHeight = getRawScrollHeight(textAreaComponent);
+
+            // calculate the number of rows
+            const contentBasedRows = Math.ceil(scrollHeight / lineHeight.current);
+            const newRows = calculateTextAreaRows(contentBasedRows, growRange);
+
+            // set the rows for both HTML element and react element to avoid state mismatch
+            setTextAreaRows(textAreaComponent, newRows);
             setRows(newRows);
-        }, [growRange]);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [textAreaRef.current, lineHeight.current, growRange]);
+
+        /* Handle initial render */
+        useEffect(() => {
+            const textAreaComponent = textAreaRef.current?.shadowRoot?.querySelector('textarea');
+            if (!textAreaComponent) {
+                return;
+            }
+
+            if (lineHeight.current === undefined) {
+                lineHeight.current = getLineHeight(textAreaComponent);
+            }
+
+            updateRows();
+            
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [props.value])
     
         const handleChange = useCallback((e: any) => {
-            if (growRange) {
-                growTextArea(e.target.value);
-            }
-            onChange && onChange(e);
-        }, [growRange, growTextArea, onChange]);
+            onChange?.(e);
+        }, [onChange]);
 
-        // Initial row calculation
-        useEffect(() => {
-            if (props.value !== undefined && initialRender.current && growRange) {
-                growTextArea(props.value.toString());
-                initialRender.current = false;
-            }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [growRange, props.value])
-
-        return <TextArea {...rest} ref={ref} rows={rows} onChange={handleChange} />
+        return <TextArea {...rest} rows={rows} ref={textAreaRef} onChange={handleChange} />
     }
 )
 
