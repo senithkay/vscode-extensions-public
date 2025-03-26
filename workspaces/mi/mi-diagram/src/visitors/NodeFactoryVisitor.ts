@@ -245,9 +245,10 @@ export class NodeFactoryVisitor implements Visitor {
                 }
 
                 const isBrokenLine = previousStNode.viewState.isBrokenLines ?? node.viewState.isBrokenLines;
-                let linkId;
+                let linkId = "";
                 if (addPosition.position?.line != undefined && addPosition.position?.character != undefined) {
-                    linkId = `${addPosition.position.line},${addPosition.position.character}${this.currentBranchData?.name ? `,${this.currentBranchData?.name}` : ''}`;
+                    linkId += previousStNode.viewState?.id ? `${previousStNode.viewState?.id}-` : '';
+                    linkId += `${addPosition.position.line},${addPosition.position.character}${this.currentBranchData?.name ? `,${this.currentBranchData?.name}` : ''}`;
                 } else {
                     linkId = `${previousStNode.viewState?.id}-${previousStNode.range.startTagRange.start.line},${previousStNode.range.startTagRange.start.character},${node.viewState?.id}-${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}`;
                 }
@@ -351,7 +352,10 @@ export class NodeFactoryVisitor implements Visitor {
             const plusNode: STNode = {
                 ...node,
                 tag: ADD_NEW_SEQUENCE_TAG,
-                viewState: plusNodeViewState,
+                viewState: {
+                    ...plusNodeViewState,
+                    isBrokenLines: true
+                },
                 range: {
                     startTagRange: addNewSequenceRange,
                     endTagRange: addNewSequenceRange,
@@ -372,19 +376,25 @@ export class NodeFactoryVisitor implements Visitor {
             for (let i = 0; i < sequenceKeys.length; i++) {
                 const sequence = subSequences[sequenceKeys[i]];
                 if (sequence) {
+                    let lastNode: STNode;
                     if (sequence.mediatorList && sequence.mediatorList.length > 0) {
-                        const lastNode = (sequence.mediatorList as any)[(sequence.mediatorList as any).length - 1];
-                        this.previousSTNodes.push(lastNode);
+                        lastNode = (sequence.mediatorList as any)[(sequence.mediatorList as any).length - 1];
                     } else {
-                        this.previousSTNodes.push(subSequences[sequenceKeys[i]]);
+                        lastNode = subSequences[sequenceKeys[i]];
                     }
+
+                    const conditionEndNode = this.nodes.filter((node) => node.getStNode().viewState.id === `${JSON.stringify(lastNode.range.endTagRange)}_end`);
+                    if (conditionEndNode.length > 0) {
+                        lastNode = conditionEndNode[0].getStNode();
+                    }
+                    this.previousSTNodes.push(lastNode);
                 }
             }
 
             // add empty node
             this.currentBranchData = undefined;
             const eNode = structuredClone(node);
-            eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_end";
+            eNode.viewState.id = `${JSON.stringify(eNode.range.endTagRange)}_end`;
             eNode.viewState.y = eNode.viewState.y + eNode.viewState.fh;
             eNode.viewState.x = eNode.viewState.x + eNode.viewState.w / 2 - NODE_DIMENSIONS.EMPTY.WIDTH / 2;
             this.createNodeAndLinks({ node: eNode, type: NodeTypes.CONDITION_NODE_END });
@@ -805,9 +815,10 @@ export class NodeFactoryVisitor implements Visitor {
             start: defaultNode ? defaultNode.range.startTagRange.start : node.range.startTagRange.end,
             end: defaultNode ? defaultNode.range.startTagRange.start : node.range.endTagRange.start,
         }
-        this.visitSubSequences(node, MEDIATORS.SWITCH, {
-            ...cases, default: defaultNode
-        }, NodeTypes.CONDITION_NODE, true, newSequenceRange);
+        if (node._default) {
+            cases.default = node._default;
+        }
+        this.visitSubSequences(node, MEDIATORS.SWITCH, cases, NodeTypes.CONDITION_NODE, true, newSequenceRange);
         this.skipChildrenVisit = true;
     }
     endVisitSwitch(node: Switch): void {

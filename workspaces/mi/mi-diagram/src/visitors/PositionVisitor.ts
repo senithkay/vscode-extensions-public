@@ -391,7 +391,7 @@ export class PositionVisitor implements Visitor {
         if (node._default) {
             cases.default = node._default;
         }
-        this.setAdvancedMediatorPosition(node, cases, NodeTypes.CONDITION_NODE, true, "default");
+        this.setAdvancedMediatorPosition(node, cases, NodeTypes.CONDITION_NODE, true, node._default ? "default" : undefined);
     }
     endVisitSwitch = (node: Switch): void => this.setSkipChildrenVisit(false);
 
