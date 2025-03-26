@@ -76,6 +76,7 @@ function initDiagramEngine() {
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ObjectOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.PrimitiveOutputNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.UnionOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.LinkConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayFnConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayFilterNodeFactory());
