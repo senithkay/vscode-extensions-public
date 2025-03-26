@@ -377,10 +377,14 @@ export class PositionVisitor implements Visitor {
     endVisitForeach = (node: Foreach): void => this.setSkipChildrenVisit(false);
     //Filter Mediators
     beginVisitFilter = (node: Filter): void => {
-        this.setAdvancedMediatorPosition(node, {
-            then: node.then,
-            else: node.else_
-        }, NodeTypes.CONDITION_NODE);
+        const branches: any = {};
+        if (node.then) {
+            branches.then = node.then;
+        }
+        if (node.else_) {
+            branches.else = node.else_;
+        }
+        this.setAdvancedMediatorPosition(node, branches, NodeTypes.CONDITION_NODE);
     }
     endVisitFilter = (node: Filter): void => this.setSkipChildrenVisit(false);
     beginVisitSwitch = (node: Switch): void => {

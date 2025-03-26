@@ -792,10 +792,14 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.FILTER, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, MEDIATORS.FILTER, {
-            Then: node.then,
-            Else: node.else_,
-        }, NodeTypes.CONDITION_NODE, false);
+        const branches: any = {};
+        if (node.then) {
+            branches.Then = node.then;
+        }
+        if (node.else_) {
+            branches.Else = node.else_;
+        }
+        this.visitSubSequences(node, MEDIATORS.FILTER, branches, NodeTypes.CONDITION_NODE, false);
         this.skipChildrenVisit = true;
     }
     endVisitFilter(node: Filter): void {

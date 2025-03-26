@@ -458,10 +458,14 @@ export class SizingVisitor implements Visitor {
     //Filter Mediators
     endVisitFilter = (node: Filter): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
-        this.calculateAdvancedMediator(node, {
-            then: node.then,
-            else: node.else_
-        }, NodeTypes.CONDITION_NODE);
+        const branches: any = {};
+        if (node.then) {
+            branches.then = node.then;
+        }
+        if (node.else_) {
+            branches.else = node.else_;
+        }
+        this.calculateAdvancedMediator(node, branches, NodeTypes.CONDITION_NODE);
     }
     endVisitSwitch = (node: Switch): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
