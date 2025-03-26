@@ -71,7 +71,7 @@ const BallerinaCodeBlock: React.FC<BallerinaCodeBlockProps> = ({ code }) => {
                     <Codicon name="copy" />
                 </CopyButton>
             </Header>
-            <MarkdownRenderer markdownContent={`\`\`\`go\n${code}\n\`\`\``} />
+            <MarkdownRenderer markdownContent={`\`\`\`ballerina\n${code}\n\`\`\``} />
         </CodeBlockContainer>
     );
 };

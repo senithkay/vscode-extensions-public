@@ -2869,7 +2869,6 @@ interface CodeSegmentProps {
 
 const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const normalizedLanguage = (language: string) => language === "ballerina" ? "go" : language;
 
     return (
         <div>
@@ -2887,7 +2886,7 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language })
                             borderRadius: 8,
                         }}
                     >
-                        <MarkdownRenderer markdownContent={`\`\`\`${normalizedLanguage(language)}\n${source}\n\`\`\``}/>
+                        <MarkdownRenderer markdownContent={`\`\`\`${language}\n${source}\n\`\`\``}/>
                     </pre>
                 </div>
             </Collapse>
