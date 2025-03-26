@@ -179,6 +179,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         helperPaneOrigin,
         helperPaneHeight,
         recordTypeField,
+        growRange = { start: 4, offset: 4 },
         rawExpression, // original expression
         sanitizedExpression // sanitized expression that will be rendered in the editor
     } = props as ExpressionEditorProps;
@@ -402,7 +403,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             helperPaneHeight={helperPaneHeight}
                             helperPaneWidth={recordTypeField ? 400 : undefined}
                             placeholder={field.placeholder}
-                            growRange={{ start: 4, offset: 4 }}
+                            growRange={growRange}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
                         />
