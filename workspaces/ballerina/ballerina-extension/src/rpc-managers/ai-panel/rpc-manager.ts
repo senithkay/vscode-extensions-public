@@ -44,7 +44,7 @@ import {
     SyntaxTree,
     TestGenerationMentions,
     TestGenerationRequest,
-    TestGenerationResponse
+    TestGenerationResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -876,6 +876,21 @@ export class AiPanelRpcManager implements AIPanelAPI {
     async refreshFile(params: SourceFile): Promise<void> {
         modifyFileContent({ filePath : params.filePath, content: params.content });
         updateView();
+    }
+
+    async getThemeKind(): Promise<string> {
+        return new Promise((resolve) => {
+            const themeKind = window.activeColorTheme.kind;
+            switch (themeKind) {
+                case 1:
+                case 4:
+                    resolve("light");
+                    break;
+                default:
+                    resolve("dark");
+                    break;
+            }
+        });
     }
 }
 

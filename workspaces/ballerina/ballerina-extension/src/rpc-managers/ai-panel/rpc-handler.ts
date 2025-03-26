@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -55,6 +55,7 @@ import {
     getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
+    getThemeKind,
     getTypesFromRecord,
     isCopilotSignedIn,
     isRequirementsSpecificationFileExist,
@@ -97,6 +98,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getFileExists, (args: GetFromFileRequest) => rpcManger.getFileExists(args));
     messenger.onNotification(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
     messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
+    messenger.onRequest(getThemeKind, () => rpcManger.getThemeKind());
     messenger.onRequest(generateMappings, (args: GenerateMappingsRequest) => rpcManger.generateMappings(args));
     messenger.onRequest(notifyAIMappings, (args: NotifyAIMappingsRequest) => rpcManger.notifyAIMappings(args));
     messenger.onRequest(stopAIMappings, () => rpcManger.stopAIMappings());

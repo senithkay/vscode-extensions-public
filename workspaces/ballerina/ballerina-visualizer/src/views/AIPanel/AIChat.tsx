@@ -27,7 +27,6 @@ import {
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
-import ReactMarkdown from "react-markdown";
 
 import styled from "@emotion/styled";
 import AIChatInput from "./Components/AIChatInput";
@@ -41,7 +40,6 @@ import { Collapse } from "react-collapse";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import {
-    MarkdownRenderer,
     Footer,
     FlexRow,
     AIChatView,
@@ -59,6 +57,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TestGeneratorIntermediaryState } from "./features/testGenerator";
 import TextWithBadges from "./Components/TextWithBadges";
 import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
+import { MarkdownRenderer } from "./Components/MarkdownRenderer";
 
 interface CodeBlock {
     filePath: string;
@@ -2628,6 +2627,7 @@ export function AIChat() {
                                                 codeSegments.unshift({
                                                     source: prevSegment.text.trim(),
                                                     fileName: prevSegment.fileName,
+                                                    language: prevSegment.language,
                                                 });
                                             } else if (
                                                 prevSegment.type === SegmentType.Text &&
@@ -2867,8 +2867,9 @@ interface CodeSegmentProps {
     language?: string;
 }
 
-const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language = "ballerina" }) => {
+const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const normalizedLanguage = (language: string) => language === "ballerina" ? "go" : language;
 
     return (
         <div>
@@ -2883,28 +2884,10 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language = 
                     <pre
                         style={{
                             backgroundColor: "var(--vscode-editorWidget-background)",
-                            margin: 0,
-                            padding: 2,
-                            borderRadius: 6,
+                            borderRadius: 8,
                         }}
                     >
-                        <SyntaxHighlighter
-                            language={language}
-                            style={{
-                                'pre[class*="language-"]': {
-                                    backgroundColor: "var(--vscode-editorWidget-background)",
-                                    color: "var(--vscode-editor-foreground)",
-                                    overflowX: "auto",
-                                    padding: "6px",
-                                },
-                                'code[class*="language-"]': {
-                                    backgroundColor: "var(--vscode-editorWidget-background)",
-                                    color: "var(--vscode-editor-foreground)",
-                                },
-                            }}
-                        >
-                            {source}
-                        </SyntaxHighlighter>
+                        <MarkdownRenderer markdownContent={`\`\`\`${normalizedLanguage(language)}\n${source}\n\`\`\``}/>
                     </pre>
                 </div>
             </Collapse>
