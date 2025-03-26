@@ -8,17 +8,16 @@
  */
 
 import { useEffect, useState } from "react";
-import { View, ViewContent, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { FormField, Form, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
-import { debounce } from "lodash";
-import { convertToVisibleTypes } from "../../../utils/bi";
-import { URI, Utils } from "vscode-uri";
+import { FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
+import { LineRange, FunctionParameter, TestFunction, ValueProperty, Annotation } from "@wso2-enterprise/ballerina-core";
 import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { TitleBar } from "../../../components/TitleBar";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { FormHeader } from "../../../components/FormHeader";
+import FormGeneratorNew from "../Forms/FormGeneratorNew";
 
 const FormContainer = styled.div`
     display: flex;
@@ -35,159 +34,31 @@ const Container = styled.div`
     margin: 20px;
 `;
 
-const ButtonWrapper = styled.div`
-    margin-top: 20px;
-    width: 130px;
-`;
-
-const CardGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 20px;
-    width: 100%;
-`;
-
-const Link = styled.a`
-    cursor: pointer;
-    font-size: 12px;
-    margin-left: auto;
-    margin-right: 15px;
-    margin-bottom: -5px;
-    color: var(--button-primary-background);
-`;
-
 interface TestFunctionDefProps {
     functionName?: string;
     filePath?: string;
     serviceType?: string;
 }
 
-interface Metadata {
-    label?: string;
-    description?: string;
-}
-
-interface Codedata {
-    lineRange?: LineRange;
-}
-
-interface LineRange {
-    fileName: string;
-    startLine: LinePosition;
-    endLine: LinePosition;
-}
-
-interface LinePosition {
-    line: number;
-    offset: number;
-}
-
-interface Property {
-    metadata?: Metadata;
-    codedata?: Codedata;
-    valueType?: string;
-    valueTypeConstraint?: any;
-    originalName?: string;
-    value?: any;
-    placeholder?: string;
-    optional?: boolean;
-    editable?: boolean;
-    advanced?: boolean;
-}
-
-interface FunctionParameter {
-    type?: Property;
-    variable?: Property;
-    defaultValue?: Property;
-    optional?: boolean;
-    editable?: boolean;
-    advanced?: boolean;
-}
-
-interface Annotation {
-    metadata?: Metadata;
-    codedata?: Codedata;
-    org?: string;
-    module?: string;
-    name?: string;
-    fields?: Property[];
-}
-
-interface TestFunction {
-    metadata?: Metadata;
-    codedata?: Codedata;
-    functionName?: Property;
-    returnType?: Property;
-    parameters?: FunctionParameter[];
-    annotations?: Annotation[];
-    editable?: boolean;
-}
-
-
 export function TestFunctionForm(props: TestFunctionDefProps) {
     const { functionName, filePath, serviceType } = props;
     const { rpcClient } = useRpcContext();
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
     const [formFields, setFormFields] = useState<FormField[]>([]);
     const [testFunction, setTestFunction] = useState<TestFunction>();
     const [formTitle, setFormTitle] = useState<string>('Create New Test Case');
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
 
-    // <------------- Expression Editor Util functions list start --------------->
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const context = await rpcClient.getVisualizerLocation();
-            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
-            const workspaceFiles = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
-            const isFilePresent = workspaceFiles.files.some(file => file.path === functionFilePath.fsPath);
-            if (!isFilePresent) {
-                functionFilePath = Utils.joinPath(URI.file(context.projectUri));
-            }
-
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: functionFilePath.fsPath,
-                position: { line: 0, offset: 0 },
-                typeConstraint: "anydata"
+    const updateTargetLineRange = () => {
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getEndOfFile({ filePath })
+            .then((linePosition) => {
+                setTargetLineRange({
+                    startLine: linePosition,
+                    endLine: linePosition
+                });
             });
-
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
-        }
-
-        const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-        return { visibleTypes, filteredTypes };
-    }, 250);
-
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        return await debouncedGetVisibleTypes(value, cursorPosition) as any;
-    };
-
-    const handleCompletionSelect = async () => {
-        debouncedGetVisibleTypes.cancel();
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-    // <------------- Expression Editor Util functions list end --------------->
-
-    const [isLoading, setIsLoading] = useState(false);
+    }
 
     useEffect(() => {
         if (serviceType === 'UPDATE_TEST') {
@@ -197,30 +68,27 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             setFormTitle('Create New Test Case');
             loadEmptyForm();
         }
+
+        updateTargetLineRange();
     }, [functionName]);
 
     const loadFunction = async () => {
-        setIsLoading(true);
         const res = await rpcClient.getTestManagerRpcClient().getTestFunction({ functionName, filePath });
         console.log("Test Function: ", res);
         setTestFunction(res.function);
         let formFields = generateFormFields(res.function);
         setFormFields(formFields);
-        setIsLoading(false);
     }
 
     const loadEmptyForm = async () => {
-        setIsLoading(true);
         const emptyTestFunction = getEmptyTestFunctionModel();
         setTestFunction(emptyTestFunction);
         let formFields = generateFormFields(emptyTestFunction);
         setFormFields(formFields);
-        setIsLoading(false);
     }
 
     const onFormSubmit = async (data: FormValues) => {
         console.log("Test Function Form Data: ", data);
-        setIsLoading(true);
         const updatedTestFunction = fillFunctionModel(data);
         console.log("Test Function: ", updatedTestFunction);
         if (serviceType === 'UPDATE_TEST') {
@@ -239,7 +107,6 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
         console.log("Node Position: ", nodePosition);
         await rpcClient.getVisualizerRpcClient().openView(
             { type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: filePath } })
-        setIsLoading(false);
     };
 
     // Helper function to modify and set the visual information
@@ -332,7 +199,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
         return params
     }
 
-    const generateFieldFromProperty = (key: string, property: Property): FormField => {
+    const generateFieldFromProperty = (key: string, property: ValueProperty): FormField => {
         return {
             key: key,
             label: property.metadata.label,
@@ -365,9 +232,10 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
             const params = formValues['params'];
             const paramList: FunctionParameter[] = [];
             for (const param of params) {
-                const variable = param['variable'];
-                const type = param['type'];
-                const defaultValue = param['defaultable'];
+                const paramFormValues = param.formValues;
+                const variable = paramFormValues['variable'];
+                const type = paramFormValues['type'];
+                const defaultValue = paramFormValues['defaultable'];
                 let emptyParam = getEmptyParamModel();
                 emptyParam.variable.value = variable;
                 emptyParam.type.value = type;
@@ -536,20 +404,14 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
                 <Container>
                     <FormHeader title={formTitle} />
                     <FormContainer>
-                        <Form
-                            formFields={formFields}
-                            oneTimeForm={false}
-                            expressionEditor={
-                                {
-                                    types: filteredTypes,
-                                    retrieveVisibleTypes: handleGetVisibleTypes,
-                                    onCompletionItemSelect: handleCompletionSelect,
-                                    onCancel: handleExpressionEditorCancel,
-                                    onBlur: handleExpressionEditorBlur
-                                }
-                            }
-                            onSubmit={!isLoading && onFormSubmit}
-                        />
+                        {targetLineRange && (
+                            <FormGeneratorNew
+                                fileName={filePath}
+                                fields={formFields}
+                                targetLineRange={targetLineRange}
+                                onSubmit={onFormSubmit}
+                            />
+                        )}
                     </FormContainer>
                 </Container>
             </ViewContent>

@@ -51,7 +51,7 @@ export * from './components/Drawer/Drawer';
 export * from './components/Alert/Alert';
 export * from './components/MultiSelect/MultiSelect';
 export * from './components/Toggle/Toggle';
-export * from './components/ExpressionEditorV2';
+export * from './components/ExpressionEditor';
 export * from './components/PromptTextField/PromptTextField';
 export * from './components/Commons/Overlay';
 export * from './components/TreeView/TreeView';
