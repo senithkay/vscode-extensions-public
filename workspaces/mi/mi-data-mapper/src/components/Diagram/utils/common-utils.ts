@@ -343,11 +343,12 @@ export function getTypeAnnotation(field: DMType): string {
 	let typeName = field.typeName || field.kind;
 
     if (field.kind === TypeKind.Array) {
-		typeName = `${getTypeAnnotation(field.memberType) || "any"}[]`;
+        const memberTypeAnnotation = getTypeAnnotation(field.memberType);
+		typeName = memberTypeAnnotation ? `${memberTypeAnnotation}[]` : "";
 	} else if (field.kind === TypeKind.Union){
         typeName = `(${field.unionTypes.map(unionType => getTypeAnnotation(unionType)).join(" | ")})`;
     } else if (field.kind === TypeKind.Interface && field.typeName === "Object") {
-        typeName = "any";
+        typeName = "";
     }
 
 	return typeName;
