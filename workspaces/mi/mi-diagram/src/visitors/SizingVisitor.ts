@@ -469,9 +469,10 @@ export class SizingVisitor implements Visitor {
         node._case.map((_case, index) => {
             cases[_case.regex || index] = _case;
         });
-        this.calculateAdvancedMediator(node, {
-            ...cases, default: node._default
-        }, NodeTypes.CONDITION_NODE, true, "default");
+        if (node._default) {
+            cases.default = node._default;
+        }
+        this.calculateAdvancedMediator(node, cases, NodeTypes.CONDITION_NODE, true, "default");
     }
 
     beginVisitConditionalRouter = (node: ConditionalRouter): void => {

@@ -388,9 +388,10 @@ export class PositionVisitor implements Visitor {
         node._case.map((_case, index) => {
             cases[_case.regex || index] = _case;
         });
-        this.setAdvancedMediatorPosition(node, {
-            ...cases, default: node._default
-        }, NodeTypes.CONDITION_NODE, true, "default");
+        if (node._default) {
+            cases.default = node._default;
+        }
+        this.setAdvancedMediatorPosition(node, cases, NodeTypes.CONDITION_NODE, true, "default");
     }
     endVisitSwitch = (node: Switch): void => this.setSkipChildrenVisit(false);
 
