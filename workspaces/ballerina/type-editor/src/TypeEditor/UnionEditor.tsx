@@ -59,9 +59,22 @@ interface UnionEditorProps {
     type: Type;
     onChange: (type: Type) => void;
     rpcClient: BallerinaRpcClient;
+    onValidationError: (isError: boolean) => void;
 }
 
-export function UnionEditor({ type, onChange, rpcClient }: UnionEditorProps) {
+export function UnionEditor({ type, onChange, rpcClient, onValidationError }: UnionEditorProps) {
+
+    // Add state to track validation errors for each field
+    const [validationErrors, setValidationErrors] = useState<boolean[]>([]);
+
+    const handleValidationError = (index: number, hasError: boolean) => {
+        setValidationErrors(prev => {
+            const newErrors = [...prev];
+            newErrors[index] = hasError;
+            onValidationError?.(newErrors.some(error => error));
+            return newErrors;
+        });
+    };
 
     const addMember = () => {
         const newMember: Member = {
@@ -117,6 +130,8 @@ export function UnionEditor({ type, onChange, rpcClient }: UnionEditorProps) {
                         onChange={(newType) => updateMember(index, newType)}
                         placeholder="Enter type"
                         sx={{ flexGrow: 1 }}
+                        rootType={type}
+                        onValidationError={(hasError) => handleValidationError(index, hasError)}
                     />
                     <Button appearance="icon" onClick={() => deleteMember(index)}><Codicon name="trash" /></Button>
                 </S.MemberRow>

@@ -7,11 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, useRef, useState, useEffect } from 'react';
+import React, { forwardRef, useRef, useState, useEffect, useCallback } from 'react';
 import { TextField, Position } from '@wso2-enterprise/ui-toolkit';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
 import { typeToSource } from './TypeUtil';
 import { TypeHelper } from '../TypeHelper';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { URI, Utils } from 'vscode-uri';
+import { debounce } from 'lodash';
 
 interface TypeFieldProps {
     type: string | Type;
@@ -19,11 +22,14 @@ interface TypeFieldProps {
     onChange: (value: string) => void;
     placeholder?: string;
     sx?: React.CSSProperties;
+    onValidationError?: (isError: boolean) => void;
+    rootType: Type;
+    isAnonymousRecord?: boolean;
 }
 
 // TODO: Use this component for all the Type fields in TypeEditor
 export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, ref) => {
-    const { type, onChange, placeholder, sx, memberName } = props;
+    const { type, onChange, placeholder, sx, memberName, rootType, onValidationError, isAnonymousRecord } = props;
 
     const typeFieldRef = useRef<HTMLInputElement>(null);
     const typeHelperRef = useRef<HTMLDivElement>(null);
@@ -31,13 +37,19 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
     const [typeFieldCursorPosition, setTypeFieldCursorPosition] = useState<number>(0);
     const [helperPaneOffset, setHelperPaneOffset] = useState<Position>({ top: 0, left: 0 });
     const [helperPaneOpened, setHelperPaneOpened] = useState<boolean>(false);
+    const [typeError, setTypeError] = useState<string>("");
+    const { rpcClient } = useRpcContext();
+
 
     const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.value);
+        validateType(e.target.value);
     };
 
     const handleTypeHelperChange = (newType: string, newCursorPosition: number) => {
         onChange(newType);
+        validateType(newType);
+
         setTypeFieldCursorPosition(newCursorPosition);
 
         // Focus the type field
@@ -56,7 +68,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
         setHelperPaneOpened(true);
     };
 
-    const handleTypeFieldBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const handleTypeFieldBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
         /* Prevent blur event when clicked on the type helper */
         const searchElements = Array.from(document.querySelectorAll('#helper-pane-search'));
         if (
@@ -68,11 +80,120 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
             e.stopPropagation();
             typeFieldRef.current?.shadowRoot?.querySelector('input')?.focus();
         }
+
+        validateType(e.target.value);
     };
+
+    const validateType = useCallback(debounce(async (value: string) => {
+        if (isAnonymousRecord) {
+            return;
+        }
+        const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
+        
+        const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
+            filePath: Utils.joinPath(URI.file(projectUri), 'types.bal').fsPath
+        });
+
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: rootType?.codedata?.lineRange?.fileName || "types.bal",
+            context: {
+                expression: value,
+                startLine:{
+                    line: rootType?.codedata?.lineRange?.startLine?.line ?? endPosition.line,
+                    offset: rootType?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
+                },
+                offset: 0,
+                codedata: {
+                    node: "VARIABLE",
+                    lineRange: {
+                        startLine: {
+                            line: rootType?.codedata?.lineRange?.startLine?.line ?? endPosition.line,
+                            offset: rootType?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
+                        },
+                        endLine: {
+                            line: rootType?.codedata?.lineRange?.endLine?.line ?? endPosition.line,
+                            offset: rootType?.codedata?.lineRange?.endLine?.offset ?? endPosition.offset
+                        },
+                        fileName: rootType?.codedata?.lineRange?.fileName
+                    },  
+                },
+                property:  {
+                    metadata: {
+                        label: "",
+                        description: "",
+                    },
+                    valueType: "TYPE",
+                    value: "",
+                    optional: false,
+                    editable: true
+                }
+            }
+        }); 
+        console.log("+++=RESPONSE TYPE", response);
+        if (response.diagnostics.length > 0) {
+            setTypeError(response.diagnostics[0].message);
+            onValidationError?.(true);
+        } else {
+            setTypeError("");
+            onValidationError?.(false);
+        }
+    }, 250), [rpcClient, rootType]);
+
+    // const validateType = async (value: string) => {
+    //     const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
+        
+    //     const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
+    //         filePath: Utils.joinPath(URI.file(projectUri), 'types.bal').fsPath
+    //     });
+
+    //     const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+    //         filePath: rootType?.codedata?.lineRange?.fileName || "types.bal",
+    //         context: {
+    //             expression: value,
+    //             startLine:{
+    //                 line: rootType?.codedata?.lineRange?.startLine?.line || endPosition.line,
+    //                 offset: rootType?.codedata?.lineRange?.startLine?.offset || endPosition.offset
+    //             },
+    //             offset: 0,
+    //             codedata: {
+    //                 node: "VARIABLE",
+    //                 lineRange: {
+    //                     startLine: {
+    //                         line: rootType?.codedata?.lineRange?.startLine?.line || endPosition.line,
+    //                         offset: rootType?.codedata?.lineRange?.startLine?.offset || endPosition.offset
+    //                     },
+    //                     endLine: {
+    //                         line: rootType?.codedata?.lineRange?.endLine?.line || endPosition.line,
+    //                         offset: rootType?.codedata?.lineRange?.endLine?.offset || endPosition.offset
+    //                     },
+    //                     fileName: rootType?.codedata?.lineRange?.fileName
+    //                 },  
+    //             },
+    //             property:  {
+    //                 metadata: {
+    //                     label: "",
+    //                     description: "",
+    //                 },
+    //                 valueType: "TYPE",
+    //                 value: "",
+    //                 optional: false,
+    //                 editable: true
+    //             }
+    //         }
+    //     }); 
+    //     console.log("+++=RESPONSE TYPE", response);
+    //     if (response.diagnostics.length > 0) {
+    //         setTypeError(response.diagnostics[0].message);
+    //         onValidationError?.(true);
+    //     } else {
+    //         setTypeError("");
+    //         onValidationError?.(false);
+    //     }
+    // }
 
     const handleSelectionChange = () => {
         const selection = window.getSelection();
-        if (!selection) {
+        if (!selection || selection.rangeCount === 0) {
             return;
         }
 
@@ -105,6 +226,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                 placeholder={placeholder}
                 sx={sx}
                 value={memberName}
+                errorMsg={typeError}
                 onChange={handleTypeChange}
                 onFocus={handleTypeFieldFocus}
                 onBlur={handleTypeFieldBlur}

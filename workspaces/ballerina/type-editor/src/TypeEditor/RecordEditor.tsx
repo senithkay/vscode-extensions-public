@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
 import { Codicon, Icon, CheckBox } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
@@ -17,7 +17,7 @@ import styled from '@emotion/styled';
 import { TypeHelperCategory, TypeHelperOperator } from '../TypeHelper';
 
 
- const Header = styled.div`
+const Header = styled.div`
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -39,11 +39,52 @@ interface RecordEditorProps {
     onImportJson: () => void;
     onImportXml: () => void;
     isGraphql?: boolean;
+    onValidationError: (isError: boolean) => void;
+}
+
+interface FieldValidationError {
+    identifier: boolean;
+    type: boolean;
 }
 
 export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorProps>((props, ref) => {
-    const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql } = props;
+    const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql, onValidationError } = props;
     const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
+
+    const [validationErrors, setValidationErrors] = useState<FieldValidationError[]>([{identifier: false, type: false}]);
+    const [hasRecordError, setHasRecordError] = useState(false);
+
+
+    const handleFieldValidation = (functionIndex: number, isIdentifier: boolean, hasError: boolean) => {
+        setValidationErrors(prev => {
+            const newErrors = [...prev];
+            if (!newErrors[functionIndex]) {
+                newErrors[functionIndex] = { identifier: false, type: false };
+            }
+            if (isIdentifier) {
+                newErrors[functionIndex] = { ...newErrors[functionIndex], identifier: hasError };
+            } else {
+                newErrors[functionIndex] = { ...newErrors[functionIndex], type: hasError };
+            }
+
+            // Check if any function has either type or identifier errors
+            // const hasAnyError = newErrors.some(error => error.identifier || error.type);
+            // onValidationError?.(hasAnyError);
+            return newErrors;
+        });
+    };
+
+    // Handle nested record validation
+    const handleNestedRecordError = (hasError: boolean) => {
+        setHasRecordError(hasError);
+    };
+
+    useEffect(() => {
+        // Check if any field has validation errors OR if there's a nested record error
+        const hasAnyFieldError = validationErrors.some(error => error && (error.identifier || error.type));
+        const hasAnyError = hasAnyFieldError || hasRecordError;
+        onValidationError?.(hasAnyError);
+    }, [validationErrors, hasRecordError, onValidationError]);
 
     const addMember = () => {
         const memberCount = Object.keys(type.members).length;
@@ -98,7 +139,7 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
                         <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>
                         {/* <Button appearance="icon"><Codicon name="kebab-vertical" /></Button> */}
                     </div>
-            </Header>
+                </Header>
             }
             {type.members.map((member, index) => (
                 <>
@@ -109,6 +150,10 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
                         onChange={handleMemberChange(index)}
                         onSelect={onSelect(index)}
                         onDeselect={onDeselect(index)}
+                        type={type}
+                        onValidationError={onValidationError}
+                        onFieldValidation={(isIdentifier, hasError) => handleFieldValidation(index, isIdentifier, hasError)}
+                        onRecordValidation={handleNestedRecordError}
                     />
                 </>
             ))}

@@ -910,6 +910,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
         return new Promise((resolve, reject) => {
+            console.log(">>> requesting expression diagnostics from ls", params);
             StateMachine.langClient()
                 .getExpressionDiagnostics(params)
                 .then((diagnostics) => {

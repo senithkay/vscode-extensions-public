@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { TextField, Dropdown, Button, SidePanelBody, ProgressRing, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -21,7 +21,8 @@ import { ClassEditor } from "./ClassEditor";
 import { AdvancedOptions } from "./AdvancedOptions";
 import { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from "../TypeHelper";
 import { TypeHelperContext } from "../Context";
-import { isValidBallerinaIdentifier } from "./TypeUtil";
+import { URI, Utils } from "vscode-uri";
+import { debounce } from "lodash";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -188,6 +189,8 @@ export function TypeEditor(props: TypeEditorProps) {
     const [nameError, setNameError] = useState<string>("");
     const [isEditing, setIsEditing] = useState(false);
     const [tempName, setTempName] = useState("");
+    const [onValidationError, setOnValidationError] = useState<boolean>(false);
+    const [isTypeNameValid, setIsTypeNameValid] = useState<boolean>(true);
     const { rpcClient } = useRpcContext();
 
     useEffect(() => {
@@ -266,10 +269,10 @@ export function TypeEditor(props: TypeEditorProps) {
     };
 
     const onTypeChange = async (type: Type) => {
-        if (!isValidBallerinaIdentifier(type.name)) {
-            setNameError("Invalid Identifier.");
-            return;
-        }
+        // if (!isValidBallerinaIdentifier(type.name)) {
+        //     setNameError("Invalid Identifier.");
+        //     return;
+        // }
         const name = type.name;
         // IF type nodeKind is CLASS then we call graphqlEndpoint
         // TODO: for TypeDiagram we need to give a generic class creation
@@ -295,6 +298,10 @@ export function TypeEditor(props: TypeEditorProps) {
         setEditorState(ConfigState.EDITOR_FORM);
     }
 
+    const handleValidationError = (isError: boolean) => {
+        setOnValidationError(isError);
+    }
+
     const renderEditor = () => {
         if (editorState === ConfigState.IMPORT_FROM_JSON) {
             return null; // Handle JSON import
@@ -314,6 +321,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             isGraphql={isGraphql}
                             onImportJson={() => setEditorState(ConfigState.IMPORT_FROM_JSON)}
                             onImportXml={() => setEditorState(ConfigState.IMPORT_FROM_XML)}
+                            onValidationError={handleValidationError}
                         />
                         <AdvancedOptions type={type} onChange={setType} />
                     </>
@@ -331,6 +339,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         type={type}
                         onChange={setType}
                         rpcClient={props.rpcClient}
+                        onValidationError={handleValidationError}
                     />
                 );
             case TypeKind.CLASS:
@@ -339,6 +348,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         type={type}
                         isGraphql={isGraphql}
                         onChange={setType}
+                        onValidationError={handleValidationError}
                     />
                 );
             default:
@@ -390,13 +400,73 @@ export function TypeEditor(props: TypeEditorProps) {
         }
     };
 
-    const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!isValidBallerinaIdentifier(e.target.value)) {
-            setNameError("Invalid Identifier.");
-        } else {
-            setNameError(""); // Clear error if valid
-        }
+    const handleOnBlur = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        await validateTypeName(e.target.value); 
     };
+
+    const validateTypeName = useCallback(debounce(async (value: string) => {
+        const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
+
+        const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
+            filePath: Utils.joinPath(URI.file(projectUri), 'types.bal').fsPath
+        });
+
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: type?.codedata?.lineRange?.fileName || "types.bal",
+            context: {
+                expression: value,
+                startLine:{
+                    line: type?.codedata?.lineRange?.startLine?.line ?? endPosition.line,
+                    offset: type?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
+                },
+                offset: 0,
+                codedata: {
+                    node: "VARIABLE",
+                    lineRange: {
+                        startLine: {
+                            line: type?.codedata?.lineRange?.startLine?.line ?? endPosition.line,
+                            offset: type?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
+                        },
+                        endLine: {
+                            line: type?.codedata?.lineRange?.endLine?.line ?? endPosition.line,
+                            offset: type?.codedata?.lineRange?.endLine?.offset ?? endPosition.offset
+                        },
+                        fileName: type?.codedata?.lineRange?.fileName
+                    },  
+                },
+                property: type?.properties["name"] || {
+                    metadata: {
+                        label: "",
+                        description: "",
+                    },
+                    valueType: "IDENTIFIER",
+                    value: "",
+                    optional: false,
+                    editable: true
+                }
+            }
+        });
+
+        console.log("+++=DIAGNOSTICS", response);
+
+        if (response && response.diagnostics && response.diagnostics.length > 0) {
+            setNameError(response.diagnostics[0].message);
+            setIsTypeNameValid(false);
+        } else {
+            setNameError("");
+            setIsTypeNameValid(true);
+        }
+    }, 250), [rpcClient, type]);
+
+    const handleOnTypeNameUpdate = (value: string) => {
+        setTempName(value);
+        validateTypeName(value);
+    }
+
+    const handleOnTypeNameChange = (value: string) => {
+        setType({ ...type, name: value });
+        validateTypeName(value);
+    }
 
     return (
         <TypeHelperContext.Provider value={props.typeHelper}>
@@ -447,10 +517,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                     value={tempName}
                                                     errorMsg={nameError}
                                                     onBlur={handleOnBlur}
-                                                    onChange={(e) => {
-                                                        setTempName(e.target.value);
-                                                        setNameError("");  // Clear error when user types
-                                                    }}
+                                                    onChange={(e) => handleOnTypeNameUpdate(e.target.value)}
                                                     description={type.properties["name"].metadata.description}
                                                     required={!type.properties["name"].optional}
                                                     autoFocus
@@ -466,7 +533,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                 <StyledButton
                                                     appearance="primary"
                                                     onClick={editTypeName}
-                                                    disabled={!tempName || tempName === type.name}
+                                                    disabled={isTypeNameValid || !tempName || tempName === type.name}
                                                 >
                                                     Save
                                                 </StyledButton>
@@ -487,13 +554,11 @@ export function TypeEditor(props: TypeEditorProps) {
                                         value={type.name}
                                         errorMsg={nameError}
                                         onBlur={handleOnBlur}
-                                        onChange={(e) => {
-                                            setType({ ...type, name: e.target.value });
-                                            setNameError("");  // Clear error when user types
-                                        }}
+                                        onChange={(e) => handleOnTypeNameChange(e.target.value)}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
-                                                onTypeChange(type);
+                                                // onTypeChange(type);
+                                                handleOnTypeNameChange((e.target as HTMLInputElement).value);
                                             }
                                         }}
                                         onFocus={(e) => e.target.select()}
@@ -507,7 +572,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             <>
                                 {renderEditor()}
                                 <S.Footer>
-                                    <Button onClick={() => onTypeChange(type)}>Save</Button>
+                                    <Button onClick={() => onTypeChange(type)} disabled={onValidationError || !isTypeNameValid}>Save</Button>
                                 </S.Footer>
                             </>
                         }
