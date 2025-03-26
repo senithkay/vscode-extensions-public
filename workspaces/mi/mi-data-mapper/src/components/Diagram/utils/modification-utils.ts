@@ -14,13 +14,11 @@ import {
 	InterfaceDeclaration,
 	Node,
 	ObjectLiteralExpression,
-	PropertyAccessExpression,
 	PropertyAssignment,
 	ReturnStatement,
 	SourceFile,
 	TypeLiteralNode
 } from "ts-morph";
-import { lowerFirst, upperFirst } from "lodash";
 
 import { DataMapperLinkModel } from "../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../Port";
@@ -33,11 +31,9 @@ import {
 	getCallExprReturnStmt,
 	isEmptyValue,
 	isMapFunction,
-	getDefaultValue,
-	getTypeAnnotation,
 	getEditorLineAndColumn
 } from "./common-utils";
-import { ArrayOutputNode, FocusedInputNode, InputNode, LinkConnectorNode, ObjectOutputNode, SubMappingNode } from "../Node";
+import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
