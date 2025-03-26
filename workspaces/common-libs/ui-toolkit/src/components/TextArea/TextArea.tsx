@@ -106,7 +106,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
 
 export const AutoResizeTextArea = React.forwardRef<HTMLTextAreaElement, AutoResizeTextAreaProps>(
     (props, ref) => {
-        const { growRange, onChange, ...rest } = props;
+        const { growRange, ...rest } = props;
         const lineHeight = useRef<number | undefined>(undefined);
         const [rows, setRows] = useState<number>(growRange.start);
 
@@ -151,15 +151,11 @@ export const AutoResizeTextArea = React.forwardRef<HTMLTextAreaElement, AutoResi
             }
 
             updateRows();
-            
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [props.value])
-    
-        const handleChange = useCallback((e: any) => {
-            onChange?.(e);
-        }, [onChange]);
 
-        return <TextArea {...rest} rows={rows} ref={textAreaRef} onChange={handleChange} />
+        return <TextArea {...rest} rows={rows} ref={textAreaRef} />
     }
 )
 
