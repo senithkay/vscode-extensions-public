@@ -6,7 +6,7 @@
     "publisher": "wso2",
     "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
-        "url": "http://repo.url"
+        "url": "https://github.com/wso2/product-ballerina-integrator"
     },
     "engines": {
         "vscode": "^1.84.0"
