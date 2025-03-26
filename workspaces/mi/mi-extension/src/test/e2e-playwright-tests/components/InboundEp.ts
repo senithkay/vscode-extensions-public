@@ -17,7 +17,7 @@ export class InboundEPForm {
     }
 
     public async init() {
-        const webview = await switchToIFrame(`Inbound EP Form`, this._page)
+        const webview = await switchToIFrame(`Event Integration Form`, this._page)
         if (!webview) {
             throw new Error("Failed to switch to Inbound EP iframe");
         }
@@ -25,11 +25,11 @@ export class InboundEPForm {
     }
 
     public async selectType(type: string) {
-        const inboundEPSection = await this.webView.waitForSelector(`h2:text("Create new Listener") >> ../..`);
+        const inboundEPSection = await this.webView.waitForSelector(`h2:text("Create Event Integration") >> ../..`);
         const inboundTypeBtn = await inboundEPSection.waitForSelector(`div:text("${type}") >> ../../../..`);
         await inboundTypeBtn.click();
         await this.webView.waitForSelector(`span:text("Type:") >> ../../..`);
-        await this.webView.waitForSelector(`div:text("${type} Inbound Endpoint") >> ../../..`);
+        await this.webView.waitForSelector(`div:text("${type}") >> ../../..`);
     }
 
 }

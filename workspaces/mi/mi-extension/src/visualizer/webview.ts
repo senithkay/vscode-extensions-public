@@ -119,21 +119,7 @@ export class VisualizerWebview {
     }
 
     private static createWebview(view: MACHINE_VIEW, beside: boolean): vscode.WebviewPanel {
-        let title: string;
-        switch (view) {
-            case MACHINE_VIEW.Overview:
-                title = MACHINE_VIEW.Overview;
-                break;
-            case MACHINE_VIEW.ADD_ARTIFACT:
-                title = MACHINE_VIEW.ADD_ARTIFACT;
-                break;
-            case MACHINE_VIEW.UnsupportedProject:
-                title = MACHINE_VIEW.UnsupportedProject;
-                break;
-            default:
-                title = 'Design View';
-                break;
-        }
+        let title: string = view ?? 'Design View';
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
             title,

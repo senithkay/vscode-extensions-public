@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { Frame, Locator, Page } from "@playwright/test";
+import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
 export class ConnectorStore {
     private webView!: Frame;
+    private container!: Locator;
 
     constructor(private _page: Page, private type: 'Connector Store Form' | 'Resource View') {
     }
@@ -22,6 +23,7 @@ export class ConnectorStore {
             throw new Error("Failed to switch to Connector Store iframe");
         }
         this.webView = webview;
+        this.container = webview.locator('div#root');
     }
 
     public async add(artifactType: string) {
@@ -37,12 +39,15 @@ export class ConnectorStore {
         await searchInput.type(str);
     }
 
-    public async selectConnector(connectorName: string) {
-        const connectorSection = await this.webView.waitForSelector(`h2:text("Add New Connection") >> ../..`);
-        const connectorBtn = await connectorSection.waitForSelector(`div:text("${connectorName}") >> ../../../..`);
-        await connectorBtn.click();
-        await this.webView.waitForSelector(`span:text("Connector:") >> ../../..`);
-        await this.webView.waitForSelector(`div:text("${connectorName.toLowerCase()}") >> ../../..`);
+    public async selectOperation(operationName: string) {
+        const operationBtn = await this.webView.waitForSelector(`div:text("${operationName}") >> ../..`);
+        await operationBtn.click();
+    }
+
+    public async confirmDownloadDependency() {
+        await this.webView.waitForSelector(`p:text("Dependencies will be added to the project. Do you want to continue?")`);
+        const confiramtionBtn = await getVsCodeButton(this.container, "Yes", "primary");
+        await confiramtionBtn.click();
     }
 
 }
