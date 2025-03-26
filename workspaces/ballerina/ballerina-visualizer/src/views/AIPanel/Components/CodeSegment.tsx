@@ -8,60 +8,107 @@
  *
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useState } from "react";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { Collapse } from "react-collapse";
 
-const CodeSegmentHeader = styled.div<{ isOpen: boolean }>`
+const Container = styled.div`
+    margin-top: 10px;
+    border-radius: 4px;
+    background-color: var(--vscode-toolbar-activeBackground);
+`;
+
+const Header = styled.div<{ isOpen: boolean; collapsible: boolean }>`
     display: flex;
     align-items: center;
-    margin-top: 10px;
-    cursor: pointer;
-    padding: 8px 8px;
+    justify-content: space-between;
+    cursor: ${({ collapsible }: { collapsible: boolean }) => (collapsible ? "pointer" : "default")};
+    padding: 8px 12px;
     background-color: var(--vscode-toolbar-activeBackground);
-    border-radius: ${({ isOpen }: { isOpen: boolean }) => (isOpen ? "4px 4px 0 0" : "4px")};
+    border-radius: ${({ isOpen, collapsible }: { isOpen: boolean; collapsible: boolean }) =>
+        collapsible ? (isOpen ? "4px 4px 0 0" : "4px") : "4px 4px 0 0"};
+`;
+
+const FileName = styled.div`
+    flex-grow: 1;
+    font-weight: bold;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+`;
+
+const CopyButton = styled.button<{ copied: boolean }>`
+    background: transparent;
+    border: none;
+    color: var(--vscode-editor-foreground);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+`;
+
+const CodeWrapper = styled.div`
+    padding: 8px;
+    background-color: var(--vscode-toolbar-activeBackground);
+    border-radius: 0 0 4px 4px;
+
+    pre {
+        margin: 0 !important;
+    }
 `;
 
 export interface CodeSegmentProps {
     source: string;
     fileName: string;
     language?: string;
+    collapsible?: boolean;
+    showCopyButton?: boolean;
 }
 
-export const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language }) => {
-    const [isOpen, setIsOpen] = useState(false);
+export const CodeSegment: React.FC<CodeSegmentProps> = ({
+    source,
+    fileName,
+    language = "plaintext",
+    collapsible = true,
+    showCopyButton = false,
+}) => {
+    const [isOpen, setIsOpen] = useState(!collapsible);
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(source);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error("Failed to copy code: ", err);
+        }
+    };
 
     return (
-        <div>
-            <CodeSegmentHeader isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
-                <div
-                    style={{
-                        flex: 9,
-                        fontWeight: "bold",
-                        fontSize: "0.8rem",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                    }}
-                >
-                    {isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+        <Container>
+            <Header isOpen={isOpen} collapsible={collapsible} onClick={() => collapsible && setIsOpen(!isOpen)}>
+                <FileName>
+                    {collapsible && <Codicon name={isOpen ? "chevron-down" : "chevron-right"} />}
                     {fileName}
-                </div>
-            </CodeSegmentHeader>
+                </FileName>
+                {showCopyButton && (
+                    <CopyButton onClick={handleCopy} copied={copied} title={copied ? "Copied" : "Copy code"}>
+                        <Codicon name={copied ? "check" : "copy"} />
+                        {copied ? "Copied" : "Copy"}
+                    </CopyButton>
+                )}
+            </Header>
             <Collapse isOpened={isOpen}>
-                <div style={{ backgroundColor: "var(--vscode-toolbar-activeBackground)", padding: "6px" }}>
-                    <pre
-                        style={{
-                            margin: 0,
-                        }}
-                    >
-                        <MarkdownRenderer markdownContent={`\`\`\`${language}\n${source}\n\`\`\``} />
-                    </pre>
-                </div>
+                <CodeWrapper>
+                    <MarkdownRenderer markdownContent={`\`\`\`${language}\n${source}\n\`\`\``} />
+                </CodeWrapper>
             </Collapse>
-        </div>
+        </Container>
     );
 };

@@ -35,7 +35,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownCont
                 import("highlight.js/styles/github.css").then(() => {
                     // Apply custom override
                     const styleElement = document.createElement("style");
-                    styleElement.innerHTML = `.hljs { background: red !important; }`;
+                    styleElement.innerHTML = `.hljs { background: var(--vscode-editor-background) !important; }`;
                     document.head.appendChild(styleElement);
                 });
             } else {
