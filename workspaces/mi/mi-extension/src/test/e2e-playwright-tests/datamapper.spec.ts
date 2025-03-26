@@ -49,7 +49,7 @@ export default function createTests() {
       // wait until extension is ready
       // Note: This is not required for CI/CD pipeline
       // await page.waitUntilExtensionReady();
-
+      console.log('Creating new project for datamapper');
       await createProject(page);
     });
 
@@ -58,6 +58,8 @@ export default function createTests() {
       // await page.page.waitForSelector('iframe.webview.ready', { state: 'detached' })
       // page = new ExtendedPage(await vscode!.firstWindow());
       // await page.waitUntilExtensionReady();
+
+      console.log('Creating new API for datamapper');
 
       const overviewPage = new AddArtifact(page.page);
       await overviewPage.init();
@@ -82,6 +84,8 @@ export default function createTests() {
 
     test('Service designer for datamapper', async () => {
       // service designer
+      console.log('Opening Service designer for datamapper');
+
       const serviceDesigner = new ServiceDesigner(page.page);
       await serviceDesigner.init();
       const resource = await serviceDesigner.resource('GET', '/');
@@ -98,6 +102,8 @@ export default function createTests() {
 
   function tryBasicMappings() {
     test('Try Basic Mappings', async () => {
+
+      console.log('Trying Basic Mappings');
 
       let dm: DataMapper;
 
