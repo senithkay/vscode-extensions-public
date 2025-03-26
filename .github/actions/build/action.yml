@@ -144,9 +144,11 @@ runs:
       with:
         path: build.zip
         name: ExtBuild
+        retention-days: 1
 
     - name: Save VSIX
       uses: actions/upload-artifact@v4
       with:
         path: VSIX.zip
         name: VSIX
+        retention-days: 3

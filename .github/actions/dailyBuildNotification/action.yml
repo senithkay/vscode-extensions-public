@@ -17,20 +17,22 @@ runs:
       shell: bash
       id: vsix
       run: |
-          file=$(ls ${{ inputs.fileName }}*.vsix)
-          fileName=${file##*-}
-          version=${fileName%.*}  
-
-          echo $version
-          echo "version=$version" >> $GITHUB_OUTPUT
-          echo "fileName=$file" >> $GITHUB_OUTPUT
+        file=$(ls ${{ inputs.fileName }}-[0-9]*.[0-9]*.[0-9]*.vsix)
+        fileName=${file##*-}
+        version=${fileName%.*}
+        extension=${{ inputs.fileName }}
+        extensionName="$(echo "$extension" | sed 's/.*/\u&/')"
+        echo "vsixName=$file" >> $GITHUB_OUTPUT
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "extensionName=$extensionName" >> $GITHUB_OUTPUT
 
     - name: Save VSIX
       uses: actions/upload-artifact@v4
       id: artifact-upload
       with:
-        path: ${{ steps.vsix.outputs.fileName }}
+        path: ${{ steps.vsix.outputs.vsixName }}
         name: Vsix-Artifact-${{ inputs.fileName }}
+        retention-days: 3
 
     - name: "Release Notification"
       shell: bash
