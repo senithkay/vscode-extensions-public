@@ -8,6 +8,7 @@
  *
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useState } from "react";
