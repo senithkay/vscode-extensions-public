@@ -47,7 +47,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const classes = useIONodesStyles();
 
     const fieldName = getBalRecFieldName(field.name);
-    const fieldId = `${parentId}${isOptional ? `?.${fieldName}` : `.${fieldName}`}`;
+    const fieldId = `${parentId}.${fieldName}`;
     const portOut = getPort(`${fieldId}.OUT`);
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
