@@ -151,4 +151,3 @@ runs:
       with:
         path: VSIX.zip
         name: VSIX
-        retention-days: 3
