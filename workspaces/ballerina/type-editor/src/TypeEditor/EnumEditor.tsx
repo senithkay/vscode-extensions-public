@@ -161,7 +161,12 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
                     </S.MemberRow>
                     {expandedFunctions.includes(index) && (
                         <S.ConstantExpressionContainer>
-                            <TextField label='Constant Expression' value={member.defaultValue} onChange={(e) => handleMemberDefaultValueChange(index, e)} style={{ width: '180px' }} />
+                            <TextField
+                                label='Constant Expression'
+                                value={member.defaultValue}
+                                onChange={(e) => handleMemberDefaultValueChange(index, e)}
+                                style={{ width: '180px' }}
+                            />
                         </S.ConstantExpressionContainer>
                     )}
                 </>
