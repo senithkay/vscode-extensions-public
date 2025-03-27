@@ -150,17 +150,22 @@ export function cloneRepoCommand(context: ExtensionContext) {
 								throw new Error("Failed to parse selected Git URL");
 							}
 
-							const matchingComp = components?.find((item) => selectedRepoUrl === getComponentKindRepoSource(item.spec.source).repo);
-
-							const latestDeploymentTrack = matchingComp?.deploymentTracks?.find((item) => item.latest);
-
+							const latestDeploymentTrack = params?.component?.deploymentTracks?.find((item) => item.latest);
+							let branch: string|undefined;
+							if(params?.component){
+								branch = latestDeploymentTrack?.branch
+							}else{
+								const matchingComp = components?.find((item) => selectedRepoUrl === getComponentKindRepoSource(item.spec.source).repo);
+								const latestDeploymentTrack = matchingComp?.deploymentTracks?.find((item) => item.latest);
+								branch = latestDeploymentTrack?.branch
+							}
 							const clonedResp = await cloneRepositoryWithProgress(selectedCloneDir.fsPath, [
 								{ branch: latestDeploymentTrack?.branch, repoUrl: selectedRepoUrl },
 							]);
 
 							// set context.yaml
 							updateContextFile(clonedResp[0].clonedPath, authStore.getState().state.userInfo!, selectedProject, selectedOrg, projectCache);
-							const subDir = matchingComp?.spec?.source ? getComponentKindRepoSource(matchingComp?.spec?.source)?.path || "" : "";
+							const subDir = params?.component?.spec?.source ? getComponentKindRepoSource(params?.component?.spec?.source)?.path || "" : "";
 							const subDirFullPath = join(clonedResp[0].clonedPath, subDir);
 							if (params?.technology === "ballerina") {
 								await ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-component", subDirFullPath, params?.integrationDisplayType || DevantScopes.ANY);

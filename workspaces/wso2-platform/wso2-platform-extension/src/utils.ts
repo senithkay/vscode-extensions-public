@@ -26,6 +26,7 @@ import * as yaml from "js-yaml";
 import { ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import { getLogger } from "./logger/logger";
 import { initGit, getGitRemotes } from "@wso2-enterprise/git-vscode";
+import { IFileStatus } from "@wso2-enterprise/git-vscode/lib/git";
 
 export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
 	const filterEndpointSchemaPath = (eps: Endpoint[] = []) =>
@@ -296,7 +297,7 @@ export const getConfigFileDrifts = async (type: string, gitUrl: string, branch: 
 				const gitRepo = git.open(repoRoot, { path: repoRoot });
 				const status = await gitRepo.getStatus({ untrackedChanges: 'separate', subDirectory: subPath });
 
-				status.status.forEach(item=>{
+				status.status.forEach((item: IFileStatus)=>{
 					if(item.path.endsWith('endpoints.yaml')){
 						fileNames.add("endpoints.yaml")
 					}else if(item.path.endsWith('component-config.yaml')){
@@ -384,7 +385,8 @@ export const getConfigFileDrifts = async (type: string, gitUrl: string, branch: 
 			}
 		}
 		return Array.from(fileNames)
-	}catch{
+	}catch(err){
+		console.log(err)
 		return []
 	}
 };
