@@ -2,6 +2,15 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.1.3] - 2025-03-27
+
+### Fixed
+
+Fixed: VSCode fails to load artifacts without the default switch case ([#973](https://github.com/wso2/mi-vscode/issues/973))  
+### Improvements
+
+Improved: Improve picking datatypes for custom function parameters and return type ([#914](https://github.com/wso2/mi-vscode/issues/914))  
+
 ## [2.1.2] - 2025-03-17
 
 ### Fixed
