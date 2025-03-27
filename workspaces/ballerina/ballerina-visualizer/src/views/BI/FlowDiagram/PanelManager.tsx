@@ -213,7 +213,7 @@ export function PanelManager(props: PanelManagerProps) {
                         onSearchTextChange={(searchText) => onSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
                         onAddFunction={onAddNPFunction}
                         onClose={onClose}
-                        title={"Prompt as code"}
+                        title={"Natural Functions"}
                         onBack={onBack}
                     />
                 );
