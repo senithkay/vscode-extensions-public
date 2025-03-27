@@ -320,13 +320,14 @@ export async function handleNewValues(context: ConfigGenerationContext, newValue
             }
         }
 
+        // Sort new values to put required ones first
         newValues.sort((a, b) => {
             if (a.required === false && b.required === true) {
-                return -1; // a should come before b
+                return -1;
             } else if (a.required === true && b.required === false) {
-                return 1; // a should come after b
+                return 1;
             } else {
-                return 0; // the order of a and b remains unchanged
+                return 0;
             }
         });
 
@@ -369,67 +370,202 @@ function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValue
     const allOrgs = Array.from(groupedValues.keys());
     const defaultOrgKey = context.orgName;
 
-    // Reorder to put default org first (IMPORTANT as wrong order can cause issues in config resolution)
-    const orgs = allOrgs.filter(org => org !== defaultOrgKey);
+    // Start with a deep clone of the existing config object or an empty object
+    let configObject = context.existingConfigs ? JSON.parse(JSON.stringify(context.existingConfigs)) : {};
+
+    // Process default module first (properties at root level)
     if (groupedValues.has(defaultOrgKey)) {
-        orgs.unshift(defaultOrgKey);
+        const defaultModuleMap = groupedValues.get(defaultOrgKey)!;
+        if (defaultModuleMap.has(context.packageName)) {
+            const props = defaultModuleMap.get(context.packageName)!;
+
+            // Add the default module properties to the root of the config object
+            for (const prop of props) {
+                if (prop.name in configObject) {
+                    continue;
+                }
+
+                if (prop.required || includeOptional) {
+                    configObject[prop.name] = getDefaultValueForConfig(prop.property);
+                }
+            }
+        }
     }
 
-    for (const orgKey of orgs) {
+    // Process non-default modules (properties in sections)
+    for (const orgKey of allOrgs) {
+        if (orgKey === defaultOrgKey) continue; // Skip default org as we processed it above
+
         const orgMap = groupedValues.get(orgKey)!;
-        const sortedPackages = Array.from(orgMap.keys()).sort();
+        for (const pkgKey of Array.from(orgMap.keys()).sort()) {
+            const sectionKey = `${orgKey}.${pkgKey}`;
+            const props = orgMap.get(pkgKey)!;
 
-        for (const pkgKey of sortedPackages) {
-            const configProps = orgMap.get(pkgKey)!;
-
-            if (configProps.length === 0) {
+            // Skip if no properties to add
+            if (props.length === 0) {
                 continue;
             }
 
-            // Add section header if not in content already
-            const sectionHeader = `[${orgKey}.${pkgKey}]`;
-            const isDefaultModule = orgKey === context.orgName && pkgKey === context.packageName;
-            if (!updatedContent.includes(sectionHeader) && !isDefaultModule) {
-                updatedContent += `${sectionHeader}\n`;
+            // Create section in config object if it doesn't exist
+            if (!configObject[sectionKey]) {
+                configObject[sectionKey] = {};
             }
 
-            // Process required configs
-            const requiredProps = configProps.filter(prop => prop.required);
-            const optionalProps = configProps.filter(prop => !prop.required);
+            // Add properties to the section
+            for (const prop of props) {
+                // Skip if property already exists
+                if (prop.name in configObject[sectionKey]) {
+                    continue;
+                }
 
-            // Add required properties
-            for (const prop of requiredProps) {
-                let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
-                let configValue = getConfigValue(prop.name, prop.property, comment);
-                updatedContent += configValue + comment.value + '\n\n';
-            }
-
-            // Add optional properties as comments
-            if (includeOptional) {
-                for (const prop of optionalProps) {
-                    let comment = { value: `# ${typeOfComment} ${prop.type && prop.type.toUpperCase() || "STRING"}` };
-                    const optional = `# "${prop.name}" is an optional value\n`;
-                    let configValue = getConfigValue(prop.name, prop.property, comment);
-                    updatedContent += `${optional}# ${configValue}${comment.value}\n\n`;
+                if (prop.required || includeOptional) {
+                    // Add property with default value based on type
+                    configObject[sectionKey][prop.name] = getDefaultValueForConfig(prop.property);
                 }
             }
-
-            if (pkgKey !== sortedPackages[sortedPackages.length - 1]) {
-                updatedContent += '\n';
-            }
-        }
-
-        if (orgKey !== orgs[orgs.length - 1]) {
-            updatedContent += '\n';
         }
     }
 
-    writeFile(configPath, updatedContent, function (error) {
+    // Convert the config object back to TOML
+    let newTomlContent = convertConfigToToml(configObject);
+
+    // If we have header content in the updated content, preserve it
+    let headerMatch = updatedContent.match(/^([\s\S]*?)\n\s*([a-zA-Z]|$|\[)/);
+    let header = '';
+    if (headerMatch && headerMatch[1]) {
+        header = headerMatch[1] + '\n\n';
+    }
+
+    // Write the updated TOML content to file
+    writeFile(configPath, header + newTomlContent, function (error) {
         if (error) {
             return window.showErrorMessage("Unable to update the configurable values: " + error);
         }
         window.showInformationMessage("Successfully updated the configurable values.");
-    });
+    }
+    );
+}
+
+// Helper to get default value for a config property
+function getDefaultValueForConfig(property: Property): any {
+    if (!property || !property.type) {
+        return "";
+    }
+
+    switch (property.type) {
+        case ConfigTypes.BOOLEAN:
+            return false;
+        case ConfigTypes.INTEGER:
+            return 0;
+        case ConfigTypes.NUMBER:
+            return 0.0;
+        case ConfigTypes.STRING:
+            return "";
+        case ConfigTypes.ARRAY:
+            return [];
+        case ConfigTypes.OBJECT:
+            if (property.properties) {
+                const obj = {};
+                if (property.required && property.required.length > 0) {
+                    for (const key of property.required) {
+                        if (property.properties[key]) {
+                            obj[key] = getDefaultValueForConfig(property.properties[key]);
+                        }
+                    }
+                }
+                return obj;
+            }
+            return {};
+        default:
+            if (Constants.ANY_OF in property) {
+                const anyType: Property = property.anyOf[0];
+                return getDefaultValueForConfig(anyType);
+            }
+            return "";
+    }
+}
+
+// Helper to convert config object to TOML string
+function convertConfigToToml(config: any): string {
+    let result = '';
+
+    // Process root level properties first (add comments as needed)
+    const rootProps = Object.keys(config).filter(key =>
+        !key.includes('.') && (typeof config[key] !== 'object' || config[key] === null || Array.isArray(config[key]))
+    );
+
+    for (const key of rootProps) {
+        const value = config[key];
+        result += `${key} = ${formatTomlValue(value)}\n`;
+    }
+
+    if (rootProps.length > 0) {
+        result += '\n';
+    }
+
+    // Then process sections
+    const sectionKeys = Object.keys(config).filter(key =>
+        key.includes('.') || (typeof config[key] === 'object' && config[key] !== null && !Array.isArray(config[key]))
+    );
+
+    for (const key of sectionKeys) {
+        if (key.includes('.')) {
+            // This is a dotted section
+            result += `[${key}]\n`;
+            const sectionObj = config[key];
+
+            for (const propKey of Object.keys(sectionObj)) {
+                result += `${propKey} = ${formatTomlValue(sectionObj[propKey])}\n`;
+            }
+        } else {
+            // This is a nested object that needs a section
+            result += `[${key}]\n`;
+            const sectionObj = config[key];
+
+            for (const propKey of Object.keys(sectionObj)) {
+                result += `${propKey} = ${formatTomlValue(sectionObj[propKey])}\n`;
+            }
+        }
+
+        result += '\n';
+    }
+
+    return result;
+}
+
+// Helper to format values for TOML
+function formatTomlValue(value: any): string {
+    if (value === null || value === undefined) {
+        return '""';
+    }
+
+    if (typeof value === 'string') {
+        return `"${value.replace(/"/g, '\\"')}"`;
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+        return String(value);
+    }
+
+    if (Array.isArray(value)) {
+        if (value.length === 0) {
+            return '[]';
+        }
+
+        const items = value.map(item => formatTomlValue(item));
+        return `[${items.join(', ')}]`;
+    }
+
+    if (typeof value === 'object') {
+        if (Object.keys(value).length === 0) {
+            return '{}';
+        }
+
+        const entries = Object.entries(value).map(([k, v]) => `${k} = ${formatTomlValue(v)}`);
+        return `{ ${entries.join(', ')} }`;
+    }
+
+    return '""';
 }
 
 async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean) {
