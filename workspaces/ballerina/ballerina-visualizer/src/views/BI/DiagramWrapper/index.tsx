@@ -294,7 +294,9 @@ function getResourcePath(resource: STNode) {
 }
 
 function getParameters(syntaxTree: STNode) {
-    if (STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
+    if (STKindChecker.isResourceAccessorDefinition(syntaxTree) ||
+        (STKindChecker.isObjectMethodDefinition(syntaxTree) &&
+            syntaxTree.qualifierList?.some(qualifier => STKindChecker.isRemoteKeyword(qualifier)))) {
         return syntaxTree.functionSignature.parameters
             .map((param) => {
                 if (!STKindChecker.isCommaToken(param)) {
