@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -31,7 +31,7 @@ import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { DataMapperLinkModel } from "../../Link";
 
-export interface ObjectOutputFieldWidgetProps {
+export interface UnionOutputFieldWidgetProps {
     parentId: string;
     field: DMTypeWithValue;
     engine: DiagramEngine;
@@ -44,7 +44,7 @@ export interface ObjectOutputFieldWidgetProps {
     hasHoveredParent?: boolean;
 }
 
-export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
+export function UnionOutputFieldWidget(props: UnionOutputFieldWidgetProps) {
     const {
         parentId,
         field,
@@ -425,7 +425,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
-                        <ObjectOutputFieldWidget
+                        <UnionOutputFieldWidget
                             key={index}
                             engine={engine}
                             field={subField}

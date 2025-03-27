@@ -43,6 +43,8 @@ export interface CreateAPIRequest {
     name: string;
     xmlData?: string;
     version?: string;
+    context?: string;
+    versionType?: string;
     saveSwaggerDef?: boolean;
     swaggerDefPath?: string;
     wsdlType?: "file" | "url";

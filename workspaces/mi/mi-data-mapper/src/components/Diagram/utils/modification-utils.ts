@@ -31,16 +31,13 @@ import {
 	getCallExprReturnStmt,
 	isEmptyValue,
 	isMapFunction,
-	getDefaultValue,
-	getTypeAnnotation,
-	getEditorLineAndColumn,
-	toFirstLetterLowerCase,
-	toFirstLetterUpperCase
+	getEditorLineAndColumn
 } from "./common-utils";
-import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
+import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode, UnionOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
+import { genCustomFunction } from "./custom-function-utils";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 import { IDataMapperContext } from "src/utils/DataMapperContext/DataMapperContext";
 
@@ -100,11 +97,16 @@ export async function createSourceForMapping(sourcePort: InputOutputPortModel, t
 		parent = parent.parentModel;
 	}
 
-	if (targetNode instanceof ObjectOutputNode) {
+	if (targetNode instanceof ObjectOutputNode || targetNode instanceof UnionOutputNode) {
 		if (targetNode.value) {
 			const targetExpr = targetNode.value;
 			if (Node.isObjectLiteralExpression(targetExpr)) {
 				objectLitExpr = targetExpr;
+			} else if (Node.isAsExpression(targetExpr)){
+				const expr = targetExpr.getExpression();
+				if (Node.isObjectLiteralExpression(expr)) {
+					objectLitExpr = expr;
+				}
 			}
 		} else {
 			// When the return statement is not available in the function body
@@ -540,6 +542,7 @@ export function buildInputAccessExpr(fieldFqn: string): string {
 }
 
 export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext, isValueModifiable: boolean) {
+	
 	const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
 	const sourceFile = context.functionST.getSourceFile();
 	const customFunction = genCustomFunction(sourcePort, targetPort, sourceFile);
@@ -553,45 +556,6 @@ export async function mapUsingCustomFunction(sourcePort: InputOutputPortModel, t
 		await createSourceForMapping(sourcePort, targetPort, customFunctionCallExpr);
 	}
 	context.goToSource(range);
-}
-
-
-function genCustomFunction(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, sourceFile: SourceFile) {
-	let targetFieldName = targetPort.field.fieldName;
-	let targetTypeWithName = targetPort.typeWithValue;
-
-	while (!Boolean(targetTypeWithName?.type.fieldName)) {
-		if (targetTypeWithName) {
-			targetTypeWithName = targetTypeWithName.parentType;
-			targetFieldName = `${targetTypeWithName?.type.fieldName}Item`;
-		} else {
-			targetFieldName = toFirstLetterLowerCase(targetPort.field.typeName || targetPort.field.kind);
-			break;
-		}
-	}
-
-	const localFunctionNames = new Set(sourceFile.getFunctions().map(fn => fn.getName()));
-	const importedFunctionNames = new Set(sourceFile.getImportDeclarations()
-		.flatMap(importDecl => importDecl.getNamedImports().map(namedImport => namedImport.getName())));
-
-	const formattedSourceFieldName = toFirstLetterLowerCase(sourcePort.field.fieldName);
-	const formattedTargetFieldName = toFirstLetterUpperCase(targetFieldName);
-	let customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}`;
-	let i = 1;
-	while (localFunctionNames.has(customFunctionName) || importedFunctionNames.has(customFunctionName)) {
-		customFunctionName = `${formattedSourceFieldName}To${formattedTargetFieldName}${isNaN(Number(formattedTargetFieldName.charAt(formattedTargetFieldName.length - 1))) ? '' : '_'
-			}${++i}`;
-	}
-
-	return {
-		name: customFunctionName,
-		parameters: [{ name: sourcePort.field.fieldName, type: getTypeAnnotation(sourcePort.field) }],
-		returnType: getTypeAnnotation(targetPort.field),
-		statements: [
-			`return ${getDefaultValue(targetPort.field)};`
-		]
-	}
-
 }
 
 function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boolean {

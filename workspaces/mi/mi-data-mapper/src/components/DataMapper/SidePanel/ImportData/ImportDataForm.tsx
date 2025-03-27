@@ -29,7 +29,8 @@ export interface ImportType {
 export enum FileExtension {
     JSON = ".json",
     XML = ".xml",
-    CSV = ".csv"
+    CSV = ".csv",
+    XSD = ".xsd"
 }
 
 export type ImportDataWizardProps = {
@@ -62,6 +63,8 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                 return FileExtension.XML;
             case 'JSONSCHEMA':
                 return FileExtension.JSON;
+            case 'XSD':
+                return FileExtension.XSD;
         }
     }, [selectedImportType]);
 
