@@ -142,6 +142,10 @@ export function notifyCurrentWebview() {
     RPCLayer._messenger.sendNotification(projectContentUpdated, { type: 'webview', webviewType: VisualizerWebview.viewType }, true);
 }
 
+export function notifyAiWebview() {
+    RPCLayer._messenger.sendNotification(projectContentUpdated, { type: 'webview', webviewType: AiPanelWebview.viewType }, true);
+}
+
 export function notifyBreakpointChange() {
     RPCLayer._messenger.sendNotification(breakpointChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, true);
 }

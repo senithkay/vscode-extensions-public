@@ -14,6 +14,7 @@ import { AI_EVENT_TYPE, AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/bal
 import { exchangeAuthCode } from './auth';
 import { extension } from '../../BalExtensionContext';
 import { BallerinaExtension } from '../../core';
+import { notifyAiWebview } from '../../RPCLayer';
 
 export function activateAiPanel(ballerinaExtInstance: BallerinaExtension) {
     ballerinaExtInstance.context.subscriptions.push(
@@ -24,6 +25,11 @@ export function activateAiPanel(ballerinaExtInstance: BallerinaExtension) {
     ballerinaExtInstance.context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.CLEAR_AI_PROMPT, () => {
             extension.initialPrompt = undefined;
+        })
+    );
+    ballerinaExtInstance.context.subscriptions.push(
+        vscode.window.onDidChangeActiveColorTheme((event) => {
+            notifyAiWebview();
         })
     );
     console.log("AI Panel activated");

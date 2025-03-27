@@ -48,11 +48,25 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownCont
                 });
             }
         };
+
+        rpcClient.onProjectContentUpdated((state: boolean) => {
+            fetchTheme();
+        });
+
         fetchTheme();
     }, []);
 
     const MarkdownComponents: object = {
-        code({ inline, className, children, ...props }) {
+        code({
+            inline,
+            className,
+            children,
+            ...props
+        }: {
+            inline?: boolean;
+            className?: string;
+            children: React.ReactNode;
+        }) {
             const match = /language-(\w+)/.exec(className || "");
             return !inline && match ? (
                 <pre>
