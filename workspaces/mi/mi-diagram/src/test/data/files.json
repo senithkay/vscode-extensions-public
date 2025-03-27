@@ -1284,6 +1284,17 @@
     ]
   },
   {
+    "file": "SwitchNested.xml",
+    "resources": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      }
+    ]
+  },
+  {
     "file": "Throttle.xml",
     "resources": [
       {
