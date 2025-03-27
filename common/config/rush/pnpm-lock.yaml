@@ -2222,6 +2222,33 @@ importers:
       icon-font-generator: 2.1.11
       jsonc-parser: 3.2.1
 
+  ../../workspaces/common-libs/git-vscode:
+    specifiers:
+      '@types/byline': ^4.2.33
+      '@types/node': ^18.18.2
+      '@types/vscode': ^1.73.0
+      '@types/which': ^2.0.2
+      '@vscode/iconv-lite-umd': ^0.7.0
+      byline: ^5.0.0
+      copyfiles: ^2.4.1
+      file-type: ^18.2.1
+      jschardet: ^3.0.0
+      typescript: ^4.9.4
+      which: ^3.0.0
+    dependencies:
+      '@vscode/iconv-lite-umd': 0.7.0
+      byline: 5.0.0
+      file-type: 18.7.0
+      jschardet: 3.0.0
+      which: 3.0.1
+    devDependencies:
+      '@types/byline': 4.2.36
+      '@types/node': 18.19.14
+      '@types/vscode': 1.86.0
+      '@types/which': 2.0.2
+      copyfiles: 2.4.1
+      typescript: 4.9.5
+
   ../../workspaces/common-libs/playwright-vscode-tester:
     specifiers:
       '@playwright/test': ~1.46.0
@@ -3300,32 +3327,27 @@ importers:
       '@aws-sdk/client-s3': ^3.758.0
       '@biomejs/biome': ^1.8.3
       '@playwright/test': ~1.37.0
-      '@types/byline': ^4.2.33
       '@types/js-yaml': ^4.0.5
       '@types/mocha': ~10.0.1
       '@types/node': ^18.18.2
       '@types/unzipper': ^0.10.11
       '@types/vscode': ^1.73.0
-      '@types/which': ^2.0.2
       '@vscode-logging/logger': ^1.2.3
       '@vscode-logging/types': ^0.1.4
       '@vscode-logging/wrapper': ^1.0.2
       '@vscode/extension-telemetry': ~0.9.4
-      '@vscode/iconv-lite-umd': ^0.7.0
       '@vscode/vsce': ^2.30.0
       '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/git-vscode': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
       '@wso2-enterprise/wso2-platform-core': workspace:*
       '@wso2-enterprise/wso2-platform-vscode-webviews': workspace:*
       axios: ^1.7.2
-      byline: ^5.0.0
       copy-webpack-plugin: ^11.0.0
       copyfiles: ^2.4.1
       del-cli: ^5.0.0
       dotenv: ^16.0.3
-      file-type: ^18.2.1
       js-yaml: ^4.1.0
-      jschardet: ^3.0.0
       mocha: ^10.2.0
       terser-webpack-plugin: ^5.3.10
       ts-loader: ~9.4.4
@@ -3338,7 +3360,6 @@ importers:
       webpack: ^5.56.0
       webpack-cli: ^4.10.0
       webpack-permissions-plugin: ^1.0.9
-      which: ^3.0.0
       yaml: ^2.6.0
       zustand: ^4.5.2
     dependencies:
@@ -3347,32 +3368,26 @@ importers:
       '@vscode-logging/types': 0.1.4
       '@vscode-logging/wrapper': 1.0.2
       '@vscode/extension-telemetry': 0.9.7
-      '@vscode/iconv-lite-umd': 0.7.0
       '@vscode/webview-ui-toolkit': 1.4.0
+      '@wso2-enterprise/git-vscode': link:../../common-libs/git-vscode
       '@wso2-enterprise/wso2-platform-core': link:../wso2-platform-core
       '@wso2-enterprise/wso2-platform-vscode-webviews': link:../wso2-platform-webviews
-      byline: 5.0.0
       dotenv: 16.4.5
-      file-type: 18.7.0
       js-yaml: 4.1.0
-      jschardet: 3.0.0
       unzipper: 0.12.3
       vscode-jsonrpc: 6.0.0
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
-      which: 3.0.1
       yaml: 2.6.0
       zustand: 4.5.5
     devDependencies:
       '@biomejs/biome': 1.9.3
       '@playwright/test': 1.37.1
-      '@types/byline': 4.2.36
       '@types/js-yaml': 4.0.9
       '@types/mocha': 10.0.6
       '@types/node': 18.19.14
       '@types/unzipper': 0.10.11
       '@types/vscode': 1.86.0
-      '@types/which': 2.0.2
       '@vscode/vsce': 2.32.0
       '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
       axios: 1.7.7

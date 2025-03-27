@@ -14,7 +14,7 @@ import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getUserInfoForCmd } from "./cmds/cmd-utils";
 import { ext } from "./extensionVariables";
-import { getGitRemotes, getGitRoot } from "./git/util";
+import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
 import { contextStore, getContextKey, waitForContextStoreToLoad } from "./stores/context-store";

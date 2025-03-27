@@ -23,7 +23,7 @@ import {
 import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
-import { getGitRemotes, getGitRoot } from "../git/util";
+import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";

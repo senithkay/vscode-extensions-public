@@ -21,7 +21,7 @@ import {
 } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, extensions, window } from "vscode";
 import { ext } from "../extensionVariables";
-import { initGit } from "../git/main";
+import { initGit } from "@wso2-enterprise/git-vscode";
 import { authStore } from "../stores/auth-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { createDirectory, openDirectory } from "../utils";

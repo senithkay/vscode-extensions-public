@@ -4,13 +4,53 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as fs from "fs";
-import { IPCClient } from "./ipc/ipcClient";
+import * as http from "http";
 
 function fatal(err: any): void {
 	console.error("Missing or invalid credentials.");
 	console.error(err);
 	process.exit(1);
 }
+
+
+export class IPCClient {
+	private ipcHandlePath: string;
+
+	constructor(private handlerName: string) {
+		const ipcHandlePath = process.env.VSCODE_GIT_IPC_HANDLE;
+
+		if (!ipcHandlePath) {
+			throw new Error("Missing VSCODE_GIT_IPC_HANDLE");
+		}
+
+		this.ipcHandlePath = ipcHandlePath;
+	}
+
+	call(request: any): Promise<any> {
+		const opts: http.RequestOptions = {
+			socketPath: this.ipcHandlePath,
+			path: `/${this.handlerName}`,
+			method: "POST",
+		};
+
+		return new Promise((c, e) => {
+			const req = http.request(opts, (res) => {
+				if (res.statusCode !== 200) {
+					return e(new Error(`Bad status code: ${res.statusCode}`));
+				}
+
+				const chunks: Buffer[] = [];
+				res.on("data", (d) => chunks.push(d));
+				res.on("end", () => c(JSON.parse(Buffer.concat(chunks).toString("utf8"))));
+			});
+
+			req.on("error", (err) => e(err));
+			req.write(JSON.stringify(request));
+			req.end();
+		});
+	}
+}
+
 
 function main(argv: string[]): void {
 	if (!process.env.VSCODE_GIT_ASKPASS_PIPE) {
