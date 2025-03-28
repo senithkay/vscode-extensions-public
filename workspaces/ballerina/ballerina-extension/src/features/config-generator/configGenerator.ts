@@ -320,17 +320,6 @@ export async function handleNewValues(context: ConfigGenerationContext, newValue
             }
         }
 
-        // Sort new values to put required ones first
-        newValues.sort((a, b) => {
-            if (a.required === false && b.required === true) {
-                return -1;
-            } else if (a.required === true && b.required === false) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
-
         const groupedValues = groupConfigsByModule(newValues);
         updateConfigTomlByModule(context, groupedValues, updatedContent, uri.fsPath, includeOptional);
 
@@ -392,7 +381,9 @@ function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValue
 
     // Process non-default modules (properties in sections)
     for (const orgKey of allOrgs) {
-        if (orgKey === defaultOrgKey) continue;
+        if (orgKey === defaultOrgKey) {
+            continue;
+        }
 
         const orgMap = groupedValues.get(orgKey)!;
         for (const pkgKey of Array.from(orgMap.keys()).sort()) {
