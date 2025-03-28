@@ -23,6 +23,7 @@ import {
     LLMDiagnostics,
     ImportStatement,
     DiagnosticEntry,
+    ExistingFunction,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -102,8 +103,7 @@ var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
-export const INVALID_RECORD_REFERENCE =
-    "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
+const INVALID_RECORD_REFERENCE: Error = new Error("Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.");
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
 const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`;
@@ -128,7 +128,7 @@ const TEMPLATE_TESTS = [
     "generate tests for <servicename> service",
     "generate tests for resource <method(space)path> function",
 ];
-const TEMPLATE_DATAMAP = [
+export const TEMPLATE_DATAMAP = [
     "generate mappings using input as <recordname(s)> and output as <recordname> using the function <functionname>",
     "generate mappings for the <functionname> function",
 ];
@@ -284,8 +284,16 @@ export function AIChat() {
                     .getAiPanelRpcClient()
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
-                        const command = COMMAND_GENERATE;
-                        const template = commandToTemplate.get(command)?.[1];
+                        const command = initPrompt.exists && initPrompt.text === "datamap"
+                            ? COMMAND_DATAMAP
+                            : COMMAND_GENERATE;
+
+                        let template = commandToTemplate.get(command)?.[1];
+
+                        if (template && initPrompt.dataMappingFunctionName) {
+                            template = template.replace('<functionname>', initPrompt.dataMappingFunctionName);
+                        }
+
                         if (initPrompt.exists) {
                             setUserInput(template ? command + " " + template : command);
                         }
@@ -592,16 +600,11 @@ export function AIChat() {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
                             await processMappingParameters(cleanedMessage, token, parameters, attachments);
                         } else if (messageBody.includes("function")) {
-                            await processMappingParameters(
-                                cleanedMessage,
-                                token,
-                                {
-                                    inputRecord: [],
-                                    outputRecord: "",
-                                    functionName: parameters.functionName,
-                                },
-                                attachments
-                            );
+                            await processMappingParameters(cleanedMessage, token, {
+                                inputRecord: [],
+                                outputRecord: "",
+                                functionName: parameters.functionName
+                            }, attachments);
                         } else {
                             throw new Error(
                                 `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
@@ -1040,7 +1043,7 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?!\\|error)\\s*(?:=>|\\{)`,
-            "s"
+            's'
         );
     }
 
@@ -1049,7 +1052,7 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType})\\s*(=>|\\{)`,
-            "s"
+            's'
         );
     }
 
@@ -1058,7 +1061,7 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*=>\\s*\\{[^}]*\\}`,
-            "s"
+            's'
         );
     }
 
@@ -1067,8 +1070,28 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*\\{[^}]*\\}`,
-            "s"
+            's'
         );
+    }
+
+    // Fucntion to create regex to match function signatures without capturing the function body.
+    function createExistingFunctionSignatureRegex(functionName: string) {
+        return new RegExp(
+            `function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>\\s*(?:\\{|)`,
+            's'
+        );
+    }
+
+    // Function to remove the body of a specified function while keeping the rest of the code unchanged.
+    function removeFunctionBody(content: string, functionName: string) {
+        // Regular expression to match the function signature and body
+        const functionRegex = new RegExp(
+            `(function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>)\\s*(?:\\{[^]*?\\}|[^;]*);`,
+            's'
+        );
+
+        // Replace the matched function body with an empty function body `{}` while keeping the signature
+        return content.replace(functionRegex, `$1 {};`);
     }
 
     const handleAddAllCodeSegmentsToWorkspace = async (
@@ -1096,9 +1119,9 @@ export function AIChat() {
             if (command === "ai_map") {
                 const importRegex = /import\s+[^;]+;/g;
                 const commentRegex = /^(?:(\/\/.*|#.*)\n)+/; // Matches both `//` and `#` comment blocks at the top
-                const functionRegex =
-                    /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^={|]+)(?:\|error)?\s*=>\s*\{([\s\S]*)\}\s*;?/;
+                const functionRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^={|]+)(?:\|error)?\s*=>\s*(?:\{([\s\S]*?)\}|([\s\S]*?));/;
 
+                let existingFunctionRegex;
                 // Check if we're dealing with a function that should be merged
                 const functionMatch = segmentText.match(functionRegex);
                 let shouldMergeFunction = false;
@@ -1106,20 +1129,17 @@ export function AIChat() {
                 let functionBody = "";
                 let returnType = "";
                 let hasErrorType = false;
+                let updatedContent = "";
 
                 if (functionMatch) {
                     functionName = functionMatch[1];
                     const params = functionMatch[2];
                     returnType = functionMatch[3].trim();
-                    functionBody = functionMatch[4].trim();
+                    functionBody = functionMatch[4] ? functionMatch[4].trim() : functionMatch[5]?.trim();
 
                     // Check if new function has error return type
                     hasErrorType = segmentText.includes(`returns ${returnType}|error`);
-                    // This regex now correctly handles both with and without |error in existing functions
-                    const existingFunctionRegex = new RegExp(
-                        `function\\s+${functionName}\\s*(?:\\([^)]*\\))?\\s*(?:returns\\s+[^={|]+(?:\\|error)?)?\\s*(?:=>\\s*\\{[^}]*\\}|\\{[^}]*\\}|=>\\s*;)?`,
-                        "s"
-                    );
+                    existingFunctionRegex = createExistingFunctionSignatureRegex(functionName);
                     const existingFunctionMatch = originalContent.match(existingFunctionRegex);
 
                     if (existingFunctionMatch) {
@@ -1130,7 +1150,7 @@ export function AIChat() {
                 const imports = segmentText.match(importRegex) || [];
                 const codeWithoutImports = segmentText.replace(importRegex, "").trim();
 
-                let updatedContent = originalContent;
+                updatedContent = removeFunctionBody(originalContent, functionName);
 
                 // Extract existing comments at the top
                 const commentMatch = updatedContent.match(commentRegex);
@@ -1164,11 +1184,17 @@ export function AIChat() {
 
                     const arrowFunctionSignatureRegex = createArrowFunctionSignatureRegex(functionName, returnType);
                     const regularFunctionSignatureRegex = createRegularFunctionSignatureRegex(functionName, returnType);
+                    const isExpressionBody = /^\s*from\b/.test(functionBody);
+
                     if (arrowFunctionSignatureRegex.test(updatedContent)) {
                         updatedContent = updatedContent.replace(arrowFunctionSignatureRegex, (match, signature) => {
-                            return `${signature} => {\n    ${functionBody}\n}`;
+                            return isExpressionBody
+                                ? `${signature} => ${functionBody}`
+                                : `${signature} => {\n    ${functionBody}\n}`;
                         });
-                    } else if (regularFunctionSignatureRegex.test(updatedContent)) {
+                    }
+                    else if (regularFunctionSignatureRegex.test(updatedContent)) {
+
                         updatedContent = updatedContent.replace(regularFunctionSignatureRegex, (match, signature) => {
                             return `${signature} {\n    ${functionBody}\n}`;
                         });
@@ -1180,7 +1206,7 @@ export function AIChat() {
                 }
 
                 segmentText = updatedContent.trim();
-                rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: segmentText });
+                await rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: segmentText });
             } else if (command === "test") {
                 segmentText = `${originalContent}\n\n${segmentText}`;
             } else {
@@ -1590,6 +1616,120 @@ export function AIChat() {
         }
     }
 
+    // Process records from another package
+    function processRecordReference(
+        recordName: string,
+        recordMap: Map<string, any>,
+        allImports: Array<{ moduleName: string; alias?: string }>,
+        importsMap: Map<string, { moduleName: string; alias?: string; recordName: string }>
+    ): DataMappingRecord | Error {
+        const isArray = recordName.endsWith("[]");
+        const cleanedRecordName = recordName.replace(/\[\]$/, "");
+        const rec = recordMap.get(cleanedRecordName);
+
+        if (!rec) {
+            if (cleanedRecordName.includes(":")) {
+                if (!cleanedRecordName.includes("/")) {
+                    const [moduleName, recordName] = cleanedRecordName.split(":");
+                    const matchedImport = allImports.find((imp) => {
+                        if (imp.alias) {
+                            return cleanedRecordName.startsWith(imp.alias);
+                        }
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return cleanedRecordName.startsWith(inferredAlias);
+                    });
+
+                    if (!matchedImport) {
+                        return INVALID_RECORD_REFERENCE;
+                    }
+                    importsMap.set(cleanedRecordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: matchedImport.alias,
+                        recordName: recordName,
+                    });
+                } else {
+                    const [moduleName, recordName] = cleanedRecordName.split(":");
+                    importsMap.set(cleanedRecordName, {
+                        moduleName: moduleName,
+                        recordName: recordName,
+                    });
+                }
+                return { type: `${cleanedRecordName}`, isArray, filePath: null };
+            } else {
+                throw new Error(`${cleanedRecordName} is not defined.`);
+            }
+        }
+        return { ...rec, isArray };
+    }
+
+    // Processes existing functions to find a matching function by name
+    async function processExistingFunctions(
+        existingFunctions: ExistingFunction[],
+        functionName: string
+    ): Promise<{
+        match: RegExpMatchArray | null;
+        functionNameMatch: boolean;
+        matchingFunctionFile: string | null;
+    }> {
+        for (const func of existingFunctions) {
+            const functionContent = await rpcClient.getAiPanelRpcClient().getFromFile({
+                filePath: func.filePath.split("/").pop(),
+            });
+
+            const fileName = func.filePath.split("/").pop();
+            const signatureRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^{=]+)(?:\s*=>\s*)?/g;
+
+            // Use matchAll to find all function signatures in the content
+            const matches = [...functionContent.matchAll(signatureRegex)];
+
+            // Check if any of the function signatures match the target function name
+            for (const match of matches) {
+                const funcName = match[1];
+                if (funcName === functionName) {
+                    return {
+                        match,
+                        functionNameMatch: true,
+                        matchingFunctionFile: fileName,
+                    };
+                }
+            }
+        }
+
+        // If no match is found
+        return {
+            match: null,
+            functionNameMatch: false,
+            matchingFunctionFile: null,
+        };
+    }
+
+    // Process input parameters
+    function processInputs(inputParams: string[], recordMap: Map<any, any>, allImports: ImportStatement[], importsMap: Map<any, any>) {
+        let results = inputParams.map((param: string) => processRecordReference(param, recordMap, allImports, importsMap));
+        return results.filter((result): result is DataMappingRecord => {
+            if (result instanceof Error) {
+                throw INVALID_RECORD_REFERENCE;
+            }
+            return true;
+        });
+    }
+
+    // Process Output parameters
+    function processOutput(outputParam: string, recordMap: Map<any, any>, allImports: { moduleName: string; alias?: string; }[], importsMap: Map<any, any>) {
+        const parts = outputParam.split("|");
+        const validParts = parts.filter((name: string) => name !== "error");
+        if (validParts.length > 1) {
+            throw new Error(`Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`);
+        }
+        const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
+        const outputResult = processRecordReference(cleanedOutputRecordName, recordMap, allImports, importsMap);
+        if (outputResult instanceof Error) {
+            throw INVALID_RECORD_REFERENCE;
+        }
+        return outputResult;
+    }
+
     async function processMappingParameters(
         message: string,
         token: string,
@@ -1604,11 +1744,8 @@ export function AIChat() {
         let output;
         let inputParams;
         let outputParam;
-        let functionSignatureMatch = false;
-        let functionNameMatch = false;
-        let matchingFunctionFile = "";
-        let matchingFunctionFilePath = "";
         let inputNames: string[] = [];
+        let result;
         setIsLoading(true);
 
         const functionName = parameters.functionName;
@@ -1632,7 +1769,7 @@ export function AIChat() {
             }
         });
 
-        const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number }[] = [];
+        const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number; }[] = [];
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
                 let filepath = pkg.filePath;
@@ -1646,197 +1783,39 @@ export function AIChat() {
 
                 // Collect functions
                 mod.functions?.forEach((func) => {
-                    if (func.name === functionName) {
-                        existingFunctions.push({
-                            name: func.name,
-                            filePath: filepath + func.filePath,
-                            startLine: func.startLine,
-                            endLine: func.endLine,
-                        });
-                    }
+                    existingFunctions.push({
+                        name: func.name,
+                        filePath: filepath + func.filePath,
+                        startLine: func.startLine,
+                        endLine: func.endLine
+                    });
                 });
             });
         });
 
-        if (!(parameters.inputRecord.length === 0 && parameters.outputRecord === "")) {
+        if (parameters.inputRecord.length > 0 || parameters.outputRecord !== "") {
+            result = await processExistingFunctions(existingFunctions, functionName);
+            if (result.functionNameMatch) {
+                throw new Error(`A function named "${functionName}" exists in '${result.matchingFunctionFile}'. Please provide a valid function name.`);
+            }
             inputParams = parameters.inputRecord;
             outputParam = parameters.outputRecord;
-
-            inputs = inputParams.map((param: string) => {
-                const isArray = param.endsWith("[]");
-                const importedRecordName = param.replace(/\[\]$/, "");
-                const rec = recordMap.get(importedRecordName);
-
-                if (!rec) {
-                    if (importedRecordName.includes(":")) {
-                        if (!importedRecordName.includes("/")) {
-                            const [moduleName, recordName] = importedRecordName.split(":");
-                            const matchedImport = allImports.find((imp) => {
-                                if (imp.alias) {
-                                    return importedRecordName.startsWith(imp.alias);
-                                }
-                                const moduleNameParts = imp.moduleName.split(".");
-                                const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                                return importedRecordName.startsWith(inferredAlias);
-                            });
-
-                            if (!matchedImport) {
-                                return INVALID_RECORD_REFERENCE;
-                            }
-                            importsMap.set(importedRecordName, {
-                                moduleName: matchedImport.moduleName,
-                                alias: matchedImport.alias,
-                                recordName: recordName,
-                            });
-                        } else {
-                            const [moduleName, recordName] = importedRecordName.split(":");
-                            importsMap.set(importedRecordName, {
-                                moduleName: moduleName,
-                                recordName: recordName,
-                            });
-                        }
-                        return { type: `${importedRecordName}`, isArray, filePath: null };
-                    } else {
-                        throw new Error(`${importedRecordName} is not defined.`);
-                    }
-                }
-                return { ...rec, isArray };
-            });
-
-            const parts = outputParam.split("|");
-            const validParts = parts.filter((name) => name !== "error");
-            if (validParts.length > 1) {
-                throw new Error(
-                    `Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`
-                );
-            }
-            const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
-
-            const outputRecordName = cleanedOutputRecordName.replace(/\[\]$/, "");
-            const outputIsArray = cleanedOutputRecordName.endsWith("[]");
-
-            output = recordMap.get(outputRecordName);
-
-            if (!output) {
-                if (outputRecordName.includes(":")) {
-                    if (!outputRecordName.includes("/")) {
-                        const [moduleName, recordName] = outputRecordName.split(":");
-                        const matchedImport = allImports.find((imp) => {
-                            if (imp.alias) {
-                                return outputRecordName.startsWith(imp.alias);
-                            }
-                            const moduleNameParts = imp.moduleName.split(".");
-                            const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                            return outputRecordName.startsWith(inferredAlias);
-                        });
-
-                        if (!matchedImport) {
-                            return INVALID_RECORD_REFERENCE;
-                        }
-                        importsMap.set(outputRecordName, {
-                            moduleName: matchedImport.moduleName,
-                            alias: matchedImport.alias,
-                            recordName: recordName,
-                        });
-                    } else {
-                        const [moduleName, recordName] = outputRecordName.split(":");
-                        importsMap.set(outputRecordName, {
-                            moduleName: moduleName,
-                            recordName: recordName,
-                        });
-                    }
-                    output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
-                } else {
-                    throw new Error(`${outputRecordName} is not defined.`);
-                }
-            } else {
-                output = { ...output, isArray: outputIsArray };
-            }
         } else {
-            let extractedInputs = [];
-            let extractedOutput = null;
-
-            if (existingFunctions.length > 0) {
-                for (const func of existingFunctions) {
-                    const functionContent = await rpcClient.getAiPanelRpcClient().getFromFile({
-                        filePath: func.filePath.split("/").pop(),
-                    });
-                    matchingFunctionFilePath = func.filePath.split("/").pop();
-
-                    const fileName = func.filePath.split("/").pop();
-                    const signatureRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^{=]+)(?:\s*=>\s*)?/;
-                    const match = functionContent.match(signatureRegex);
-
-                    if (match) {
-                        const funcName = match[1];
-                        if (funcName === functionName) {
-                            functionNameMatch = true;
-                            matchingFunctionFile = fileName;
-
-                            const paramString = match[2].trim();
-                            const params = paramString ? paramString.split(",").map((p) => p.trim()) : [];
-
-                            extractedInputs = params.map((param) => {
-                                const parts = param.trim().split(/\s+/);
-                                const paramType = parts[0];
-                                const paramName = parts[1];
-                                if (paramName && inputNames) {
-                                    inputNames.push(paramName);
-                                }
-                                const isArray = paramType.endsWith("[]");
-                                const baseType = paramType.replace(/\[\]$/, "");
-
-                                const rec = recordMap.get(baseType);
-                                if (rec) {
-                                    return { ...rec, isArray };
-                                } else {
-                                    if (baseType.includes(":")) {
-                                        return { type: baseType, isArray, filePath: null };
-                                    } else {
-                                        return { type: baseType, isArray, filePath: null };
-                                    }
-                                }
-                            });
-
-                            const returnTypeStr = match[3].trim();
-                            const outputTypeStr = returnTypeStr.replace(/\|error/g, "").trim();
-                            const outputIsArray = outputTypeStr.endsWith("[]");
-                            const outputBaseType = outputTypeStr.replace(/\[\]$/, "");
-
-                            const outputRec = recordMap.get(outputBaseType);
-                            if (outputRec) {
-                                extractedOutput = { ...outputRec, isArray: outputIsArray };
-                            } else {
-                                extractedOutput = { type: outputBaseType, isArray: outputIsArray, filePath: null };
-                            }
-                            functionSignatureMatch = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (functionSignatureMatch) {
-                    inputs = extractedInputs;
-                    output = extractedOutput;
-                    inputParams = extractedInputs.map((input) => input.type + (input.isArray ? "[]" : ""));
-
-                    outputParam = output.type + (output.isArray ? "[]" : "");
-                    if (outputParam.includes("|error")) {
-                        outputParam = outputParam;
-                    }
-                } else if (functionNameMatch) {
-                    throw new Error(
-                        `A function named ${functionName} exists in '${matchingFunctionFile}'. Please provide a valid function name.`
-                    );
-                } else {
-                    throw new Error(`The function "${functionName}" was not found in the project.`);
-                }
-            } else {
-                throw new Error(
-                    `The function "${functionName}" was not found in the project. Please provide a valid function name.`
-                );
+            if (existingFunctions.length === 0) {
+                throw new Error(`A function named "${functionName}" was not found in the project. Please provide a valid function name.`);
             }
+            result = await processExistingFunctions(existingFunctions, functionName);
+            if (!result.functionNameMatch) {
+                throw new Error(`A function named "${functionName}" was not found in the project. Please provide a valid function name.`);
+            }
+            const params = result.match[2].split(/,\s*/).map(param => param.trim().split(/\s+/));
+            inputParams = params.map(parts => parts[0]);
+            inputNames = params.map(parts => parts[1]);
+            outputParam = result.match[3].trim();
         }
+
+        inputs = processInputs(inputParams, recordMap, allImports, importsMap);
+        output = processOutput(outputParam, recordMap, allImports, importsMap);
 
         const requestPayload: any = {
             backendUri: "",
@@ -1862,13 +1841,13 @@ export function AIChat() {
         assistant_response += `- **Output Record**: ${outputParam}\n`;
         assistant_response += `- **Function Name**: ${functionName}\n`;
 
-        if (functionSignatureMatch) {
+        if (result.functionNameMatch) {
             assistant_response += `\n**Note**: When you click **Add to Integration**, it will override your existing mappings.\n`;
         }
 
         let filePath;
-        if (functionSignatureMatch) {
-            filePath = matchingFunctionFile;
+        if (result.functionNameMatch) {
+            filePath = result.matchingFunctionFile;
         } else if (activeFile && activeFile.endsWith(".bal")) {
             filePath = activeFile;
         } else {
@@ -2852,6 +2831,233 @@ export function AIChat() {
     );
 }
 
+// ---------- CODE-SEGMENT ----------
+
+interface EntryContainerProps {
+    isOpen: boolean;
+}
+
+const EntryContainer = styled.div<{ hasErrors: boolean }>(({ hasErrors }: { hasErrors: boolean }) => ({
+    display: "flex",
+    alignItems: "center",
+    marginTop: "10px",
+    cursor: "pointer",
+    padding: "10px",
+    backgroundColor: "var(--vscode-list-hoverBackground)",
+    // backgroundColor: hasErrors 
+    // ? "var(--vscode-inputValidation-warningBackground)" 
+    // : "var(--vscode-list-hoverBackground)",
+    "&:hover": {
+        backgroundColor: "var(--vscode-badge-background)",
+    },
+}));
+
+const CodeSegmentHeader = styled.div({
+    display: "flex",
+    alignItems: "center",
+    marginTop: "10px",
+    cursor: "pointer",
+    padding: "6px 8px",
+    backgroundColor: "var(--vscode-list-hoverBackground)",
+});
+
+interface CodeSegmentProps {
+    source: string;
+    fileName: string;
+    language?: string;
+}
+
+const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language = "ballerina" }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <div>
+            <CodeSegmentHeader onClick={() => setIsOpen(!isOpen)}>
+                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+                    {isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                    {fileName}
+                </div>
+            </CodeSegmentHeader>
+            <Collapse isOpened={isOpen}>
+                <div style={{ backgroundColor: "var(--vscode-list-hoverBackground)", padding: "6px" }}>
+                    <pre
+                        style={{
+                            backgroundColor: "var(--vscode-editorWidget-background)",
+                            margin: 0,
+                            padding: 2,
+                            borderRadius: 6,
+                        }}
+                    >
+                        <SyntaxHighlighter
+                            language={language}
+                            style={{
+                                'pre[class*="language-"]': {
+                                    backgroundColor: "var(--vscode-editorWidget-background)",
+                                    color: "var(--vscode-editor-foreground)",
+                                    overflowX: "auto",
+                                    padding: "6px",
+                                },
+                                'code[class*="language-"]': {
+                                    backgroundColor: "var(--vscode-editorWidget-background)",
+                                    color: "var(--vscode-editor-foreground)",
+                                },
+                            }}
+                        >
+                            {source}
+                        </SyntaxHighlighter>
+                    </pre>
+                </div>
+            </Collapse>
+        </div>
+    );
+};
+
+interface CodeSectionProps {
+    codeSegments: CodeSegmentProps[];
+    loading: boolean;
+    isReady: boolean;
+    handleAddAllCodeSegmentsToWorkspace: (
+        codeSegment: any,
+        setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
+        command: string
+    ) => void;
+    handleRevertChanges: (
+        codeSegment: any,
+        setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
+        command: string
+    ) => void;
+    message: { role: string; content: string; type: string };
+    buttonsActive: boolean;
+    isSyntaxError: boolean;
+    command: string;
+    diagnostics: any[],
+    onRetryRepair: () => {},
+}
+
+const CodeSection: React.FC<CodeSectionProps> = ({
+    codeSegments,
+    loading,
+    isReady,
+    handleAddAllCodeSegmentsToWorkspace,
+    handleRevertChanges,
+    message,
+    buttonsActive,
+    isSyntaxError,
+    command,
+    diagnostics = [],
+    onRetryRepair = () => { },
+}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isCodeAdded, setIsCodeAdded] = useState(false);
+
+    const language = "ballerina";
+    let isTestCode = false;
+    if (command === "test") {
+        isTestCode = true;
+    }
+    let name = loading
+        ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
+        : isTestCode
+            ? "Ballerina Tests"
+            : "Ballerina Integration";
+
+    const allCodeSegments = splitContent(message.content)
+        .filter((segment) => segment.type === SegmentType.Code)
+        .map((segment) => ({ segmentText: segment.text, filePath: segment.fileName }));
+
+    function isRepairButtonVisisble() {
+        return !loading && isReady && diagnostics.length > 0 && command === "code" && !isCodeAdded
+    }
+
+    return (
+        <div>
+            <EntryContainer hasErrors={isRepairButtonVisisble()} onClick={() => !loading && setIsOpen(!isOpen)}>
+                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+                    {!loading && isReady && language === "ballerina" && (
+                        !isOpen ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />
+                    )}
+                    {/* Show spinner during generation or repair */}
+                    {(loading) && <Spinner className="codicon codicon-loading spin" role="img"></Spinner>}
+                    {name}
+                </div>
+
+                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
+
+                    {/* Show warning icon if diagnostics exist */}
+                    {isRepairButtonVisisble() && (
+                        <Button
+                            appearance="icon"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRetryRepair();
+                            }}
+                            disabled={loading}
+                            tooltip={`Click to auto-resolve errors of the generated integration with AI: \nErrors:\n${diagnostics.map(d => d.message).join("\n")}`}                        >
+                            <Codicon name="sync" />
+                        </Button>
+                    )}
+
+                    {/* TODO see why Add to integration either Revert button is visible */}
+                    {!loading && isReady && language === "ballerina" && (
+                        <>
+                            {!isCodeAdded ? (
+                                <Button
+                                    appearance="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddAllCodeSegmentsToWorkspace(allCodeSegments, setIsCodeAdded, command);
+                                    }}
+                                    tooltip={
+                                        isSyntaxError
+                                            ? "Syntax issues detected in generated integration. Reattempt required"
+                                            : ""
+                                    }
+                                    disabled={!buttonsActive || isSyntaxError}
+                                >
+                                    <Codicon name="add" />
+                                    &nbsp;&nbsp;Add to Integration
+                                </Button>
+                            ) : (
+                                <Button
+                                    appearance="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
+                                    }}
+                                    disabled={!buttonsActive}
+                                >
+                                    <Codicon name="history" />
+                                    &nbsp;&nbsp;Revert to Checkpoint
+                                </Button>
+                            )}
+                        </>
+                    )}
+                </div>
+            </EntryContainer>
+            <Collapse isOpened={isOpen}>
+                <div
+                    style={{
+                        backgroundColor: "var(--vscode-editorWidget-background)",
+                        padding: "8px",
+                        gap: "8px",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
+                    {codeSegments.map((segment, index) => (
+                        <CodeSegment
+                            key={index}
+                            source={segment.source}
+                            fileName={segment.fileName}
+                            language={segment.language}
+                        />
+                    ))}
+                </div>
+            </Collapse>
+        </div>
+    );
+};
+  
 export function replaceCodeBlocks(originalResp: string, newResp: string): string {
     // Create a map to store new code blocks by filename
     const newCodeBlocks = new Map<string, string>();
