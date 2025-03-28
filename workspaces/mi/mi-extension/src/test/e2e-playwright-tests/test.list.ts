@@ -10,17 +10,17 @@
 import { test } from '@playwright/test';
 import connectionTests from './connectionTests/connection.spec';
 import inboundEpTests from './connectionTests/inboundEndpoint.spec';
-import { initVSCode, newProjectPath, page } from './Utils';
-import fs from 'fs';
+import { page } from './Utils';
+const fs = require('fs');
+const path = require('path');
 
 test.beforeAll(async () => {
-    console.log('>>> Starting tests')
-    // delete and recreate folder
-    if (fs.existsSync(newProjectPath)) {
-        fs.rmSync(newProjectPath, { recursive: true });
+    const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
+
+    if (fs.existsSync(videosFolder)) {
+        fs.rmSync(videosFolder, { recursive: true, force: true });
     }
-    fs.mkdirSync(newProjectPath, { recursive: true });
-    await initVSCode();
+    console.log('>>> Starting tests');
 });
 
 test.describe(connectionTests);

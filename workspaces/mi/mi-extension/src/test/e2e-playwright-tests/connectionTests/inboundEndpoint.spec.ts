@@ -16,73 +16,77 @@ import { Diagram } from '../components/Diagram';
 import { Overview } from '../components/Overview';
 
 export default function createTests() {
-    initTest("inboundEndpoint");
+    test.describe(async () => {
+        initTest("inboundEndpoint");
 
-    test('Create new HTTPS inbound endpoint', async () => {
-        // Create HTTPS inbound endpoint with automatically generated sequences
-        const overviewPage = new Overview(page.page);
-        await overviewPage.init();
-        await overviewPage.goToAddArtifact();
+        test("Inbound EP Tests", async () => {
+            await test.step('Create new HTTPS inbound endpoint', async () => {
+                // Create HTTPS inbound endpoint with automatically generated sequences
+                const overviewPage = new Overview(page.page);
+                await overviewPage.init();
+                await overviewPage.goToAddArtifact();
 
-        const addArtifactPage = new AddArtifact(page.page);
-        await addArtifactPage.init();
-        await addArtifactPage.add('Event Integration');
+                const addArtifactPage = new AddArtifact(page.page);
+                await addArtifactPage.init();
+                await addArtifactPage.add('Event Integration');
 
-        const inboundEPSelector = new InboundEPForm(page.page);
-        await inboundEPSelector.init();
-        await inboundEPSelector.selectType('HTTPS');
+                const inboundEPSelector = new InboundEPForm(page.page);
+                await inboundEPSelector.init();
+                await inboundEPSelector.selectType('HTTPS');
 
-        const inboundEPForm = new Form(page.page, 'Event Integration Form');
-        await inboundEPForm.switchToFormView();
-        await inboundEPForm.fill({
-            values: {
-                'Event Integration Name*': {
-                    type: 'input',
-                    value: 'HTTPS_inboundEP',
-                },
-                'Port*': {
-                    type: 'input',
-                    value: '8080',
-                }
-            }
+                const inboundEPForm = new Form(page.page, 'Event Integration Form');
+                await inboundEPForm.switchToFormView();
+                await inboundEPForm.fill({
+                    values: {
+                        'Event Integration Name*': {
+                            type: 'input',
+                            value: 'HTTPS_inboundEP',
+                        },
+                        'Port*': {
+                            type: 'input',
+                            value: '8080',
+                        }
+                    }
+                });
+                await clearNotificationAlerts(page);
+                await inboundEPForm.submit('Create');
+
+                const diagram = new Diagram(page.page, 'Event Integration');
+                await diagram.init();
+                await diagram.addMediator('Log');
+                const diagramTitle = diagram.getDiagramTitle();
+
+                expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP');
+            });
+
+            await test.step('Edit Inbound Endpoint', async () => {
+                // Edit Inbound Endpoint
+
+                const diagram = new Diagram(page.page, 'Event Integration');
+                await diagram.init();
+                await diagram.edit();
+
+                const inboundEPForm = new Form(page.page, 'Event Integration Form');
+                await inboundEPForm.switchToFormView();
+                await inboundEPForm.fill({
+                    values: {
+                        'Event Integration Name*': {
+                            type: 'input',
+                            value: 'HTTPS_inboundEP2',
+                        },
+                        'Port*': {
+                            type: 'input',
+                            value: '9090',
+                        }
+                    }
+                });
+
+                await inboundEPForm.submit('Update');
+
+                await diagram.init();
+                const diagramTitle = diagram.getDiagramTitle();
+                expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP2');
+            });
         });
-        await clearNotificationAlerts(page);
-        await inboundEPForm.submit('Create');
-
-        const diagram = new Diagram(page.page, 'Event Integration');
-        await diagram.init();
-        await diagram.addMediator('Log');
-        const diagramTitle = diagram.getDiagramTitle();
-
-        expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP');
-    });
-
-    test('Edit Inbound Endpoint', async () => {
-        // Edit Inbound Endpoint
-
-        const diagram = new Diagram(page.page, 'Event Integration');
-        await diagram.init();
-        await diagram.edit();
-
-        const inboundEPForm = new Form(page.page, 'Event Integration Form');
-        await inboundEPForm.switchToFormView();
-        await inboundEPForm.fill({
-            values: {
-                'Event Integration Name*': {
-                    type: 'input',
-                    value: 'HTTPS_inboundEP2',
-                },
-                'Port*': {
-                    type: 'input',
-                    value: '9090',
-                }
-            }
-        });
-
-        await inboundEPForm.submit('Update');
-
-        await diagram.init();
-        const diagramTitle = diagram.getDiagramTitle();
-        expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP2');
     });
 }

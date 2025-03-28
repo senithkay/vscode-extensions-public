@@ -29,23 +29,38 @@ export class Welcome {
         const btn = await getVsCodeButton(this.container, 'Create New Project', 'primary');
         await btn.click();
     }
+
+    public async waitUntilDeattached() {
+        await this.page.page.waitForSelector('iframe.webview.ready', { state: 'detached' });
+    }
+
     public async setupEnvironment() {
-        let webview;
-        try {
-            webview = await switchToIFrame(MACHINE_VIEW.SETUP_ENVIRONMENT, this.page.page, 5000);
-        } catch (error) {
-            console.error('Failed to switch to Setup Environment iframe');
+        const webviewFrame = await this.page.page.waitForSelector('iframe.webview.ready', { timeout: 30000 });
+        const frame = await webviewFrame.contentFrame();
+        if (!frame) {
+            throw new Error(`IFrame not found`);
+        }
+        await frame.waitForLoadState();
+        const targetFrame = await frame.waitForSelector(`iframe`, { timeout: 30000 });
+        const iframeTitle = await targetFrame.getAttribute('title');
+        console.log(`IFrame Title: ${iframeTitle}`);
+
+        const webview = await targetFrame.contentFrame();
+        await webview?.waitForLoadState();
+
+        if (iframeTitle === MACHINE_VIEW.ADD_ARTIFACT) {
             return true;
+        }
+        if (iframeTitle !== MACHINE_VIEW.SETUP_ENVIRONMENT) {
+            await this.page.page.pause();
+            throw new Error(`Invalid IFrame: ${iframeTitle}`);
         }
 
-        if (!webview) {
-            return true;
-        }
         console.log('Setting up environment');
-        const container = webview.locator('div#root');
+        const container = webview!.locator('div#root');
         await clearNotificationAlerts(this.page);
         const javaErrorMessage = container.locator('div:has-text("Java is not properly setup")');
-        await javaErrorMessage.waitFor({ timeout: 8000 }).catch(() => {});
+        await javaErrorMessage.waitFor({ timeout: 8000 }).catch(() => { });
         if (await javaErrorMessage.count() > 0) {
             console.log('Java is not setup');
             const downloadJava = await getVsCodeButton(container, 'Download Java', 'primary');

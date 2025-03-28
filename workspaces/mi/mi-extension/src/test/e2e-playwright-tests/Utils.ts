@@ -13,7 +13,7 @@ import { Welcome } from "./components/Welcome";
 import path from "path";
 import { ElectronApplication } from "@playwright/test";
 import { test } from '@playwright/test';
-import fs from 'fs';
+import fs, { existsSync } from 'fs';
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -32,7 +32,8 @@ export async function initVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
-export async function createProject(page: ExtendedPage) {
+async function createProject(page: ExtendedPage) {
+    console.log('Creating new project');
     await page.selectSidebarItem('Micro Integrator');
     const welcomePage = new Welcome(page);
     await welcomePage.init();
@@ -53,6 +54,7 @@ export async function createProject(page: ExtendedPage) {
         }
     });
     await createNewProjectForm.submit();
+    await welcomePage.waitUntilDeattached();
     console.log('Project created');
 
     const setupEnvPage = new Welcome(page);
@@ -79,10 +81,19 @@ export async function clearNotificationAlerts(page: ExtendedPage) {
     }
 }
 
-export function initTest(title: string, cleanupAfter?: boolean) {
+export function initTest(title: string, newProject: boolean = false, cleanupAfter?: boolean) {
     test.beforeAll(async () => {
         console.log(`>>> Starting ${title} tests`);
-        await resumeVSCode();
+        if (!existsSync(path.join(newProjectPath, 'testProject')) || newProject) {
+            if (fs.existsSync(newProjectPath)) {
+                fs.rmSync(newProjectPath, { recursive: true });
+            }
+            fs.mkdirSync(newProjectPath, { recursive: true });
+            await initVSCode();
+            await createProject(page);
+        } else {
+            await resumeVSCode();
+        }
     });
 
     test.afterAll(async () => {
