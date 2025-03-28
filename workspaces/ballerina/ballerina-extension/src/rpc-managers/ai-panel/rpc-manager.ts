@@ -20,7 +20,6 @@ import {
     DeveloperDocument,
     DiagnosticEntry,
     Diagnostics,
-    ErrorCode,
     FetchDataRequest,
     FetchDataResponse,
     GenerateMappingFromRecordResponse,
@@ -46,12 +45,12 @@ import {
     TestGenerationRequest,
     TestGenerationResponse,
 } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import path from "path";
-import { Uri, window, workspace } from 'vscode';
+import { Uri, commands, window, workspace } from 'vscode';
 
 import { writeFileSync } from "fs";
 import { isNumber } from "lodash";
@@ -66,7 +65,7 @@ import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
+import { PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import {
     DEVELOPMENT_DOCUMENT,
     NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
@@ -75,7 +74,7 @@ import {
     REQ_KEY, TEST_DIR_NAME
 } from "./constants";
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
-import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
+import { handleLogin, handleStop, isErrorCode, isLoggedin, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
 
 export let hasStopped: boolean = false;
@@ -268,8 +267,10 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!logged) {
             return { error: UNAUTHORIZED };
         }
+        commands.executeCommand("ballerina.close.ai.panel");
+        commands.executeCommand("ballerina.open.ai.panel", "datamap");
 
-        let { filePath, position, file } = params;
+        let { filePath, position } = params;
 
         const fileUri = Uri.file(filePath).toString();
         hasStopped = false;
@@ -307,49 +308,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: PARSING_ERROR };
         }
 
-        if (fnSt.functionBody &&
-            fnSt.functionBody["expression"] &&
-            fnSt.functionBody["expression"].fields &&
-            fnSt.functionBody["expression"].fields.length > 0) {
-            // There are existing mappings, show confirmation
-            const confirmResult = await window.showWarningMessage(
-                "Proceeding with Auto Map will overwrite existing mappings. Do you want to continue?",
-                { modal: true },
-                "Overwrite"
-            );
-
-            if (confirmResult !== "Overwrite") {
-                return { userAborted: true };
-            }
-        }
-
-        const st = await processMappings(fnSt, fileUri, file);
-        if (isErrorCode(st)) {
-            if ((st as ErrorCode).code === 6) {
-                return { userAborted: true };
-            }
-            return { error: st as ErrorCode };
-        }
-
-        const { parseSuccess, source, syntaxTree } = st as SyntaxTree;
-
-        if (!parseSuccess) {
-            return { error: MODIFIYING_ERROR };
-        }
-
-        const fn = await getFunction(syntaxTree as ModulePart, fnSt.functionName.value);
-
-        if (fn && fn.source !== oldSource) {
-            modifyFileContent({ filePath, content: source });
-            updateView();
-
-            return { newFnPosition: fn.position };
-        } else if (fn.source === oldSource) {
-            notifyNoGeneratedMappings();
-            return {};
-        }
-
-        return { error: UNKNOWN_ERROR };
+        const functionName = fnSt.functionName?.value || "";
+        extension.dataMappingFunctionName = functionName;
     }
 
     async notifyAIMappings(params: NotifyAIMappingsRequest): Promise<boolean> {
@@ -444,12 +404,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (initialPrompt) {
             return {
                 exists: true,
-                text: initialPrompt
+                text: initialPrompt,
+                dataMappingFunctionName: extension.dataMappingFunctionName || ""
             };
         } else {
             return {
                 exists: false,
-                text: ""
+                text: "",
+                dataMappingFunctionName: ""
             };
         }
     }
