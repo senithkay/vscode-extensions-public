@@ -37,7 +37,6 @@ export function fetchProjectInfo(): ProjectInfo {
             isBalCount++;
             if (checkIsBI(uri)) {
                 isBICount++;
-                isBalCount++;
             }
         }
     }
