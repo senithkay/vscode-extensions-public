@@ -34,6 +34,12 @@ interface MarkdownRendererProps {
     markdownContent: string;
 }
 
+const markdownWrapperStyle: React.CSSProperties = {
+    whiteSpace: "normal",
+    wordBreak: "break-word", // ✅ Good fallback
+    overflowWrap: "anywhere", // ✅ Best for breaking long words mid-string
+};
+
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
     const { rpcClient } = useRpcContext();
 
@@ -111,7 +117,15 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
                 );
             }
 
-            return <code className={className}>{children}</code>;
+            // Inline code with word wrapping
+            return (
+                <code
+                    className={className}
+                    style={markdownWrapperStyle}
+                >
+                    {children}
+                </code>
+            );
         },
     };
 
@@ -124,15 +138,17 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
     const safeContent = escapeHtmlExceptBadge(markdownContent);
 
     return (
-        <ReactMarkdown
-            rehypePlugins={[rehypeRaw]}
-            components={{
-                ...MarkdownCodeRenderer,
-                ...CustomMarkdownComponents,
-            }}
-        >
-            {safeContent}
-        </ReactMarkdown>
+        <div style={markdownWrapperStyle}>
+            <ReactMarkdown
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                    ...MarkdownCodeRenderer,
+                    ...CustomMarkdownComponents,
+                }}
+            >
+                {safeContent}
+            </ReactMarkdown>
+        </div>
     );
 };
 
