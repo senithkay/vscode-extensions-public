@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { AgentToolRequest, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { URI, Utils } from "vscode-uri";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { AIAgentSidePanel } from "../AIAgents/AIAgentSidePanel";
+import { AIAgentSidePanel } from "./AIAgentSidePanel";
 import { RelativeLoader } from "../../../components/RelativeLoader";
 import { addToolToAgentNode, findAgentNodeFromAgentCallNode } from "./utils";
 

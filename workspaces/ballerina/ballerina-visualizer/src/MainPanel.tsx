@@ -57,11 +57,9 @@ import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurable
 import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
-import { AIAgentWizard } from "./views/BI/AIAgents/AIAgentWizard";
 import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
 import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassConfig";
 import { AIAgentDesigner } from "./views/BI/AIChatAgent";
-import { AIAgentEditView } from "./views/BI/AIAgents/AIAgentEditView";
 import { AIChatAgentWizard } from "./views/BI/AIChatAgent/AIChatAgentWizard";
 import { BallerinaUpdateView } from "./views/BI/BallerinaUpdateView";
 
@@ -267,12 +265,6 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
-                        break;
-                    case MACHINE_VIEW.AIAgentWizard:
-                        setViewComponent(<AIAgentWizard target={{ filePath: value.documentUri, position: value.metadata.target }} />);
-                        break;
-                    case MACHINE_VIEW.AIAgentEditView:
-                        setViewComponent(<AIAgentEditView agentName={value.identifier} />);
                         break;
                     case MACHINE_VIEW.BIServiceClassDesigner:
                         setViewComponent(
