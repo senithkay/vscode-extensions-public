@@ -14,6 +14,7 @@ import { extension } from '../../BalExtensionContext';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 import { getPluginConfig } from '../../../src/utils';
+import { AUTH_CLIENT_ID, AUTH_ORG, AUTH_REDIRECT_URL } from '../../features/ai/utils';
 
 export interface AccessToken {
     accessToken: string;
@@ -27,17 +28,12 @@ const CommonReqHeaders = {
     'Accept': 'application/json'
 };
 
-const config = getPluginConfig();
-const AUTH_ORG = config.get('authOrg') as string;
-const AUTH_CLIENT_ID = config.get('authClientID') as string;
-const AUTH_REDIRECT_URL = config.get('authRedirectURL') as string;
-
 export async function getAuthUrl(callbackUri: string): Promise<string> {
 
     // return `${this._config.loginUrl}?profile=vs-code&client_id=${this._config.clientId}`
     //     + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
     const state = encodeURIComponent(btoa(JSON.stringify({ callbackUri })));
-    return `https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/authorize?response_type=code&redirect_uri=https://98c70105-822c-4359-8579-4da58f0ab4b7.e1-us-east-azure.choreoapps.dev&client_id=${AUTH_CLIENT_ID}&scope=openid&state=${state}`;
+    return `https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/authorize?response_type=code&redirect_uri=${AUTH_REDIRECT_URL}&client_id=${AUTH_CLIENT_ID}&scope=openid%20email&state=${state}`;
 }
 
 export function getLogoutUrl() : string {
@@ -49,9 +45,8 @@ export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken
         client_id: AUTH_CLIENT_ID,
         code: authCode,
         grant_type: 'authorization_code',
-        // redirect_uri: 'vscode://wso2.micro-integrator/signin',
-        redirect_uri: 'https://98c70105-822c-4359-8579-4da58f0ab4b7.e1-us-east-azure.choreoapps.dev',
-        scope: 'openid'
+        redirect_uri: AUTH_REDIRECT_URL,
+        scope: 'openid email'
     });
     try {
         const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });

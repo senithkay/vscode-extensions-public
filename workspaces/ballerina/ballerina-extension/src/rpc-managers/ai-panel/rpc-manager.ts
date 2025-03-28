@@ -59,7 +59,7 @@ import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
-import { closeAllBallerinaFiles } from "../../features/ai/utils";
+import { BACKEND_URL, closeAllBallerinaFiles } from "../../features/ai/utils";
 import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
@@ -85,8 +85,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
     async getBackendURL(): Promise<string> {
         return new Promise(async (resolve) => {
-            const config = getPluginConfig();
-            const BACKEND_URL = config.get('rootUrl') as string;
             resolve(BACKEND_URL);
         });
     }

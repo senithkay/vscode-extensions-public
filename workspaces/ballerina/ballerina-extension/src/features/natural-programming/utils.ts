@@ -28,6 +28,7 @@ import {
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
+import { BACKEND_URL } from '../ai/utils';
 
 let controller = new AbortController();
 
@@ -448,8 +449,6 @@ export function getPluginConfig(): BallerinaPluginConfig {
 
 export async function getBackendURL(): Promise<string> {
     return new Promise(async (resolve) => {
-        const config = getPluginConfig();
-        const BACKEND_URL = config.get('rootUrl') as string;
         resolve(BACKEND_URL);
     });
 }
