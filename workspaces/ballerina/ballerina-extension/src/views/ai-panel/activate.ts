@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
-import { StateMachineAI, openAIWebview } from './aiMachine';
+import { StateMachineAI, closeAIWebview, openAIWebview } from './aiMachine';
 import { AI_EVENT_TYPE, AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 import { exchangeAuthCode } from './auth';
 import { extension } from '../../BalExtensionContext';
@@ -19,6 +19,11 @@ export function activateAiPanel(ballerinaExtInstance: BallerinaExtension) {
     ballerinaExtInstance.context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_AI_PANEL, (initialPrompt?: string) => {
             openAIWebview(initialPrompt);
+        })
+    );
+    ballerinaExtInstance.context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.CLOSE_AI_PANEL, () => {
+            closeAIWebview();
         })
     );
     ballerinaExtInstance.context.subscriptions.push(
