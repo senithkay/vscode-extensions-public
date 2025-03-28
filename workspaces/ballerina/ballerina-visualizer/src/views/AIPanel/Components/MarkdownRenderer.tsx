@@ -14,7 +14,7 @@ import hljs from "highlight.js";
 import yaml from "highlight.js/lib/languages/yaml";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import Badge from "./Badge";
-// @ts-ignore - Custom language definition for Ballerina
+// @ts-ignore
 import ballerina from "../../../languages/ballerina.js";
 
 // Register custom languages with highlight.js
@@ -34,8 +34,8 @@ interface MarkdownRendererProps {
 
 const markdownWrapperStyle: React.CSSProperties = {
     whiteSpace: "normal",
-    wordBreak: "break-word", // ✅ Good fallback
-    overflowWrap: "anywhere", // ✅ Best for breaking long words mid-string
+    wordBreak: "break-word",
+    overflowWrap: "anywhere",
 };
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
