@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ArrayTypeDesc, FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
@@ -43,6 +43,7 @@ const ASK_API_URL_V1 = BACKEND_BASE_URL + "/ask-api/v1.0";
 const REQUEST_TIMEOUT = 2000000;
 
 let abortController = new AbortController();
+let nestedKeyArray: string[] = [];
 const primitiveTypes = ["string", "int", "float", "decimal", "boolean"];
 
 export async function getAccessToken(): Promise<string> {
@@ -98,7 +99,7 @@ export async function getParamDefinitions(
         let paramName = param.paramName.value;
         let paramType = "";
 
-        if (STKindChecker.isArrayTypeDesc(param.typeName)) {
+        if (param.typeName.kind === "ArrayTypeDesc") {
             paramName = `${paramName}Item`; 
             arrayParams++;
         }
@@ -111,21 +112,15 @@ export async function getParamDefinitions(
             paramType = param.typeName.source;
         }
 
-        const position = STKindChecker.isQualifiedNameReference(param.typeName)
+        const position = param.typeName.kind === "QualifiedNameReference"
             ? {
                 line: (param.typeName as QualifiedNameReference).identifier.position.startLine,
                 offset: (param.typeName as QualifiedNameReference).identifier.position.startColumn
             }
-            : STKindChecker.isArrayTypeDesc(param.typeName) && STKindChecker.isQualifiedNameReference(
-                (param.typeName as ArrayTypeDesc).memberTypeDesc)
-                ? {
-                    line: ((param.typeName as ArrayTypeDesc).memberTypeDesc as QualifiedNameReference).identifier.position.startLine,
-                    offset: ((param.typeName as ArrayTypeDesc).memberTypeDesc as QualifiedNameReference).identifier.position.startColumn
-                }
-                : {
-                    line: parameter.position.startLine,
-                    offset: parameter.position.startColumn
-                };
+            : {
+                line: parameter.position.startLine,
+                offset: parameter.position.startColumn
+            };
         const inputTypeDefinition = await StateMachine.langClient().getTypeFromSymbol({
             documentIdentifier: {
                 uri: fileUri
@@ -138,7 +133,7 @@ export async function getParamDefinitions(
         }
 
         if ('types' in inputTypeDefinition && !inputTypeDefinition.types[0].hasOwnProperty('type')) {
-            if (STKindChecker.isQualifiedNameReference(parameter.typeName)) {
+            if (parameter.typeName.kind === "QualifiedNameReference") {
                 throw new Error(`"${parameter.typeName["identifier"].value}" does not exist in the package "${parameter.typeName["modulePrefix"].value}". Please verify the record name or ensure that the correct package is imported.`);
             } 
             return INVALID_PARAMETER_TYPE;
@@ -181,14 +176,14 @@ export async function getParamDefinitions(
         inputMetadata = {
             ...inputMetadata,
             [paramName]: {
-                "isArrayType": STKindChecker.isArrayTypeDesc(parameter.typeName),
+                "isArrayType": parameter.typeName.kind === "ArrayTypeDesc",
                 "parameterName": paramName,
                 "parameterType": paramType,
-                "type": STKindChecker.isArrayTypeDesc(parameter.typeName) ? "record[]" : "record",
+                "type": parameter.typeName.kind === "ArrayTypeDesc" ? "record[]" : "record",
                 "fields": (inputDefinition as RecordDefinitonObject).recordFieldsMetadata
             }
         };
-        if (STKindChecker.isArrayTypeDesc(parameter.typeName)) {
+        if (parameter.typeName.kind === "ArrayTypeDesc") {
             hasArrayParams = true;
         }
     }
@@ -226,8 +221,7 @@ export async function getParamDefinitions(
         if (!hasArrayParams) {
             return INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY;
         }
-        if (!(STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type.memberTypeDesc) ||
-            STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type.memberTypeDesc))) {
+        if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type.memberTypeDesc)) {
             return INVALID_PARAMETER_TYPE;
         }
     } else {
@@ -248,20 +242,15 @@ export async function getParamDefinitions(
                 ? returnType.rightTypeDesc.position.startColumn
                 : returnType.leftTypeDesc.position.startColumn
         }
-        : STKindChecker.isArrayTypeDesc(returnType) && STKindChecker.isQualifiedNameReference(returnType.memberTypeDesc)
+        : STKindChecker.isQualifiedNameReference(returnType)
             ? {
-                line: returnType.memberTypeDesc.identifier.position.startLine,
-                offset: returnType.memberTypeDesc.identifier.position.startColumn
+                line: returnType.identifier.position.startLine,
+                offset: returnType.identifier.position.startColumn
             }
-            : STKindChecker.isQualifiedNameReference(returnType)
-                ? {
-                    line: returnType.identifier.position.startLine,
-                    offset: returnType.identifier.position.startColumn
-                }
-                : {
-                    line: returnType.position.startLine,
-                    offset: returnType.position.startColumn
-                };
+            : {
+                line: returnType.position.startLine,
+                offset: returnType.position.startColumn
+            };
 
     const outputTypeDefinition = await StateMachine.langClient().getTypeFromSymbol({
         documentIdentifier: {
@@ -271,7 +260,7 @@ export async function getParamDefinitions(
     });
 
     if ('types' in outputTypeDefinition && !outputTypeDefinition.types[0].hasOwnProperty('type')) {
-        if (STKindChecker.isQualifiedNameReference(returnType)) {
+        if (returnType.kind === "QualifiedNameReference") {
             throw new Error(`"${returnType["identifier"].value}" does not exist in the package "${returnType["modulePrefix"].value}". Please verify the record name or ensure that the correct package is imported.`);
         } 
         return INVALID_PARAMETER_TYPE;
@@ -381,7 +370,7 @@ export async function processMappings(
 }
 
 
-export async function generateBallerinaCode(response: object, parameterDefinitions: ParameterMetadata | ErrorCode, nestedKey: string = "", nestedKeyArray: string[]): Promise<object|ErrorCode> {
+export async function generateBallerinaCode(response: object, parameterDefinitions: ParameterMetadata | ErrorCode, nestedKey: string = ""): Promise<object|ErrorCode> {
     let recordFields: { [key: string]: any } = {};
     const arrayRecords = [
         "record[]", "record[]|()", "(readonly&record)[]", "(readonly&record)[]|()",
@@ -402,7 +391,7 @@ export async function generateBallerinaCode(response: object, parameterDefinitio
     }
 
     if (response.hasOwnProperty("operation") && response.hasOwnProperty("parameters") && response.hasOwnProperty("targetType")) {
-        let path = await getMappingString(response, parameterDefinitions, nestedKey, recordTypes, unionEnumIntersectionTypes, arrayRecords, arrayEnumUnion, nestedKeyArray);
+        let path = await getMappingString(response, parameterDefinitions, nestedKey, recordTypes, unionEnumIntersectionTypes, arrayRecords, arrayEnumUnion);
         if (isErrorCode(path)) {
             return {};
         }        
@@ -422,12 +411,12 @@ export async function generateBallerinaCode(response: object, parameterDefinitio
             
             if (!subRecord.hasOwnProperty("operation") && !subRecord.hasOwnProperty("parameters") && !subRecord.hasOwnProperty("targetType")) {
                 nestedKeyArray.push(key);
-                let responseRecord = await generateBallerinaCode(subRecord, parameterDefinitions, key, nestedKeyArray);
-                let recordFieldDetails = await handleRecordArrays(key, nestedKey, responseRecord, parameterDefinitions, arrayRecords, arrayEnumUnion, nestedKeyArray);
+                let responseRecord = await generateBallerinaCode(subRecord, parameterDefinitions, key);
+                let recordFieldDetails = await handleRecordArrays(key, nestedKey, responseRecord, parameterDefinitions, arrayRecords, arrayEnumUnion);
                 nestedKeyArray.pop();
                 recordFields = { ...recordFields, ...recordFieldDetails };
             } else {
-                let nestedResponseRecord = await generateBallerinaCode(subRecord, parameterDefinitions, key, nestedKeyArray);
+                let nestedResponseRecord = await generateBallerinaCode(subRecord, parameterDefinitions, key);
                 recordFields = { ...recordFields, ...nestedResponseRecord };
             }
         }
@@ -467,7 +456,7 @@ function isUnionType(type: string): boolean {
     return validUnionTypes.includes(sortedType); // Check against Set
 }
 
-async function getMappingString(mapping: object, parameterDefinitions: ParameterMetadata | ErrorCode, nestedKey:string, recordTypes: string[], unionEnumIntersectionTypes: string[], arrayRecords: string[], arrayEnumUnion: string[], nestedKeyArray: string[]): Promise<string | ErrorCode>  {
+async function getMappingString(mapping: object, parameterDefinitions: ParameterMetadata | ErrorCode, nestedKey:string, recordTypes: string[], unionEnumIntersectionTypes: string[], arrayRecords: string[], arrayEnumUnion: string[]): Promise<string | ErrorCode>  {
     let operation: string = mapping["operation"];
     let targetType: string = mapping["targetType"];
     let parameters: string[] = mapping["parameters"];
@@ -525,7 +514,7 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
         const hasArrayNotation = (type: string) => type.includes("[]");
         if (recordTypes.includes(baseType)) {
             // Both baseType and baseTargetType either contain "[]" or do not
-            if (!(hasArrayNotation(baseType) === hasArrayNotation(baseTargetType)) && !(baseTargetType === "int")) {
+            if (!(hasArrayNotation(baseType) === hasArrayNotation(baseTargetType))) {
                 return ""; 
             } 
         } else if (unionEnumIntersectionTypes.includes(baseOutputType)) {
@@ -559,11 +548,6 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
         // Add split operation if inputType is "string" and targetType is "string[]"
         if (baseType === "string" && baseTargetType === "string[]") {
             return `re \`,\`.split(${path})`;
-        }
-
-        // Add length operation if inputType is "record[]" and targetType is "int"
-        if (arrayRecords.includes(baseType) && baseTargetType === "int") {
-            return `(${path}).length()`;
         }
 
         // Type conversion logic
@@ -1209,7 +1193,7 @@ class TypeInfoVisitorImpl implements TypeInfoVisitor {
         if (members.length > 2) {
             context.isUnion = members.some((member) => member.typeName === "()");
         } else if (members.length === 2) {
-            context.isUnion = !members.some(member => member.typeName === "()" || member.typeName === "readonly");
+            context.isUnion = !members.some(member => member.typeName === "()");
         } else {
             context.isUnion = false;
         }
@@ -1332,7 +1316,7 @@ export function getBalRecFieldName(fieldName: string) {
 }
 
 export async function getDatamapperCode(parameterDefinitions: ErrorCode | ParameterMetadata): Promise<object | ErrorCode> {
-    let nestedKeyArray: string[] = [];
+    console.log(JSON.stringify(parameterDefinitions));
     try {
         const accessToken = await getAccessToken().catch((error) => {
             console.error(error);
@@ -1360,11 +1344,11 @@ export async function getDatamapperCode(parameterDefinitions: ErrorCode | Parame
 
             retryResponse = (retryResponse as Response);
             let intermediateMapping = await filterResponse(retryResponse); 
-            let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "", nestedKeyArray);
+            let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
             return finalCode;
         }
         let intermediateMapping = await filterResponse(response);
-        let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "", nestedKeyArray);
+        let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
         return finalCode; 
     } catch (error) {
         console.error(error);
@@ -1503,7 +1487,7 @@ async function filterMappingResponse(resp: Response): Promise<string| ErrorCode>
         return SERVER_ERROR;
     } else {
         //TODO: Handle more error codes
-        return { code: 4, message: `An unknown error occured. ${resp.statusText}.` };
+        return { code: 4, message: `An unknown error occured1. ${resp.statusText}.` };
     }
 }
 
@@ -1810,8 +1794,6 @@ async function getDefaultValue(dataType: string): Promise<string> {
             return "0.0";
         case "boolean":
             return "false";
-        case "json":
-            return "()";
         case "int[]":
         case "string[]":
         case "float[]":
@@ -1822,7 +1804,6 @@ async function getDefaultValue(dataType: string): Promise<string> {
         case "enum[]":
         case "union[]":
         case "intersection[]":
-        case "json[]":
             return "[]";
         default:
             // change the following to a appropriate value
@@ -1860,7 +1841,7 @@ async function resolveMetadata(parameterDefinitions: ParameterMetadata | ErrorCo
     return metadata[key];
 }
 
-async function handleRecordArrays(key: string, nestedKey: string, responseRecord: object, parameterDefinitions: ParameterMetadata | ErrorCode, arrayRecords: string[], arrayEnumUnion: string[], nestedKeyArray: string[]) {
+async function handleRecordArrays(key: string, nestedKey: string, responseRecord: object, parameterDefinitions: ParameterMetadata | ErrorCode, arrayRecords: string[], arrayEnumUnion: string[]) {
     let recordFields: { [key: string]: any } = {};
     let subObjectKeys = Object.keys(responseRecord);
 

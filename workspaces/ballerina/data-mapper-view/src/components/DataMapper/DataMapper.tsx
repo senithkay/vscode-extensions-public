@@ -396,7 +396,42 @@ export function DataMapperC(props: DataMapperViewProps) {
     }, [projectComponents, isFetchingComponents]);
 
     const autoMapWithAI = async () => {
-        rpcClient.getAiPanelRpcClient().generateMappings({position: fnST.position, filePath});
+        const ai = rpcClient.getAiPanelRpcClient();
+        setAutoMapInProgress(true);
+        try {
+            const newFnPositionPromise = ai.generateMappings({position: fnST.position, filePath});
+            const timeoutPromise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error('Reached timeout.'));
+                }, AUTO_MAP_TIMEOUT_MS);
+            });
+            const resolvedPromise = await Promise.race([newFnPositionPromise, timeoutPromise]);
+            setAutoMapInProgress(false);
+
+            if (!(resolvedPromise instanceof Error)) {
+                const autogen = (resolvedPromise as GenerateMappingsResponse);
+                if (autogen.error) {
+                    if (autogen.error.code === 1) {
+                        // As unauthorized is handled by the extension
+                        await ai.promptLogin();
+                        return;
+                    }
+                    setAutoMapError({ code: autogen.error.code, onClose: closeAutoMapError, message: autogen.error.message});
+                    return;
+                }
+                const newFnPosition = autogen.newFnPosition;
+                const _ = await newFnPosition && ai.notifyAIMappings({newFnPosition, prevFnSource: fnST.source, filePath});
+            }
+        } catch (error) {
+            setAutoMapInProgress(false);
+
+            if (error.message === 'Reached timeout.') {
+                setAutoMapError({ code: 500, onClose: closeAutoMapError });
+            } else {
+                // tslint:disable-next-line:no-console
+                console.error("Error in automapping. ", error);
+            }
+        }
     };
 
     const stopAutoMap = async (): Promise<boolean> => {
@@ -405,6 +440,10 @@ export function DataMapperC(props: DataMapperViewProps) {
         await ai.stopAIMappings();
         return true;
     }
+
+    const closeAutoMapError = () => {
+        setAutoMapError(undefined);
+    };
 
     useEffect(() => {
         if (fnST) {

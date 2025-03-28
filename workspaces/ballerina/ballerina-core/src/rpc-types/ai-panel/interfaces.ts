@@ -53,7 +53,6 @@ export interface DiagnosticEntry {
 export interface InitialPrompt {
     exists: boolean;
     text: string;
-    dataMappingFunctionName?: string;
 }
 
 export interface AIVisualizerState {
@@ -219,11 +218,4 @@ export interface DocAssistantResponse {
 export interface LLMDiagnostics {
     statusCode: number;
     diags: string;
-}
-
-export interface ExistingFunction {
-    name: string; 
-    filePath: string; 
-    startLine: number; 
-    endLine: number;
 }
