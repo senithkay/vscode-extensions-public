@@ -15,9 +15,6 @@ import React, {
     KeyboardEvent,
     ChangeEvent,
     useEffect,
-    forwardRef,
-    useImperativeHandle,
-    useCallback,
 } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
@@ -37,7 +34,6 @@ import { TestAttachment } from "../../../../utils/testAttachment";
 import { StyledInputComponent, StyledInputRef } from "./StyledInput";
 
 // Styled Components
-
 const Container = styled.div`
     width: 100%;
     display: flex;
@@ -82,7 +78,7 @@ const SuggestionsList = styled.ul`
     position: absolute;
     bottom: 100%;
     left: 0;
-    background-color: var(--vscode-editorWidget-background);
+    background-color: var(--vscode-dropdown-listBackground);
     border: 1px solid var(--vscode-editorWidget-border);
     border-radius: 4px;
     list-style: none;
@@ -104,13 +100,13 @@ const SuggestionItem = styled.li<SuggestionItemProps>`
     padding: 6px 12px;
     cursor: pointer;
     background-color: ${(props: SuggestionItemProps) =>
-        props.active ? "var(--vscode-list-activeSelectionBackground)" : "var(--vscode-editor-background)"};
+        props.active ? "var(--vscode-editorActionList-focusBackground)" : "var(--vscode-editorActionList-background)"};
     color: ${(props: SuggestionItemProps) =>
-        props.active ? "var(--vscode-list-activeSelectionForeground)" : "var(--vscode-editor-foreground)"};
+        props.active ? "var(--vscode-editorActionList-focusForeground)" : "var(--vscode-editorActionList-foreground)"};
 
     &:hover {
         background-color: ${(props: SuggestionItemProps) =>
-            props.active ? "var(--vscode-list-activeSelectionBackground)" : "var(--vscode-editor-hoverBackground)"};
+            props.active ? "var(--vscode-editorActionList-focusBackground)" : "var(--vscode-list-hoverBackground)"};
     }
 `;
 
@@ -118,7 +114,7 @@ const ActionButton = styled.button`
     width: 24px;
     height: 24px;
     background-color: transparent;
-    color: var(--vscode-input-foreground);
+    color: var(--vscode-icon-foreground);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -384,8 +380,8 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
     // Add badge (for commands only)
     const addBadge = (badge: string) => {
         const highlightedBadge = `<div style="
-            background: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,1)), var(--vscode-badge-background);
-            color: var(--vscode-badge-foreground);
+            background: var(--vscode-toolbar-hoverBackground);
+            color: var(--vscode-icon-foreground);
             padding: 4px 0;
             border-radius: 4px;
             display: inline-flex;
@@ -465,9 +461,9 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             const textAfterAt = inputValue.substring(originalIdx);
 
             const highlightedBadge = `<div style="
-                background-color: var(--vscode-editorWidget-background);
-                color: var(--vscode-editorWidget-foreground);
-                padding: 4px;
+                background: var(--vscode-toolbar-hoverBackground);
+                color: var(--vscode-icon-foreground);
+                padding: 4px 0;
                 border-radius: 4px;
                 display: inline-flex;
                 align-items: center;
