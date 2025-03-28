@@ -599,7 +599,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
             });
             
-            const metadataPath = path.join(workspacePath, "src", "main", "wso2mi", "resources", "metadata", name + "_" + apiVersion + "_metadata.yaml");
+            const metadataPath = path.join(workspacePath, "src", "main", "wso2mi", "resources", "metadata", name + (apiVersion == "" ? "" : "_" + apiVersion) + "_metadata.yaml");
             fs.writeFileSync(metadataPath, getAPIMetadata({ name: name, version: apiVersion == "" ? "1.0.0" : apiVersion, context: apiContext, versionType: apiVersionType ? (apiVersionType == "url" ? apiVersionType : false) : false }));
 
             // If WSDL is used, create an Endpoint
