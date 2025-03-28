@@ -23,6 +23,7 @@ const Container = styled.div`
 `;
 
 const Label = styled.div`
+    font-family: var(--font-family);
     color: var(--vscode-editor-foreground);
     margin-bottom: 4px;
 `;
@@ -32,6 +33,7 @@ const RequiredMark = styled.span`
 `;
 
 const Description = styled.div`
+    font-family: var(--font-family);
     color: var(--vscode-list-deemphasizedForeground);
     margin-top: 4px;
 `;
