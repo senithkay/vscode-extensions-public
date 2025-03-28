@@ -65,6 +65,7 @@ import ForkForm from "../ForkForm";
 import { getHelperPane } from "../../HelperPane";
 import { FormTypeEditor } from "../../TypeEditor";
 import { getTypeHelper } from "../../TypeHelper";
+import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -145,6 +146,7 @@ export function FormGenerator(props: FormProps) {
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
 
     /* Expression editor related state and ref variables */
+    const prevCompletionFetchText = useRef<string>("");
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
@@ -306,31 +308,24 @@ export function FormGenerator(props: FormProps) {
                 onlyVariables?: boolean
             ) => {
                 let expressionCompletions: CompletionItem[] = [];
-                const effectiveText = value.slice(0, offset);
-                const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-                const endOfStatementRegex = /[\)\]]\s*$/;
-                if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
-                    // Case 1: When a character unrelated to triggering completions is entered
-                    setCompletions([]);
-                } else if (
+                const { parentContent, currentContent } = value
+                    .slice(0, offset)
+                    .match(EXPRESSION_EXTRACTION_REGEX)?.groups ?? {};
+                if (
                     completions.length > 0 &&
-                    completionFetchText.length > 0 &&
                     !triggerCharacter &&
-                    !onlyVariables &&
+                    parentContent === prevCompletionFetchText.current &&
                     !triggerCompletionOnNextRequest.current
                 ) {
-                    // Case 2: When completions have already been retrieved and only need to be filtered
                     expressionCompletions = completions
                         .filter((completion) => {
-                            const lowerCaseText = completionFetchText.toLowerCase();
+                            const lowerCaseText = currentContent.toLowerCase();
                             const lowerCaseLabel = completion.label.toLowerCase();
 
                             return lowerCaseLabel.includes(lowerCaseText);
                         })
                         .sort((a, b) => a.sortText.localeCompare(b.sortText));
                 } else {
-                    // Case 3: When completions need to be retrieved from the language server
-                    // Retrieve completions from the ls
                     let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
                         filePath: fileName,
                         context: {
@@ -338,12 +333,12 @@ export function FormGenerator(props: FormProps) {
                             startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
                             offset: offset,
                             codedata: node.codedata,
-                            property: property,
+                            property: property
                         },
                         completionContext: {
                             triggerKind: triggerCharacter ? 2 : 1,
-                            triggerCharacter: triggerCharacter as TriggerCharacter,
-                        },
+                            triggerCharacter: triggerCharacter as TriggerCharacter
+                        }
                     });
 
                     if (onlyVariables) {
@@ -355,7 +350,7 @@ export function FormGenerator(props: FormProps) {
                         triggerCompletionOnNextRequest.current = false;
                     }
 
-                    // Convert completions to the ExpressionBar format
+                    // Convert completions to the ExpressionEditor format
                     let convertedCompletions: CompletionItem[] = [];
                     completions?.forEach((completion) => {
                         if (completion.detail) {
@@ -371,7 +366,7 @@ export function FormGenerator(props: FormProps) {
                     } else {
                         expressionCompletions = convertedCompletions
                             .filter((completion) => {
-                                const lowerCaseText = completionFetchText.toLowerCase();
+                                const lowerCaseText = currentContent.toLowerCase();
                                 const lowerCaseLabel = completion.label.toLowerCase();
 
                                 return lowerCaseLabel.includes(lowerCaseText);
@@ -380,6 +375,7 @@ export function FormGenerator(props: FormProps) {
                     }
                 }
 
+                prevCompletionFetchText.current = parentContent ?? "";
                 setFilteredCompletions(expressionCompletions);
             },
             250
