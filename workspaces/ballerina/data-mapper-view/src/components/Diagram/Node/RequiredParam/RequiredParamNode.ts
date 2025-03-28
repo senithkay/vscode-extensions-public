@@ -12,7 +12,7 @@ import { RequiredParam } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { getSearchFilteredInput, getTypeOfInputParam } from "../../utils/dm-utils";
+import { getSearchFilteredInput, getTypeOfInputParam, isOptionalAndNillableField } from "../../utils/dm-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const REQ_PARAM_NODE_TYPE = "datamapper-node-required-param";
@@ -52,12 +52,18 @@ export class RequiredParamNode extends DataMapperNodeModel {
             if (this.typeDef.typeName === PrimitiveBalType.Record) {
                 const fields = this.typeDef.fields;
                 fields.forEach((subField) => {
-                    this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.value.paramName.value, '',
-                        parentPort, this.context.collapsedFields, parentPort.collapsed);
+                    const isOptional = isOptionalAndNillableField(subField);
+                    this.numberOfFields += this.addPortsForInputRecordField(
+                        subField, "OUT", this.value.paramName.value, this.value.paramName.value, '',
+                        parentPort, this.context.collapsedFields, parentPort.collapsed, isOptional
+                    );
                 });
             } else {
-                this.addPortsForInputRecordField(this.typeDef, "OUT", this.value.paramName.value,
-                    '', parentPort, this.context.collapsedFields, parentPort.collapsed);
+                const isOptional = isOptionalAndNillableField(this.typeDef);
+                this.addPortsForInputRecordField(
+                    this.typeDef, "OUT", this.value.paramName.value, this.value.paramName.value,
+                    '', parentPort, this.context.collapsedFields, parentPort.collapsed, isOptional
+                );
             }
         }
     }
