@@ -514,7 +514,7 @@ function getDefaultValueForConfig(property: Property): any {
 function convertConfigToToml(config: any, groupedValues: Map<string, Map<string, ConfigProperty[]>>): string {
     let result = '';
 
-    // Process root level properties first (add comments as needed)
+    // Process root level properties first
     const rootProps = Object.keys(config).filter(key =>
         !key.includes('.') && (typeof config[key] !== 'object' || config[key] === null || Array.isArray(config[key]))
     );
@@ -528,31 +528,95 @@ function convertConfigToToml(config: any, groupedValues: Map<string, Map<string,
         result += '\n';
     }
 
-    // Then process sections
-    const sectionKeys = Object.keys(config).filter(key =>
-        key.includes('.') || (typeof config[key] === 'object' && config[key] !== null && !Array.isArray(config[key]))
+    // collect all existing sections
+    const existingDottedSections = new Set(
+        Object.keys(config).filter(key => key.includes('.'))
     );
 
-    for (const key of sectionKeys) {
-        if (key.includes('.')) {
-            // This is a dotted section
-            result += `[${key}]\n`;
-            const sectionObj = config[key];
+    // Process nested objects that need to be converted to proper sections
+    const nestedOrgKeys = Object.keys(config).filter(key =>
+        !key.includes('.') &&
+        typeof config[key] === 'object' &&
+        config[key] !== null &&
+        !Array.isArray(config[key])
+    );
 
-            for (const propKey of Object.keys(sectionObj)) {
-                result += `${propKey} = ${formatTomlValue(sectionObj[propKey])}\n`;
+    // Use groupedValues to generate sections in the correct format
+    for (const [orgName, packageMap] of groupedValues) {
+        for (const [pkgName, _] of packageMap) {
+            const sectionKey = `${orgName}.${pkgName}`;
+            
+            if (existingDottedSections.has(sectionKey)) {
+                continue;
             }
-        } else {
-            // This is a nested object that needs a section
-            result += `[${key}]\n`;
-            const sectionObj = config[key];
 
-            for (const propKey of Object.keys(sectionObj)) {
-                result += `${propKey} = ${formatTomlValue(sectionObj[propKey])}\n`;
+            // Check if this section exists in nested format
+            let sectionContent = {};
+            let sectionExists = false;
+            if (config[orgName]) {
+                const pkgParts = pkgName.split('.');
+                let current = config[orgName];
+                let found = true;
+
+                for (const part of pkgParts) {
+                    if (current && typeof current === 'object' && part in current) {
+                        current = current[part];
+                    } else {
+                        found = false;
+                        break;
+                    }
+                }
+
+                if (found && current && typeof current === 'object') {
+                    sectionContent = current;
+                    sectionExists = true;
+                }
+            }
+
+            // If section exists in nested format, add it to result
+            if (sectionExists) {
+                result += `[${sectionKey}]\n`;
+                for (const propKey of Object.keys(sectionContent)) {
+                    result += `${propKey} = ${formatTomlValue(sectionContent[propKey])}\n`;
+                }
+                result += '\n';
             }
         }
+    }
 
+    // Now process any existing dotted sections
+    for (const sectionKey of Array.from(existingDottedSections).sort()) {
+        result += `[${sectionKey}]\n`;
+        const sectionObj = config[sectionKey];
+
+        for (const propKey of Object.keys(sectionObj)) {
+            result += `${propKey} = ${formatTomlValue(sectionObj[propKey])}\n`;
+        }
         result += '\n';
+    }
+
+    // Process any remaining org-level objects that weren't matched
+    for (const orgKey of nestedOrgKeys) {
+        if (groupedValues.has(orgKey)) {
+            continue;
+        }
+        
+        const orgObj = config[orgKey];
+        for (const pkgKey of Object.keys(orgObj).sort()) {
+            const pkgObj = orgObj[pkgKey];
+            
+            if (typeof pkgObj !== 'object' || pkgObj === null || Array.isArray(pkgObj)) {
+                continue;
+            }
+            
+            const sectionKey = `${orgKey}.${pkgKey}`;
+            result += `[${sectionKey}]\n`;
+            
+            for (const propKey of Object.keys(pkgObj)) {
+                result += `${propKey} = ${formatTomlValue(pkgObj[propKey])}\n`;
+            }
+            result += '\n';
+        }
     }
 
     return result;
