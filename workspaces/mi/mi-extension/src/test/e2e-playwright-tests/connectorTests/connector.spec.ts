@@ -235,19 +235,4 @@ export default function createTests() {
       }
     });
   })
-
-  test.afterAll(async () => {
-    await vscode?.close();
-
-    const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
-    const video = page.page.video()
-    const videoDir = path.resolve(resourcesFolder, 'videos')
-    const videoPath = await video?.path()
-
-    if (video && videoPath) {
-      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
-    }
-    
-    console.log('Diagram tests completed')
-  });
 }
