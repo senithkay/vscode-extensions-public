@@ -300,6 +300,7 @@ import { importCapp } from "../../util/importCapp";
 import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { checkForDevantExt } from "../../extension";
+import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
 
 const AdmZip = require('adm-zip');
 
@@ -506,6 +507,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 xmlData,
                 name,
                 version,
+                context,
+                versionType,
                 saveSwaggerDef,
                 swaggerDefPath,
                 wsdlType,
@@ -513,13 +516,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 wsdlEndpointName,
                 projectDir
             } = params;
+            let apiVersionType = versionType ?? "";
+            let apiVersion = version ?? "";
+            let apiContext = context ?? "";
 
             const getSwaggerName = (swaggerDefPath: string) => {
                 const ext = path.extname(swaggerDefPath);
-                return `${name}${ext}`;
+                return `${name}${apiVersion !== "" ? `_v${apiVersion}` : ''}${ext}`;
             };
             let fileName: string;
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
                 const projectDetailsRes = await langClient?.getProjectDetails();
@@ -532,10 +539,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     } else {
                         return `gov:mi-resources/api-definitions/${getSwaggerName(swaggerDefPath)}`;
                     }
-                }
-                if (!isRegistrySupported) {
-                    const swaggerArtifactName = `resources_api-definitions_${getSwaggerName(swaggerDefPath ?? '')}`.replace(/\./g, '_');
-                    addNewEntryToArtifactXML(projectDir ?? '', swaggerArtifactName, getSwaggerName(swaggerDefPath ?? ''), "/_system/governance/mi-resources/api-definitions", "application/yaml", false, false);
                 }
                 if (swaggerDefPath) {
                     response = await langClient.generateAPI({
@@ -553,7 +556,34 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         wsdlEndpointName
                     });
                 }
-                fileName = name;
+
+                const options = {
+                    ignoreAttributes: false,
+                    allowBooleanAttributes: true,
+                    attributeNamePrefix: "@_",
+                    attributesGroupName: "@_"
+                };
+                const parser = new XMLParser(options);
+                const jsonObj = parser.parse(response.apiXml);
+                apiVersionType = jsonObj.api["@_"]['@_version-type'] ?? apiVersionType;
+                apiVersion = jsonObj.api["@_"]['@_version'] ?? apiVersion;
+                apiContext = jsonObj.api["@_"]['@_context'] ?? apiContext;
+                fileName = `${name}${apiVersion !== "" ? `_v${apiVersion}` : ''}`;
+
+                if (saveSwaggerDef && swaggerDefPath) {
+                    const swaggerRegPath = path.join(
+                        workspacePath,
+                        SWAGGER_REL_DIR,
+                        fileName + "_original" + path.extname(swaggerDefPath)
+                    );
+                    fs.mkdirSync(path.dirname(swaggerRegPath), { recursive: true });
+                    fs.copyFileSync(swaggerDefPath, swaggerRegPath);
+                }
+
+                if (!isRegistrySupported) {
+                    const swaggerArtifactName = `resources_api-definitions_${getSwaggerName(swaggerDefPath ?? '')}`.replace(/\./g, '_');
+                    addNewEntryToArtifactXML(projectDir ?? '', swaggerArtifactName, getSwaggerName(swaggerDefPath ?? ''), "/_system/governance/mi-resources/api-definitions", "application/yaml", false, false);
+                }
             } else {
                 fileName = `${name}${version ? `_v${version}` : ''}`;
             }
@@ -568,6 +598,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
+            
+            const metadataPath = path.join(workspacePath, "src", "main", "wso2mi", "resources", "metadata", name + (apiVersion == "" ? "" : "_" + apiVersion) + "_metadata.yaml");
+            fs.writeFileSync(metadataPath, getAPIMetadata({ name: name, version: apiVersion == "" ? "1.0.0" : apiVersion, context: apiContext, versionType: apiVersionType ? (apiVersionType == "url" ? apiVersionType : false) : false }));
 
             // If WSDL is used, create an Endpoint
             if (response.endpointXml) {
@@ -581,20 +614,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         end: { line: sanitizedEndpointXml.split('\n').length + 1, character: 0 }
                     }
                 });
-            }
-
-            // Save swagger file
-            if (saveSwaggerDef && swaggerDefPath) {
-                const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
-                const swaggerRegPath = path.join(
-                    workspacePath,
-                    SWAGGER_REL_DIR,
-                    getSwaggerName(swaggerDefPath)
-                );
-                if (!fs.existsSync(path.dirname(swaggerRegPath))) {
-                    fs.mkdirSync(path.dirname(swaggerRegPath), { recursive: true });
-                }
-                fs.copyFileSync(swaggerDefPath, swaggerRegPath);
             }
 
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -4587,6 +4606,11 @@ ${keyValuesXML}`;
 
     async compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
         return new Promise(async (resolve) => {
+
+            // TODO: Remove below return statment after fixing issue
+            // https://github.com/wso2/mi-vscode/issues/968 
+            return resolve({ swaggerExists: false });
+
             const { apiPath, apiName } = params;
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(

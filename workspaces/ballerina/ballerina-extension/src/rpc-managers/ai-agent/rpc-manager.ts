@@ -13,8 +13,6 @@ import {
     AIAgentRequest,
     AIAgentResponse,
     AIAgentToolsUpdateRequest,
-    AIConnectorActionsRequest,
-    AIConnectorActionsResponse,
     AIGentToolsRequest,
     AIGentToolsResponse,
     AIModelsRequest,
@@ -103,18 +101,6 @@ export class AiAgentRpcManager implements AIAgentAPI {
                 await this.updateSource(response.textEdits);
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 resolve(response);
-            } catch (error) {
-                console.log(error);
-            }
-        });
-    }
-
-    async getActions(params: AIConnectorActionsRequest): Promise<AIConnectorActionsResponse> {
-        return new Promise(async (resolve) => {
-            const context = StateMachine.context();
-            try {
-                const res: AIConnectorActionsResponse = await context.langClient.getConnectorActions(params);
-                resolve(res);
             } catch (error) {
                 console.log(error);
             }

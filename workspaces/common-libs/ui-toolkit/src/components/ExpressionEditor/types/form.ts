@@ -41,7 +41,6 @@ type HelperPaneConditionalProps = {
 
 export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {
     resize?: 'vertical' | 'disabled';
-    rows?: number;
     growRange?: { start: number, offset: number };
     actionButtons?: ActionButtonType[];
     startAdornment?: ReactNode;
