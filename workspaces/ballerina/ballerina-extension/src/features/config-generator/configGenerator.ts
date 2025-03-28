@@ -381,7 +381,8 @@ function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValue
 
             // Add the default module properties to the root of the config object
             for (const prop of props) {
-                if (prop.name in configObject) {
+                // Check if the property already exists at the root level
+                if (propertyExistsInConfig(configObject, prop.name)) {
                     continue;
                 }
 
@@ -406,28 +407,53 @@ function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValue
                 continue;
             }
 
-            // Create section in config object if it doesn't exist
-            if (!configObject[sectionKey]) {
+
+            // Check for nested format (e.g. orgKey: { pkgKey: {...} })
+            let sectionExists = false;
+            let sectionObject = null;
+            if (configObject[orgKey]) {
+                // Handle multiple nesting levels if pkgKey contains dots
+                const pkgParts = pkgKey.split('.');
+                let current = configObject[orgKey];
+                let found = true;
+
+                for (const part of pkgParts) {
+                    if (current && typeof current === 'object' && part in current) {
+                        current = current[part];
+                    } else {
+                        found = false;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    sectionExists = true;
+                    sectionObject = current;
+                }
+            }
+
+            // Create section if it doesn't exist
+            if (!sectionExists) {
                 configObject[sectionKey] = {};
+                sectionObject = configObject[sectionKey];
             }
 
             // Add properties to the section
             for (const prop of props) {
-                // Skip if property already exists
-                if (prop.name in configObject[sectionKey]) {
+                if (propertyExistsInSection(sectionObject, prop.name)) {
                     continue;
                 }
 
                 if (prop.required || includeOptional) {
                     // Add property with default value based on type
-                    configObject[sectionKey][prop.name] = getDefaultValueForConfig(prop.property);
+                    sectionObject[prop.name] = getDefaultValueForConfig(prop.property);
                 }
             }
         }
     }
 
     // Convert the config object back to TOML
-    let newTomlContent = convertConfigToToml(configObject);
+    let newTomlContent = convertConfigToToml(configObject, groupedValues);
 
     // If we have header content in the updated content, preserve it
     let headerMatch = updatedContent.match(/^([\s\S]*?)\n\s*([a-zA-Z]|$|\[)/);
@@ -442,8 +468,7 @@ function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValue
             return window.showErrorMessage("Unable to update the configurable values: " + error);
         }
         window.showInformationMessage("Successfully updated the configurable values.");
-    }
-    );
+    });
 }
 
 // Helper to get default value for a config property
@@ -486,7 +511,7 @@ function getDefaultValueForConfig(property: Property): any {
 }
 
 // Helper to convert config object to TOML string
-function convertConfigToToml(config: any): string {
+function convertConfigToToml(config: any, groupedValues: Map<string, Map<string, ConfigProperty[]>>): string {
     let result = '';
 
     // Process root level properties first (add comments as needed)
@@ -566,6 +591,66 @@ function formatTomlValue(value: any): string {
     }
 
     return '""';
+}
+
+// Helper to check if a property exists at the root level of config object
+function propertyExistsInConfig(configObject: any, propertyName: string): boolean {
+    if (!configObject) {
+        return false;
+    }
+
+    // Direct property match
+    if (propertyName in configObject) {
+        return true;
+    }
+
+    // Check if property exists in a dotted path
+    if (propertyName.includes('.')) {
+        const parts = propertyName.split('.');
+        let current = configObject;
+
+        for (const part of parts) {
+            if (current && typeof current === 'object' && part in current) {
+                current = current[part];
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+// Helper to check if a property exists in a section
+function propertyExistsInSection(sectionObject: any, propertyName: string): boolean {
+    if (!sectionObject) {
+        return false;
+    }
+
+    // Direct property match
+    if (propertyName in sectionObject) {
+        return true;
+    }
+
+    // Check if property exists in a dotted path
+    if (propertyName.includes('.')) {
+        const parts = propertyName.split('.');
+        let current = sectionObject;
+
+        for (const part of parts) {
+            if (current && typeof current === 'object' && part in current) {
+                current = current[part];
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean) {
