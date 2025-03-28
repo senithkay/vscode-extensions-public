@@ -68,28 +68,35 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownCont
     }, []);
 
     const MarkdownComponents = {
-        code({
-            inline,
-            className,
-            children,
-        }: {
-            inline?: boolean;
-            className?: string;
-            children: React.ReactNode;
-        }) {
+        code({ inline, className, children }: { inline?: boolean; className?: string; children: React.ReactNode }) {
             const match = /language-(\w+)/.exec(className || "");
-            return !inline && match ? (
-                <pre>
-                    <code
-                        className={`hljs ${match[1]}`}
-                        dangerouslySetInnerHTML={{
-                            __html: hljs.highlight(children.toString(), { language: match[1] }).value,
-                        }}
-                    />
-                </pre>
-            ) : (
-                <code className={className}>{children}</code>
-            );
+            const codeString = ((Array.isArray(children) ? children.join("") : children) ?? "").toString();
+
+            if (!inline && match) {
+                const language = match[1];
+
+                // Check if the language is registered
+                if (hljs.getLanguage(language)) {
+                    return (
+                        <pre>
+                            <code
+                                className={`hljs ${language}`}
+                                dangerouslySetInnerHTML={{
+                                    __html: hljs.highlight(codeString, { language: language }).value,
+                                }}
+                            />
+                        </pre>
+                    );
+                } else {
+                    // Fallback: treat as plain text
+                    return (
+                        <pre>
+                            <code className="hljs">{codeString}</code>
+                        </pre>
+                    );
+                }
+            }
+            return <code className={className}>{children}</code>;
         },
     };
 

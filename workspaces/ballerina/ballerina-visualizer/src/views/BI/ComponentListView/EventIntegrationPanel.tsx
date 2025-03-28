@@ -11,41 +11,20 @@ import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, TriggerModelsResponse, ServiceModel, SCOPE } from '@wso2-enterprise/ballerina-core';
 
-import { useVisualizerContext } from '../../../Context';
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
 import { OutOfScopeComponentTooltip } from './componentListUtils';
+import { RelativeLoader } from '../../../components/RelativeLoader';
 
 interface EventIntegrationPanelProps {
     scope: SCOPE;
+    triggers: TriggerModelsResponse;
 };
 
 export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
     const { rpcClient } = useRpcContext();
-    const [triggers, setTriggers] = useState<TriggerModelsResponse>({ local: [] });
-    const { cacheTriggers, setCacheTriggers } = useVisualizerContext();
-
     const isDisabled = props.scope && (props.scope !== SCOPE.EVENT_INTEGRATION && props.scope !== SCOPE.ANY);
-
-    useEffect(() => {
-        getTriggers();
-    }, []);
-
-    const getTriggers = () => {
-        if (cacheTriggers.local.length > 0) {
-            setTriggers(cacheTriggers);
-        } else {
-            rpcClient
-                .getServiceDesignerRpcClient()
-                .getTriggerModels({ query: "" })
-                .then((model) => {
-                    console.log(">>> bi triggers", model);
-                    setTriggers(model);
-                    setCacheTriggers(model);
-                });
-        }
-    };
 
     const handleClick = async (key: DIRECTORY_MAP, serviceType?: string) => {
         await rpcClient.getVisualizerRpcClient().openView({
@@ -66,8 +45,9 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
                 </BodyText>
             </TitleWrapper>
             <CardGrid>
+                {props.triggers.local.length === 0 && <RelativeLoader />}
                 {
-                    triggers.local
+                    props.triggers.local
                         .filter((t) => t.type === "event")
                         .map((item, index) => {
                             return (
