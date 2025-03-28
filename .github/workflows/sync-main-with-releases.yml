@@ -33,7 +33,7 @@ jobs:
           git checkout -b $TEMP_BRANCH
           
           # Pull changes from release branch
-          git pull --rebase origin $RELEASE_BRANCH
+          git pull --no-edit origin $RELEASE_BRANCH
 
           # Push changes to the temporary branch
           git push origin $TEMP_BRANCH
