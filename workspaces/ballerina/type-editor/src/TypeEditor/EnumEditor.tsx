@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { TextField, Button, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Type, Member } from "@wso2-enterprise/ballerina-core";
@@ -50,6 +50,24 @@ namespace S {
         height: 32px;
         padding: 0;
     `;
+
+    export const ExpandIconButton = styled(Button)`
+        padding: 4px;
+        &:hover {
+            background: transparent;
+        }
+    `;
+
+    export const ConstantExpressionContainer = styled.div`
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border: 1px solid var(--vscode-welcomePage-tileBorder);
+        margin-left: 25px;
+        margin-bottom: 10px;
+        padding: 8px;
+        border-radius: 4px;
+    `;
 }
 
 interface EnumEditorProps {
@@ -58,6 +76,16 @@ interface EnumEditorProps {
 }
 
 export function EnumEditor({ type, onChange }: EnumEditorProps) {
+    const [expandedFunctions, setExpandedFunctions] = useState<number[]>([]);
+
+    const toggleFunctionExpand = (index: number) => {
+        setExpandedFunctions(prev =>
+            prev.includes(index)
+                ? prev.filter(i => i !== index)
+                : [...prev, index]
+        );
+    };
+
     const addMember = () => {
         const newMember: Member = {
             kind: "ENUM_MEMBER",
@@ -93,6 +121,19 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
         });
     };
 
+    const handleMemberDefaultValueChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const updatedMembers = [...type.members];
+        updatedMembers[index] = {
+            ...updatedMembers[index],
+            defaultValue: e.target.value
+        };
+
+        onChange({
+            ...type,
+            members: updatedMembers
+        });
+    };
+
     return (
         <S.Container>
             <S.Header>
@@ -102,15 +143,33 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
                 </div>
             </S.Header>
             {type.members.map((member, index) => (
-                <S.MemberRow key={index}>
-                    <TextField
-                        value={member.name}
-                        onChange={(e) => updateMember(index, e.target.value)}
-                        placeholder="Enter enum field"
-                        sx={{ flexGrow: 1 }}
-                    />
-                    <Button appearance="icon" onClick={() => deleteMember(index)}><Codicon name="trash" /></Button>
-                </S.MemberRow>
+                <>
+                    <S.MemberRow key={index}>
+                        <S.ExpandIconButton
+                            appearance="icon"
+                            onClick={() => toggleFunctionExpand(index)}
+                        >
+                            <Codicon name={expandedFunctions.includes(index) ? "chevron-down" : "chevron-right"} />
+                        </S.ExpandIconButton>
+                        <TextField
+                            value={member.name}
+                            onChange={(e) => updateMember(index, e.target.value)}
+                            placeholder="Enum member name"
+                            sx={{ flexGrow: 1 }}
+                        />
+                        <Button appearance="icon" onClick={() => deleteMember(index)}><Codicon name="trash" /></Button>
+                    </S.MemberRow>
+                    {expandedFunctions.includes(index) && (
+                        <S.ConstantExpressionContainer>
+                            <TextField
+                                label='Constant Expression'
+                                value={member.defaultValue}
+                                onChange={(e) => handleMemberDefaultValueChange(index, e)}
+                                style={{ width: '180px' }}
+                            />
+                        </S.ConstantExpressionContainer>
+                    )}
+                </>
             ))}
         </S.Container>
     );

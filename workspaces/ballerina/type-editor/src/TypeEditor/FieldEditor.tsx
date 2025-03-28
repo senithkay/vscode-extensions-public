@@ -9,10 +9,8 @@ import { AdvancedOptions } from './AdvancedOptions';
 
 interface FieldEditorProps {
     member: Member;
-    selected: boolean;
     onChange: (member: Member) => void;
-    onSelect: () => void;
-    onDeselect: () => void;
+    onDelete: () => void;
 }
 
 const ButtonDeactivated = styled.div<{}>`
@@ -24,8 +22,26 @@ const ButtonActive = styled.div<{}>`
     color: 'var(--vscode-editorWarning-foreground)';
 `;
 
+const ExpandIconButton = styled(Button)`
+    padding: 4px;
+    &:hover {
+        background: transparent;
+    }
+`;
+
+const CollapsibleSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid var(--vscode-welcomePage-tileBorder);
+    margin-left: 25px;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 4px;
+`;
+
 export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
-    const { member, selected, onChange, onSelect, onDeselect } = props;
+    const { member, onChange, onDelete } = props;
     const [panelOpened, setPanelOpened] = useState<boolean>(false);
     const recordEditorRef = useRef<{ addMember: () => void }>(null);
     const typeFieldRef = useRef<HTMLInputElement>(null);
@@ -57,8 +73,8 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         });
     }
 
-    const handleMemberNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {        
-        if (!isValidBallerinaIdentifier( e.target.value)) {
+    const handleMemberNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        if (!isValidBallerinaIdentifier(e.target.value)) {
             setNameError('Invalid Identifier.');
         } else {
             setNameError('');
@@ -127,13 +143,13 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
 
     const handleSelectionChange = () => {
         const selection = window.getSelection();
-        if (!selection) {
+        if (!selection || selection.rangeCount === 0) {
             return;
         }
 
         const range = selection.getRangeAt(0);
 
-        if (typeFieldRef.current.parentElement.contains(range.startContainer)) {
+        if (typeFieldRef.current?.parentElement?.contains(range.startContainer)) {
             setTypeFieldCursorPosition(
                 typeFieldRef.current.shadowRoot.querySelector('input').selectionStart ?? 0
             );
@@ -170,7 +186,12 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     return (
         <>
             <div style={{ display: 'flex', gap: '8px' }}>
-                <CheckBox label="" checked={selected} onChange={() => { selected ? onDeselect() : onSelect(); }} />
+                <ExpandIconButton
+                    appearance="icon"
+                    onClick={() => setPanelOpened(!panelOpened)}
+                >
+                    <Codicon name={panelOpened ? "chevron-down" : "chevron-right"} />
+                </ExpandIconButton>
                 <TextField
                     value={member.name}
                     onChange={handleMemberNameChange}
@@ -192,10 +213,12 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 <Button appearance="icon" onClick={toggleRecord}>
                     {isRecord(member.type) ? <ButtonActive>{`{`}&nbsp;{`}`}</ButtonActive> : <ButtonDeactivated>{`{`}&nbsp;{`}`}</ButtonDeactivated>}
                 </Button>
-                <Button appearance="icon" onClick={() => setPanelOpened(!panelOpened)}><Codicon name="kebab-vertical" /></Button>
+                <Button appearance="icon" onClick={onDelete}>
+                    <Codicon name="trash" />
+                </Button>
             </div>
             {panelOpened && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
+                <CollapsibleSection>
                     <TextField label='Default Value' value={member.defaultValue} onChange={handleMemberDefaultValueChange} style={{ width: '180px' }} />
                     <TextField label='Description' value={member.docs} onChange={handleDescriptionChange} style={{ width: '180px' }} />
                     <CheckBox
@@ -203,7 +226,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                         checked={member?.optional}
                         onChange={toggleOptional}
                     />
-                </div >
+                </CollapsibleSection>
             )}
             {isRecord(member.type) && typeof member.type !== 'string' && (
                 <div style={{ marginLeft: '24px' }}>

@@ -29,7 +29,7 @@ export function AdvancedOptions({ type, onChange }: AdvancedOptionsProps) {
             </div>
             {isExpanded && (
                 <CheckBox
-                    sx={{ border: 'none' }}
+                    sx={{ border: 'none', padding: '5px' }}
                     label="Allow Additional Fields"
                     checked={type?.allowAdditionalFields === true}
                     onChange={(checked: boolean) => {
