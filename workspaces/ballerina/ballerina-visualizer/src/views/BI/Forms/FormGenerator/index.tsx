@@ -151,7 +151,6 @@ export function FormGenerator(props: FormProps) {
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     useEffect(() => {
@@ -295,7 +294,6 @@ export function FormGenerator(props: FormProps) {
         setCompletions([]);
         setFilteredTypes([]);
         setTypes([]);
-        triggerCompletionOnNextRequest.current = false;
     };
 
     const debouncedRetrieveCompletions = useCallback(
@@ -304,8 +302,7 @@ export function FormGenerator(props: FormProps) {
                 value: string,
                 property: ExpressionProperty,
                 offset: number,
-                triggerCharacter?: string,
-                onlyVariables?: boolean
+                triggerCharacter?: string
             ) => {
                 let expressionCompletions: CompletionItem[] = [];
                 const { parentContent, currentContent } = value
@@ -314,8 +311,7 @@ export function FormGenerator(props: FormProps) {
                 if (
                     completions.length > 0 &&
                     !triggerCharacter &&
-                    parentContent === prevCompletionFetchText.current &&
-                    !triggerCompletionOnNextRequest.current
+                    parentContent === prevCompletionFetchText.current
                 ) {
                     expressionCompletions = completions
                         .filter((completion) => {
@@ -340,15 +336,6 @@ export function FormGenerator(props: FormProps) {
                             triggerCharacter: triggerCharacter as TriggerCharacter
                         }
                     });
-
-                    if (onlyVariables) {
-                        // If only variables are requested, filter out the completions based on the kind
-                        // 'kind' for variables = 6
-                        completions = completions?.filter((completion) => completion.kind === 6);
-                        triggerCompletionOnNextRequest.current = true;
-                    } else {
-                        triggerCompletionOnNextRequest.current = false;
-                    }
 
                     // Convert completions to the ExpressionEditor format
                     let convertedCompletions: CompletionItem[] = [];
@@ -380,7 +367,7 @@ export function FormGenerator(props: FormProps) {
             },
             250
         ),
-        [rpcClient, completions, fileName, targetLineRange, node, triggerCompletionOnNextRequest.current]
+        [rpcClient, completions, fileName, targetLineRange, node]
     );
 
     const handleRetrieveCompletions = useCallback(
@@ -388,10 +375,9 @@ export function FormGenerator(props: FormProps) {
             value: string,
             property: ExpressionProperty,
             offset: number,
-            triggerCharacter?: string,
-            onlyVariables?: boolean
+            triggerCharacter?: string
         ) => {
-            await debouncedRetrieveCompletions(value, property, offset, triggerCharacter, onlyVariables);
+            await debouncedRetrieveCompletions(value, property, offset, triggerCharacter);
 
             if (triggerCharacter) {
                 await debouncedRetrieveCompletions.flush();
