@@ -7,18 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ProjectExplorer } from "../ProjectExplorer";
 
 export class Sequence {
-    private webView!: Frame;
 
     constructor(private _page: Page) {
     }
 
     public async init() {
-        await this._page.locator('#list_id_4_0').getByLabel('Project testProject').locator('div').filter({ hasText: 'Project testProject' }).click();
-        await this._page.getByLabel('Open Project Overview').click();
+        const projectExplorer = new ProjectExplorer(this._page);
+        projectExplorer.goToOverview("testProject");
         const overviewWebView = await switchToIFrame("Project Overview", this._page);
         if (!overviewWebView) {
             throw new Error("Failed to switch to Add Artifact iframe");
@@ -39,12 +39,12 @@ export class Sequence {
         const seqFrame = seqWebView.locator('div#root');
         await seqFrame.getByRole('textbox', { name: 'Name*' }).fill('seqEP');
         await seqFrame.getByTestId('create-button').click();
-        await this._page.waitForTimeout(2000); // Wait for the sequence to be created
     }
 
     public async edit() {
-        await this._page.locator('a').filter({ hasText: 'Sequences' }).click();
-        await this._page.locator('a').filter({ hasText: 'seqEP' }).click();
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Sequences', 'seqEP'], true);
         const webView = await switchToIFrame('Sequence View', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Sequence View iframe");
@@ -57,6 +57,5 @@ export class Sequence {
         await frame.getByText('TestTaskSequence').click();
         await frame.getByTestId('update-button').click();
         await this._page.waitForSelector('[data-testid="update-button"]', { state: 'detached' });
-        await this._page.waitForTimeout(2000); // Wait for the sequence to be updated
     }
 }

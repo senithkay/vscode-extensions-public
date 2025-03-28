@@ -7,18 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ProjectExplorer } from "../ProjectExplorer";
 
 export class Resource {
-    private webView!: Frame;
 
     constructor(private _page: Page) {
     }
 
     public async init() {
-        await this._page.waitForTimeout(1000);
-        await this._page.locator('#list_id_4_0').getByLabel('Project testProject').locator('div').filter({ hasText: 'Project testProject' }).click();
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
         await this._page.getByLabel('Open Project Overview').click();
         const overviewWebView = await switchToIFrame("Project Overview", this._page);
         if (!overviewWebView) {

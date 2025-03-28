@@ -7,18 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ProjectExplorer } from "../ProjectExplorer";
 
 export class ClassMediator {
-    private webView!: Frame;
 
     constructor(private _page: Page) {
     }
 
     public async init() {
-        await this._page.locator('#list_id_4_0').getByLabel('Project testProject').locator('div').filter({ hasText: 'Project testProject' }).click();
-        await this._page.getByLabel('Open Project Overview').click();
+        const projectExplorer = new ProjectExplorer(this._page);
+        projectExplorer.goToOverview("testProject");
         const overviewWebView = await switchToIFrame("Project Overview", this._page);
         if (!overviewWebView) {
             throw new Error("Failed to switch to Add Artifact iframe");
@@ -40,7 +40,5 @@ export class ClassMediator {
         await seqFrame.getByRole('textbox', { name: 'Package Name*' }).fill('org.wso2.sample');
         await seqFrame.getByRole('textbox', { name: 'Class Name*' }).fill('SampleClass');
         await seqFrame.getByRole('button', { name: 'Create' }).click();
-        // await this._page.locator('.monaco-tl-twistie').click();
-        // await this._page.locator('#list_id_4_2 > .monaco-tl-row > .monaco-tl-twistie').click();
     }
 }

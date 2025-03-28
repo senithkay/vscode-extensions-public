@@ -34,9 +34,7 @@ export class Automation {
         await frame.getByRole('textbox', { name: 'Task Name*' }).fill('TestTask');
         await frame.locator('#triggerInterval div').nth(2).click();
         await frame.getByRole('textbox', { name: 'Interval (in seconds)*' }).fill('10');
-        await this._page.waitForTimeout(1000);
         await frame.getByTestId('create-task-button').click();
-        await this._page.waitForSelector('[data-testid="create-task-button"]', { state: 'detached' });
     }
 
     public async edit() {
@@ -51,8 +49,6 @@ export class Automation {
         await frame.getByLabel('Cron').click();
         await frame.getByRole('textbox', { name: 'Cron*' }).click();
         await frame.getByRole('textbox', { name: 'Cron*' }).fill('* * * * * ? *');
-        await this._page.waitForTimeout(1000);
         await frame.getByTestId('create-task-button').click();
-        await this._page.waitForSelector('[data-testid="create-task-button"]', { state: 'detached' });
     }
 }

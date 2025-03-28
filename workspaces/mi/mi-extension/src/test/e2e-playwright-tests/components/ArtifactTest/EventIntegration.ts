@@ -7,11 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
 export class EventIntegration {
-    private webView!: Frame;
 
     constructor(private _page: Page) {
     }
@@ -37,8 +36,8 @@ export class EventIntegration {
             throw new Error("Failed to switch to Event Integration Form iframe");
         }
         const epFrame = epWebView.locator('div#root');
-        // Wait untill a component with testId 'add-button' is visible
-        await epWebView.waitForSelector('[data-testid="HTTPS"]', { state: 'visible' });
+        const httpsMessage = epFrame.locator('div:has-text("HTTPS")');
+        await httpsMessage.waitFor({ timeout: 10000 });
         await epFrame.getByText('HTTPS').click();
         const httpEPWebview = await switchToIFrame('Event Integration Form', this._page);
         if (!httpEPWebview) {

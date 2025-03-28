@@ -9,6 +9,7 @@
 
 import { Locator, Page, expect } from "@playwright/test";
 import { getVsCodeButton, getWebviewInput, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { clearNotificationAlerts } from "../Utils";
 
 export interface FormFillProps {
     values: {
@@ -56,6 +57,7 @@ export class Form {
     }
 
     public async submit(btnText: string = "Create") {
+        await clearNotificationAlerts(this._page!);
         const submitBtn = await getVsCodeButton(this.container, btnText, "primary");
         expect(await submitBtn.isEnabled()).toBeTruthy();
         await submitBtn.click();

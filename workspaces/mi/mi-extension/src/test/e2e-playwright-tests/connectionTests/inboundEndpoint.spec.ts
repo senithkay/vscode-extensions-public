@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test';
 import * as path from 'path';
 import { Form } from '../components/Form';
 import { AddArtifact } from '../components/AddArtifact';
-import { clearNotificationAlerts, page, resourcesFolder, resumeVSCode, vscode } from '../Utils';
+import { page, resourcesFolder, resumeVSCode, vscode } from '../Utils';
 import { InboundEPForm } from '../components/InboundEp';
 import { Diagram } from '../components/Diagram';
 import { Overview } from '../components/Overview';
@@ -51,7 +51,6 @@ export default function createTests() {
                 }
             }
         });
-        await clearNotificationAlerts(page);
         await inboundEPForm.submit('Create');
 
         const diagram = new Diagram(page.page, 'Event Integration');
@@ -92,8 +91,6 @@ export default function createTests() {
     });
 
     test.afterAll(async () => {
-        await vscode?.close();
-
         const videoTitle = new Date().toLocaleString().replace(/,|:|\/| /g, '_');
         const video = page.page.video()
         const videoDir = path.resolve(resourcesFolder, 'videos')

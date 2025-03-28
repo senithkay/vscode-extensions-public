@@ -11,7 +11,7 @@ import { ExtendedPage, startVSCode } from "@wso2-enterprise/playwright-vscode-te
 import { Form } from "./components/Form";
 import { Welcome } from "./components/Welcome";
 import path from "path";
-import { ElectronApplication } from "@playwright/test";
+import { ElectronApplication, Page } from "@playwright/test";
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -67,10 +67,12 @@ export async function resumeVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
-export async function clearNotificationAlerts(page: ExtendedPage) {
+export async function clearNotificationAlerts(page: Page) {
     console.log(`Clearing notifications`);
-    const notifications = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
-    while (await notifications.count() > 0) {
-        await notifications.first().click();
+    if (page) {
+        const notifications = page.locator('a.action-label.codicon.codicon-notifications-clear');
+        while (await notifications.count() > 0) {
+            await notifications.first().click();
+        }
     }
 }

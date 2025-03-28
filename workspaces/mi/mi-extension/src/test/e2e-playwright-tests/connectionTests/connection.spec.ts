@@ -67,7 +67,6 @@ export default function createTests() {
                 }
             }
         });
-        await clearNotificationAlerts(page);
         await connectionForm.submit('Add');
 
         console.log('Finding created connection in Project Explorer');

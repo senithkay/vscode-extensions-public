@@ -13,7 +13,7 @@ import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { clearNotificationAlerts, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
+import { createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
 import { ConnectorStore } from './components/ConnectorStore';
 const fs = require('fs');
 
@@ -143,7 +143,6 @@ export default function createTests() {
         }
       }
     });
-    await clearNotificationAlerts(page);
     await connectionForm.submit('Add');
     expect(await diagram.verifyConnection("file_connection", "File - FTPS Connection")).toBeTruthy();
     await diagram.closeSidePanel();

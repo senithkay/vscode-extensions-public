@@ -7,19 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Page } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ProjectExplorer } from "../ProjectExplorer";
 
 export class Proxy {
-    private webView!: Frame;
 
     constructor(private _page: Page) {
     }
 
     public async init() {
-        await this._page.waitForTimeout(1000);
-        await this._page.locator('#list_id_4_0').getByLabel('Project testProject').locator('div').filter({ hasText: 'Project testProject' }).click();
-        await this._page.getByLabel('Open Project Overview').click();
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
         const overviewWebView = await switchToIFrame("Project Overview", this._page);
         if (!overviewWebView) {
             throw new Error("Failed to switch to Add Artifact iframe");
@@ -28,7 +27,7 @@ export class Proxy {
         const createIntegrationSection = await overviewWebView.waitForSelector(`h3:text("Create an Integration") >> ..`);
         const viewMoreBtn = await createIntegrationSection.waitForSelector(`p:text("View More") >> ..`);
         await viewMoreBtn.click();
-        const btn = await createIntegrationSection.waitForSelector(`div:text("PROXY") >> ../../../..`);
+        const btn = await createIntegrationSection.waitForSelector(`div:text("Proxy") >> ../../../..`);
         await btn.click();
     }
 
@@ -45,10 +44,9 @@ export class Proxy {
     }
 
     public async edit() {
-        await this._page.locator('.monaco-tl-twistie').click();
-        await this._page.getByRole('treeitem', { name: 'Other Artifacts' }).locator('a').click();
-        await this._page.locator('a').filter({ hasText: 'Proxy Services' }).click();
-        await this._page.getByRole('treeitem', { name: 'testProxy' }).locator('a').click();
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', 'testProxy']);
 
         const webView = await switchToIFrame('Proxy View', this._page);
         if (!webView) {
