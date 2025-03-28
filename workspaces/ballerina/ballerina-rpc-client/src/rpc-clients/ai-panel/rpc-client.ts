@@ -66,6 +66,7 @@ import {
     getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
+    getThemeKind,
     getTypesFromRecord,
     isCopilotSignedIn,
     isRequirementsSpecificationFileExist,
@@ -153,6 +154,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getRefreshToken(): Promise<string> {
         return this._messenger.sendRequest(getRefreshToken, HOST_EXTENSION);
+    }
+
+    getThemeKind(): Promise<string> {
+        return this._messenger.sendRequest(getThemeKind, HOST_EXTENSION);
     }
 
     generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {

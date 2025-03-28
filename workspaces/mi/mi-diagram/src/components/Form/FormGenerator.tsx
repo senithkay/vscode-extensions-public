@@ -474,7 +474,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, { type: keyType });
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, {type: keyType}, sidePanelContext);
                     }
                 }
 

@@ -119,8 +119,8 @@ runs:
       shell: bash
       run: |
         asset_id=$(curl -L GET -H "Accept: application/vnd.github.v3+json" -H "Authorization:token ${{ inputs.token }}" \
-        https://api.github.com/repos/wso2-enterprise/mi-language-server/releases/latest | jq -r '.assets[] | select(.name | contains("org.eclipse.lemminx-")) | .id')
-        wget -q --auth-no-challenge --header='Accept:application/octet-stream' https://${{ inputs.token }}:@api.github.com/repos/wso2-enterprise/mi-language-server/releases/assets/$asset_id  -O mi-language-server.zip
+        https://api.github.com/repos/wso2/mi-language-server/releases/latest | jq -r '.assets[] | select(.name | contains("org.eclipse.lemminx-")) | .id')
+        wget -q --auth-no-challenge --header='Accept:application/octet-stream' https://${{ inputs.token }}:@api.github.com/repos/wso2/mi-language-server/releases/assets/$asset_id  -O mi-language-server.zip
         unzip -j mi-language-server.zip -d workspaces/mi/mi-extension/ls
         rm mi-language-server.zip
 
@@ -144,6 +144,7 @@ runs:
       with:
         path: build.zip
         name: ExtBuild
+        retention-days: 1
 
     - name: Save VSIX
       uses: actions/upload-artifact@v4

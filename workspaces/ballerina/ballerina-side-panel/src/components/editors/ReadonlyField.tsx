@@ -9,7 +9,7 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { Codicon, Button } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Button, RequiredFormInput } from "@wso2-enterprise/ui-toolkit";
 import { capitalize } from "./utils";
 import styled from "@emotion/styled";
 
@@ -19,23 +19,20 @@ interface ReadonlyFieldProps {
 
 const Container = styled.div`
     width: 100%;
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
 `;
 
 const Label = styled.div`
-    font: GlimmerRegular;
-    font-size: 12px;
-    color: var(--vscode-foreground);
+    display: flex;
+    flex-direction: row;
     margin-bottom: 4px;
 `;
 
-const RequiredMark = styled.span`
-    margin-left: 4px;
-`;
-
 const Description = styled.div`
-    font-size: 12px;
-    color: var(--vscode-descriptionForeground);
-    margin-top: 4px;
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-bottom: 4px;
+    text-align: left;
 `;
 
 const InputContainer = styled.div`
@@ -82,8 +79,10 @@ export function ReadonlyField(props: ReadonlyFieldProps) {
     return (
         <Container>
             <Label>
-                {capitalize(field.label)}
-                {!field.optional && <RequiredMark>*</RequiredMark>}
+                <div style={{ color: "var(--vscode-editor-foreground)" }}>
+                    <label>{capitalize(field.label)}</label>
+                </div>
+                {!field.optional && <RequiredFormInput />}
             </Label>
             {field.documentation && (
                 <Description>

@@ -157,6 +157,7 @@ type FormHelperPaneConditionalProps = {
 }
 
 type FormExpressionEditorBaseProps = {
+    growRange?: { start: number; offset: number };
     getExpressionEditorDiagnostics?: (
         showDiagnostics: boolean,
         expression: string,

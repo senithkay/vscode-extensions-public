@@ -27,7 +27,7 @@ export async function generateSchema(ioType: IOType, schemaType: string, filePat
   });
   let schema = JSON.parse(response.schema);
   let schemaIOMetadataKey = `${ioType}Type`;
-  let schemaIOMetadataValue = schemaType === 'JSONSCHEMA' ? 'JSON' : schemaType;
+  let schemaIOMetadataValue = getSchemaIOMetadataValue(schemaType);
   schema[schemaIOMetadataKey] = schemaIOMetadataValue.toUpperCase();
   return schema;
 }
@@ -42,7 +42,18 @@ export async function generateSchemaFromContent(ioType: IOType, content: string,
   });
   let schema = JSON.parse(response.schema);
   let schemaIOMetadataKey = `${ioType}Type`;
-  let schemaIOMetadataValue = fileType.toUpperCase() === 'JSONSCHEMA' ? 'JSON' : fileType;
+  let schemaIOMetadataValue = getSchemaIOMetadataValue(fileType);
   schema[schemaIOMetadataKey] = schemaIOMetadataValue.toUpperCase();
   return schema;
+}
+
+function getSchemaIOMetadataValue(schemaType) {
+  switch (schemaType.toUpperCase()) {
+      case 'JSONSCHEMA':
+          return 'JSON';
+      case 'XSD':
+          return 'XML';
+      default:
+          return schemaType;
+  }
 }

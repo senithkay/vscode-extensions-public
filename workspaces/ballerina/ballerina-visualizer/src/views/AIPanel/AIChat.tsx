@@ -28,21 +28,16 @@ import {
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
-import ReactMarkdown from "react-markdown";
 
 import styled from "@emotion/styled";
 import AIChatInput from "./Components/AIChatInput";
 import ProgressTextSegment, { Spinner } from "./Components/ProgressTextSegment";
-import BallerinaCodeBlock from "./Components/BallerinaCodeBlock";
 import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { findRegexMatches } from "../../utils/utils";
-import { Collapse } from "react-collapse";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import {
-    MarkdownRenderer,
     Footer,
     FlexRow,
     AIChatView,
@@ -60,6 +55,9 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TestGeneratorIntermediaryState } from "./features/testGenerator";
 import TextWithBadges from "./Components/TextWithBadges";
 import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
+import { MarkdownRenderer } from "./Components/MarkdownRenderer";
+import { CodeSection } from "./Components/CodeSection";
+import { CodeSegment } from "./Components/CodeSegment";
 
 interface CodeBlock {
     filePath: string;
@@ -108,7 +106,7 @@ var timeToReset: number;
 const INVALID_RECORD_REFERENCE: Error = new Error("Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.");
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
-const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`
+const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`;
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -132,7 +130,7 @@ const TEMPLATE_TESTS = [
 ];
 export const TEMPLATE_DATAMAP = [
     "generate mappings using input as <recordname(s)> and output as <recordname> using the function <functionname>",
-    "generate mappings for the <functionname> function"
+    "generate mappings for the <functionname> function",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
 const TEMPLATE_DOCUMENTATION: string[] = [];
@@ -251,8 +249,8 @@ export function AIChat() {
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
             setIsReqFileExists(
                 chatLocation != null &&
-                chatLocation != undefined &&
-                (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
+                    chatLocation != undefined &&
+                    (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
             );
 
             generateNaturalProgrammingTemplate(isReqFileExists);
@@ -568,8 +566,8 @@ export function AIChat() {
                                     isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)
                                         ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT
                                         : isTestGenerationTemplateExists
-                                            ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
-                                            : CodeGenerationType.CODE_GENERATION,
+                                        ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
+                                        : CodeGenerationType.CODE_GENERATION,
                                 ],
                                 message
                             );
@@ -610,7 +608,7 @@ export function AIChat() {
                         } else {
                             throw new Error(
                                 `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
-                                `Please ensure you follow the correct template.`
+                                    `Please ensure you follow the correct template.`
                             );
                         }
                         break;
@@ -632,7 +630,7 @@ export function AIChat() {
                         break;
                     }
                     case COMMAND_DOCUMENTATION: {
-                        await findInDocumentation(parameters.inputRecord[0], token);
+                        await findInDocumentation(token, parameters.inputRecord[0], message);
                         break;
                     }
                     case COMMAND_OPENAPI: {
@@ -645,7 +643,11 @@ export function AIChat() {
                     throw new Error("Error: Query is empty. Please enter a valid query");
                 }
                 if (commandKey === COMMAND_GENERATE) {
-                    await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
+                    await processCodeGeneration(
+                        token,
+                        [messageBody, attachments, CodeGenerationType.CODE_GENERATION],
+                        message
+                    );
                     return;
                 } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
                     if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)) {
@@ -657,7 +659,7 @@ export function AIChat() {
                         return;
                     }
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
-                    await findInDocumentation(messageBody, token);
+                    await findInDocumentation(token, messageBody, message);
                     return;
                 } else if (commandKey === COMMAND_HEALTHCARE) {
                     await processHealthcareCodeGeneration(token, messageBody, message);
@@ -668,7 +670,7 @@ export function AIChat() {
                 }
                 throw new Error(
                     `Invalid template format for the \`${commandKey}\` command. ` +
-                    `Please ensure you follow the correct template.`
+                        `Please ensure you follow the correct template.`
                 );
             }
         } else {
@@ -1033,7 +1035,7 @@ export function AIChat() {
 
     // Helper function to escape regex special characters in a string
     function escapeRegexString(str: string): string {
-        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
 
     // Function to create regex for finding a function without error type
@@ -1120,6 +1122,7 @@ export function AIChat() {
                 const functionRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^={|]+)(?:\|error)?\s*=>\s*(?:\{([\s\S]*?)\}|([\s\S]*?));/;
 
                 let existingFunctionRegex;
+
                 // Check if we're dealing with a function that should be merged
                 const functionMatch = segmentText.match(functionRegex);
                 let shouldMergeFunction = false;
@@ -1169,15 +1172,15 @@ export function AIChat() {
                 });
 
                 if (shouldMergeFunction) {
-                    const existingFunctionWithoutErrorRegex = createFunctionWithoutErrorTypeRegex(functionName, returnType);
+                    const existingFunctionWithoutErrorRegex = createFunctionWithoutErrorTypeRegex(
+                        functionName,
+                        returnType
+                    );
                     const missingErrorType = existingFunctionWithoutErrorRegex.test(updatedContent) && hasErrorType;
 
                     if (missingErrorType) {
                         const addErrorTypeRegex = createAddErrorTypeRegex(functionName, returnType);
-                        updatedContent = updatedContent.replace(
-                            addErrorTypeRegex,
-                            `$1|error $2`
-                        );
+                        updatedContent = updatedContent.replace(addErrorTypeRegex, `$1|error $2`);
                     }
 
                     const arrowFunctionSignatureRegex = createArrowFunctionSignatureRegex(functionName, returnType);
@@ -1190,8 +1193,7 @@ export function AIChat() {
                                 ? `${signature} => ${functionBody}`
                                 : `${signature} => {\n    ${functionBody}\n}`;
                         });
-                    }
-                    else if (regularFunctionSignatureRegex.test(updatedContent)) {
+                    } else if (regularFunctionSignatureRegex.test(updatedContent)) {
                         updatedContent = updatedContent.replace(regularFunctionSignatureRegex, (match, signature) => {
                             return `${signature} {\n    ${functionBody}\n}`;
                         });
@@ -1561,8 +1563,8 @@ export function AIChat() {
             }
             const generatedFullSource = existingSource
                 ? existingSource +
-                "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
-                response.testSource
+                  "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
+                  response.testSource
                 : response.testSource;
 
             const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics({
@@ -1767,6 +1769,7 @@ export function AIChat() {
         });
 
         const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number; }[] = [];
+
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
                 let filepath = pkg.filePath;
@@ -1821,7 +1824,7 @@ export function AIChat() {
             outputRecordType: output,
             functionName,
             imports: Array.from(importsMap.values()),
-            inputNames: inputNames
+            inputNames: inputNames,
         };
         if (attachments && attachments.length > 0) {
             requestPayload.attachment = attachments;
@@ -1941,13 +1944,12 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    async function findInDocumentation(message: string, token: string) {
+    async function findInDocumentation(token: string, messageBody: string, message: string) {
         let assistant_response = "";
         let formatted_response = ";";
         setIsLoading(true);
         try {
-            console.log("Searching for: " + message, +"Token: ", token);
-            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
+            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);
 
             formatted_response = assistant_response.replace(
                 /```ballerina\s*([\s\S]+?)\s*```/g,
@@ -1975,7 +1977,9 @@ export function AIChat() {
             setIsLoading(false);
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `An unknown error occurred while fetching data from the documentation`;
+                newMessages[
+                    newMessages.length - 1
+                ].content += `An unknown error occurred while fetching data from the documentation`;
                 newMessages[newMessages.length - 1].type = "Error";
                 return newMessages;
             });
@@ -2417,7 +2421,9 @@ export function AIChat() {
 
         try {
             const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-            const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
+            const project: ProjectSource = await rpcClient
+                .getAiPanelRpcClient()
+                .getProjectSource(CodeGenerationType.CODE_GENERATION);
 
             const usecase = messages[messages.length - 2].content;
             const latestMessage = messages[messages.length - 1].content;
@@ -2433,8 +2439,8 @@ export function AIChat() {
                 sourceFiles: project.sourceFiles,
                 diagnosticRequest: diagReq,
                 functions: functions,
-                operationType: CodeGenerationType.CODE_GENERATION
-            }
+                operationType: CodeGenerationType.CODE_GENERATION,
+            };
             console.log("Request body for repair:", reqBody);
             const response = await fetchWithToken(
                 backendRootUri + "/code/repair",
@@ -2612,6 +2618,7 @@ export function AIChat() {
                                                 codeSegments.unshift({
                                                     source: prevSegment.text.trim(),
                                                     fileName: prevSegment.fileName,
+                                                    language: prevSegment.language,
                                                 });
                                             } else if (
                                                 prevSegment.type === SegmentType.Text &&
@@ -2676,7 +2683,16 @@ export function AIChat() {
                                         </div>
                                     );
                                 } else if (segment.type === SegmentType.InlineCode) {
-                                    return <BallerinaCodeBlock key={i} code={segment.text} />;
+                                    // return <BallerinaCodeBlock key={i} code={segment.text} />;
+                                    return (
+                                        <CodeSegment
+                                            source={segment.text}
+                                            fileName={"Ballerina"}
+                                            language={"ballerina"}
+                                            collapsible={false}
+                                            showCopyButton={true}
+                                        />
+                                    );
                                 } else if (segment.type === SegmentType.References) {
                                     return <ReferenceDropdown key={i} links={JSON.parse(segment.text)} />;
                                 } else if (segment.type === SegmentType.TestScenario) {
@@ -2814,233 +2830,6 @@ export function AIChat() {
         </AIChatView>
     );
 }
-
-// ---------- CODE-SEGMENT ----------
-
-interface EntryContainerProps {
-    isOpen: boolean;
-}
-
-const EntryContainer = styled.div<{ hasErrors: boolean }>(({ hasErrors }: { hasErrors: boolean }) => ({
-    display: "flex",
-    alignItems: "center",
-    marginTop: "10px",
-    cursor: "pointer",
-    padding: "10px",
-    backgroundColor: "var(--vscode-list-hoverBackground)",
-    // backgroundColor: hasErrors 
-    // ? "var(--vscode-inputValidation-warningBackground)" 
-    // : "var(--vscode-list-hoverBackground)",
-    "&:hover": {
-        backgroundColor: "var(--vscode-badge-background)",
-    },
-}));
-
-const CodeSegmentHeader = styled.div({
-    display: "flex",
-    alignItems: "center",
-    marginTop: "10px",
-    cursor: "pointer",
-    padding: "6px 8px",
-    backgroundColor: "var(--vscode-list-hoverBackground)",
-});
-
-interface CodeSegmentProps {
-    source: string;
-    fileName: string;
-    language?: string;
-}
-
-const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language = "ballerina" }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <div>
-            <CodeSegmentHeader onClick={() => setIsOpen(!isOpen)}>
-                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                    {isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                    {fileName}
-                </div>
-            </CodeSegmentHeader>
-            <Collapse isOpened={isOpen}>
-                <div style={{ backgroundColor: "var(--vscode-list-hoverBackground)", padding: "6px" }}>
-                    <pre
-                        style={{
-                            backgroundColor: "var(--vscode-editorWidget-background)",
-                            margin: 0,
-                            padding: 2,
-                            borderRadius: 6,
-                        }}
-                    >
-                        <SyntaxHighlighter
-                            language={language}
-                            style={{
-                                'pre[class*="language-"]': {
-                                    backgroundColor: "var(--vscode-editorWidget-background)",
-                                    color: "var(--vscode-editor-foreground)",
-                                    overflowX: "auto",
-                                    padding: "6px",
-                                },
-                                'code[class*="language-"]': {
-                                    backgroundColor: "var(--vscode-editorWidget-background)",
-                                    color: "var(--vscode-editor-foreground)",
-                                },
-                            }}
-                        >
-                            {source}
-                        </SyntaxHighlighter>
-                    </pre>
-                </div>
-            </Collapse>
-        </div>
-    );
-};
-
-interface CodeSectionProps {
-    codeSegments: CodeSegmentProps[];
-    loading: boolean;
-    isReady: boolean;
-    handleAddAllCodeSegmentsToWorkspace: (
-        codeSegment: any,
-        setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
-    ) => void;
-    handleRevertChanges: (
-        codeSegment: any,
-        setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
-    ) => void;
-    message: { role: string; content: string; type: string };
-    buttonsActive: boolean;
-    isSyntaxError: boolean;
-    command: string;
-    diagnostics: any[],
-    onRetryRepair: () => {},
-}
-
-const CodeSection: React.FC<CodeSectionProps> = ({
-    codeSegments,
-    loading,
-    isReady,
-    handleAddAllCodeSegmentsToWorkspace,
-    handleRevertChanges,
-    message,
-    buttonsActive,
-    isSyntaxError,
-    command,
-    diagnostics = [],
-    onRetryRepair = () => { },
-}) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isCodeAdded, setIsCodeAdded] = useState(false);
-
-    const language = "ballerina";
-    let isTestCode = false;
-    if (command === "test") {
-        isTestCode = true;
-    }
-    let name = loading
-        ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
-        : isTestCode
-            ? "Ballerina Tests"
-            : "Ballerina Integration";
-
-    const allCodeSegments = splitContent(message.content)
-        .filter((segment) => segment.type === SegmentType.Code)
-        .map((segment) => ({ segmentText: segment.text, filePath: segment.fileName }));
-
-    function isRepairButtonVisisble() {
-        return !loading && isReady && diagnostics.length > 0 && command === "code" && !isCodeAdded
-    }
-
-    return (
-        <div>
-            <EntryContainer hasErrors={isRepairButtonVisisble()} onClick={() => !loading && setIsOpen(!isOpen)}>
-                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                    {!loading && isReady && language === "ballerina" && (
-                        !isOpen ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />
-                    )}
-                    {/* Show spinner during generation or repair */}
-                    {(loading) && <Spinner className="codicon codicon-loading spin" role="img"></Spinner>}
-                    {name}
-                </div>
-
-                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
-
-                    {/* Show warning icon if diagnostics exist */}
-                    {isRepairButtonVisisble() && (
-                        <Button
-                            appearance="icon"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onRetryRepair();
-                            }}
-                            disabled={loading}
-                            tooltip={`Click to auto-resolve errors of the generated integration with AI: \nErrors:\n${diagnostics.map(d => d.message).join("\n")}`}                        >
-                            <Codicon name="sync" />
-                        </Button>
-                    )}
-
-                    {/* TODO see why Add to integration either Revert button is visible */}
-                    {!loading && isReady && language === "ballerina" && (
-                        <>
-                            {!isCodeAdded ? (
-                                <Button
-                                    appearance="icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAddAllCodeSegmentsToWorkspace(allCodeSegments, setIsCodeAdded, command);
-                                    }}
-                                    tooltip={
-                                        isSyntaxError
-                                            ? "Syntax issues detected in generated integration. Reattempt required"
-                                            : ""
-                                    }
-                                    disabled={!buttonsActive || isSyntaxError}
-                                >
-                                    <Codicon name="add" />
-                                    &nbsp;&nbsp;Add to Integration
-                                </Button>
-                            ) : (
-                                <Button
-                                    appearance="icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
-                                    }}
-                                    disabled={!buttonsActive}
-                                >
-                                    <Codicon name="history" />
-                                    &nbsp;&nbsp;Revert to Checkpoint
-                                </Button>
-                            )}
-                        </>
-                    )}
-                </div>
-            </EntryContainer>
-            <Collapse isOpened={isOpen}>
-                <div
-                    style={{
-                        backgroundColor: "var(--vscode-editorWidget-background)",
-                        padding: "8px",
-                        gap: "8px",
-                        display: "flex",
-                        flexDirection: "column",
-                    }}
-                >
-                    {codeSegments.map((segment, index) => (
-                        <CodeSegment
-                            key={index}
-                            source={segment.source}
-                            fileName={segment.fileName}
-                            language={segment.language}
-                        />
-                    ))}
-                </div>
-            </Collapse>
-        </div>
-    );
-};
 
 export function replaceCodeBlocks(originalResp: string, newResp: string): string {
     // Create a map to store new code blocks by filename
@@ -3186,7 +2975,7 @@ export function getProjectFromResponse(req: string): ProjectSource {
     return { sourceFiles };
 }
 
-enum SegmentType {
+export enum SegmentType {
     Code = "Code",
     Text = "Text",
     Progress = "Progress",
