@@ -9,96 +9,131 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 
+import React, { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { useEffect } from "react";
+import rehypeRaw from "rehype-raw";
 import hljs from "highlight.js";
 import yaml from "highlight.js/lib/languages/yaml";
-// @ts-ignore
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import Badge from "./Badge";
+// @ts-ignore - Custom language definition for Ballerina
 import ballerina from "../../../languages/ballerina.js";
 
+// Register custom languages with highlight.js
 hljs.registerLanguage("yaml", yaml);
 hljs.registerLanguage("ballerina", ballerina);
+
+// Escapes all HTML tags except the custom <badge> tag
+const escapeHtmlExceptBadge = (markdown: string): string => {
+    return markdown.replace(/<\/?(?!badge\b)(\w+)[^>]*>/g, (match) =>
+        match.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    );
+};
 
 interface MarkdownRendererProps {
     markdownContent: string;
 }
 
-export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
+const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
     const { rpcClient } = useRpcContext();
 
     useEffect(() => {
-        const injectHighlightStyle = (themeKind: string) => {
-            // Remove existing theme style
-            const existingLink = document.getElementById("hljs-theme");
-            if (existingLink) {
-                existingLink.remove();
-            }
+        /**
+         * Injects the appropriate highlight.js theme stylesheet based on the current theme.
+         */
+        const injectHighlightTheme = (theme: string) => {
+            const existingTheme = document.getElementById("hljs-theme");
+            if (existingTheme) existingTheme.remove();
 
-            // Add the correct theme stylesheet
-            const link = document.createElement("link");
-            link.id = "hljs-theme";
-            link.rel = "stylesheet";
-            link.href =
-                themeKind === "light"
+            const themeLink = document.createElement("link");
+            themeLink.id = "hljs-theme";
+            themeLink.rel = "stylesheet";
+            themeLink.href =
+                theme === "light"
                     ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
                     : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css";
-            document.head.appendChild(link);
+            document.head.appendChild(themeLink);
 
-            // Also add background override if not present
+            // Add background override once
             if (!document.getElementById("hljs-override")) {
-                const style = document.createElement("style");
-                style.id = "hljs-override";
-                style.innerHTML = `.hljs { background: var(--vscode-editor-background) !important; }`;
-                document.head.appendChild(style);
+                const overrideStyle = document.createElement("style");
+                overrideStyle.id = "hljs-override";
+                overrideStyle.innerHTML = `.hljs { background: var(--vscode-editor-background) !important; }`;
+                document.head.appendChild(overrideStyle);
             }
         };
 
-        const applyTheme = async () => {
-            const themeKind = await rpcClient.getAiPanelRpcClient().getThemeKind(); // "light" or "dark"
-            injectHighlightStyle(themeKind);
+        /**
+         * Applies theme on initial load and theme changes.
+         */
+        const applyCurrentTheme = async () => {
+            const themeKind = await rpcClient.getAiPanelRpcClient().getThemeKind(); // Returns "light" or "dark"
+            injectHighlightTheme(themeKind);
         };
 
-        // Listen for theme changes via project content update
         rpcClient.onProjectContentUpdated(() => {
-            applyTheme();
+            applyCurrentTheme();
         });
 
-        applyTheme();
-    }, []);
+        applyCurrentTheme();
+    }, [rpcClient]);
 
-    const MarkdownComponents = {
+    /**
+     * Custom rendering for <code> blocks with syntax highlighting
+     */
+    const MarkdownCodeRenderer = {
         code({ inline, className, children }: { inline?: boolean; className?: string; children: React.ReactNode }) {
+            const codeContent = (Array.isArray(children) ? children.join("") : children) ?? "";
             const match = /language-(\w+)/.exec(className || "");
-            const codeString = ((Array.isArray(children) ? children.join("") : children) ?? "").toString();
 
             if (!inline && match) {
                 const language = match[1];
 
-                // Check if the language is registered
+                // Apply syntax highlighting if language is registered
                 if (hljs.getLanguage(language)) {
                     return (
                         <pre>
                             <code
                                 className={`hljs ${language}`}
                                 dangerouslySetInnerHTML={{
-                                    __html: hljs.highlight(codeString, { language: language }).value,
+                                    __html: hljs.highlight(codeContent.toString(), { language }).value,
                                 }}
                             />
                         </pre>
                     );
-                } else {
-                    // Fallback: treat as plain text
-                    return (
-                        <pre>
-                            <code className="hljs">{codeString}</code>
-                        </pre>
-                    );
                 }
+
+                // Fallback: render as plain text
+                return (
+                    <pre>
+                        <code className="hljs">{codeContent}</code>
+                    </pre>
+                );
             }
+
             return <code className={className}>{children}</code>;
         },
     };
 
-    return <ReactMarkdown components={MarkdownComponents}>{markdownContent}</ReactMarkdown>;
+    // Custom components for markdown elements
+    const CustomMarkdownComponents = {
+        badge: Badge,
+    };
+
+    // Escape HTML except <badge> tags
+    const safeContent = escapeHtmlExceptBadge(markdownContent);
+
+    return (
+        <ReactMarkdown
+            rehypePlugins={[rehypeRaw]}
+            components={{
+                ...MarkdownCodeRenderer,
+                ...CustomMarkdownComponents,
+            }}
+        >
+            {safeContent}
+        </ReactMarkdown>
+    );
 };
+
+export default MarkdownRenderer;

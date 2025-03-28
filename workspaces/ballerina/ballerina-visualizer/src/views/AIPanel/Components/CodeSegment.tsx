@@ -12,7 +12,7 @@
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useState } from "react";
-import { MarkdownRenderer } from "./MarkdownRenderer";
+import MarkdownRenderer from "./MarkdownRenderer";
 import { Collapse } from "react-collapse";
 
 const Container = styled.div`
