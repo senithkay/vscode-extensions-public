@@ -103,130 +103,130 @@ export default function createTests() {
 
   });
 
-  test.skip('Add new connection', async () => {
-    // Add connection from side panel
-    const diagram = new Diagram(page.page, 'Resource');
-    await diagram.init();
-    await diagram.addNewConnection(1);
+  // test.skip('Add new connection', async () => {
+  //   // Add connection from side panel
+  //   const diagram = new Diagram(page.page, 'Resource');
+  //   await diagram.init();
+  //   await diagram.addNewConnection(1);
 
-    const connectorStore = new ConnectorStore(page.page, 'Resource View');
-    await connectorStore.init();
-    await connectorStore.selectOperation('File');
+  //   const connectorStore = new ConnectorStore(page.page, 'Resource View');
+  //   await connectorStore.init();
+  //   await connectorStore.selectOperation('File');
 
-    const connectionForm = new Form(page.page, 'Resource View');
-    await connectionForm.switchToFormView();
-    await connectionForm.fill({
-      values: {
-        'Connection Name*': {
-          type: 'input',
-          value: 'file_connection',
-        },
-        'Host*': {
-          type: 'input',
-          value: 'example.com',
-        },
-        'Port*': {
-          type: 'input',
-          value: '80',
-        },
-        'User Directory Is Root': {
-          type: 'combo',
-          value: 'true',
-        },
-        'TrustStore Path*': {
-          type: 'expression',
-          value: 'exampletruststore.com',
-        },
-        'TrustStore Password*': {
-          type: 'expression',
-          value: 'examplePassword@123',
-        }
-      }
-    });
-    await clearNotificationAlerts(page);
-    await connectionForm.submit('Add');
-    expect(await diagram.verifyConnection("file_connection", "File - FTPS Connection")).toBeTruthy();
-    await diagram.closeSidePanel();
-  });
+  //   const connectionForm = new Form(page.page, 'Resource View');
+  //   await connectionForm.switchToFormView();
+  //   await connectionForm.fill({
+  //     values: {
+  //       'Connection Name*': {
+  //         type: 'input',
+  //         value: 'file_connection',
+  //       },
+  //       'Host*': {
+  //         type: 'input',
+  //         value: 'example.com',
+  //       },
+  //       'Port*': {
+  //         type: 'input',
+  //         value: '80',
+  //       },
+  //       'User Directory Is Root': {
+  //         type: 'combo',
+  //         value: 'true',
+  //       },
+  //       'TrustStore Path*': {
+  //         type: 'expression',
+  //         value: 'exampletruststore.com',
+  //       },
+  //       'TrustStore Password*': {
+  //         type: 'expression',
+  //         value: 'examplePassword@123',
+  //       }
+  //     }
+  //   });
+  //   await clearNotificationAlerts(page);
+  //   await connectionForm.submit('Add');
+  //   expect(await diagram.verifyConnection("file_connection", "File - FTPS Connection")).toBeTruthy();
+  //   await diagram.closeSidePanel();
+  // });
 
-  test.skip('Add Connector Operation', async () => {
-    // Add connector operation from externals tab
-    const diagram = new Diagram(page.page, 'Resource');
-    await diagram.init();
-    await diagram.addConnector('file_connection', "createDirectory", 1, {
-      values: {
-        'Directory Path*': {
-          type: 'expression',
-          value: '/Users/exampleUser/Documents/createdDirectories',
-        }
-      }
-    });
-  })
+  // test.skip('Add Connector Operation', async () => {
+  //   // Add connector operation from externals tab
+  //   const diagram = new Diagram(page.page, 'Resource');
+  //   await diagram.init();
+  //   await diagram.addConnector('file_connection', "createDirectory", 1, {
+  //     values: {
+  //       'Directory Path*': {
+  //         type: 'expression',
+  //         value: '/Users/exampleUser/Documents/createdDirectories',
+  //       }
+  //     }
+  //   });
+  // })
 
-  test.skip('Edit Connector Operation', async () => {
-    // Edit connector operation
-    const diagram = new Diagram(page.page, 'Resource');
-    await diagram.init();
-    const connectorNode = await diagram.getConnector('file', 'createDirectory');
-    await connectorNode.edit({
-      values: {
-        'Directory Path*': {
-          type: 'expression',
-          value: '/Users/exampleUser/Documents/newCreatedDirectories',
-        }
-      }
-    });
-  })
+  // test.skip('Edit Connector Operation', async () => {
+  //   // Edit connector operation
+  //   const diagram = new Diagram(page.page, 'Resource');
+  //   await diagram.init();
+  //   const connectorNode = await diagram.getConnector('file', 'createDirectory');
+  //   await connectorNode.edit({
+  //     values: {
+  //       'Directory Path*': {
+  //         type: 'expression',
+  //         value: '/Users/exampleUser/Documents/newCreatedDirectories',
+  //       }
+  //     }
+  //   });
+  // })
 
-  test.skip('Add connector operation from connector tab', async () => {
-    // Add connector operation from connector tab
-    const diagram = new Diagram(page.page, 'Resource');
-    await diagram.init();
-    const operationForm = await diagram.selectConnectorFromConnectorTab("ldap", "addEntry", 2);
-    operationForm.fill({
-      values: {
-        'objectClass': {
-          type: 'expression',
-          value: 'exampleClass',
-        }
-      }
-    })
-    await diagram.addNewConnectionFromConnectorTab();
+  // test.skip('Add connector operation from connector tab', async () => {
+  //   // Add connector operation from connector tab
+  //   const diagram = new Diagram(page.page, 'Resource');
+  //   await diagram.init();
+  //   const operationForm = await diagram.selectConnectorFromConnectorTab("ldap", "addEntry", 2);
+  //   operationForm.fill({
+  //     values: {
+  //       'objectClass': {
+  //         type: 'expression',
+  //         value: 'exampleClass',
+  //       }
+  //     }
+  //   })
+  //   await diagram.addNewConnectionFromConnectorTab();
 
-    const connectionForm = new Form(page.page, 'Resource View');
-    await connectionForm.switchToFormView();
-    await connectionForm.fill({
-      values: {
-        'Connection Name*': {
-          type: 'input',
-          value: 'ldap_connection',
-        }
-      }
-    });
-    await connectionForm.fillParamManager({
-      'Format': 'exampleFormat',
-      'Type': 'exampleType'
-    });
-    await connectionForm.submit('Add');
+  //   const connectionForm = new Form(page.page, 'Resource View');
+  //   await connectionForm.switchToFormView();
+  //   await connectionForm.fill({
+  //     values: {
+  //       'Connection Name*': {
+  //         type: 'input',
+  //         value: 'ldap_connection',
+  //       }
+  //     }
+  //   });
+  //   await connectionForm.fillParamManager({
+  //     'Format': 'exampleFormat',
+  //     'Type': 'exampleType'
+  //   });
+  //   await connectionForm.submit('Add');
 
 
-    await operationForm.submit("Submit");
-  })
+  //   await operationForm.submit("Submit");
+  // })
 
-  test.skip('Edit Connector Operation Generated From Templates', async () => {
-    // Edit connector operation generated from templates
-    const diagram = new Diagram(page.page, 'Resource');
-    await diagram.init();
-    const connectorNode = await diagram.getConnector('ldap', 'addEntry');
-    await connectorNode.edit({
-      values: {
-        'attributes': {
-          type: 'expression',
-          value: 'att',
-        }
-      }
-    });
-  })
+  // test.skip('Edit Connector Operation Generated From Templates', async () => {
+  //   // Edit connector operation generated from templates
+  //   const diagram = new Diagram(page.page, 'Resource');
+  //   await diagram.init();
+  //   const connectorNode = await diagram.getConnector('ldap', 'addEntry');
+  //   await connectorNode.edit({
+  //     values: {
+  //       'attributes': {
+  //         type: 'expression',
+  //         value: 'att',
+  //       }
+  //     }
+  //   });
+  // })
 
   test.afterAll(async () => {
     await vscode?.close();

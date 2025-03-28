@@ -8,8 +8,10 @@
  */
 
 import { test } from '@playwright/test';
-import connectionTests from './connectionTests/connection.spec';
-import inboundEpTests from './connectionTests/inboundEndpoint.spec';
+import connectionTests from './connectorTests/connection.spec';
+import connectorTests from './connectorTests/connector.spec';
+import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 
 test.describe(connectionTests);
+test.describe(connectorTests);
 test.describe(inboundEpTests);
