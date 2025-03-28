@@ -8,20 +8,15 @@
  */
 
 import { expect, test } from '@playwright/test';
-import * as path from 'path';
 import { Form } from '../components/Form';
 import { AddArtifact } from '../components/AddArtifact';
-import { clearNotificationAlerts, page, resourcesFolder, resumeVSCode, vscode } from '../Utils';
+import { clearNotificationAlerts, initTest, page } from '../Utils';
 import { InboundEPForm } from '../components/InboundEp';
 import { Diagram } from '../components/Diagram';
 import { Overview } from '../components/Overview';
-const fs = require('fs');
 
 export default function createTests() {
-    test.beforeAll(async () => {
-        console.log('Starting inbound ep tests')
-        await resumeVSCode();
-    });
+    initTest("inboundEndpoint");
 
     test('Create new HTTPS inbound endpoint', async () => {
         // Create HTTPS inbound endpoint with automatically generated sequences
@@ -89,18 +84,5 @@ export default function createTests() {
         await diagram.init();
         const diagramTitle = diagram.getDiagramTitle();
         expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP2');
-    });
-
-    test.afterAll(async () => {
-        await vscode?.close();
-
-        const videoTitle = new Date().toLocaleString().replace(/,|:|\/| /g, '_');
-        const video = page.page.video()
-        const videoDir = path.resolve(resourcesFolder, 'videos')
-        const videoPath = await video?.path()
-
-        if (video && videoPath) {
-            await fs.renameSync(videoPath, `${videoDir}/${videoTitle}.webm`)
-        }
     });
 }

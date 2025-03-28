@@ -10,6 +10,23 @@
 import { test } from '@playwright/test';
 import connectionTests from './connectionTests/connection.spec';
 import inboundEpTests from './connectionTests/inboundEndpoint.spec';
+import { initVSCode, newProjectPath, page } from './Utils';
+import fs from 'fs';
+
+test.beforeAll(async () => {
+    console.log('>>> Starting tests')
+    // delete and recreate folder
+    if (fs.existsSync(newProjectPath)) {
+        fs.rmSync(newProjectPath, { recursive: true });
+    }
+    fs.mkdirSync(newProjectPath, { recursive: true });
+    await initVSCode();
+});
 
 test.describe(connectionTests);
 test.describe(inboundEpTests);
+
+test.afterAll(async () => {
+    console.log(`>>> Finished all tests`);
+    await page.page?.close();
+});

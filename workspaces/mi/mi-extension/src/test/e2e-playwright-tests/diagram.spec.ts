@@ -8,25 +8,16 @@
  */
 
 import { test, expect } from '@playwright/test';
-import * as path from 'path';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { clearNotificationAlerts, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
+import { clearNotificationAlerts, createProject, initTest, page } from './Utils';
 import { ConnectorStore } from './components/ConnectorStore';
 const fs = require('fs');
 
 export default function createTests() {
-  test.beforeAll(async () => {
-    console.log('Starting diagram tests')
-    // delete and recreate folder
-    if (fs.existsSync(newProjectPath)) {
-      fs.rmSync(newProjectPath, { recursive: true });
-    }
-    fs.mkdirSync(newProjectPath, { recursive: true });
-    await initVSCode();
-  });
+  initTest("Diagram");
 
   test.skip('Create new project', async () => {
     // wait until extension is ready
@@ -227,23 +218,4 @@ export default function createTests() {
       }
     });
   })
-
-  test.afterAll(async () => {
-    await vscode?.close();
-
-    const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
-    const video = page.page.video()
-    const videoDir = path.resolve(resourcesFolder, 'videos')
-    const videoPath = await video?.path()
-
-    if (video && videoPath) {
-      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
-    }
-
-    // cleanup
-    if (fs.existsSync(newProjectPath)) {
-      fs.rmSync(newProjectPath, { recursive: true });
-    }
-    console.log('Diagram tests completed')
-  });
 }

@@ -7,11 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Locator, Page } from "@playwright/test";
+import { Locator } from "@playwright/test";
 import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { ExtendedPage, getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { clearNotificationAlerts } from "../Utils";
-import { t } from "xstate";
 
 export class Welcome {
     private container!: Locator;
@@ -35,6 +34,7 @@ export class Welcome {
         try {
             webview = await switchToIFrame(MACHINE_VIEW.SETUP_ENVIRONMENT, this.page.page, 5000);
         } catch (error) {
+            console.error('Failed to switch to Setup Environment iframe');
             return true;
         }
 

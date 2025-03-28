@@ -12,6 +12,8 @@ import { Form } from "./components/Form";
 import { Welcome } from "./components/Welcome";
 import path from "path";
 import { ElectronApplication } from "@playwright/test";
+import { test } from '@playwright/test';
+import fs from 'fs';
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -22,7 +24,7 @@ export let vscode: ElectronApplication | undefined;
 export let page: ExtendedPage;
 
 export async function initVSCode() {
-    if (vscode || page) {
+    if (vscode && page) {
         await page.executePaletteCommand('Reload Window');
     } else {
         vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, newProjectPath);
@@ -32,7 +34,6 @@ export async function initVSCode() {
 
 export async function createProject(page: ExtendedPage) {
     await page.selectSidebarItem('Micro Integrator');
-    await page.page.waitForTimeout(5000); // To fix intermittent issue
     const welcomePage = new Welcome(page);
     await welcomePage.init();
     await welcomePage.createNewProject();
@@ -52,17 +53,20 @@ export async function createProject(page: ExtendedPage) {
         }
     });
     await createNewProjectForm.submit();
-    await page.page.waitForTimeout(5000); // Page detaching after project creation
-    const setupEnvPage = new Welcome(page);
+    console.log('Project created');
 
+    const setupEnvPage = new Welcome(page);
     await setupEnvPage.setupEnvironment();
+    console.log('Environment setup done');
 }
 
 export async function resumeVSCode() {
-    if (vscode || page) {
+    if (vscode && page) {
         await page.executePaletteCommand('Reload Window');
     } else {
+        console.log('Starting VSCode');
         vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, path.join(newProjectPath, 'testProject'));
+        await new Promise(resolve => setTimeout(resolve, 5000));
     }
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
@@ -74,3 +78,18 @@ export async function clearNotificationAlerts(page: ExtendedPage) {
         await notifications.first().click();
     }
 }
+
+export function initTest(title: string, cleanupAfter?: boolean) {
+    test.beforeAll(async () => {
+        console.log(`>>> Starting ${title} tests`);
+        await resumeVSCode();
+    });
+
+    test.afterAll(async () => {
+        if (cleanupAfter && fs.existsSync(newProjectPath)) {
+            fs.rmSync(newProjectPath, { recursive: true });
+        }
+        console.log(`>>> Finished ${title} tests`);
+    });
+}
+

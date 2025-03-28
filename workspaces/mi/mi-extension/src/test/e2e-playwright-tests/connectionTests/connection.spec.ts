@@ -11,23 +11,15 @@ import { test, expect } from '@playwright/test';
 import { Form } from '../components/Form';
 import { AddArtifact } from '../components/AddArtifact';
 import { ConnectorStore } from '../components/ConnectorStore';
-import { clearNotificationAlerts, createProject, initVSCode, newProjectPath, page } from '../Utils';
+import { clearNotificationAlerts, createProject, initTest, page } from '../Utils';
 import { ProjectExplorer } from '../components/ProjectExplorer';
-const fs = require('fs');
 
 export default function createTests() {
-    test.beforeAll(async () => {
-        console.log('Starting connection tests')
-        // delete and recreate folder
-        if (fs.existsSync(newProjectPath)) {
-            fs.rmSync(newProjectPath, { recursive: true });
-        }
-        fs.mkdirSync(newProjectPath, { recursive: true });
-        await initVSCode();
-    });
+    initTest("connection");
 
     test('Create new project', async () => {
         await createProject(page);
+        console.log('Project creation test completed');
     });
 
     test('Create new Connection', async () => {
