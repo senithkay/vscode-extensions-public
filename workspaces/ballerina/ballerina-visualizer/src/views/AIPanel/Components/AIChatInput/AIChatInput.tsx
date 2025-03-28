@@ -28,12 +28,13 @@ import {
     COMMAND_TYPECREATOR,
     COMMAND_NATURAL_PROGRAMMING,
     getFileTypesForCommand,
-} from "../AIChat";
+} from "../../AIChat";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
-import AttachmentBox, { AttachmentsContainer } from "./AttachmentBox";
-import { DataMapperAttachment } from "../../../utils/datamapperAttachment";
-import { GenerateAttachment } from "../../../utils/generateAttachment";
-import { TestAttachment } from "../../../utils/testAttachment";
+import AttachmentBox, { AttachmentsContainer } from "../AttachmentBox";
+import { DataMapperAttachment } from "../../../../utils/datamapperAttachment";
+import { GenerateAttachment } from "../../../../utils/generateAttachment";
+import { TestAttachment } from "../../../../utils/testAttachment";
+import { StyledInputComponent, StyledInputRef } from "./StyledInput";
 
 // Styled Components
 
@@ -130,7 +131,11 @@ const ActionButton = styled.button`
     box-sizing: border-box;
 
     &:hover {
-        background-color: var(--vscode-badge-background);
+        background-color: var(--vscode-toolbar-hoverBackground);
+    }
+
+    &:active {
+        background-color: var(--vscode-toolbar-activeBackground);
     }
 
     &:disabled {
@@ -143,196 +148,6 @@ const ActionButton = styled.button`
         background-color: transparent;
     }
 `;
-
-// ---------- STYLED INPUT ----------
-// Styled input to blend with the InputArea and remove its own outline
-const StyledInput = styled.div`
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: var(--vscode-inputForeground);
-    font-size: 1em;
-    line-height: calc(1em + 8px);
-    padding: 4px;
-    outline: none;
-    white-space: pre-wrap;
-    overflow-y: auto;
-    max-height: calc(1em * 8);
-    overflow-wrap: break-word;
-    word-break: break-word;
-    hyphens: auto;
-
-    &:focus {
-        outline: none;
-        box-shadow: none;
-        border: none;
-        background: transparent;
-    }
-
-    &:empty:before {
-        content: attr(data-placeholder);
-        color: var(--vscode-input-placeholderForeground);
-        pointer-events: none;
-        display: block;
-    }
-
-    ::selection {
-        background: var(--vscode-editor-selectionBackground);
-        color: var(--vscode-editor-selectionForeground);
-    }
-`;
-
-interface StyledInputRef {
-    focus: () => void;
-    getCursorPosition: () => number;
-    ref: React.RefObject<HTMLDivElement>;
-}
-
-interface StyledInputProps {
-    value: string;
-    onChange: (value: string) => void;
-    onInput: (e: React.ChangeEvent<HTMLDivElement>) => void;
-    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
-    onBlur: (e: React.FocusEvent<HTMLDivElement>) => void;
-    placeholder: string;
-}
-
-const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
-    ({ value, onChange, onInput, onKeyDown, onBlur, placeholder }, ref) => {
-        const [content, setContent] = useState<string>(value);
-        const divRef = useRef<HTMLDivElement>(null);
-
-        const getCursorPosition = () => {
-            const selection = window.getSelection();
-            if (selection && selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const preCaretRange = range.cloneRange();
-                preCaretRange.selectNodeContents(divRef.current);
-                preCaretRange.setEnd(range.endContainer, range.endOffset);
-                return preCaretRange.toString().length;
-            }
-            return 0;
-        };
-
-        // Expose the focus, bold, and highlight methods to parent components
-        useImperativeHandle(ref, () => ({
-            focus: () => {
-                if (divRef.current) {
-                    divRef.current.focus();
-                }
-            },
-            getCursorPosition,
-            ref: divRef,
-        }));
-
-        const setCursorToPosition = (element: HTMLDivElement, position: number) => {
-            const range = document.createRange();
-            const selection = window.getSelection();
-
-            position = Math.min(position, element.textContent?.length ?? 0);
-            position = Math.max(position, 0);
-
-            let currentPos = 0;
-            let found = false;
-
-            for (const node of element.childNodes) {
-                const nodeLength = node.textContent?.length ?? 0;
-
-                if (currentPos + nodeLength >= position) {
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        range.setStart(node, position - currentPos);
-                    } else {
-                        range.setStart(node, Math.min(position - currentPos, node.childNodes.length));
-                    }
-                    found = true;
-                    break;
-                }
-
-                currentPos += nodeLength;
-            }
-
-            if (!found) {
-                range.setStart(element, element.childNodes.length);
-            }
-
-            range.collapse(true);
-            selection?.removeAllRanges();
-            selection?.addRange(range);
-        };
-
-        const handlePaste = useCallback((event: React.ClipboardEvent<HTMLDivElement>) => {
-            event.preventDefault();
-            const text = event.clipboardData.getData("text/plain");
-
-            const selection = window.getSelection();
-            if (!selection || !divRef.current) return;
-
-            const range = selection.getRangeAt(0);
-            range.deleteContents();
-
-            const textNode = document.createTextNode(text);
-            range.insertNode(textNode);
-
-            range.setStartAfter(textNode);
-            range.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            const newValue = divRef.current.innerHTML;
-            setContent(newValue);
-            if (onChange) {
-                onChange(newValue);
-            }
-        }, []);
-
-        // Sync prop `value` with internal state
-        useEffect(() => {
-            if (divRef.current && divRef.current.innerHTML !== content) {
-                const prevCursorPosition = getCursorPosition();
-                const diff = decodeHTML(content).length - decodeHTML(divRef.current.innerHTML).length;
-
-                divRef.current.innerHTML = content;
-
-                setCursorToPosition(divRef.current, prevCursorPosition + diff + 1);
-            }
-        }, [content]);
-
-        // Update content when `value` prop changes
-        useEffect(() => {
-            if (value !== content) {
-                setContent(value);
-            }
-        }, [value, content]);
-
-        // Handle input changes
-        const handleInput = (event: React.ChangeEvent<HTMLDivElement>) => {
-            if (divRef.current) {
-                const html = divRef.current.innerHTML;
-                setContent(html);
-                if (onChange) {
-                    onChange(html);
-                }
-            }
-            onInput(event);
-        };
-
-        return (
-            <StyledInput
-                ref={divRef}
-                contentEditable
-                spellCheck="true"
-                onInput={handleInput}
-                onKeyDown={onKeyDown}
-                onPaste={handlePaste}
-                suppressContentEditableWarning={true}
-                role="textbox"
-                aria-multiline="true"
-                onBlur={onBlur}
-                data-placeholder={placeholder}
-            />
-        );
-    }
-);
 
 // UTIL Functions ----
 function decodeHTML(str: string): string {
@@ -569,9 +384,9 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
     // Add badge (for commands only)
     const addBadge = (badge: string) => {
         const highlightedBadge = `<div style="
-            background-color: var(--vscode-editorWidget-background);
-            color: var(--vscode-editorWidget-foreground);
-            padding: 4px;
+            background: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,1)), var(--vscode-badge-background);
+            color: var(--vscode-badge-foreground);
+            padding: 4px 0;
             border-radius: 4px;
             display: inline-flex;
             align-items: center;
