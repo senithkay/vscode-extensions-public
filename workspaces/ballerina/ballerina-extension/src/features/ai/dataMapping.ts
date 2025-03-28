@@ -140,7 +140,7 @@ function createDataMappingFunctionSource(inputParams: DataMappingRecord[], outpu
     { startLine: 0, startColumn: 0 },
     false,
     true,
-    outputParam.isArray ? '[]' : '{}'
+    '{}'
   );
   const source = getSource(modification);
   return source;

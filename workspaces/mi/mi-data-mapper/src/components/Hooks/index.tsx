@@ -18,7 +18,7 @@ import { getArrayFilterNodeHeight, getIONodeHeight, hasSameFilters, isSameView }
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMCollapsedFieldsStore, useDMSearchStore } from '../../store/store';
-import { ArrayFilterNode, ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from '../Diagram/Node';
+import { ArrayFilterNode, ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode, UnionOutputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_FILTER_NODE_AND_INPUT_NODE, GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
@@ -45,6 +45,7 @@ export const useRepositionedNodes = (
 
         if (node instanceof ObjectOutputNode
             || node instanceof ArrayOutputNode
+            || node instanceof UnionOutputNode
             || node instanceof PrimitiveOutputNode
             || node instanceof OutputDataImportNodeModel
         ) {

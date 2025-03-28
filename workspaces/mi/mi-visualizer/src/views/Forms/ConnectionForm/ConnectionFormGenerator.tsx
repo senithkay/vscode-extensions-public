@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, FormActions, FormView, TextField, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Button, FormActions, FormView, TextField, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
@@ -16,7 +16,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { TypeChip } from '../Commons';
 import { ParamConfig, ParamManager, FormGenerator } from '@wso2-enterprise/mi-diagram';
-import { formatForConfigurable, isConfigurable, removeConfigurableFormat } from '../Commons/utils';
 
 const ParamManagerContainer = styled.div`
     width: 100%;
@@ -32,8 +31,6 @@ export interface AddConnectionProps {
     isPopup?: boolean;
     handlePopupClose?: () => void;
 }
-
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
 
 export function AddConnection(props: AddConnectionProps) {
     const { handlePopupClose } = props;
@@ -79,7 +76,8 @@ export function AddConnection(props: AddConnectionProps) {
 
             const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({
                 connectorName: props.connector.name,
-                connectionType: connectionType });
+                connectionType: connectionType
+            });
 
             setFormData(connectionSchema);
             reset({
@@ -200,25 +198,40 @@ export function AddConnection(props: AddConnectionProps) {
         Object.keys(values).forEach((key: string) => {
             if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName') && values[key]) {
                 if (typeof values[key] === 'object' && values[key] !== null) {
-                    // Handle expression input type
-                    const namespaces = values[key].namespaces;
-                    const value = values[key].value;
-                    const isExpression = values[key].isExpression;
+                    if (Array.isArray(values[key])) {
+                        // Handle param manager input type
+                        const value = values[key];
+                        let paramText = `[`;
 
-                    if (value) {
-                        if (isExpression) {
-                            if (namespaces && namespaces.length > 0) {
-                                // Generate XML with namespaces
-                                const element = connectorTag.ele(key);
-                                namespaces.forEach((namespace: any) => {
-                                    element.att(`xmlns:${namespace.prefix}`, namespace.uri);
-                                });
-                                element.txt(`{${value}}`);
+                        value.forEach((item: any) => {
+                            const propertyName = item.propertyName;
+                            const propertyValue = item.propertyValue.value;
+                            const text = `[&quot;${propertyName}&quot;,&quot;${propertyValue}&quot;],`;
+                            paramText = paramText + text;
+                        });
+                        paramText = paramText + `]`;
+                        connectorTag.ele(key).txt(`${paramText}`);
+                    } else {
+                        // Handle expression input type
+                        const namespaces = values[key].namespaces;
+                        const value = values[key].value;
+                        const isExpression = values[key].isExpression;
+
+                        if (value) {
+                            if (isExpression) {
+                                if (namespaces && namespaces.length > 0) {
+                                    // Generate XML with namespaces
+                                    const element = connectorTag.ele(key);
+                                    namespaces.forEach((namespace: any) => {
+                                        element.att(`xmlns:${namespace.prefix}`, namespace.uri);
+                                    });
+                                    element.txt(`{${value}}`);
+                                } else {
+                                    connectorTag.ele(key).txt(`{${value}}`);
+                                }
                             } else {
-                                connectorTag.ele(key).txt(`{${value}}`);
+                                connectorTag.ele(key).txt(value);
                             }
-                        } else {
-                            connectorTag.ele(key).txt(value);
                         }
                     }
                 } else {

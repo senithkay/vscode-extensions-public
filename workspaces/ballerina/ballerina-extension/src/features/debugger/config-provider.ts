@@ -150,7 +150,7 @@ async function showInputBox(paramName: string, value: string, type: string, isRe
         promptMessage = 'This is optional and can be left empty';
     } else if (isRest) {
         promptMessage = 'This parameter accepts multiple values. ' +
-        "You'll be prompted to enter each value one by one. Press 'Escape' when finished.";
+            "You'll be prompted to enter each value one by one. Press 'Escape' when finished.";
     }
 
     // Construct placeholder message based on the type and the flags
@@ -183,7 +183,7 @@ async function showInputBox(paramName: string, value: string, type: string, isRe
         value: value,
         validateInput: (input: string) => {
             if (!isOptional && input === "") {
-            return `The input is required`;
+                return `The input is required`;
             }
 
             // Validate the input value based on its type
@@ -583,14 +583,13 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         const cmd = this.getScriptPath(args);
         args.push(port.toString());
 
-        let opt: ExecutableOptions = { cwd: cwd };
+        let opt: ExecutableOptions = { cwd, shell: true };
         opt.env = Object.assign({}, process.env, configEnv);
 
-        const serverProcess = child_process.spawn(cmd, args, opt);
-
-        log(`Starting debug adapter: '${this.ballerinaExtInstance.getBallerinaCmd()} start-debugger-adapter ${port.toString()}`);
-
         try {
+            log(`Starting debug adapter: '${this.ballerinaExtInstance.getBallerinaCmd()} start-debugger-adapter ${port.toString()}`);
+            const serverProcess = child_process.spawn(cmd, args, opt);
+
             await new Promise<void>((resolve) => {
                 serverProcess.stdout.on('data', (data) => {
                     if (data.toString().includes('Debug server started')) {

@@ -138,6 +138,7 @@ const undoRedoManager = new UndoRedoManager();
 export function TypeEditor(props: TypeEditorProps) {
     console.log("===TypeEditorProps===", props);
     const { isGraphql } = props;
+    let initialTypeKind = props.type?.codedata?.node;
     const [selectedTypeKind, setSelectedTypeKind] = useState<TypeKind>(() => {
         if (props.type) {
             // Map the type's node kind to TypeKind enum
@@ -179,6 +180,9 @@ export function TypeEditor(props: TypeEditorProps) {
             includes: [] as string[],
             allowAdditionalFields: false
         };
+        if (!initialTypeKind) {
+            initialTypeKind = defaultType.codedata.node;
+        }
         return defaultType as unknown as Type;
     });
 
@@ -253,12 +257,10 @@ export function TypeEditor(props: TypeEditorProps) {
     const getAvailableTypeKinds = (isGraphql: boolean | undefined, currentType?: TypeKind): TypeKind[] => {
         if (isGraphql) {
             // For GraphQL mode, filter options based on current type
-            if (currentType === TypeKind.RECORD) {
+            if (initialTypeKind === "RECORD") {
                 return [TypeKind.RECORD, TypeKind.ENUM, TypeKind.UNION];
-            } else if (currentType === TypeKind.CLASS) {
+            } else if (initialTypeKind === "CLASS") {
                 return [TypeKind.CLASS, TypeKind.ENUM, TypeKind.UNION];
-            } else {
-                return [TypeKind.RECORD, TypeKind.CLASS, TypeKind.ENUM, TypeKind.UNION];
             }
         }
         // Return all options for non-GraphQL mode

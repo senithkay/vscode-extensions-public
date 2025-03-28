@@ -67,7 +67,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             const resources: ComponentInfo[] = [];
             service.resourceFunctions.forEach(func => {
                 const resourceInfo: ComponentInfo = {
-                    name: `${func.accessor}-${func.path}`,
+                    name: service?.type === "graphql:Service" ? `${func.path}` : `${func.accessor}-${func.path}`,
                     filePath: path.basename(func.location.filePath),
                     startLine: func.location.startLine.line,
                     startColumn: func.location.startLine.offset,

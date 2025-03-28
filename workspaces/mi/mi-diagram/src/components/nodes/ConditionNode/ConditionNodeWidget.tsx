@@ -17,7 +17,6 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { MoreVertIcon } from "../../../resources";
-import { FirstCharToUpperCase } from "../../../utils/commons";
 import { Description, Name } from "../BaseNodeModel";
 import { getNodeDescription } from "../../../utils/node";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";

@@ -159,13 +159,11 @@ export function MIDataMapper(props: MIDataMapperProps) {
         label: `${getTypeName(inputTrees[0])} -> ${getTypeName(outputTree)}`
     }];
 
-    const viewsStore = useDMViewsStore();
+    const viewsStoreState = useDMViewsStore.getState();
 
     const initializeViews = (views: View[]) => {
-        if (viewsStore.views.length > 0) {
-            const storeViews = viewsStore.views.slice(0);
-            viewsStore.setViews([]);
-            return storeViews;
+        if (viewsStoreState.views.length > 1) {
+            return viewsStoreState.views;
         } else {
             return views;
         }
@@ -195,6 +193,10 @@ export function MIDataMapper(props: MIDataMapperProps) {
         resetSearchStore();
         resetExprBarFocus();
     }, [resetSearchStore, resetExprBarFocus]);
+
+    if (viewsStoreState.views !== views) {
+        viewsStoreState.setViews(views);
+    }
 
     const inputNode = nodes.find(node => isInputNode(node));
 

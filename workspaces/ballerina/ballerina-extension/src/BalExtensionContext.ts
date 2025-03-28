@@ -15,6 +15,7 @@ export class BalExtensionContext {
     public context!: ExtensionContext;
     public initialPrompt?: string;
     public agentChatContext?: AgentChatContext;
+    public dataMappingFunctionName?: string;
 }
 
 export const extension = new BalExtensionContext();

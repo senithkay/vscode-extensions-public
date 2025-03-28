@@ -392,6 +392,10 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             if (baseCommands.has(command)) {
                 setInputValue("");
                 selectSuggestion(command);
+                if (fileInputRef.current) {
+                    setActiveCommand(command);
+                    fileInputRef.current.accept = getFileTypesForCommand(command).join(",");
+                }
 
                 setInputValue((currentInputValue) => {
                     return currentInputValue + encodeHTML(commandValue);
@@ -498,6 +502,9 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                 event.preventDefault();
                 if (filteredSuggestions.length > 0) {
                     selectSuggestion(filteredSuggestions[activeSuggestionIndex]);
+                    if (fileInputRef.current && baseCommands.has(selectedCommand)) {
+                        fileInputRef.current.accept = getFileTypesForCommand(selectedCommand).join(",");
+                    }
                 }
             } else if (event.key === "Escape") {
                 setShowSuggestions(false);
