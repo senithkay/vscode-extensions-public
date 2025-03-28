@@ -106,7 +106,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
-                this.checkFile(targetFile);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenersResponse = await context.langClient.getListeners(params);
                 resolve(res);
@@ -134,7 +134,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
-                this.checkFile(targetFile);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenerSourceCodeResponse = await context.langClient.addListenerSourceCode(params);
                 const position = await this.updateSource(res);
@@ -156,7 +156,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
-                this.checkFile(targetFile);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenerSourceCodeResponse = await context.langClient.updateListenerSourceCode(params);
                 const position = await this.updateSource(res);
@@ -178,7 +178,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
-                this.checkFile(targetFile);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ServiceModelResponse = await context.langClient.getServiceModel(params);
                 resolve(res);
@@ -195,7 +195,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
-                this.checkFile(targetFile);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const identifiers = [];
                 for (let property in params.service.properties) {
@@ -261,7 +261,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             }
             const injectionPosition = updatedService.service.functions[0].codedata.lineRange.endLine;
             const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
-            this.checkFile(serviceFile);
+            this.ensureFileExists(serviceFile);
             await injectAgentCode(agentName, serviceFile, injectionPosition);
             const functionPosition: NodePosition = {
                 startLine: updatedService.service.functions[0].codedata.lineRange.startLine.line,
@@ -283,7 +283,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
-                this.checkFile(targetFile);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const identifiers = [];
                 for (let property in params.service.properties) {
@@ -336,7 +336,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
-                this.checkFile(targetFile);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
@@ -519,7 +519,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    private checkFile(targetFile: string) {
+    private ensureFileExists(targetFile: string) {
         // Check if the file exists
         if (!fs.existsSync(targetFile)) {
             // Create the file if it does not exist
