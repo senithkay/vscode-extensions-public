@@ -227,6 +227,7 @@ export function AIChat() {
     const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
     const [isSyntaxError, setIsSyntaxError] = useState(false);
     const [isReqFileExists, setIsReqFileExists] = useState(false);
+    const [isPromptExecutedInCurrentWindow, setIsPromptExecutedInCurrentWindow] = useState(false);
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
@@ -454,6 +455,7 @@ export function AIChat() {
 
     async function handleSend(content: [string, AttachmentResult[]]) {
         setCurrentGeneratingPromptIndex(otherMessages.length);
+        setIsPromptExecutedInCurrentWindow(true);
         // Step 1: Add the user input to the chat array
 
         const [message, attachments] = content;
@@ -828,7 +830,12 @@ export function AIChat() {
         const [useCase, attachments, operationType] = content;
 
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
+        let project: ProjectSource;
+        try {
+            project = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
+        } catch (error) {
+            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+        }
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -1988,9 +1995,12 @@ export function AIChat() {
 
     async function processHealthcareCodeGeneration(token: string, useCase: string, message: string) {
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient
-            .getAiPanelRpcClient()
-            .getProjectSource(CodeGenerationType.CODE_GENERATION);
+        let project: ProjectSource;
+        try {
+            project = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
+        } catch (error) {
+            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+        }
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -2644,6 +2654,7 @@ export function AIChat() {
                                                 command={segment.command}
                                                 diagnostics={currentDiagnostics}
                                                 onRetryRepair={handleRetryRepair}
+                                                isPromptExecutedInCurrentWindow={isPromptExecutedInCurrentWindow}
                                             />
                                         );
                                     }
