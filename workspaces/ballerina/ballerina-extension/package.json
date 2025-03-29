@@ -193,26 +193,6 @@
                         "type": "boolean",
                         "default": false,
                         "description": "Experimental: Enable inlay hints for Ballerina."
-                    },
-                    "ballerina.rootUrl": {
-                        "type": "string",
-                        "default": "https://dev-tools.wso2.com/ballerina-copilot/v2.0",
-                        "description": "Ballerina AI Backend service"
-                    },
-                    "ballerina.authOrg": {
-                        "type": "string",
-                        "default": "ballerinacopilot",
-                        "description": "Asgardeo Organization for Auth Services\nDefault: ballerinacopilot"
-                    },
-                    "ballerina.authClientID": {
-                        "type": "string",
-                        "default": "9rKng8hSZd0VkeA45Lt4LOfCp9Aa",
-                        "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: 9rKng8hSZd0VkeA45Lt4LOfCp9Aa"
-                    },
-                    "ballerina.authRedirectURL": {
-                        "type": "string",
-                        "default": "vscode://wso2.ballerina/signin",
-                        "description": "Redirect URL for Auth Service \n Default: vscode://wso2.ballerina/signin"
                     }
                 }
             },
