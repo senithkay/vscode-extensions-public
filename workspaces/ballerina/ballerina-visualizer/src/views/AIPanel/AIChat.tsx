@@ -55,6 +55,7 @@ import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCop
 import MarkdownRenderer from "./Components/MarkdownRenderer";
 import { CodeSection } from "./Components/CodeSection";
 import { CodeSegment } from "./Components/CodeSegment";
+import ErrorBox from "./Components/ErrorBox";
 
 interface CodeBlock {
     filePath: string;
@@ -100,7 +101,9 @@ var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
-const INVALID_RECORD_REFERENCE: Error = new Error("Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.");
+const INVALID_RECORD_REFERENCE: Error = new Error(
+    "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package."
+);
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
 const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`;
@@ -282,14 +285,13 @@ export function AIChat() {
                     .getAiPanelRpcClient()
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
-                        const command = initPrompt.exists && initPrompt.text === "datamap"
-                            ? COMMAND_DATAMAP
-                            : COMMAND_GENERATE;
+                        const command =
+                            initPrompt.exists && initPrompt.text === "datamap" ? COMMAND_DATAMAP : COMMAND_GENERATE;
 
                         let template = commandToTemplate.get(command)?.[1];
 
                         if (template && initPrompt.dataMappingFunctionName) {
-                            template = template.replace('<functionname>', initPrompt.dataMappingFunctionName);
+                            template = template.replace("<functionname>", initPrompt.dataMappingFunctionName);
                         }
 
                         if (initPrompt.exists) {
@@ -599,11 +601,16 @@ export function AIChat() {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
                             await processMappingParameters(cleanedMessage, token, parameters, attachments);
                         } else if (messageBody.includes("function")) {
-                            await processMappingParameters(cleanedMessage, token, {
-                                inputRecord: [],
-                                outputRecord: "",
-                                functionName: parameters.functionName
-                            }, attachments);
+                            await processMappingParameters(
+                                cleanedMessage,
+                                token,
+                                {
+                                    inputRecord: [],
+                                    outputRecord: "",
+                                    functionName: parameters.functionName,
+                                },
+                                attachments
+                            );
                         } else {
                             throw new Error(
                                 `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
@@ -834,7 +841,9 @@ export function AIChat() {
         try {
             project = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
         } catch (error) {
-            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+            throw new Error(
+                "This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue."
+            );
         }
         const requestBody: any = {
             usecase: useCase,
@@ -1047,7 +1056,7 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?!\\|error)\\s*(?:=>|\\{)`,
-            's'
+            "s"
         );
     }
 
@@ -1056,7 +1065,7 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType})\\s*(=>|\\{)`,
-            's'
+            "s"
         );
     }
 
@@ -1065,7 +1074,7 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*=>\\s*\\{[^}]*\\}`,
-            's'
+            "s"
         );
     }
 
@@ -1074,16 +1083,13 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*\\{[^}]*\\}`,
-            's'
+            "s"
         );
     }
 
     // Fucntion to create regex to match function signatures without capturing the function body.
     function createExistingFunctionSignatureRegex(functionName: string) {
-        return new RegExp(
-            `function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>\\s*(?:\\{|)`,
-            's'
-        );
+        return new RegExp(`function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>\\s*(?:\\{|)`, "s");
     }
 
     // Function to remove the body of a specified function while keeping the rest of the code unchanged.
@@ -1091,7 +1097,7 @@ export function AIChat() {
         // Regular expression to match the function signature and body
         const functionRegex = new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>)\\s*(?:\\{[^]*?\\}|[^;]*);`,
-            's'
+            "s"
         );
 
         // Replace the matched function body with an empty function body `{}` while keeping the signature
@@ -1123,7 +1129,8 @@ export function AIChat() {
             if (command === "ai_map") {
                 const importRegex = /import\s+[^;]+;/g;
                 const commentRegex = /^(?:(\/\/.*|#.*)\n)+/; // Matches both `//` and `#` comment blocks at the top
-                const functionRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^={|]+)(?:\|error)?\s*=>\s*(?:\{([\s\S]*?)\}|([\s\S]*?));/;
+                const functionRegex =
+                    /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^={|]+)(?:\|error)?\s*=>\s*(?:\{([\s\S]*?)\}|([\s\S]*?));/;
 
                 let existingFunctionRegex;
 
@@ -1708,8 +1715,15 @@ export function AIChat() {
     }
 
     // Process input parameters
-    function processInputs(inputParams: string[], recordMap: Map<any, any>, allImports: ImportStatement[], importsMap: Map<any, any>) {
-        let results = inputParams.map((param: string) => processRecordReference(param, recordMap, allImports, importsMap));
+    function processInputs(
+        inputParams: string[],
+        recordMap: Map<any, any>,
+        allImports: ImportStatement[],
+        importsMap: Map<any, any>
+    ) {
+        let results = inputParams.map((param: string) =>
+            processRecordReference(param, recordMap, allImports, importsMap)
+        );
         return results.filter((result): result is DataMappingRecord => {
             if (result instanceof Error) {
                 throw INVALID_RECORD_REFERENCE;
@@ -1719,11 +1733,18 @@ export function AIChat() {
     }
 
     // Process Output parameters
-    function processOutput(outputParam: string, recordMap: Map<any, any>, allImports: { moduleName: string; alias?: string; }[], importsMap: Map<any, any>) {
+    function processOutput(
+        outputParam: string,
+        recordMap: Map<any, any>,
+        allImports: { moduleName: string; alias?: string }[],
+        importsMap: Map<any, any>
+    ) {
         const parts = outputParam.split("|");
         const validParts = parts.filter((name: string) => name !== "error");
         if (validParts.length > 1) {
-            throw new Error(`Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`);
+            throw new Error(
+                `Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`
+            );
         }
         const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
         const outputResult = processRecordReference(cleanedOutputRecordName, recordMap, allImports, importsMap);
@@ -1772,7 +1793,7 @@ export function AIChat() {
             }
         });
 
-        const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number; }[] = [];
+        const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number }[] = [];
 
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
@@ -1791,7 +1812,7 @@ export function AIChat() {
                         name: func.name,
                         filePath: filepath + func.filePath,
                         startLine: func.startLine,
-                        endLine: func.endLine
+                        endLine: func.endLine,
                     });
                 });
             });
@@ -1800,21 +1821,27 @@ export function AIChat() {
         if (parameters.inputRecord.length > 0 || parameters.outputRecord !== "") {
             result = await processExistingFunctions(existingFunctions, functionName);
             if (result.functionNameMatch) {
-                throw new Error(`A function named "${functionName}" exists in '${result.matchingFunctionFile}'. Please provide a valid function name.`);
+                throw new Error(
+                    `A function named "${functionName}" exists in '${result.matchingFunctionFile}'. Please provide a valid function name.`
+                );
             }
             inputParams = parameters.inputRecord;
             outputParam = parameters.outputRecord;
         } else {
             if (existingFunctions.length === 0) {
-                throw new Error(`A function named "${functionName}" was not found in the project. Please provide a valid function name.`);
+                throw new Error(
+                    `A function named "${functionName}" was not found in the project. Please provide a valid function name.`
+                );
             }
             result = await processExistingFunctions(existingFunctions, functionName);
             if (!result.functionNameMatch) {
-                throw new Error(`A function named "${functionName}" was not found in the project. Please provide a valid function name.`);
+                throw new Error(
+                    `A function named "${functionName}" was not found in the project. Please provide a valid function name.`
+                );
             }
-            const params = result.match[2].split(/,\s*/).map(param => param.trim().split(/\s+/));
-            inputParams = params.map(parts => parts[0]);
-            inputNames = params.map(parts => parts[1]);
+            const params = result.match[2].split(/,\s*/).map((param) => param.trim().split(/\s+/));
+            inputParams = params.map((parts) => parts[0]);
+            inputNames = params.map((parts) => parts[1]);
             outputParam = result.match[3].trim();
         }
 
@@ -1999,7 +2026,9 @@ export function AIChat() {
         try {
             project = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
         } catch (error) {
-            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+            throw new Error(
+                "This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue."
+            );
         }
         const requestBody: any = {
             usecase: useCase,
@@ -2682,14 +2711,7 @@ export function AIChat() {
                                         </AttachmentsContainer>
                                     );
                                 } else if (segment.type === SegmentType.Error) {
-                                    return (
-                                        <div
-                                            key={i}
-                                            style={{ color: "var(--vscode-errorForeground)", marginTop: "10px" }}
-                                        >
-                                            {segment.text}
-                                        </div>
-                                    );
+                                    return <ErrorBox key={i} message={segment.text} />;
                                 } else if (segment.type === SegmentType.InlineCode) {
                                     // return <BallerinaCodeBlock key={i} code={segment.text} />;
                                     return (
@@ -2757,11 +2779,7 @@ export function AIChat() {
                                     }
                                 } else {
                                     if (message.type === "Error") {
-                                        return (
-                                            <div key={i} style={{ color: "red", marginTop: "10px" }}>
-                                                {segment.text}
-                                            </div>
-                                        );
+                                        return <ErrorBox key={i} message={segment.text} />;
                                     }
                                     return <MarkdownRenderer key={i} markdownContent={segment.text} />;
                                 }
