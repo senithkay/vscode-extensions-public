@@ -35,6 +35,7 @@ interface CodeSectionProps {
     command: string;
     diagnostics: any[];
     onRetryRepair: () => void;
+    isPromptExecutedInCurrentWindow: boolean;
 }
 
 const EntryContainer = styled.div<{ hasErrors: boolean; isOpen: boolean; isHovered: boolean }>(
@@ -69,6 +70,7 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
     command,
     diagnostics = [],
     onRetryRepair = () => {},
+    isPromptExecutedInCurrentWindow,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
@@ -138,9 +140,11 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
                                 tooltip={
                                     isSyntaxError
                                         ? "Syntax issues detected in generated integration. Reattempt required"
-                                        : ""
+                                        : !isPromptExecutedInCurrentWindow
+                                            ? "Code was generated for different session, please regenerate again"
+                                            : ""
                                 }
-                                disabled={!buttonsActive || isSyntaxError}
+                                disabled={!buttonsActive || isSyntaxError || !isPromptExecutedInCurrentWindow}
                             >
                                 <Codicon name="add" />
                                 &nbsp;&nbsp;Add to Integration
@@ -152,7 +156,12 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
                                     e.stopPropagation();
                                     handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
                                 }}
-                                disabled={!buttonsActive}
+                                tooltip={
+                                    !isPromptExecutedInCurrentWindow
+                                        ? "Code was generated for different session, please regenerate again"
+                                        : ""
+                                }
+                                disabled={!buttonsActive || !isPromptExecutedInCurrentWindow}
                             >
                                 <Codicon name="history" />
                                 &nbsp;&nbsp;Revert to Checkpoint
