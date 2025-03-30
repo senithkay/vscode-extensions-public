@@ -61,7 +61,7 @@ export function AttributeWidget(props: AttributeProps) {
                     engine={engine}
                 />
                 <AttributeName>{attribute.name}</AttributeName>
-                {node.entityObject?.codedata?.node !== 'UNION' && node.entityObject?.codedata?.node !== 'ENUM' &&
+                {node.entityObject?.codedata?.node !== 'UNION' && node.entityObject?.codedata?.node !== 'ENUM' && node.entityObject?.codedata?.node !== 'ARRAY' &&
                     <AttributeType
                         isAnonymous={false}
                         isSelected={isSelected || isHovered}

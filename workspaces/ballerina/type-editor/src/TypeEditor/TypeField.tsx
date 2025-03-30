@@ -19,11 +19,12 @@ interface TypeFieldProps {
     onChange: (value: string) => void;
     placeholder?: string;
     sx?: React.CSSProperties;
+    label?: string;
 }
 
 // TODO: Use this component for all the Type fields in TypeEditor
 export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, ref) => {
-    const { type, onChange, placeholder, sx, memberName } = props;
+    const { type, onChange, placeholder, sx, memberName, label } = props;
 
     const typeFieldRef = useRef<HTMLInputElement>(null);
     const typeHelperRef = useRef<HTMLDivElement>(null);
@@ -108,6 +109,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                 onChange={handleTypeChange}
                 onFocus={handleTypeFieldFocus}
                 onBlur={handleTypeFieldBlur}
+                label={label}
             />
             <TypeHelper
                 ref={typeHelperRef}
