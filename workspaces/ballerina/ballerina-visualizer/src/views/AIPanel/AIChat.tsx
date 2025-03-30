@@ -940,12 +940,17 @@ export function AIChat() {
                 } catch (error) {
                     // Add this catch block because `Add to Integration` button not appear for `/generate`
                     // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
+                    console.log("A critical error occurred while post processing the response: ", error);
                     diagnostics = [];
                 }
-                //TODO: Increase auto retry to 2
-                if (diagnostics.length > 0) {
+                const MAX_REPAIR_ATTEMPTS = 3;
+                let repair_attempt = 0;
+                let diagnosticFixResp = assistant_response;
+                while (diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
+                    console.log("Repair iteration: ", repair_attempt);
+                    console.log("Diagnotsics trynna fix: ", diagnostics);
                     const diagReq = {
-                        response: assistant_response,
+                        response: diagnosticFixResp,
                         diagnostics: diagnostics,
                     };
                     const startTime = performance.now();
@@ -977,36 +982,32 @@ export function AIChat() {
                     if (!response.ok) {
                         setIsCodeLoading(false);
                         console.log("errr");
+                        break;
                     } else {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
                         // replace original response with new code blocks
-                        let fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        diagnosticFixResp = replaceCodeBlocks(diagnosticFixResp, repairResponse);
                         const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
-                            assistant_response: fixedResponse,
+                            assistant_response: diagnosticFixResp,
                         });
-                        fixedResponse = postProcessResp.assistant_response;
+                        diagnosticFixResp = postProcessResp.assistant_response;
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
                         console.log("After auto repair, Diagnostics : ", postProcessResp.diagnostics.diagnostics);
+                        diagnostics = postProcessResp.diagnostics.diagnostics;
                         currentDiagnosticsRef.current = postProcessResp.diagnostics.diagnostics;
-                        setIsCodeLoading(false);
-                        assistant_response = fixedResponse;
-                        setMessages((prevMessages) => {
-                            const newMessages = [...prevMessages];
-                            newMessages[newMessages.length - 1].content = fixedResponse;
-                            return newMessages;
-                        });
+                        repair_attempt++;
                     }
-                } else {
-                    setIsCodeLoading(false);
-                    setMessages((prevMessages) => {
-                        const newMessages = [...prevMessages];
-                        newMessages[newMessages.length - 1].content = assistant_response;
-                        return newMessages;
-                    });
                 }
+                assistant_response = diagnosticFixResp;
+                setIsCodeLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content = assistant_response;
+                    return newMessages;
+                });
             } else if (event.event == "error") {
                 console.log("Streaming Error: " + event.body);
                 setIsLoading(false);
