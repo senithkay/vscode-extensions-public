@@ -43,13 +43,12 @@ export interface TooltipProps {
 
 export interface TooltipConatinerProps {
     position?: string;
-    containerSx?: string;
+    containerSx?: any;
 }
 
 const TooltipContainer = styled.div<TooltipConatinerProps>`
     position: ${(props: TooltipConatinerProps) => props.position || 'relative'};
     display: inline-block;
-    cursor: pointer;
     pointer-events: auto;
     ${(props: TooltipConatinerProps) => props.containerSx}
 `;
@@ -142,6 +141,9 @@ export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsW
     const [tooltipElPosition, setTooltipElPosition] = useState<Position>({ top: 0, left: 0 });
     const [timer, setTimer] = useState<number | null>(null);
 
+    // Extract cursor style if present in containerSx
+    const containerStyle = { cursor: 'pointer', ...containerSx };
+
     const updatePosition = (e: React.MouseEvent<HTMLDivElement>) => {
         if (timer) clearTimeout(timer);
         setTimer(setTimeout(() => {
@@ -184,6 +186,7 @@ export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsW
             onMouseMove={updatePosition}
             onMouseLeave={onMouseLeave}
             containerSx={containerSx}
+            style={containerStyle}
         >
             {children}
             {content !== undefined && content !== "" && createPortal(
