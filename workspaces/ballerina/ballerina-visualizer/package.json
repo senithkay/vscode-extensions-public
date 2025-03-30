@@ -54,7 +54,8 @@
     "react-hook-form": "~7.53.0",
     "yup": "~1.4.0",
     "@hookform/resolvers": "~3.9.1",
-    "highlight.js": "^11.9.0"
+    "highlight.js": "^11.9.0",
+    "rehype-raw": "^7.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.33",

@@ -134,8 +134,9 @@ import { StateMachine, openView, updateView } from "../../stateMachine";
 import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
-import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
+import { refreshAccessToken } from "../ai-panel/utils";
 import { findScopeByModule, getFunctionNodePosition } from "./utils";
+import { BACKEND_URL } from "../../features/ai/utils";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -475,7 +476,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     };
                     console.log(">>> request ai suggestion", { request: requestBody });
                     // generate new nodes
-                    const response = await fetchWithToken(BACKEND_API_URL_V2 + "/inline/generation", requestOptions);
+                    const response = await fetchWithToken(BACKEND_URL + "/inline/generation", requestOptions);
                     if (!response.ok) {
                         console.log(">>> ai completion api call failed ", response);
                         return new Promise((resolve) => {
@@ -1199,7 +1200,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         };
         console.log(">>> request ai suggestion", { request: requestBody });
         // generate new nodes
-        const response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+        const response = await fetchWithToken(BACKEND_URL + "/completion", requestOptions);
         if (!response.ok) {
             console.log(">>> ai completion api call failed ", response);
             return new Promise((resolve) => {

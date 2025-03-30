@@ -5,8 +5,6 @@
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
- *
- * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 
 import React, { useEffect, useState } from "react";
@@ -53,9 +51,8 @@ import ReferenceDropdown from "./Components/ReferenceDropdown";
 import AccordionItem from "./Components/TestScenarioSegment";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TestGeneratorIntermediaryState } from "./features/testGenerator";
-import TextWithBadges from "./Components/TextWithBadges";
 import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
-import { MarkdownRenderer } from "./Components/MarkdownRenderer";
+import MarkdownRenderer from "./Components/MarkdownRenderer";
 import { CodeSection } from "./Components/CodeSection";
 import { CodeSegment } from "./Components/CodeSegment";
 
@@ -230,6 +227,7 @@ export function AIChat() {
     const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
     const [isSyntaxError, setIsSyntaxError] = useState(false);
     const [isReqFileExists, setIsReqFileExists] = useState(false);
+    const [isPromptExecutedInCurrentWindow, setIsPromptExecutedInCurrentWindow] = useState(false);
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
@@ -457,6 +455,7 @@ export function AIChat() {
 
     async function handleSend(content: [string, AttachmentResult[]]) {
         setCurrentGeneratingPromptIndex(otherMessages.length);
+        setIsPromptExecutedInCurrentWindow(true);
         // Step 1: Add the user input to the chat array
 
         const [message, attachments] = content;
@@ -831,7 +830,12 @@ export function AIChat() {
         const [useCase, attachments, operationType] = content;
 
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
+        let project: ProjectSource;
+        try {
+            project = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
+        } catch (error) {
+            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+        }
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -1991,9 +1995,12 @@ export function AIChat() {
 
     async function processHealthcareCodeGeneration(token: string, useCase: string, message: string) {
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient
-            .getAiPanelRpcClient()
-            .getProjectSource(CodeGenerationType.CODE_GENERATION);
+        let project: ProjectSource;
+        try {
+            project = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
+        } catch (error) {
+            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+        }
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -2647,6 +2654,7 @@ export function AIChat() {
                                                 command={segment.command}
                                                 diagnostics={currentDiagnostics}
                                                 onRetryRepair={handleRetryRepair}
+                                                isPromptExecutedInCurrentWindow={isPromptExecutedInCurrentWindow}
                                             />
                                         );
                                     }
@@ -2747,8 +2755,6 @@ export function AIChat() {
                                             </div>
                                         );
                                     }
-                                } else if (message.role === "User") {
-                                    return <TextWithBadges text={segment.text} />;
                                 } else {
                                     if (message.type === "Error") {
                                         return (
