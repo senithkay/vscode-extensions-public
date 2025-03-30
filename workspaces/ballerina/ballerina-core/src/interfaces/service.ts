@@ -127,6 +127,7 @@ export interface PropertyModel {
     valueTypeConstraint?: string;
     isType?: boolean;
     placeholder?: string;
+    defaultValue?: string;
     optional?: boolean;
     advanced?: boolean;
     items?: string[];

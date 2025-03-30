@@ -77,7 +77,8 @@ export function ChoiceForm(props: ChoiceFormProps) {
                 diagnostics: [],
                 items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items,
                 choices: expression.choices,
-                placeholder: expression.placeholder
+                placeholder: expression.placeholder,
+                defaultValue: expression.defaultValue || expression.placeholder
             }
             formFields.push(formField);
         }

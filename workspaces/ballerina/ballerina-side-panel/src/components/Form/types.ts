@@ -25,6 +25,7 @@ export type FormField = {
     editable: boolean;
     hidden?: boolean;
     placeholder?: string;
+    defaultValue?: string;
     documentation: string;
     value: string | any[];
     advanceProps?: FormField[];
