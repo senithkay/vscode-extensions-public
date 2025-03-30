@@ -127,7 +127,7 @@ export interface PropertyModel {
     valueTypeConstraint?: string;
     isType?: boolean;
     placeholder?: string;
-    defaultValue?: string;
+    defaultValue?: string | PropertyModel;
     optional?: boolean;
     advanced?: boolean;
     items?: string[];
@@ -143,7 +143,7 @@ export interface ParameterModel extends PropertyModel {
     kind?: "REQUIRED" | "OPTIONAL",
     type?: PropertyModel;
     name?: PropertyModel;
-    defaultValue?: PropertyModel;
+    // defaultValue?: PropertyModel|string;
 }
 
 
