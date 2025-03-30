@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     VisualizerLocation,
     GetWorkspaceContextResponse,
@@ -231,8 +231,11 @@ export function AIChat() {
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
-    const [currentDiagnostics, setCurrentDiagnostics] = useState<any[]>([]);
-    const [functions, setFunctions] = useState<any>([]);
+
+    //TODO: Need a better way of storing data related to last generation to be in the repair state.
+    const currentDiagnosticsRef = useRef<any[]>([]);
+    const functionsRef = useRef<any>([]);
+    const lastAttatchmentsRef = useRef<string>(null);
 
     const messagesEndRef = React.createRef<HTMLDivElement>();
 
@@ -419,6 +422,11 @@ export function AIChat() {
 
     async function handleSendQuery(content: [string, AttachmentResult[]]) {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+
+        // Clear previous generation refs
+        currentDiagnosticsRef.current = [];
+        functionsRef.current = [];
+        lastAttatchmentsRef.current = null;
 
         if (!token) {
             await rpcClient.getAiPanelRpcClient().promptLogin();
@@ -846,6 +854,7 @@ export function AIChat() {
         const stringifiedUploadedFiles = attachments.map((file) => JSON.stringify(file));
         if (attachments.length > 0) {
             requestBody.fileAttachmentContents = stringifiedUploadedFiles.toString();
+            lastAttatchmentsRef.current = stringifiedUploadedFiles.toString();
         }
 
         const response = await fetchWithToken(
@@ -916,7 +925,8 @@ export function AIChat() {
                 handleContentBlockDelta(textDelta);
             } else if (event.event == "functions") {
                 // Update the functions state instead of the global variable
-                setFunctions(event.body);
+                console.log("Setting function body", event.body);
+                functionsRef.current = event.body;
             } else if (event.event == "message_stop") {
                 let diagnostics: DiagnosticEntry[] = [];
                 try {
@@ -926,18 +936,31 @@ export function AIChat() {
                     assistant_response = postProcessResp.assistant_response;
                     diagnostics = postProcessResp.diagnostics.diagnostics;
                     console.log("Initial Diagnostics : ", diagnostics);
-                    setCurrentDiagnostics(diagnostics);
+                    currentDiagnosticsRef.current = diagnostics;
                 } catch (error) {
                     // Add this catch block because `Add to Integration` button not appear for `/generate`
                     // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
                     diagnostics = [];
                 }
+                //TODO: Increase auto retry to 2
                 if (diagnostics.length > 0) {
                     const diagReq = {
                         response: assistant_response,
                         diagnostics: diagnostics,
                     };
                     const startTime = performance.now();
+                    console.log("Getting function body for repair", functionsRef.current);
+                    let newReqBody : any= {
+                        usecase: useCase,
+                        chatHistory: chatArray,
+                        sourceFiles: project.sourceFiles,
+                        diagnosticRequest: diagReq,
+                        functions: functionsRef.current,
+                        operationType,
+                    };
+                    if (attachments.length > 0) {
+                        newReqBody.fileAttachmentContents = stringifiedUploadedFiles.toString();
+                    }
                     const response = await fetchWithToken(
                         backendRootUri + "/code/repair",
                         {
@@ -946,14 +969,7 @@ export function AIChat() {
                                 "Content-Type": "application/json",
                                 Authorization: `Bearer ${token}`,
                             },
-                            body: JSON.stringify({
-                                usecase: useCase,
-                                chatHistory: chatArray,
-                                sourceFiles: project.sourceFiles,
-                                diagnosticRequest: diagReq,
-                                functions: functions,
-                                operationType,
-                            }),
+                            body: JSON.stringify(newReqBody),
                             signal: signal,
                         },
                         rpcClient
@@ -974,7 +990,7 @@ export function AIChat() {
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
                         console.log("After auto repair, Diagnostics : ", postProcessResp.diagnostics.diagnostics);
-                        setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
+                        currentDiagnosticsRef.current = postProcessResp.diagnostics.diagnostics;
                         setIsCodeLoading(false);
                         assistant_response = fixedResponse;
                         setMessages((prevMessages) => {
@@ -2421,6 +2437,7 @@ export function AIChat() {
     };
 
     const handleRetryRepair = async () => {
+        const currentDiagnostics = currentDiagnosticsRef.current;
         if (currentDiagnostics.length === 0) return;
 
         setIsCodeLoading(true);
@@ -2439,15 +2456,20 @@ export function AIChat() {
                 response: latestMessage,
                 diagnostics: currentDiagnostics,
             };
-
-            const reqBody = {
+            
+            const reqBody : any = {
                 usecase: usecase,
-                chatHistory: chatArray,
+                chatHistory: chatArray.slice(0, chatArray.length - 2),
                 sourceFiles: project.sourceFiles,
                 diagnosticRequest: diagReq,
-                functions: functions,
+                functions: functionsRef.current,
                 operationType: CodeGenerationType.CODE_GENERATION,
             };
+
+            const attatchments = lastAttatchmentsRef.current;
+            if (attatchments) {
+                reqBody.fileAttachmentContents = attatchments;
+            }
             console.log("Request body for repair:", reqBody);
             const response = await fetchWithToken(
                 backendRootUri + "/code/repair",
@@ -2476,7 +2498,7 @@ export function AIChat() {
             });
 
             fixedResponse = postProcessResp.assistant_response;
-            setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
+            currentDiagnosticsRef.current = postProcessResp.diagnostics.diagnostics;
             const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(fixedResponse);
             setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
             setMessages((prevMessages) => {
@@ -2652,7 +2674,7 @@ export function AIChat() {
                                                 buttonsActive={showGeneratingFiles}
                                                 isSyntaxError={isSyntaxError}
                                                 command={segment.command}
-                                                diagnostics={currentDiagnostics}
+                                                diagnostics={currentDiagnosticsRef.current}
                                                 onRetryRepair={handleRetryRepair}
                                                 isPromptExecutedInCurrentWindow={isPromptExecutedInCurrentWindow}
                                             />
