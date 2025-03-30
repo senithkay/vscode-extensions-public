@@ -18,8 +18,10 @@ import {
     FormExpressionEditor,
     FormExpressionEditorRef,
     HelperPaneHeight,
+    Icon,
     RequiredFormInput,
-    ThemeColors
+    ThemeColors,
+    Tooltip
 } from '@wso2-enterprise/ui-toolkit';
 import { getPropertyFromFormField, sanitizeType } from './utils';
 import { FormField, FormExpressionEditorProps } from '../Form/types';
@@ -57,6 +59,21 @@ export namespace S {
         flexDirection: 'column',
         gap: '4px',
         fontFamily: 'var(--font-family)'
+    });
+
+    export const Ribbon = styled.div({
+        backgroundColor: ThemeColors.PRIMARY,
+        opacity: 0.6,
+        width: '24px',
+        height: `calc(100% - 6.5px)`,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        borderTopLeftRadius: '2px',
+        borderBottomLeftRadius: '2px',
+        borderRight: 'none',
+        marginTop: '3.75px',
+        paddingTop: '4px'
     });
 
     export const TitleContainer = styled.div`
@@ -116,6 +133,40 @@ export namespace S {
         color: 'var(--vscode-list-deemphasizedForeground)'
     });
 
+    export const HintBanner = styled.div({
+        backgroundColor: 'var(--vscode-toolbar-activeBackground)',
+        padding: '6px',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '4px'
+    });
+
+    export const BannerIcon = styled.div({
+        fontSize: '12px',
+        width: '18px',
+        height: '12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: '2px'
+    });
+    
+    export const BannerContent = styled.div({
+        fontSize: '12px',
+        display: '-webkit-box',
+        WebkitLineClamp: 4,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        lineHeight: '16px'
+    });
+
+    export const EditorColumn = styled.div({
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px'
+    });
+
     export const DataMapperBtnTxt = styled.p`
         font-size: 10px;
         margin: 0;
@@ -151,6 +202,41 @@ export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, 
         );
     }
 );
+
+export const EditorRibbon = () => {
+    return (
+        <Tooltip content="Add Expression" containerSx={{ cursor: 'default' }}>
+            <S.Ribbon>
+                <Icon name="bi-expression" sx={{ 
+                    color: ThemeColors.ON_PRIMARY, 
+                    fontSize: '12px', 
+                    width: '12px', 
+                    height: '12px', 
+                    cursor: 'default'
+                }} />
+            </S.Ribbon>
+        </Tooltip>
+    );
+};
+
+export const HintBanner = ({ value }: { value: string }) => {
+    // add prefix "Default Value: " to the value
+    const hint = `Default Value: ${value}`;
+    return (
+        <S.HintBanner>
+            <S.BannerIcon>
+                <Icon name="bi-bulb" sx={{ 
+                    color: ThemeColors.PRIMARY, 
+                    fontSize: '14px', 
+                    cursor: 'default'
+                }} />
+            </S.BannerIcon>
+            <S.BannerContent>
+                {hint}
+            </S.BannerContent>
+        </S.HintBanner>
+    );
+};
 
 export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEditorProps>((props, ref) => {
     const {
@@ -235,6 +321,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         // Trigger actions on focus
         await onFocus?.();
         handleOnFieldFocus?.(field.key);
+
+        handleChangeHelperPaneState(true);
     };
 
     const handleBlur = async () => {
@@ -345,7 +433,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                 name={field.key}
                 rules={{ required: !field.optional && !field.placeholder }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
-                    <div>
+                    <S.EditorColumn>
                         <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
@@ -354,6 +442,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             completions={completions}
                             value={sanitizedExpression ? sanitizedExpression(value) : value}
                             autoFocus={autoFocus}
+                            startAdornment={<EditorRibbon />}
                             onChange={async (newValue: string, updatedCursorPosition: number) => {
                                 const rawValue = rawExpression ? rawExpression(newValue) : newValue;
                                 onChange(rawValue);
@@ -397,18 +486,18 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             onCancel={onCancel}
                             onRemove={onRemove}
                             isHelperPaneOpen={isHelperPaneOpen}
-                            changeHelperPaneState={handleChangeHelperPaneState}
+                            changeHelperPaneState={undefined}
                             helperPaneOrigin={helperPaneOrigin}
                             getHelperPane={handleGetHelperPane}
                             helperPaneHeight={helperPaneHeight}
                             helperPaneWidth={recordTypeField ? 400 : undefined}
-                            placeholder={field.placeholder}
                             growRange={growRange}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
-                    </div>
+                        {field.defaultValue && <HintBanner value={field.defaultValue} />}
+                    </S.EditorColumn>
                 )}
             />
         </S.Container>
