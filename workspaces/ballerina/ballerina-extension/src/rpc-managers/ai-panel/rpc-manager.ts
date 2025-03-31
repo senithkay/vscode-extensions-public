@@ -761,7 +761,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return Promise.resolve(files.some(file => file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)));
     }
 
-    async addChatSummary(filepathAndSummary: AIChatSummary): Promise<void> {
+    async addChatSummary(filepathAndSummary: AIChatSummary): Promise<boolean> {
         const filepath = filepathAndSummary.filepath;
         var summaryResponse = filepathAndSummary.summary;
 
@@ -776,6 +776,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         const developerMdPath = path.join(naturalProgrammingDirectory, DEVELOPMENT_DOCUMENT);
         fs.writeFileSync(developerMdPath, summary, 'utf8');
+        return true;
     }
 
     async readDeveloperMdFile(directoryPath: string): Promise<string> {

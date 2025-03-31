@@ -292,8 +292,8 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
     }
 
-    addChatSummary(filepathAndSummary: AIChatSummary): void {
-        return this._messenger.sendNotification(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    addChatSummary(filepathAndSummary: AIChatSummary): Promise<boolean> {
+        return this._messenger.sendRequest(addChatSummary, HOST_EXTENSION, filepathAndSummary);
     }
 
     readDeveloperMdFile(directoryPath: string): Promise<string> {
