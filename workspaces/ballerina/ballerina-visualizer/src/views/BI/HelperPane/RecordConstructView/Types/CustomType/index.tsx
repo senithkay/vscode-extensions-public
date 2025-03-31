@@ -9,7 +9,7 @@
 import React, { useState } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../../ParameterBranch";
 import { useHelperPaneStyles } from "../../styles";
@@ -35,7 +35,7 @@ export default function CustomType(props: TypeProps) {
     };
 
     return (
-        <div className={param.documentation ? helperStyleClass.docListCustom : helperStyleClass.docListDefault}>
+        <div className={helperStyleClass.docListDefault}>
             <div className={helperStyleClass.listItemMultiLine}>
                 <div className={helperStyleClass.listItemHeader}>
                     <VSCodeCheckbox
@@ -56,17 +56,26 @@ export default function CustomType(props: TypeProps) {
                     >
                         {param.optional || param.defaultable ? param.typeName + " (Optional)" : param.typeName}
                     </Typography>
-                </div>
-                {param.documentation && (
-                    <div className={helperStyleClass.documentationWrapper}>
-                        <Typography
-                            className={helperStyleClass.docParamDescriptionText}
-                            variant="body3"
+                    {param.documentation && (
+                        <Tooltip
+                            content={
+                                <Typography
+                                    className={helperStyleClass.paramTreeDescriptionText}
+                                    variant="body3"
+                                >
+                                    {param.documentation}
+                                </Typography>
+                            }
+                            position="right"
+                            sx={{ maxWidth: '300px', whiteSpace: 'normal', pointerEvents: 'none' }}
                         >
-                            {param.documentation}
-                        </Typography>
-                    </div>
-                )}
+                            <Codicon
+                                name="info"
+                                sx={{ marginLeft: '4px' }}
+                            />
+                        </Tooltip>
+                    )}
+                </div>
             </div>
         </div>
     );

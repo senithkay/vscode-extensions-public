@@ -142,10 +142,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     const onFocusedNodeIdChange = (typeId: string) => {
         setFocusedNodeId(typeId);
-        // if a type is already selected, then we need to update selected type
-        if (selectedTypeId) {
-            setEditingTypeId(typeId);
-        }
+        onTypeEditorClosed();
     };
 
     const Header = () => (
