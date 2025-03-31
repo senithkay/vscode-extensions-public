@@ -9,7 +9,7 @@
 import React, { useState } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../../ParameterBranch";
 import { useHelperPaneStyles } from "../../styles";
@@ -30,19 +30,19 @@ export default function RecordType(props: TypeProps) {
         if (!requiredParam) {
             const newSelectedState = !paramSelected;
             param.selected = newSelectedState;
-            
+
             // If the record has fields, update their selection state
             if (param.fields && param.fields.length > 0) {
                 updateFieldsSelection(param.fields, newSelectedState);
             }
-            
+
             setParamSelected(newSelectedState);
             onChange();
         }
     };
 
     return (
-        <div className={param.documentation ? helperStyleClass.docListCustom : helperStyleClass.docListDefault}>
+        <div className={helperStyleClass.docListDefault}>
             <div className={helperStyleClass.listItemMultiLine}>
                 <div className={helperStyleClass.listItemHeader}>
                     <VSCodeCheckbox
@@ -65,17 +65,26 @@ export default function RecordType(props: TypeProps) {
                             {(param.optional || param.defaultable) && " (Optional)"} {param.typeInfo.name}
                         </Typography>
                     )}
-                </div>
-                {param.documentation && (
-                    <div className={helperStyleClass.documentationWrapper}>
-                        <Typography
-                            className={helperStyleClass.paramTreeDescriptionText}
-                            variant="body3"
+                    {param.documentation && (
+                        <Tooltip
+                            content={
+                                    <Typography
+                                        className={helperStyleClass.paramTreeDescriptionText}
+                                        variant="body3"
+                                    >
+                                        {param.documentation}
+                                    </Typography>
+                            }
+                            position="right"
+                            sx={{ maxWidth: '300px', whiteSpace: 'normal', pointerEvents: 'none' }}
                         >
-                            {param.documentation}
-                        </Typography>
-                    </div>
-                )}
+                            <Codicon
+                                name="info"
+                                sx={{ marginLeft: '4px' }}
+                            />
+                        </Tooltip>
+                    )}
+                </div>
                 {paramSelected && param.fields?.length > 0 && (
                     <div className={helperStyleClass.listItemBody}>
                         <MemoizedParameterBranch parameters={param.fields} depth={depth + 1} onChange={onChange} />
