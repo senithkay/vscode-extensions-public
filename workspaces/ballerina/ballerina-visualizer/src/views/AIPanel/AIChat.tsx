@@ -235,7 +235,7 @@ export function AIChat() {
     //TODO: Need a better way of storing data related to last generation to be in the repair state.
     const currentDiagnosticsRef = useRef<any[]>([]);
     const functionsRef = useRef<any>([]);
-    const lastAttatchmentsRef = useRef<string>(null);
+    const lastAttatchmentsRef = useRef<any>([]);
 
     const messagesEndRef = React.createRef<HTMLDivElement>();
 
@@ -851,12 +851,12 @@ export function AIChat() {
             operationType,
         };
 
-        const stringifiedUploadedFiles = attachments.map((file) => JSON.stringify(file));
-        if (attachments.length > 0) {
-            requestBody.fileAttachmentContents = stringifiedUploadedFiles.toString();
-            lastAttatchmentsRef.current = stringifiedUploadedFiles.toString();
-        }
-
+        const fileAttatchments = attachments.map((file) => ({
+            fileName: file.name,
+            content: file.content
+        }))
+        requestBody.fileAttachmentContents = fileAttatchments;
+        lastAttatchmentsRef.current = fileAttatchments;
         const response = await fetchWithToken(
             backendRootUri + "/code",
             {
@@ -925,7 +925,6 @@ export function AIChat() {
                 handleContentBlockDelta(textDelta);
             } else if (event.event == "functions") {
                 // Update the functions state instead of the global variable
-                console.log("Setting function body", event.body);
                 functionsRef.current = event.body;
             } else if (event.event == "message_stop") {
                 let diagnostics: DiagnosticEntry[] = [];
@@ -954,7 +953,6 @@ export function AIChat() {
                         diagnostics: diagnostics,
                     };
                     const startTime = performance.now();
-                    console.log("Getting function body for repair", functionsRef.current);
                     let newReqBody : any= {
                         usecase: useCase,
                         chatHistory: chatArray,
@@ -964,7 +962,7 @@ export function AIChat() {
                         operationType,
                     };
                     if (attachments.length > 0) {
-                        newReqBody.fileAttachmentContents = stringifiedUploadedFiles.toString();
+                        newReqBody.fileAttachmentContents = fileAttatchments;
                     }
                     const response = await fetchWithToken(
                         backendRootUri + "/code/repair",
