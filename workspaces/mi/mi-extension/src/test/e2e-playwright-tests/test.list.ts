@@ -9,9 +9,26 @@
 
 import { test } from '@playwright/test';
 import connectionTests from './connectorTests/connection.spec';
-import connectorTests from './connectorTests/connector.spec';
+import connectorTests from './connectorTests/connection.spec';
 import inboundEpTests from './connectorTests/inboundEndpoint.spec';
+import { page } from './Utils';
+const fs = require('fs');
+const path = require('path');
+
+test.beforeAll(async () => {
+    const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
+
+    if (fs.existsSync(videosFolder)) {
+        fs.rmSync(videosFolder, { recursive: true, force: true });
+    }
+    console.log('>>> Starting tests');
+});
 
 test.describe(connectionTests);
 test.describe(connectorTests);
 test.describe(inboundEpTests);
+
+test.afterAll(async () => {
+    console.log(`>>> Finished all tests`);
+    await page.page?.close();
+});
