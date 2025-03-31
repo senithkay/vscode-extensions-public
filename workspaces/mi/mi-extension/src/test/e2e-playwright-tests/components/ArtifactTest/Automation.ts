@@ -10,6 +10,7 @@
 import { Frame, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { AddArtifact } from "../AddArtifact";
+import { clearNotificationAlerts } from "../../Utils";
 
 export class Automation {
     private webView!: Frame;
@@ -34,6 +35,7 @@ export class Automation {
         await frame.getByRole('textbox', { name: 'Task Name*' }).fill('TestTask');
         await frame.locator('#triggerInterval div').nth(2).click();
         await frame.getByRole('textbox', { name: 'Interval (in seconds)*' }).fill('10');
+        await clearNotificationAlerts(this._page);
         await frame.getByTestId('create-task-button').click();
     }
 
@@ -49,6 +51,7 @@ export class Automation {
         await frame.getByLabel('Cron').click();
         await frame.getByRole('textbox', { name: 'Cron*' }).click();
         await frame.getByRole('textbox', { name: 'Cron*' }).fill('* * * * * ? *');
+        await clearNotificationAlerts(this._page);
         await frame.getByTestId('create-task-button').click();
     }
 }

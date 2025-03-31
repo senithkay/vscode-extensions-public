@@ -10,6 +10,7 @@
 import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
+import { clearNotificationAlerts } from "../../Utils";
 
 export class BallerinaModule {
 
@@ -39,6 +40,7 @@ export class BallerinaModule {
         const seqFrame = seqWebView.locator('div#root');
         await seqFrame.getByRole('textbox', { name: 'Module Name*' }).fill('testBal');
         await seqFrame.getByRole('textbox', { name: 'Version*' }).fill('1.0.0');
+        await clearNotificationAlerts(this._page);
         await seqFrame.getByRole('button', { name: 'Create' }).click();
     }
 }
