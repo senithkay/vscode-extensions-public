@@ -265,16 +265,6 @@ export const submitCreateComponentHandler = async ({ createParams, org, project 
 			const projectCache = dataCacheStore.getState().getProjects(org.handle);
 			if (gitRoot) {
 				updateContextFile(gitRoot, authStore.getState().state.userInfo!, project, org, projectCache);
-				if(createParams.buildPackLang === ChoreoBuildPackNames.Ballerina && webviewStateStore.getState().state.extensionName === 'Devant'){
-					// Notify BI extension that the component is created
-					// Note: this is a temporary solution
-					try {
-						commands.executeCommand("BI.notify-deployment-completion");
-					} catch {
-						// ignore error
-						console.log("Failed to call BI.notify-deployment-completion");
-					}
-				}
 			}
 		} catch (err) {
 			console.error("Failed to get git details of ", createParams.componentDir);

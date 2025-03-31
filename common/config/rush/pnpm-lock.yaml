@@ -470,9 +470,9 @@ importers:
       '@vscode/vsce': ^2.22.0
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-visualizer': workspace:*
-      '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
+      '@wso2-enterprise/wso2-platform-core': workspace:*
       adm-zip: ^0.5.16
       axios: ^1.6.0
       chai: ^4.3.10
@@ -531,9 +531,9 @@ importers:
       '@vscode/vsce': 2.23.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-visualizer': link:../ballerina-visualizer
-      '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
+      '@wso2-enterprise/wso2-platform-core': link:../../wso2-platform/wso2-platform-core
       cors-anywhere: 0.4.4
       del-cli: 5.1.0
       file-uri-to-path: 2.0.0
@@ -875,6 +875,7 @@ importers:
       '@wso2-enterprise/type-diagram': workspace:*
       '@wso2-enterprise/type-editor': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
+      '@wso2-enterprise/wso2-platform-core': workspace:*
       buffer: ^6.0.3
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
@@ -929,6 +930,7 @@ importers:
       '@wso2-enterprise/type-diagram': link:../type-diagram
       '@wso2-enterprise/type-editor': link:../type-editor
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      '@wso2-enterprise/wso2-platform-core': link:../../wso2-platform/wso2-platform-core
       highlight.js: 11.11.1
       lodash: 4.17.21
       lodash.debounce: 4.0.8
@@ -55221,7 +55223,7 @@ packages:
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.27.0
-      webpack: 5.88.2_webpack-cli@5.1.4
+      webpack: 5.88.2
 
   /terser-webpack-plugin/5.3.10_webpack@5.90.1:
     resolution: {integrity: sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==}
@@ -58687,7 +58689,6 @@ packages:
       - '@swc/core'
       - esbuild
       - uglify-js
-    dev: false
 
   /webpack/5.88.2_webpack-cli@5.1.4:
     resolution: {integrity: sha512-JmcgNZ1iKj+aiR0OvTYtWQqJwq37Pf683dY9bVORwVbUrDhLhdn/PlO2sHsFHPkj7sHNQF3JwaAkp49V+Sq1tQ==}

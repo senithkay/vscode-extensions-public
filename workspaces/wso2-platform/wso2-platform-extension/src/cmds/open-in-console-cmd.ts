@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, type ComponentKind, type Organization, type Project } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, ICreateComponentParams, type ComponentKind, type Organization, type Project } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, type QuickPickItem, QuickPickItemKind, Uri, commands, env, window } from "vscode";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
@@ -15,10 +15,16 @@ import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { getUserInfoForCmd, quickPickWithLoader, selectOrg, selectProject } from "./cmd-utils";
+import { getNormalizedPath } from "../utils";
 
 export function openInConsoleCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.OpenInConsole, async (params: { organization: Organization; project: Project; component: ComponentKind }) => {
+		commands.registerCommand(CommandIds.OpenInConsole, async (params: { organization: Organization; project: Project; component: ComponentKind, componentFsPath: string, extensionName?: "WSO2" | "Choreo" | "Devant" }) => {
+			// todo: ask for extensionName as a param
+			// check all usage of setExtensionName
+			if(params?.extensionName){
+				webviewStateStore.getState().setExtensionName(params?.extensionName)
+			}
 			try {
 				const extensionName = webviewStateStore.getState().state.extensionName;
 				const userInfo = await getUserInfoForCmd(`open a component in ${extensionName} console`);
@@ -54,9 +60,30 @@ export function openInConsoleCommand(context: ExtensionContext) {
 
 					if (params?.component) {
 						env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}/overview`));
+					} if (params?.componentFsPath) {
+						const matchingComponent = contextStore.getState().state?.components?.filter(item=>getNormalizedPath(item.componentFsPath) === getNormalizedPath(params?.componentFsPath));
+						if(matchingComponent?.length === 0){
+							// create a new component
+							window.showInformationMessage(`No ${extensionName} component found in this directory. Do you want to create one?`,"Proceed").then(res=>{
+								if(res === 'Proceed'){
+									commands.executeCommand(CommandIds.CreateNewComponent,{ componentDir: params?.componentFsPath } as ICreateComponentParams)
+								}
+							})
+						}else if(matchingComponent?.length === 1){
+							env.openExternal(Uri.parse(`${projectBaseUrl}/components/${matchingComponent[0]?.component?.metadata?.handler}/overview`));
+						}else if(matchingComponent && matchingComponent?.length > 1){
+							// prompt to select a component
+							const componentItems: (QuickPickItem & { item?: ComponentKind })[] = matchingComponent
+								.map((item) => ({label: item.component?.metadata?.displayName!,item: item?.component}));
+							const selectedComp = await window.showQuickPick(componentItems, {title: "Select Component"});
+							if(selectedComp?.item){
+								env.openExternal(Uri.parse(`${projectBaseUrl}/components/${selectedComp?.item?.metadata?.handler}/overview`));
+							}
+						}
 					} else if (selected?.project) {
 						env.openExternal(Uri.parse(`${projectBaseUrl}/home`));
 					} else {
+						// todo: make actual api call instead of just showing cached component list
 						const cacheComponentPick: (QuickPickItem & { item?: any })[] = dataCacheStore
 							.getState()
 							.getComponents(selectedOrg.handle, selectedProject.handler)
