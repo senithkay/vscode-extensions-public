@@ -63,7 +63,8 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public parentId: string,
 		public index?: number,
 		public editableRecordField?: EditableRecordField,
-		public fieldFQN?: string,
+		public fieldFQN?: string, // Field FQN with optional included, ie. person?.name?.firstName
+		public optionalOmittedFieldFQN?: string, // Field FQN without optional, ie. person.name.firstName
 		public parentModel?: RecordFieldPortModel,
 		public collapsed?: boolean,
 		public hidden?: boolean,

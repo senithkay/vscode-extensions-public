@@ -17,25 +17,16 @@ import {
     ServiceModel,
     FunctionModel,
     STModification,
-    removeStatement,
     DIRECTORY_MAP,
     ProjectStructureArtifactResponse,
     PropertyModel,
 } from "@wso2-enterprise/ballerina-core";
-import { Codicon, Icon, LinkButton, ProgressRing, Typography, View } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Icon, LinkButton, Typography, View } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { ResourceAccordion } from "../ServiceDesigner/components/ResourceAccordion";
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { FunctionConfigForm } from "../ServiceDesigner/Forms/FunctionConfigForm";
-import { ResourceForm } from "../ServiceDesigner/Forms/ResourceForm";
-import { FunctionForm } from "../ServiceDesigner/Forms/FunctionForm";
-import { applyModifications } from "../../../utils/utils";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
 import { LoadingRing } from "../../../components/Loader";
-import AgentConfigForm from "../AIAgents/Forms/AgentConfigForm";
-import { AIAgentWizard } from "../AIAgents/AIAgentWizard";
 
 const LoadingContainer = styled.div`
     display: flex;

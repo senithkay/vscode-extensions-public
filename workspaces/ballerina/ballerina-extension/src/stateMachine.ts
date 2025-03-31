@@ -2,7 +2,7 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
@@ -258,9 +258,7 @@ const stateMachine = createMachine<MachineContext>(
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
                 StateMachinePopup.resetState();
-                const historyStack = history.get();
-                const selectedEntry = historyStack[historyStack.length - 1];
-
+                const selectedEntry = getLastHistory();
                 if (!context.langClient) {
                     if (!selectedEntry) {
                         return resolve({ view: MACHINE_VIEW.Overview, documentUri: context.documentUri });
@@ -364,8 +362,8 @@ const stateMachine = createMachine<MachineContext>(
                     }
                     undoRedoManager.updateContent(documentUri, node?.syntaxTree?.source);
                 }
-                const updatedHistory = history.get();
-                return resolve(updatedHistory[updatedHistory.length - 1].location);
+                const lastView = getLastHistory().location;
+                return resolve(lastView);
             });
         }
     }
@@ -392,6 +390,7 @@ export const StateMachine = {
     langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
+    updateProjectStructure: (payload: ProjectStructureResponse) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
     },
@@ -405,13 +404,22 @@ export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, res
 }
 
 export function updateView(refreshTreeView?: boolean) {
-    const historyStack = history?.get();
-    const lastView = historyStack[historyStack.length - 1];
+    let lastView = getLastHistory();
+    // Step over to the next location if the last view is skippable
+    if (lastView.location.view.includes("SKIP")) {
+        history.pop(); // Remove the last entry
+        lastView = getLastHistory(); // Get the new last entry
+    }
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
     if (refreshTreeView) {
         commands.executeCommand("BI.project-explorer.refresh");
     }
     notifyCurrentWebview();
+}
+
+function getLastHistory() {
+    const historyStack = history?.get();
+    return historyStack[historyStack.length - 1];
 }
 
 async function checkForProjects(): Promise<{ isBI: boolean, projectPath: string, scope?: SCOPE }> {
