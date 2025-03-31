@@ -211,7 +211,7 @@ export default function createTests() {
         await diagram.init();
         await diagram.addConnectorOperation('kafka_connection', 'PublishMessages');
 
-        await clearNotificationAlerts(page);
+        await clearNotificationAlerts(page.page);
 
         // Fill connector form
         await diagram.fillConnectorForm({
