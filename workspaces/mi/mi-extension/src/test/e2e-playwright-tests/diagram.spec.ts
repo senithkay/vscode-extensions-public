@@ -86,22 +86,6 @@ export default function createTests() {
         expect(await mediator.getDescription()).toEqual('log mediator');
 
       });
-
-
-      test.skip('Edit Connector Operation Generated From Templates', async () => {
-        // Edit connector operation generated from templates
-        const diagram = new Diagram(page.page, 'Resource');
-        await diagram.init();
-        const connectorNode = await diagram.getConnector('ldap', 'addEntry');
-        await connectorNode.edit({
-          values: {
-            'attributes': {
-              type: 'expression',
-              value: 'att',
-            }
-          }
-        });
-      });
     });
   });
 }
