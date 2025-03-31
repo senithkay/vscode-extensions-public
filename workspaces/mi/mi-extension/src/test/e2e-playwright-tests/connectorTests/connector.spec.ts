@@ -7,9 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { test, expect } from '@playwright/test';
-import * as path from 'path';
-import { clearNotificationAlerts, initTest, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from '../Utils';
+import { test } from '@playwright/test';
+import { clearNotificationAlerts, initTest, page } from '../Utils';
 import { ConnectorStore } from '../components/ConnectorStore';
 import { Diagram } from '../components/Diagram';
 import { ServiceDesigner } from '../components/ServiceDesigner';
@@ -24,6 +23,7 @@ export default function createTests() {
 
     test("Connector Tests", async () => {
       await test.step('Create new API', async () => {
+        console.log('Starting to create a new API');
         // wait until window reload
         const overviewPage = new Overview(page.page);
         await overviewPage.init();
@@ -51,6 +51,7 @@ export default function createTests() {
       });
 
       await test.step('Service designer', async () => {
+        console.log('Accessing service designer');
         // service designer
         const serviceDesigner = new ServiceDesigner(page.page);
         await serviceDesigner.init();
@@ -58,14 +59,16 @@ export default function createTests() {
         await resource.click();
       });
 
-      await test.step('Download connector to modules list', async () => {
+      await test.step('Download connector of specific version through modules list', async () => {
+        console.log('Downloading connector of specific version through add modules list ');
         // diagram
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
-        await diagram.downloadConnectorThroughModulesList('File');
+        await diagram.downloadConnectorThroughModulesList('File', 0, '4.0.35');
       });
 
       await test.step('Add downloaded connector operation to resource', async () => {
+        console.log('Adding downloaded connector operation to resource');
         // diagram
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
@@ -73,6 +76,7 @@ export default function createTests() {
         await diagram.addConnectorOperation('File', 'createDirectory');
 
         // create connection through connector form
+        console.log('Create connection through connector operation form');
         await diagram.addNewConnectionFromOperationForm();
 
         const connectorStore = new ConnectorStore(page.page, "Resource View");
@@ -97,6 +101,7 @@ export default function createTests() {
         await connectionForm.submit('Add');
 
         // Fill connector form
+        console.log('Fill operation form');
         await diagram.init();
         await diagram.fillConnectorForm({
           values: {
@@ -109,6 +114,7 @@ export default function createTests() {
       });
 
       await test.step('Edit connector operation in resource', async () => {
+        console.log('Editing connector operation in resource');
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         const connector = await diagram.getConnector('file', 'createDirectory');
@@ -123,6 +129,7 @@ export default function createTests() {
       });
 
       await test.step('Download module through search', async () => {
+        console.log('Downloading module through search');
         // diagram
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
@@ -130,6 +137,7 @@ export default function createTests() {
       });
 
       await test.step('Add downloaded module operation to resource', async () => {
+        console.log('Adding downloaded module operation to resource');
         // diagram
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
@@ -150,90 +158,75 @@ export default function createTests() {
       });
 
       await test.step('Delete connector', async () => {
+        console.log('Deleting connector');
         // diagram
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
-
-
-
         await diagram.deleteConnector('CSV');
+        console.log('Deleting connector completed');
       });
 
-      // test.skip('Add new connection', async () => {
-      //   // Add connection from side panel
-      //   const diagram = new Diagram(page.page, 'Resource');
-      //   await diagram.init();
-      //   await diagram.addNewConnection(1);
+      await test.step('Create connection from connections tab', async () => {
+        console.log('Creating connection from connections tab');
+        // diagram
+        const diagram = new Diagram(page.page, 'Resource');
+        await diagram.init();
+        await diagram.addNewConnectionFromConnectionsTab();
 
-      //   const connectorStore = new ConnectorStore(page.page, 'Resource View');
-      //   await connectorStore.init();
-      //   await connectorStore.selectOperation('File');
+        const connectorStore = new ConnectorStore(page.page, "Resource View");
+        await connectorStore.init();
+        await connectorStore.selectOperation('Kafka');
+        await connectorStore.confirmDownloadDependency();
 
-      //   const connectionForm = new Form(page.page, 'Resource View');
-      //   await connectionForm.switchToFormView();
-      //   await connectionForm.fill({
-      //     values: {
-      //       'Connection Name*': {
-      //         type: 'input',
-      //         value: 'file_connection',
-      //       },
-      //       'Host*': {
-      //         type: 'input',
-      //         value: 'example.com',
-      //       },
-      //       'Port*': {
-      //         type: 'input',
-      //         value: '80',
-      //       },
-      //       'User Directory Is Root': {
-      //         type: 'combo',
-      //         value: 'true',
-      //       },
-      //       'TrustStore Path*': {
-      //         type: 'expression',
-      //         value: 'exampletruststore.com',
-      //       },
-      //       'TrustStore Password*': {
-      //         type: 'expression',
-      //         value: 'examplePassword@123',
-      //       }
-      //     }
-      //   });
-      //   await clearNotificationAlerts(page);
-      //   await connectionForm.submit('Add');
-      //   expect(await diagram.verifyConnection("file_connection", "File - FTPS Connection")).toBeTruthy();
-      //   await diagram.closeSidePanel();
-      // });
+        const connectionForm = new Form(page.page, 'Resource View');
+        await connectionForm.switchToFormView();
+        console.log('Filling out connection form');
+        await connectionForm.fill({
+          values: {
+            'Connection Name*': {
+              type: 'input',
+              value: 'kafka_connection',
+            },
+            'Bootstrap Servers*': {
+              type: 'expression',
+              value: 'server1'
+            },
+            'Key Serializer Class*': {
+              type: 'expression',
+              value: 'key1'
+            },
+            'Value Serializer Class*': {
+              type: 'expression',
+              value: 'val1'
+            },
+          }
+        });
+        await connectionForm.submit('Add');
+      });
 
-      // test.skip('Edit Connector Operation', async () => {
-      //   // Edit connector operation
-      //   const diagram = new Diagram(page.page, 'Resource');
-      //   await diagram.init();
-      //   const connectorNode = await diagram.getConnector('file', 'createDirectory');
-      //   await connectorNode.edit({
-      //     values: {
-      //       'Directory Path*': {
-      //         type: 'expression',
-      //         value: '/Users/exampleUser/Documents/newCreatedDirectories',
-      //       }
-      //     }
-      //   });
-      // })
+      await test.step('Add connector operation through connections tab', async () => {
+        console.log('Adding connector operation through connections tab');
+        // diagram
+        const diagram = new Diagram(page.page, 'Resource');
+        await diagram.init();
+        await diagram.addConnectorOperation('kafka_connection', 'PublishMessages');
 
-      // test.skip('Edit Connector Operation Generated From Templates', async () => {
-      //   // Edit connector operation generated from templates
-      //   const diagram = new Diagram(page.page, 'Resource');
-      //   await diagram.init();
-      //   const connectorNode = await diagram.getConnector('ldap', 'addEntry');
-      //   await connectorNode.edit({
-      //     values: {
-      //       'attributes': {
-      //         type: 'expression',
-      //         value: 'att',
-      //       }
-      //     }
-      //   });
-      // })
+        await clearNotificationAlerts(page);
+
+        // Fill connector form
+        await diagram.fillConnectorForm({
+          values: {
+            'Topic*': {
+              type: 'expression',
+              value: 'exampleTopic'
+            },
+            'Partition Number*': {
+              type: 'expression',
+              value: '2'
+            }
+          }
+        });
+      });
     });
   });
 }

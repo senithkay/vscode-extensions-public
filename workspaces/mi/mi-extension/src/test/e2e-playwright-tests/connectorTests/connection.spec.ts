@@ -29,7 +29,7 @@ export default function createTests() {
                 await connectorStore.init();
                 console.log('Searching for Email connector');
                 await connectorStore.search('Email');
-                await connectorStore.selectOperation('Imap');
+                await connectorStore.selectOperation('IMAP');
                 console.log('Confirming download of dependencies');
                 await connectorStore.confirmDownloadDependency();
 
