@@ -13,7 +13,6 @@ export const startVSCode = async (resourcesFolder: string, vscodeVersion: string
 
     // run in headless mode if running in CI
     if (process.env.CI) {
-        args.push('--headless');
         args.push('--disable-gpu');
     }
 
