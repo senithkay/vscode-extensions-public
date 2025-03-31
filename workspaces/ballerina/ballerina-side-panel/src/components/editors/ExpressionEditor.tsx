@@ -133,34 +133,6 @@ export namespace S {
         color: 'var(--vscode-list-deemphasizedForeground)'
     });
 
-    export const HintBanner = styled.div({
-        backgroundColor: 'var(--vscode-toolbar-activeBackground)',
-        padding: '6px',
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '4px'
-    });
-
-    export const BannerIcon = styled.div({
-        fontSize: '12px',
-        width: '18px',
-        height: '12px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: '2px'
-    });
-    
-    export const BannerContent = styled.div({
-        fontSize: '12px',
-        display: '-webkit-box',
-        WebkitLineClamp: 4,
-        WebkitBoxOrient: 'vertical',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        lineHeight: '16px'
-    });
-
     export const EditorColumn = styled.div({
         display: 'flex',
         flexDirection: 'column',
@@ -183,6 +155,11 @@ export namespace S {
         & > vscode-button > * {
             margin-right: 6px;
         }
+    `;
+
+    export const DefaultValue = styled.span`
+        font-family: monospace;
+        font-size: 12px;
     `;
 }
 
@@ -216,25 +193,6 @@ export const EditorRibbon = () => {
                 }} />
             </S.Ribbon>
         </Tooltip>
-    );
-};
-
-export const HintBanner = ({ value }: { value: string }) => {
-    // add prefix "Default Value: " to the value
-    const hint = `Default Value: ${value}`;
-    return (
-        <S.HintBanner>
-            <S.BannerIcon>
-                <Icon name="bi-bulb" sx={{ 
-                    color: ThemeColors.PRIMARY, 
-                    fontSize: '14px', 
-                    cursor: 'default'
-                }} />
-            </S.BannerIcon>
-            <S.BannerContent>
-                {hint}
-            </S.BannerContent>
-        </S.HintBanner>
     );
 };
 
@@ -412,6 +370,21 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         )
     ];
 
+    const defaultValueText = field.defaultValue ? 
+        <>Defaults to <S.DefaultValue>{field.defaultValue}</S.DefaultValue></> : null;
+    const documentation = field.documentation 
+        ? field.documentation.endsWith('.') 
+            ? field.documentation 
+            : `${field.documentation}.`
+        : '';
+    
+    const combinedDescription = (
+        <>
+            {documentation && <span>{documentation} </span>}
+            {defaultValueText}
+        </>
+    );
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -420,7 +393,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                         <S.Label>{field.label}</S.Label>
                         {!field.optional && <RequiredFormInput />}
                     </S.LabelContainer>
-                    <S.Description>{field.documentation}</S.Description>
+                    <S.Description>{combinedDescription}</S.Description>
                 </S.Header>
                 {field.valueTypeConstraint && (
                     <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
@@ -496,7 +469,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             codeActions={codeActions}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
-                        {field.defaultValue && <HintBanner value={field.defaultValue} />}
                     </S.EditorColumn>
                 )}
             />
