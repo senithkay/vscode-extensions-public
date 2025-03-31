@@ -81,9 +81,9 @@ export async function clearNotificationAlerts(page: ExtendedPage) {
     }
 }
 
-export function initTest(title: string, newProject: boolean = false, cleanupAfter?: boolean) {
-    test.beforeAll(async () => {
-        console.log(`>>> Starting ${title} tests`);
+export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
+    test.beforeAll(async ({ }, testInfo) => {
+        console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry}`);
         if (!existsSync(path.join(newProjectPath, 'testProject')) || newProject) {
             if (fs.existsSync(newProjectPath)) {
                 fs.rmSync(newProjectPath, { recursive: true });
@@ -96,11 +96,11 @@ export function initTest(title: string, newProject: boolean = false, cleanupAfte
         }
     });
 
-    test.afterAll(async () => {
+    test.afterAll(async ({ }, testInfo) => {
         if (cleanupAfter && fs.existsSync(newProjectPath)) {
             fs.rmSync(newProjectPath, { recursive: true });
         }
-        console.log(`>>> Finished ${title} tests`);
+        console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}`);
     });
 }
 
