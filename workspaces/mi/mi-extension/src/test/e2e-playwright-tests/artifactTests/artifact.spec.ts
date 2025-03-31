@@ -22,7 +22,6 @@ import { Template } from '../components/ArtifactTest/Template';
 import { Proxy } from '../components/ArtifactTest/Proxy';
 import { DataSource } from '../components/ArtifactTest/DataSource';
 import { DataService } from '../components/ArtifactTest/DataService';
-test.describe.configure({ mode: 'serial' });
 
 export default function createTests() {
   test.describe(async () => {
