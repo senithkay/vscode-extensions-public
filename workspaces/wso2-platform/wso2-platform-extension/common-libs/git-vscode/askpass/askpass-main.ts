@@ -13,7 +13,6 @@ function fatal(err: any): void {
 	process.exit(1);
 }
 
-
 export class IPCClient {
 	private ipcHandlePath: string;
 
@@ -51,7 +50,6 @@ export class IPCClient {
 		});
 	}
 }
-
 
 function main(argv: string[]): void {
 	if (!process.env.VSCODE_GIT_ASKPASS_PIPE) {

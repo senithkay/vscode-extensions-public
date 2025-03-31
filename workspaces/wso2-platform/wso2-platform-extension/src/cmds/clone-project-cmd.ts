@@ -10,6 +10,7 @@
 import { createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "fs";
 import * as os from "os";
 import { join } from "path";
+import { initGit } from "@wso2-enterprise/git-vscode";
 import {
 	CommandIds,
 	type ComponentKind,
@@ -21,7 +22,6 @@ import {
 } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, extensions, window } from "vscode";
 import { ext } from "../extensionVariables";
-import { initGit } from "@wso2-enterprise/git-vscode";
 import { authStore } from "../stores/auth-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { createDirectory, openDirectory } from "../utils";
@@ -151,13 +151,13 @@ export function cloneRepoCommand(context: ExtensionContext) {
 							}
 
 							const latestDeploymentTrack = params?.component?.deploymentTracks?.find((item) => item.latest);
-							let branch: string|undefined;
-							if(params?.component){
-								branch = latestDeploymentTrack?.branch
-							}else{
+							let branch: string | undefined;
+							if (params?.component) {
+								branch = latestDeploymentTrack?.branch;
+							} else {
 								const matchingComp = components?.find((item) => selectedRepoUrl === getComponentKindRepoSource(item.spec.source).repo);
 								const latestDeploymentTrack = matchingComp?.deploymentTracks?.find((item) => item.latest);
-								branch = latestDeploymentTrack?.branch
+								branch = latestDeploymentTrack?.branch;
 							}
 							const clonedResp = await cloneRepositoryWithProgress(selectedCloneDir.fsPath, [
 								{ branch: latestDeploymentTrack?.branch, repoUrl: selectedRepoUrl },
@@ -168,9 +168,18 @@ export function cloneRepoCommand(context: ExtensionContext) {
 							const subDir = params?.component?.spec?.source ? getComponentKindRepoSource(params?.component?.spec?.source)?.path || "" : "";
 							const subDirFullPath = join(clonedResp[0].clonedPath, subDir);
 							if (params?.technology === "ballerina") {
-								await ensureBallerinaFilesIfEmpty(selectedOrg, params?.componentName || "bal-component", subDirFullPath, params?.integrationDisplayType || DevantScopes.ANY);
+								await ensureBallerinaFilesIfEmpty(
+									selectedOrg,
+									params?.componentName || "bal-component",
+									subDirFullPath,
+									params?.integrationDisplayType || DevantScopes.ANY,
+								);
 							} else if (params?.technology === "mi" || params?.technology === "microintegrator") {
-								await ensureMIFilesIfEmpty(params?.componentName || "mi-component", subDirFullPath, params?.integrationDisplayType || DevantScopes.ANY);
+								await ensureMIFilesIfEmpty(
+									params?.componentName || "mi-component",
+									subDirFullPath,
+									params?.integrationDisplayType || DevantScopes.ANY,
+								);
 							}
 							await openClonedDirectory(subDirFullPath);
 						} else if (repoSet.size > 1) {
@@ -218,11 +227,11 @@ async function ensureBallerinaFilesIfEmpty(
 	const createBalFiles = (directoryPath: string, integrationDisplayType: string) => {
 		writeFileSync(
 			join(directoryPath, "Ballerina.toml"),
-			`[package]\norg = "${org.handle}"\nname = "${componentName.replaceAll(' ',"_").replaceAll("-", "_")}"\nversion = "0.1.0"`,
+			`[package]\norg = "${org.handle}"\nname = "${componentName.replaceAll(" ", "_").replaceAll("-", "_")}"\nversion = "0.1.0"`,
 			"utf8",
 		);
 		if (integrationDisplayType) {
-			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");
+			const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+", "-");
 			if (!existsSync(join(directoryPath, ".vscode"))) {
 				mkdirSync(join(directoryPath, ".vscode"));
 			}
@@ -261,13 +270,13 @@ async function ensureBallerinaFilesIfEmpty(
 }
 
 async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integrationDisplayType: string): Promise<void> {
-	const createMiFiles = async()=>{
-		const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+","-");;
+	const createMiFiles = async () => {
+		const scopeVal = integrationDisplayType.toLowerCase().replaceAll(" ", "-").replaceAll("+", "-");
 		await commands.executeCommand("MI.project-explorer.create-project", {
-			name: name.replaceAll("-","_").replaceAll(" ","_"),
+			name: name.replaceAll("-", "_").replaceAll(" ", "_"),
 			path: directoryPath,
-			scope: scopeVal
-		})
+			scope: scopeVal,
+		});
 		// todo: remove sample-mi-project.zip and unzipper
 		/*
 		createReadStream(Uri.joinPath(ext.context.extensionUri, "sample-mi-project.zip").fsPath).pipe(unzipper.Extract({ path: directoryPath }));
@@ -289,17 +298,17 @@ async function ensureMIFilesIfEmpty(name: string, directoryPath: string, integra
 			}
 		}
 		*/
-	}
+	};
 	try {
 		const files = readdirSync(directoryPath);
 		if (!files.some((file) => file.toLowerCase() === "pom.xml")) {
-			await createMiFiles()
+			await createMiFiles();
 		}
 	} catch (err: any) {
 		if (err.code === "ENOENT") {
 			try {
 				mkdirSync(directoryPath, { recursive: true });
-				await createMiFiles()
+				await createMiFiles();
 			} catch (mkdirError: any) {
 				console.error("Error creating directory or files:", mkdirError);
 			}

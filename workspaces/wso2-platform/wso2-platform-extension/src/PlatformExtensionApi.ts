@@ -13,6 +13,11 @@ import { contextStore } from "./stores/context-store";
 import { getNormalizedPath } from "./utils";
 
 export class PlatformExtensionApi implements IWso2PlatformExtensionAPI {
-	public isLoggedIn = ()=>!!authStore.getState().state?.userInfo;
-	public getComponents = (fsPath: string)=>contextStore.getState().state?.components?.filter(item=>getNormalizedPath(item?.componentFsPath) === getNormalizedPath(fsPath))?.map(item=>item?.component)?.filter(item=>!!item) as ComponentKind[] ?? [];
+	public isLoggedIn = () => !!authStore.getState().state?.userInfo;
+	public getComponents = (fsPath: string) =>
+		(contextStore
+			.getState()
+			.state?.components?.filter((item) => getNormalizedPath(item?.componentFsPath) === getNormalizedPath(fsPath))
+			?.map((item) => item?.component)
+			?.filter((item) => !!item) as ComponentKind[]) ?? [];
 }

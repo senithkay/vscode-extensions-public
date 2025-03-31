@@ -8,21 +8,21 @@
  */
 
 import { join } from "path";
+import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import { CommandIds, type Organization, type Project, getComponentKindRepoSource, parseGitURL } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, type ProviderResult, type QuickPickItem, type Uri, commands, window, workspace } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getUserInfoForCmd } from "./cmds/cmd-utils";
+import { choreoEnvConfig } from "./config";
 import { ext } from "./extensionVariables";
-import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
 import { contextStore, getContextKey, waitForContextStoreToLoad } from "./stores/context-store";
 import { dataCacheStore } from "./stores/data-cache-store";
 import { locationStore } from "./stores/location-store";
-import { delay, openDirectory } from "./utils";
 import { webviewStateStore } from "./stores/webview-state-store";
-import { choreoEnvConfig } from "./config";
+import { delay, openDirectory } from "./utils";
 
 export function activateURIHandlers() {
 	window.registerUriHandler({
@@ -46,13 +46,13 @@ export function activateURIHandlers() {
 						async () => {
 							try {
 								const orgId = contextStore?.getState().state?.selected?.org?.id?.toString();
-								const callbackUrl = extName === 'Devant' ? `${choreoEnvConfig.getDevantUrl()}/vscode-auth` : undefined
-								const clientId = extName === 'Devant' ? choreoEnvConfig.getDevantAsguadeoClientId() : undefined
+								const callbackUrl = extName === "Devant" ? `${choreoEnvConfig.getDevantUrl()}/vscode-auth` : undefined;
+								const clientId = extName === "Devant" ? choreoEnvConfig.getDevantAsguadeoClientId() : undefined;
 								const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode, orgId, callbackUrl, clientId);
 								if (userInfo) {
 									await delay(1000);
 									authStore.getState().loginSuccess(userInfo);
-									window.showInformationMessage(`Successfully signed into ${extName}`)
+									window.showInformationMessage(`Successfully signed into ${extName}`);
 								}
 							} catch (error: any) {
 								if (!(error instanceof ResponseError) || error.code !== ErrorCode.NoOrgsAvailable) {

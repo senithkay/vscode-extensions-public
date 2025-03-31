@@ -9,6 +9,7 @@
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
+import { getGitHead, getGitRemotes, getGitRoot, hasDirtyRepo, removeCredentialsFromGitURL } from "@wso2-enterprise/git-vscode";
 import {
 	AuthStoreChangedNotification,
 	ClearWebviewCache,
@@ -92,7 +93,6 @@ import { quickPickWithLoader } from "../cmds/cmd-utils";
 import { submitCreateComponentHandler } from "../cmds/create-component-cmd";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
-import { getGitHead, getGitRemotes, getGitRoot, hasDirtyRepo, removeCredentialsFromGitURL } from "@wso2-enterprise/git-vscode";
 import { getLogger } from "../logger/logger";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
