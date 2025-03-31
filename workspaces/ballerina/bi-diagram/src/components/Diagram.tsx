@@ -26,7 +26,7 @@ import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
-import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
+import { DiagramContextProvider, DiagramContextState, ExpressionContextProps } from "./DiagramContext";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
@@ -56,6 +56,7 @@ export interface DiagramProps {
         onAddTool: (node: FlowNode) => void;
         onSelectTool: (tool: ToolData, node: FlowNode) => void;
         onDeleteTool: (tool: ToolData, node: FlowNode) => void;
+        goToTool: (tool: ToolData, node: FlowNode) => void;
     };
     // ai suggestions callbacks
     suggestions?: {
@@ -66,6 +67,7 @@ export interface DiagramProps {
     projectPath?: string;
     breakpointInfo?: BreakpointInfo;
     readOnly?: boolean;
+    expressionContext?: ExpressionContextProps;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -87,6 +89,7 @@ export function Diagram(props: DiagramProps) {
         removeBreakpoint,
         breakpointInfo,
         readOnly,
+        expressionContext
     } = props;
 
     const [showErrorFlow, setShowErrorFlow] = useState(false);
@@ -213,6 +216,7 @@ export function Diagram(props: DiagramProps) {
         suggestions: suggestions,
         projectPath: projectPath,
         readOnly: onAddNode === undefined || onDeleteNode === undefined || onNodeSelect === undefined || readOnly,
+        expressionContext: expressionContext
     };
 
     const getActiveBreakpointNode = (nodes: NodeModel[]): NodeModel => {

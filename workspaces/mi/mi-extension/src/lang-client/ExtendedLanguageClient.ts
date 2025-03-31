@@ -338,6 +338,10 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
     }
 
+    async getProjectIntegrationType(path: string): Promise<any> {
+        return this.sendRequest('synapse/getProjectIntegrationType', { uri: Uri.file(path).fsPath });
+    }
+
     async updateDependencies(req: UpdateDependenciesRequest): Promise<UpdateDependenciesResponse> {
         return this.sendRequest('synapse/updateDependency', req);
     }

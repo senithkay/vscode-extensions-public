@@ -6,13 +6,5 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
-import { responseCodes } from '@wso2-enterprise/ballerina-core';
-
-export enum HTTP_METHOD {
-    "GET" = "GET",
-    "PUT" = "PUT",
-    "POST" = "POST",
-    "DELETE" = "DELETE",
-    "PATCH" = "PATCH"
-}
+export * from "./UnionOutputNodeFactory";
+export * from "./UnionOutputNode";

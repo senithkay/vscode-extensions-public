@@ -179,6 +179,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         helperPaneOrigin,
         helperPaneHeight,
         recordTypeField,
+        growRange = { start: 4, offset: 4 },
         rawExpression, // original expression
         sanitizedExpression // sanitized expression that will be rendered in the editor
     } = props as ExpressionEditorProps;
@@ -333,9 +334,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                     </S.LabelContainer>
                     <S.Description>{field.documentation}</S.Description>
                 </S.Header>
-                {field.valueType && (
-                    <S.Type isVisible={focused} title={field.valueType}>
-                        {sanitizeType(field.valueType)}
+                {field.valueTypeConstraint && (
+                    <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
+                        {sanitizeType(field.valueTypeConstraint as string)}
                     </S.Type>
                 )}
             </S.HeaderContainer>
@@ -402,6 +403,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             helperPaneHeight={helperPaneHeight}
                             helperPaneWidth={recordTypeField ? 400 : undefined}
                             placeholder={field.placeholder}
+                            growRange={growRange}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
                         />

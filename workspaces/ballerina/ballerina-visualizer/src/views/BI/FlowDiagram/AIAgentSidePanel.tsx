@@ -127,11 +127,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             filePath: projectPath,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -182,9 +182,12 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     };
 
     const handleToolSubmit = (data: FormValues) => {
-        console.log("Tool name", data);
+        // Safely convert name to camelCase, handling any input
+        const name = data["name"] || "";
+        const cleanName = name.trim().replace(/[^a-zA-Z0-9]/g, "") || "newTool";
+
         const toolModel: AgentToolRequest = {
-            toolName: data["name"],
+            toolName: cleanName,
             description: data["description"],
             selectedCodeData: selectedNodeCodeData,
         };
@@ -208,7 +211,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             key: `description`,
             label: "Description",
             type: "TEXTAREA",
-            optional: false,
+            optional: true,
             editable: true,
             documentation: "Enter the description of the tool.",
             value: "",
@@ -229,13 +232,12 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     <RelativeLoader />
                 </LoaderContainer>
             )}
-            {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
+            {!loading && sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                 <NodeList
                     categories={categories}
                     onSelect={handleOnSelectNode}
                     onAddConnection={handleOnAddConnection}
-                    onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR)}
-                    onAddFunction={handleOnAddFunction}
+                    onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR, true)}
                     title={"Functions"}
                 />
             )}

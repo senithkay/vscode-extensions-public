@@ -19,6 +19,7 @@ export interface TypeResponse {
 export interface GoToSourceRequest {
     position: NodePosition;
     filePath?: string
+    fileName?: string
 }
 
 export interface WorkspaceFileRequest {

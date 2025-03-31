@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { debounce } from "lodash";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     Category as PanelCategory,
@@ -18,6 +19,7 @@ import {
     BIAvailableNodesRequest,
     Flow,
     FlowNode,
+    FunctionNode,
     Branch,
     Category,
     AvailableNode,
@@ -26,17 +28,23 @@ import {
     VisualizerLocation,
     CurrentBreakpointsResponse as BreakpointInfo,
     ParentPopupData,
-    FocusFlowDiagramView
+    FocusFlowDiagramView,
+    ExpressionProperty,
+    TRIGGER_CHARACTERS,
+    TriggerCharacter,
+    TextEdit
 } from "@wso2-enterprise/ballerina-core";
 
 import {
     addDraftNodeToDiagram,
+    convertBalCompletion,
     convertBICategoriesToSidePanelCategories,
     getFlowNodeForNaturalFunction,
     isNaturalFunction,
+    updateLineRange,
 } from "../../../utils/bi";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { View, ProgressRing, ProgressIndicator, ThemeColors, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     width: 100%;
@@ -78,6 +86,12 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
     const showEditForm = useRef<boolean>(false);
 
+    const [completions, setCompletions] = useState<CompletionItem[]>([]);
+    const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
+    const triggerCompletionOnNextRequest = useRef<boolean>(false);
+    const [selectedNode, setSelectedNode] = useState<FunctionNode | undefined>();
+    const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
+
     useEffect(() => {
         getFlowModel();
     }, [syntaxTree]);
@@ -114,6 +128,9 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
                                     fileName: filePath,
                                     functionName: syntaxTree.functionName.value
                                 });
+
+                                setSelectedNode(node.functionDefinition);
+
                                 if (node?.functionDefinition) {
                                     const flowNode = getFlowNodeForNaturalFunction(node.functionDefinition);
                                     model.flowModel.nodes.push(flowNode);
@@ -156,7 +173,7 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
     ) => {
         const getNodeRequest: BIAvailableNodesRequest = {
             position: target.startLine,
-            filePath: model.fileName,
+            filePath: model?.fileName || parent?.codedata?.lineRange.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
         // save original model
@@ -368,6 +385,143 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
 
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
+    /* expression editor related */
+    const handleExpressionEditorCancel = () => {
+        setFilteredCompletions([]);
+        setCompletions([]);
+        triggerCompletionOnNextRequest.current = false;
+    };
+
+    const debouncedRetrieveCompletions = useCallback(
+        debounce(
+            async (
+                value: string,
+                property: ExpressionProperty,
+                offset: number,
+                invalidateCache: boolean,
+                triggerCharacter?: string,
+                onlyVariables?: boolean
+            ) => {
+                let expressionCompletions: CompletionItem[] = [];
+                const effectiveText = value.slice(0, offset);
+                const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
+                const endOfStatementRegex = /[\)\]]\s*$/;
+                if (offset > 0 && endOfStatementRegex.test(effectiveText) && !invalidateCache) {
+                    // Case 1: When a character unrelated to triggering completions is entered
+                    setCompletions([]);
+                } else if (
+                    completions.length > 0 &&
+                    completionFetchText.length > 0 &&
+                    !triggerCharacter &&
+                    !onlyVariables &&
+                    !triggerCompletionOnNextRequest.current &&
+                    !invalidateCache
+                ) {
+                    // Case 2: When completions have already been retrieved and only need to be filtered
+                    expressionCompletions = completions
+                        .filter((completion) => {
+                            const lowerCaseText = completionFetchText.toLowerCase();
+                            const lowerCaseLabel = completion.label.toLowerCase();
+
+                            return lowerCaseLabel.includes(lowerCaseText);
+                        })
+                        .sort((a, b) => a.sortText.localeCompare(b.sortText));
+                } else {
+                    // Case 3: When completions need to be retrieved from the language server
+                    // Retrieve completions from the ls
+                    let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
+                        filePath: filePath,
+                        context: {
+                            expression: value,
+                            startLine: updateLineRange(
+                                selectedNode.properties['prompt'].codedata.lineRange, 
+                                expressionOffsetRef.current
+                            ).startLine,
+                            offset: offset,
+                            codedata: selectedNode.codedata,
+                            property: property,
+                        },
+                        completionContext: {
+                            triggerKind: triggerCharacter ? 2 : 1,
+                            triggerCharacter: triggerCharacter as TriggerCharacter,
+                        },
+                    });
+
+                    if (onlyVariables) {
+                        // If only variables are requested, filter out the completions based on the kind
+                        // 'kind' for variables = 6
+                        completions = completions?.filter((completion) => completion.kind === 6);
+                        triggerCompletionOnNextRequest.current = true;
+                    } else {
+                        triggerCompletionOnNextRequest.current = false;
+                    }
+
+                    // Convert completions to the ExpressionBar format
+                    let convertedCompletions: CompletionItem[] = [];
+                    completions?.forEach((completion) => {
+                        if (completion.detail) {
+                            // HACK: Currently, completion with additional edits apart from imports are not supported
+                            // Completions that modify the expression itself (ex: member access)
+                            convertedCompletions.push(convertBalCompletion(completion));
+                        }
+                    });
+                    setCompletions(convertedCompletions);
+
+                    if (triggerCharacter) {
+                        expressionCompletions = convertedCompletions;
+                    } else {
+                        expressionCompletions = convertedCompletions
+                            .filter((completion) => {
+                                const lowerCaseText = completionFetchText.toLowerCase();
+                                const lowerCaseLabel = completion.label.toLowerCase();
+
+                                return lowerCaseLabel.includes(lowerCaseText);
+                            })
+                            .sort((a, b) => a.sortText.localeCompare(b.sortText));
+                    }
+                }
+
+                setFilteredCompletions(expressionCompletions);
+            },
+            250
+        ),
+        [rpcClient, completions, filePath, selectedNode, triggerCompletionOnNextRequest.current]
+    );
+
+    const handleRetrieveCompletions = useCallback(
+        async (
+            value: string,
+            property: ExpressionProperty,
+            offset: number,
+            invalidateCache: boolean,
+            triggerCharacter?: string,
+            onlyVariables?: boolean
+        ) => {
+            await debouncedRetrieveCompletions(value, property, offset, invalidateCache, triggerCharacter, onlyVariables);
+
+            if (triggerCharacter) {
+                await debouncedRetrieveCompletions.flush();
+            }
+        },
+        [debouncedRetrieveCompletions]
+    );
+
+    const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
+        if (additionalTextEdits?.[0]?.newText) {
+            const response = await rpcClient.getBIDiagramRpcClient().updateImports({
+                filePath: filePath,
+                importStatement: additionalTextEdits[0].newText,
+            });
+            expressionOffsetRef.current += response.importStatementOffset;
+        }
+        debouncedRetrieveCompletions.cancel();
+        handleExpressionEditorCancel();
+    };
+
+    const handleExpressionEditorBlur = () => {
+        handleExpressionEditorCancel();
+    };
+
     const memoizedDiagramProps = useMemo(
         () => ({
             model: flowModel,
@@ -379,9 +533,17 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
             removeBreakpoint: handleRemoveBreakpoint,
             openView: handleOpenView,
             projectPath,
-            breakpointInfo
+            breakpointInfo,
+            expressionContext: {
+                completions: filteredCompletions,
+                triggerCharacters: TRIGGER_CHARACTERS,
+                retrieveCompletions: handleRetrieveCompletions,
+                onCompletionItemSelect: handleCompletionItemSelect,
+                onBlur: handleExpressionEditorBlur,
+                onCancel: handleExpressionEditorCancel
+            }
         }),
-        [flowModel, projectPath, breakpointInfo]
+        [flowModel, projectPath, breakpointInfo, filteredCompletions]
     );
 
     return (

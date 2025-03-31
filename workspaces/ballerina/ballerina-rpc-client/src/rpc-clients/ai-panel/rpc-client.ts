@@ -32,6 +32,7 @@ import {
     ProjectDiagnostics,
     ProjectSource,
     RequirementSpecification,
+    SourceFile,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
@@ -65,6 +66,7 @@ import {
     getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
+    getThemeKind,
     getTypesFromRecord,
     isCopilotSignedIn,
     isRequirementsSpecificationFileExist,
@@ -81,6 +83,7 @@ import {
     promptWSO2AILogout,
     readDeveloperMdFile,
     refreshAccessToken,
+    refreshFile,
     showSignInAlert,
     stopAIMappings,
     updateDevelopmentDocument,
@@ -153,6 +156,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getRefreshToken, HOST_EXTENSION);
     }
 
+    getThemeKind(): Promise<string> {
+        return this._messenger.sendRequest(getThemeKind, HOST_EXTENSION);
+    }
+
     generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
         return this._messenger.sendRequest(generateMappings, HOST_EXTENSION, params);
     }
@@ -187,6 +194,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     clearInitialPrompt(): void {
         return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
+    }
+
+    refreshFile(params: SourceFile): void {
+        return this._messenger.sendNotification(refreshFile, HOST_EXTENSION, params);
     }
 
     getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {

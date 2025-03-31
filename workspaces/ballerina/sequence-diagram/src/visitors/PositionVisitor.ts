@@ -241,7 +241,7 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     updateIfBlockBranchBeginPosition(node: NodeBranch, parent: Node): void {
-        if (!node.viewStates || node.viewStates.length === 0) {
+        if (!node.viewStates || node.viewStates.length === 0 ) {
             console.warn(">> View state not found for node", node);
             return;
         }
@@ -254,7 +254,10 @@ export class PositionVisitor implements BaseVisitor {
             console.warn(">> View state not found for node", node);
             return;
         }
-
+        if (!parent || !parent.viewStates || parent.viewStates.length === 0) {
+            console.warn(">> Parent not found for node", node);
+            return;
+        }
         const parentBBox = getElementBBox(parent);
         logger(`Position visitor: parentBBox`, ConsoleColor.PURPLE, { node, parent, parentBBox });
         nodeViewState.bBox.x = parentBBox.x;

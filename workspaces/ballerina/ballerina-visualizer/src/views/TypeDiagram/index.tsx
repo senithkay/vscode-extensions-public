@@ -106,7 +106,8 @@ export function TypeDiagram(props: TypeDiagramProps) {
             endLine: node.codedata.lineRange?.endLine?.line,
             endColumn: node.codedata.lineRange?.endLine?.offset,
         };
-        rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
+
+        rpcClient.getCommonRpcClient().goToSource({ position: targetPosition, fileName: node.codedata.lineRange?.fileName });
     };
 
     const onTypeEdit = async (typeId: string) => {
@@ -141,10 +142,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     const onFocusedNodeIdChange = (typeId: string) => {
         setFocusedNodeId(typeId);
-        // if a type is already selected, then we need to update selected type
-        if (selectedTypeId) {
-            setEditingTypeId(typeId);
-        }
+        onTypeEditorClosed();
     };
 
     const Header = () => (
@@ -177,6 +175,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                 properties: {},
                 members: [],
                 includes: [] as string[],
+                allowAdditionalFields: false
             };
         }
         return typesModel.find((type: Type) => type.name === typeId);

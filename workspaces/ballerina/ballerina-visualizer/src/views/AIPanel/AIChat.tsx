@@ -5,8 +5,6 @@
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
- *
- * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 
 import React, { useEffect, useState } from "react";
@@ -22,25 +20,22 @@ import {
     TestGenerationTarget,
     LLMDiagnostics,
     ImportStatement,
+    DiagnosticEntry,
+    ExistingFunction,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
-import ReactMarkdown from "react-markdown";
 
 import styled from "@emotion/styled";
 import AIChatInput from "./Components/AIChatInput";
 import ProgressTextSegment, { Spinner } from "./Components/ProgressTextSegment";
-import BallerinaCodeBlock from "./Components/BallerinaCodeBlock";
 import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { findRegexMatches } from "../../utils/utils";
-import { Collapse } from "react-collapse";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import {
-    MarkdownRenderer,
     Footer,
     FlexRow,
     AIChatView,
@@ -56,8 +51,10 @@ import ReferenceDropdown from "./Components/ReferenceDropdown";
 import AccordionItem from "./Components/TestScenarioSegment";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TestGeneratorIntermediaryState } from "./features/testGenerator";
-import TextWithBadges from "./Components/TextWithBadges";
 import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
+import MarkdownRenderer from "./Components/MarkdownRenderer";
+import { CodeSection } from "./Components/CodeSection";
+import { CodeSegment } from "./Components/CodeSegment";
 
 interface CodeBlock {
     filePath: string;
@@ -103,11 +100,10 @@ var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
-export const INVALID_RECORD_REFERENCE =
-    "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.";
+const INVALID_RECORD_REFERENCE: Error = new Error("Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.");
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
-const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`
+const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`;
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -126,12 +122,12 @@ const TEMPLATE_GENERATE = [
     "generate an integration according to the given Readme file",
 ];
 const TEMPLATE_TESTS = [
-    "generate test using <servicename> service",
-    "generate test for resource <method(space)path> function",
+    "generate tests for <servicename> service",
+    "generate tests for resource <method(space)path> function",
 ];
-const TEMPLATE_DATAMAP = [
-    "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
-    "generate mapping using input as <recordname(s)> and output as <recordname>",
+export const TEMPLATE_DATAMAP = [
+    "generate mappings using input as <recordname(s)> and output as <recordname> using the function <functionname>",
+    "generate mappings for the <functionname> function",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
 const TEMPLATE_DOCUMENTATION: string[] = [];
@@ -231,6 +227,7 @@ export function AIChat() {
     const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
     const [isSyntaxError, setIsSyntaxError] = useState(false);
     const [isReqFileExists, setIsReqFileExists] = useState(false);
+    const [isPromptExecutedInCurrentWindow, setIsPromptExecutedInCurrentWindow] = useState(false);
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
@@ -250,8 +247,8 @@ export function AIChat() {
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
             setIsReqFileExists(
                 chatLocation != null &&
-                chatLocation != undefined &&
-                (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
+                    chatLocation != undefined &&
+                    (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
             );
 
             generateNaturalProgrammingTemplate(isReqFileExists);
@@ -285,8 +282,16 @@ export function AIChat() {
                     .getAiPanelRpcClient()
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
-                        const command = COMMAND_GENERATE;
-                        const template = commandToTemplate.get(command)?.[1];
+                        const command = initPrompt.exists && initPrompt.text === "datamap"
+                            ? COMMAND_DATAMAP
+                            : COMMAND_GENERATE;
+
+                        let template = commandToTemplate.get(command)?.[1];
+
+                        if (template && initPrompt.dataMappingFunctionName) {
+                            template = template.replace('<functionname>', initPrompt.dataMappingFunctionName);
+                        }
+
                         if (initPrompt.exists) {
                             setUserInput(template ? command + " " + template : command);
                         }
@@ -450,6 +455,7 @@ export function AIChat() {
 
     async function handleSend(content: [string, AttachmentResult[]]) {
         setCurrentGeneratingPromptIndex(otherMessages.length);
+        setIsPromptExecutedInCurrentWindow(true);
         // Step 1: Add the user input to the chat array
 
         const [message, attachments] = content;
@@ -559,8 +565,8 @@ export function AIChat() {
                                     isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)
                                         ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT
                                         : isTestGenerationTemplateExists
-                                            ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
-                                            : CodeGenerationType.CODE_GENERATION,
+                                        ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
+                                        : CodeGenerationType.CODE_GENERATION,
                                 ],
                                 message
                             );
@@ -592,10 +598,16 @@ export function AIChat() {
                     case COMMAND_DATAMAP: {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
                             await processMappingParameters(cleanedMessage, token, parameters, attachments);
+                        } else if (messageBody.includes("function")) {
+                            await processMappingParameters(cleanedMessage, token, {
+                                inputRecord: [],
+                                outputRecord: "",
+                                functionName: parameters.functionName
+                            }, attachments);
                         } else {
                             throw new Error(
                                 `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
-                                `Please ensure you follow the correct template.`
+                                    `Please ensure you follow the correct template.`
                             );
                         }
                         break;
@@ -617,7 +629,7 @@ export function AIChat() {
                         break;
                     }
                     case COMMAND_DOCUMENTATION: {
-                        await findInDocumentation(parameters.inputRecord[0], token);
+                        await findInDocumentation(token, parameters.inputRecord[0], message);
                         break;
                     }
                     case COMMAND_OPENAPI: {
@@ -630,7 +642,11 @@ export function AIChat() {
                     throw new Error("Error: Query is empty. Please enter a valid query");
                 }
                 if (commandKey === COMMAND_GENERATE) {
-                    await processCodeGeneration(token, [messageBody, attachments, CodeGenerationType.CODE_GENERATION], message);
+                    await processCodeGeneration(
+                        token,
+                        [messageBody, attachments, CodeGenerationType.CODE_GENERATION],
+                        message
+                    );
                     return;
                 } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
                     if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)) {
@@ -642,7 +658,7 @@ export function AIChat() {
                         return;
                     }
                 } else if (commandKey === COMMAND_DOCUMENTATION) {
-                    await findInDocumentation(messageBody, token);
+                    await findInDocumentation(token, messageBody, message);
                     return;
                 } else if (commandKey === COMMAND_HEALTHCARE) {
                     await processHealthcareCodeGeneration(token, messageBody, message);
@@ -653,7 +669,7 @@ export function AIChat() {
                 }
                 throw new Error(
                     `Invalid template format for the \`${commandKey}\` command. ` +
-                    `Please ensure you follow the correct template.`
+                        `Please ensure you follow the correct template.`
                 );
             }
         } else {
@@ -678,15 +694,14 @@ export function AIChat() {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
-                .replace(/<servicename>/g, "(\\S+?)")
+                .replace(/<servicename>/g, "(.+?)")
                 .replace(
                     /<recordname\(s\)>/g,
                     "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)"
                 )
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
-                .replace(/<use-case>/g, "([\\s\\S]+?)")
                 .replace(/<requirements>/g, "([\\s\\S]+?)")
-                .replace(/<functionname>/g, "(\\S+?)")
+                .replace(/<functionname>/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");
 
@@ -707,10 +722,17 @@ export function AIChat() {
                     }
 
                     const outputRecordName = match[2].trim();
-                    const functionName = match[3]?.trim() || "";
+                    let functionName = match[3]?.trim() || "";
                     return {
                         inputRecord: inputRecordList,
                         outputRecord: outputRecordName,
+                        functionName,
+                    };
+                } else if (command === COMMAND_DATAMAP && template.includes("<functionname>")) {
+                    let functionName = match[1].trim();
+                    return {
+                        inputRecord: [],
+                        outputRecord: "",
                         functionName,
                     };
                 }
@@ -785,7 +807,11 @@ export function AIChat() {
                 return [];
             }
             case COMMAND_DATAMAP: {
-                return (await rpcClient.getBIDiagramRpcClient().getRecordNames()).mentions;
+                if (template.includes("<recordname(s)>") && template.includes("<recordname>")) {
+                    return (await rpcClient.getBIDiagramRpcClient().getRecordNames()).mentions;
+                } else {
+                    return (await rpcClient.getBIDiagramRpcClient().getFunctionNames()).mentions;
+                }
             }
             case COMMAND_TYPECREATOR: {
                 return [];
@@ -804,7 +830,12 @@ export function AIChat() {
         const [useCase, attachments, operationType] = content;
 
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
+        let project: ProjectSource;
+        try {
+            project = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
+        } catch (error) {
+            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+        }
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -887,13 +918,20 @@ export function AIChat() {
                 // Update the functions state instead of the global variable
                 setFunctions(event.body);
             } else if (event.event == "message_stop") {
-                const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
-                    assistant_response: assistant_response,
-                });
-                assistant_response = postProcessResp.assistant_response;
-                const diagnostics = postProcessResp.diagnostics.diagnostics;
-                console.log("Initial Diagnostics : ", diagnostics);
-                setCurrentDiagnostics(diagnostics);
+                let diagnostics: DiagnosticEntry[] = [];
+                try {
+                    const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                        assistant_response: assistant_response,
+                    });
+                    assistant_response = postProcessResp.assistant_response;
+                    diagnostics = postProcessResp.diagnostics.diagnostics;
+                    console.log("Initial Diagnostics : ", diagnostics);
+                    setCurrentDiagnostics(diagnostics);
+                } catch (error) {
+                    // Add this catch block because `Add to Integration` button not appear for `/generate`
+                    // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
+                    diagnostics = [];
+                }
                 if (diagnostics.length > 0) {
                     const diagReq = {
                         response: assistant_response,
@@ -999,6 +1037,67 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
+    // Helper function to escape regex special characters in a string
+    function escapeRegexString(str: string): string {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    // Function to create regex for finding a function without error type
+    function createFunctionWithoutErrorTypeRegex(functionName: string, returnType: string): RegExp {
+        const escapedReturnType = escapeRegexString(returnType);
+        return new RegExp(
+            `function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?!\\|error)\\s*(?:=>|\\{)`,
+            's'
+        );
+    }
+
+    // Function to create regex for adding error type to a function signature
+    function createAddErrorTypeRegex(functionName: string, returnType: string): RegExp {
+        const escapedReturnType = escapeRegexString(returnType);
+        return new RegExp(
+            `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType})\\s*(=>|\\{)`,
+            's'
+        );
+    }
+
+    // Function to create regex for arrow function signatures
+    function createArrowFunctionSignatureRegex(functionName: string, returnType: string): RegExp {
+        const escapedReturnType = escapeRegexString(returnType);
+        return new RegExp(
+            `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*=>\\s*\\{[^}]*\\}`,
+            's'
+        );
+    }
+
+    // Function to create regex for regular function signatures
+    function createRegularFunctionSignatureRegex(functionName: string, returnType: string): RegExp {
+        const escapedReturnType = escapeRegexString(returnType);
+        return new RegExp(
+            `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*\\{[^}]*\\}`,
+            's'
+        );
+    }
+
+    // Fucntion to create regex to match function signatures without capturing the function body.
+    function createExistingFunctionSignatureRegex(functionName: string) {
+        return new RegExp(
+            `function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>\\s*(?:\\{|)`,
+            's'
+        );
+    }
+
+    // Function to remove the body of a specified function while keeping the rest of the code unchanged.
+    function removeFunctionBody(content: string, functionName: string) {
+        // Regular expression to match the function signature and body
+        const functionRegex = new RegExp(
+            `(function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>)\\s*(?:\\{[^]*?\\}|[^;]*);`,
+            's'
+        );
+
+        // Replace the matched function body with an empty function body `{}` while keeping the signature
+        return content.replace(functionRegex, `$1 {};`);
+    }
+
     const handleAddAllCodeSegmentsToWorkspace = async (
         codeSegments: any,
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
@@ -1024,11 +1123,39 @@ export function AIChat() {
             if (command === "ai_map") {
                 const importRegex = /import\s+[^;]+;/g;
                 const commentRegex = /^(?:(\/\/.*|#.*)\n)+/; // Matches both `//` and `#` comment blocks at the top
+                const functionRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^={|]+)(?:\|error)?\s*=>\s*(?:\{([\s\S]*?)\}|([\s\S]*?));/;
+
+                let existingFunctionRegex;
+
+                // Check if we're dealing with a function that should be merged
+                const functionMatch = segmentText.match(functionRegex);
+                let shouldMergeFunction = false;
+                let functionName = "";
+                let functionBody = "";
+                let returnType = "";
+                let hasErrorType = false;
+                let updatedContent = "";
+
+                if (functionMatch) {
+                    functionName = functionMatch[1];
+                    const params = functionMatch[2];
+                    returnType = functionMatch[3].trim();
+                    functionBody = functionMatch[4] ? functionMatch[4].trim() : functionMatch[5]?.trim();
+
+                    // Check if new function has error return type
+                    hasErrorType = segmentText.includes(`returns ${returnType}|error`);
+                    existingFunctionRegex = createExistingFunctionSignatureRegex(functionName);
+                    const existingFunctionMatch = originalContent.match(existingFunctionRegex);
+
+                    if (existingFunctionMatch) {
+                        shouldMergeFunction = true;
+                    }
+                }
 
                 const imports = segmentText.match(importRegex) || [];
                 const codeWithoutImports = segmentText.replace(importRegex, "").trim();
 
-                let updatedContent = originalContent;
+                updatedContent = removeFunctionBody(originalContent, functionName);
 
                 // Extract existing comments at the top
                 const commentMatch = updatedContent.match(commentRegex);
@@ -1048,8 +1175,41 @@ export function AIChat() {
                     }
                 });
 
-                updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}\n${codeWithoutImports}`;
+                if (shouldMergeFunction) {
+                    const existingFunctionWithoutErrorRegex = createFunctionWithoutErrorTypeRegex(
+                        functionName,
+                        returnType
+                    );
+                    const missingErrorType = existingFunctionWithoutErrorRegex.test(updatedContent) && hasErrorType;
+
+                    if (missingErrorType) {
+                        const addErrorTypeRegex = createAddErrorTypeRegex(functionName, returnType);
+                        updatedContent = updatedContent.replace(addErrorTypeRegex, `$1|error $2`);
+                    }
+
+                    const arrowFunctionSignatureRegex = createArrowFunctionSignatureRegex(functionName, returnType);
+                    const regularFunctionSignatureRegex = createRegularFunctionSignatureRegex(functionName, returnType);
+                    const isExpressionBody = /^\s*from\b/.test(functionBody);
+
+                    if (arrowFunctionSignatureRegex.test(updatedContent)) {
+                        updatedContent = updatedContent.replace(arrowFunctionSignatureRegex, (match, signature) => {
+                            return isExpressionBody
+                                ? `${signature} => ${functionBody}`
+                                : `${signature} => {\n    ${functionBody}\n}`;
+                        });
+                    } else if (regularFunctionSignatureRegex.test(updatedContent)) {
+                        updatedContent = updatedContent.replace(regularFunctionSignatureRegex, (match, signature) => {
+                            return `${signature} {\n    ${functionBody}\n}`;
+                        });
+                    }
+
+                    updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}`;
+                } else {
+                    updatedContent = `${existingComments}${additionalComments}${updatedImports}${updatedContent}\n${codeWithoutImports}`;
+                }
+
                 segmentText = updatedContent.trim();
+                await rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: segmentText });
             } else if (command === "test") {
                 segmentText = `${originalContent}\n\n${segmentText}`;
             } else {
@@ -1135,6 +1295,7 @@ export function AIChat() {
                     isTestCode = true;
                 }
                 const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
+                rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: revertContent });
                 await rpcClient
                     .getAiPanelRpcClient()
                     .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
@@ -1406,8 +1567,8 @@ export function AIChat() {
             }
             const generatedFullSource = existingSource
                 ? existingSource +
-                "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
-                response.testSource
+                  "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
+                  response.testSource
                 : response.testSource;
 
             const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics({
@@ -1458,6 +1619,120 @@ export function AIChat() {
         }
     }
 
+    // Process records from another package
+    function processRecordReference(
+        recordName: string,
+        recordMap: Map<string, any>,
+        allImports: Array<{ moduleName: string; alias?: string }>,
+        importsMap: Map<string, { moduleName: string; alias?: string; recordName: string }>
+    ): DataMappingRecord | Error {
+        const isArray = recordName.endsWith("[]");
+        const cleanedRecordName = recordName.replace(/\[\]$/, "");
+        const rec = recordMap.get(cleanedRecordName);
+
+        if (!rec) {
+            if (cleanedRecordName.includes(":")) {
+                if (!cleanedRecordName.includes("/")) {
+                    const [moduleName, recordName] = cleanedRecordName.split(":");
+                    const matchedImport = allImports.find((imp) => {
+                        if (imp.alias) {
+                            return cleanedRecordName.startsWith(imp.alias);
+                        }
+                        const moduleNameParts = imp.moduleName.split(".");
+                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
+                        return cleanedRecordName.startsWith(inferredAlias);
+                    });
+
+                    if (!matchedImport) {
+                        return INVALID_RECORD_REFERENCE;
+                    }
+                    importsMap.set(cleanedRecordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: matchedImport.alias,
+                        recordName: recordName,
+                    });
+                } else {
+                    const [moduleName, recordName] = cleanedRecordName.split(":");
+                    importsMap.set(cleanedRecordName, {
+                        moduleName: moduleName,
+                        recordName: recordName,
+                    });
+                }
+                return { type: `${cleanedRecordName}`, isArray, filePath: null };
+            } else {
+                throw new Error(`${cleanedRecordName} is not defined.`);
+            }
+        }
+        return { ...rec, isArray };
+    }
+
+    // Processes existing functions to find a matching function by name
+    async function processExistingFunctions(
+        existingFunctions: ExistingFunction[],
+        functionName: string
+    ): Promise<{
+        match: RegExpMatchArray | null;
+        functionNameMatch: boolean;
+        matchingFunctionFile: string | null;
+    }> {
+        for (const func of existingFunctions) {
+            const functionContent = await rpcClient.getAiPanelRpcClient().getFromFile({
+                filePath: func.filePath.split("/").pop(),
+            });
+
+            const fileName = func.filePath.split("/").pop();
+            const signatureRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^{=]+)(?:\s*=>\s*)?/g;
+
+            // Use matchAll to find all function signatures in the content
+            const matches = [...functionContent.matchAll(signatureRegex)];
+
+            // Check if any of the function signatures match the target function name
+            for (const match of matches) {
+                const funcName = match[1];
+                if (funcName === functionName) {
+                    return {
+                        match,
+                        functionNameMatch: true,
+                        matchingFunctionFile: fileName,
+                    };
+                }
+            }
+        }
+
+        // If no match is found
+        return {
+            match: null,
+            functionNameMatch: false,
+            matchingFunctionFile: null,
+        };
+    }
+
+    // Process input parameters
+    function processInputs(inputParams: string[], recordMap: Map<any, any>, allImports: ImportStatement[], importsMap: Map<any, any>) {
+        let results = inputParams.map((param: string) => processRecordReference(param, recordMap, allImports, importsMap));
+        return results.filter((result): result is DataMappingRecord => {
+            if (result instanceof Error) {
+                throw INVALID_RECORD_REFERENCE;
+            }
+            return true;
+        });
+    }
+
+    // Process Output parameters
+    function processOutput(outputParam: string, recordMap: Map<any, any>, allImports: { moduleName: string; alias?: string; }[], importsMap: Map<any, any>) {
+        const parts = outputParam.split("|");
+        const validParts = parts.filter((name: string) => name !== "error");
+        if (validParts.length > 1) {
+            throw new Error(`Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`);
+        }
+        const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
+        const outputResult = processRecordReference(cleanedOutputRecordName, recordMap, allImports, importsMap);
+        if (outputResult instanceof Error) {
+            throw INVALID_RECORD_REFERENCE;
+        }
+        return outputResult;
+    }
+
     async function processMappingParameters(
         message: string,
         token: string,
@@ -1468,11 +1743,15 @@ export function AIChat() {
         let newImports;
         const recordMap = new Map();
         const importsMap = new Map();
+        let inputs: DataMappingRecord[];
+        let output;
+        let inputParams;
+        let outputParam;
+        let inputNames: string[] = [];
+        let result;
         setIsLoading(true);
 
-        const inputParams = parameters.inputRecord;
-        const outputParam = parameters.outputRecord;
-        const functionName = parameters.functionName || "transform";
+        const functionName = parameters.functionName;
 
         const invalidPattern = /[<>\/\(\)\{\}\[\]\\!@#$%^&*_+=|;:'",.?`~]/;
 
@@ -1493,6 +1772,8 @@ export function AIChat() {
             }
         });
 
+        const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number; }[] = [];
+
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
                 let filepath = pkg.filePath;
@@ -1503,107 +1784,42 @@ export function AIChat() {
                     const recFilePath = filepath + rec.filePath;
                     recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
                 });
+
+                // Collect functions
+                mod.functions?.forEach((func) => {
+                    existingFunctions.push({
+                        name: func.name,
+                        filePath: filepath + func.filePath,
+                        startLine: func.startLine,
+                        endLine: func.endLine
+                    });
+                });
             });
         });
 
-        const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
-            const isArray = param.endsWith("[]");
-            const importedRecordName = param.replace(/\[\]$/, "");
-            const rec = recordMap.get(importedRecordName);
-
-            if (!rec) {
-                if (importedRecordName.includes(":")) {
-                    if (!importedRecordName.includes("/")) {
-                        const [moduleName, recordName] = importedRecordName.split(":");
-                        const matchedImport = allImports.find((imp) => {
-                            if (imp.alias) {
-                                // Match using alias if it exists
-                                return importedRecordName.startsWith(imp.alias);
-                            }
-                            // If alias doesn't exist, match using the last part of the module name
-                            const moduleNameParts = imp.moduleName.split(".");
-                            const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                            return importedRecordName.startsWith(inferredAlias);
-                        });
-
-                        if (!matchedImport) {
-                            return INVALID_RECORD_REFERENCE;
-                        }
-                        // Use the actual alias if present, otherwise infer from the module name
-                        const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                        importsMap.set(importedRecordName, {
-                            moduleName: matchedImport.moduleName,
-                            alias: matchedImport.alias,
-                            recordName: recordName,
-                        });
-                    } else {
-                        const [moduleName, recordName] = importedRecordName.split(":");
-                        importsMap.set(importedRecordName, {
-                            moduleName: moduleName,
-                            recordName: recordName,
-                        });
-                    }
-                    return { type: `${importedRecordName}`, isArray, filePath: null };
-                } else {
-                    throw new Error(`${importedRecordName} is not defined.`);
-                }
+        if (parameters.inputRecord.length > 0 || parameters.outputRecord !== "") {
+            result = await processExistingFunctions(existingFunctions, functionName);
+            if (result.functionNameMatch) {
+                throw new Error(`A function named "${functionName}" exists in '${result.matchingFunctionFile}'. Please provide a valid function name.`);
             }
-            return { ...rec, isArray };
-        });
-
-        const parts = outputParam.split("|");
-        const validParts = parts.filter((name) => name !== "error");
-        if (validParts.length > 1) {
-            throw new Error(
-                `Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`
-            );
-        }
-        const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
-
-        const outputRecordName = cleanedOutputRecordName.replace(/\[\]$/, "");
-        const outputIsArray = cleanedOutputRecordName.endsWith("[]");
-
-        let output = recordMap.get(outputRecordName);
-
-        if (!output) {
-            if (outputRecordName.includes(":")) {
-                if (!outputRecordName.includes("/")) {
-                    const [moduleName, recordName] = outputRecordName.split(":");
-                    const matchedImport = allImports.find((imp) => {
-                        if (imp.alias) {
-                            // Match using alias if it exists
-                            return outputRecordName.startsWith(imp.alias);
-                        }
-                        // If alias doesn't exist, match using the last part of the module name
-                        const moduleNameParts = imp.moduleName.split(".");
-                        const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
-                        return outputRecordName.startsWith(inferredAlias);
-                    });
-
-                    if (!matchedImport) {
-                        return INVALID_RECORD_REFERENCE;
-                    }
-                    // Use the actual alias if present, otherwise infer from the module name
-                    const resolvedAlias = matchedImport.alias || matchedImport.moduleName.split(".").pop();
-                    importsMap.set(outputRecordName, {
-                        moduleName: matchedImport.moduleName,
-                        alias: matchedImport.alias,
-                        recordName: recordName,
-                    });
-                } else {
-                    const [moduleName, recordName] = outputRecordName.split(":");
-                    importsMap.set(outputRecordName, {
-                        moduleName: moduleName,
-                        recordName: recordName,
-                    });
-                }
-                output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
-            } else {
-                throw new Error(`${outputRecordName} is not defined.`);
-            }
+            inputParams = parameters.inputRecord;
+            outputParam = parameters.outputRecord;
         } else {
-            output = { ...output, isArray: outputIsArray };
+            if (existingFunctions.length === 0) {
+                throw new Error(`A function named "${functionName}" was not found in the project. Please provide a valid function name.`);
+            }
+            result = await processExistingFunctions(existingFunctions, functionName);
+            if (!result.functionNameMatch) {
+                throw new Error(`A function named "${functionName}" was not found in the project. Please provide a valid function name.`);
+            }
+            const params = result.match[2].split(/,\s*/).map(param => param.trim().split(/\s+/));
+            inputParams = params.map(parts => parts[0]);
+            inputNames = params.map(parts => parts[1]);
+            outputParam = result.match[3].trim();
         }
+
+        inputs = processInputs(inputParams, recordMap, allImports, importsMap);
+        output = processOutput(outputParam, recordMap, allImports, importsMap);
 
         const requestPayload: any = {
             backendUri: "",
@@ -1612,6 +1828,7 @@ export function AIChat() {
             outputRecordType: output,
             functionName,
             imports: Array.from(importsMap.values()),
+            inputNames: inputNames,
         };
         if (attachments && attachments.length > 0) {
             requestPayload.attachment = attachments;
@@ -1628,8 +1845,14 @@ export function AIChat() {
         assistant_response += `- **Output Record**: ${outputParam}\n`;
         assistant_response += `- **Function Name**: ${functionName}\n`;
 
+        if (result.functionNameMatch) {
+            assistant_response += `\n**Note**: When you click **Add to Integration**, it will override your existing mappings.\n`;
+        }
+
         let filePath;
-        if (activeFile && activeFile.endsWith(".bal")) {
+        if (result.functionNameMatch) {
+            filePath = result.matchingFunctionFile;
+        } else if (activeFile && activeFile.endsWith(".bal")) {
             filePath = activeFile;
         } else {
             filePath = "data_mappings.bal";
@@ -1725,14 +1948,12 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    async function findInDocumentation(message: string, token: string) {
+    async function findInDocumentation(token: string, messageBody: string, message: string) {
         let assistant_response = "";
         let formatted_response = ";";
         setIsLoading(true);
         try {
-            console.log("Searching for: " + message, +"Token: ", token);
-            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(message);
-            //console.log("Assistant Response: " + assistant_response);
+            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);
 
             formatted_response = assistant_response.replace(
                 /```ballerina\s*([\s\S]+?)\s*```/g,
@@ -1760,22 +1981,26 @@ export function AIChat() {
             setIsLoading(false);
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += `Failed fetching data from documentation: ${error}`;
+                newMessages[
+                    newMessages.length - 1
+                ].content += `An unknown error occurred while fetching data from the documentation`;
                 newMessages[newMessages.length - 1].type = "Error";
                 return newMessages;
             });
-            throw new Error("Failed fetching");
+            return;
         }
-
         addChatEntry("user", message);
         addChatEntry("assistant", formatted_response);
     }
 
     async function processHealthcareCodeGeneration(token: string, useCase: string, message: string) {
         let assistant_response = "";
-        const project: ProjectSource = await rpcClient
-            .getAiPanelRpcClient()
-            .getProjectSource(CodeGenerationType.CODE_GENERATION);
+        let project: ProjectSource;
+        try {
+            project = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
+        } catch (error) {
+            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+        }
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
@@ -2203,7 +2428,9 @@ export function AIChat() {
 
         try {
             const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-            const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
+            const project: ProjectSource = await rpcClient
+                .getAiPanelRpcClient()
+                .getProjectSource(CodeGenerationType.CODE_GENERATION);
 
             const usecase = messages[messages.length - 2].content;
             const latestMessage = messages[messages.length - 1].content;
@@ -2219,8 +2446,8 @@ export function AIChat() {
                 sourceFiles: project.sourceFiles,
                 diagnosticRequest: diagReq,
                 functions: functions,
-                operationType: CodeGenerationType.CODE_GENERATION
-            }
+                operationType: CodeGenerationType.CODE_GENERATION,
+            };
             console.log("Request body for repair:", reqBody);
             const response = await fetchWithToken(
                 backendRootUri + "/code/repair",
@@ -2250,7 +2477,8 @@ export function AIChat() {
 
             fixedResponse = postProcessResp.assistant_response;
             setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
-
+            const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(fixedResponse);
+            setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
                 newMessages[newMessages.length - 1].content = fixedResponse;
@@ -2397,6 +2625,7 @@ export function AIChat() {
                                                 codeSegments.unshift({
                                                     source: prevSegment.text.trim(),
                                                     fileName: prevSegment.fileName,
+                                                    language: prevSegment.language,
                                                 });
                                             } else if (
                                                 prevSegment.type === SegmentType.Text &&
@@ -2425,6 +2654,7 @@ export function AIChat() {
                                                 command={segment.command}
                                                 diagnostics={currentDiagnostics}
                                                 onRetryRepair={handleRetryRepair}
+                                                isPromptExecutedInCurrentWindow={isPromptExecutedInCurrentWindow}
                                             />
                                         );
                                     }
@@ -2461,7 +2691,16 @@ export function AIChat() {
                                         </div>
                                     );
                                 } else if (segment.type === SegmentType.InlineCode) {
-                                    return <BallerinaCodeBlock key={i} code={segment.text} />;
+                                    // return <BallerinaCodeBlock key={i} code={segment.text} />;
+                                    return (
+                                        <CodeSegment
+                                            source={segment.text}
+                                            fileName={"Ballerina"}
+                                            language={"ballerina"}
+                                            collapsible={false}
+                                            showCopyButton={true}
+                                        />
+                                    );
                                 } else if (segment.type === SegmentType.References) {
                                     return <ReferenceDropdown key={i} links={JSON.parse(segment.text)} />;
                                 } else if (segment.type === SegmentType.TestScenario) {
@@ -2516,8 +2755,6 @@ export function AIChat() {
                                             </div>
                                         );
                                     }
-                                } else if (message.role === "User") {
-                                    return <TextWithBadges text={segment.text} />;
                                 } else {
                                     if (message.type === "Error") {
                                         return (
@@ -2599,233 +2836,6 @@ export function AIChat() {
         </AIChatView>
     );
 }
-
-// ---------- CODE-SEGMENT ----------
-
-interface EntryContainerProps {
-    isOpen: boolean;
-}
-
-const EntryContainer = styled.div<{ hasErrors: boolean }>(({ hasErrors }: { hasErrors: boolean }) => ({
-    display: "flex",
-    alignItems: "center",
-    marginTop: "10px",
-    cursor: "pointer",
-    padding: "10px",
-    backgroundColor: "var(--vscode-list-hoverBackground)",
-    // backgroundColor: hasErrors 
-    // ? "var(--vscode-inputValidation-warningBackground)" 
-    // : "var(--vscode-list-hoverBackground)",
-    "&:hover": {
-        backgroundColor: "var(--vscode-badge-background)",
-    },
-}));
-
-const CodeSegmentHeader = styled.div({
-    display: "flex",
-    alignItems: "center",
-    marginTop: "10px",
-    cursor: "pointer",
-    padding: "6px 8px",
-    backgroundColor: "var(--vscode-list-hoverBackground)",
-});
-
-interface CodeSegmentProps {
-    source: string;
-    fileName: string;
-    language?: string;
-}
-
-const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language = "ballerina" }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <div>
-            <CodeSegmentHeader onClick={() => setIsOpen(!isOpen)}>
-                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                    {isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                    {fileName}
-                </div>
-            </CodeSegmentHeader>
-            <Collapse isOpened={isOpen}>
-                <div style={{ backgroundColor: "var(--vscode-list-hoverBackground)", padding: "6px" }}>
-                    <pre
-                        style={{
-                            backgroundColor: "var(--vscode-editorWidget-background)",
-                            margin: 0,
-                            padding: 2,
-                            borderRadius: 6,
-                        }}
-                    >
-                        <SyntaxHighlighter
-                            language={language}
-                            style={{
-                                'pre[class*="language-"]': {
-                                    backgroundColor: "var(--vscode-editorWidget-background)",
-                                    color: "var(--vscode-editor-foreground)",
-                                    overflowX: "auto",
-                                    padding: "6px",
-                                },
-                                'code[class*="language-"]': {
-                                    backgroundColor: "var(--vscode-editorWidget-background)",
-                                    color: "var(--vscode-editor-foreground)",
-                                },
-                            }}
-                        >
-                            {source}
-                        </SyntaxHighlighter>
-                    </pre>
-                </div>
-            </Collapse>
-        </div>
-    );
-};
-
-interface CodeSectionProps {
-    codeSegments: CodeSegmentProps[];
-    loading: boolean;
-    isReady: boolean;
-    handleAddAllCodeSegmentsToWorkspace: (
-        codeSegment: any,
-        setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
-    ) => void;
-    handleRevertChanges: (
-        codeSegment: any,
-        setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
-        command: string
-    ) => void;
-    message: { role: string; content: string; type: string };
-    buttonsActive: boolean;
-    isSyntaxError: boolean;
-    command: string;
-    diagnostics: any[],
-    onRetryRepair: () => {},
-}
-
-const CodeSection: React.FC<CodeSectionProps> = ({
-    codeSegments,
-    loading,
-    isReady,
-    handleAddAllCodeSegmentsToWorkspace,
-    handleRevertChanges,
-    message,
-    buttonsActive,
-    isSyntaxError,
-    command,
-    diagnostics = [],
-    onRetryRepair = () => { },
-}) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isCodeAdded, setIsCodeAdded] = useState(false);
-
-    const language = "ballerina";
-    let isTestCode = false;
-    if (command === "test") {
-        isTestCode = true;
-    }
-    let name = loading
-        ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
-        : isTestCode
-            ? "Ballerina Tests"
-            : "Ballerina Integration";
-
-    const allCodeSegments = splitContent(message.content)
-        .filter((segment) => segment.type === SegmentType.Code)
-        .map((segment) => ({ segmentText: segment.text, filePath: segment.fileName }));
-
-    function isRepairButtonVisisble() {
-        return !loading && isReady && diagnostics.length > 0 && command === "code" && !isCodeAdded
-    }
-        
-    return (
-        <div>
-            <EntryContainer hasErrors={isRepairButtonVisisble()} onClick={() => !loading && setIsOpen(!isOpen)}>
-                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                    {!loading && isReady && language === "ballerina" && (
-                        !isOpen ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />
-                    )}
-                    {/* Show spinner during generation or repair */}
-                    {(loading) && <Spinner className="codicon codicon-loading spin"role="img"></Spinner>}
-                    {name}
-                </div>
-
-                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
-
-                    {/* Show warning icon if diagnostics exist */}
-                    {isRepairButtonVisisble() && (
-                        <Button
-                            appearance="icon"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onRetryRepair();
-                            }}
-                            disabled={loading}
-                            tooltip={`Click to auto-resolve errors of the generated integration with AI: \nErrors:\n${diagnostics.map(d => d.message).join("\n")}`}                        >
-                            <Codicon name="sync" />
-                        </Button>
-                    )}
-
-                    {/* TODO see why Add to integration either Revert button is visible */}
-                    {!loading && isReady && language === "ballerina" && (
-                        <>
-                            {!isCodeAdded ? (
-                                <Button
-                                    appearance="icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAddAllCodeSegmentsToWorkspace(allCodeSegments, setIsCodeAdded, command);
-                                    }}
-                                    tooltip={
-                                        isSyntaxError
-                                            ? "Syntax issues detected in generated integration. Reattempt required"
-                                            : ""
-                                    }
-                                    disabled={!buttonsActive || isSyntaxError}
-                                >
-                                    <Codicon name="add" />
-                                    &nbsp;&nbsp;Add to Integration
-                                </Button>
-                            ) : (
-                                <Button
-                                    appearance="icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
-                                    }}
-                                    disabled={!buttonsActive}
-                                >
-                                    <Codicon name="history" />
-                                    &nbsp;&nbsp;Revert to Checkpoint
-                                </Button>
-                            )}
-                        </>
-                    )}
-                </div>
-            </EntryContainer>
-            <Collapse isOpened={isOpen}>
-                <div
-                    style={{
-                        backgroundColor: "var(--vscode-editorWidget-background)",
-                        padding: "8px",
-                        gap: "8px",
-                        display: "flex",
-                        flexDirection: "column",
-                    }}
-                >
-                    {codeSegments.map((segment, index) => (
-                        <CodeSegment
-                            key={index}
-                            source={segment.source}
-                            fileName={segment.fileName}
-                            language={segment.language}
-                        />
-                    ))}
-                </div>
-            </Collapse>
-        </div>
-    );
-};
 
 export function replaceCodeBlocks(originalResp: string, newResp: string): string {
     // Create a map to store new code blocks by filename
@@ -2971,7 +2981,7 @@ export function getProjectFromResponse(req: string): ProjectSource {
     return { sourceFiles };
 }
 
-enum SegmentType {
+export enum SegmentType {
     Code = "Code",
     Text = "Text",
     Progress = "Progress",

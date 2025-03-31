@@ -75,6 +75,7 @@ import {
     ThrowError
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
+import { getTextSizes } from "../utils/node";
 
 export class PositionVisitor implements Visitor {
     private position = {
@@ -376,10 +377,14 @@ export class PositionVisitor implements Visitor {
     endVisitForeach = (node: Foreach): void => this.setSkipChildrenVisit(false);
     //Filter Mediators
     beginVisitFilter = (node: Filter): void => {
-        this.setAdvancedMediatorPosition(node, {
-            then: node.then,
-            else: node.else_
-        }, NodeTypes.CONDITION_NODE);
+        const branches: any = {};
+        if (node.then) {
+            branches.then = node.then;
+        }
+        if (node.else_) {
+            branches.else = node.else_;
+        }
+        this.setAdvancedMediatorPosition(node, branches, NodeTypes.CONDITION_NODE);
     }
     endVisitFilter = (node: Filter): void => this.setSkipChildrenVisit(false);
     beginVisitSwitch = (node: Switch): void => {
@@ -387,9 +392,10 @@ export class PositionVisitor implements Visitor {
         node._case.map((_case, index) => {
             cases[_case.regex || index] = _case;
         });
-        this.setAdvancedMediatorPosition(node, {
-            ...cases, default: node._default
-        }, NodeTypes.CONDITION_NODE, true, "default");
+        if (node._default) {
+            cases.default = node._default;
+        }
+        this.setAdvancedMediatorPosition(node, cases, NodeTypes.CONDITION_NODE, true, node._default ? "default" : undefined);
     }
     endVisitSwitch = (node: Switch): void => this.setSkipChildrenVisit(false);
 
@@ -497,6 +503,35 @@ export class PositionVisitor implements Visitor {
     beginVisitConnector = (node: Connector): void => {
         this.skipChildrenVisit = true;
         this.setBasicMediatorPosition(node);
+
+        if (node.connectorName === 'ai') {
+            const tools = node.tools;
+            const toolsList = tools?.tools;
+
+            if (tools) {
+                const systemPrompt = node?.parameters?.filter((property: any) => property.name === "system")[0]?.value;
+                const prompt = node?.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
+                const systenPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160, 8);
+                const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160, 8);
+                const systemPromptHeight = systemPrompt ? 36 + systenPromptSize.height : 0;
+                const promptHeight = prompt ? 36 + promptSize.height : 0;
+                const toolsStartY = node.viewState.y + NODE_GAP.AI_AGENT_TOP + systemPromptHeight + 5 + promptHeight + 30;
+
+                let y = toolsStartY;
+                if (toolsList?.length > 0) {
+                    for (let i = 0; i < toolsList.length; i++) {
+                        const toolNode = toolsList[i];
+
+                        toolNode.viewState.x = this.position.x - (toolNode.viewState.w / 2);
+                        toolNode.viewState.y = y;
+                        y = toolNode.viewState.y + toolNode.viewState.h + NODE_GAP.AI_AGENT_TOOLS_Y;
+                    }
+                }
+
+                tools.viewState.x = this.position.x - (NODE_DIMENSIONS.PLUS.WIDTH / 2);
+                tools.viewState.y = Math.max(y, toolsStartY);
+            }
+        }
     }
     endVisitConnector(node: Connector): void {
         this.skipChildrenVisit = false;

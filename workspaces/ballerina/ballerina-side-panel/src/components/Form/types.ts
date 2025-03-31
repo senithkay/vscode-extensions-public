@@ -27,6 +27,7 @@ export type FormField = {
     placeholder?: string;
     documentation: string;
     value: string | any[];
+    advanceProps?: FormField[];
     valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
@@ -156,6 +157,7 @@ type FormHelperPaneConditionalProps = {
 }
 
 type FormExpressionEditorBaseProps = {
+    growRange?: { start: number; offset: number };
     getExpressionEditorDiagnostics?: (
         showDiagnostics: boolean,
         expression: string,

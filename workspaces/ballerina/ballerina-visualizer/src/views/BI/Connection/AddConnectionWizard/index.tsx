@@ -7,13 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import {
     AvailableNode,
     EVENT_TYPE,
     FlowNode,
     LinePosition,
+    LineRange,
     MACHINE_VIEW,
     RunExternalCommandResponse,
     SubPanel,
@@ -23,12 +24,13 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectorView from "../ConnectorView";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { getFormProperties } from "../../../../utils/bi";
-import { ExpressionFormField, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { ExpressionFormField, FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { Icon, Overlay, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 import { InlineDataMapper } from "../../../InlineDataMapper";
 import { HelperView } from "../../HelperView";
 import { BodyText } from "../../../styles";
 import { DownloadIcon } from "../../../../components/DownloadIcon";
+import FormGeneratorNew from "../../Forms/FormGeneratorNew";
 
 const Container = styled.div`
     width: 100%;
@@ -59,6 +61,7 @@ const StatusText = styled(Typography)`
 enum WizardStep {
     CONNECTOR_LIST = "connector-list",
     CONNECTION_CONFIG = "connection-config",
+    GENERATE_CONNECTOR = "generate-connector",
 }
 
 enum PullingStatus {
@@ -92,6 +95,33 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
     const [fetchingInfo, setFetchingInfo] = useState<boolean>(false);
+    const [connectorsViewKey, setConnectorsViewKey] = useState(0);
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
+    const [genConnectorFields, setGenConnectorFields] = useState<FormField[]>([
+        {
+            key: `module`,
+            label: "Module",
+            type: "string",
+            optional: false,
+            editable: true,
+            documentation: "Name of the connector",
+            enabled: true,
+            value: "",
+            valueTypeConstraint: "",
+            diagnostics: [],
+        },
+        {
+            key: `openApiSpecPath`,
+            label: "OpenAPI Spec",
+            type: "FILE_SELECT",
+            optional: false,
+            editable: true,
+            documentation: "",
+            enabled: true,
+            value: "",
+            valueTypeConstraint: "",
+        },
+    ]);
 
     const handleOnSelectConnector = async (connector: AvailableNode) => {
         if (!connector.codedata) {
@@ -127,12 +157,20 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         }
     };
 
+    const handleOnAddGeneratedConnector = () => {
+        setCurrentStep(WizardStep.GENERATE_CONNECTOR);
+    };
+
     const handleOnFormSubmit = async (node: FlowNode) => {
         console.log(">>> on form submit", node);
         if (selectedNodeRef.current) {
             setSavingFormStatus(SavingFormStatus.SAVING);
             const visualizerLocation = await rpcClient.getVisualizerLocation();
             let connectionsFilePath = visualizerLocation.documentUri || visualizerLocation.projectUri;
+
+            if (node.codedata.isGenerated && !connectionsFilePath.endsWith(".bal")) {
+                connectionsFilePath += "/main.bal";
+            }
 
             if (connectionsFilePath === "") {
                 console.error(">>> Error updating source code. No source file found");
@@ -168,6 +206,31 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         setSavingFormStatus(SavingFormStatus.ERROR);
                     }
                 });
+        }
+    };
+
+    const handleOnGenerateSubmit = async (data: FormValues) => {
+        // Note: Project path is empty as the value is overridden in the rpc client
+        const response = await rpcClient
+            .getBIDiagramRpcClient()
+            .generateOpenApiClient({ openApiContractPath: data["openApiSpecPath"], projectPath: "", module: data["module"] });
+        if (response.errorMessage) {
+            setGenConnectorFields((prevFields) =>
+                prevFields.map((field) =>
+                    field.key === "module"
+                        ? {
+                              ...field,
+                              diagnostics: [
+                                  ...field.diagnostics,
+                                  { message: response.errorMessage, severity: "ERROR" },
+                              ],
+                          }
+                        : field
+                )
+            );
+        } else {
+            handleOnBack();
+            setConnectorsViewKey((prev) => prev + 1);
         }
     };
 
@@ -222,70 +285,19 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         });
     };
 
-    const handlePullConnector = async () => {
-        if (!selectedNodeRef.current) {
-            console.error(">>> Error pulling connector. No node found");
-            return;
-        }
-        setPullingStatus(PullingStatus.PULLING);
-        try {
-            const connector = selectedNodeRef.current;
-            if (connector.codedata.org === "ballerina") {
-                console.log(">>> Ballerina org is already pulled");
-                setPullingStatus(PullingStatus.SUCCESS);
-                return true;
-            }
-
-            const command = `bal pull ${connector.codedata.org}/${connector.codedata.module}`;
-            console.log(">>> Module pull command", command);
-            const commonRpcClient = await rpcClient.getCommonRpcClient();
-            const runCommandResponse = await commonRpcClient.runBackgroundTerminalCommand({
-                command: command,
-            });
-            console.log(">>> Run command response", runCommandResponse);
-            const processedResponseStatus = handleRunCommandResponse(runCommandResponse);
-            if (processedResponseStatus === PullingStatus.EXISTS) {
-                setPullingStatus(PullingStatus.EXISTS);
-                return true;
-            }
-            if (processedResponseStatus === PullingStatus.ERROR) {
-                setPullingStatus(PullingStatus.ERROR);
-                return false;
-            }
-            // pull driver if connector is dependent on driver
-            if (isConnectorDependOnDriver(connector.codedata.module)) {
-                const driverCommand = `bal pull ${connector.codedata.org}/${connector.codedata.module}.driver`;
-                console.log(">>> Module driver pull command", driverCommand);
-                const driverRunCommandResponse = await commonRpcClient.runBackgroundTerminalCommand({
-                    command: driverCommand,
-                });
-                console.log(">>> Module driver pull command response", driverRunCommandResponse);
-                const processedDriverResponseStatus = handleRunCommandResponse(driverRunCommandResponse);
-                if (processedDriverResponseStatus === PullingStatus.ERROR) {
-                    setPullingStatus(PullingStatus.ERROR);
-                    return false;
-                }
-            }
-            setPullingStatus(PullingStatus.SUCCESS);
-            return true;
-        } catch (error) {
-            console.error(">>> Error pulling connector", error);
-            setPullingStatus(PullingStatus.ERROR);
-            return false;
-        }
-    };
-
     return (
         <Container>
             <>
                 <ConnectorView
+                    key={connectorsViewKey}
                     fileName={fileName}
                     targetLinePosition={target}
                     onSelectConnector={handleOnSelectConnector}
+                    onAddGeneratedConnector={handleOnAddGeneratedConnector}
                     fetchingInfo={fetchingInfo}
                     onClose={onClose}
                 />
-                {currentStep === WizardStep.CONNECTION_CONFIG && (
+                {(currentStep === WizardStep.CONNECTION_CONFIG || currentStep === WizardStep.GENERATE_CONNECTOR) && (
                     <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 2000 }} />
                 )}
             </>
@@ -345,6 +357,39 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                             isPullingConnector={
                                 pullingStatus === PullingStatus.PULLING || savingFormStatus === SavingFormStatus.SAVING
                             }
+                        />
+                        {savingFormStatus === SavingFormStatus.SAVING && (
+                            <BodyText style={{ padding: "20px 20px 0 20px" }}>Saving connection ...</BodyText>
+                        )}
+                        {savingFormStatus === SavingFormStatus.SUCCESS && (
+                            <BodyText style={{ padding: "20px 20px 0 20px" }}>Connection saved successfully.</BodyText>
+                        )}
+                        {savingFormStatus === SavingFormStatus.ERROR && (
+                            <BodyText style={{ padding: "20px 20px 0 20px" }}>Error saving connection.</BodyText>
+                        )}
+                    </>
+                </PanelContainer>
+            )}
+            {!fetchingInfo && currentStep === WizardStep.GENERATE_CONNECTOR && (
+                <PanelContainer
+                    show={true}
+                    title={`Generate a new connector`}
+                    onClose={onClose ? onClose : handleOnBack}
+                    width={400}
+                    subPanelWidth={400}
+                    onBack={handleOnBack}
+                >
+                    <>
+                        <BodyText style={{ padding: "20px 20px 0 20px" }}>
+                            Provide the necessary details to generate the connector.
+                        </BodyText>
+                        <FormGeneratorNew
+                            fileName={fileName}
+                            targetLineRange={targetLineRange}
+                            fields={genConnectorFields}
+                            onSubmit={handleOnGenerateSubmit}
+                            submitText={"Generate"}
+                            nestedForm={false}
                         />
                         {savingFormStatus === SavingFormStatus.SAVING && (
                             <BodyText style={{ padding: "20px 20px 0 20px" }}>Saving connection ...</BodyText>

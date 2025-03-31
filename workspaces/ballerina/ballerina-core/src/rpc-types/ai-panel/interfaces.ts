@@ -53,6 +53,7 @@ export interface DiagnosticEntry {
 export interface InitialPrompt {
     exists: boolean;
     text: string;
+    dataMappingFunctionName?: string;
 }
 
 export interface AIVisualizerState {
@@ -150,6 +151,7 @@ export interface GenerateMappingsFromRecordRequest {
     outputRecordType: DataMappingRecord;
     functionName: string;
     imports: { moduleName: string; alias?: string }[];
+    inputNames?: string[];
     attachment?: AttachmentResult[]
 }
 
@@ -217,4 +219,11 @@ export interface DocAssistantResponse {
 export interface LLMDiagnostics {
     statusCode: number;
     diags: string;
+}
+
+export interface ExistingFunction {
+    name: string; 
+    filePath: string; 
+    startLine: number; 
+    endLine: number;
 }

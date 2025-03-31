@@ -7,12 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import styled from '@emotion/styled';
-import React, { forwardRef, ReactNode } from 'react';
-import { ExpressionEditor } from './ExpressionEditor';
-import { InputProps } from '../TextField/TextField';
+import { ReactNode } from 'react';
+import { InputProps } from '../../TextField/TextField';
 
-// Types
+/* <------ Types related to the completions ------> */
+
 export const COMPLETION_ITEM_KIND = {
     Array: 'array',
     Alias: 'alias',
@@ -57,51 +56,80 @@ export const COMPLETION_ITEM_KIND = {
 
 export type CompletionItemKind = (typeof COMPLETION_ITEM_KIND)[keyof typeof COMPLETION_ITEM_KIND];
 
+type TextEdit = {
+    newText: string;
+    range: {
+        end: {
+            character: number;
+            line: number;
+        };
+        start: {
+            character: number;
+            line: number;
+        };
+    };
+};
+
+/**
+ * Represents an item that can appear in the auto-completion dropdown
+ *
+ * @param tag - Module name or category label shown for imported completions
+ * @param label - Display text shown in the completion list
+ * @param value - Actual text that will be inserted when selected
+ * @param description - Additional details shown alongside the completion
+ * @param kind - Type of completion (e.g. function, variable, etc)
+ * @param replacementSpan - (Optional) Number of characters to delete after cursor before inserting completion
+ * @param sortText - (Optional) Custom text used to control ordering in the completion list
+ * @param cursorOffset - (Optional) Where to place cursor after inserting
+ * @param additionalTextEdits - (Optional) Additional text edits to be performed after inserting the completion
+ */
 export type CompletionItem = {
     tag?: string;
     label: string;
     value: string;
     description?: string;
     kind: CompletionItemKind;
-    args?: string[];
     replacementSpan?: number;
     sortText?: string;
     cursorOffset?: number;
+    additionalTextEdits?: TextEdit[];
 };
 
-export type ExpressionBarBaseProps = {
+/* <------ Types related to the expression editor ------> */
+
+type ExpressionEditorBaseProps = {
     autoFocus?: boolean;
     disabled?: boolean;
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
+    completionSx?: React.CSSProperties;
     inputProps?: InputProps;
-    textBoxType?: 'TextField' | 'TextArea';
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
     onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
+
+    /* TODO: Check if both onCancel and onClose are needed */
     onCancel: () => void;
     onClose?: () => void;
+
+    onRemove?: () => void;
     useTransaction?: (fn: (...args: any[]) => Promise<any>) => any;
 
     // Completion item props
     // - The list of completions to be displayed
     completions: CompletionItem[];
-    // - Get a custom icon for the expression bar
-    getExpressionBarIcon?: () => ReactNode;
     // - Should display the default completion item at the top of the completion list
     showDefaultCompletion?: boolean;
     // - Should auto select the first completion item in the list
     autoSelectFirstItem?: boolean;
-    // - Get default completion item to be displayed at the top of the completion list
-    getDefaultCompletion?: () => ReactNode;
     // - The function to be called when a completion is selected
-    onCompletionSelect?: (value: string) => void | Promise<void>;
-    // - The function to be called when the default completion is selected
-    onDefaultCompletionSelect?: () => void | Promise<void>;
+    onCompletionSelect?: (value: string, item: CompletionItem) => void | Promise<void>;
     // - The function to be called when a manual completion request is made (when ctrl+space pressed)
     onManualCompletionRequest?: () => void | Promise<void>;
+    // - The function to be called if a function is being edited
+    onFunctionEdit?: (functionName: string | undefined) => void | Promise<void>;
 
     // Function signature props
     // - Returns information about the function that is currently being edited
@@ -113,63 +141,51 @@ export type ExpressionBarBaseProps = {
         args: string[];
         currentArgIndex: number;
     }>;
-    actionButtons?: ReactNode[];
+    codeActions?: ReactNode[];
 };
 
-export type ExpressionBarProps = ExpressionBarBaseProps & {
-    id?: string;
-    name?: string;
-};
+type DefaultCompletionConditionalProps =
+    | {
+          getDefaultCompletion: () => ReactNode;
+          onDefaultCompletionSelect: () => void | Promise<void>;
+      }
+    | {
+          getDefaultCompletion?: never;
+          onDefaultCompletionSelect?: never;
+      };
 
-export type ExpressionBarRef = {
+type ExpressionEditorWithConditionalProps = ExpressionEditorBaseProps & DefaultCompletionConditionalProps;
+
+export type ExpressionEditorProps = ExpressionEditorBaseProps &
+    ExpressionEditorWithConditionalProps & {
+        id?: string;
+        name?: string;
+    };
+
+export type ExpressionEditorRef = {
     shadowRoot: ShadowRoot;
-    inputElement: HTMLInputElement | HTMLTextAreaElement;
+    // Focuses the expression editor
     focus: () => void;
-    blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
-    saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
+    // Blurs the expression editor and optionally saves the expression with the provided value
+    blur: (value?: string) => Promise<void>;
+    // Saves the expression with the provided value
+    saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>;
 };
 
-// Styled Components
-namespace Ex {
-    export const Container = styled.div`
-        width: 100%;
-        display: flex;
-        color: var(--vscode-foreground);
-        align-items: center;
-        min-height: 28px;
-        gap: 8px;
-        box-sizing: border-box;
+/* <------ Types related to the helper pane ------> */
 
-        * {
-            box-sizing: border-box;
-        }
-    `;
+export type HelperPaneOrigin = 'bottom' | 'left' | 'right';
 
-    export const ExpressionBox = styled.div`
-        display: flex;
-        flex: 1 1 auto;
-    `;
+export type HelperPaneHeight = 'full' | '3/4' | 'default';
 
-    export const InlineDMButtonText = styled.p`
-        font-size: 10px;
-        margin: 0;
-    `;
+export type HelperPanePosition = {
+    top: number;
+    left: number;
 }
 
-export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, actionButtons, ...rest } = props;
-
-    return (
-        <Ex.Container id={id}>
-            <Ex.ExpressionBox>
-                <ExpressionEditor ref={ref} {...rest} />
-            </Ex.ExpressionBox>
-            {actionButtons?.map((button, index) => (
-                <React.Fragment key={index}>
-                    {button}
-                </React.Fragment>
-            ))}
-        </Ex.Container>
-    );
-});
-ExpressionBar.displayName = 'ExpressionBar';
+export type ActionButtonType = {
+    tooltip?: string;
+    iconType: 'codicon' | 'icon';
+    name: string;
+    onClick: () => void;
+};

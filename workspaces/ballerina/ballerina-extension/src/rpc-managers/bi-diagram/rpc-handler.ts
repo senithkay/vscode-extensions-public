@@ -35,6 +35,9 @@ import {
     GetTypeRequest,
     GetTypesRequest,
     ModelFromCodeRequest,
+    OpenAPIClientDeleteRequest,
+    OpenAPIClientGenerationRequest,
+    OpenAPIGeneratedModulesRequest,
     ProjectRequest,
     ReadmeContentRequest,
     RecordSourceGenRequest,
@@ -56,9 +59,11 @@ import {
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
+    deleteOpenApiGeneratedModules,
     deployProject,
     formDidClose,
     formDidOpen,
+    generateOpenApiClient,
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
@@ -71,9 +76,11 @@ import {
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNames,
     getFunctionNode,
     getModuleNodes,
     getNodeTemplate,
+    getOpenApiGeneratedModules,
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
@@ -102,7 +109,7 @@ import {
     updateRecordConfig,
     updateServiceClass,
     updateType,
-    updateTypes,
+    updateTypes
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -164,5 +171,9 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEndOfFile, (args: EndOfFileRequest) => rpcManger.getEndOfFile(args));
     messenger.onRequest(search, (args: BISearchRequest) => rpcManger.search(args));
     messenger.onRequest(getRecordNames, () => rpcManger.getRecordNames());
+    messenger.onRequest(getFunctionNames, () => rpcManger.getFunctionNames());
     messenger.onRequest(getDevantComponent, () => rpcManger.getDevantComponent());
+    messenger.onRequest(generateOpenApiClient, (args: OpenAPIClientGenerationRequest) => rpcManger.generateOpenApiClient(args));
+    messenger.onRequest(getOpenApiGeneratedModules, (args: OpenAPIGeneratedModulesRequest) => rpcManger.getOpenApiGeneratedModules(args));
+    messenger.onRequest(deleteOpenApiGeneratedModules, (args: OpenAPIClientDeleteRequest) => rpcManger.deleteOpenApiGeneratedModules(args));
 }

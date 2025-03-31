@@ -14,7 +14,7 @@ import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Positi
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField, ComponentInfo } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode, Property, AvailableNode, PropertyTypeMemberInfo } from "./bi";
+import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode, Property, PropertyTypeMemberInfo } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 import { FieldType, FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
@@ -82,6 +82,14 @@ export interface TextEdit {
     }
 }
 
+export interface DidChangeWatchedFileParams {
+    changes: Change[];
+}
+
+export interface Change {
+    uri: string;
+    type: number;
+}
 
 // <-------- BALLERINA RELATED --------->
 
@@ -944,6 +952,7 @@ export interface AddFunctionRequest {
     filePath: string;
     codedata: CodeData;
     kind: FunctionKind;
+    searchKind: SearchKind;
 }
 
 export interface AddFunctionResponse {
@@ -1097,6 +1106,7 @@ export interface Type {
     restMember?: Member;
     includes?: string[];
     functions?: TypeFunctionModel[];
+    allowAdditionalFields?: boolean;
 }
 
 type ServiceFunctionKind = "RESOURCE" | "REMOTE" | "FUNCTION";
@@ -1346,12 +1356,45 @@ export interface AIGentToolsResponse {
     };
 }
 
-export interface AIConnectorActionsRequest {
-    filePath: string;
-    flowNode: FlowNode; // Connector flowNode
+export type OpenAPIClientGenerationRequest = {
+    openApiContractPath: string;
+    projectPath: string;
+    module: string;
 }
-export interface AIConnectorActionsResponse {
-    actions: AvailableNode[];
+
+interface OpenAPIClientSource {
+    isModuleExists: boolean;
+    textEditsMap: {
+        [key: string]: TextEdit[];
+    };
+}
+
+export type OpenAPIClientGenerationResponse = {
+    source: OpenAPIClientSource;
+}
+
+export type OpenAPIGeneratedModulesRequest = {
+    projectPath: string;
+}
+
+export type OpenAPIGeneratedModulesResponse = {
+    modules: string[];
+}
+
+export type OpenAPIClientDeleteRequest = {
+    projectPath: string;
+    module: string;
+}
+
+export type OpenAPIClientDeleteData = {
+    filesToDelete: string[];
+    textEditsMap: {
+        [key: string]: TextEdit[];
+    };
+}
+
+export type OpenAPIClientDeleteResponse = {
+    deleteData: OpenAPIClientDeleteData
 }
 
 // <-------- Deployment Related ------->
@@ -1386,6 +1429,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
+    getOpenApiGeneratedModules: (params: OpenAPIGeneratedModulesRequest) => Promise<OpenAPIGeneratedModulesResponse>
 
     // New Service Designer APIs
     getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
@@ -1418,7 +1462,6 @@ export interface BIInterface extends BaseLangClientInterface {
     getModels: (params: AIModelsRequest) => Promise<AIModelsResponse>;
     getTools: (params: AIToolsRequest) => Promise<AIToolsResponse>;
     genTool: (params: AIGentToolsRequest) => Promise<AIGentToolsResponse>;
-    getConnectorActions: (params: AIConnectorActionsRequest) => Promise<AIConnectorActionsResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

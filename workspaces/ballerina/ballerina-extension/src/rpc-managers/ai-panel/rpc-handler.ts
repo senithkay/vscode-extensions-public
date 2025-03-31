@@ -22,6 +22,7 @@ import {
     PostProcessRequest,
     ProjectSource,
     RequirementSpecification,
+    SourceFile,
     TestGenerationRequest,
     TestGenerationResponse,
     abortTestGeneration,
@@ -54,6 +55,7 @@ import {
     getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
+    getThemeKind,
     getTypesFromRecord,
     isCopilotSignedIn,
     isRequirementsSpecificationFileExist,
@@ -70,6 +72,7 @@ import {
     promptWSO2AILogout,
     readDeveloperMdFile,
     refreshAccessToken,
+    refreshFile,
     showSignInAlert,
     stopAIMappings,
     updateDevelopmentDocument,
@@ -95,6 +98,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getFileExists, (args: GetFromFileRequest) => rpcManger.getFileExists(args));
     messenger.onNotification(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
     messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
+    messenger.onRequest(getThemeKind, () => rpcManger.getThemeKind());
     messenger.onRequest(generateMappings, (args: GenerateMappingsRequest) => rpcManger.generateMappings(args));
     messenger.onRequest(notifyAIMappings, (args: NotifyAIMappingsRequest) => rpcManger.notifyAIMappings(args));
     messenger.onRequest(stopAIMappings, () => rpcManger.stopAIMappings());
@@ -104,6 +108,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(checkSyntaxError, (args: ProjectSource) => rpcManger.checkSyntaxError(args));
     messenger.onRequest(getInitialPrompt, () => rpcManger.getInitialPrompt());
     messenger.onNotification(clearInitialPrompt, () => rpcManger.clearInitialPrompt());
+    messenger.onNotification(refreshFile, (args: SourceFile) => rpcManger.refreshFile(args));
     messenger.onRequest(getGeneratedTests, (args: TestGenerationRequest) => rpcManger.getGeneratedTests(args));
     messenger.onRequest(getTestDiagnostics, (args: TestGenerationResponse) => rpcManger.getTestDiagnostics(args));
     messenger.onRequest(getServiceSourceForName, (args: string) => rpcManger.getServiceSourceForName(args));

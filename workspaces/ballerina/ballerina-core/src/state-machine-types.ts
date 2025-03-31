@@ -11,6 +11,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
+import { DevantComponent } from "./rpc-types/bi-diagram/interfaces";
 
 export type MachineStateValue =
     | 'initialize'
@@ -50,6 +51,7 @@ export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export enum MACHINE_VIEW {
     Overview = "Overview",
+    BallerinaUpdateView = "Ballerina Update View",
     SequenceDiagram = "Sequence Diagram",
     ServiceDesigner = "Service Designer",
     ERDiagram = "ER Diagram",
@@ -59,26 +61,24 @@ export enum MACHINE_VIEW {
     SetupView = "Setup View",
     BIDiagram = "BI Diagram",
     BIWelcome = "BI Welcome",
-    BIProjectForm = "BI Project Form",
+    BIProjectForm = "BI Project SKIP",
     BIComponentView = "BI Component View",
     AddConnectionWizard = "Add Connection Wizard",
     ViewConfigVariables = "View Config Variables",
     EditConfigVariables = "Edit Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",
-    BIMainFunctionForm = "Add Automation",
-    BIFunctionForm = "Add Function",
-    BINPFunctionForm = "Add Natural Function",
-    BITestFunctionForm = "Add Test Function",
-    BIServiceWizard = "Service Wizard",
+    BIMainFunctionForm = "Add Automation SKIP",
+    BIFunctionForm = "Add Function SKIP",
+    BINPFunctionForm = "Add Natural Function SKIP",
+    BITestFunctionForm = "Add Test Function SKIP",
+    BIServiceWizard = "Service Wizard SKIP",
     BIServiceConfigView = "Service Config View",
     BIListenerConfigView = "Listener Config View",
     BIServiceClassDesigner = "Service Class Designer",
     BIServiceClassConfigView = "Service Class Config View",
-    BIDataMapperForm = "Add Data Mapper",
-    AIAgentWizard = "AI Agent Wizard",
-    AIAgentEditView = "AI Agent Edit View",
+    BIDataMapperForm = "Add Data Mapper SKIP",
     AIAgentDesigner = "AI Agent Designer",
-    AIChatAgentWizard = "AI Chat Agent Wizard",
+    AIChatAgentWizard = "AI Chat Agent Wizard"
 }
 
 export interface MachineEvent {
@@ -116,9 +116,11 @@ export interface VisualizerLocation {
 
 export interface VisualizerMetadata {
     haveLS?: boolean;
+    isBISupported?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
     target?: LinePosition;
+    devantComponent?: DevantComponent;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

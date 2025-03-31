@@ -82,7 +82,7 @@ export const SuggestionsPage = ({ fileName, targetLineRange, defaultValue, onCha
                 titleSx={{ fontFamily: "GilmerRegular" }}
             />
             <HelperPane.Body>
-                {defaultValue && defaultValue !== '""' && (
+                {defaultValue && (
                     <HelperPane.Section
                         title="Suggestions"
                         titleSx={{ fontFamily: "GilmerMedium" }}

@@ -57,12 +57,11 @@ import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurable
 import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
-import { AIAgentWizard } from "./views/BI/AIAgents/AIAgentWizard";
 import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
 import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassConfig";
 import { AIAgentDesigner } from "./views/BI/AIChatAgent";
-import { AIAgentEditView } from "./views/BI/AIAgents/AIAgentEditView";
 import { AIChatAgentWizard } from "./views/BI/AIChatAgent/AIChatAgentWizard";
+import { BallerinaUpdateView } from "./views/BI/BallerinaUpdateView";
 
 const globalStyles = css`
     *,
@@ -167,7 +166,12 @@ const MainPanel = () => {
             } else {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
-                        setViewComponent(<OverviewBI projectPath={value.projectUri} />);
+                        setViewComponent(
+                            <OverviewBI
+                                projectPath={value.projectUri}
+                                deployedComponent={value.metadata?.devantComponent}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
@@ -237,9 +241,13 @@ const MainPanel = () => {
                             <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications} />
                         );
                         break;
+                    case MACHINE_VIEW.BallerinaUpdateView:
+                        setNavActive(false);
+                        setViewComponent(<BallerinaUpdateView />);
+                        break;
                     case MACHINE_VIEW.BIWelcome:
                         setNavActive(false);
-                        setViewComponent(<WelcomeView />);
+                        setViewComponent(<WelcomeView isBISupported={value.metadata.isBISupported} />);
                         break;
                     case MACHINE_VIEW.SetupView:
                         setNavActive(false);
@@ -257,12 +265,6 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
-                        break;
-                    case MACHINE_VIEW.AIAgentWizard:
-                        setViewComponent(<AIAgentWizard target={{ filePath: value.documentUri, position: value.metadata.target }} />);
-                        break;
-                    case MACHINE_VIEW.AIAgentEditView:
-                        setViewComponent(<AIAgentEditView agentName={value.identifier} />);
                         break;
                     case MACHINE_VIEW.BIServiceClassDesigner:
                         setViewComponent(

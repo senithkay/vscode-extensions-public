@@ -11,9 +11,15 @@
 
 import * as fs from 'fs';
 import path from "path";
-import { Uri } from 'vscode';
+import { Uri, workspace } from 'vscode';
 
 import { StateMachine } from "../../stateMachine";
+
+const config = workspace.getConfiguration('ballerina');
+export const BACKEND_URL : string = config.get('rootUrl') || "https://dev-tools.wso2.com/ballerina-copilot/v2.0";
+export const AUTH_ORG : string = config.get('authOrg') || "ballerinacopilot";
+export const AUTH_CLIENT_ID : string = config.get('authClientID') || "9rKng8hSZd0VkeA45Lt4LOfCp9Aa";
+export const AUTH_REDIRECT_URL : string = config.get('authRedirectURL') || "https://98c70105-822c-4359-8579-4da58f0ab4b7.e1-us-east-azure.choreoapps.dev";
 
 export async function closeAllBallerinaFiles(dirPath: string): Promise<void> {
     // Check if the directory exists
@@ -43,7 +49,15 @@ export async function closeAllBallerinaFiles(dirPath: string): Promise<void> {
                 await langClient.didClose({
                     textDocument: { uri: fileUri }
                 });
-                
+                await langClient.didChangedWatchedFiles({
+                    changes: [
+                        {
+                            uri: fileUri,
+                            type: 3
+                        }
+                    ]
+                });
+
                 console.log(`Closed file: ${entryPath}`);
             }
         }

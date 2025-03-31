@@ -49,7 +49,7 @@ suite.only("AI Datamapper Tests Suite", () => {
                         const mapping = JSON.parse(fs.readFileSync(mappingFile, 'utf8'));
                         const paramDef = JSON.parse(fs.readFileSync(paramDefFile, 'utf8'));
                         const expected = JSON.parse(fs.readFileSync(expectedFile, 'utf8'));
-                        const resp = await generateBallerinaCode(mapping, paramDef, "");
+                        const resp = await generateBallerinaCode(mapping, paramDef, "", []);
                         assert.deepStrictEqual(resp, expected);            
                     });
                 }

@@ -69,7 +69,9 @@ export const cardStyle = {
 };
 
 export interface FormGeneratorProps {
+    documentUri?: string;
     formData: any;
+    connectorName?: string;
     sequences?: string[];
     onEdit?: boolean;
     control: any;
@@ -80,7 +82,6 @@ export interface FormGeneratorProps {
     getValues: any;
     skipGeneralHeading?: boolean;
     ignoreFields?: string[];
-    connections?: string[];
     addNewConnection?: any;
     autoGenerateSequences?: boolean;
     range?: Range;
@@ -113,6 +114,7 @@ export interface Element {
     viewIdentifier?: string;
     viewDisplayName?: string;
     expressionType?: 'xpath/jsonPath' | 'synapse';
+    supportsAIValues?: boolean;
 }
 
 interface ExpressionValueWithSetter {
@@ -132,7 +134,9 @@ export function FormGenerator(props: FormGeneratorProps) {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const {
+        documentUri,
         formData,
+        connectorName,
         control,
         errors,
         setValue,
@@ -141,7 +145,6 @@ export function FormGenerator(props: FormGeneratorProps) {
         watch,
         skipGeneralHeading,
         ignoreFields,
-        connections,
         addNewConnection,
         range
     } = props;
@@ -150,6 +153,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isLegacyExpressionEnabled, setIsLegacyExpressionEnabled] = useState<boolean>(false);
     const handleOnCancelExprEditorRef = useRef(() => { });
+    const [connectionNames, setConnections] = useState<{ [key: string]: string[] }>({});
 
     useEffect(() => {
         rpcClient
@@ -179,12 +183,33 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     function getDefaultValues(elements: any[]) {
         const defaultValues: Record<string, any> = {};
-        elements.forEach((element: any) => {
+        elements.forEach(async (element: any) => {
             const name = getNameForController(element.value.name);
             if (element.type === 'attributeGroup') {
                 Object.assign(defaultValues, getDefaultValues(element.value.elements));
             } else {
                 defaultValues[name] = getDefaultValue(element);
+
+                if (element.value.inputType === 'connection' && documentUri && connectorName) {
+                    const allowedTypes: string[] = element.value.allowedConnectionTypes;
+
+                    const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                        documentUri: documentUri,
+                        connectorName: formData?.connectorName ?? connectorName.replace(/\s/g, '')
+                    });
+
+                    const filteredConnections = connectorData.connections.filter(
+                        connection => allowedTypes?.some(
+                            // Ignore case in checking allowed connection types
+                            type => type.toLowerCase() === connection.connectionType.toLowerCase()
+                        ));
+                    const connectionNames = filteredConnections.map(connection => connection.name);
+
+                    setConnections((prevConnections) => ({
+                        ...prevConnections,
+                        [name]: connectionNames
+                    }));
+                }
             }
         });
         return defaultValues;
@@ -308,6 +333,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={element.placeholder}
                 nodeRange={range}
                 canChange={element.inputType !== 'expression'}
+                supportsAIValues={element.supportsAIValues}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -448,7 +474,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, { type: keyType });
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, {type: keyType}, sidePanelContext);
                     }
                 }
 
@@ -556,14 +582,14 @@ export function FormGenerator(props: FormGeneratorProps) {
                             <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
                                 <label>{element.displayName}{element.required === 'true' && '*'}</label>
                             </div>
-                            <LinkButton onClick={() => addNewConnection()}>
+                            <LinkButton onClick={() => addNewConnection(name, element.allowedConnectionTypes)}>
                                 <Codicon name="plus" />Add new connection
                             </LinkButton>
                         </div>
                         <AutoComplete
-                            name="configKey"
-                            errorMsg={errors[getNameForController("configKey")] && errors[getNameForController("configKey")].message.toString()}
-                            items={connections}
+                            name={name}
+                            errorMsg={errors[getNameForController(name)] && errors[getNameForController(name)].message.toString()}
+                            items={connectionNames[name] ?? []}
                             value={field.value}
                             onValueChange={(e: any) => {
                                 field.onChange(e);
@@ -671,6 +697,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                     {
                         ...(isRequired) && {
                             validate: (value) => {
+                                if (value.fromAI) {
+                                    return true;
+                                }
                                 if (!value || (typeof value === 'object' && !value.value)) {
                                     return "This field is required";
                                 }

@@ -10,6 +10,7 @@
 import { Uri, Webview, workspace } from "vscode";
 import * as fs from 'fs';
 import * as path from 'path';
+import { extension } from "./biExtentionContext";
 
 export interface ProjectInfo {
     isBI: boolean;
@@ -36,7 +37,6 @@ export function fetchProjectInfo(): ProjectInfo {
             isBalCount++;
             if (checkIsBI(uri)) {
                 isBICount++;
-                isBalCount++;
             }
         }
     }
@@ -51,8 +51,9 @@ export function fetchProjectInfo(): ProjectInfo {
 export function checkIsBI(uri: Uri): boolean {
     const config = workspace.getConfiguration('ballerina', uri);
     const inspected = config.inspect<boolean>('isBI');
+    const isBISupported = extension.biSupported;
 
-    if (inspected) {
+    if (inspected && isBISupported) { // Added a check to see if the current version of ballerina supports bi
         const valuesToCheck = [
             inspected.workspaceFolderValue,
             inspected.workspaceValue,

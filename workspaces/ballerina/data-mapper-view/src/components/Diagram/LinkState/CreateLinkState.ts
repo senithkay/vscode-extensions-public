@@ -126,7 +126,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 										this.link?.setTargetPort(element);
 
 										const connectingMappingType = getMappingType(this.sourcePort, element);
-										if (userActionRequiredMapping(connectingMappingType)) {
+										if (userActionRequiredMapping(connectingMappingType, element)) {
 											const label = this.link.getLabels()
 												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
 											label.setPendingMappingType(connectingMappingType);

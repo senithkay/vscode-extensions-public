@@ -51,7 +51,7 @@ namespace S {
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
-        gap: 12px;
+        gap: 20px;
         width: 100%;
         margin-top: 8px;
         padding-bottom: ${({ showBorder }) => (showBorder ? "14px" : "0")};
@@ -241,7 +241,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors, isDirty }
+        formState: { isValidating, errors, isDirty, isValid: isFormValid },
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -265,6 +265,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
                 } else {
                     defaultValues[field.key] = field.value ?? "";
+                }
+
+                if (field.key === "type") {
+                    // Handle the case where the type is changed via 'Add Type'
+                    const existingType = formValues[field.key];
+                    const newType = field.value;
+
+                    if (existingType !== newType) {
+                        setValue(field.key, newType);
+                        mergeFormDataWithFlowNode && getVisualiableFields();
+                    }
                 }
 
                 if (formValues[field.key] !== undefined && formValues[field.key] !== "" && !field.value) {
@@ -380,8 +391,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
     };
 
     const getVisualiableFields = () => {
-        const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
-        handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
+        if(mergeFormDataWithFlowNode) {
+            const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+            handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
+        }
     };
 
     const handleGetExpressionDiagnostics = async (
@@ -413,6 +426,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const contextValue: FormContext = {
         form: {
             control,
+            getValues,
             setValue,
             watch,
             register,
@@ -444,11 +458,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 continue;
             }
 
-            const diagnostics: Diagnostic[] = diagnosticsInfoItem.diagnostics || [];
+            let diagnostics: Diagnostic[] = diagnosticsInfoItem.diagnostics || [];
             if (diagnostics.length === 0) {
                 clearErrors(key);
                 continue;
             } else {
+                // Filter the BCE2066 diagnostics
+                diagnostics = diagnostics.filter(d => 
+                    d.code !== "BCE2066" ||
+                    d.message !== "incompatible types: expected 'any', found 'error'"
+                );
+                
                 const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
                 setError(key, { type: "validate", message: diagnosticsMessage });
 

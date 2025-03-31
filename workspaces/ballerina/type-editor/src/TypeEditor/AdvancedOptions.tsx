@@ -8,7 +8,6 @@ interface AdvancedOptionsProps {
 }
 
 export function AdvancedOptions({ type, onChange }: AdvancedOptionsProps) {
-    const [closedRecord, setClosedRecord] = useState<boolean>(false);
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
     return (
@@ -30,10 +29,12 @@ export function AdvancedOptions({ type, onChange }: AdvancedOptionsProps) {
             </div>
             {isExpanded && (
                 <CheckBox
-                    sx={{ border: 'none' }}
-                    label="Closed Record"
-                    checked={closedRecord}
-                    onChange={(e) => { }}
+                    sx={{ border: 'none', padding: '5px' }}
+                    label="Allow Additional Fields"
+                    checked={type?.allowAdditionalFields === true}
+                    onChange={(checked: boolean) => {
+                        onChange({ ...type, allowAdditionalFields: checked });
+                    }}
                 />
             )}
         </div>

@@ -15,8 +15,8 @@ import {
     EVENT_TYPE,
     MACHINE_VIEW,
     BuildMode,
-    DevantComponentResponse,
-    BI_COMMANDS
+    BI_COMMANDS,
+    DevantComponent
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox, ProgressIndicator, Overlay } from "@wso2-enterprise/ui-toolkit";
@@ -191,7 +191,6 @@ const TitleContainer = styled.div`
 const ProjectTitle = styled.h1`
     font-weight: bold;
     font-size: 1.5rem;
-    text-transform: capitalize;
     margin-bottom: 0;
     margin-top: 0;
     @media (min-width: 768px) {
@@ -269,7 +268,7 @@ interface DeploymentOptionProps {
     isExpanded: boolean;
     onToggle: () => void;
     onDeploy: () => void;
-    learnMoreLink?: boolean;
+    learnMoreLink?: string;
     isDeploying?: boolean;
 }
 
@@ -283,6 +282,14 @@ function DeploymentOption({
     learnMoreLink,
     isDeploying
 }: DeploymentOptionProps) {
+    const { rpcClient } = useRpcContext();
+
+    const openLearnMoreURL = () => {
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: learnMoreLink
+        })
+    };
+
     return (
         <DeploymentOptionContainer
             isExpanded={isExpanded}
@@ -299,7 +306,9 @@ function DeploymentOption({
             <DeploymentBody isExpanded={isExpanded}>
                 <p style={{ marginTop: 8 }}>
                     {description}
-                    {learnMoreLink && <> <VSCodeLink>Learn more</VSCodeLink></>}
+                    {learnMoreLink && (
+                        <VSCodeLink onClick={openLearnMoreURL} style={{ marginLeft: '4px' }}>Learn more</VSCodeLink>
+                    )}
                 </p>
                 <Button appearance="secondary" onClick={(e) => {
                     e.stopPropagation();
@@ -316,8 +325,8 @@ interface DeploymentOptionsProps {
     handleDockerBuild: () => void;
     handleJarBuild: () => void;
     handleDeploy: () => Promise<void>;
-    goToDevant: (devantComponent: DevantComponentResponse) => void;
-    devantComponent: DevantComponentResponse | undefined;
+    goToDevant: (devantComponent: DevantComponent) => void;
+    devantComponent: DevantComponent | undefined;
 }
 
 function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, goToDevant, devantComponent }: DeploymentOptionsProps) {
@@ -347,15 +356,15 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
             <div>
                 <Title variant="h3">Deployment Options</Title>
 
-                {devantComponent == undefined &&
+                {(devantComponent == undefined)  &&
                     <DeploymentOption
                         title="Deploy to Devant"
-                        description="Deploy your integration to the cloud using WSO2 Devant."
-                        buttonText="Deploy to Cloud"
+                        description="Deploy your integration to the cloud using Devant by WSO2."
+                        buttonText="Deploy"
                         isExpanded={expandedOptions.has('cloud')}
                         onToggle={() => toggleOption('cloud')}
                         onDeploy={handleDeployToDevant}
-                        learnMoreLink={true}
+                        learnMoreLink={"https://wso2.com/devant/docs"}
                         isDeploying={isDeploying}
                     />
                 }
@@ -368,7 +377,7 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                         isExpanded={expandedOptions.has('devant')}
                         onToggle={() => toggleOption('devant')}
                         onDeploy={() => goToDevant(devantComponent)}
-                        learnMoreLink={true}
+                        learnMoreLink={"https://wso2.com/devant/docs"}
                     />
                 }
 
@@ -404,12 +413,21 @@ interface IntegrationControlPlaneProps {
 }
 
 function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlaneProps) {
+    const { rpcClient } = useRpcContext();
+
+    const openLearnMoreURL = () => {
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: "https://wso2.com/integrator/integration-control-plane/"
+        })
+    };
 
     return (
         <div>
             <Title variant="h3">Integration Control Plane</Title>
-            <p>Moniter the deployment runtime using WSO2 Integration Control Plane. Click the {enabled ? "Disable ICP" : "Integrate ICP"} button to {enabled ? "diable" : "enable"} ICP
-                for the integration.</p>
+            <p>
+                {"Moniter the deployment runtime using WSO2 Integration Control Plane."}
+                <VSCodeLink onClick={openLearnMoreURL} style={{ marginLeft: '4px' }}> Learn More </VSCodeLink>
+            </p>
             <CheckBox
                 checked={enabled}
                 onChange={handleICP}
@@ -421,9 +439,11 @@ function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlane
 
 interface ComponentDiagramProps {
     projectPath: string;
+    deployedComponent?: DevantComponent;
 }
 
 export function Overview(props: ComponentDiagramProps) {
+    const { projectPath, deployedComponent } = props;
     const { rpcClient } = useRpcContext();
     const [workspaceName, setWorkspaceName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
@@ -435,8 +455,7 @@ export function Overview(props: ComponentDiagramProps) {
     const [loadingMessage, setLoadingMessage] = useState("");
     const backendRootUri = useRef("");
     const [enabled, setEnableICP] = useState(false);
-    const [devantComponent, setDevantComponent] = useState<DevantComponentResponse | undefined>(undefined);
-
+    const [devantComponent, setDevantComponent] = useState<DevantComponent | undefined>(undefined);
 
     const fetchContext = () => {
         rpcClient
@@ -449,7 +468,7 @@ export function Overview(props: ComponentDiagramProps) {
             .getBIDiagramRpcClient()
             .getWorkspaces()
             .then((res) => {
-                const workspace = res.workspaces.find(workspace => workspace.fsPath === props.projectPath);
+                const workspace = res.workspaces.find(workspace => workspace.fsPath === projectPath);
                 if (workspace) {
                     setWorkspaceName(workspace.name);
                 }
@@ -521,6 +540,12 @@ export function Overview(props: ComponentDiagramProps) {
                 setDevantComponent(res);
             });
     }, []);
+
+    useEffect(() => {
+        if (!devantComponent) {
+            setDevantComponent(deployedComponent);
+        }
+    }, [deployedComponent]);
 
     function isEmptyProject(): boolean {
         return Object.values(projectStructure.directoryMap || {}).every((array) => array.length === 0);
@@ -702,11 +727,11 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().buildProject(BuildMode.JAR);
     };
 
-    const goToDevant = (devantComponent: DevantComponentResponse) => {
-        rpcClient.getCommonRpcClient().openExternalUrl({ url: `https://devant.wso2.com/devant/projects/${devantComponent.org}/${devantComponent.project}/${devantComponent.component}` });
+    const goToDevant = (devantComponent: DevantComponent) => {
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: `https://console.devant.dev/organizations/${devantComponent.org}`
+        });
     };
-
-
 
     return (
         <PageLayout>
@@ -771,7 +796,9 @@ export function Overview(props: ComponentDiagramProps) {
                         handleJarBuild={handleJarBuild}
                         handleDeploy={handleDeploy}
                         goToDevant={goToDevant}
-                        devantComponent={devantComponent} />
+                        devantComponent={devantComponent}
+                        isDeployed={props.isDeployed}
+                    />
                     <Divider sx={{ margin: "16px 0" }} />
                     <IntegrationControlPlane enabled={enabled} handleICP={handleICP} />
                 </SidePanel>

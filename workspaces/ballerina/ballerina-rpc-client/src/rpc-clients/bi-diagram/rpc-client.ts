@@ -41,7 +41,7 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DeploymentResponse,
-    DevantComponentResponse,
+    DevantComponent,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -51,6 +51,7 @@ import {
     FormDidOpenParams,
     FunctionNodeRequest,
     FunctionNodeResponse,
+    GeneratedClientSaveResponse,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
     GetRecordModelFromSourceRequest,
@@ -61,6 +62,11 @@ import {
     GetTypesResponse,
     LinePosition,
     ModelFromCodeRequest,
+    OpenAPIClientDeleteRequest,
+    OpenAPIClientDeleteResponse,
+    OpenAPIClientGenerationRequest,
+    OpenAPIGeneratedModulesRequest,
+    OpenAPIGeneratedModulesResponse,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -97,9 +103,11 @@ import {
     createProject,
     deleteByComponentInfo,
     deleteFlowNode,
+    deleteOpenApiGeneratedModules,
     deployProject,
     formDidClose,
     formDidOpen,
+    generateOpenApiClient,
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
@@ -112,9 +120,11 @@ import {
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
+    getFunctionNames,
     getFunctionNode,
     getModuleNodes,
     getNodeTemplate,
+    getOpenApiGeneratedModules,
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
@@ -374,7 +384,24 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
     getRecordNames(): Promise<RecordsInWorkspaceMentions> {
         return this._messenger.sendRequest(getRecordNames, HOST_EXTENSION);
     }
-    getDevantComponent(): Promise<DevantComponentResponse | undefined> {
+
+    getFunctionNames(): Promise<RecordsInWorkspaceMentions> {
+        return this._messenger.sendRequest(getFunctionNames, HOST_EXTENSION);
+    }
+
+    getDevantComponent(): Promise<DevantComponent | undefined> {
         return this._messenger.sendRequest(getDevantComponent, HOST_EXTENSION);
+    }
+
+    generateOpenApiClient(params: OpenAPIClientGenerationRequest): Promise<GeneratedClientSaveResponse> {
+        return this._messenger.sendRequest(generateOpenApiClient, HOST_EXTENSION, params);
+    }
+
+    getOpenApiGeneratedModules(params: OpenAPIGeneratedModulesRequest): Promise<OpenAPIGeneratedModulesResponse> {
+        return this._messenger.sendRequest(getOpenApiGeneratedModules, HOST_EXTENSION, params);
+    }
+
+    deleteOpenApiGeneratedModules(params: OpenAPIClientDeleteRequest): Promise<OpenAPIClientDeleteResponse> {
+        return this._messenger.sendRequest(deleteOpenApiGeneratedModules, HOST_EXTENSION, params);
     }
 }
