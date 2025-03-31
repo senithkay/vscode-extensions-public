@@ -136,7 +136,7 @@ export default function createTests() {
 
         await diagram.addConnectorOperation('CSV', 'csvToCsv');
 
-        await clearNotificationAlerts(page);
+        await clearNotificationAlerts(page.page);
 
         // Fill connector form
         await diagram.fillConnectorForm({
