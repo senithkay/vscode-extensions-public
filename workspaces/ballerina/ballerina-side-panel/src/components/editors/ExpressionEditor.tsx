@@ -133,12 +133,6 @@ export namespace S {
         color: 'var(--vscode-list-deemphasizedForeground)'
     });
 
-    export const EditorColumn = styled.div({
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '4px'
-    });
-
     export const DataMapperBtnTxt = styled.p`
         font-size: 10px;
         margin: 0;
@@ -406,7 +400,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                 name={field.key}
                 rules={{ required: !field.optional && !field.placeholder }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
-                    <S.EditorColumn>
+                    <div>
                         <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
@@ -469,7 +463,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             codeActions={codeActions}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
-                    </S.EditorColumn>
+                    </div>
                 )}
             />
         </S.Container>

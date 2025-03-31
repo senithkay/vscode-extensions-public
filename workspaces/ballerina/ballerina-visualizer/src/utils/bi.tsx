@@ -161,7 +161,7 @@ export function convertNodePropertyToFormField(
         optional: property.optional,
         advanced: property.advanced,
         placeholder: property.placeholder,
-        defaultValue: property.defaultValue || property.placeholder,
+        defaultValue: property.defaultValue as string,
         editable: isFieldEditable(property, connections, clientName),
         enabled: true,
         hidden: property.hidden,

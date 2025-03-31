@@ -78,7 +78,7 @@ export function ChoiceForm(props: ChoiceFormProps) {
                 items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items,
                 choices: expression.choices,
                 placeholder: expression.placeholder,
-                defaultValue: (expression.defaultValue as string) || expression.placeholder
+                defaultValue: expression.defaultValue as string
             }
             formFields.push(formField);
         }
