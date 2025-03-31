@@ -16,11 +16,13 @@ const fs = require('fs');
 const path = require('path');
 const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
 
+test.describe.configure({ mode: 'default' });
+
 test.beforeAll(async () => {
     if (fs.existsSync(videosFolder)) {
         fs.rmSync(videosFolder, { recursive: true, force: true });
     }
-    console.log('>>> Starting tests');
+    console.log('>>> Starting test suite');
 });
 
 test.describe(connectionTests);
@@ -28,7 +30,7 @@ test.describe(connectorTests);
 test.describe(inboundEpTests);
 
 test.afterAll(async () => {
-    console.log(`>>> Finished all tests`);
+    console.log(`>>> Finished test suite`);
     const dateTime = new Date().toISOString().replace(/:/g, '-');
     page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.mp4`));
     await page.page?.close();
