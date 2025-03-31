@@ -200,24 +200,26 @@ namespace S {
             max-height: 200px;
             mask-image: linear-gradient(to bottom, black 160px, transparent 200px);
         `}
-        font-size: var(--vscode-font-size);
+        font-size: 13px;
+        font-family: var(--vscode-font-family);
         color: ${ThemeColors.ON_SURFACE_VARIANT};
         border-radius: 4px;
         transition: max-height 0.3s ease-in-out;
 
+        h1, h2, h3, h4, h5, h6 {
+            margin: 16px 0 8px 0;
+            font-family: var(--vscode-font-family);
+            font-weight: normal;
+            font-size: 13px;
+            color: var(--vscode-editor-foreground);
+        }
+
         p {
+            font-size: 13px;
             margin: 0;
             line-height: 1.5;
             margin-bottom: 8px;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            margin: 16px 0 8px 0;
+            font-family: var(--vscode-font-family);
         }
 
         code {
@@ -233,28 +235,37 @@ namespace S {
             border-radius: 4px;
             overflow-x: auto;
             margin: 8px 0;
+            font-family: var(--vscode-font-family);
         }
 
         ul,
         ol {
             margin: 8px 0;
             padding-left: 24px;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
         }
 
         li {
             margin: 4px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
         }
 
         blockquote {
             margin: 8px 0;
             padding-left: 8px;
             border-left: 4px solid ${ThemeColors.PRIMARY};
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
         }
 
         table {
             border-collapse: collapse;
             width: 100%;
             margin: 8px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
         }
 
         th,
@@ -262,6 +273,8 @@ namespace S {
             border: 1px solid var(--vscode-editor-inactiveSelectionBackground);
             padding: 8px;
             text-align: left;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
         }
 
         th {
