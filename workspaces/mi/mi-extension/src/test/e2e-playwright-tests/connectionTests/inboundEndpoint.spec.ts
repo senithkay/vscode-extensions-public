@@ -48,7 +48,7 @@ export default function createTests() {
                         }
                     }
                 });
-                await clearNotificationAlerts(page);
+                await clearNotificationAlerts(page.page);
                 await inboundEPForm.submit('Create');
 
                 const diagram = new Diagram(page.page, 'Event Integration');

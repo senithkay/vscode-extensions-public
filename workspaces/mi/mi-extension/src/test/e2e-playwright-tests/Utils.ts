@@ -11,7 +11,7 @@ import { ExtendedPage, startVSCode } from "@wso2-enterprise/playwright-vscode-te
 import { Form } from "./components/Form";
 import { Welcome } from "./components/Welcome";
 import path from "path";
-import { ElectronApplication } from "@playwright/test";
+import { ElectronApplication, Page } from "@playwright/test";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
 

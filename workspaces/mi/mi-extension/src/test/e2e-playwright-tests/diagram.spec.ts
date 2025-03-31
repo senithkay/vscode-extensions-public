@@ -127,7 +127,7 @@ export default function createTests() {
             }
           }
         });
-        await clearNotificationAlerts(page);
+        await clearNotificationAlerts(page.page);
         await connectionForm.submit('Add');
         expect(await diagram.verifyConnection("file_connection", "File - FTPS Connection")).toBeTruthy();
         await diagram.closeSidePanel();

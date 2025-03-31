@@ -8,9 +8,7 @@
  */
 
 import { test } from '@playwright/test';
-import { createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from '../Utils';
-import fs from 'fs';
-import path from 'path';
+import { initTest, page } from '../Utils';
 import { Automation } from '../components/ArtifactTest/Automation';
 import { Endpoint } from '../components/ArtifactTest/Endpoint';
 import { Sequence } from '../components/ArtifactTest/Sequence';
@@ -27,187 +25,159 @@ import { DataService } from '../components/ArtifactTest/DataService';
 test.describe.configure({ mode: 'serial' });
 
 export default function createTests() {
-  test.beforeAll(async () => {
-    console.log('Starting Artifact tests');
-    // delete and recreate folder
-    if (fs.existsSync(newProjectPath)) {
-      fs.rmSync(newProjectPath, { recursive: true });
-    }
-    fs.mkdirSync(newProjectPath, { recursive: true });
-    await initVSCode();
-  });
+  test.describe(async () => {
+    initTest('Artifact', true);
 
-  test('Create artifact project', async () => {
-    await createProject(page);
-  });
+    let automation: Automation;
+    test('Artifact Tests', async () => {
+      await test.step('Add Automation', async () => {
+        console.log('Creating new Automation');
+        automation = new Automation(page.page);
+        await automation.init();
+        await automation.add();
+      });
+      await test.step('Edit Automation', async () => {
+        console.log('Editing Automation');
+        await automation.edit();
+      });
 
-  let automation: Automation;
-  test('Add Automation', async () => {
-    console.log('Creating new Automation');
-    automation = new Automation(page.page);
-    await automation.init();
-    await automation.add();
-  });
-  test('Edit Automation', async () => {
-    console.log('Editing Automation');
-    await automation.edit();
-  });
+      let lb: Endpoint;
+      await test.step('Add http Endpoint', async () => {
+        console.log('Creating new http Endpoint');
+        lb = new Endpoint(page.page);
+        await lb.init();
+        await lb.addHttpEndpoint();
+      });
+      await test.step('Edit http Endpoint', async () => {
+        console.log('Editing http Endpoint');
+        await lb.editHttpEndpoint();
+      });
+      await test.step('Add load balance Endpoint', async () => {
+        console.log('Creating new load balance Endpoint');
+        await lb.addLoadBalanceEndpoint();
+      });
+      await test.step('Edit load balance Endpoint', async () => {
+        console.log('Editing load balance Endpoint');
+        await lb.editLoadBalanceEndpoint();
+      });
 
-  let lb: Endpoint;
-  test('Add http Endpoint', async () => {
-    console.log('Creating new http Endpoint');
-    lb = new Endpoint(page.page);
-    await lb.init();
-    await lb.addHttpEndpoint();
-  });
+      let sequence: Sequence;
+      await test.step('Add Sequence', async () => {
+        console.log('Creating new Sequence');
+        sequence = new Sequence(page.page);
+        await sequence.init();
+        await sequence.add();
+      });
+      await test.step('Edit Sequence', async () => {
+        console.log('Editing Sequence');
+        await sequence.edit();
+      });
 
-  test('Edit http Endpoint', async () => {
-    console.log('Editing http Endpoint');
-    await lb.editHttpEndpoint();
-  });
-  test('Add load balance Endpoint', async () => {
-    console.log('Creating new load balance Endpoint');
-    await lb.addLoadBalanceEndpoint();
-  });
-  test('Edit load balance Endpoint', async () => {
-    console.log('Editing load balance Endpoint');
-    await lb.editLoadBalanceEndpoint();
-  });
+      await test.step('Add Class Mediator', async () => {
+        console.log('Creating new Class Mediator');
+        const classMediator = new ClassMediator(page.page);
+        await classMediator.init();
+        await classMediator.add();
+      });
 
-  let sequence: Sequence;
-  test('Add Sequence', async () => {
-    console.log('Creating new Sequence');
-    sequence = new Sequence(page.page);
-    await sequence.init();
-    await sequence.add();
-  });
-  test('Edit Sequence', async () => {
-    console.log('Editing Sequence');
-    await sequence.edit();
-  });
+      await test.step('Add Ballerina Module', async () => {
+        console.log('Creating new Ballerina Module');
+        const ballerinaModule = new BallerinaModule(page.page);
+        await ballerinaModule.init();
+        await ballerinaModule.add();
+      });
 
-  test('Add Class Mediator', async () => {
-    console.log('Creating new Class Mediator');
-    const classMediator = new ClassMediator(page.page);
-    await classMediator.init();
-    await classMediator.add();
-  });
+      await test.step('Add Resource', async () => {
+        console.log('Creating new Resource');
+        const resource = new Resource(page.page);
+        await resource.init();
+        await resource.add();
+      });
 
-  test('Add Ballerina Module', async () => {
-    console.log('Creating new Ballerina Module');
-    const ballerinaModule = new BallerinaModule(page.page);
-    await ballerinaModule.init();
-    await ballerinaModule.add();
-  });
+      let ms: MessageStore;
+      await test.step('Add Message Store', async () => {
+        console.log('Creating new Message Store');
+        ms = new MessageStore(page.page);
+        await ms.init();
+        await ms.addInMemmoryMS();
+      });
+      await test.step('Edit Message Store', async () => {
+        console.log('Editing Message Store');
+        await ms.editInMemoryMS();
+      });
 
-  test('Add Resource', async () => {
-    console.log('Creating new Resource');
-    const resource = new Resource(page.page);
-    await resource.init();
-    await resource.add();
-  });
+      let msp: MessageProcessor;
+      await test.step('Add Message Processor', async () => {
+        console.log('Creating new Message Processor');
+        msp = new MessageProcessor(page.page);
+        await msp.init();
+        await msp.addMessageSamplingProcessor();
+      });
+      await test.step('Edit Message Processor', async () => {
+        console.log('Editing Message Processor');
+        await msp.editMessageSamplingProcessor();
+      });
 
-  let ms: MessageStore;
-  test('Add Message Store', async () => {
-    console.log('Creating new Message Store');
-    ms = new MessageStore(page.page);
-    await ms.init();
-    await ms.addInMemmoryMS();
-  });
-  test('Edit Message Store', async () => {
-    console.log('Editing Message Store');
-    await ms.editInMemoryMS();
-  });
+      let localEntry: LocalEntry;
+      await test.step('Add Local Entry', async () => {
+        console.log('Creating new Local Entry');
+        localEntry = new LocalEntry(page.page);
+        await localEntry.init();
+        await localEntry.addLocalEntry();
+      });
+      await test.step('Edit Local Entry', async () => {
+        console.log('Editing Local Entry');
+        await localEntry.editLocalEntry();
+      });
 
-  let msp: MessageProcessor;
-  test('Add Message Processor', async () => {
-    console.log('Creating new Message Processor');
-    msp = new MessageProcessor(page.page);
-    await msp.init();
-    await msp.addMessageSamplingProcessor();
-  });
-  test('Edit Message Processor', async () => {
-    console.log('Editing Message Processor');
-    await msp.editMessageSamplingProcessor();
-  });
+      let template: Template;
+      await test.step('Add Template', async () => {
+        console.log('Creating new Template');
+        template = new Template(page.page);
+        await template.init();
+        await template.addTemplate();
+      });
+      await test.step('Edit Template', async () => {
+        console.log('Editing Template');
+        await template.editTemplate();
+      });
 
-  let localEntry: LocalEntry;
-  test('Add Local Entry', async () => {
-    console.log('Creating new Local Entry');
-    localEntry = new LocalEntry(page.page);
-    await localEntry.init();
-    await localEntry.addLocalEntry();
-  });
-  test('Edit Local Entry', async () => {
-    console.log('Editing Local Entry');
-    await localEntry.editLocalEntry();
-  });
+      let proxyService: Proxy;
+      await test.step('Add Proxy Service', async () => {
+        console.log('Creating new Proxy Service');
+        proxyService = new Proxy(page.page);
+        await proxyService.init();
+        await proxyService.add();
+      });
+      // TODO: Enable this test after fixing the issue with the proxy service edit
+      // await test.step('Edit Proxy Service', async () => {
+      //   console.log('Editing Proxy Service');
+      //   await proxyService.edit();
+      // });
 
-  let template: Template;
-  test('Add Template', async () => {
-    console.log('Creating new Template');
-    template = new Template(page.page);
-    await template.init();
-    await template.addTemplate();
-  });
-  test('Edit Template', async () => {
-    console.log('Editing Template');
-    await template.editTemplate();
-  });
+      let dataSource: DataSource;
+      await test.step('Add Data Source', async () => {
+        console.log('Creating new Data Source');
+        dataSource = new DataSource(page.page);
+        await dataSource.init();
+        await dataSource.add();
+      });
+      await test.step('Edit Data Source', async () => {
+        console.log('Editing Data Source');
+        await dataSource.edit();
+      });
 
-  let proxyService: Proxy;
-  test('Add Proxy Service', async () => {
-    console.log('Creating new Proxy Service');
-    proxyService = new Proxy(page.page);
-    await proxyService.init();
-    await proxyService.add();
-  });
-  // TODO: Enable this test after fixing the issue with the proxy service edit
-  test.skip('Edit Proxy Service', async () => {
-    console.log('Editing Proxy Service');
-    await proxyService.edit();
-  });
-
-  let dataSource: DataSource;
-  test('Add Data Source', async () => {
-    console.log('Creating new Data Source');
-    dataSource = new DataSource(page.page);
-    await dataSource.init();
-    await dataSource.add();
-  });
-  test('Edit Data Source', async () => {
-    console.log('Editing Data Source');
-    await dataSource.edit();
-  });
-
-  test('Add Data Service', async () => {
-    console.log('Creating new Data Service');
-    const dataService = new DataService(page.page);
-    await dataService.init();
-    await dataService.add();
-  });
-  test('Edit Data Service', async () => {
-    console.log('Editing Data Service');
-    const dataService = new DataService(page.page);
-    await dataService.edit();
-  });
-
-
-  test.afterAll(async () => {
-    await vscode?.close();
-    const videoTitle = `artifact_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
-    const video = page.page.video();
-    const videoDir = path.resolve(resourcesFolder, 'videos');
-    const videoPath = await video?.path();
-
-    if (video && videoPath) {
-      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
-    }
-
-    // cleanup
-    if (fs.existsSync(newProjectPath)) {
-      fs.rmSync(newProjectPath, { recursive: true });
-    }
-    console.log('Artifact tests completed');
+      await test.step('Add Data Service', async () => {
+        console.log('Creating new Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.init();
+        await dataService.add();
+      });
+      await test.step('Edit Data Service', async () => {
+        console.log('Editing Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.edit();
+      });
+    });
   });
 }
