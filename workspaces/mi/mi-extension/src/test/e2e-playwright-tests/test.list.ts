@@ -15,14 +15,15 @@ import artifactTests from './artifactTests/artifact.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
+const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
+
+test.describe.configure({ mode: 'default' });
 
 test.beforeAll(async () => {
-    const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
-
     if (fs.existsSync(videosFolder)) {
         fs.rmSync(videosFolder, { recursive: true, force: true });
     }
-    console.log('>>> Starting tests');
+    console.log('>>> Starting test suite');
 });
 
 test.describe(connectionTests);
@@ -31,6 +32,8 @@ test.describe(inboundEpTests);
 test.describe(artifactTests);
 
 test.afterAll(async () => {
-    console.log(`>>> Finished all tests`);
+    console.log(`>>> Finished test suite`);
+    const dateTime = new Date().toISOString().replace(/:/g, '-');
+    page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.webm`));
     await page.page?.close();
 });
