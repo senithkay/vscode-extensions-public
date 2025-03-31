@@ -16,7 +16,7 @@ import { ProjectExplorer } from '../components/ProjectExplorer';
 
 export default function createTests() {
     test.describe(async () => {
-        initTest("connection", true);
+        initTest(true);
 
         test("Connection Tests", async () => {
             await test.step('Create new Connection', async () => {

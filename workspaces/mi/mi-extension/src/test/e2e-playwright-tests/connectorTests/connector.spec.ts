@@ -19,7 +19,7 @@ const fs = require('fs');
 
 export default function createTests() {
   test.describe(async () => {
-    initTest("connector");
+    initTest();
 
     test("Connector Tests", async () => {
       await test.step('Create new API', async () => {

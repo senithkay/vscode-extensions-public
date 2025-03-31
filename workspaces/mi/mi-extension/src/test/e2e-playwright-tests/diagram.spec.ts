@@ -17,7 +17,7 @@ import { ConnectorStore } from './components/ConnectorStore';
 
 export default function createTests() {
   test.describe(async () => {
-    initTest("Diagram", true);
+    initTest(true);
 
     test("Diagram Tests", async () => {
       test.skip('Create new API', async () => {
