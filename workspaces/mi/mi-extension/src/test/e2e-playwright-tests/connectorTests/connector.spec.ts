@@ -39,11 +39,11 @@ export default function createTests() {
           values: {
             'Name*': {
               type: 'input',
-              value: 'api1',
+              value: 'connectorsAPI',
             },
             'Context*': {
               type: 'input',
-              value: '/api1',
+              value: '/connectorsAPI',
             },
           }
         });
