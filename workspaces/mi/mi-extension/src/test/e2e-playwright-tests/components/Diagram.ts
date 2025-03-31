@@ -43,6 +43,13 @@ export class Diagram {
         return new Mediator(this.diagramWebView, mediatorNode);
     }
 
+    public async getConnectorOperation(connectorName: string, operationName: string, index: number = 0) {
+        const connectorNode = (await this.getDiagramContainer()).locator(`[data-testid^="connectorNode-${connectorName}.${operationName}-"]`).nth(index).locator('div').first();
+        await connectorNode.waitFor();
+        await connectorNode.hover();
+        return new Mediator(this.diagramWebView, connectorNode);
+    }
+
     public async addMediator(mediatorName: string, index: number = 0) {
         await this.clickPlusButtonByIndex(index);
 
@@ -50,6 +57,49 @@ export class Diagram {
         await sidePanel.init();
         await sidePanel.search(mediatorName);
         await sidePanel.addMediator(mediatorName);
+    }
+
+    public async downloadConnectorThroughModulesList(name: string, index: number = 0) {
+        await this.clickPlusButtonByIndex(index);
+
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        await sidePanel.goToAddModulesPage();
+
+        await sidePanel.downloadConnector(name);
+    }
+
+    public async downloadConnectorThroughSearch(name: string, index: number = 0) {
+        await this.clickPlusButtonByIndex(index);
+
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        await sidePanel.search(name);
+
+        await sidePanel.downloadConnector(name);
+    }
+
+    public async deleteConnector(name: string, index: number = 0) {
+        await this.clickPlusButtonByIndex(index);
+
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        await sidePanel.search(name);
+        await sidePanel.deleteConnector(name);
+        await sidePanel.close();
+    }
+
+    public async addConnectorOperation(connector: string, operation: string) {
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        await sidePanel.search(operation);
+        await sidePanel.addConnector(connector, operation);
+    }
+
+    public async fillConnectorForm(props: FormFillProps) {
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        await sidePanel.fillConnectorForm(props);
     }
 
     public async goToExternalsPage() {
@@ -73,7 +123,7 @@ export class Diagram {
         sidePanel.addNewConnection();
     }
 
-    public async addNewConnectionFromConnectorTab() {
+    public async addNewConnectionFromOperationForm() {
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
         sidePanel.addNewConnection();
@@ -84,24 +134,6 @@ export class Diagram {
         await sidePanel.init();
         sidePanel.goToExternalsPage();
         return sidePanel.verifyConnection(name, type);
-    }
-
-    public async addConnector(connectionName: string, operationName: string, index: number = 0, props: FormFillProps) {
-        await this.clickPlusButtonByIndex(index);
-        await this.goToExternalsPage();
-        const sidePanel = new SidePanel(this.diagramWebView);
-        await sidePanel.init();
-
-        await sidePanel.addConnector(connectionName, operationName, props);
-    }
-
-    public async selectConnectorFromConnectorTab(connectorName: string, operationName: string, index: number = 0) {
-        await this.clickPlusButtonByIndex(index);
-        await this.goToConnectorsPage();
-        const sidePanel = new SidePanel(this.diagramWebView);
-        await sidePanel.init();
-
-        return await sidePanel.selectConnectorOperationFromConnectorTab(connectorName, operationName);
     }
 
     public async getConnector(connectorName: string, operationName: string, index: number = 0) {
@@ -176,7 +208,7 @@ class SidePanel {
     }
 
     public async search(str: string) {
-        const searchInput = this.sidePanel.locator("input");
+        const searchInput = this.sidePanel.locator("input").nth(0);
         await searchInput.type(str);
     }
 
@@ -200,31 +232,66 @@ class SidePanel {
         await form.submit("Submit");
     }
 
-    public async addConnector(connectionName: string, operationName: string, props: FormFillProps) {
-        const connection = this.sidePanel.locator(`#card-select-${connectionName}`);
-        await connection.waitFor();
-        await connection.click();
+    public async addConnector(connectorName: string, operationName: string) {
+        const connector = this.sidePanel.locator(`#card-select-${connectorName}`).nth(0);
+        await connector.waitFor();
+        const connectorComponent = connector.locator(`..`);
 
-        const operation = this.sidePanel.locator(`#card-select-${operationName}`);
+        const operation = connectorComponent.locator(`#card-select-${operationName}`);
         await operation.waitFor();
         await operation.click();
+    }
 
+    public async fillConnectorForm(props: FormFillProps) {
         const form = new Form(undefined, undefined, this.sidePanel);
         await form.fill(props);
+
         await form.submit("Submit");
     }
 
-    public async selectConnectorOperationFromConnectorTab (connectorName: string, operationName: string) {
+    public async downloadConnector(name: string) {
+        const connector = this.sidePanel.locator(`#card-select-${name}`);
+        await connector.waitFor();
+
+        const downloadBtn = connector.locator(`.download-icon`);
+        await downloadBtn.waitFor();
+        await downloadBtn.click();
+
+        await this.confirmDownloadDependency();
+
+        const loader = this.sidePanel.locator(`span:text("Downloading Module...")`);
+        await loader.waitFor();
+
+        const downloadedConnector =  this.sidePanel.locator(`#card-select-${name}`);
+        await downloadedConnector.waitFor();
+    }
+
+    public async deleteConnector(connectorName: string) {
         const connector = this.sidePanel.locator(`#card-select-${connectorName}`);
         await connector.waitFor();
-        await connector.click();
 
-        const operation = this.sidePanel.locator(`#card-select-${operationName}`);
-        await operation.waitFor();
-        await operation.click();
+        const deleteBtn = connector.locator(`.delete-icon`);
+        await deleteBtn.click();
 
-        const form = new Form(undefined, undefined, this.sidePanel);
-        return form;
+        await this.sidePanel.locator(`p:text(" module will be removed from the project. Make sure all its dependencies are removed.")`);
+        const confiramtionBtn = this.sidePanel.locator(`vscode-button:text("Yes") >> ..`);
+        await confiramtionBtn.waitFor();
+        await confiramtionBtn.click();
+
+        await connector.waitFor({ state: "hidden" });
+    }
+
+    public async confirmDownloadDependency() {
+        await this.sidePanel.locator(`p:text("Dependencies will be added to the project. Do you want to continue?")`);
+        const confiramtionBtn = this.sidePanel.locator(`vscode-button:text("Yes") >> ..`);
+        await confiramtionBtn.waitFor();
+        await confiramtionBtn.click();
+    }
+
+    public async goToAddModulesPage() {
+        const addModulesPageBtn = this.sidePanel.locator(`div:text("Add Module")`);
+        await addModulesPageBtn.waitFor();
+        await addModulesPageBtn.click();
     }
 
     public async goToExternalsPage() {
