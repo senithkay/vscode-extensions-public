@@ -33,13 +33,11 @@ export interface IconProps {
 }
 
 export const Icon: React.FC<IconProps> = (props: IconProps) => {
-    const { id, className, name, sx, iconSx, isCodicon, onClick } = props;
-    const handleComponentClick = () => {
-        onClick && onClick();
-    }
+    const { name, iconSx, isCodicon, ...rest } = props;
+    
     const icon = isCodicon ? <i style= {iconSx} className={`codicon codicon-${name}`} /> : <i style={iconSx} className={`fw-${name}`} />;
     return (
-        <IconContainer id={id} className={className} sx={sx} onClick={handleComponentClick}>
+        <IconContainer {...rest}>
             {icon}
         </IconContainer>
     );
