@@ -9,7 +9,7 @@
 
 import { test } from '@playwright/test';
 import connectionTests from './connectorTests/connection.spec';
-import connectorTests from './connectorTests/connection.spec';
+import connectorTests from './connectorTests/connector.spec';
 import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 import { page } from './Utils';
 const fs = require('fs');
