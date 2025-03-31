@@ -32,6 +32,6 @@ test.describe(inboundEpTests);
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);
     const dateTime = new Date().toISOString().replace(/:/g, '-');
-    page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.mp4`));
+    page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.webm`));
     await page.page?.close();
 });
