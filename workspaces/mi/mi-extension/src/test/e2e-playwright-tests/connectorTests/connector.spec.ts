@@ -9,7 +9,7 @@
 
 import { test, expect } from '@playwright/test';
 import * as path from 'path';
-import { clearNotificationAlerts, createProject, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from '../Utils';
+import { clearNotificationAlerts, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from '../Utils';
 import { ConnectorStore } from '../components/ConnectorStore';
 import { Diagram } from '../components/Diagram';
 import { ServiceDesigner } from '../components/ServiceDesigner';
