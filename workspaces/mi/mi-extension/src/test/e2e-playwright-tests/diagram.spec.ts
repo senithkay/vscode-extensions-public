@@ -86,67 +86,6 @@ export default function createTests() {
         expect(await mediator.getDescription()).toEqual('log mediator');
 
       });
-
-      test.skip('Add new connection', async () => {
-        // Add connection from side panel
-        const diagram = new Diagram(page.page, 'Resource');
-        await diagram.init();
-        await diagram.addNewConnection(1);
-
-        const connectorStore = new ConnectorStore(page.page, 'Resource View');
-        await connectorStore.init();
-        await connectorStore.selectOperation('File');
-
-        const connectionForm = new Form(page.page, 'Resource View');
-        await connectionForm.switchToFormView();
-        await connectionForm.fill({
-          values: {
-            'Connection Name*': {
-              type: 'input',
-              value: 'file_connection',
-            },
-            'Host*': {
-              type: 'input',
-              value: 'example.com',
-            },
-            'Port*': {
-              type: 'input',
-              value: '80',
-            },
-            'User Directory Is Root': {
-              type: 'combo',
-              value: 'true',
-            },
-            'TrustStore Path*': {
-              type: 'expression',
-              value: 'exampletruststore.com',
-            },
-            'TrustStore Password*': {
-              type: 'expression',
-              value: 'examplePassword@123',
-            }
-          }
-        });
-        await clearNotificationAlerts(page);
-        await connectionForm.submit('Add');
-        expect(await diagram.verifyConnection("file_connection", "File - FTPS Connection")).toBeTruthy();
-        await diagram.closeSidePanel();
-      });
-
-      test.skip('Edit Connector Operation Generated From Templates', async () => {
-        // Edit connector operation generated from templates
-        const diagram = new Diagram(page.page, 'Resource');
-        await diagram.init();
-        const connectorNode = await diagram.getConnector('ldap', 'addEntry');
-        await connectorNode.edit({
-          values: {
-            'attributes': {
-              type: 'expression',
-              value: 'att',
-            }
-          }
-        });
-      });
     });
   });
 }
