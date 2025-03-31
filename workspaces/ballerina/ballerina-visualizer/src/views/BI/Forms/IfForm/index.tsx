@@ -275,6 +275,7 @@ export function IfForm(props: IfFormProps) {
             context: {
                 expression: expression,
                 startLine: targetLineRange.startLine,
+                lineOffset: 0,
                 offset: 0,
                 node: node,
                 property: "condition",

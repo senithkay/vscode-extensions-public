@@ -50,6 +50,7 @@ import {
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
     getFormProperties,
+    getInfoFromExpressionValue,
     removeDuplicateDiagnostics,
     updateLineRange,
 } from "../../../../utils/bi";
@@ -322,12 +323,14 @@ export function FormGenerator(props: FormProps) {
                         })
                         .sort((a, b) => a.sortText.localeCompare(b.sortText));
                 } else {
+                    const { lineOffset, charOffset } = getInfoFromExpressionValue(value, offset);
                     let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
                         filePath: fileName,
                         context: {
                             expression: value,
                             startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                            offset: offset,
+                            lineOffset: lineOffset,
+                            offset: charOffset,
                             codedata: node.codedata,
                             property: property
                         },
@@ -421,12 +424,14 @@ export function FormGenerator(props: FormProps) {
     );
 
     const extractArgsFromFunction = async (value: string, property: ExpressionProperty, cursorPosition: number) => {
+        const { lineOffset, charOffset } = getInfoFromExpressionValue(value, cursorPosition);
         const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
             filePath: fileName,
             context: {
                 expression: value,
                 startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                offset: cursorPosition,
+                lineOffset: lineOffset,
+                offset: charOffset,
                 codedata: node.codedata,
                 property: property,
             },
@@ -466,6 +471,7 @@ export function FormGenerator(props: FormProps) {
                         context: {
                             expression: expression,
                             startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                            lineOffset: 0,
                             offset: 0,
                             codedata: node.codedata,
                             property: property,

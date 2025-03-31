@@ -37,6 +37,7 @@ import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, The
 import {
     convertBalCompletion,
     convertToVisibleTypes,
+    getInfoFromExpressionValue,
     updateLineRange
 } from "../../../../utils/bi";
 import { debounce, set } from "lodash";
@@ -187,12 +188,14 @@ export function FormGeneratorNew(props: FormProps) {
                         })
                         .sort((a, b) => a.sortText.localeCompare(b.sortText));
                 } else {
+                    const { lineOffset, charOffset } = getInfoFromExpressionValue(value, offset);
                     let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
                         filePath: fileName,
                         context: {
                             expression: value,
                             startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                            offset: offset,
+                            lineOffset: lineOffset,
+                            offset: charOffset,
                             codedata: undefined,
                             property: property
                         },

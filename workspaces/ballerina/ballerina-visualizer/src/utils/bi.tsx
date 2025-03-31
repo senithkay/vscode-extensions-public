@@ -805,3 +805,24 @@ export function getFlowNodeForNaturalFunction(node: FunctionNode): FlowNode {
     };
     return flowNode;
 }
+
+/**
+ * Returns the line and the character offset of the expression
+ *
+ * @param expression
+ * @returns { lineOffset: number, charOffset: number }
+ */
+export function getInfoFromExpressionValue(
+    expression: string,
+    cursorPosition: number
+): { lineOffset: number, charOffset: number } {
+    const effectiveExpression = expression.slice(0, cursorPosition);
+    const lines = effectiveExpression.split(/\n/g);
+    const lineCount = lines.length - 1;
+    const charOffset = lines[lineCount].length;
+
+    return {
+        lineOffset: lineCount,
+        charOffset: charOffset
+    };
+}
