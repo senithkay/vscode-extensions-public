@@ -63,7 +63,7 @@ export class JoinClauseNode extends DataMapperNodeModel {
                 if (optionalRecordField) {
                     optionalRecordField?.fields.forEach((subField) => {
                         this.numberOfFields += this.addPortsForInputRecordField(
-                            subField, "OUT", name, EXPANDED_QUERY_SOURCE_PORT_PREFIX, EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+                            subField, "OUT", name, name, EXPANDED_QUERY_SOURCE_PORT_PREFIX,
                             parentPort, this.context.collapsedFields, parentPort.collapsed, true
                         );
                     });
@@ -71,13 +71,13 @@ export class JoinClauseNode extends DataMapperNodeModel {
                     const fields = this.typeDef.fields;
                     fields.forEach((subField) => {
                         this.numberOfFields += this.addPortsForInputRecordField(
-                            subField, "OUT", name, EXPANDED_QUERY_SOURCE_PORT_PREFIX, EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+                            subField, "OUT", name, name, EXPANDED_QUERY_SOURCE_PORT_PREFIX,
                                 parentPort, this.context.collapsedFields, parentPort.collapsed
                             );
                     });
                 } else {
                     this.numberOfFields += this.addPortsForInputRecordField(
-                        this.typeDef, "OUT", name, EXPANDED_QUERY_SOURCE_PORT_PREFIX, EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+                        this.typeDef, "OUT", name, name, EXPANDED_QUERY_SOURCE_PORT_PREFIX,
                             parentPort, this.context.collapsedFields, parentPort.collapsed
                         );
                 }
