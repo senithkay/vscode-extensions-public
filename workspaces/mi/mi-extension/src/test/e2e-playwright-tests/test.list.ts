@@ -13,10 +13,9 @@ import inboundEpTests from './connectionTests/inboundEndpoint.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
+const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
 
 test.beforeAll(async () => {
-    const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
-
     if (fs.existsSync(videosFolder)) {
         fs.rmSync(videosFolder, { recursive: true, force: true });
     }
@@ -28,5 +27,7 @@ test.describe(inboundEpTests);
 
 test.afterAll(async () => {
     console.log(`>>> Finished all tests`);
+    const dateTime = new Date().toISOString().replace(/:/g, '-');
+    page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.mp4`));
     await page.page?.close();
 });
