@@ -34,9 +34,12 @@ export const startVSCode = async (resourcesFolder: string, vscodeVersion: string
     const window = await vscode.firstWindow();
 
     // Direct Electron console to Node terminal.
+    const fs = require('fs');
+    const logFilePath = path.join(resourcesFolder, 'videos', 'extension.log');
+
     window.on('console', (msg) => {
         if (!/^Received response for untracked message id:|^Received notification with unknown method:/.test(msg.text())) {
-            console.log(msg.text());
+            fs.appendFileSync(logFilePath, `${msg.text()}\n`);
         }
     });
 

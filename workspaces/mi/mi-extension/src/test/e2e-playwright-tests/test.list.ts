@@ -11,7 +11,24 @@ import { test } from '@playwright/test';
 import connectionTests from './connectionTests/connection.spec';
 import inboundEpTests from './connectionTests/inboundEndpoint.spec';
 import artifactTests from './artifactTests/artifact.spec';
+import { page } from './Utils';
+const fs = require('fs');
+const path = require('path');
+
+test.beforeAll(async () => {
+    const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
+
+    if (fs.existsSync(videosFolder)) {
+        fs.rmSync(videosFolder, { recursive: true, force: true });
+    }
+    console.log('>>> Starting tests');
+});
 
 test.describe(connectionTests);
 test.describe(inboundEpTests);
 test.describe(artifactTests);
+
+test.afterAll(async () => {
+    console.log(`>>> Finished all tests`);
+    await page.page?.close();
+});

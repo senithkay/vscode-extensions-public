@@ -7,11 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Locator, Page } from "@playwright/test";
+import { Locator } from "@playwright/test";
 import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { ExtendedPage, getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { clearNotificationAlerts } from "../Utils";
-import { t } from "xstate";
 
 export class Welcome {
     private container!: Locator;
@@ -30,44 +29,60 @@ export class Welcome {
         const btn = await getVsCodeButton(this.container, 'Create New Project', 'primary');
         await btn.click();
     }
+
+    public async waitUntilDeattached() {
+        await this.page.page.waitForSelector('iframe.webview.ready', { state: 'detached' });
+    }
+
     public async setupEnvironment() {
-        let webview;
-        try {
-            webview = await switchToIFrame(MACHINE_VIEW.SETUP_ENVIRONMENT, this.page.page, 5000);
-        } catch (error) {
+        const webviewFrame = await this.page.page.waitForSelector('iframe.webview.ready', { timeout: 30000 });
+        const frame = await webviewFrame.contentFrame();
+        if (!frame) {
+            throw new Error(`IFrame not found`);
+        }
+        await frame.waitForLoadState();
+        const targetFrame = await frame.waitForSelector(`iframe`, { timeout: 30000 });
+        const iframeTitle = await targetFrame.getAttribute('title');
+        console.log(`IFrame Title: ${iframeTitle}`);
+
+        const webview = await targetFrame.contentFrame();
+        await webview?.waitForLoadState();
+
+        if (iframeTitle === MACHINE_VIEW.ADD_ARTIFACT) {
             return true;
+        }
+        if (iframeTitle !== MACHINE_VIEW.SETUP_ENVIRONMENT) {
+            await this.page.page.pause();
+            throw new Error(`Invalid IFrame: ${iframeTitle}`);
         }
 
-        if (!webview) {
-            return true;
-        }
         console.log('Setting up environment');
-        const container = webview.locator('div#root');
+        const container = webview?.locator('div#root');
         await clearNotificationAlerts(this.page.page);
-        const javaErrorMessage = container.locator('div:has-text("Java is not properly setup")');
-        await javaErrorMessage.waitFor({ timeout: 8000 }).catch(() => {});
-        if (await javaErrorMessage.count() > 0) {
+        const javaErrorMessage = container?.locator('div:has-text("Java is not properly setup")');
+        await javaErrorMessage?.waitFor({ timeout: 8000 }).catch(() => { });
+        if (await javaErrorMessage!.count() > 0) {
             console.log('Java is not setup');
-            const downloadJava = await getVsCodeButton(container, 'Download Java', 'primary');
+            const downloadJava = await getVsCodeButton(container!, 'Download Java', 'primary');
             await downloadJava.click();
 
             // Wait for Java to be downloaded
-            await container.locator('div:has-text("Java is setup")').first().waitFor({ timeout: 180000 });
+            await container?.locator('div:has-text("Java is setup")').first().waitFor({ timeout: 180000 });
             console.log('Java setup done');
         }
-        const microIntegratorErrorMessage = container.locator('div:has-text("Micro Integrator is not available")');
-        if (await microIntegratorErrorMessage.count() > 0) {
+        const microIntegratorErrorMessage = container?.locator('div:has-text("Micro Integrator is not available")');
+        if (await microIntegratorErrorMessage!.count() > 0) {
             console.log('Micro Integrator is not setup');
-            const downloadMI = await getVsCodeButton(container, 'Download Micro Integrator', 'primary');
+            const downloadMI = await getVsCodeButton(container!, 'Download Micro Integrator', 'primary');
             await downloadMI.click();
 
             // Wait for MI to be downloaded
-            await container.locator('div:has-text("Micro Integrator is setup")').first().waitFor({ timeout: 180000 });
+            await container!.locator('div:has-text("Micro Integrator is setup")').first().waitFor({ timeout: 180000 });
             console.log('Micro Integrator setup done');
         }
 
         console.log('Environment setup done');
-        const continueBtn = await getVsCodeButton(container, 'Continue', 'primary');
+        const continueBtn = await getVsCodeButton(container!, 'Continue', 'primary');
         await continueBtn.click();
     }
 }
