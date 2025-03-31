@@ -418,10 +418,16 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async getProjectStructure(): Promise<ProjectStructureResponse> {
         return new Promise(async (resolve) => {
             const projectPath = StateMachine.context().projectUri;
-            const res: ProjectStructureResponse = await buildProjectStructure(
-                projectPath,
-                StateMachine.context().langClient
-            );
+            let res: ProjectStructureResponse;
+            const stateContext = StateMachine.context();
+            if (stateContext.projectStructure) {
+                res = stateContext.projectStructure;
+            } else {
+                res = await buildProjectStructure(
+                    projectPath,
+                    StateMachine.context().langClient
+                );
+            }
             resolve(res);
         });
     }

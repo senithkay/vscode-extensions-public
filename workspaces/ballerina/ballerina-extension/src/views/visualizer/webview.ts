@@ -16,6 +16,7 @@ import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } f
 import { extension } from "../../BalExtensionContext";
 import { StateMachine, updateView } from "../../stateMachine";
 import { ballerinaExtInstance, LANGUAGE } from "../../core";
+import { buildProjectStructure } from "@wso2-enterprise/ballerina-core";
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -32,8 +33,10 @@ export class VisualizerWebview {
         RPCLayer.create(this._panel);
 
         // Handle the text change and diagram update with rpc notification
-        const sendUpdateNotificationToWebview = debounce((refreshTreeView?: boolean) => {
+        const sendUpdateNotificationToWebview = debounce(async (refreshTreeView?: boolean) => {
             if (this._panel) {
+                // TODO: Remove this once the LS change for event driven tree update is present
+                StateMachine.updateProjectStructure(await buildProjectStructure(StateMachine.context().projectUri, StateMachine.langClient()));
                 updateView(refreshTreeView);
             }
         }, 500);

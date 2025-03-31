@@ -2,7 +2,7 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, buildProjectStructure } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
@@ -38,7 +38,12 @@ const stateMachine = createMachine<MachineContext>(
         },
         on: {
             RESET_TO_EXTENSION_READY: {
-                target: "extensionReady"
+                target: "extensionReady",
+            },
+            UPDATE_PROJECT_STRUCTURE: {
+                actions: assign({
+                    projectStructure: (context, event) => event.payload
+                })
             }
         },
         states: {
@@ -199,6 +204,8 @@ const stateMachine = createMachine<MachineContext>(
                     if (!ls.biSupported) {
                         commands.executeCommand('setContext', 'BI.status', 'updateNeed');
                     }
+                    // TODO: Remove this once the LS change for event driven tree update is present
+                    StateMachine.updateProjectStructure(await buildProjectStructure(context.projectUri, ls.langClient));
                     resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
                 } catch (error) {
                     throw new Error("LS Activation failed", error);

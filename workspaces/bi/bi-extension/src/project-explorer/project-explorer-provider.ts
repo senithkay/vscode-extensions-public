@@ -8,7 +8,7 @@
  */
 
 import * as vscode from 'vscode';
-import { window, Uri } from 'vscode';
+import { window, Uri, commands } from 'vscode';
 import path = require('path');
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure, PackageConfigSchema, BallerinaProject, DIRECTORY_SUB_TYPE } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../biExtentionContext";
@@ -134,10 +134,17 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
                 return [];
             }
 
-            const resp = await buildProjectStructure(extension.projectPath, extension.langClient);
-            // Add all the configurations to the project tree
-            // await addConfigurations(rootPath, resp);
-            const projectTree = generateTreeData(workspace, resp);
+            // TODO: set the tree data
+            // Get the state context from ballerina extension as it maintain the event driven tree data
+            let projectStructure;
+            const stateContext = await commands.executeCommand(SHARED_COMMANDS.GET_STATE_CONTEXT);
+            // Based on the LS capabilities we can use the old method as we need to support backward compatibility. 
+            if (typeof stateContext === 'object' && stateContext !== null && 'projectStructure' in stateContext && stateContext.projectStructure !== null) {
+                projectStructure = stateContext.projectStructure;
+            } else {
+                // projectStructure = await buildProjectStructure(extension.projectPath, extension.langClient);
+            }
+            const projectTree = generateTreeData(workspace, projectStructure);
             if (projectTree) {
                 data.push(projectTree);
             }
@@ -290,7 +297,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
 }
 
 function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIRECTORY_MAP): ProjectExplorerEntry[] {
-    if(!items) {
+    if (!items) {
         return [];
     }
     const entries: ProjectExplorerEntry[] = [];

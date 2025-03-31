@@ -12,6 +12,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
 import { DevantComponent } from "./rpc-types/bi-diagram/interfaces";
+import { ProjectStructureResponse } from "./interfaces/bi";
 
 export type MachineStateValue =
     | 'initialize'
@@ -112,6 +113,7 @@ export interface VisualizerLocation {
     isGraphql?: boolean;
     metadata?: VisualizerMetadata;
     scope?: SCOPE;
+    projectStructure?: ProjectStructureResponse;
 }
 
 export interface VisualizerMetadata {
