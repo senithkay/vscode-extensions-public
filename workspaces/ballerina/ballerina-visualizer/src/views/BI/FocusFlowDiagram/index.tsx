@@ -40,11 +40,13 @@ import {
     convertBalCompletion,
     convertBICategoriesToSidePanelCategories,
     getFlowNodeForNaturalFunction,
+    getInfoFromExpressionValue,
     isNaturalFunction,
     updateLineRange,
 } from "../../../utils/bi";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ProgressRing, ProgressIndicator, ThemeColors, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { EXPRESSION_EXTRACTION_REGEX } from "../../../constants";
 
 const Container = styled.div`
     width: 100%;
@@ -86,6 +88,7 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
     const showEditForm = useRef<boolean>(false);
 
+    const prevCompletionFetchText = useRef<string>();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
@@ -399,36 +402,28 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
                 property: ExpressionProperty,
                 offset: number,
                 invalidateCache: boolean,
-                triggerCharacter?: string,
-                onlyVariables?: boolean
+                triggerCharacter?: string
             ) => {
                 let expressionCompletions: CompletionItem[] = [];
-                const effectiveText = value.slice(0, offset);
-                const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-                const endOfStatementRegex = /[\)\]]\s*$/;
-                if (offset > 0 && endOfStatementRegex.test(effectiveText) && !invalidateCache) {
-                    // Case 1: When a character unrelated to triggering completions is entered
-                    setCompletions([]);
-                } else if (
+                const { parentContent, currentContent } = value
+                    .slice(0, offset)
+                    .match(EXPRESSION_EXTRACTION_REGEX)?.groups ?? {};
+                if (
                     completions.length > 0 &&
-                    completionFetchText.length > 0 &&
                     !triggerCharacter &&
-                    !onlyVariables &&
-                    !triggerCompletionOnNextRequest.current &&
+                    parentContent === prevCompletionFetchText.current &&
                     !invalidateCache
                 ) {
-                    // Case 2: When completions have already been retrieved and only need to be filtered
                     expressionCompletions = completions
                         .filter((completion) => {
-                            const lowerCaseText = completionFetchText.toLowerCase();
+                            const lowerCaseText = currentContent.toLowerCase();
                             const lowerCaseLabel = completion.label.toLowerCase();
 
                             return lowerCaseLabel.includes(lowerCaseText);
                         })
                         .sort((a, b) => a.sortText.localeCompare(b.sortText));
                 } else {
-                    // Case 3: When completions need to be retrieved from the language server
-                    // Retrieve completions from the ls
+                    const { lineOffset, charOffset } = getInfoFromExpressionValue(value, offset);
                     let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
                         filePath: filePath,
                         context: {
@@ -437,26 +432,18 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
                                 selectedNode.properties['prompt'].codedata.lineRange, 
                                 expressionOffsetRef.current
                             ).startLine,
-                            offset: offset,
+                            lineOffset: lineOffset,
+                            offset: charOffset,
                             codedata: selectedNode.codedata,
-                            property: property,
+                            property: property
                         },
                         completionContext: {
                             triggerKind: triggerCharacter ? 2 : 1,
-                            triggerCharacter: triggerCharacter as TriggerCharacter,
-                        },
+                            triggerCharacter: triggerCharacter as TriggerCharacter
+                        }
                     });
 
-                    if (onlyVariables) {
-                        // If only variables are requested, filter out the completions based on the kind
-                        // 'kind' for variables = 6
-                        completions = completions?.filter((completion) => completion.kind === 6);
-                        triggerCompletionOnNextRequest.current = true;
-                    } else {
-                        triggerCompletionOnNextRequest.current = false;
-                    }
-
-                    // Convert completions to the ExpressionBar format
+                    // Convert completions to the ExpressionEditor format
                     let convertedCompletions: CompletionItem[] = [];
                     completions?.forEach((completion) => {
                         if (completion.detail) {
@@ -472,7 +459,7 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
                     } else {
                         expressionCompletions = convertedCompletions
                             .filter((completion) => {
-                                const lowerCaseText = completionFetchText.toLowerCase();
+                                const lowerCaseText = currentContent.toLowerCase();
                                 const lowerCaseLabel = completion.label.toLowerCase();
 
                                 return lowerCaseLabel.includes(lowerCaseText);
@@ -481,11 +468,12 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
                     }
                 }
 
+                prevCompletionFetchText.current = parentContent ?? "";
                 setFilteredCompletions(expressionCompletions);
             },
             250
         ),
-        [rpcClient, completions, filePath, selectedNode, triggerCompletionOnNextRequest.current]
+        [rpcClient, completions, filePath, selectedNode]
     );
 
     const handleRetrieveCompletions = useCallback(
@@ -494,10 +482,9 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
             property: ExpressionProperty,
             offset: number,
             invalidateCache: boolean,
-            triggerCharacter?: string,
-            onlyVariables?: boolean
+            triggerCharacter?: string
         ) => {
-            await debouncedRetrieveCompletions(value, property, offset, invalidateCache, triggerCharacter, onlyVariables);
+            await debouncedRetrieveCompletions(value, property, offset, invalidateCache, triggerCharacter);
 
             if (triggerCharacter) {
                 await debouncedRetrieveCompletions.flush();

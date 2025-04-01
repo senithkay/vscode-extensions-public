@@ -183,7 +183,7 @@ export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, o
             </HelperPane.Body>
             <HelperPane.Footer>
                 <HelperPane.IconButton
-                    title="Open library browser"
+                    title="Open function browser"
                     getIcon={() => <Codicon name="library" />}
                     onClick={() => setIsLibraryBrowserOpen(true)}
                 />
