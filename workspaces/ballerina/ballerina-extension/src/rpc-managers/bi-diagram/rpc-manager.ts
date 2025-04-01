@@ -1444,7 +1444,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
             isLoggedIn = platformExtAPI.isLoggedIn();
             if (isLoggedIn) {
-                const components = platformExtAPI.getComponents(projectRoot);
+                const components = platformExtAPI.getDirectoryComponents(projectRoot);
                 return { isLoggedIn, hasComponent: components.length > 0 };
             }
             return { isLoggedIn, hasComponent: hasContextYaml };

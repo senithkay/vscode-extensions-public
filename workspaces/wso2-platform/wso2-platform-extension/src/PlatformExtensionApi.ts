@@ -14,7 +14,7 @@ import { getNormalizedPath } from "./utils";
 
 export class PlatformExtensionApi implements IWso2PlatformExtensionAPI {
 	public isLoggedIn = () => !!authStore.getState().state?.userInfo;
-	public getComponents = (fsPath: string) =>
+	public getDirectoryComponents = (fsPath: string) =>
 		(contextStore
 			.getState()
 			.state?.components?.filter((item) => getNormalizedPath(item?.componentFsPath) === getNormalizedPath(fsPath))
