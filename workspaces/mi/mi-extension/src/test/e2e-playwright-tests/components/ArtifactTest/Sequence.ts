@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
@@ -31,12 +31,22 @@ export class Sequence {
         await addArtifactPage.add('Sequence');
     }
 
-    public async add(name: string) {
-        const seqWebView = await switchToIFrame('Sequence Form', this._page);
-        if (!seqWebView) {
-            throw new Error("Failed to switch to Sequence Form iframe");
+    public async add(name: string, isPopUp?: boolean) {
+        let seqFrame: Locator;
+        if (isPopUp) {
+            const seqWebView = await switchToIFrame('Resource View', this._page);
+            if (!seqWebView) {
+                throw new Error("Failed to switch to Resource Form iframe");
+            }
+            seqFrame = seqWebView.locator('#popUpPanel');
+        } else {
+            const seqWebView = await switchToIFrame('Sequence Form', this._page);
+            if (!seqWebView) {
+                throw new Error("Failed to switch to Sequence Form iframe");
+            }
+            seqFrame = seqWebView.locator('div#root');
         }
-        const seqFrame = seqWebView.locator('div#root');
+        await seqFrame.waitFor();
         await seqFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await seqFrame.getByTestId('create-button').click();
     }
