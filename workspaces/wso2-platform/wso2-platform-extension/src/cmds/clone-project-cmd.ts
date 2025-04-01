@@ -7,10 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "fs";
 import * as os from "os";
 import { join } from "path";
-import { initGit } from "@wso2-enterprise/git-vscode";
 import {
 	CommandIds,
 	type ComponentKind,
@@ -27,7 +26,7 @@ import { dataCacheStore } from "../stores/data-cache-store";
 import { createDirectory, openDirectory } from "../utils";
 import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
-const unzipper = require("unzipper");
+import { initGit } from "../git/main";
 
 export function cloneRepoCommand(context: ExtensionContext) {
 	context.subscriptions.push(

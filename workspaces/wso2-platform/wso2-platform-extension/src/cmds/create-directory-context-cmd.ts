@@ -11,7 +11,6 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmdirSync, unlinkSync
 import * as os from "os";
 import * as path from "path";
 import { dirname } from "path";
-import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import {
 	CommandIds,
 	type ContextItem,
@@ -27,7 +26,8 @@ import { ext } from "../extensionVariables";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
-import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import { getGitRoot, getGitRemotes } from "../git/util";
 
 export function createDirectoryContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(

@@ -8,7 +8,6 @@
  */
 
 import { join } from "path";
-import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import { CommandIds, type Organization, type Project, getComponentKindRepoSource, parseGitURL } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, type ProviderResult, type QuickPickItem, type Uri, commands, window, workspace } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
@@ -23,6 +22,7 @@ import { dataCacheStore } from "./stores/data-cache-store";
 import { locationStore } from "./stores/location-store";
 import { webviewStateStore } from "./stores/webview-state-store";
 import { delay, openDirectory } from "./utils";
+import { getGitRemotes, getGitRoot } from "./git/util";
 
 export function activateURIHandlers() {
 	window.registerUriHandler({

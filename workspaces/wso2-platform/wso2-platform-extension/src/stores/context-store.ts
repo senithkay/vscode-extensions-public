@@ -9,7 +9,6 @@
 
 import { existsSync, readFileSync } from "fs";
 import * as path from "path";
-import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import {
 	type ComponentKind,
 	type ContextItem,
@@ -32,6 +31,7 @@ import { authStore } from "./auth-store";
 import { dataCacheStore } from "./data-cache-store";
 import { locationStore } from "./location-store";
 import { getWorkspaceStateStore } from "./store-utils";
+import { getGitRoot, getGitRemotes } from "../git/util";
 
 interface ContextStore {
 	state: ContextStoreState;

@@ -11,8 +11,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as os from "os";
 import { join } from "path";
 import * as path from "path";
-import { getGitRemotes, initGit } from "@wso2-enterprise/git-vscode";
-import type { IFileStatus } from "@wso2-enterprise/git-vscode/lib/git";
 import {
 	ChoreoComponentType,
 	type ComponentConfigYamlContent,
@@ -27,6 +25,9 @@ import {
 import * as yaml from "js-yaml";
 import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import { getLogger } from "./logger/logger";
+import { IFileStatus } from "./git/git";
+import { initGit } from "./git/main";
+import { getGitRemotes } from "./git/util";
 
 export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
 	const filterEndpointSchemaPath = (eps: Endpoint[] = []) =>

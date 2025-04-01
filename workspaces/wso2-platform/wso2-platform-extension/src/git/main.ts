@@ -3,12 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import {
 	Disposable,
 	type ExtensionContext,
+	LogLevel,
+	LogOutputChannel,
 	Uri,
+	type WorkspaceFolder,
 	commands,
 	env,
 	l10n,
@@ -16,10 +20,11 @@ import {
 	window,
 	workspace,
 } from "vscode";
+import { getLogger } from "../logger/logger";
 import { Askpass } from "./askpass";
 import { Git, type IGit, findGit } from "./git";
 import { GithubCredentialProviderManager } from "./github/credentialProvider";
-import { type IPCServer, createIPCServer } from "./ipcServer";
+import { type IPCServer, createIPCServer } from "./ipc/ipcServer";
 
 async function _init(context: ExtensionContext, disposables: Disposable[]): Promise<Git | undefined> {
 	const pathValue = workspace.getConfiguration("git").get<string | string[]>("path");
@@ -34,7 +39,7 @@ async function _init(context: ExtensionContext, disposables: Disposable[]): Prom
 	}
 
 	const info = await findGit(pathHints, (gitPath) => {
-		console.info(l10n.t('Validating found git in: "{0}"', gitPath));
+		getLogger().info(l10n.t('Validating found git in: "{0}"', gitPath));
 		if (excludes.length === 0) {
 			return true;
 		}
@@ -42,7 +47,7 @@ async function _init(context: ExtensionContext, disposables: Disposable[]): Prom
 		const normalized = path.normalize(gitPath).replace(/[\r\n]+$/, "");
 		const skip = excludes.some((e) => normalized.startsWith(e));
 		if (skip) {
-			console.info(l10n.t('Skipped found git in: "{0}"', gitPath));
+			getLogger().info(l10n.t('Skipped found git in: "{0}"', gitPath));
 		}
 		return !skip;
 	});
@@ -52,7 +57,7 @@ async function _init(context: ExtensionContext, disposables: Disposable[]): Prom
 	try {
 		ipcServer = await createIPCServer(context.storagePath);
 	} catch (error: any) {
-		console.error(`Failed to create git IPC: ${error?.message}${error?.cause ? `\nCause: ${error.cause.message}` : ""}`);
+		getLogger().error(`Failed to create git IPC: ${error?.message}${error?.cause ? `\nCause: ${error.cause.message}` : ""}`);
 	}
 
 	const askpass = new Askpass(ipcServer);
@@ -61,7 +66,7 @@ async function _init(context: ExtensionContext, disposables: Disposable[]): Prom
 	disposables.push(credentialsManager);
 
 	const environment = { ...askpass.getEnv(), ...ipcServer?.getEnv() };
-	console.info(l10n.t('Using git "{0}" from "{1}"', info.version, info.path));
+	getLogger().info(l10n.t('Using git "{0}" from "{1}"', info.version, info.path));
 
 	const git = new Git({
 		gitPath: info.path,
@@ -74,6 +79,21 @@ async function _init(context: ExtensionContext, disposables: Disposable[]): Prom
 	commands.executeCommand("setContext", "gitVersion2.35", git.compareGitVersionTo("2.35") >= 0);
 
 	return git;
+}
+
+async function isGitRepository(folder: WorkspaceFolder): Promise<boolean> {
+	if (folder.uri.scheme !== "file") {
+		return false;
+	}
+
+	const dotGit = path.join(folder.uri.fsPath, ".git");
+
+	try {
+		const dotGitStat = await new Promise<fs.Stats>((c, e) => fs.stat(dotGit, (err, stat) => (err ? e(err) : c(stat))));
+		return dotGitStat.isDirectory();
+	} catch (err) {
+		return false;
+	}
 }
 
 async function warnAboutMissingGit(): Promise<void> {
@@ -98,7 +118,7 @@ export async function initGit(context: ExtensionContext): Promise<Git | undefine
 		git = await _init(context, disposables);
 	} catch (err: any) {
 		if (!/Git installation not found/.test(err.message || "")) {
-			console.error(`Error initializing git. ${err?.message}${err?.cause ? `\nCause: ${err.cause.message}` : ""}`);
+			getLogger().error(`Error initializing git. ${err?.message}${err?.cause ? `\nCause: ${err.cause.message}` : ""}`);
 			window.showErrorMessage(err.message);
 			return;
 		}

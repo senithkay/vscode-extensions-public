@@ -24,6 +24,7 @@ import {
 	workspace,
 } from "vscode";
 import * as which from "which";
+import { getLogger } from "../logger/logger";
 import {
 	type Branch,
 	type Change,
@@ -446,7 +447,7 @@ export class Git {
 		};
 
 		this.onOutput.on("log", (output: string) => {
-			console.debug(output);
+			getLogger().debug(output);
 		});
 
 		workspace.onDidChangeConfiguration(onConfigurationChanged, this);
@@ -493,7 +494,7 @@ export class Git {
 
 			lineStream.on("data", (line: string) => {
 				let match: RegExpExecArray | null = null;
-				console.debug(line);
+				getLogger().debug(line);
 				if ((match = /Counting objects:\s*(\d+)%/i.exec(line))) {
 					totalProgress = Math.floor(Number.parseInt(match[1]) * 0.1);
 				} else if ((match = /Compressing objects:\s*(\d+)%/i.exec(line))) {
@@ -511,7 +512,7 @@ export class Git {
 
 				if (line.startsWith("fatal:")) {
 					window.showErrorMessage(line);
-					console.error(line);
+					getLogger().error(line);
 				}
 			});
 		};
@@ -567,8 +568,8 @@ export class Git {
 			if (error.stderr && error.stderr.indexOf("fatal: Needed a single revision") !== -1) {
 				return true;
 			}
-			console.error("Error while checking if repository is empty");
-			console.error(error);
+			getLogger().error("Error while checking if repository is empty");
+			getLogger().error(error);
 		}
 		return false;
 	}

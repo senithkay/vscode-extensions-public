@@ -9,14 +9,12 @@
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
-import { getGitHead, getGitRemotes, getGitRoot, hasDirtyRepo, removeCredentialsFromGitURL } from "@wso2-enterprise/git-vscode";
 import {
 	AuthStoreChangedNotification,
 	ClearWebviewCache,
 	CloseComponentViewDrawer,
 	CloseWebViewNotification,
 	type CommitHistory,
-	type ComponentConfigYamlContent,
 	type ComponentYamlContent,
 	ContextStoreChangedNotification,
 	CreateLocalConnectionsConfig,
@@ -49,7 +47,6 @@ import {
 	OpenExternal,
 	OpenExternalChoreo,
 	OpenSubDialogRequest,
-	type OpenTestViewReq,
 	type ProxyConfig,
 	ReadFile,
 	ReadLocalEndpointsConfig,
@@ -100,6 +97,7 @@ import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { sendTelemetryEvent, sendTelemetryException } from "../telemetry/utils";
 import { getConfigFileDrifts, getNormalizedPath, getSubPath, goTosource, readLocalEndpointsConfig, readLocalProxyConfig, saveFile } from "../utils";
+import { getGitHead, getGitRemotes, getGitRoot, hasDirtyRepo, removeCredentialsFromGitURL } from "../git/util";
 
 // Register handlers
 function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {

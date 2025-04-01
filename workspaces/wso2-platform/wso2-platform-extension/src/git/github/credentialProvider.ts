@@ -5,7 +5,7 @@
 
 import { type Disposable, type Uri, workspace } from "vscode";
 import type { Askpass } from "../askpass";
-import { type Credentials, type CredentialsProvider } from "../api/git";
+import { type Credentials, type CredentialsProvider, API as GitAPI } from "./../api/git";
 import { getSession } from "./session";
 
 const EmptyDisposable: Disposable = { dispose() {} };

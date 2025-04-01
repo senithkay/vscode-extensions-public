@@ -7,11 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import * as os from "os";
 import * as path from "path";
-import { join } from "path";
-import { getGitRoot } from "@wso2-enterprise/git-vscode";
 import {
 	ChoreoBuildPackNames,
 	ChoreoComponentType,
@@ -31,11 +29,12 @@ import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
-import { convertFsPathToUriPath, delay, getSubPath, goTosource, isSubpath, openDirectory } from "../utils";
+import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView, type IComponentCreateFormParams } from "../webviews/ComponentFormView";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
+import { getGitRoot } from "../git/util";
 
 let componentWizard: ComponentFormView;
 
