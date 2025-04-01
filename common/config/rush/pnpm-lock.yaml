@@ -2968,6 +2968,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/mi-visualizer': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
+      '@wso2-enterprise/wso2-platform-core': workspace:*
       adm-zip: ~0.5.14
       await-notify: ^1.0.1
       axios: ~1.5.1
@@ -3069,6 +3070,7 @@ importers:
       '@vscode/test-electron': 2.3.9
       '@wso2-enterprise/mi-data-mapper-utils': link:../mi-data-mapper-utils
       '@wso2-enterprise/mi-visualizer': link:../mi-visualizer
+      '@wso2-enterprise/wso2-platform-core': link:../../wso2-platform/wso2-platform-core
       await-notify: 1.0.1
       eslint: 8.56.0
       glob: 10.3.10
@@ -3152,6 +3154,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/service-designer': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
+      '@wso2-enterprise/wso2-platform-core': workspace:*
       copyfiles: ^2.4.1
       cron-expression-validator: ~1.0.20
       css-loader: ^5.2.7
@@ -3210,6 +3213,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      '@wso2-enterprise/wso2-platform-core': link:../../wso2-platform/wso2-platform-core
       cron-expression-validator: 1.0.20
       fast-xml-parser: 4.3.6
       lodash: 4.17.21

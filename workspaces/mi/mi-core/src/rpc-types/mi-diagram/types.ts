@@ -1651,6 +1651,12 @@ export interface BuildProjectRequest {
     buildType?: 'docker' | 'capp';
 }
 
+export interface DevantMetadata {
+    isLoggedIn?: boolean;
+    hasComponent?: boolean;
+    hasLocalChanges?: boolean;
+}
+
 export interface DeployProjectRequest {
 }
 export interface DeployProjectResponse {

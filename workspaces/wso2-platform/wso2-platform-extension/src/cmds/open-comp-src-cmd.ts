@@ -34,6 +34,14 @@ export function openCompSrcCommand(context: ExtensionContext) {
 						selectedOrg =
 							userInfo.organizations.find((item) => item.handle === params?.org || item.name === params?.org) ??
 							(await selectOrg(userInfo, "Select organization"));
+						if(!selectedOrg){
+							window.showErrorMessage(`Unable to find the organization ${params?.org} in your account. Please try signing in again.`,"Sign in").then(res=>{
+								if(res==='Sign in'){
+									commands.executeCommand(CommandIds.SignIn)
+								}
+							})
+							return;
+						}
 					} else if (params?.org) {
 						selectedOrg = params?.org;
 					} else {

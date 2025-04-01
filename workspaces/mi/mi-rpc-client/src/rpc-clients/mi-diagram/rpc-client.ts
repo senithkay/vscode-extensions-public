@@ -396,7 +396,9 @@ import {
     DeployProjectResponse,
     CreateBallerinaModuleRequest,
     CreateBallerinaModuleResponse,
-    buildBallerinaModule
+    buildBallerinaModule,
+    DevantMetadata,
+    getDevantMetadata
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -874,6 +876,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
         return this._messenger.sendRequest(deployProject, HOST_EXTENSION, params);
+    }
+
+    getDevantMetadata(): Promise<DevantMetadata> {
+        return this._messenger.sendRequest(getDevantMetadata, HOST_EXTENSION);
     }
 
     refreshAccessToken(): Promise<void> {
