@@ -12,8 +12,9 @@ import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { clearNotificationAlerts, initTest, page } from './Utils';
-import { ConnectorStore } from './components/ConnectorStore';
+import { initTest, page } from './Utils';
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { Overview } from './components/Overview';
 
 export default function createTests() {
   test.describe(async () => {
@@ -21,11 +22,14 @@ export default function createTests() {
 
     test("Diagram Tests", async () => {
       test.skip('Create new API', async () => {
+        const { title: iframeTitle, webview } = await page.getCurrentWebview();
+        await webview?.waitForLoadState();
 
-        // wait until window reload
-        // await page.page.waitForSelector('iframe.webview.ready', { state: 'detached' })
-        // page = new ExtendedPage(await vscode!.firstWindow());
-        // await page.waitUntilExtensionReady();
+        if (iframeTitle === MACHINE_VIEW.Overview) {
+          const overviewPage = new Overview(page.page);
+          await overviewPage.init();
+          await overviewPage.goToAddArtifact();
+        }
 
         const overviewPage = new AddArtifact(page.page);
         await overviewPage.init();

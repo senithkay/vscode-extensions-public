@@ -35,17 +35,7 @@ export class Welcome {
     }
 
     public async setupEnvironment() {
-        const webviewFrame = await this.page.page.waitForSelector('iframe.webview.ready', { timeout: 30000 });
-        const frame = await webviewFrame.contentFrame();
-        if (!frame) {
-            throw new Error(`IFrame not found`);
-        }
-        await frame.waitForLoadState();
-        const targetFrame = await frame.waitForSelector(`iframe`, { timeout: 30000 });
-        const iframeTitle = await targetFrame.getAttribute('title');
-        console.log(`IFrame Title: ${iframeTitle}`);
-
-        const webview = await targetFrame.contentFrame();
+        const { title: iframeTitle, webview } = await this.page.getCurrentWebview();
         await webview?.waitForLoadState();
 
         if (iframeTitle === MACHINE_VIEW.ADD_ARTIFACT) {

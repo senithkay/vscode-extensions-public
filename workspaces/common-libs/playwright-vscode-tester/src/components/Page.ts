@@ -26,6 +26,20 @@ export class ExtendedPage {
         await this._page.waitForSelector('a:has-text("Activating Extensions...")', { state: 'detached' });
     }
 
+    async getCurrentWebview() {
+        const webviewFrame = await this._page.waitForSelector('iframe.webview.ready', { timeout: 30000 });
+        const frame = await webviewFrame.contentFrame();
+        if (!frame) {
+            throw new Error(`IFrame not found`);
+        }
+        await frame.waitForLoadState();
+        const targetFrame = await frame.waitForSelector(`iframe`, { timeout: 30000 });
+        const iframeTitle = await targetFrame.getAttribute('title');
+        const webview = await targetFrame.contentFrame();
+        console.log('Current webview:', iframeTitle);
+        return { title: iframeTitle, webview };
+    }
+
     async executePaletteCommand(command: string) {
         await this._page.keyboard.press(os.platform() === 'darwin' ? 'Meta+Shift+p' : 'Control+Shift+p');
         await this._page.keyboard.type(command);

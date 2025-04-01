@@ -14,6 +14,7 @@ import { clearNotificationAlerts, initTest, page } from '../Utils';
 import { InboundEPForm } from '../components/InboundEp';
 import { Diagram } from '../components/Diagram';
 import { Overview } from '../components/Overview';
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 export default function createTests() {
     test.describe(async () => {
@@ -22,9 +23,15 @@ export default function createTests() {
         test("Inbound EP Tests", async () => {
             await test.step('Create new HTTPS inbound endpoint', async () => {
                 // Create HTTPS inbound endpoint with automatically generated sequences
-                const overviewPage = new Overview(page.page);
-                await overviewPage.init();
-                await overviewPage.goToAddArtifact();
+
+                const { title: iframeTitle, webview } = await page.getCurrentWebview();
+                await webview?.waitForLoadState();
+
+                if (iframeTitle === MACHINE_VIEW.Overview) {
+                    const overviewPage = new Overview(page.page);
+                    await overviewPage.init();
+                    await overviewPage.goToAddArtifact();
+                }
 
                 const addArtifactPage = new AddArtifact(page.page);
                 await addArtifactPage.init();
