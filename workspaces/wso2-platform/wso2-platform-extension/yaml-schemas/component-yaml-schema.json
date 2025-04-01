@@ -5,8 +5,8 @@
   "required": ["schemaVersion"],
   "properties": {
     "schemaVersion": {
-      "type": "number",
-      "enum": [1.1, 1.0],
+      "type": "string",
+      "enum": [1.2,1.1,1.0],
       "description": "The configuration file schema version"
     },
     "endpoints": {
@@ -46,20 +46,27 @@
           },
           "networkVisibilities": {
             "type": "array",
+            "description": "Network level visibilities of the endpoint",
             "items": {
               "type": "string",
               "enum": ["Project", "Organization", "Public"]
             }
+          },
+          "schemaFilePath": {
+            "type": "string",
+            "description": "Path to the schema definition file, applicable for REST/WS endpoints"
           }
         },
         "if": {
-          "properties": { "type": { "const": "REST" } }
+          "properties": {
+            "type": { "const": "REST" }
+          }
         },
         "then": {
           "properties": {
             "schemaFilePath": {
               "type": "string",
-              "description": "Path to the schema definition file, applicable only for REST."
+              "description": "Schema file path required for REST endpoints"
             }
           },
           "required": ["schemaFilePath"]
@@ -68,10 +75,13 @@
     },
     "dependencies": {
       "type": "object",
+      "description": "Outgoing connection details for the component (optional)",
       "oneOf": [
         {
           "if": {
-            "properties": { "schemaVersion": { "const": 1.0 } }
+            "properties": {
+              "schemaVersion": { "const": 1.0 }
+            }
           },
           "then": {
             "properties": {
@@ -93,6 +103,7 @@
                     },
                     "env": {
                       "type": "array",
+                      "description": "Environment variables for connection configuration",
                       "items": {
                         "type": "object",
                         "required": ["from", "to"],
@@ -117,24 +128,26 @@
         },
         {
           "if": {
-            "properties": { "schemaVersion": { "const": 1.1 } }
+            "properties": {
+              "schemaVersion": { "enum": [1.1, 1.2] }
+            }
           },
           "then": {
             "properties": {
               "connectionReferences": {
                 "type": "array",
-                "description": "Defines the connection references for version 1.1 and future versions",
+                "description": "Defines the connection references for versions 1.1 and 1.2",
                 "items": {
                   "type": "object",
                   "required": ["name", "resourceRef"],
                   "properties": {
                     "name": {
                       "type": "string",
-                      "description": "Name of the connection reference (v1.1)"
+                      "description": "Name of the connection reference (v1.1/v1.2)"
                     },
                     "resourceRef": {
                       "type": "string",
-                      "description": "Resource reference (v1.1)"
+                      "description": "Resource reference (v1.1/v1.2)"
                     }
                   }
                 }
@@ -151,11 +164,12 @@
       "properties": {
         "type": {
           "type": "string",
-          "description": "Type of traffic the endpoint is accepting",
+          "description": "Type of traffic the proxy is handling",
           "enum": ["REST", "GraphQL", "WS"]
         },
         "networkVisibilities": {
           "type": "array",
+          "description": "Network visibilities for the proxy",
           "items": {
             "type": "string",
             "enum": ["Organization", "Public"]
@@ -175,17 +189,102 @@
         }
       },
       "if": {
-        "properties": { "type": { "const": "REST" } }
+        "properties": {
+          "type": { "const": "REST" }
+        }
       },
       "then": {
         "properties": {
           "schemaFilePath": {
             "type": "string",
-            "description": "Schema file path required for REST endpoints"
+            "description": "Schema file path required for REST proxy configurations"
           }
         },
         "required": ["schemaFilePath"]
       }
+    },
+    "configurations": {
+      "type": "object",
+      "description": "Runtime configurations (optional, applicable in version 1.2)",
+      "properties": {
+        "env": {
+          "type": "array",
+          "description": "List of environment variables to be injected into the component",
+          "items": {
+            "type": "object",
+            "required": ["name", "valueFrom"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the environment variable"
+              },
+              "valueFrom": {
+                "type": "object",
+                "description": "Value source for the environment variable"
+              }
+            }
+          }
+        },
+        "file": {
+          "type": "array",
+          "description": "List of files to be injected into the component from config form",
+          "items": {
+            "type": "object",
+            "required": ["name", "mountPath", "type", "values"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the file"
+              },
+              "mountPath": {
+                "type": "string",
+                "description": "Path to mount the file at"
+              },
+              "type": {
+                "type": "string",
+                "description": "File type",
+                "enum": ["yaml", "json", "toml"]
+              },
+              "values": {
+                "type": "array",
+                "description": "Keys of the file",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["name", "valueFrom"],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Key name"
+                    },
+                    "valueFrom": {
+                      "type": "object",
+                      "description": "Value source for the key"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schemaVersion": { "const": 1.2 }
+        }
+      },
+      "then": {
+        "properties": {
+          "configurations": {
+            "description": "Configurations are optional and applicable only in version 1.2"
+          }
+        }
+      }
+    }
+  ]
 }
+

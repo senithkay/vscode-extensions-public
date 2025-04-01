@@ -172,12 +172,6 @@
           "default": "",
           "description": "The path to Choreo RPC server",
           "scope": "window"
-        },
-        "WSO2.WSO2-Platform.FeaturePreview.ProxyCreation": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable proxy creation from GitHub repository",
-          "scope": "window"
         }
       }
     },
