@@ -33,7 +33,7 @@ export async function switchToIFrame(
 export async function getVsCodeButton(container: Locator, text: string, type: 'primary' | 'secondary'): Promise<Locator> {
     const btn = container.locator(`vscode-button:has-text("${text}")`);
     await btn.waitFor();
-    expect(await btn.getAttribute('appearance')).toBe(type);
+    expect(btn).toHaveAttribute('appearance', type);
     return btn;
 }
 
