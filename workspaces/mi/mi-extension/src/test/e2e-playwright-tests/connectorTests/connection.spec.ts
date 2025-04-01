@@ -13,14 +13,20 @@ import { AddArtifact } from '../components/AddArtifact';
 import { ConnectorStore } from '../components/ConnectorStore';
 import { clearNotificationAlerts, initTest, page } from '../Utils';
 import { ProjectExplorer } from '../components/ProjectExplorer';
+import { Overview } from '../components/Overview';
 
 export default function createTests() {
     test.describe(async () => {
-        initTest("connection", true);
+        initTest("connection");
 
         test("Connection Tests", async () => {
             await test.step('Create new Connection', async () => {
                 console.log('Initializing AddArtifact page for connection creation');
+                // wait until window reload
+                const overviewPage = new Overview(page.page);
+                await overviewPage.init();
+                await overviewPage.goToAddArtifact();
+                
                 const addArtifactPage = new AddArtifact(page.page);
                 await addArtifactPage.init();
                 await addArtifactPage.add('Connection');

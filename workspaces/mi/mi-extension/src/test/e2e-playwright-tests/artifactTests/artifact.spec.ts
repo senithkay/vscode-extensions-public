@@ -24,11 +24,11 @@ import { DataSource } from '../components/ArtifactTest/DataSource';
 import { DataService } from '../components/ArtifactTest/DataService';
 
 export default function createTests() {
-  test.describe(async () => {
+  test.describe('Artifact Tests', async () => {
     initTest('Artifact', true);
 
     let automation: Automation;
-    test('Artifact Tests', async () => {
+    test('Automation tests', async () => {
       await test.step('Add Automation', async () => {
         console.log('Creating new Automation');
         automation = new Automation(page.page);
@@ -39,7 +39,9 @@ export default function createTests() {
         console.log('Editing Automation');
         await automation.edit();
       });
+    });
 
+    test('Endpoint tests', async () => {
       let lb: Endpoint;
       await test.step('Add http Endpoint', async () => {
         console.log('Creating new http Endpoint');
@@ -59,7 +61,9 @@ export default function createTests() {
         console.log('Editing load balance Endpoint');
         await lb.editLoadBalanceEndpoint();
       });
+    });
 
+    test('Sequence tests', async () => {
       let sequence: Sequence;
       await test.step('Add Sequence', async () => {
         console.log('Creating new Sequence');
@@ -71,28 +75,30 @@ export default function createTests() {
         console.log('Editing Sequence');
         await sequence.edit();
       });
+    });
 
-      await test.step('Add Class Mediator', async () => {
-        console.log('Creating new Class Mediator');
-        const classMediator = new ClassMediator(page.page);
-        await classMediator.init();
-        await classMediator.add();
-      });
+    test('Add Class Mediator', async () => {
+      console.log('Creating new Class Mediator');
+      const classMediator = new ClassMediator(page.page);
+      await classMediator.init();
+      await classMediator.add();
+    });
 
-      await test.step('Add Ballerina Module', async () => {
-        console.log('Creating new Ballerina Module');
-        const ballerinaModule = new BallerinaModule(page.page);
-        await ballerinaModule.init();
-        await ballerinaModule.add();
-      });
+    test('Add Ballerina Module', async () => {
+      console.log('Creating new Ballerina Module');
+      const ballerinaModule = new BallerinaModule(page.page);
+      await ballerinaModule.init();
+      await ballerinaModule.add();
+    });
 
-      await test.step('Add Resource', async () => {
-        console.log('Creating new Resource');
-        const resource = new Resource(page.page);
-        await resource.init();
-        await resource.add();
-      });
+    test('Add Resource', async () => {
+      console.log('Creating new Resource');
+      const resource = new Resource(page.page);
+      await resource.init();
+      await resource.add();
+    });
 
+    test('Message Store tests', async () => {
       let ms: MessageStore;
       await test.step('Add Message Store', async () => {
         console.log('Creating new Message Store');
@@ -116,7 +122,9 @@ export default function createTests() {
         console.log('Editing Message Processor');
         await msp.editMessageSamplingProcessor();
       });
+    });
 
+    test('Local Entry tests', async () => {
       let localEntry: LocalEntry;
       await test.step('Add Local Entry', async () => {
         console.log('Creating new Local Entry');
@@ -128,7 +136,9 @@ export default function createTests() {
         console.log('Editing Local Entry');
         await localEntry.editLocalEntry();
       });
+    });
 
+    test('Template tests', async () => {
       let template: Template;
       await test.step('Add Template', async () => {
         console.log('Creating new Template');
@@ -140,20 +150,22 @@ export default function createTests() {
         console.log('Editing Template');
         await template.editTemplate();
       });
+    });
 
-      let proxyService: Proxy;
-      await test.step('Add Proxy Service', async () => {
-        console.log('Creating new Proxy Service');
-        proxyService = new Proxy(page.page);
-        await proxyService.init();
-        await proxyService.add();
-      });
-      // TODO: Enable this test after fixing the issue with the proxy service edit
-      // await test.step('Edit Proxy Service', async () => {
-      //   console.log('Editing Proxy Service');
-      //   await proxyService.edit();
-      // });
+    let proxyService: Proxy;
+    test('Add Proxy Service', async () => {
+      console.log('Creating new Proxy Service');
+      proxyService = new Proxy(page.page);
+      await proxyService.init();
+      await proxyService.add();
+    });
+    // TODO: Enable this test after fixing the issue with the proxy service edit
+    // await test.step('Edit Proxy Service', async () => {
+    //   console.log('Editing Proxy Service');
+    //   await proxyService.edit();
+    // });
 
+    test('Add Data Source', async () => {
       let dataSource: DataSource;
       await test.step('Add Data Source', async () => {
         console.log('Creating new Data Source');
@@ -165,7 +177,9 @@ export default function createTests() {
         console.log('Editing Data Source');
         await dataSource.edit();
       });
+    });
 
+    test('Add Data Service', async () => {
       await test.step('Add Data Service', async () => {
         console.log('Creating new Data Service');
         const dataService = new DataService(page.page);
