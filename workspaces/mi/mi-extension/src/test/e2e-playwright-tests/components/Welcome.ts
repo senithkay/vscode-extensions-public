@@ -35,7 +35,6 @@ export class Welcome {
 
     public async setupEnvironment() {
         const { title: iframeTitle, webview } = await this.page.getCurrentWebview();
-        await webview?.waitForLoadState();
 
         if (iframeTitle === MACHINE_VIEW.ADD_ARTIFACT) {
             return true;

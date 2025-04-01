@@ -27,15 +27,16 @@ export class ExtendedPage {
     }
 
     async getCurrentWebview() {
-        const webviewFrame = await this._page.waitForSelector('iframe.webview.ready', { timeout: 30000 });
-        const frame = await webviewFrame.contentFrame();
+        const webviewFrame = this._page.locator('iframe.webview.ready');
+        await webviewFrame.waitFor({ timeout: 30000 });
+        const frame = webviewFrame.contentFrame();
         if (!frame) {
             throw new Error(`IFrame not found`);
         }
-        await frame.waitForLoadState();
-        const targetFrame = await frame.waitForSelector(`iframe[title]`, { timeout: 30000 });
+        const targetFrame = frame.locator(`iframe[title]`);
+        await targetFrame.waitFor({ timeout: 30000 });
         const iframeTitle = await targetFrame.getAttribute('title');
-        const webview = await targetFrame.contentFrame();
+        const webview = targetFrame.contentFrame();
         console.log('Current webview:', iframeTitle);
         return { title: iframeTitle, webview };
     }

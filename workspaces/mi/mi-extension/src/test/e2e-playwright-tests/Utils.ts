@@ -104,8 +104,8 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
             await createProject(page);
         } else {
             console.log('Resuming VSCode');
-            await page.page.waitForLoadState();
             await resumeVSCode();
+            await page.page.waitForLoadState();
             await toggleNotifications(true);
         }
         console.log('Test runner started');
