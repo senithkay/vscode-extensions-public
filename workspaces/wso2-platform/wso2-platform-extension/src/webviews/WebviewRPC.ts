@@ -387,8 +387,8 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		if (existsSync(componentYamlPath)) {
 			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
 			let schemaVersion = Number(componentYamlFileContent.schemaVersion)
-			if (schemaVersion < 1.1) {
-				schemaVersion = 1.1;
+			if (schemaVersion < 1.2) {
+				schemaVersion = 1.2;
 			}
 			componentYamlFileContent.dependencies = {
 				...componentYamlFileContent.dependencies,
@@ -403,7 +403,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 				mkdirSync(join(params.componentDir, ".choreo"));
 			}
 			const endpointFileContent: ComponentYamlContent = {
-				schemaVersion: "1.1",
+				schemaVersion: "1.2",
 				dependencies: { connectionReferences: [{ name: params?.name, resourceRef }] },
 			};
 			writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
