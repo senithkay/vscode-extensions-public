@@ -21,7 +21,8 @@ export default function createTests() {
   test.describe(async () => {
     initTest();
 
-    test("Connector Tests", async () => {
+    test("Connector Tests", async ({ }, testInfo) => {
+      const testAttempt = testInfo.retry + 1;
       await test.step('Create new API', async () => {
         console.log('Starting to create a new API');
 
@@ -29,9 +30,9 @@ export default function createTests() {
         await webview?.waitForLoadState();
 
         if (iframeTitle === MACHINE_VIEW.Overview) {
-            const overviewPage = new Overview(page.page);
-            await overviewPage.init();
-            await overviewPage.goToAddArtifact();
+          const overviewPage = new Overview(page.page);
+          await overviewPage.init();
+          await overviewPage.goToAddArtifact();
         }
 
         const addArtifactPage = new AddArtifact(page.page);
@@ -44,11 +45,11 @@ export default function createTests() {
           values: {
             'Name*': {
               type: 'input',
-              value: 'connAPI',
+              value: 'connectorsAPI' + testAttempt,
             },
             'Context*': {
               type: 'input',
-              value: '/connAPI',
+              value: '/connectorsAPI' + testAttempt,
             },
           }
         });
@@ -95,7 +96,7 @@ export default function createTests() {
           values: {
             'Connection Name*': {
               type: 'input',
-              value: 'local_connection',
+              value: 'local_connection' + testAttempt,
             },
             'Working Directory': {
               type: 'input',

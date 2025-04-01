@@ -20,7 +20,8 @@ export default function createTests() {
     test.describe(async () => {
         initTest();
 
-        test("Inbound EP Tests", async () => {
+        test("Inbound EP Tests", async ({ }, testInfo) => {
+            const testAttempt = testInfo.retry + 1;
             await test.step('Create new HTTPS inbound endpoint', async () => {
                 // Create HTTPS inbound endpoint with automatically generated sequences
 
@@ -47,7 +48,7 @@ export default function createTests() {
                     values: {
                         'Event Integration Name*': {
                             type: 'input',
-                            value: 'HTTPS_inboundEP',
+                            value: 'HTTPS_inboundEP' + testAttempt,
                         },
                         'Port*': {
                             type: 'input',
@@ -63,7 +64,7 @@ export default function createTests() {
                 await diagram.addMediator('Log');
                 const diagramTitle = diagram.getDiagramTitle();
 
-                expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP');
+                expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP' + testAttempt);
             });
 
             await test.step('Edit Inbound Endpoint', async () => {
@@ -79,7 +80,7 @@ export default function createTests() {
                     values: {
                         'Event Integration Name*': {
                             type: 'input',
-                            value: 'HTTPS_inboundEP2',
+                            value: 'HTTPS_inboundEP2' + testAttempt,
                         },
                         'Port*': {
                             type: 'input',
@@ -92,7 +93,7 @@ export default function createTests() {
 
                 await diagram.init();
                 const diagramTitle = diagram.getDiagramTitle();
-                expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP2');
+                expect(await diagramTitle).toBe('Event Integration: HTTPS_inboundEP2' + testAttempt);
             });
         });
     });

@@ -20,7 +20,8 @@ export default function createTests() {
     test.describe(async () => {
         initTest(false);
 
-        test("Connection Tests", async () => {
+        test("Connection Tests", async ({ }, testInfo) => {
+            const testAttempt = testInfo.retry + 1;
             await test.step('Create new Connection', async () => {
                 console.log('Initializing AddArtifact page for connection creation');
 
@@ -52,7 +53,7 @@ export default function createTests() {
                     values: {
                         'Connection Name*': {
                             type: 'input',
-                            value: 'email_connection',
+                            value: 'email_connection' + testAttempt,
                         },
                         'Host*': {
                             type: 'expression',
@@ -73,27 +74,27 @@ export default function createTests() {
 
                 console.log('Finding created connection in Project Explorer');
                 const projectExplorer = new ProjectExplorer(page.page);
-                await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection"]);
+                await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection" + testAttempt]);
             });
 
             await test.step('Edit Connection', async () => {
                 console.log('Editing connection: email_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Finding existing connection in Project Explorer');
-                await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection"], true);
+                await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "email_connection" + testAttempt], true);
 
                 const connectionForm = new Form(page.page, 'Connection Creation Form');
                 await connectionForm.switchToFormView();
                 const connectionName = await connectionForm.getInputValue('Connection Name*');
                 console.log(`Current connection name is: ${connectionName}`);
-                expect(connectionName).toBe('email_connection');
+                expect(connectionName).toBe('email_connection' + testAttempt);
 
                 console.log('Filling out the connection form with new values');
                 await connectionForm.fill({
                     values: {
                         'Connection Name*': {
                             type: 'input',
-                            value: 'email_connection2',
+                            value: 'email_connection2' + testAttempt,
                         },
                         'Host*': {
                             type: 'expression',
