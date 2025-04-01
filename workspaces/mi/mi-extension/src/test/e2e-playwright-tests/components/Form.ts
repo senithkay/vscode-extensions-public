@@ -95,7 +95,7 @@ export class Form {
                         break;
                     }
                     case 'combo': {
-                        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../..');
+                        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../../..');
                         await parentDiv.waitFor();
                         const input = parentDiv.locator('input[role="combobox"]');
                         await input.click();
