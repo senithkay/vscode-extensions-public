@@ -271,6 +271,11 @@ interface DeploymentOptionProps {
     onToggle: () => void;
     onDeploy: () => void;
     learnMoreLink?: string;
+    secondaryAction?: {
+        description: string;
+        buttonText: string;
+        onClick: () => void;
+    }
 }
 
 function DeploymentOption({
@@ -281,6 +286,7 @@ function DeploymentOption({
     onToggle,
     onDeploy,
     learnMoreLink,
+    secondaryAction,
 }: DeploymentOptionProps) {
     const { rpcClient } = useRpcContext();
 
@@ -315,6 +321,17 @@ function DeploymentOption({
                 }}>
                     {buttonText}
                 </Button>
+                {secondaryAction && (
+                    <>
+                        <p>{secondaryAction.description}</p>
+                        <Button appearance="primary" onClick={(e) => {
+                            e.stopPropagation();
+                            secondaryAction.onClick()
+                        }}>
+                            {secondaryAction.buttonText}
+                        </Button>
+                    </>
+                )}
             </DeploymentBody>
         </DeploymentOptionContainer>
     );
@@ -330,6 +347,7 @@ interface DeploymentOptionsProps {
 
 function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, goToDevant, devantMetadata }: DeploymentOptionsProps) {
     const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
+    const { rpcClient } = useRpcContext();
 
     const toggleOption = (option: string) => {
         setExpandedOptions(prev => {
@@ -349,27 +367,31 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
             <div>
                 <Title variant="h3">Deployment Options</Title>
 
-                {devantMetadata?.hasComponent ? (
-                    <DeploymentOption
-                        title="Deployed in Devant"
-                        description="This integration is already deployed in Devant."
-                        buttonText="View in Devant"
-                        isExpanded={expandedOptions.has("devant")}
-                        onToggle={() => toggleOption("devant")}
-                        onDeploy={() => goToDevant()}
-                        learnMoreLink={"https://wso2.com/devant/docs"}
-                    />
-                ) : (
-                    <DeploymentOption
-                        title="Deploy to Devant"
-                        description="Deploy your integration to the cloud using Devant by WSO2."
-                        buttonText="Deploy"
-                        isExpanded={expandedOptions.has("cloud")}
-                        onToggle={() => toggleOption("cloud")}
-                        onDeploy={handleDeploy}
-                        learnMoreLink={"https://wso2.com/devant/docs"}
-                    />
-                )}
+                <DeploymentOption
+                    title={devantMetadata?.hasComponent ? "Deployed in Devant" : "Deploy to Devant"}
+                    description={
+                        devantMetadata?.hasComponent
+                            ? "This integration is already deployed in Devant."
+                            : "Deploy your integration to the cloud using Devant by WSO2."
+                    }
+                    buttonText={devantMetadata?.hasComponent ? "View in Devant" : "Deploy"}
+                    isExpanded={expandedOptions.has("devant")}
+                    onToggle={() => toggleOption("devant")}
+                    onDeploy={devantMetadata?.hasComponent ? () => goToDevant() : handleDeploy}
+                    learnMoreLink={"https://wso2.com/devant/docs"}
+                    secondaryAction={
+                        devantMetadata?.hasLocalChanges
+                            ? {
+                                  description: "To redeploy in Devant, please commit and push your changes.",
+                                  buttonText: "Open Source Control",
+                                  onClick: () =>
+                                      rpcClient
+                                          .getCommonRpcClient()
+                                          .executeCommand({ commands: ["workbench.scm.focus"] }),
+                              }
+                            : undefined
+                    }
+                />
 
                 <DeploymentOption
                     title="Deploy with Docker"
@@ -441,9 +463,9 @@ export function Overview(props: ComponentDiagramProps) {
     const backendRootUri = useRef("");
     const [enabled, setEnableICP] = useState(false);
     const { data: devantMetadata } = useQuery({
-        queryKey:["devant-metadata",props.projectPath],
-        queryFn: ()=>rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
-        refetchInterval: 2000
+        queryKey: ["devant-metadata", props.projectPath],
+        queryFn: () => rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
+        refetchInterval: 5000
     })
 
     const fetchContext = () => {

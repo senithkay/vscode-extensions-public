@@ -1427,6 +1427,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async getDevantMetadata(): Promise<DevantMetadata | undefined> {
         let hasContextYaml = false;
         let isLoggedIn = false;
+        let hasComponent = false;
+        let hasLocalChanges = false;
         try {
             const projectRoot = StateMachine.context().projectUri;
             const repoRoot = getRepoRoot(projectRoot);
@@ -1442,15 +1444,17 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 return { hasComponent: hasContextYaml, isLoggedIn: false };
             }
             const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
+            hasLocalChanges = await platformExtAPI.localRepoHasChanges(projectRoot);
             isLoggedIn = platformExtAPI.isLoggedIn();
             if (isLoggedIn) {
                 const components = platformExtAPI.getDirectoryComponents(projectRoot);
-                return { isLoggedIn, hasComponent: components.length > 0 };
+                hasComponent = components.length > 0;
+                return { isLoggedIn, hasComponent, hasLocalChanges };
             }
-            return { isLoggedIn, hasComponent: hasContextYaml };
+            return { isLoggedIn, hasComponent: hasContextYaml, hasLocalChanges };
         } catch(err){
             console.error("failed to call getDevantMetadata: ", err);
-            return { hasComponent: hasContextYaml, isLoggedIn };
+            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
         }
     }
 

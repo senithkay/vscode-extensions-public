@@ -12,7 +12,9 @@ import type { ChoreoComponentType, DeploymentStatus, DevantScopes } from "../enu
 export interface IWso2PlatformExtensionAPI {
 	isLoggedIn(): boolean;
 	getDirectoryComponents(fsPath: string): ComponentKind[];
+	localRepoHasChanges(fsPath: string): Promise<boolean>;
 }
+
 export interface Organization {
 	id: number;
 	uuid: string;

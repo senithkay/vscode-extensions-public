@@ -163,6 +163,7 @@ export enum BuildMode {
 export interface DevantMetadata {
     isLoggedIn?: boolean;
     hasComponent?: boolean;
+    hasLocalChanges?: boolean;
 }
 
 export interface GeneratedClientSaveResponse {
