@@ -66,7 +66,7 @@ export class Diagram {
         await sidePanel.init();
         await sidePanel.goToAddModulesPage();
 
-        await sidePanel.downloadConnector(name, version);
+        await sidePanel.downloadConnector(name, version, true);
     }
 
     public async downloadConnectorThroughSearch(name: string, index: number = 0) {
@@ -236,8 +236,9 @@ class SidePanel {
         await form.submit("Submit");
     }
 
-    public async downloadConnector(name: string, version?: string) {
-        const connector = this.sidePanel.locator(`#card-select-${name}`);
+    public async downloadConnector(name: string, version?: string, inDrawer?: boolean) {
+        const drawer = inDrawer ? this.sidePanel.locator(`#drawer1`) : this.sidePanel;
+        const connector = drawer.locator(`#card-select-${name}`);
         await connector.waitFor();
 
         if (version) {
@@ -263,7 +264,7 @@ class SidePanel {
         const loader = this.sidePanel.locator(`span:text("Downloading Module...")`);
         await loader.waitFor();
 
-        const downloadedConnector = this.sidePanel.locator(`#card-select-${name}`);
+        const downloadedConnector = drawer.locator(`#card-select-${name}`);
         await downloadedConnector.waitFor();
     }
 
