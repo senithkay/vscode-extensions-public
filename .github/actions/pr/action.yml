@@ -127,7 +127,7 @@ runs:
           elif [ "${{ inputs.mi }}" == 'true' ]; then
             baseBranch="release-mi"
           fi
-          pr=$(gh pr create -B "$baseBranch" -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into "$baseBranch"' --body '$subject')
+          pr=$(gh pr create -B "$baseBranch" -H "${{ inputs.version }}" --title "Merge \"${{ inputs.version }}\" into \"$baseBranch\"" --body '$subject')
           echo "prURL=$pr" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ inputs.bot_token }}

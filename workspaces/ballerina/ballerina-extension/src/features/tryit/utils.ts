@@ -144,7 +144,7 @@ export function findRunningBallerinaProcesses(projectPath: string): Promise<Proc
 
             // Parse the output of the 'ps' command
             const out = stdout.trim().split('\n');
-            const processes = platform == 'win32' ? out.slice(1) : out; // Exclude the header row
+            const processes = platform === 'win32' ? out.slice(out.length - 1) : out; // Exclude the header row
 
             // Extract the service name, PID, and command information
             let balProcesses = processes.map((service) => {
@@ -167,20 +167,30 @@ export function findRunningBallerinaProcesses(projectPath: string): Promise<Proc
 // Function to retrieve the port information of services using the related Ballerina program's process ID (PID)
 function getServicePorts(pid: string): number[] {
     try {
-        const output = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
-        if (isNaN(output as any)) {
+        const output: string = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
+        if (isNaN(output.trim() as any)) {
             const listeningConnectionRegex = /^n(?:\*|localhost):(\d+)\b$/;
-            const ports = output
-                .split(/\r?\n/)
-                .map(line => line.trim())
-                .filter(line => listeningConnectionRegex.test(line))
-                .map(line => {
-                    const match = line.match(listeningConnectionRegex);
-                    return match ? parseInt(match[1]) : null; // Convert port number to integer
-                })
-                .filter((port): port is number => port !== null);
-
+            let ports: number[];
+            if (platform === "win32") {
+                ports = output
+                    .trim()
+                    .split(/\r?\n/)
+                    .map(line => parseInt(line.trim()))
+                    .filter((port): port is number => port !== null);
+            } else {
+                ports = output
+                    .split(/\r?\n/)
+                    .map(line => line.trim())
+                    .filter(line => listeningConnectionRegex.test(line))
+                    .map(line => {
+                        const match = line.match(listeningConnectionRegex);
+                        return match ? parseInt(match[1]) : null; // Convert port number to integer
+                    })
+                    .filter((port): port is number => port !== null);
+            }
             return ports;
+        } else {
+            return [parseInt(output.trim())];
         }
     } catch (error) {
         debug(`Error retrieving port for process ${pid}: ${error}`);

@@ -179,6 +179,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         helperPaneOrigin,
         helperPaneHeight,
         recordTypeField,
+        growRange = { start: 4, offset: 4 },
         rawExpression, // original expression
         sanitizedExpression // sanitized expression that will be rendered in the editor
     } = props as ExpressionEditorProps;
@@ -219,17 +220,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const handleFocus = async () => {
         setFocused(true);
-
-        // Retrive completions
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-        cursorPositionRef.current = cursorPosition;
-        const triggerCharacter =
-            cursorPosition > 0 ? triggerCharacters.find((char) => fieldValue[cursorPosition - 1] === char) : undefined;
-        if (triggerCharacter) {
-            await retrieveCompletions(fieldValue, getPropertyFromFormField(field), cursorPosition, triggerCharacter);
-        } else {
-            await retrieveCompletions(fieldValue, getPropertyFromFormField(field), cursorPosition);
-        }
 
         // Trigger actions on focus
         await onFocus?.();
@@ -402,6 +392,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             helperPaneHeight={helperPaneHeight}
                             helperPaneWidth={recordTypeField ? 400 : undefined}
                             placeholder={field.placeholder}
+                            growRange={growRange}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
                         />

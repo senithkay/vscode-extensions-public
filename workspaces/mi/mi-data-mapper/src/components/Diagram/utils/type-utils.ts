@@ -217,7 +217,7 @@ function getEnrichedArrayType(
     const elements = node.getElements();
 
     elements.forEach((expr, index) => {
-        const type = { ...field }; //TODO: need to check with nested case
+        const type = cloneDeep(field);
 
         if (type) {
             const childType = getEnrichedDMType(type, expr, recursiveTypes, parentType, childrenTypes);

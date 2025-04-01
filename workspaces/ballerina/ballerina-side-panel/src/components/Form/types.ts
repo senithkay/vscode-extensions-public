@@ -96,8 +96,7 @@ type FormCompletionConditionalProps = {
         value: string,
         property: ExpressionProperty,
         offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
+        triggerCharacter?: string
     ) => Promise<void>;
     extractArgsFromFunction?: (
         value: string,
@@ -157,6 +156,7 @@ type FormHelperPaneConditionalProps = {
 }
 
 type FormExpressionEditorBaseProps = {
+    growRange?: { start: number; offset: number };
     getExpressionEditorDiagnostics?: (
         showDiagnostics: boolean,
         expression: string,

@@ -8,7 +8,7 @@
  */
 import { DMDiagnostic, TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { BinaryExpression, CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression, SyntaxKind } from "ts-morph";
+import { BinaryExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -29,8 +29,7 @@ import { ArrayOutputNode } from "../ArrayOutput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 import { PrimitiveOutputNode } from "../PrimitiveOutput";
 import { ExpressionLabelModel } from "../../Label";
-import { convertToObject } from "@wso2-enterprise/ui-toolkit";
-import { Call } from "../../../../../../syntax-tree/lib/src";
+import { UnionOutputNode } from "../UnionOutput";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -114,6 +113,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     
                 if (node instanceof ObjectOutputNode
                     || node instanceof ArrayOutputNode
+                    || node instanceof UnionOutputNode
                     || node instanceof PrimitiveOutputNode
                 ) {
                     const targetPortPrefix = getTargetPortPrefix(node);
@@ -280,7 +280,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         if ((!targetField?.fieldName
             && targetField?.kind !== TypeKind.Array
             && targetField?.kind !== TypeKind.Interface)
-                || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)))
+                || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)) 
+                || Node.isCallExpression(this.valueNode))
         {
             let targetNode = this.valueNode;
             if (Node.isVariableStatement) {

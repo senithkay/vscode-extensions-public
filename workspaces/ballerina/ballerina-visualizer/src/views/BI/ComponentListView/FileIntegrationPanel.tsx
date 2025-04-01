@@ -14,38 +14,18 @@ import { EVENT_TYPE, MACHINE_VIEW, SCOPE, ServiceModel, TriggerModelsResponse } 
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { useVisualizerContext } from '../../../Context';
 import { OutOfScopeComponentTooltip } from './componentListUtils';
+import { RelativeLoader } from '../../../components/RelativeLoader';
 
 interface FileIntegrationPanelProps {
     scope: SCOPE;
+    triggers: TriggerModelsResponse;
 };
 
 export function FileIntegrationPanel(props: FileIntegrationPanelProps) {
     const { rpcClient } = useRpcContext();
-    const [triggers, setTriggers] = useState<TriggerModelsResponse>({ local: [] });
-    const { cacheTriggers, setCacheTriggers } = useVisualizerContext();
 
     const isDisabled = props.scope && (props.scope !== SCOPE.FILE_INTEGRATION && props.scope !== SCOPE.ANY);
-
-    useEffect(() => {
-        getTriggers();
-    }, []);
-
-    const getTriggers = () => {
-        if (cacheTriggers.local.length > 0) {
-            setTriggers(cacheTriggers);
-        } else {
-            rpcClient
-                .getServiceDesignerRpcClient()
-                .getTriggerModels({ query: "" })
-                .then((model) => {
-                    console.log(">>> bi triggers", model);
-                    setTriggers(model);
-                    setCacheTriggers(model);
-                });
-        }
-    };
 
     const handleOnSelect = async (trigger: ServiceModel) => {
         await rpcClient.getVisualizerRpcClient().openView({
@@ -64,7 +44,8 @@ export function FileIntegrationPanel(props: FileIntegrationPanelProps) {
                 <BodyText>Create an integration that can be triggered by the availability of files in a location.</BodyText>
             </TitleWrapper>
             <CardGrid>
-                {triggers.local
+                {props.triggers.local.length === 0 && <RelativeLoader />}
+                {props.triggers.local
                     .filter((t) => t.type === "file")
                     .map((item, index) => {
                         return (

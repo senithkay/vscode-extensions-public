@@ -37,12 +37,14 @@ import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, The
 import {
     convertBalCompletion,
     convertToVisibleTypes,
+    getInfoFromExpressionValue,
     updateLineRange
 } from "../../../../utils/bi";
 import { debounce, set } from "lodash";
 import { getHelperPane } from "../../HelperPane";
 import { FormTypeEditor } from "../../TypeEditor";
 import { getTypeHelper } from "../../TypeHelper";
+import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -100,6 +102,7 @@ export function FormGeneratorNew(props: FormProps) {
     const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
 
     /* Expression editor related state and ref variables */
+    const prevCompletionFetchText = useRef<string>("");
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
@@ -159,96 +162,89 @@ export function FormGeneratorNew(props: FormProps) {
         triggerCompletionOnNextRequest.current = false;
     };
 
-    const debouncedRetrieveCompletions = useCallback(debounce(
-        async (value: string, property: ExpressionProperty, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
-            let expressionCompletions: CompletionItem[] = [];
-            const effectiveText = value.slice(0, offset);
-            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-            const endOfStatementRegex = /[\)\]]\s*$/;
-            if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
-                // Case 1: When a character unrelated to triggering completions is entered
-                setCompletions([]);
-            } else if (
-                completions.length > 0 &&
-                completionFetchText.length > 0 &&
-                !triggerCharacter &&
-                !onlyVariables &&
-                !triggerCompletionOnNextRequest.current
-            ) {
-                // Case 2: When completions have already been retrieved and only need to be filtered
-                expressionCompletions = completions
-                    .filter((completion) => {
-                        const lowerCaseText = completionFetchText.toLowerCase();
-                        const lowerCaseLabel = completion.label.toLowerCase();
-
-                        return lowerCaseLabel.includes(lowerCaseText);
-                    })
-                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
-            } else {
-                // Case 3: When completions need to be retrieved from the language server
-                // Retrieve completions from the ls
-                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
-                    filePath: fileName,
-                    context: {
-                        expression: value,
-                        startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                        offset: offset,
-                        codedata: undefined,
-                        property: property
-                    },
-                    completionContext: {
-                        triggerKind: triggerCharacter ? 2 : 1,
-                        triggerCharacter: triggerCharacter as TriggerCharacter
-                    }
-                });
-
-                if (onlyVariables) {
-                    // If only variables are requested, filter out the completions based on the kind
-                    // 'kind' for variables = 6
-                    completions = completions?.filter((completion) => completion.kind === 6);
-                    triggerCompletionOnNextRequest.current = true;
-                } else {
-                    triggerCompletionOnNextRequest.current = false;
-                }
-
-                // Convert completions to the ExpressionBar format
-                let convertedCompletions: CompletionItem[] = [];
-                completions?.forEach((completion) => {
-                    if (completion.detail) {
-                        // HACK: Currently, completion with additional edits apart from imports are not supported
-                        // Completions that modify the expression itself (ex: member access)
-                        convertedCompletions.push(convertBalCompletion(completion));
-                    }
-                });
-                setCompletions(convertedCompletions);
-
-                if (triggerCharacter) {
-                    expressionCompletions = convertedCompletions;
-                } else {
-                    expressionCompletions = convertedCompletions
+    const debouncedRetrieveCompletions = useCallback(
+        debounce(
+            async (
+                value: string,
+                property: ExpressionProperty,
+                offset: number,
+                triggerCharacter?: string
+            ) => {
+                let expressionCompletions: CompletionItem[] = [];
+                const { parentContent, currentContent } = value
+                    .slice(0, offset)
+                    .match(EXPRESSION_EXTRACTION_REGEX)?.groups ?? {};
+                if (
+                    completions.length > 0 &&
+                    !triggerCharacter &&
+                    parentContent === prevCompletionFetchText.current
+                ) {
+                    expressionCompletions = completions
                         .filter((completion) => {
-                            const lowerCaseText = completionFetchText.toLowerCase();
+                            const lowerCaseText = currentContent.toLowerCase();
                             const lowerCaseLabel = completion.label.toLowerCase();
 
                             return lowerCaseLabel.includes(lowerCaseText);
                         })
                         .sort((a, b) => a.sortText.localeCompare(b.sortText));
-                }
-            }
+                } else {
+                    const { lineOffset, charOffset } = getInfoFromExpressionValue(value, offset);
+                    let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
+                        filePath: fileName,
+                        context: {
+                            expression: value,
+                            startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                            lineOffset: lineOffset,
+                            offset: charOffset,
+                            codedata: undefined,
+                            property: property
+                        },
+                        completionContext: {
+                            triggerKind: triggerCharacter ? 2 : 1,
+                            triggerCharacter: triggerCharacter as TriggerCharacter
+                        }
+                    });
 
-            setFilteredCompletions(expressionCompletions);
-        },
-        250
-    ), [rpcClient, completions, fileName, targetLineRange, triggerCompletionOnNextRequest.current]);
+                    // Convert completions to the ExpressionEditor format
+                    let convertedCompletions: CompletionItem[] = [];
+                    completions?.forEach((completion) => {
+                        if (completion.detail) {
+                            // HACK: Currently, completion with additional edits apart from imports are not supported
+                            // Completions that modify the expression itself (ex: member access)
+                            convertedCompletions.push(convertBalCompletion(completion));
+                        }
+                    });
+                    setCompletions(convertedCompletions);
+
+                    if (triggerCharacter) {
+                        expressionCompletions = convertedCompletions;
+                    } else {
+                        expressionCompletions = convertedCompletions
+                            .filter((completion) => {
+                                const lowerCaseText = currentContent.toLowerCase();
+                                const lowerCaseLabel = completion.label.toLowerCase();
+
+                                return lowerCaseLabel.includes(lowerCaseText);
+                            })
+                            .sort((a, b) => a.sortText.localeCompare(b.sortText));
+                    }
+                }
+
+                prevCompletionFetchText.current = parentContent ?? "";
+                setFilteredCompletions(expressionCompletions);
+            },
+            250
+        ),
+        [rpcClient, completions, fileName, targetLineRange]
+    );
 
     const handleRetrieveCompletions = useCallback(async (
         value: string,
         property: ExpressionProperty,
         offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
+        triggerCharacter?: string
     ) => {
-        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter, onlyVariables);
+        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter);
 
         if (triggerCharacter) {
             await debouncedRetrieveCompletions.flush();

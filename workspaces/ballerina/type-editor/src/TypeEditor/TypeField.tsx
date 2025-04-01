@@ -72,13 +72,13 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
 
     const handleSelectionChange = () => {
         const selection = window.getSelection();
-        if (!selection) {
+        if (!selection || selection.rangeCount === 0) {
             return;
         }
 
         const range = selection.getRangeAt(0);
 
-        if (typeFieldRef.current.parentElement.contains(range.startContainer)) {
+        if (typeFieldRef.current?.parentElement?.contains(range.startContainer)) {
             setTypeFieldCursorPosition(
                 typeFieldRef.current.shadowRoot.querySelector('input').selectionStart ?? 0
             );
