@@ -565,3 +565,14 @@ function isSkippedDiagnostic(result: ResultItem) {
     }
     return false;
 }
+
+export function getVsCodeRootPath(): string {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+
+    if (workspaceFolders && workspaceFolders.length > 0) {
+        return workspaceFolders[0].uri.fsPath;
+    } else {
+        console.log('No workspace folder is open.');
+        return "";
+    }
+}
