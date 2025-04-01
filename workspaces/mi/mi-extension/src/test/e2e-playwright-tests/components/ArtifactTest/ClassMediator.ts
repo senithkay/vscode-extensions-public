@@ -10,7 +10,6 @@
 import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
-import { clearNotificationAlerts } from "../../Utils";
 
 export class ClassMediator {
 
@@ -41,6 +40,5 @@ export class ClassMediator {
         await seqFrame.getByRole('textbox', { name: 'Package Name*' }).fill('org.wso2.sample');
         await seqFrame.getByRole('textbox', { name: 'Class Name*' }).fill('SampleClass');
         await seqFrame.getByRole('button', { name: 'Create' }).click();
-        await clearNotificationAlerts(this._page);
     }
 }

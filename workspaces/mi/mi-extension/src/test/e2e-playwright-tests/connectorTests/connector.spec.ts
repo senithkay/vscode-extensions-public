@@ -8,7 +8,7 @@
  */
 
 import { test } from '@playwright/test';
-import { clearNotificationAlerts, initTest, page } from '../Utils';
+import { initTest, page } from '../Utils';
 import { ConnectorStore } from '../components/ConnectorStore';
 import { Diagram } from '../components/Diagram';
 import { ServiceDesigner } from '../components/ServiceDesigner';
@@ -150,8 +150,6 @@ export default function createTests() {
 
         await diagram.addConnectorOperation('CSV', 'csvToCsv');
 
-        await clearNotificationAlerts(page.page);
-
         // Fill connector form
         await diagram.fillConnectorForm({
           values: {
@@ -216,8 +214,6 @@ export default function createTests() {
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         await diagram.addConnectorOperation('kafka_connection', 'PublishMessages');
-
-        await clearNotificationAlerts(page.page);
 
         // Fill connector form
         await diagram.fillConnectorForm({

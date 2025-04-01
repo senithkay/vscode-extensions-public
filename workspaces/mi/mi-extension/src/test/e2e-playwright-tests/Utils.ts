@@ -23,7 +23,7 @@ export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject'
 export let vscode: ElectronApplication | undefined;
 export let page: ExtendedPage;
 
-export async function initVSCode() {
+async function initVSCode() {
     if (vscode && page) {
         await page.executePaletteCommand('Reload Window');
     } else {
@@ -62,7 +62,7 @@ async function createProject(page: ExtendedPage) {
     console.log('Environment setup done');
 }
 
-export async function resumeVSCode() {
+async function resumeVSCode() {
     if (vscode && page) {
         await page.executePaletteCommand('Reload Window');
     } else {
@@ -73,14 +73,21 @@ export async function resumeVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
-export async function clearNotificationAlerts(page: Page) {
+export async function clearNotificationAlerts() {
     console.log(`Clearing notifications`);
     if (page) {
-        const notifications = page.locator('a.action-label.codicon.codicon-notifications-clear');
-        while (await notifications.count() > 0) {
-            await notifications.first().click();
-        }
+        await page.executePaletteCommand("Notifications: Clear All Notifications");
     }
+}
+
+export async function toggleNotifications(disable: boolean) {
+    const notificationStatus = page.page.locator('#status\\.notifications');
+    await notificationStatus.waitFor();
+    const ariaLabel = await notificationStatus.getAttribute('aria-label');
+    if ((ariaLabel !== "Do Not Disturb" && disable) || (ariaLabel === "Do Not Disturb" && !disable)) {
+        await page.executePaletteCommand("Notifications: Toggle Do Not Disturb Mode");
+    }
+
 }
 
 export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
@@ -92,9 +99,11 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
             }
             fs.mkdirSync(newProjectPath, { recursive: true });
             await initVSCode();
+            await toggleNotifications(true);
             await createProject(page);
         } else {
             await resumeVSCode();
+            await toggleNotifications(true);
         }
     });
 

@@ -10,7 +10,6 @@
 import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
-import { clearNotificationAlerts } from "../../Utils";
 
 export class Template {
 
@@ -54,7 +53,6 @@ export class Template {
         await tmplAddEPFrame.getByLabel('REST').click();
         await tmplAddEPFrame.locator('#traceEnabled').getByLabel('Enable').click();
         await tmplAddEPFrame.locator('#statisticsEnabled').getByLabel('Enable').click();
-        await clearNotificationAlerts(this._page);
         await tmplAddEPFrame.getByRole('button', { name: 'Create' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
@@ -83,7 +81,6 @@ export class Template {
         await tmplAddEPFrame.getByLabel('SOAP 1.2').click();
         await tmplAddEPFrame.locator('#traceEnabled').getByLabel('Disable').click();
         await tmplAddEPFrame.locator('#statisticsEnabled').getByLabel('Disable').click();
-        await clearNotificationAlerts(this._page);
         await tmplAddEPFrame.getByRole('button', { name: 'Save Changes' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {

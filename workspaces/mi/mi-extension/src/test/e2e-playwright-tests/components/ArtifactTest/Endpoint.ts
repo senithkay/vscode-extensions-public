@@ -10,7 +10,6 @@
 import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
-import { clearNotificationAlerts } from "../../Utils";
 
 export class Endpoint {
 
@@ -28,7 +27,6 @@ export class Endpoint {
         const createIntegrationSection = await overviewWebView.waitForSelector(`h3:text("Create an Integration") >> ..`);
         const viewMoreBtn = await createIntegrationSection.waitForSelector(`p:text("View More") >> ..`);
         await viewMoreBtn.click();
-        await clearNotificationAlerts(this._page);
         const btn = await createIntegrationSection.waitForSelector(`div:text("Endpoint") >> ../../../..`);
         await btn.click();
     }
@@ -51,7 +49,6 @@ export class Endpoint {
         await httpEPFrame.getByRole('textbox', { name: 'URI Template*' }).fill('https://fake-json-api.mock.beeceptor.com/users');
         await httpEPFrame.locator('svg').click();
         await httpEPFrame.getByLabel('POST').click();
-        await clearNotificationAlerts(this._page);
         await httpEPFrame.getByTestId('create-button').click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
@@ -75,7 +72,6 @@ export class Endpoint {
         await httpEPFrame.getByRole('textbox', { name: 'URI Template*' }).fill('https://fake-json-api.mock.beeceptor.com');
         await httpEPFrame.locator('svg').click();
         await httpEPFrame.getByLabel('PUT').click();
-        await clearNotificationAlerts(this._page);
         await httpEPFrame.getByTestId('create-button').click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
@@ -103,7 +99,6 @@ export class Endpoint {
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill('loadBalanceEP');
         await lbEPFrame.locator('#algorithm svg').click();
         await lbEPFrame.getByLabel('Weighted RRLC Algorithm').click();
-        await clearNotificationAlerts(this._page);
         await lbEPFrame.getByRole('button', { name: 'Create' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
@@ -126,7 +121,6 @@ export class Endpoint {
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill('loadBalanceEndpoint');
         await lbEPFrame.locator('#algorithm svg').click();
         await lbEPFrame.getByLabel('Weighted Round Robin').click();
-        await clearNotificationAlerts(this._page);
         await lbEPFrame.getByRole('button', { name: 'Save Changes' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
