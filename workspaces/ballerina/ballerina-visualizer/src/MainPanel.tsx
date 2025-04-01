@@ -169,7 +169,6 @@ const MainPanel = () => {
                         setViewComponent(
                             <OverviewBI
                                 projectPath={value.projectUri}
-                                deployedComponent={value.metadata?.devantComponent}
                             />
                         );
                         break;

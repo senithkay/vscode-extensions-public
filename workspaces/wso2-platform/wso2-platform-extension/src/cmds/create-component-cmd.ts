@@ -11,6 +11,7 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import * as os from "os";
 import * as path from "path";
 import { join } from "path";
+import { getGitRoot } from "@wso2-enterprise/git-vscode";
 import {
 	ChoreoBuildPackNames,
 	ChoreoComponentType,
@@ -26,7 +27,6 @@ import {
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
-import { getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
@@ -43,12 +43,12 @@ export function createNewComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentParams) => {
 			try {
-				const userInfo = await getUserInfoForCmd("create a component");
 				let isIntegration = false;
 				if (params?.buildPackLang === ChoreoBuildPackNames.Ballerina || params?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
 					isIntegration = true;
 					webviewStateStore.getState().setExtensionName("Devant");
 				}
+				const userInfo = await getUserInfoForCmd("create a component");
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;
 					let selectedProject = selected?.project;
@@ -65,19 +65,24 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						selectedProject = createdProjectRes.selectedProject;
 					}
 
-
 					const componentTypes: string[] = [];
 
 					let selectedType: string | undefined = undefined;
 					let selectedSubType: string | undefined = undefined;
 
 					if (isIntegration) {
-						componentTypes.push(DevantScopes.AUTOMATION, DevantScopes.AI_AGENT, DevantScopes.INTEGRATION_AS_API, DevantScopes.EVENT_INTEGRATION, DevantScopes.FILE_INTEGRATION);
-						if(params?.integrationType && componentTypes.includes(params.integrationType)){
+						componentTypes.push(
+							DevantScopes.AUTOMATION,
+							DevantScopes.AI_AGENT,
+							DevantScopes.INTEGRATION_AS_API,
+							DevantScopes.EVENT_INTEGRATION,
+							DevantScopes.FILE_INTEGRATION,
+						);
+						if (params?.integrationType && componentTypes.includes(params.integrationType)) {
 							// map integrationType to type and subtype
-							const intType = getTypeOfIntegrationType(params?.integrationType)
-							selectedType = intType.type
-							selectedSubType = intType.subType
+							const intType = getTypeOfIntegrationType(params?.integrationType);
+							selectedType = intType.type;
+							selectedSubType = intType.subType;
 						}
 					} else {
 						componentTypes.push(
@@ -90,12 +95,10 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						if (isProxyCreateEnabled) {
 							componentTypes.push(ChoreoComponentType.ApiProxy);
 						}
-						if(params?.type && componentTypes.includes(params.type)){
+						if (params?.type && componentTypes.includes(params.type)) {
 							selectedType = params?.type;
 						}
 					}
-
-					
 
 					if (!selectedType) {
 						// todo: change these options if isIntegration
@@ -108,11 +111,11 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							title: `Select ${isIntegration ? "Integration" : "Component"} Type`,
 						});
 						if (selectedTypePick?.value) {
-							if(isIntegration){
-								const intType = getTypeOfIntegrationType(selectedTypePick?.value)
-								selectedType = intType.type
-								selectedSubType = intType.subType
-							}else{
+							if (isIntegration) {
+								const intType = getTypeOfIntegrationType(selectedTypePick?.value);
+								selectedType = intType.type;
+								selectedSubType = intType.subType;
+							} else {
 								selectedType = selectedTypePick?.value;
 							}
 						}
@@ -195,7 +198,7 @@ export const continueCreateComponent = () => {
 	if (compParams) {
 		ext.context.globalState.update("create-comp-params", null);
 		const createCompParams: IComponentCreateFormParams = JSON.parse(compParams);
-		if(createCompParams?.extensionName){
+		if (createCompParams?.extensionName) {
 			webviewStateStore.getState().setExtensionName(createCompParams?.extensionName as "WSO2" | "Choreo" | "Devant");
 		}
 		componentWizard = new ComponentFormView(ext.context.extensionUri, createCompParams);
