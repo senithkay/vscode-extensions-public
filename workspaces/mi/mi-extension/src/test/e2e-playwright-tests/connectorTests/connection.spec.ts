@@ -43,7 +43,6 @@ export default function createTests() {
                 console.log('Searching for Email connector');
                 await connectorStore.search('Email');
                 await connectorStore.selectOperation('IMAP');
-                console.log('Confirming download of dependencies');
                 await connectorStore.confirmDownloadDependency();
 
                 const connectionForm = new Form(page.page, 'Connector Store Form');

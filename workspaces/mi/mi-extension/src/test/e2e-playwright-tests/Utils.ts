@@ -98,13 +98,17 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
                 fs.rmSync(newProjectPath, { recursive: true });
             }
             fs.mkdirSync(newProjectPath, { recursive: true });
+            console.log('Starting VSCode');
             await initVSCode();
             await toggleNotifications(true);
             await createProject(page);
         } else {
+            console.log('Resuming VSCode');
+            await page.page.waitForLoadState();
             await resumeVSCode();
             await toggleNotifications(true);
         }
+        console.log('Test runner started');
     });
 
     test.afterAll(async ({ }, testInfo) => {
