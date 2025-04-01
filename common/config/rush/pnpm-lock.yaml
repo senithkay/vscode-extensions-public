@@ -817,6 +817,7 @@ importers:
       react: ~18.2.0
       react-dom: ~18.2.0
       react-hook-form: ~7.53.0
+      react-markdown: ~10.1.0
       typescript: ^4.3.5
     dependencies:
       '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
@@ -828,6 +829,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.53.0_react@18.2.0
+      react-markdown: 10.1.0_ujupp4aqvz5yjxfmu635blrdgm
     devDependencies:
       '@storybook/react': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
       '@types/lodash': 4.14.202
@@ -50791,6 +50793,29 @@ packages:
       babel-runtime: 6.26.0
       lottie-web: 5.12.2
       react: 18.2.0
+    dev: false
+
+  /react-markdown/10.1.0_ujupp4aqvz5yjxfmu635blrdgm:
+    resolution: {integrity: sha512-qKxVopLT/TyA6BX3Ue5NwabOsAzm0Q7kAPwq6L+wWDwisYs7R8vZ0nRXqq6rkueboxpkjvLGU9fWifiX/ZZFxQ==}
+    peerDependencies:
+      '@types/react': '>=18'
+      react: '>=18'
+    dependencies:
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.3
+      '@types/react': 17.0.75
+      devlop: 1.1.0
+      hast-util-to-jsx-runtime: 2.3.0
+      html-url-attributes: 3.0.0
+      mdast-util-to-hast: 13.1.0
+      react: 18.2.0
+      remark-parse: 11.0.0
+      remark-rehype: 11.1.0
+      unified: 11.0.4
+      unist-util-visit: 5.0.0
+      vfile: 6.0.1
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /react-markdown/7.1.2_eteh3so6nztr56vqc4nbg6qqla:

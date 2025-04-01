@@ -830,6 +830,7 @@ export interface ExpressionEditorContext {
     expression: string;
     startLine: LinePosition;
     offset: number;
+    lineOffset: number;
     codedata: CodeData;
     property: ExpressionProperty;
 }
