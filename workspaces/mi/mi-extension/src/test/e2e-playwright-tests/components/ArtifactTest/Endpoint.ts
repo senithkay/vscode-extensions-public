@@ -28,6 +28,7 @@ export class Endpoint {
         const createIntegrationSection = await overviewWebView.waitForSelector(`h3:text("Create an Integration") >> ..`);
         const viewMoreBtn = await createIntegrationSection.waitForSelector(`p:text("View More") >> ..`);
         await viewMoreBtn.click();
+        await clearNotificationAlerts(this._page);
         const btn = await createIntegrationSection.waitForSelector(`div:text("Endpoint") >> ../../../..`);
         await btn.click();
     }

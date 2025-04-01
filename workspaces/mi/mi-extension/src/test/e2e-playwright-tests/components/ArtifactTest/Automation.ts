@@ -20,6 +20,7 @@ export class Automation {
 
     public async init() {
         const overviewPage = new AddArtifact(this._page);
+        await clearNotificationAlerts(this._page);
         await overviewPage.init();
         await overviewPage.add('Automation');
         const webView = await switchToIFrame('Task Form', this._page);
