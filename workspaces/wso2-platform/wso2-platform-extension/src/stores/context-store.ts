@@ -26,12 +26,12 @@ import { ProgressLocation, window, workspace } from "vscode";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { ext } from "../extensionVariables";
+import { getGitRemotes, getGitRoot } from "../git/util";
 import { isSubpath } from "../utils";
 import { authStore } from "./auth-store";
 import { dataCacheStore } from "./data-cache-store";
 import { locationStore } from "./location-store";
 import { getWorkspaceStateStore } from "./store-utils";
-import { getGitRoot, getGitRemotes } from "../git/util";
 
 interface ContextStore {
 	state: ContextStoreState;

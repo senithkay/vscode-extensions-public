@@ -8,13 +8,21 @@
  */
 
 import { join } from "path";
-import { CommandIds, type Organization, type Project, getComponentKindRepoSource, parseGitURL } from "@wso2-enterprise/wso2-platform-core";
+import {
+	CommandIds,
+	type ICloneProjectCmdParams,
+	type Organization,
+	type Project,
+	getComponentKindRepoSource,
+	parseGitURL,
+} from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, type ProviderResult, type QuickPickItem, type Uri, commands, window, workspace } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getUserInfoForCmd } from "./cmds/cmd-utils";
 import { choreoEnvConfig } from "./config";
 import { ext } from "./extensionVariables";
+import { getGitRemotes, getGitRoot } from "./git/util";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
 import { contextStore, getContextKey, waitForContextStoreToLoad } from "./stores/context-store";
@@ -22,7 +30,6 @@ import { dataCacheStore } from "./stores/data-cache-store";
 import { locationStore } from "./stores/location-store";
 import { webviewStateStore } from "./stores/webview-state-store";
 import { delay, openDirectory } from "./utils";
-import { getGitRemotes, getGitRoot } from "./git/util";
 
 export function activateURIHandlers() {
 	window.registerUriHandler({
@@ -123,20 +130,6 @@ export const cloneOrOpenDir = async (
 	integrationType: string | null,
 	integrationDisplayType: string | null,
 ) => {
-	// TODO: following only checks if you are within matching project but we need to check if matching component also exists
-	/*
-	const contextItems = contextStore.getState().getValidItems();
-	const isWithinDir = contextItems.find((item) => item.orgHandle === org.handle && item.projectHandle === project.handler);
-	if (isWithinDir) {
-		const selectedContext = contextStore.getState().state.selected;
-		if (selectedContext?.orgHandle !== org.handle || selectedContext?.projectHandle !== project.handler) {
-			contextStore.getState().onSetNewContext(org, project, isWithinDir.contextDirs[0]);
-		}
-		window.showInformationMessage(`You are already within the ${componentName ? "component" : "project"} directory`);
-		return;
-	}
-	*/
-
 	const projectLocations = locationStore.getState().getLocations(project.handler, org.handle);
 
 	if (componentName) {
@@ -191,7 +184,7 @@ export const cloneOrOpenDir = async (
 				technology,
 				integrationType,
 				integrationDisplayType,
-			});
+			} as ICloneProjectCmdParams);
 		}
 	} else if (projectLocations.length > 0) {
 		const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
@@ -206,7 +199,7 @@ export const cloneOrOpenDir = async (
 			technology,
 			integrationType,
 			integrationDisplayType,
-		});
+		} as ICloneProjectCmdParams);
 	}
 };
 
@@ -227,7 +220,7 @@ const cloneOrOpenDirectory = (organization: Organization, project: Project, comp
 				ext.context.globalState.update("open-local-repo", getContextKey(organization, project));
 				commands.executeCommand("vscode.openFolder");
 			} else if (resp === "Clone Repository") {
-				commands.executeCommand(CommandIds.CloneProject, { organization, project, componentName });
+				commands.executeCommand(CommandIds.CloneProject, { organization, project, componentName } as ICloneProjectCmdParams);
 			}
 		});
 };

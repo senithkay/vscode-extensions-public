@@ -12,7 +12,7 @@ import { BallerinaExtension } from "../core";
 import { handleOpenFile, handleOpenRepo } from ".";
 import { CMP_OPEN_VSCODE_URL, TM_EVENT_OPEN_FILE_URL_START, TM_EVENT_OPEN_REPO_URL_START, sendTelemetryEvent } from "../features/telemetry";
 import { exchangeAuthCode } from "../views/ai-panel/auth";
-import { CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { IOpenCompSrcCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
     window.registerUriHandler({
@@ -60,7 +60,7 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                     if (org && project && component && technology && integrationType) {
                         commands.executeCommand(PlatformExtCommandIds.OpenCompSrcDir, {
                             org, project, component, technology, integrationType, integrationDisplayType
-                        });
+                        } as IOpenCompSrcCmdParams);
                     } else {
                         window.showErrorMessage('Invalid component URL parameters');
                     }

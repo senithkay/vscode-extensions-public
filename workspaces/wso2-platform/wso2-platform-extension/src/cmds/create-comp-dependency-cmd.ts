@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, ComponentViewDrawers, getComponentKey } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, ComponentViewDrawers, type ICreateDependencyParams, getComponentKey } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ViewColumn, commands, window } from "vscode";
 import { contextStore } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
@@ -17,7 +17,7 @@ import { getComponentStateOfPath } from "./view-comp-dependency-cmd";
 
 export function createComponentDependencyCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.CreateComponentDependency, async (params: { componentFsPath?: string; isCodeLens?: boolean }) => {
+		commands.registerCommand(CommandIds.CreateComponentDependency, async (params: ICreateDependencyParams) => {
 			try {
 				const userInfo = await getUserInfoForCmd("create component dependency");
 				if (userInfo) {

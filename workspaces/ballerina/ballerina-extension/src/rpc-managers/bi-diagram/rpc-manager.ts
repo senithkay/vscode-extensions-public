@@ -138,7 +138,7 @@ import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { refreshAccessToken } from "../ai-panel/utils";
 import { findScopeByModule, getFunctionNodePosition } from "./utils";
 import { BACKEND_URL } from "../../features/ai/utils";
-import { IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -693,18 +693,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async createChoreoComponent(name: string, type: "service" | "manualTask" | "scheduleTask"): Promise<void> {
-        const params = {
-            initialValues: {
-                name,
-                type,
-                buildPackLang: "ballerina",
-            },
-        };
-
-        await commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, params);
-    }
-
     async deployProject(): Promise<DeploymentResponse> {
         const projectStructure = await this.getProjectStructure();
 
@@ -736,8 +724,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             return { isCompleted: true };
         }
 
-        const params = {
-            integrationType: integrationType,
+        const params: ICreateComponentCmdParams = {
+            integrationType: integrationType as any,
             buildPackLang: "ballerina", // Example language
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri

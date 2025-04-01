@@ -7,7 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { ChoreoComponentType, DeploymentStatus, DevantScopes } from "../enums";
+import type { DeploymentStatus } from "../enums";
+
+export type ExtensionName = "WSO2" | "Choreo" | "Devant";
 
 export interface IWso2PlatformExtensionAPI {
 	isLoggedIn(): boolean;
@@ -302,15 +304,6 @@ export interface ComponentDeployment {
 	version: string;
 	cron: string;
 	cronTimezone: string;
-}
-
-export interface ICreateComponentParams {
-	type: ChoreoComponentType;
-	integrationType?: DevantScopes;
-	buildPackLang: string;
-	name: string;
-	/** Full path of the component directory */
-	componentDir: string;
 }
 
 export interface GHAppConfig {

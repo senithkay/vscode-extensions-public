@@ -103,7 +103,7 @@ export interface ComponentYamlContent {
 		env?: EnvVar[];
 		/** optional List of files to be injected into the component from config form */
 		file?: ComponentYamlFileConfig[];
-	}
+	};
 }
 
 interface EnvVar {

@@ -8,19 +8,19 @@
  */
 
 import type { ComponentKind, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
+import { ext } from "./extensionVariables";
+import { hasDirtyRepo } from "./git/util";
 import { authStore } from "./stores/auth-store";
 import { contextStore } from "./stores/context-store";
-import { getNormalizedPath } from "./utils";
-import { hasDirtyRepo } from "./git/util";
-import { ext } from "./extensionVariables";
+import { getNormalizedPath, isSamePath } from "./utils";
 
 export class PlatformExtensionApi implements IWso2PlatformExtensionAPI {
 	public isLoggedIn = () => !!authStore.getState().state?.userInfo;
 	public getDirectoryComponents = (fsPath: string) =>
 		(contextStore
 			.getState()
-			.state?.components?.filter((item) => getNormalizedPath(item?.componentFsPath) === getNormalizedPath(fsPath))
+			.state?.components?.filter((item) => isSamePath(item?.componentFsPath, fsPath))
 			?.map((item) => item?.component)
 			?.filter((item) => !!item) as ComponentKind[]) ?? [];
-	public localRepoHasChanges = (fsPath: string) => hasDirtyRepo(fsPath, ext.context, ["context.yaml"])
+	public localRepoHasChanges = (fsPath: string) => hasDirtyRepo(fsPath, ext.context, ["context.yaml"]);
 }

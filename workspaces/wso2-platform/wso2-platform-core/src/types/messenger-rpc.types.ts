@@ -162,13 +162,6 @@ export interface ShowConfirmBoxReq {
 	buttonText: string;
 }
 
-export interface ViewComponentDetailsReq {
-	organization: Organization;
-	project: Project;
-	component: ComponentKind;
-	componentPath: string;
-}
-
 export interface ShowWebviewQuickPickItemsReq {
 	items: WebviewQuickPickItem[];
 	title: string;

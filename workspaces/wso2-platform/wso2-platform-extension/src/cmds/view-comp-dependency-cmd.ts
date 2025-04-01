@@ -13,6 +13,7 @@ import {
 	ComponentViewDrawers,
 	type ConnectionListItem,
 	type ContextStoreComponentState,
+	type IViewDependencyCmdParams,
 	getComponentKey,
 } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, ViewColumn, commands, window } from "vscode";
@@ -24,89 +25,86 @@ import { getUserInfoForCmd, resolveQuickPick } from "./cmd-utils";
 
 export function viewComponentDependencyCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(
-			CommandIds.ViewDependency,
-			async (params: { componentFsPath?: string; isCodeLens?: boolean; connectionName: string }) => {
-				try {
-					const userInfo = await getUserInfoForCmd("view component dependency");
-					if (userInfo) {
-						const selected = contextStore.getState().state.selected;
-						if (!selected?.org || !selected.project) {
-							window
-								.showInformationMessage(
-									`This directory has not yet been linked to a ${webviewStateStore.getState().state.extensionName} project`,
-									"Link Directory",
-								)
-								.then((res) => {
-									if (res === "Link Directory") {
-										commands.executeCommand(CommandIds.CreateDirectoryContext);
-									}
-								});
-							return;
-						}
-
-						const components = contextStore.getState().state.components;
-
-						if (components?.length === 0) {
-							window.showInformationMessage("No components available within the project directory", "Create Component").then((res) => {
-								if (res === "Create Component") {
-									commands.executeCommand(CommandIds.CreateNewComponent);
+		commands.registerCommand(CommandIds.ViewDependency, async (params: IViewDependencyCmdParams) => {
+			try {
+				const userInfo = await getUserInfoForCmd("view component dependency");
+				if (userInfo) {
+					const selected = contextStore.getState().state.selected;
+					if (!selected?.org || !selected.project) {
+						window
+							.showInformationMessage(
+								`This directory has not yet been linked to a ${webviewStateStore.getState().state.extensionName} project`,
+								"Link Directory",
+							)
+							.then((res) => {
+								if (res === "Link Directory") {
+									commands.executeCommand(CommandIds.CreateDirectoryContext);
 								}
 							});
-							return;
-						}
-
-						const component = await getComponentStateOfPath(params?.componentFsPath, components);
-
-						if (!component?.component) {
-							throw new Error("Failed to select component");
-						}
-
-						let connectionItem: ConnectionListItem | undefined;
-						const connectionList = await window.withProgress(
-							{ title: "Fetching connection list....", location: ProgressLocation.Notification },
-							async () => {
-								const [componentConnections, projectConnections] = await Promise.all([
-									ext.clients.rpcClient.getConnections({
-										orgId: selected?.org?.id?.toString()!,
-										projectId: selected.project?.id!,
-										componentId: component?.component?.metadata?.id!,
-									}),
-									ext.clients.rpcClient.getConnections({ orgId: selected?.org?.id?.toString()!, projectId: selected.project?.id!, componentId: "" }),
-								]);
-								return [...componentConnections, ...projectConnections];
-							},
-						);
-						if (params?.connectionName) {
-							connectionItem = connectionList.find((item) => item.name === params?.connectionName);
-							if (!connectionItem) {
-								throw new Error("Failed to find matching connection details");
-							}
-						} else {
-							connectionItem = await resolveQuickPick(connectionList?.map((item) => ({ label: item.name, item })));
-						}
-
-						showComponentDetailsView(
-							selected.org,
-							selected.project,
-							component.component,
-							component.componentFsPath,
-							params?.isCodeLens ? ViewColumn.Beside : undefined,
-						);
-
-						// todo: move this to component state instead of global state
-						webviewStateStore
-							.getState()
-							.onOpenComponentDrawer(getComponentKey(selected.org, selected.project, component.component), ComponentViewDrawers.ConnectionGuide, {
-								connection: connectionItem,
-							});
+						return;
 					}
-				} catch (err: any) {
-					console.error("Failed to view component dependency", err);
-					window.showErrorMessage(err?.message || "Failed to view component dependency");
+
+					const components = contextStore.getState().state.components;
+
+					if (components?.length === 0) {
+						window.showInformationMessage("No components available within the project directory", "Create Component").then((res) => {
+							if (res === "Create Component") {
+								commands.executeCommand(CommandIds.CreateNewComponent);
+							}
+						});
+						return;
+					}
+
+					const component = await getComponentStateOfPath(params?.componentFsPath, components);
+
+					if (!component?.component) {
+						throw new Error("Failed to select component");
+					}
+
+					let connectionItem: ConnectionListItem | undefined;
+					const connectionList = await window.withProgress(
+						{ title: "Fetching connection list....", location: ProgressLocation.Notification },
+						async () => {
+							const [componentConnections, projectConnections] = await Promise.all([
+								ext.clients.rpcClient.getConnections({
+									orgId: selected?.org?.id?.toString()!,
+									projectId: selected.project?.id!,
+									componentId: component?.component?.metadata?.id!,
+								}),
+								ext.clients.rpcClient.getConnections({ orgId: selected?.org?.id?.toString()!, projectId: selected.project?.id!, componentId: "" }),
+							]);
+							return [...componentConnections, ...projectConnections];
+						},
+					);
+					if (params?.connectionName) {
+						connectionItem = connectionList.find((item) => item.name === params?.connectionName);
+						if (!connectionItem) {
+							throw new Error("Failed to find matching connection details");
+						}
+					} else {
+						connectionItem = await resolveQuickPick(connectionList?.map((item) => ({ label: item.name, item })));
+					}
+
+					showComponentDetailsView(
+						selected.org,
+						selected.project,
+						component.component,
+						component.componentFsPath,
+						params?.isCodeLens ? ViewColumn.Beside : undefined,
+					);
+
+					// todo: move this to component state instead of global state
+					webviewStateStore
+						.getState()
+						.onOpenComponentDrawer(getComponentKey(selected.org, selected.project, component.component), ComponentViewDrawers.ConnectionGuide, {
+							connection: connectionItem,
+						});
 				}
-			},
-		),
+			} catch (err: any) {
+				console.error("Failed to view component dependency", err);
+				window.showErrorMessage(err?.message || "Failed to view component dependency");
+			}
+		}),
 	);
 }
 

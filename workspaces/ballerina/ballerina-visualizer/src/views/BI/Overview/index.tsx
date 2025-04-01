@@ -27,7 +27,7 @@ import ComponentDiagram from "../ComponentDiagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from "react-markdown";
 import { useQuery } from '@tanstack/react-query'
-import { CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { IOpenInConsoleCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -380,7 +380,7 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                     onDeploy={devantMetadata?.hasComponent ? () => goToDevant() : handleDeploy}
                     learnMoreLink={"https://wso2.com/devant/docs"}
                     secondaryAction={
-                        devantMetadata?.hasLocalChanges
+                        devantMetadata?.hasComponent && devantMetadata?.hasLocalChanges
                             ? {
                                   description: "To redeploy in Devant, please commit and push your changes.",
                                   buttonText: "Open Source Control",
@@ -727,7 +727,7 @@ export function Overview(props: ComponentDiagramProps) {
 
     const goToDevant = () => {
         rpcClient.getCommonRpcClient().executeCommand({
-            commands:[PlatformExtCommandIds.OpenInConsole,{extensionName:"Devant",componentFsPath: projectPath}]
+            commands:[PlatformExtCommandIds.OpenInConsole,{extensionName:"Devant",componentFsPath: projectPath} as IOpenInConsoleCmdParams]
         })
     };
 

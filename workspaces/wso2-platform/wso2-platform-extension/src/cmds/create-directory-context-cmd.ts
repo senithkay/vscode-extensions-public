@@ -23,11 +23,11 @@ import {
 import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
+import { getGitRemotes, getGitRoot } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
-import { getGitRoot, getGitRemotes } from "../git/util";
 
 export function createDirectoryContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -132,6 +132,7 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 					const isWithinWorkspace = workspace.workspaceFolders?.some((item) => isSubpath(gitRoot!, item.uri?.fsPath));
 
 					if (isWithinWorkspace) {
+						contextStore.getState().refreshState();
 						await waitForContextStoreToLoad();
 
 						contextStore.getState().onSetNewContext(selectedOrg, selectedProject, {
