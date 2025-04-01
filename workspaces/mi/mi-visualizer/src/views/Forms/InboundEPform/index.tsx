@@ -332,6 +332,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                                             null
                                         ) : (
                                             <Card
+                                                data-testid={connector.name}
                                                 key={connector.name}
                                                 icon="inbound-endpoint"
                                                 title={connector.name}

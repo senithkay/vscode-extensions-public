@@ -184,6 +184,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 id='name-input'
                 label="Name"
                 placeholder="Name"
+                required
                 errorMsg={errors.name?.message.toString()}
                 {...register("name")}
             />
@@ -206,7 +207,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
             )}
             <FormActions>
                 <Button appearance="secondary" onClick={handleCancel}>Cancel</Button>
-                <Button appearance="primary" disabled={!isDirty} onClick={handleSubmit(handleCreateSequence)}>
+                <Button appearance="primary" disabled={!isDirty} onClick={handleSubmit(handleCreateSequence)} data-testid="create-button">
                     {isNewTemplate ? "Create" : "Save Changes"}
                 </Button>
             </FormActions>

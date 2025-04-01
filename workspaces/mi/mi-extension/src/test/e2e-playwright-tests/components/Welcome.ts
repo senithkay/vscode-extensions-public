@@ -57,32 +57,32 @@ export class Welcome {
         }
 
         console.log('Setting up environment');
-        const container = webview!.locator('div#root');
-        await clearNotificationAlerts(this.page);
-        const javaErrorMessage = container.locator('div:has-text("Java is not properly setup")');
-        await javaErrorMessage.waitFor({ timeout: 8000 }).catch(() => { });
-        if (await javaErrorMessage.count() > 0) {
+        const container = webview?.locator('div#root');
+        await clearNotificationAlerts(this.page.page);
+        const javaErrorMessage = container?.locator('div:has-text("Java is not properly setup")');
+        await javaErrorMessage?.waitFor({ timeout: 8000 }).catch(() => { });
+        if (await javaErrorMessage!.count() > 0) {
             console.log('Java is not setup');
-            const downloadJava = await getVsCodeButton(container, 'Download Java', 'primary');
+            const downloadJava = await getVsCodeButton(container!, 'Download Java', 'primary');
             await downloadJava.click();
 
             // Wait for Java to be downloaded
-            await container.locator('div:has-text("Java is setup")').first().waitFor({ timeout: 180000 });
+            await container?.locator('div:has-text("Java is setup")').first().waitFor({ timeout: 180000 });
             console.log('Java setup done');
         }
-        const microIntegratorErrorMessage = container.locator('div:has-text("Micro Integrator is not available")');
-        if (await microIntegratorErrorMessage.count() > 0) {
+        const microIntegratorErrorMessage = container?.locator('div:has-text("Micro Integrator is not available")');
+        if (await microIntegratorErrorMessage!.count() > 0) {
             console.log('Micro Integrator is not setup');
-            const downloadMI = await getVsCodeButton(container, 'Download Micro Integrator', 'primary');
+            const downloadMI = await getVsCodeButton(container!, 'Download Micro Integrator', 'primary');
             await downloadMI.click();
 
             // Wait for MI to be downloaded
-            await container.locator('div:has-text("Micro Integrator is setup")').first().waitFor({ timeout: 180000 });
+            await container!.locator('div:has-text("Micro Integrator is setup")').first().waitFor({ timeout: 180000 });
             console.log('Micro Integrator setup done');
         }
 
         console.log('Environment setup done');
-        const continueBtn = await getVsCodeButton(container, 'Continue', 'primary');
+        const continueBtn = await getVsCodeButton(container!, 'Continue', 'primary');
         await continueBtn.click();
     }
 }

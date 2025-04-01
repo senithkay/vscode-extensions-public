@@ -39,11 +39,11 @@ export default function createTests() {
           values: {
             'Name*': {
               type: 'input',
-              value: 'connectorsAPI',
+              value: 'connAPI',
             },
             'Context*': {
               type: 'input',
-              value: '/connectorsAPI',
+              value: '/connAPI',
             },
           }
         });
@@ -144,7 +144,7 @@ export default function createTests() {
 
         await diagram.addConnectorOperation('CSV', 'csvToCsv');
 
-        await clearNotificationAlerts(page);
+        await clearNotificationAlerts(page.page);
 
         // Fill connector form
         await diagram.fillConnectorForm({
@@ -211,7 +211,7 @@ export default function createTests() {
         await diagram.init();
         await diagram.addConnectorOperation('kafka_connection', 'PublishMessages');
 
-        await clearNotificationAlerts(page);
+        await clearNotificationAlerts(page.page);
 
         // Fill connector form
         await diagram.fillConnectorForm({
