@@ -61,9 +61,11 @@ interface CodeBlock {
     filePath: string;
     content: string;
 }
+
 interface ChatEntry {
     actor: string;
     message: string;
+    isCodeGeneration?: boolean;
 }
 
 interface ApiResponse {
@@ -356,10 +358,11 @@ export function AIChat() {
         }
     }
 
-    function addChatEntry(role: string, content: string): void {
+    function addChatEntry(role: string, content: string, isCodeGeneration: boolean = false ): void {
         chatArray.push({
             actor: role,
             message: content,
+            isCodeGeneration
         });
 
         localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
@@ -367,6 +370,7 @@ export function AIChat() {
 
     function updateChatEntry(chatIdx: number, newEntry: ChatEntry): void {
         if (chatIdx >= 0 && chatIdx < chatArray.length) {
+            newEntry.isCodeGeneration = chatArray[chatIdx].isCodeGeneration;
             chatArray[chatIdx] = newEntry;
 
             localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
@@ -1055,7 +1059,7 @@ export function AIChat() {
         }
 
         const userMessage = getUserMessage([message, attachments]);
-        addChatEntry("user", userMessage);
+        addChatEntry("user", userMessage, true);
         const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
         setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
         addChatEntry("assistant", assistant_response);
@@ -1259,7 +1263,8 @@ export function AIChat() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
+                body: JSON.stringify({ chats: updatedChatHistory.map(({ isCodeGeneration, ...rest }) => rest), 
+                                       existingChatSummary: developerMdContent }),
                 signal: signal,
             },
             rpcClient
@@ -3229,8 +3234,8 @@ function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
         .filter(
             (chatEntry) =>
                 chatEntry.actor.toLowerCase() == "user" &&
+                chatEntry.isCodeGeneration &&
                 !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) &&
-                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT) &&
-                !chatEntry.message.includes(CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)
+                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
         );
 }
