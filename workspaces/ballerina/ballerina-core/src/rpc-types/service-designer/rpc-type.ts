@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -12,14 +12,11 @@ import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, Servi
 import {
     ExportOASRequest,
     ExportOASResponse,
-    RecordSTRequest,
-    RecordSTResponse,
     SourceUpdateResponse,
 } from "./interfaces";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "service-designer";
-export const getRecordST: RequestType<RecordSTRequest, RecordSTResponse> = { method: `${_preFix}/getRecordST` };
 export const exportOASFile: RequestType<ExportOASRequest, ExportOASResponse> = { method: `${_preFix}/exportOASFile` };
 export const getTriggerModels: RequestType<TriggerModelsRequest, TriggerModelsResponse> = { method: `${_preFix}/getTriggerModels` };
 export const getListeners: RequestType<ListenersRequest, ListenersResponse> = { method: `${_preFix}/getListeners` };

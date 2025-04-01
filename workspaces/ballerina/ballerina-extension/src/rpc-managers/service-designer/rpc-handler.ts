@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -17,7 +17,6 @@ import {
     ListenerModelRequest,
     ListenerSourceCodeRequest,
     ListenersRequest,
-    RecordSTRequest,
     ServiceModelFromCodeRequest,
     ServiceModelRequest,
     ServiceSourceCodeRequest,
@@ -32,7 +31,6 @@ import {
     getListenerModel,
     getListenerModelFromCode,
     getListeners,
-    getRecordST,
     getServiceModel,
     getServiceModelFromCode,
     getTriggerModels,
@@ -45,7 +43,6 @@ import { ServiceDesignerRpcManager } from "./rpc-manager";
 
 export function registerServiceDesignerRpcHandlers(messenger: Messenger) {
     const rpcManger = new ServiceDesignerRpcManager();
-    messenger.onRequest(getRecordST, (args: RecordSTRequest) => rpcManger.getRecordST(args));
     messenger.onRequest(exportOASFile, (args: ExportOASRequest) => rpcManger.exportOASFile(args));
     messenger.onRequest(getTriggerModels, (args: TriggerModelsRequest) => rpcManger.getTriggerModels(args));
     messenger.onRequest(getListeners, (args: ListenersRequest) => rpcManger.getListeners(args));
