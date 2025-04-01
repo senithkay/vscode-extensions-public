@@ -217,7 +217,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         helperPaneOrigin,
         helperPaneHeight,
         recordTypeField,
-        growRange = { start: 4, offset: 4 },
+        growRange = { start: 1, offset: 4 },
         rawExpression, // original expression
         sanitizedExpression // sanitized expression that will be rendered in the editor
     } = props as ExpressionEditorProps;
