@@ -57,7 +57,9 @@ import {
     getTestDiagnostics,
     getThemeKind,
     getTypesFromRecord,
+    handleChatSummaryError,
     isCopilotSignedIn,
+    isNaturalProgrammingDirectoryExists,
     isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
@@ -133,6 +135,8 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(isRequirementsSpecificationFileExist, (args: string) => rpcManger.isRequirementsSpecificationFileExist(args));
     messenger.onRequest(getDriftDiagnosticContents, (args: string) => rpcManger.getDriftDiagnosticContents(args));
     messenger.onRequest(addChatSummary, (args: AIChatSummary) => rpcManger.addChatSummary(args));
+    messenger.onNotification(handleChatSummaryError, (args: string) => rpcManger.handleChatSummaryError(args));
+    messenger.onRequest(isNaturalProgrammingDirectoryExists, (args: string) => rpcManger.isNaturalProgrammingDirectoryExists(args));
     messenger.onRequest(readDeveloperMdFile, (args: string) => rpcManger.readDeveloperMdFile(args));
     messenger.onNotification(updateDevelopmentDocument, (args: DeveloperDocument) => rpcManger.updateDevelopmentDocument(args));
     messenger.onNotification(updateRequirementSpecification, (args: RequirementSpecification) => rpcManger.updateRequirementSpecification(args));

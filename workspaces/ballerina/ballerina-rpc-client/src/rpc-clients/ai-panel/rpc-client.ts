@@ -68,7 +68,9 @@ import {
     getTestDiagnostics,
     getThemeKind,
     getTypesFromRecord,
+    handleChatSummaryError,
     isCopilotSignedIn,
+    isNaturalProgrammingDirectoryExists,
     isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
@@ -294,6 +296,14 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     addChatSummary(filepathAndSummary: AIChatSummary): Promise<boolean> {
         return this._messenger.sendRequest(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    }
+
+    handleChatSummaryError(message: string): void {
+        return this._messenger.sendNotification(handleChatSummaryError, HOST_EXTENSION, message);
+    }
+
+    isNaturalProgrammingDirectoryExists(projectPath: string): Promise<boolean> {
+        return this._messenger.sendRequest(isNaturalProgrammingDirectoryExists, HOST_EXTENSION, projectPath);
     }
 
     readDeveloperMdFile(directoryPath: string): Promise<string> {

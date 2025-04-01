@@ -476,6 +476,11 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
     return result;
 }
 
+export function handleChatSummaryFailure(message: string) {
+    vscode.window.showWarningMessage(message);
+    return;
+}
+
 // Function to find a file in a case-insensitive way
 function findFileCaseInsensitive(directory, fileName) {
     const files = fs.readdirSync(directory);

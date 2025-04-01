@@ -60,6 +60,8 @@ export interface AIPanelAPI {
     isRequirementsSpecificationFileExist:(filePath: string) => Promise<boolean>;
     getDriftDiagnosticContents:(projectPath: string) => Promise<LLMDiagnostics>;
     addChatSummary:(filepathAndSummary: AIChatSummary) => Promise<boolean>;
+    handleChatSummaryError:(message: string) => void;
+    isNaturalProgrammingDirectoryExists:(projectPath: string) => Promise<boolean>;
     readDeveloperMdFile:(directoryPath: string) => Promise<string>;
     updateDevelopmentDocument:(developerDocument: DeveloperDocument) => void;
     updateRequirementSpecification:(requirementsSpecification: RequirementSpecification) => void;
