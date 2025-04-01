@@ -152,14 +152,14 @@ export default function createTests() {
       });
     });
 
+    let proxyService: Proxy;
+    test('Add Proxy Service', async () => {
+      console.log('Creating new Proxy Service');
+      proxyService = new Proxy(page.page);
+      await proxyService.init();
+      await proxyService.add();
+    });
     // TODO: Enable this test after fixing the issue with the proxy service
-    // let proxyService: Proxy;
-    // test('Add Proxy Service', async () => {
-    //   console.log('Creating new Proxy Service');
-    //   proxyService = new Proxy(page.page);
-    //   await proxyService.init();
-    //   await proxyService.add();
-    // });
     // await test.step('Edit Proxy Service', async () => {
     //   console.log('Editing Proxy Service');
     //   await proxyService.edit();
