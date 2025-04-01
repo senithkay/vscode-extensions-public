@@ -304,7 +304,8 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                     versionType: (values.versionType !== "none" && values.version) && values.versionType,
                 }
                 const xml = getXML(ARTIFACT_TEMPLATES.ADD_API, formValues);
-                createAPIParams = { ...createAPIParams, xmlData: xml, version: values.version }
+                createAPIParams = { ...createAPIParams, xmlData: xml, version: values.version,
+                    context: formValues.context, versionType: formValues.versionType}
             }
             createAPIParams = { ...createAPIParams, projectDir: projectDir }
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);

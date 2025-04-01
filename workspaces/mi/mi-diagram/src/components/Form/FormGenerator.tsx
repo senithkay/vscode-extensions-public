@@ -474,7 +474,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, { type: keyType });
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, {type: keyType}, sidePanelContext);
                     }
                 }
 
@@ -701,10 +701,10 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     return true;
                                 }
                                 if (!value || (typeof value === 'object' && !value.value)) {
-                                    return "This field is required2";
+                                    return "This field is required";
                                 }
                                 if (typeof value === 'object' && 'isExpression' in value && value.isExpression && (!value.value || value.value.replace(/\s/g, '') === '${}')) {
-                                    return "Expression is required3";
+                                    return "Expression is required";
                                 }
                                 return true;
                             },

@@ -29,15 +29,16 @@ import {
     ObjectOutputNode,
     OutputDataImportNodeModel,
     PrimitiveOutputNode,
-    SubMappingNode
+    SubMappingNode,
+    UnionOutputNode
 } from '../Node';
 import { DataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
-import { getTypeName } from './common-utils';
+import { getTypeAnnotation } from './common-utils';
 import { InputOutputPortModel } from '../Port';
 import { SourceNodeType } from '../../../components/DataMapper/Views/DataMapperView';
 import { ARRAY_FILTER_NODE_PREFIX } from './constants';
 
-type SubMappingOutputNode = ArrayOutputNode | ObjectOutputNode | PrimitiveOutputNode;
+type SubMappingOutputNode = ArrayOutputNode | ObjectOutputNode | PrimitiveOutputNode | UnionOutputNode;
 
 export function createInputNodeForDmFunction(
     fnDecl: FunctionDeclaration,
@@ -50,7 +51,7 @@ export function createInputNodeForDmFunction(
     */
     const param = fnDecl.getParameters()[0];
     const inputType = param && context.inputTrees.find(input => 
-        getTypeName(input) === param.getTypeNode()?.getText()
+        getTypeAnnotation(input) === param.getTypeNode()?.getText()
     );
 
     if (inputType && hasFields(inputType)) {
@@ -67,7 +68,7 @@ export function createInputNodeForDmFunction(
 export function createOutputNodeForDmFunction(
     fnDecl: FunctionDeclaration,
     context: DataMapperContext
-): ArrayOutputNode | ObjectOutputNode | OutputDataImportNodeModel {
+): ArrayOutputNode | ObjectOutputNode | UnionOutputNode | OutputDataImportNodeModel {
     /* Constraints:
         1. The function should have a return type and it should not be void
         2. The return type should be an interface or an array
@@ -76,16 +77,22 @@ export function createOutputNodeForDmFunction(
     const returnType = fnDecl.getReturnType();
     const outputType = returnType && !returnType.isVoid() && context.outputTree;
 
+
     if (outputType && hasFields(outputType)) {
         const body = fnDecl.getBody();
 
         if (Node.isBlock(body)) {
             const returnStatement = body.getStatements().find((statement) =>
                 Node.isReturnStatement(statement)) as ReturnStatement;
-            const returnExpr = returnStatement?.getExpression();
+            let returnExpr = returnStatement?.getExpression();
     
             // Create output node based on return type
-            if (returnType.isArray()) {
+            if (returnType.isUnion()) {
+                if (Node.isAsExpression(returnExpr)) {
+                    returnExpr = returnExpr.getExpression();
+                }
+                return new UnionOutputNode(context, returnExpr, outputType);
+            } else if (returnType.isArray()) {
                 return new ArrayOutputNode(context, returnExpr, outputType);
             } else {
                 return new ObjectOutputNode(context, returnExpr, outputType);
@@ -123,14 +130,7 @@ export function getOutputNode(
         if (Node.isAsExpression(expression)) {
             expression = expression.getExpression();
         }
-        if (outputType.unionTypes.every(unionType =>
-            (unionType.kind === TypeKind.Interface || unionType.kind === TypeKind.Object))) {
-            return new ObjectOutputNode(context, expression, outputType, isSubMapping);
-        } else if (outputType.unionTypes.every(unionType => unionType.kind === TypeKind.Array)) {
-            return new ArrayOutputNode(context, expression, outputType, isSubMapping);
-        } else {
-            // TODO: handle mixed union types, i.e. MyType | string, MyType | MyType[]
-        }
+        return new UnionOutputNode(context, expression, outputType, isSubMapping);
     }
     return new PrimitiveOutputNode(context, expression, outputType, isSubMapping);
 }
@@ -177,6 +177,8 @@ export function hasFields(type: DMType): boolean {
         return type.fields && type.fields.length > 0;
     } else if (type.kind === TypeKind.Array) {
         return hasFields(type.memberType);
+    } else if (type.kind === TypeKind.Union) {
+        return type.unionTypes.some(unionType => hasFields(unionType));
     }
     return false;
 }

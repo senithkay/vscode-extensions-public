@@ -38,7 +38,7 @@ export function filterFormValues(formValues: { [key: string]: any }, keysToInclu
     return formValues;
 }
 
-export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, setValue: any, documentUri?: string, customProps?: any) => {
+export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, setValue: any, documentUri?: string, customProps?: any, sidePanelContext?: any) => {
     switch (view) {
         case "endpoint":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.EndPointForm }, isPopup: true });
@@ -75,6 +75,10 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
         if (data.recentIdentifier) {
             fetchItems();
             setValue(data.recentIdentifier);
+            sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                newDataMapperName: data.recentIdentifier
+            });
         }
     });
 }

@@ -308,9 +308,10 @@ export async function quickPickWithLoader<T>(params: {
 
 export const getUserInfoForCmd = async (message: string): Promise<UserInfo | null> => {
 	let userInfo = authStore.getState().state.userInfo;
+	const extensionName = webviewStateStore.getState().state.extensionName;
 	if (!userInfo) {
 		const loginSelection = await window.showInformationMessage(
-			"You are not logged into WSO2 Platform.",
+			`You are not logged into ${extensionName}.`,
 			{ modal: true, detail: `Please login to continue and ${message}` },
 			"Login",
 		);
@@ -319,7 +320,7 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 			userInfo = await waitForLogin();
 
 			const response = await window.showInformationMessage(
-				"Successfully logged into WSO2 Platform",
+				`Successfully logged into ${extensionName}`,
 				{ modal: true, detail: `Do you want to continue and ${message}` },
 				"Continue",
 			);

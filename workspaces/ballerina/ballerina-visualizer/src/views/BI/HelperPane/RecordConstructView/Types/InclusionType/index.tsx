@@ -9,7 +9,7 @@
 import React, { useState } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../../ParameterBranch";
 import { useHelperPaneStyles } from "../../styles";
@@ -33,12 +33,12 @@ export default function InclusionType(props: TypeProps) {
         const newSelectedState = !paramSelected;
         param.selected = newSelectedState;
         param.inclusionType.selected = newSelectedState;
-        
+
         // If the inclusion type has fields, update their selection state
         if (param.inclusionType?.fields && param.inclusionType.fields.length > 0) {
             updateFieldsSelection(param.inclusionType.fields, newSelectedState);
         }
-        
+
         setParamSelected(newSelectedState);
         onChange();
     };
@@ -73,17 +73,26 @@ export default function InclusionType(props: TypeProps) {
                             {param.inclusionType.typeInfo.name}
                         </Typography>
                     )}
-                </div>
-                {param.documentation && (
-                    <div className={helperStyleClass.documentationWrapper}>
-                        <Typography
-                            className={helperStyleClass.paramTreeDescriptionText}
-                            variant="body3"
+                    {param.documentation && (
+                        <Tooltip
+                            content={
+                                <Typography
+                                    className={helperStyleClass.paramTreeDescriptionText}
+                                    variant="body3"
+                                >
+                                    {param.documentation}
+                                </Typography>
+                            }
+                            position="right"
+                            sx={{ maxWidth: '300px', whiteSpace: 'normal', pointerEvents: 'none' }}
                         >
-                            {param.documentation}
-                        </Typography>
-                    </div>
-                )}
+                            <Codicon
+                                name="info"
+                                sx={{ marginLeft: '4px' }}
+                            />
+                        </Tooltip>
+                    )}
+                </div>
                 {paramSelected && param.inclusionType?.fields?.length > 0 && (
                     <div className={helperStyleClass.listItemBody}>
                         <ParameterBranch

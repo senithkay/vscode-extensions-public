@@ -233,6 +233,7 @@ export function ForkForm(props: ForkFormProps) {
                 context: {
                     expression: expression,
                     startLine: targetLineRange.startLine,
+                    lineOffset: 0,
                     offset: 0,
                     node: node,
                     property: "variable",

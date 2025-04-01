@@ -18,7 +18,7 @@ import { Overview } from '../components/Overview';
 
 export default function createTests() {
     test.describe(async () => {
-        initTest(true);
+        initTest(false);
 
         test("Connection Tests", async () => {
             await test.step('Create new Connection', async () => {
@@ -68,7 +68,7 @@ export default function createTests() {
                         }
                     }
                 });
-                await clearNotificationAlerts(page);
+                await clearNotificationAlerts(page.page);
                 await connectionForm.submit('Add');
 
                 console.log('Finding created connection in Project Explorer');

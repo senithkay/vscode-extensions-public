@@ -377,10 +377,14 @@ export class PositionVisitor implements Visitor {
     endVisitForeach = (node: Foreach): void => this.setSkipChildrenVisit(false);
     //Filter Mediators
     beginVisitFilter = (node: Filter): void => {
-        this.setAdvancedMediatorPosition(node, {
-            then: node.then,
-            else: node.else_
-        }, NodeTypes.CONDITION_NODE);
+        const branches: any = {};
+        if (node.then) {
+            branches.then = node.then;
+        }
+        if (node.else_) {
+            branches.else = node.else_;
+        }
+        this.setAdvancedMediatorPosition(node, branches, NodeTypes.CONDITION_NODE);
     }
     endVisitFilter = (node: Filter): void => this.setSkipChildrenVisit(false);
     beginVisitSwitch = (node: Switch): void => {
@@ -388,9 +392,10 @@ export class PositionVisitor implements Visitor {
         node._case.map((_case, index) => {
             cases[_case.regex || index] = _case;
         });
-        this.setAdvancedMediatorPosition(node, {
-            ...cases, default: node._default
-        }, NodeTypes.CONDITION_NODE, true, "default");
+        if (node._default) {
+            cases.default = node._default;
+        }
+        this.setAdvancedMediatorPosition(node, cases, NodeTypes.CONDITION_NODE, true, node._default ? "default" : undefined);
     }
     endVisitSwitch = (node: Switch): void => this.setSkipChildrenVisit(false);
 

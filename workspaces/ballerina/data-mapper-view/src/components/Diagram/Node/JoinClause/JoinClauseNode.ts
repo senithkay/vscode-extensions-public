@@ -62,21 +62,24 @@ export class JoinClauseNode extends DataMapperNodeModel {
                 const optionalRecordField = getOptionalRecordField(this.typeDef);
                 if (optionalRecordField) {
                     optionalRecordField?.fields.forEach((subField) => {
-                        this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", name,
-                        EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
-                            this.context.collapsedFields, parentPort.collapsed, true);
+                        this.numberOfFields += this.addPortsForInputRecordField(
+                            subField, "OUT", name, EXPANDED_QUERY_SOURCE_PORT_PREFIX, EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+                            parentPort, this.context.collapsedFields, parentPort.collapsed, true
+                        );
                     });
                 } else if (this.typeDef.typeName === PrimitiveBalType.Record) {
                     const fields = this.typeDef.fields;
                     fields.forEach((subField) => {
-                        this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", name,
-                            EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
-                                this.context.collapsedFields, parentPort.collapsed);
+                        this.numberOfFields += this.addPortsForInputRecordField(
+                            subField, "OUT", name, EXPANDED_QUERY_SOURCE_PORT_PREFIX, EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+                                parentPort, this.context.collapsedFields, parentPort.collapsed
+                            );
                     });
                 } else {
-                    this.numberOfFields += this.addPortsForInputRecordField(this.typeDef, "OUT", name,
-                            EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
-                                this.context.collapsedFields, parentPort.collapsed);
+                    this.numberOfFields += this.addPortsForInputRecordField(
+                        this.typeDef, "OUT", name, EXPANDED_QUERY_SOURCE_PORT_PREFIX, EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+                            parentPort, this.context.collapsedFields, parentPort.collapsed
+                        );
                 }
             }
         }

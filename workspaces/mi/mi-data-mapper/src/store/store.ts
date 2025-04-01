@@ -91,6 +91,7 @@ export interface DataMapperArrayFiltersState {
 export interface DataMapperViewState {
     views: View[];
     setViews: (newViews: View[]) => void;
+    reset: () => void;
 }
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
@@ -196,5 +197,11 @@ export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) =
 
 export const useDMViewsStore = create<DataMapperViewState>((set) => ({
     views: [],
-    setViews: (newViews: View[]) => set({ views: newViews })
+    setViews: (newViews: View[]) => set({ views: newViews }),
+    reset: () => set({ views: [] })
 }));
+
+export const resetStoresForNewLoad = () => {
+    //TODO: Reset all the stores requred for a new load
+    useDMViewsStore.getState().reset();
+};

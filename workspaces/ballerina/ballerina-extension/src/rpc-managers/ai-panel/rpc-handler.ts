@@ -55,6 +55,7 @@ import {
     getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
+    getThemeKind,
     getTypesFromRecord,
     isCopilotSignedIn,
     isRequirementsSpecificationFileExist,
@@ -97,6 +98,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getFileExists, (args: GetFromFileRequest) => rpcManger.getFileExists(args));
     messenger.onNotification(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
     messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
+    messenger.onRequest(getThemeKind, () => rpcManger.getThemeKind());
     messenger.onRequest(generateMappings, (args: GenerateMappingsRequest) => rpcManger.generateMappings(args));
     messenger.onRequest(notifyAIMappings, (args: NotifyAIMappingsRequest) => rpcManger.notifyAIMappings(args));
     messenger.onRequest(stopAIMappings, () => rpcManger.stopAIMappings());

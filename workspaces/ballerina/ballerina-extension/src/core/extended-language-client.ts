@@ -184,8 +184,6 @@ import {
     AINodesRequest,
     BISearchRequest,
     BISearchResponse,
-    AIConnectorActionsRequest,
-    AIConnectorActionsResponse,
     AIModelsResponse,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
@@ -302,7 +300,7 @@ enum EXTENDED_APIS {
     BI_UPDATE_RECORD_CONFIG = 'typesManager/updateRecordConfig',
     BI_GET_RECORD_MODEL_FROM_SOURCE = 'typesManager/findMatchingType',
     BI_GET_RECORD_SOURCE = 'typesManager/generateValue',
-    BI_SERVICE_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
+    BI_SERVICE_GET_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
     BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
     BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
     BI_SERVICE_ADD_LISTENER = 'serviceDesign/addListener',
@@ -318,7 +316,6 @@ enum EXTENDED_APIS {
     BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
     BI_SERVICE_ADD_FUNCTION = 'serviceDesign/addFunction',
     BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateFunction',
-    BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
     BI_SERVICE_SERVICE_CLASS_MODEL = 'serviceDesign/getServiceClassModelFromSource',
     BI_UPDATE_CLASS_FIELD = 'serviceDesign/updateClassField',
     BI_ADD_CLASS_FIELD = 'serviceDesign/addField',
@@ -336,7 +333,6 @@ enum EXTENDED_APIS {
     BI_AI_GET_MODELS = 'agentManager/getModels',
     BI_AI_GET_TOOLS = 'agentManager/getTools',
     BI_AI_GEN_TOOLS = 'agentManager/genTool',
-    BI_AI_CONNECTOR_ACTIONS = 'agentManager/getActions',
     BI_IS_ICP_ENABLED = 'icpService/isIcpEnabled',
     BI_ADD_ICP = 'icpService/addICP',
     BI_DISABLE_ICP = 'icpService/disableICP',
@@ -885,7 +881,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
-        return this.sendRequest<TriggerModelsResponse>(EXTENDED_APIS.BI_SERVICE_TRIGGER_MODELS, params);
+        return this.sendRequest<TriggerModelsResponse>(EXTENDED_APIS.BI_SERVICE_GET_TRIGGER_MODELS, params);
     }
 
     async getListeners(params: ListenersRequest): Promise<ListenersResponse> {
@@ -1034,10 +1030,6 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async genTool(params: AIGentToolsRequest): Promise<AIGentToolsResponse> {
         return this.sendRequest<AIGentToolsResponse>(EXTENDED_APIS.BI_AI_GEN_TOOLS, params);
-    }
-
-    async getConnectorActions(params: AIConnectorActionsRequest): Promise<AIConnectorActionsResponse> {
-        return this.sendRequest<AIConnectorActionsResponse>(EXTENDED_APIS.BI_AI_CONNECTOR_ACTIONS, params);
     }
 
     async search(params: BISearchRequest): Promise<BISearchResponse> {

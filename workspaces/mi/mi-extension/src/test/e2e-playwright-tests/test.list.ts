@@ -11,6 +11,7 @@ import { test } from '@playwright/test';
 import connectionTests from './connectorTests/connection.spec';
 import connectorTests from './connectorTests/connector.spec';
 import inboundEpTests from './connectorTests/inboundEndpoint.spec';
+import artifactTests from './artifactTests/artifact.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
@@ -25,6 +26,7 @@ test.beforeAll(async () => {
     console.log('>>> Starting test suite');
 });
 
+test.describe(artifactTests);
 test.describe(connectionTests);
 test.describe(connectorTests);
 test.describe(inboundEpTests);
