@@ -15,11 +15,12 @@ import { FormField } from "../Form/types";
 import { capitalize, getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
-import { PropertyModel } from "@wso2-enterprise/ballerina-core";
+import { PropertyModel, RecordTypeField } from "@wso2-enterprise/ballerina-core";
 import { EditorFactory } from "./EditorFactory";
 
 interface ChoiceFormProps {
     field: FormField;
+    recordTypeFields?: RecordTypeField[];
 }
 
 const Form = styled.div`
@@ -41,7 +42,7 @@ const FormSection = styled.div`
 `;
 
 export function ChoiceForm(props: ChoiceFormProps) {
-    const { field } = props;
+    const { field, recordTypeFields } = props;
     const { form } = useFormContext();
     const { setValue } = form;
 
@@ -65,7 +66,7 @@ export function ChoiceForm(props: ChoiceFormProps) {
             const formField: FormField = {
                 key: key,
                 label: expression?.metadata.label || key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
-                type: expression.valueType === "EXPRESSION" ? "Default" : expression.valueType,
+                type: expression.valueType,
                 documentation: expression?.metadata.description || "",
                 valueType: expression.valueTypeConstraint,
                 editable: expression.editable,
@@ -111,6 +112,7 @@ export function ChoiceForm(props: ChoiceFormProps) {
                         <EditorFactory
                             key={dfield.key}
                             field={dfield}
+                            recordTypeFields={recordTypeFields}
                         />
                     );
                 })}
