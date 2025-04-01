@@ -50,13 +50,13 @@ export class Diagram {
         return new Mediator(this.diagramWebView, connectorNode);
     }
 
-    public async addMediator(mediatorName: string, index: number = 0) {
+    public async addMediator(mediatorName: string, props?: FormFillProps, index: number = 0) {
         await this.clickPlusButtonByIndex(index);
 
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
         await sidePanel.search(mediatorName);
-        await sidePanel.addMediator(mediatorName);
+        await sidePanel.addMediator(mediatorName, props);
     }
 
     public async downloadConnectorThroughModulesList(name: string, index: number = 0, version?: string) {
@@ -199,7 +199,7 @@ class SidePanel {
         await searchInput.type(str);
     }
 
-    public async addMediator(mediatorName: string) {
+    public async addMediator(mediatorName: string, props?: FormFillProps) {
         const mediator = this.sidePanel.locator(`#card-select-${mediatorName}`);
         await mediator.waitFor();
         await mediator.click();
@@ -210,6 +210,9 @@ class SidePanel {
         await formDiv.waitFor();
 
         const form = new Form(undefined, undefined, formDiv);
+        if (props) {
+            await form.fill(props);
+        }
         await form.submit("Add");
     }
 
