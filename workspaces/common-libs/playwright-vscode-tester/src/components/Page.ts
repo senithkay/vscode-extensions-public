@@ -33,7 +33,7 @@ export class ExtendedPage {
             throw new Error(`IFrame not found`);
         }
         await frame.waitForLoadState();
-        const targetFrame = await frame.waitForSelector(`iframe`, { timeout: 30000 });
+        const targetFrame = await frame.waitForSelector(`iframe[title]`, { timeout: 30000 });
         const iframeTitle = await targetFrame.getAttribute('title');
         const webview = await targetFrame.contentFrame();
         console.log('Current webview:', iframeTitle);
