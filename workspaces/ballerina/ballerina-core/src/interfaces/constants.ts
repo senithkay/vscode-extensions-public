@@ -13,6 +13,7 @@ export enum SHARED_COMMANDS {
     OPEN_BI_NEW_PROJECT = 'ballerina.open.bi.new',
     OPEN_SERVICE_FORM = 'ballerina.open.service.form',
     OPEN_AI_PANEL = 'ballerina.open.ai.panel',
+    CLOSE_AI_PANEL = 'ballerina.close.ai.panel',
     CLEAR_AI_PROMPT = 'ballerina.clear.ai.prompt',
     OPEN_AGENT_CHAT = 'ballerina.open.agent.chat'
 }
@@ -38,5 +39,4 @@ export const BI_COMMANDS = {
     BI_ADD_TEST_FUNCTION: 'BI.test.add.function',
     BI_EDIT_TEST_FUNCTION_DEF: 'BI.test.edit.function.def',
     ADD_NATURAL_FUNCTION: 'BI.project-explorer.add-natural-function',
-    NOTIFY_DEPLOYMENT_COMPLETION: 'BI.notify-deployment-completion'
 };

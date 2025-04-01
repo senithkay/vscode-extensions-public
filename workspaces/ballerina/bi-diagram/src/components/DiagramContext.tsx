@@ -20,8 +20,7 @@ type CompletionConditionalProps = {
         property: ExpressionProperty,
         offset: number,
         invalidateCache: boolean,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
+        triggerCharacter?: string
     ) => Promise<void>;
 } | {
     completions?: never;

@@ -13,7 +13,7 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
-          ref: mi-ext
+          ref: main
 
       - name: Build
         uses: ./.github/actions/build

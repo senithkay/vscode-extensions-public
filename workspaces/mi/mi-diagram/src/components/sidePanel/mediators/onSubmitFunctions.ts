@@ -30,22 +30,19 @@ export function createAndopenDataMapper(documentUri: string, formValues: { [key:
             filePath: documentUri,
             dmName: configName
         };
-        rpcClient.getMiDataMapperRpcClient().createDMFiles(dmCreateRequest).then((response: any) => {
-            rpcClient.getMiDataMapperRpcClient().convertRegPathToAbsPath(request).then((response: any) => {
-                // open data mapper view
-                rpcClient.getVisualizerState().then((state: any) => {
-                    rpcClient.getMiVisualizerRpcClient().openView({
-                        type: EVENT_TYPE.OPEN_VIEW,
-                        location: {
-                            ...state,
-                            documentUri: response.absPath,
-                            view: MACHINE_VIEW.DataMapperView,
-                            dataMapperProps: {
-                                filePath: response.absPath,
-                                configName: configName
-                            }
+        rpcClient.getMiDataMapperRpcClient().convertRegPathToAbsPath(request).then((response: any) => {
+            rpcClient.getVisualizerState().then((state: any) => {
+                rpcClient.getMiVisualizerRpcClient().openView({
+                    type: EVENT_TYPE.OPEN_VIEW,
+                    location: {
+                        ...state,
+                        documentUri: response.absPath,
+                        view: MACHINE_VIEW.DataMapperView,
+                        dataMapperProps: {
+                            filePath: response.absPath,
+                            configName: configName
                         }
-                    });
+                    }
                 });
             });
         });

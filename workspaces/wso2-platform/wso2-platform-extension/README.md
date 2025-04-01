@@ -1,11 +1,11 @@
 # WSO2 Platform Extension for Visual Studio Code
 
-The WSO2 Platform VS Code extension enhances your local development experience with [Choreo](https://wso2.com/choreo/) and [Devant](https://devant.wso2.com/) projects, providing comprehensive project and component management capabilities in VS Code. For more details, visit the [Choreo documentation](https://wso2.com/choreo/docs/).
+The WSO2 Platform VS Code extension enhances your local development experience with [Choreo](https://wso2.com/choreo/) and [Devant](https://devant.wso2.com/) projects, providing comprehensive project and component management capabilities in VS Code. For more details, visit the [Choreo documentation](https://wso2.com/choreo/docs/) or [Devant documentation](https://wso2.com/devant/docs/).
 
 
 ## Getting Started
 
-1.  **Create an Account:** Sign up for an account on [Choreo](https://console.choreo.dev/) or [Devant](https://devant.wso2.com/).
+1.  **Create an Account:** Sign up for an account on [Choreo](https://console.choreo.dev/) or [Devant](https://console.devant.dev/).
 2.  **Install the Extension:**
     * Open Visual Studio Code.
     * Navigate to the Extensions view by pressing `Ctrl+Shift+X` (or `Cmd+Shift+X` on macOS).
