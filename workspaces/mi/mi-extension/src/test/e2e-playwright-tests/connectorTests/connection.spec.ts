@@ -17,7 +17,7 @@ import { Overview } from '../components/Overview';
 
 export default function createTests() {
     test.describe(async () => {
-        initTest("connection");
+        initTest(false);
 
         test("Connection Tests", async () => {
             await test.step('Create new Connection', async () => {
@@ -26,7 +26,7 @@ export default function createTests() {
                 const overviewPage = new Overview(page.page);
                 await overviewPage.init();
                 await overviewPage.goToAddArtifact();
-                
+
                 const addArtifactPage = new AddArtifact(page.page);
                 await addArtifactPage.init();
                 await addArtifactPage.add('Connection');

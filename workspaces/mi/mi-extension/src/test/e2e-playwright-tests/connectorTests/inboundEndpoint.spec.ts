@@ -17,7 +17,7 @@ import { Overview } from '../components/Overview';
 
 export default function createTests() {
     test.describe(async () => {
-        initTest("inboundEndpoint");
+        initTest();
 
         test("Inbound EP Tests", async () => {
             await test.step('Create new HTTPS inbound endpoint', async () => {
