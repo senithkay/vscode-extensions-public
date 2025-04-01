@@ -159,11 +159,10 @@ export default function createTests() {
       await proxyService.init();
       await proxyService.add();
     });
-    // TODO: Enable this test after fixing the issue with the proxy service
-    // await test.step('Edit Proxy Service', async () => {
-    //   console.log('Editing Proxy Service');
-    //   await proxyService.edit();
-    // });
+    await test.step('Edit Proxy Service', async () => {
+      console.log('Editing Proxy Service');
+      await proxyService.edit();
+    });
 
     test('Add Data Source', async () => {
       let dataSource: DataSource;
