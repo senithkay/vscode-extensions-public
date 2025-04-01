@@ -85,7 +85,7 @@ export async function clearNotificationAlerts(page: Page) {
 
 export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
     test.beforeAll(async ({ }, testInfo) => {
-        console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry}`);
+        console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);
         if (!existsSync(path.join(newProjectPath, 'testProject')) || newProject) {
             if (fs.existsSync(newProjectPath)) {
                 fs.rmSync(newProjectPath, { recursive: true });
