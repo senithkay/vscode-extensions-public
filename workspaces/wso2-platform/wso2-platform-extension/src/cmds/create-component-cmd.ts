@@ -85,12 +85,9 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							ChoreoComponentType.WebApplication,
 							ChoreoComponentType.ScheduledTask,
 							ChoreoComponentType.ManualTrigger,
+							ChoreoComponentType.ApiProxy,
 						);
-						const isProxyCreateEnabled = workspace.getConfiguration().get<boolean>("WSO2.WSO2-Platform.FeaturePreview.ProxyCreation");
-						if (isProxyCreateEnabled) {
-							componentTypes.push(ChoreoComponentType.ApiProxy);
-						}
-						if(params?.type && componentTypes.includes(params.type)){
+						if (params?.type && componentTypes.includes(params.type)) {
 							selectedType = params?.type;
 						}
 					}

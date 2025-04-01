@@ -288,7 +288,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 				mkdirSync(join(params.componentDir, ".choreo"));
 			}
 			const endpointFileContent: ComponentYamlContent = {
-				schemaVersion: 1.1,
+				schemaVersion: "1.2",
 				endpoints:
 					params.endpoints?.map((item, index) => ({
 						name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
@@ -331,7 +331,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			if (!existsSync(join(params.componentDir, ".choreo"))) {
 				mkdirSync(join(params.componentDir, ".choreo"));
 			}
-			const endpointFileContent: ComponentYamlContent = { schemaVersion: 1.1, proxy: proxyConfig };
+			const endpointFileContent: ComponentYamlContent = { schemaVersion: "1.2", proxy: proxyConfig };
 			writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
 		}
 	});
@@ -388,8 +388,9 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		const resourceRef = `service:/${project.handler}/${component.metadata?.handler}/v1/${params?.marketplaceItem?.component?.endpointId}/${params.visibility}`;
 		if (existsSync(componentYamlPath)) {
 			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			if (componentYamlFileContent.schemaVersion < 1.1) {
-				componentYamlFileContent.schemaVersion = 1.1;
+			let schemaVersion = Number(componentYamlFileContent.schemaVersion)
+			if (schemaVersion < 1.1) {
+				schemaVersion = 1.1;
 			}
 			componentYamlFileContent.dependencies = {
 				...componentYamlFileContent.dependencies,
@@ -404,7 +405,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 				mkdirSync(join(params.componentDir, ".choreo"));
 			}
 			const endpointFileContent: ComponentYamlContent = {
-				schemaVersion: 1.1,
+				schemaVersion: "1.1",
 				dependencies: { connectionReferences: [{ name: params?.name, resourceRef }] },
 			};
 			writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
