@@ -14,7 +14,7 @@ export interface FormFillProps {
     values: {
         [key: string]: {
             value: string,
-            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression' | 'file'
+            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression' | 'file' | 'inlineExpression'
         }
     }
 }
@@ -108,6 +108,13 @@ export class Form {
                         await container.waitFor();
                         const textInput = container.locator('textarea');
                         await textInput.fill(data.value);
+                        break;
+                    }
+                    case 'inlineExpression': {
+                        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../..');
+                        await parentDiv.waitFor();
+                        const input = parentDiv.locator('div[contenteditable="true"]');
+                        await input.fill(data.value);
                         break;
                     }
                     case 'file': {

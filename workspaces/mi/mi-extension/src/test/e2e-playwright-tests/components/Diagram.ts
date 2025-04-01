@@ -25,6 +25,10 @@ export class Diagram {
         this.diagramWebView = webview;
     }
 
+    public async getDiagramWebView() : Promise<Frame> {
+        return this.diagramWebView;
+    }
+
     public async edit() {
         const editButton = await this.diagramWebView.waitForSelector('vscode-button[title="Edit"]');
         await editButton.click();
@@ -172,6 +176,11 @@ class Mediator {
         const form = new SidePanel(this.container);
         await form.init();
         await form.updateMediator(props);
+    }
+
+    public async delete(parentWebView: Frame) {
+        await this.mediatotNode.getByRole("img").click();
+        await parentWebView.getByText('Delete').click();
     }
 
     public async getDescription() {
