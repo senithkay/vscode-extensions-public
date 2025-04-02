@@ -11,7 +11,7 @@ import React from "react";
 import { VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
 import { Icon, PanelContent, Typography } from "@wso2-enterprise/ui-toolkit";
 import { MediatorForm } from "./Form";
-import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { DiagramService, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import TryOutView from "../tryout/Tryout";
 import { useForm } from "react-hook-form";
 import { Colors } from "../../../resources/constants";
@@ -25,6 +25,7 @@ interface MediatorPageProps {
     documentUri: string;
     isUpdate: boolean;
     showForm: boolean;
+    model: DiagramService;
 }
 export function MediatorPage(props: MediatorPageProps) {
     const { mediatorData, connectorData, mediatorType, documentUri, nodeRange, isUpdate, showForm } = props;
@@ -104,6 +105,7 @@ export function MediatorPage(props: MediatorPageProps) {
                         mediatorType={mediatorType}
                         getValues={getValues}
                         isActive={activeTab === "tryout" || !showForm}
+                        model={props.model}
                     />}
                     {((mediatorData || connectorData) && !canTryOut) && (
                         <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>

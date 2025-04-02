@@ -21,6 +21,7 @@ import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
 import { RemoveConnectorPage } from './RemoveConnectorPage';
+import { DiagramService } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 interface MediatorProps {
     nodePosition: any;
@@ -28,6 +29,7 @@ interface MediatorProps {
     documentUri: string;
     searchValue?: string;
     clearSearch?: () => void;
+    model: DiagramService;
 }
 
 const INBUILT_MODULES = ["favourites", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
@@ -148,6 +150,7 @@ export function Mediators(props: MediatorProps) {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
+                        model={props.model}
                     />
                 </div>;
         } else {
@@ -162,6 +165,7 @@ export function Mediators(props: MediatorProps) {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
+                        model={props.model}
                     />
                 </div>;
         }

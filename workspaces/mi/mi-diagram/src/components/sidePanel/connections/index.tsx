@@ -19,6 +19,7 @@ import path from "path";
 import { MediatorPage } from "../mediators/Mediator";
 import { DEFAULT_ICON } from "../../../resources/constants";
 import { ButtonGroup, GridButton } from "../commons/ButtonGroup";
+import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 const MessageWrapper = styled.div`
     display: flex;
@@ -76,6 +77,7 @@ export interface ConnectorPageProps {
     clearSearch?: () => void;
     nodePosition: any;
     trailingSpace: string;
+    model: DiagramService;
 }
 
 export function ConnectionPage(props: ConnectorPageProps) {
@@ -292,6 +294,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                 documentUri={props.documentUri}
                 nodeRange={props.nodePosition}
                 showForm={true}
+                model={props.model}
             />
         </div>;
         sidepanelAddPage(sidePanelContext, page, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, icon);

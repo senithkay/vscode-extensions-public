@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { Button, FormActions, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, FormActions, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import SidePanelContext, { clearSidePanelState } from "../SidePanelContexProvider";
@@ -15,6 +15,7 @@ import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ParameterManager from "../../Form/GigaParamManager/ParameterManager";
+import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 const TryoutContainer = styled.div`
     height: 100%;
@@ -27,35 +28,53 @@ interface SetPayloadsProps {
     nodeRange?: any;
     getValues?: any;
     isActive?: boolean;
+    model: DiagramService;
 }
 export function SetPayloads(props: SetPayloadsProps) {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { documentUri } = props;
+    const { documentUri, model } = props;
     const [isLoading, setIsLoading] = React.useState(true);
     const [requests, setRequests] = React.useState<any[]>([]);
+    const [defaultPayload, setDefaultPayload] = React.useState<string>();
+    const [requestsNames, setRequestsNames] = React.useState<string[]>([]);
 
     useEffect(() => {
-        rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri }).then((res) => {
+        rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri, model }).then((res) => {
             const requests = Array.isArray(res.payloads)
                 ? res.payloads.map(payload => ({
                     name: payload.name,
-                    content: JSON.stringify(payload.content)
+                    contentType: payload.contentType,
+                    content: payload.contentType == 'application/json' ? JSON.stringify(payload.content, null, 2) : payload.content
                 }))
                 : [{ name: "Default", content: JSON.stringify(res.payloads) }];
             setRequests(requests);
+            setDefaultPayload(res.defaultPayload);
+            setRequestsNames(requests.map((request) => request.name));
             setIsLoading(false);
         });
     }, []);
+
+    useEffect(() => {
+        const requestsNames = requests.map((request) => request.name);
+        setRequestsNames(requestsNames);
+        if (defaultPayload && !requestsNames.includes(defaultPayload)) {
+            setDefaultPayload(requestsNames[0].name);
+        }
+        if (!defaultPayload && requestsNames.length > 0) {
+            setDefaultPayload(requestsNames[0]);
+        }
+    }, [requests]);
 
     const onSavePayload = async () => {
         const content = requests.map((request) => {
             return {
                 name: request.name,
-                content: JSON.parse(request.content)
+                contentType: request.contentType,
+                content: request.contentType == 'application/json' ? JSON.parse(request.content) : request.content
             };
         });
-        await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: JSON.stringify(content) });
+        await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: content, model: model, defaultPayload: defaultPayload });
         closeSidePanel();
     };
 
@@ -80,6 +99,18 @@ export function SetPayloads(props: SetPayloadsProps) {
                     displayName: "Name",
                     inputType: "string",
                     required: true,
+                    helpTip: "",
+                },
+            },
+            {
+                type: "attribute",
+                value: {
+                    name: "contentType",
+                    displayName: "Content Type",
+                    inputType: "combo",
+                    required: true,
+                    comboValues: ["application/json", "application/xml", "text/plain"],
+                    defaultValue: "application/json",
                     helpTip: "",
                 },
             },
@@ -111,7 +142,15 @@ export function SetPayloads(props: SetPayloadsProps) {
                     <Typography variant="body3">Only JSON request types are supported</Typography>
                 </Typography>
             </Typography>
-
+            <AutoComplete
+                name="defaultPayload"
+                label="Default Payload"
+                items={requestsNames}
+                value={defaultPayload}
+                onValueChange={setDefaultPayload}
+                required={true}
+                allowItemCreate={false}
+            />
             <ParameterManager
                 formData={parameterManagerConfig}
                 parameters={requests}

@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { DiagramService, Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Diagnostic, Position, TextDocumentIdentifier, TextEdit } from "vscode-languageserver-types";
 import { HelperPaneData } from '../../interfaces/mi-diagram';
 
@@ -1880,6 +1880,7 @@ export interface MediatorTryOutRequest {
     file: string;
     line: number;
     column: number;
+    contentType?: string;
     inputPayload?: string;
     mediatorType?: string;
     mediatorInfo?: MediatorTryOutInfo,
@@ -1926,19 +1927,24 @@ export interface Params {
 }
 
 export interface SavePayloadRequest {
-    payload: string;
+    payload: any;
+    model: DiagramService;
+    defaultPayload: string;
 }
 
 export interface GetPayloadsRequest {
     documentUri: string;
+    model: DiagramService;
 }
 
 export interface GetPayloadsResponse {
     payloads: InputPayload[];
+    defaultPayload: string;
 }
 
 export interface InputPayload {
     name: string;
+    contentType: string;
     content: string;
 }
 
