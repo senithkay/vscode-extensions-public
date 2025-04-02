@@ -122,7 +122,7 @@ export function BallerinaUpdateView() {
   return (
     <Wrapper>
       <TitleContainer>
-        <Headline>Ballerina 2201.12.0 (Swan Lake Update 12)</Headline>
+        <Headline>Ballerina 2201.12.2 (Swan Lake Update 12)</Headline>
       </TitleContainer>
       <StepContainer>
         <Row>
@@ -133,7 +133,7 @@ export function BallerinaUpdateView() {
 
             <OptionContainer>
               <Option>
-                <OptionTitle>Update to Swan Lake Update 12</OptionTitle>
+                <OptionTitle>Update to Ballerina 2201.12.2</OptionTitle>
                 <StepDescription>
                   Experience the complete suite of visual development tools by updating to the latest version.
                 </StepDescription>

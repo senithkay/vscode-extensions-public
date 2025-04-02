@@ -9,16 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 
-import React, {
-    useState,
-    useRef,
-    KeyboardEvent,
-    ChangeEvent,
-    useEffect,
-    forwardRef,
-    useImperativeHandle,
-    useCallback,
-} from "react";
+import React, { useState, useRef, KeyboardEvent, ChangeEvent, useEffect } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import {
@@ -28,15 +19,15 @@ import {
     COMMAND_TYPECREATOR,
     COMMAND_NATURAL_PROGRAMMING,
     getFileTypesForCommand,
-} from "../AIChat";
+} from "../../AIChat";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
-import AttachmentBox, { AttachmentsContainer } from "./AttachmentBox";
-import { DataMapperAttachment } from "../../../utils/datamapperAttachment";
-import { GenerateAttachment } from "../../../utils/generateAttachment";
-import { TestAttachment } from "../../../utils/testAttachment";
+import AttachmentBox, { AttachmentsContainer } from "../AttachmentBox";
+import { DataMapperAttachment } from "../../../../utils/datamapperAttachment";
+import { GenerateAttachment } from "../../../../utils/generateAttachment";
+import { TestAttachment } from "../../../../utils/testAttachment";
+import { StyledInputComponent, StyledInputRef } from "./StyledInput";
 
 // Styled Components
-
 const Container = styled.div`
     width: 100%;
     display: flex;
@@ -81,7 +72,7 @@ const SuggestionsList = styled.ul`
     position: absolute;
     bottom: 100%;
     left: 0;
-    background-color: var(--vscode-editorWidget-background);
+    background-color: var(--vscode-dropdown-listBackground);
     border: 1px solid var(--vscode-editorWidget-border);
     border-radius: 4px;
     list-style: none;
@@ -103,13 +94,13 @@ const SuggestionItem = styled.li<SuggestionItemProps>`
     padding: 6px 12px;
     cursor: pointer;
     background-color: ${(props: SuggestionItemProps) =>
-        props.active ? "var(--vscode-list-activeSelectionBackground)" : "var(--vscode-editor-background)"};
+        props.active ? "var(--vscode-editorActionList-focusBackground)" : "var(--vscode-editorActionList-background)"};
     color: ${(props: SuggestionItemProps) =>
-        props.active ? "var(--vscode-list-activeSelectionForeground)" : "var(--vscode-editor-foreground)"};
+        props.active ? "var(--vscode-editorActionList-focusForeground)" : "var(--vscode-editorActionList-foreground)"};
 
     &:hover {
         background-color: ${(props: SuggestionItemProps) =>
-            props.active ? "var(--vscode-list-activeSelectionBackground)" : "var(--vscode-editor-hoverBackground)"};
+            props.active ? "var(--vscode-editorActionList-focusBackground)" : "var(--vscode-list-hoverBackground)"};
     }
 `;
 
@@ -117,7 +108,7 @@ const ActionButton = styled.button`
     width: 24px;
     height: 24px;
     background-color: transparent;
-    color: var(--vscode-input-foreground);
+    color: var(--vscode-icon-foreground);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -130,7 +121,11 @@ const ActionButton = styled.button`
     box-sizing: border-box;
 
     &:hover {
-        background-color: var(--vscode-badge-background);
+        background-color: var(--vscode-toolbar-hoverBackground);
+    }
+
+    &:active {
+        background-color: var(--vscode-toolbar-activeBackground);
     }
 
     &:disabled {
@@ -143,196 +138,6 @@ const ActionButton = styled.button`
         background-color: transparent;
     }
 `;
-
-// ---------- STYLED INPUT ----------
-// Styled input to blend with the InputArea and remove its own outline
-const StyledInput = styled.div`
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: var(--vscode-inputForeground);
-    font-size: 1em;
-    line-height: calc(1em + 8px);
-    padding: 4px;
-    outline: none;
-    white-space: pre-wrap;
-    overflow-y: auto;
-    max-height: calc(1em * 8);
-    overflow-wrap: break-word;
-    word-break: break-word;
-    hyphens: auto;
-
-    &:focus {
-        outline: none;
-        box-shadow: none;
-        border: none;
-        background: transparent;
-    }
-
-    &:empty:before {
-        content: attr(data-placeholder);
-        color: var(--vscode-input-placeholderForeground);
-        pointer-events: none;
-        display: block;
-    }
-
-    ::selection {
-        background: var(--vscode-editor-selectionBackground);
-        color: var(--vscode-editor-selectionForeground);
-    }
-`;
-
-interface StyledInputRef {
-    focus: () => void;
-    getCursorPosition: () => number;
-    ref: React.RefObject<HTMLDivElement>;
-}
-
-interface StyledInputProps {
-    value: string;
-    onChange: (value: string) => void;
-    onInput: (e: React.ChangeEvent<HTMLDivElement>) => void;
-    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
-    onBlur: (e: React.FocusEvent<HTMLDivElement>) => void;
-    placeholder: string;
-}
-
-const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
-    ({ value, onChange, onInput, onKeyDown, onBlur, placeholder }, ref) => {
-        const [content, setContent] = useState<string>(value);
-        const divRef = useRef<HTMLDivElement>(null);
-
-        const getCursorPosition = () => {
-            const selection = window.getSelection();
-            if (selection && selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const preCaretRange = range.cloneRange();
-                preCaretRange.selectNodeContents(divRef.current);
-                preCaretRange.setEnd(range.endContainer, range.endOffset);
-                return preCaretRange.toString().length;
-            }
-            return 0;
-        };
-
-        // Expose the focus, bold, and highlight methods to parent components
-        useImperativeHandle(ref, () => ({
-            focus: () => {
-                if (divRef.current) {
-                    divRef.current.focus();
-                }
-            },
-            getCursorPosition,
-            ref: divRef,
-        }));
-
-        const setCursorToPosition = (element: HTMLDivElement, position: number) => {
-            const range = document.createRange();
-            const selection = window.getSelection();
-
-            position = Math.min(position, element.textContent?.length ?? 0);
-            position = Math.max(position, 0);
-
-            let currentPos = 0;
-            let found = false;
-
-            for (const node of element.childNodes) {
-                const nodeLength = node.textContent?.length ?? 0;
-
-                if (currentPos + nodeLength >= position) {
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        range.setStart(node, position - currentPos);
-                    } else {
-                        range.setStart(node, Math.min(position - currentPos, node.childNodes.length));
-                    }
-                    found = true;
-                    break;
-                }
-
-                currentPos += nodeLength;
-            }
-
-            if (!found) {
-                range.setStart(element, element.childNodes.length);
-            }
-
-            range.collapse(true);
-            selection?.removeAllRanges();
-            selection?.addRange(range);
-        };
-
-        const handlePaste = useCallback((event: React.ClipboardEvent<HTMLDivElement>) => {
-            event.preventDefault();
-            const text = event.clipboardData.getData("text/plain");
-
-            const selection = window.getSelection();
-            if (!selection || !divRef.current) return;
-
-            const range = selection.getRangeAt(0);
-            range.deleteContents();
-
-            const textNode = document.createTextNode(text);
-            range.insertNode(textNode);
-
-            range.setStartAfter(textNode);
-            range.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            const newValue = divRef.current.innerHTML;
-            setContent(newValue);
-            if (onChange) {
-                onChange(newValue);
-            }
-        }, []);
-
-        // Sync prop `value` with internal state
-        useEffect(() => {
-            if (divRef.current && divRef.current.innerHTML !== content) {
-                const prevCursorPosition = getCursorPosition();
-                const diff = decodeHTML(content).length - decodeHTML(divRef.current.innerHTML).length;
-
-                divRef.current.innerHTML = content;
-
-                setCursorToPosition(divRef.current, prevCursorPosition + diff + 1);
-            }
-        }, [content]);
-
-        // Update content when `value` prop changes
-        useEffect(() => {
-            if (value !== content) {
-                setContent(value);
-            }
-        }, [value, content]);
-
-        // Handle input changes
-        const handleInput = (event: React.ChangeEvent<HTMLDivElement>) => {
-            if (divRef.current) {
-                const html = divRef.current.innerHTML;
-                setContent(html);
-                if (onChange) {
-                    onChange(html);
-                }
-            }
-            onInput(event);
-        };
-
-        return (
-            <StyledInput
-                ref={divRef}
-                contentEditable
-                spellCheck="true"
-                onInput={handleInput}
-                onKeyDown={onKeyDown}
-                onPaste={handlePaste}
-                suppressContentEditableWarning={true}
-                role="textbox"
-                aria-multiline="true"
-                onBlur={onBlur}
-                data-placeholder={placeholder}
-            />
-        );
-    }
-);
 
 // UTIL Functions ----
 function decodeHTML(str: string): string {
@@ -374,6 +179,8 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const activeSuggestionRef = useRef<HTMLLIElement | null>(null);
+    const shouldLogCursorAfterUpdate = useRef(false);
+    const [commandMode, setCommandMode] = useState<number>(0);
 
     const setActiveSuggestion = (newIndex: number, suggestionList: string[]) => {
         setActiveSuggestionIndex(newIndex);
@@ -417,6 +224,18 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
         [activeSuggestionIndex]
     );
 
+    useEffect(
+        function resetInputOnEmptyState() {
+            if (inputValue === "<br>") {
+                setInputValue("");
+            }
+            if (inputValue === "") {
+                setIsMentionMode(false);
+            }
+        },
+        [inputValue]
+    );
+
     // Handle input changes
     const handleInputChange = (event: ChangeEvent<HTMLDivElement>) => {
         const value = event.target.innerText;
@@ -445,17 +264,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                 setActiveSuggestionValue(null);
 
                 // Handle @ - Mentions
-                const currentCursorPosition = inputRef.current.getCursorPosition();
-                const valueUpToCursor = normalizedValue.slice(0, currentCursorPosition);
-                const atIndex = valueUpToCursor.lastIndexOf("@");
-                if (atIndex !== -1) {
-                    const query = valueUpToCursor.slice(atIndex + 1).toLowerCase();
-                    const filteredMentions = mentions.filter((mention) => mention.toLowerCase().startsWith(query));
-
-                    setFilteredSuggestions(filteredMentions);
-                    setShowSuggestions(filteredMentions.length > 0);
-                    setIsMentionMode(filteredMentions.length > 0);
-                }
+                handleAtMentions(normalizedValue);
                 return;
             }
         }
@@ -474,6 +283,20 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
         } else {
             setActiveSuggestionIndex(0);
             setActiveSuggestionValue(null);
+        }
+    };
+
+    const handleAtMentions = (normalizedValue: string) => {
+        const currentCursorPosition = inputRef.current.getCursorPosition();
+        const valueUpToCursor = normalizedValue.slice(0, currentCursorPosition);
+        const atIndex = valueUpToCursor.lastIndexOf("@");
+        if (atIndex !== -1) {
+            const query = valueUpToCursor.slice(atIndex + 1).toLowerCase();
+            const filteredMentions = mentions.filter((mention) => mention.toLowerCase().startsWith(query));
+
+            setFilteredSuggestions(filteredMentions);
+            setShowSuggestions(filteredMentions.length > 0);
+            setIsMentionMode(filteredMentions.length > 0);
         }
     };
 
@@ -569,9 +392,9 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
     // Add badge (for commands only)
     const addBadge = (badge: string) => {
         const highlightedBadge = `<div style="
-            background-color: var(--vscode-editorWidget-background);
-            color: var(--vscode-editorWidget-foreground);
-            padding: 4px;
+            background: var(--vscode-toolbar-hoverBackground);
+            color: var(--vscode-icon-foreground);
+            padding: 4px 0;
             border-radius: 4px;
             display: inline-flex;
             align-items: center;
@@ -650,9 +473,9 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             const textAfterAt = inputValue.substring(originalIdx);
 
             const highlightedBadge = `<div style="
-                background-color: var(--vscode-editorWidget-background);
-                color: var(--vscode-editorWidget-foreground);
-                padding: 4px;
+                background: var(--vscode-toolbar-hoverBackground);
+                color: var(--vscode-icon-foreground);
+                padding: 4px 0;
                 border-radius: 4px;
                 display: inline-flex;
                 align-items: center;
@@ -665,6 +488,10 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
 
             setIsMentionMode(false);
             setShowSuggestions(false);
+            await new Promise((resolve) => setTimeout(resolve, 0));
+            setCommandMode((currentValue) => {
+                return currentValue + 1;
+            });
             return;
         }
 
@@ -687,6 +514,9 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             try {
                 const loadedMentions = await loadMentions(selectedCommand, suggestion);
                 setMentions(loadedMentions);
+                setCommandMode((currentValue) => {
+                    return currentValue + 1;
+                });
             } catch (err) {
                 console.error("Error fetching data:", err);
             }
@@ -777,6 +607,26 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
         setAttachments((prev) => prev.filter((_, i) => i !== index));
     };
 
+    const executeOnPostDOMUpdate = () => {
+        if (shouldLogCursorAfterUpdate.current) {
+            shouldLogCursorAfterUpdate.current = false;
+            const cleaned = decodeHTML(inputValue);
+            const atPosition = cleaned.indexOf("@");
+            if (atPosition !== -1) {
+                inputRef.current?.setCursorToPosition(inputRef.current.ref.current, atPosition + 1);
+                handleAtMentions(cleaned);
+            }
+        }
+    };
+
+    useEffect(() => {
+        setInputValue((currentInputValue) => {
+            const updatedValue = inputValue.replace(/&lt;.*?&gt;/, "@");
+            return updatedValue;
+        });
+        shouldLogCursorAfterUpdate.current = true;
+    }, [commandMode]);
+
     return (
         <Container ref={containerRef}>
             <FlexRow>
@@ -789,6 +639,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                         onKeyDown={handleKeyDown}
                         onBlur={() => setShowSuggestions(false)}
                         placeholder="Describe your integration..."
+                        onPostDOMUpdate={executeOnPostDOMUpdate}
                     />
                     {/* 3. Attachments Display */}
                     {attachments.length > 0 && (

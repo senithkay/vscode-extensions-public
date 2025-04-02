@@ -43,13 +43,13 @@ export const transformCategories = (categories: Category[]): Category[] => {
         // add new item
         statementCategory.items.push({
             codedata: {
-                module: "ai.agent",
+                module: "ai",
                 node: "AGENT_CALL",
                 object: "Agent",
                 org: "ballerinax",
                 parentSymbol: "",
                 symbol: "run",
-                version: "0.7.16",
+                version: "1.0.0",
             },
             enabled: true,
             metadata: {

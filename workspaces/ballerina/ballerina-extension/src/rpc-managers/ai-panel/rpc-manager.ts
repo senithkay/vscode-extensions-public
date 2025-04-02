@@ -43,7 +43,7 @@ import {
     SyntaxTree,
     TestGenerationMentions,
     TestGenerationRequest,
-    TestGenerationResponse,
+    TestGenerationResponse
 } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
@@ -60,7 +60,7 @@ import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
 import { BACKEND_URL, closeAllBallerinaFiles } from "../../features/ai/utils";
-import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
+import { getLLMDiagnosticArrayAsString, handleChatSummaryFailure } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
@@ -745,8 +745,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async markAlertShown(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        // throw new Error('Not implemented');
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
 
@@ -761,7 +759,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return Promise.resolve(files.some(file => file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)));
     }
 
-    async addChatSummary(filepathAndSummary: AIChatSummary): Promise<void> {
+    async addChatSummary(filepathAndSummary: AIChatSummary): Promise<boolean> {
         const filepath = filepathAndSummary.filepath;
         var summaryResponse = filepathAndSummary.summary;
 
@@ -771,11 +769,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const naturalProgrammingDirectory = path.join(filepath, NATURAL_PROGRAMMING_DIR_NAME);
 
         if (!fs.existsSync(naturalProgrammingDirectory)) {
-            fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
+            return false;
         }
 
         const developerMdPath = path.join(naturalProgrammingDirectory, DEVELOPMENT_DOCUMENT);
         fs.writeFileSync(developerMdPath, summary, 'utf8');
+        return true;
     }
 
     async readDeveloperMdFile(directoryPath: string): Promise<string> {
@@ -851,6 +850,18 @@ export class AiPanelRpcManager implements AIPanelAPI {
                     break;
             }
         });
+    }
+
+    async handleChatSummaryError(message: string): Promise<void> {
+        return handleChatSummaryFailure(message);
+    }
+
+    async isNaturalProgrammingDirectoryExists(projectPath: string): Promise<boolean> {
+        const dirPath = path.join(projectPath, NATURAL_PROGRAMMING_DIR_NAME);
+        if (!fs.existsSync(dirPath) || !fs.lstatSync(dirPath).isDirectory()) {
+            return false; // Directory doesn't exist or isn't a folder
+        }
+        return true;
     }
 }
 

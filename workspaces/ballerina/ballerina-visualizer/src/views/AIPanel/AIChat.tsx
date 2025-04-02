@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     VisualizerLocation,
     GetWorkspaceContextResponse,
@@ -28,7 +28,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import styled from "@emotion/styled";
-import AIChatInput from "./Components/AIChatInput";
+import AIChatInput from "./Components/AIChatInputComponents/AIChatInput";
 import ProgressTextSegment, { Spinner } from "./Components/ProgressTextSegment";
 import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
@@ -55,14 +55,17 @@ import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCop
 import MarkdownRenderer from "./Components/MarkdownRenderer";
 import { CodeSection } from "./Components/CodeSection";
 import { CodeSegment } from "./Components/CodeSegment";
+import ErrorBox from "./Components/ErrorBox";
 
 interface CodeBlock {
     filePath: string;
     content: string;
 }
+
 interface ChatEntry {
     actor: string;
     message: string;
+    isCodeGeneration?: boolean;
 }
 
 interface ApiResponse {
@@ -100,10 +103,13 @@ var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
-const INVALID_RECORD_REFERENCE: Error = new Error("Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package.");
+const INVALID_RECORD_REFERENCE: Error = new Error(
+    "Invalid record reference. Follow <org-name>/<package-name>:<record-name> format when referencing to record in another package."
+);
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
 const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`;
+const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -126,7 +132,7 @@ const TEMPLATE_TESTS = [
     "generate tests for resource <method(space)path> function",
 ];
 export const TEMPLATE_DATAMAP = [
-    "generate mappings using input as <recordname(s)> and output as <recordname> using the function <functionname>",
+    "generate mappings using input as <recordname(s)> and output as <recordname> using the <functionname> function",
     "generate mappings for the <functionname> function",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
@@ -231,8 +237,11 @@ export function AIChat() {
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
-    const [currentDiagnostics, setCurrentDiagnostics] = useState<any[]>([]);
-    const [functions, setFunctions] = useState<any>([]);
+
+    //TODO: Need a better way of storing data related to last generation to be in the repair state.
+    const currentDiagnosticsRef = useRef<any[]>([]);
+    const functionsRef = useRef<any>([]);
+    const lastAttatchmentsRef = useRef<any>([]);
 
     const messagesEndRef = React.createRef<HTMLDivElement>();
 
@@ -282,18 +291,19 @@ export function AIChat() {
                     .getAiPanelRpcClient()
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
-                        const command = initPrompt.exists && initPrompt.text === "datamap"
-                            ? COMMAND_DATAMAP
-                            : COMMAND_GENERATE;
+                        const command =
+                            initPrompt.exists && initPrompt.text === "datamap" ? COMMAND_DATAMAP : COMMAND_GENERATE;
 
                         let template = commandToTemplate.get(command)?.[1];
 
                         if (template && initPrompt.dataMappingFunctionName) {
-                            template = template.replace('<functionname>', initPrompt.dataMappingFunctionName);
+                            template = template.replace("<functionname>", initPrompt.dataMappingFunctionName);
                         }
 
                         if (initPrompt.exists) {
                             setUserInput(template ? command + " " + template : command);
+                        } else {
+                            setUserInput("/generate ")
                         }
                     });
                 rpcClient
@@ -351,10 +361,11 @@ export function AIChat() {
         }
     }
 
-    function addChatEntry(role: string, content: string): void {
+    function addChatEntry(role: string, content: string, isCodeGeneration: boolean = false ): void {
         chatArray.push({
             actor: role,
             message: content,
+            isCodeGeneration
         });
 
         localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
@@ -362,6 +373,7 @@ export function AIChat() {
 
     function updateChatEntry(chatIdx: number, newEntry: ChatEntry): void {
         if (chatIdx >= 0 && chatIdx < chatArray.length) {
+            newEntry.isCodeGeneration = chatArray[chatIdx].isCodeGeneration;
             chatArray[chatIdx] = newEntry;
 
             localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
@@ -419,6 +431,11 @@ export function AIChat() {
 
     async function handleSendQuery(content: [string, AttachmentResult[]]) {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+
+        // Clear previous generation refs
+        currentDiagnosticsRef.current = [];
+        functionsRef.current = [];
+        lastAttatchmentsRef.current = null;
 
         if (!token) {
             await rpcClient.getAiPanelRpcClient().promptLogin();
@@ -599,11 +616,16 @@ export function AIChat() {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
                             await processMappingParameters(cleanedMessage, token, parameters, attachments);
                         } else if (messageBody.includes("function")) {
-                            await processMappingParameters(cleanedMessage, token, {
-                                inputRecord: [],
-                                outputRecord: "",
-                                functionName: parameters.functionName
-                            }, attachments);
+                            await processMappingParameters(
+                                cleanedMessage,
+                                token,
+                                {
+                                    inputRecord: [],
+                                    outputRecord: "",
+                                    functionName: parameters.functionName,
+                                },
+                                attachments
+                            );
                         } else {
                             throw new Error(
                                 `Invalid template format for the \`${COMMAND_DATAMAP}\` command. ` +
@@ -834,7 +856,9 @@ export function AIChat() {
         try {
             project = await rpcClient.getAiPanelRpcClient().getProjectSource(operationType);
         } catch (error) {
-            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+            throw new Error(
+                "This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue."
+            );
         }
         const requestBody: any = {
             usecase: useCase,
@@ -843,10 +867,13 @@ export function AIChat() {
             operationType,
         };
 
-        const stringifiedUploadedFiles = attachments.map((file) => JSON.stringify(file));
-        if (attachments.length > 0) {
-            requestBody.fileAttachmentContents = stringifiedUploadedFiles.toString();
-        }
+        const fileAttatchments = attachments.map((file) => ({
+            fileName: file.name,
+            content: file.content
+        }))
+        
+        requestBody.fileAttachmentContents = fileAttatchments;
+        lastAttatchmentsRef.current = fileAttatchments;
 
         const response = await fetchWithToken(
             backendRootUri + "/code",
@@ -916,7 +943,7 @@ export function AIChat() {
                 handleContentBlockDelta(textDelta);
             } else if (event.event == "functions") {
                 // Update the functions state instead of the global variable
-                setFunctions(event.body);
+                functionsRef.current = event.body;
             } else if (event.event == "message_stop") {
                 let diagnostics: DiagnosticEntry[] = [];
                 try {
@@ -926,18 +953,35 @@ export function AIChat() {
                     assistant_response = postProcessResp.assistant_response;
                     diagnostics = postProcessResp.diagnostics.diagnostics;
                     console.log("Initial Diagnostics : ", diagnostics);
-                    setCurrentDiagnostics(diagnostics);
+                    currentDiagnosticsRef.current = diagnostics;
                 } catch (error) {
                     // Add this catch block because `Add to Integration` button not appear for `/generate`
                     // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
+                    console.log("A critical error occurred while post processing the response: ", error);
                     diagnostics = [];
                 }
-                if (diagnostics.length > 0) {
+                const MAX_REPAIR_ATTEMPTS = 3;
+                let repair_attempt = 0;
+                let diagnosticFixResp = assistant_response;
+                while (diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
+                    console.log("Repair iteration: ", repair_attempt);
+                    console.log("Diagnotsics trynna fix: ", diagnostics);
                     const diagReq = {
-                        response: assistant_response,
+                        response: diagnosticFixResp,
                         diagnostics: diagnostics,
                     };
                     const startTime = performance.now();
+                    let newReqBody : any= {
+                        usecase: useCase,
+                        chatHistory: chatArray,
+                        sourceFiles: project.sourceFiles,
+                        diagnosticRequest: diagReq,
+                        functions: functionsRef.current,
+                        operationType,
+                    };
+                    if (attachments.length > 0) {
+                        newReqBody.fileAttachmentContents = fileAttatchments;
+                    }
                     const response = await fetchWithToken(
                         backendRootUri + "/code/repair",
                         {
@@ -946,14 +990,7 @@ export function AIChat() {
                                 "Content-Type": "application/json",
                                 Authorization: `Bearer ${token}`,
                             },
-                            body: JSON.stringify({
-                                usecase: useCase,
-                                chatHistory: chatArray,
-                                sourceFiles: project.sourceFiles,
-                                diagnosticRequest: diagReq,
-                                functions: functions,
-                                operationType,
-                            }),
+                            body: JSON.stringify(newReqBody),
                             signal: signal,
                         },
                         rpcClient
@@ -961,36 +998,32 @@ export function AIChat() {
                     if (!response.ok) {
                         setIsCodeLoading(false);
                         console.log("errr");
+                        break;
                     } else {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
                         // replace original response with new code blocks
-                        let fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        diagnosticFixResp = replaceCodeBlocks(diagnosticFixResp, repairResponse);
                         const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
-                            assistant_response: fixedResponse,
+                            assistant_response: diagnosticFixResp,
                         });
-                        fixedResponse = postProcessResp.assistant_response;
+                        diagnosticFixResp = postProcessResp.assistant_response;
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
                         console.log("After auto repair, Diagnostics : ", postProcessResp.diagnostics.diagnostics);
-                        setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
-                        setIsCodeLoading(false);
-                        assistant_response = fixedResponse;
-                        setMessages((prevMessages) => {
-                            const newMessages = [...prevMessages];
-                            newMessages[newMessages.length - 1].content = fixedResponse;
-                            return newMessages;
-                        });
+                        diagnostics = postProcessResp.diagnostics.diagnostics;
+                        currentDiagnosticsRef.current = postProcessResp.diagnostics.diagnostics;
+                        repair_attempt++;
                     }
-                } else {
-                    setIsCodeLoading(false);
-                    setMessages((prevMessages) => {
-                        const newMessages = [...prevMessages];
-                        newMessages[newMessages.length - 1].content = assistant_response;
-                        return newMessages;
-                    });
                 }
+                assistant_response = diagnosticFixResp;
+                setIsCodeLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content = assistant_response;
+                    return newMessages;
+                });
             } else if (event.event == "error") {
                 console.log("Streaming Error: " + event.body);
                 setIsLoading(false);
@@ -1031,7 +1064,7 @@ export function AIChat() {
         }
 
         const userMessage = getUserMessage([message, attachments]);
-        addChatEntry("user", userMessage);
+        addChatEntry("user", userMessage, true);
         const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
         setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
         addChatEntry("assistant", assistant_response);
@@ -1047,7 +1080,7 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?!\\|error)\\s*(?:=>|\\{)`,
-            's'
+            "s"
         );
     }
 
@@ -1056,7 +1089,7 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType})\\s*(=>|\\{)`,
-            's'
+            "s"
         );
     }
 
@@ -1065,7 +1098,7 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*=>\\s*\\{[^}]*\\}`,
-            's'
+            "s"
         );
     }
 
@@ -1074,16 +1107,13 @@ export function AIChat() {
         const escapedReturnType = escapeRegexString(returnType);
         return new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]+\\)\\s*returns\\s+${escapedReturnType}(?:\\|error)?)\\s*\\{[^}]*\\}`,
-            's'
+            "s"
         );
     }
 
     // Fucntion to create regex to match function signatures without capturing the function body.
     function createExistingFunctionSignatureRegex(functionName: string) {
-        return new RegExp(
-            `function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>\\s*(?:\\{|)`,
-            's'
-        );
+        return new RegExp(`function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>\\s*(?:\\{|)`, "s");
     }
 
     // Function to remove the body of a specified function while keeping the rest of the code unchanged.
@@ -1091,7 +1121,7 @@ export function AIChat() {
         // Regular expression to match the function signature and body
         const functionRegex = new RegExp(
             `(function\\s+${functionName}\\s*\\([^)]*\\)\\s*returns\\s+[^=]+\\s*=>)\\s*(?:\\{[^]*?\\}|[^;]*);`,
-            's'
+            "s"
         );
 
         // Replace the matched function body with an empty function body `{}` while keeping the signature
@@ -1123,7 +1153,8 @@ export function AIChat() {
             if (command === "ai_map") {
                 const importRegex = /import\s+[^;]+;/g;
                 const commentRegex = /^(?:(\/\/.*|#.*)\n)+/; // Matches both `//` and `#` comment blocks at the top
-                const functionRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^={|]+)(?:\|error)?\s*=>\s*(?:\{([\s\S]*?)\}|([\s\S]*?));/;
+                const functionRegex =
+                    /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^={|]+)(?:\|error)?\s*=>\s*(?:\{([\s\S]*?)\}|([\s\S]*?));/;
 
                 let existingFunctionRegex;
 
@@ -1229,32 +1260,40 @@ export function AIChat() {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
         const developerMdContent = await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
         const updatedChatHistory = generateChatHistoryForSummarize(chatArray);
-        const response = await fetchWithToken(
-            backendRootUri + "/prompt/summarize",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
-                signal: signal,
-            },
-            rpcClient
-        );
-
         setIsCodeAdded(true);
-        previouslyIntegratedChatIndex = integratedChatIndex;
-        integratedChatIndex = chatArray.length;
-        localStorage.setItem(
-            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
-            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
-        );
-        const chatSummaryResponseStr = await streamToString(response.body);
-        await rpcClient
-            .getAiPanelRpcClient()
-            .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation });
-        previousDevelopmentDocumentContent = developerMdContent;
+
+        if (await rpcClient.getAiPanelRpcClient().isNaturalProgrammingDirectoryExists(chatLocation)) {
+            fetchWithToken(
+                backendRootUri + "/prompt/summarize",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
+                    signal: signal,
+                },
+                rpcClient
+            ).then(async (response) => {
+                const chatSummaryResponseStr = await streamToString(response.body);
+                await rpcClient
+                    .getAiPanelRpcClient()
+                    .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation }).then(() => {
+                        previouslyIntegratedChatIndex = integratedChatIndex;
+                        integratedChatIndex = chatArray.length;
+                        localStorage.setItem(
+                            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
+                            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
+                        );
+                        previousDevelopmentDocumentContent = developerMdContent;
+                    }).catch((error: any) => {
+                        rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+                    });
+            }).catch((error: any) => {
+                rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+            });;
+        }
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -1708,8 +1747,15 @@ export function AIChat() {
     }
 
     // Process input parameters
-    function processInputs(inputParams: string[], recordMap: Map<any, any>, allImports: ImportStatement[], importsMap: Map<any, any>) {
-        let results = inputParams.map((param: string) => processRecordReference(param, recordMap, allImports, importsMap));
+    function processInputs(
+        inputParams: string[],
+        recordMap: Map<any, any>,
+        allImports: ImportStatement[],
+        importsMap: Map<any, any>
+    ) {
+        let results = inputParams.map((param: string) =>
+            processRecordReference(param, recordMap, allImports, importsMap)
+        );
         return results.filter((result): result is DataMappingRecord => {
             if (result instanceof Error) {
                 throw INVALID_RECORD_REFERENCE;
@@ -1719,11 +1765,18 @@ export function AIChat() {
     }
 
     // Process Output parameters
-    function processOutput(outputParam: string, recordMap: Map<any, any>, allImports: { moduleName: string; alias?: string; }[], importsMap: Map<any, any>) {
+    function processOutput(
+        outputParam: string,
+        recordMap: Map<any, any>,
+        allImports: { moduleName: string; alias?: string }[],
+        importsMap: Map<any, any>
+    ) {
         const parts = outputParam.split("|");
         const validParts = parts.filter((name: string) => name !== "error");
         if (validParts.length > 1) {
-            throw new Error(`Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`);
+            throw new Error(
+                `Invalid output parameter: "${outputParam}". Union types are not supported. Please provide a single valid record name.`
+            );
         }
         const cleanedOutputRecordName = validParts.length > 0 ? validParts[0] : "error";
         const outputResult = processRecordReference(cleanedOutputRecordName, recordMap, allImports, importsMap);
@@ -1772,7 +1825,7 @@ export function AIChat() {
             }
         });
 
-        const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number; }[] = [];
+        const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number }[] = [];
 
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
@@ -1791,7 +1844,7 @@ export function AIChat() {
                         name: func.name,
                         filePath: filepath + func.filePath,
                         startLine: func.startLine,
-                        endLine: func.endLine
+                        endLine: func.endLine,
                     });
                 });
             });
@@ -1800,21 +1853,27 @@ export function AIChat() {
         if (parameters.inputRecord.length > 0 || parameters.outputRecord !== "") {
             result = await processExistingFunctions(existingFunctions, functionName);
             if (result.functionNameMatch) {
-                throw new Error(`A function named "${functionName}" exists in '${result.matchingFunctionFile}'. Please provide a valid function name.`);
+                throw new Error(
+                    `A function named "${functionName}" exists in '${result.matchingFunctionFile}'. Please provide a valid function name.`
+                );
             }
             inputParams = parameters.inputRecord;
             outputParam = parameters.outputRecord;
         } else {
             if (existingFunctions.length === 0) {
-                throw new Error(`A function named "${functionName}" was not found in the project. Please provide a valid function name.`);
+                throw new Error(
+                    `A function named "${functionName}" was not found in the project. Please provide a valid function name.`
+                );
             }
             result = await processExistingFunctions(existingFunctions, functionName);
             if (!result.functionNameMatch) {
-                throw new Error(`A function named "${functionName}" was not found in the project. Please provide a valid function name.`);
+                throw new Error(
+                    `A function named "${functionName}" was not found in the project. Please provide a valid function name.`
+                );
             }
-            const params = result.match[2].split(/,\s*/).map(param => param.trim().split(/\s+/));
-            inputParams = params.map(parts => parts[0]);
-            inputNames = params.map(parts => parts[1]);
+            const params = result.match[2].split(/,\s*/).map((param) => param.trim().split(/\s+/));
+            inputParams = params.map((parts) => parts[0]);
+            inputNames = params.map((parts) => parts[1]);
             outputParam = result.match[3].trim();
         }
 
@@ -1999,7 +2058,9 @@ export function AIChat() {
         try {
             project = await rpcClient.getAiPanelRpcClient().getProjectSource(CodeGenerationType.CODE_GENERATION);
         } catch (error) {
-            throw new Error("This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue.");
+            throw new Error(
+                "This workspace doesn't appear to be a Ballerina project. Please open a folder that contains a Ballerina.toml file to continue."
+            );
         }
         const requestBody: any = {
             usecase: useCase,
@@ -2421,6 +2482,7 @@ export function AIChat() {
     };
 
     const handleRetryRepair = async () => {
+        const currentDiagnostics = currentDiagnosticsRef.current;
         if (currentDiagnostics.length === 0) return;
 
         setIsCodeLoading(true);
@@ -2439,15 +2501,20 @@ export function AIChat() {
                 response: latestMessage,
                 diagnostics: currentDiagnostics,
             };
-
-            const reqBody = {
+            
+            const reqBody : any = {
                 usecase: usecase,
-                chatHistory: chatArray,
+                chatHistory: chatArray.slice(0, chatArray.length - 2),
                 sourceFiles: project.sourceFiles,
                 diagnosticRequest: diagReq,
-                functions: functions,
+                functions: functionsRef.current,
                 operationType: CodeGenerationType.CODE_GENERATION,
             };
+
+            const attatchments = lastAttatchmentsRef.current;
+            if (attatchments) {
+                reqBody.fileAttachmentContents = attatchments;
+            }
             console.log("Request body for repair:", reqBody);
             const response = await fetchWithToken(
                 backendRootUri + "/code/repair",
@@ -2476,7 +2543,7 @@ export function AIChat() {
             });
 
             fixedResponse = postProcessResp.assistant_response;
-            setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
+            currentDiagnosticsRef.current = postProcessResp.diagnostics.diagnostics;
             const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(fixedResponse);
             setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
             setMessages((prevMessages) => {
@@ -2652,7 +2719,7 @@ export function AIChat() {
                                                 buttonsActive={showGeneratingFiles}
                                                 isSyntaxError={isSyntaxError}
                                                 command={segment.command}
-                                                diagnostics={currentDiagnostics}
+                                                diagnostics={currentDiagnosticsRef.current}
                                                 onRetryRepair={handleRetryRepair}
                                                 isPromptExecutedInCurrentWindow={isPromptExecutedInCurrentWindow}
                                             />
@@ -2682,14 +2749,7 @@ export function AIChat() {
                                         </AttachmentsContainer>
                                     );
                                 } else if (segment.type === SegmentType.Error) {
-                                    return (
-                                        <div
-                                            key={i}
-                                            style={{ color: "var(--vscode-errorForeground)", marginTop: "10px" }}
-                                        >
-                                            {segment.text}
-                                        </div>
-                                    );
+                                    return <ErrorBox key={i} message={segment.text} />;
                                 } else if (segment.type === SegmentType.InlineCode) {
                                     // return <BallerinaCodeBlock key={i} code={segment.text} />;
                                     return (
@@ -2757,11 +2817,7 @@ export function AIChat() {
                                     }
                                 } else {
                                     if (message.type === "Error") {
-                                        return (
-                                            <div key={i} style={{ color: "red", marginTop: "10px" }}>
-                                                {segment.text}
-                                            </div>
-                                        );
+                                        return <ErrorBox key={i} message={segment.text} />;
                                     }
                                     return <MarkdownRenderer key={i} markdownContent={segment.text} />;
                                 }
@@ -3190,8 +3246,8 @@ function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
         .filter(
             (chatEntry) =>
                 chatEntry.actor.toLowerCase() == "user" &&
+                chatEntry.isCodeGeneration &&
                 !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) &&
-                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT) &&
-                !chatEntry.message.includes(CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)
+                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
         );
 }
