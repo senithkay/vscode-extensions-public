@@ -73,7 +73,7 @@ export namespace S {
         borderBottomLeftRadius: '2px',
         borderRight: 'none',
         marginTop: '3.75px',
-        paddingTop: '4px',
+        paddingTop: '6px',
         cursor: 'pointer'
     });
 
@@ -158,7 +158,7 @@ export namespace S {
     `;
 }
 
-export const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
+const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
     return (
         <Tooltip content="Add Expression" containerSx={{ cursor: 'default' }}>
             <S.Ribbon onClick={onClick}>

@@ -106,7 +106,6 @@ export function FormGeneratorNew(props: FormProps) {
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
@@ -157,7 +156,6 @@ export function FormGeneratorNew(props: FormProps) {
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
-        setFilteredTypes([]);
         setTypes([]);
         triggerCompletionOnNextRequest.current = false;
     };
@@ -251,33 +249,29 @@ export function FormGeneratorNew(props: FormProps) {
         }
     }, [debouncedRetrieveCompletions]);
 
-    const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number, typeConstraint: string) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: fileName,
-                position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                typeConstraint: typeConstraint,
-            });
+    const debouncedGetVisibleTypes = useCallback(
+        debounce(async (typeConstraint?: string) => {
+            let visibleTypes: CompletionItem[] = types;
+            if (!types.length) {
+                const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                    filePath: fileName,
+                    position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                    typeConstraint: typeConstraint,
+                });
 
-            visibleTypes = convertToVisibleTypes(types);
-            setTypes(visibleTypes);
-        }
+                visibleTypes = convertToVisibleTypes(types);
+                setTypes(visibleTypes);
+            }
+        }, 250),
+        [rpcClient, types, fileName, targetLineRange]
+    );
 
-        const effectiveText = value.slice(0, cursorPosition);
-        let filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-    }, 250), [rpcClient, types, fileName, targetLineRange]);
-
-    const handleGetVisibleTypes = useCallback(async (value: string, cursorPosition: number, typeConstraint?: string) => {
-        await debouncedGetVisibleTypes(value, cursorPosition, typeConstraint);
-    }, [debouncedGetVisibleTypes]);
+    const handleGetVisibleTypes = useCallback(
+        async (typeConstraint?: string) => {
+            await debouncedGetVisibleTypes(typeConstraint);
+        },
+        [debouncedGetVisibleTypes]
+    );
 
     const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
         if (additionalTextEdits?.[0].newText) {
@@ -437,7 +431,7 @@ export function FormGeneratorNew(props: FormProps) {
             completions: filteredCompletions,
             triggerCharacters: TRIGGER_CHARACTERS,
             retrieveCompletions: handleRetrieveCompletions,
-            types: filteredTypes,
+            types: types,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
             getTypeHelper: handleGetTypeHelper,
@@ -449,7 +443,7 @@ export function FormGeneratorNew(props: FormProps) {
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
-        filteredTypes,
+        types,
         handleRetrieveCompletions,
         handleGetVisibleTypes,
         handleGetHelperPane,
