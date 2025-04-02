@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     VisualizerLocation,
     GetWorkspaceContextResponse,
@@ -28,7 +28,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import styled from "@emotion/styled";
-import AIChatInput from "./Components/AIChatInput";
+import AIChatInput from "./Components/AIChatInputComponents/AIChatInput";
 import ProgressTextSegment, { Spinner } from "./Components/ProgressTextSegment";
 import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
@@ -107,6 +107,7 @@ const INVALID_RECORD_REFERENCE: Error = new Error(
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
 const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`;
+const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -129,7 +130,7 @@ const TEMPLATE_TESTS = [
     "generate tests for resource <method(space)path> function",
 ];
 export const TEMPLATE_DATAMAP = [
-    "generate mappings using input as <recordname(s)> and output as <recordname> using the function <functionname>",
+    "generate mappings using input as <recordname(s)> and output as <recordname> using the <functionname> function",
     "generate mappings for the <functionname> function",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
@@ -234,8 +235,11 @@ export function AIChat() {
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
-    const [currentDiagnostics, setCurrentDiagnostics] = useState<any[]>([]);
-    const [functions, setFunctions] = useState<any>([]);
+
+    //TODO: Need a better way of storing data related to last generation to be in the repair state.
+    const currentDiagnosticsRef = useRef<any[]>([]);
+    const functionsRef = useRef<any>([]);
+    const lastAttatchmentsRef = useRef<any>([]);
 
     const messagesEndRef = React.createRef<HTMLDivElement>();
 
@@ -296,6 +300,8 @@ export function AIChat() {
 
                         if (initPrompt.exists) {
                             setUserInput(template ? command + " " + template : command);
+                        } else {
+                            setUserInput("/generate ")
                         }
                     });
                 rpcClient
@@ -421,6 +427,11 @@ export function AIChat() {
 
     async function handleSendQuery(content: [string, AttachmentResult[]]) {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+
+        // Clear previous generation refs
+        currentDiagnosticsRef.current = [];
+        functionsRef.current = [];
+        lastAttatchmentsRef.current = null;
 
         if (!token) {
             await rpcClient.getAiPanelRpcClient().promptLogin();
@@ -852,10 +863,13 @@ export function AIChat() {
             operationType,
         };
 
-        const stringifiedUploadedFiles = attachments.map((file) => JSON.stringify(file));
-        if (attachments.length > 0) {
-            requestBody.fileAttachmentContents = stringifiedUploadedFiles.toString();
-        }
+        const fileAttatchments = attachments.map((file) => ({
+            fileName: file.name,
+            content: file.content
+        }))
+        
+        requestBody.fileAttachmentContents = fileAttatchments;
+        lastAttatchmentsRef.current = fileAttatchments;
 
         const response = await fetchWithToken(
             backendRootUri + "/code",
@@ -925,7 +939,7 @@ export function AIChat() {
                 handleContentBlockDelta(textDelta);
             } else if (event.event == "functions") {
                 // Update the functions state instead of the global variable
-                setFunctions(event.body);
+                functionsRef.current = event.body;
             } else if (event.event == "message_stop") {
                 let diagnostics: DiagnosticEntry[] = [];
                 try {
@@ -935,18 +949,35 @@ export function AIChat() {
                     assistant_response = postProcessResp.assistant_response;
                     diagnostics = postProcessResp.diagnostics.diagnostics;
                     console.log("Initial Diagnostics : ", diagnostics);
-                    setCurrentDiagnostics(diagnostics);
+                    currentDiagnosticsRef.current = diagnostics;
                 } catch (error) {
                     // Add this catch block because `Add to Integration` button not appear for `/generate`
                     // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
+                    console.log("A critical error occurred while post processing the response: ", error);
                     diagnostics = [];
                 }
-                if (diagnostics.length > 0) {
+                const MAX_REPAIR_ATTEMPTS = 3;
+                let repair_attempt = 0;
+                let diagnosticFixResp = assistant_response;
+                while (diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
+                    console.log("Repair iteration: ", repair_attempt);
+                    console.log("Diagnotsics trynna fix: ", diagnostics);
                     const diagReq = {
-                        response: assistant_response,
+                        response: diagnosticFixResp,
                         diagnostics: diagnostics,
                     };
                     const startTime = performance.now();
+                    let newReqBody : any= {
+                        usecase: useCase,
+                        chatHistory: chatArray,
+                        sourceFiles: project.sourceFiles,
+                        diagnosticRequest: diagReq,
+                        functions: functionsRef.current,
+                        operationType,
+                    };
+                    if (attachments.length > 0) {
+                        newReqBody.fileAttachmentContents = fileAttatchments;
+                    }
                     const response = await fetchWithToken(
                         backendRootUri + "/code/repair",
                         {
@@ -955,14 +986,7 @@ export function AIChat() {
                                 "Content-Type": "application/json",
                                 Authorization: `Bearer ${token}`,
                             },
-                            body: JSON.stringify({
-                                usecase: useCase,
-                                chatHistory: chatArray,
-                                sourceFiles: project.sourceFiles,
-                                diagnosticRequest: diagReq,
-                                functions: functions,
-                                operationType,
-                            }),
+                            body: JSON.stringify(newReqBody),
                             signal: signal,
                         },
                         rpcClient
@@ -970,36 +994,32 @@ export function AIChat() {
                     if (!response.ok) {
                         setIsCodeLoading(false);
                         console.log("errr");
+                        break;
                     } else {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
                         // replace original response with new code blocks
-                        let fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                        diagnosticFixResp = replaceCodeBlocks(diagnosticFixResp, repairResponse);
                         const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
-                            assistant_response: fixedResponse,
+                            assistant_response: diagnosticFixResp,
                         });
-                        fixedResponse = postProcessResp.assistant_response;
+                        diagnosticFixResp = postProcessResp.assistant_response;
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
                         console.log("After auto repair, Diagnostics : ", postProcessResp.diagnostics.diagnostics);
-                        setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
-                        setIsCodeLoading(false);
-                        assistant_response = fixedResponse;
-                        setMessages((prevMessages) => {
-                            const newMessages = [...prevMessages];
-                            newMessages[newMessages.length - 1].content = fixedResponse;
-                            return newMessages;
-                        });
+                        diagnostics = postProcessResp.diagnostics.diagnostics;
+                        currentDiagnosticsRef.current = postProcessResp.diagnostics.diagnostics;
+                        repair_attempt++;
                     }
-                } else {
-                    setIsCodeLoading(false);
-                    setMessages((prevMessages) => {
-                        const newMessages = [...prevMessages];
-                        newMessages[newMessages.length - 1].content = assistant_response;
-                        return newMessages;
-                    });
                 }
+                assistant_response = diagnosticFixResp;
+                setIsCodeLoading(false);
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content = assistant_response;
+                    return newMessages;
+                });
             } else if (event.event == "error") {
                 console.log("Streaming Error: " + event.body);
                 setIsLoading(false);
@@ -1236,32 +1256,40 @@ export function AIChat() {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
         const developerMdContent = await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
         const updatedChatHistory = generateChatHistoryForSummarize(chatArray);
-        const response = await fetchWithToken(
-            backendRootUri + "/prompt/summarize",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
-                signal: signal,
-            },
-            rpcClient
-        );
-
         setIsCodeAdded(true);
-        previouslyIntegratedChatIndex = integratedChatIndex;
-        integratedChatIndex = chatArray.length;
-        localStorage.setItem(
-            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
-            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
-        );
-        const chatSummaryResponseStr = await streamToString(response.body);
-        await rpcClient
-            .getAiPanelRpcClient()
-            .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation });
-        previousDevelopmentDocumentContent = developerMdContent;
+
+        if (await rpcClient.getAiPanelRpcClient().isNaturalProgrammingDirectoryExists(chatLocation)) {
+            fetchWithToken(
+                backendRootUri + "/prompt/summarize",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
+                    signal: signal,
+                },
+                rpcClient
+            ).then(async (response) => {
+                const chatSummaryResponseStr = await streamToString(response.body);
+                await rpcClient
+                    .getAiPanelRpcClient()
+                    .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation }).then(() => {
+                        previouslyIntegratedChatIndex = integratedChatIndex;
+                        integratedChatIndex = chatArray.length;
+                        localStorage.setItem(
+                            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
+                            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
+                        );
+                        previousDevelopmentDocumentContent = developerMdContent;
+                    }).catch((error: any) => {
+                        rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+                    });
+            }).catch((error: any) => {
+                rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+            });;
+        }
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -2450,6 +2478,7 @@ export function AIChat() {
     };
 
     const handleRetryRepair = async () => {
+        const currentDiagnostics = currentDiagnosticsRef.current;
         if (currentDiagnostics.length === 0) return;
 
         setIsCodeLoading(true);
@@ -2468,15 +2497,20 @@ export function AIChat() {
                 response: latestMessage,
                 diagnostics: currentDiagnostics,
             };
-
-            const reqBody = {
+            
+            const reqBody : any = {
                 usecase: usecase,
-                chatHistory: chatArray,
+                chatHistory: chatArray.slice(0, chatArray.length - 2),
                 sourceFiles: project.sourceFiles,
                 diagnosticRequest: diagReq,
-                functions: functions,
+                functions: functionsRef.current,
                 operationType: CodeGenerationType.CODE_GENERATION,
             };
+
+            const attatchments = lastAttatchmentsRef.current;
+            if (attatchments) {
+                reqBody.fileAttachmentContents = attatchments;
+            }
             console.log("Request body for repair:", reqBody);
             const response = await fetchWithToken(
                 backendRootUri + "/code/repair",
@@ -2505,7 +2539,7 @@ export function AIChat() {
             });
 
             fixedResponse = postProcessResp.assistant_response;
-            setCurrentDiagnostics(postProcessResp.diagnostics.diagnostics);
+            currentDiagnosticsRef.current = postProcessResp.diagnostics.diagnostics;
             const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(fixedResponse);
             setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
             setMessages((prevMessages) => {
@@ -2681,7 +2715,7 @@ export function AIChat() {
                                                 buttonsActive={showGeneratingFiles}
                                                 isSyntaxError={isSyntaxError}
                                                 command={segment.command}
-                                                diagnostics={currentDiagnostics}
+                                                diagnostics={currentDiagnosticsRef.current}
                                                 onRetryRepair={handleRetryRepair}
                                                 isPromptExecutedInCurrentWindow={isPromptExecutedInCurrentWindow}
                                             />

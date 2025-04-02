@@ -71,29 +71,64 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const editTitle = `Update the configuration details for the ${serviceModel.displayAnnotation.label} as needed.`
 
     useEffect(() => {
-        const recordTypeFields: RecordTypeField[] = Object.entries(serviceModel.properties)
-            .filter(([_, property]) =>
-                property.typeMembers &&
-                property.typeMembers.some(member => member.kind === "RECORD_TYPE")
-            )
-            .map(([key, property]) => ({
-                key,
-                property: {
-                    ...property,
-                    metadata: {
-                        label: property.metadata?.label || key,
-                        description: property.metadata?.description || ''
-                    },
-                    valueType: property?.valueType || 'string',
-                    diagnostics: {
-                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0,
-                        diagnostics: property.diagnostics
-                    }
-                } as Property,
-                recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
-            }));
-        console.log(">>> recordTypeFields of serviceModel", recordTypeFields);
-        setRecordTypeFields(recordTypeFields);
+        // Check for choices in properties (for HTTP service types)
+        if (serviceModel?.listenerProtocol === "http") {
+            const choiceRecordTypeFields = Object.entries(serviceModel.properties)
+                .filter(([_, property]) => property.choices)
+                .flatMap(([parentKey, property]) =>
+                    Object.entries(property.choices).flatMap(([choiceKey, choice]) =>
+                        Object.entries(choice.properties || {})
+                            .filter(([_, choiceProperty]) =>
+                                choiceProperty.typeMembers &&
+                                choiceProperty.typeMembers.some(member => member.kind === "RECORD_TYPE")
+                            )
+                            .map(([choicePropertyKey, choiceProperty]) => ({
+                                key: choicePropertyKey,
+                                property: {
+                                    ...choiceProperty,
+                                    metadata: {
+                                        label: choiceProperty.metadata?.label || choicePropertyKey,
+                                        description: choiceProperty.metadata?.description || ''
+                                    },
+                                    valueType: choiceProperty?.valueType || 'string',
+                                    diagnostics: {
+                                        hasDiagnostics: choiceProperty.diagnostics && choiceProperty.diagnostics.length > 0,
+                                        diagnostics: choiceProperty.diagnostics
+                                    }
+                                } as Property,
+                                recordTypeMembers: choiceProperty.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+                            }))
+                    )
+                );
+            console.log(">>> recordTypeFields of http serviceModel", choiceRecordTypeFields);
+
+            setRecordTypeFields(choiceRecordTypeFields);
+        } else {
+            const recordTypeFields: RecordTypeField[] = Object.entries(serviceModel.properties)
+                .filter(([_, property]) =>
+                    property.typeMembers &&
+                    property.typeMembers.some(member => member.kind === "RECORD_TYPE")
+                )
+                .map(([key, property]) => ({
+                    key,
+                    property: {
+                        ...property,
+                        metadata: {
+                            label: property.metadata?.label || key,
+                            description: property.metadata?.description || ''
+                        },
+                        valueType: property?.valueType || 'string',
+                        diagnostics: {
+                            hasDiagnostics: property.diagnostics && property.diagnostics.length > 0,
+                            diagnostics: property.diagnostics
+                        }
+                    } as Property,
+                    recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+                }));
+            console.log(">>> recordTypeFields of serviceModel", recordTypeFields);
+
+            setRecordTypeFields(recordTypeFields);
+        }
 
         serviceModel && setServiceFields(convertConfig(serviceModel));
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });

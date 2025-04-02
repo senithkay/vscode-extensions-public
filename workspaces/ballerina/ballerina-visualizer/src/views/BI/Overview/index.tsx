@@ -17,6 +17,7 @@ import {
     BuildMode,
     BI_COMMANDS,
     DevantMetadata,
+    SHARED_COMMANDS
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox, ProgressIndicator, Overlay } from "@wso2-enterprise/ui-toolkit";
@@ -28,6 +29,7 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from "react-markdown";
 import { useQuery } from '@tanstack/react-query'
 import { CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { AlertBoxWithClose } from "../../AIPanel/AlertBoxWithClose";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -175,9 +177,15 @@ const DeployButtonContainer = styled.div`
 
 const ReadmeHeaderContainer = styled.div`
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    justify-content: space-between;
+    gap: 8px;
+`;
+
+const ReadmeButtonContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 2px;
 `;
 
 const ReadmeContent = styled.div`
@@ -445,6 +453,8 @@ export function Overview(props: ComponentDiagramProps) {
         queryFn: ()=>rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
         refetchInterval: 2000
     })
+    const [showAlert, setShowAlert] = React.useState(false);
+
 
     const fetchContext = () => {
         rpcClient
@@ -503,6 +513,9 @@ export function Overview(props: ComponentDiagramProps) {
 
     useEffect(() => {
         fetchContext();
+        showLoginAlert().then((status) => {
+            setShowAlert(status);
+        });
     }, []);
 
     useEffect(() => {
@@ -683,6 +696,13 @@ export function Overview(props: ComponentDiagramProps) {
         });
     };
 
+    const handleGenerateWithReadme = () => {
+        rpcClient.getBIDiagramRpcClient().openAIChat({
+            scafold: true,
+            readme: true,
+        });
+    };
+
     const handleEditReadme = () => {
         rpcClient.getBIDiagramRpcClient().openReadme();
     };
@@ -709,6 +729,22 @@ export function Overview(props: ComponentDiagramProps) {
         })
     };
 
+    async function handleSettings() {
+        await rpcClient.getAiPanelRpcClient().openSettings();
+        rpcClient.getCommonRpcClient().executeCommand({ commands: [SHARED_COMMANDS.OPEN_AI_PANEL] });
+    }
+
+    async function handleClose() {
+        await rpcClient.getAiPanelRpcClient().markAlertShown();
+        setShowAlert(false);
+    }
+
+    async function showLoginAlert() {
+        const resp = await rpcClient.getAiPanelRpcClient().showSignInAlert();
+        setShowAlert(resp);
+        return resp;
+    }
+
     return (
         <PageLayout>
             <HeaderRow>
@@ -728,6 +764,24 @@ export function Overview(props: ComponentDiagramProps) {
 
             <MainContent>
                 <MainPanel noPadding={true}>
+                {showAlert && (
+                <AlertBoxWithClose
+                    subTitle={
+                    "Please log in to WSO2 AI Platform to access AI features. You won't be able to use AI features until you log in."
+                    }
+                    title={"Login to WSO2 AI Platform"}
+
+                    btn1Title="Manage Accounts"
+                    btn1IconName="settings-gear"
+                    btn1OnClick={() => handleSettings()}
+                    btn1Id="settings"
+
+                    btn2Title="Close"
+                    btn2IconName="close"
+                    btn2OnClick={() =>handleClose()}
+                    btn2Id="Close"
+                />
+                )}
                     <DiagramHeaderContainer withPadding={true}>
                         <Title variant="h2">Design</Title>
                         {!isEmptyProject() && (<ActionContainer>
@@ -782,9 +836,16 @@ export function Overview(props: ComponentDiagramProps) {
             <FooterPanel>
                 <ReadmeHeaderContainer>
                     <Title variant="h2">README</Title>
-                    <Button appearance="icon" onClick={handleEditReadme} buttonSx={{ padding: "4px 8px" }}>
-                        <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
-                    </Button>
+                    <ReadmeButtonContainer>
+                        {readmeContent && isEmptyProject() && (
+                            <Button appearance="icon" onClick={handleGenerateWithReadme} buttonSx={{ padding: "4px 8px" }}>
+                                <Codicon name="wand" sx={{ marginRight: 4, fontSize: 16 }} /> Generate with Readme
+                            </Button>
+                        )}
+                        <Button appearance="icon" onClick={handleEditReadme} buttonSx={{ padding: "4px 8px" }}>
+                            <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
+                        </Button>
+                    </ReadmeButtonContainer>
                 </ReadmeHeaderContainer>
                 <ReadmeContent>
                     {readmeContent ? (
