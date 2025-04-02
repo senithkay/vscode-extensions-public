@@ -110,6 +110,7 @@ interface TypeEditorProps {
         loading?: boolean;
         loadingTypeBrowser?: boolean;
         basicTypes: TypeHelperCategory[];
+        importedTypes: TypeHelperCategory[];
         operators: TypeHelperOperator[];
         typeBrowserTypes: TypeHelperCategory[];
         onSearchTypeHelper: (searchText: string, isType?: boolean) => void;
