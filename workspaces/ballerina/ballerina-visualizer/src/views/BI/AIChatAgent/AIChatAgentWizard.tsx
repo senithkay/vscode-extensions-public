@@ -52,7 +52,7 @@ export interface AIChatAgentWizardProps {
 }
 
 export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
-   // module name for ai agent
+    // module name for ai agent
     const type = "ai";
     const { rpcClient } = useRpcContext();
     const [agentName, setAgentName] = useState<string>("");
