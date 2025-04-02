@@ -41,7 +41,7 @@ export class BallerinaModule {
         await seqFrame.getByRole('textbox', { name: 'Version*' }).fill('1.0.0');
         await seqFrame.getByRole('button', { name: 'Create' }).click();
         const page = await this._page;
-        await page.getByRole('tab', { name: 'testBal-module.bal' }).getByLabel('Close (⌘W)').click();
+        await page.getByRole('tab', { name: 'testBal-module.bal' }).getByLabel('Close').click();
         await page.getByLabel('Open Project Overview').click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
