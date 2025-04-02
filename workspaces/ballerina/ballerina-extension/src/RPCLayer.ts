@@ -113,7 +113,6 @@ async function getContext(): Promise<VisualizerLocation> {
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
                 target: context.metadata?.target,
-                devantComponent: context.metadata?.devantComponent,
             },
             scope: context.scope,
         });
@@ -140,6 +139,10 @@ function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
 
 export function notifyCurrentWebview() {
     RPCLayer._messenger.sendNotification(projectContentUpdated, { type: 'webview', webviewType: VisualizerWebview.viewType }, true);
+}
+
+export function notifyAiWebview() {
+    RPCLayer._messenger.sendNotification(projectContentUpdated, { type: 'webview', webviewType: AiPanelWebview.viewType }, true);
 }
 
 export function notifyBreakpointChange() {

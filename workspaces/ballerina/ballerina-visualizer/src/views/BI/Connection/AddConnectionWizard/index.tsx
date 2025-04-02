@@ -343,7 +343,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                             </StatusCard>
                         )}
 
-                        <BodyText style={{ padding: "20px 20px 0 20px" }}>
+                        <BodyText style={{ padding: "20px 16px 0 16px" }}>
                             Provide the necessary configuration details for the selected connector to complete the
                             setup.
                         </BodyText>
@@ -380,7 +380,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                     onBack={handleOnBack}
                 >
                     <>
-                        <BodyText style={{ padding: "20px 20px 0 20px" }}>
+                        <BodyText style={{ padding: "20px 16px 0 16px" }}>
                             Provide the necessary details to generate the connector.
                         </BodyText>
                         <FormGeneratorNew

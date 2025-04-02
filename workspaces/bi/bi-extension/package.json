@@ -2,11 +2,11 @@
     "name": "ballerina-integrator",
     "displayName": "Ballerina Integrator",
     "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
-    "version": "0.9.6",
+    "version": "0.9.7",
     "publisher": "wso2",
     "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
-        "url": "http://repo.url"
+        "url": "https://github.com/wso2/product-ballerina-integrator"
     },
     "engines": {
         "vscode": "^1.84.0"
@@ -39,7 +39,7 @@
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 12 or above.\n[Update Now](command:ballerina.update-ballerina)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.2 or above.\n[Update Now](command:ballerina.update-ballerina)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
                 "when": "BI.status == 'updateNeed'"
             },
             {

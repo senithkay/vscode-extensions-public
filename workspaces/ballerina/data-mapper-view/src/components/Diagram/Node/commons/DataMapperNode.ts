@@ -105,7 +105,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	// extend this class to add link init, port init logics
 
 	protected addPortsForInputRecordField(
-		field: TypeField, type: "IN" | "OUT", parentId: string,
+		field: TypeField,
+		type: "IN" | "OUT",
+		parentId: string,
+		unsafeParentId: string,
 		portPrefix?: string,
 		parent?: RecordFieldPortModel,
 		collapsedFields?: string[],
@@ -115,32 +118,44 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 		const fieldName = field?.name ? getBalRecFieldName(field.name) : '';
 
+		const fieldFQN = parentId
+			? `${parentId}${fieldName && isOptional
+				? `?.${fieldName}`
+				: `.${fieldName}`}`
+			: fieldName && fieldName;
+		const unsafeFieldFQN = unsafeParentId
+			? `${unsafeParentId}.${fieldName}`
+			: fieldName || '';
+
 		if (fieldName.startsWith("$missingNode$")) {
 			return;
 		}
 
-		const fieldFQN = parentId
-			? `${parentId}${fieldName && isOptional ? `?.${fieldName}`: `.${fieldName}`}`
-			: fieldName && fieldName;
-		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
+		const portName = portPrefix ? `${portPrefix}.${unsafeFieldFQN}` : unsafeFieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
 			field, portName, type, parentId, undefined, undefined, fieldFQN,
-			parent, isCollapsed, hidden);
-		this.addPort(fieldPort)
-		let numberOfFields = 1;
+			unsafeFieldFQN, parent, isCollapsed, hidden);
+
+		this.addPort(fieldPort);
+
+		let numberOfFields = 1;		
 		const optionalRecordField = getOptionalRecordField(field);
 		if (optionalRecordField) {
 			optionalRecordField?.fields.forEach((subField) => {
-				numberOfFields += this.addPortsForInputRecordField(subField, type, fieldFQN, portPrefix,
-					fieldPort, collapsedFields, isCollapsed ? true : hidden, true);
+				numberOfFields += this.addPortsForInputRecordField(
+					subField, type, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
+					collapsedFields, isCollapsed ? true : hidden, true)
+				;
 			});
 		} else if (field.typeName === PrimitiveBalType.Record) {
 			const fields = field?.fields;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
-					numberOfFields += this.addPortsForInputRecordField(subField, type, fieldFQN, portPrefix,
-						fieldPort, collapsedFields, isCollapsed ? true : hidden, isOptionalAndNillableField(subField));
+					numberOfFields += this.addPortsForInputRecordField(
+						subField, type, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
+						collapsedFields, isCollapsed || hidden, subField.optional || isOptional
+					);
 				});
 			}
 		}
@@ -148,8 +163,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForOutputRecordField(
-		field: EditableRecordField, type: "IN" | "OUT",
-		parentId: string, elementIndex?: number,
+		field: EditableRecordField,
+		type: "IN" | "OUT",
+		parentId: string,
+		elementIndex?: number,
 		portPrefix?: string,
 		parent?: RecordFieldPortModel,
 		collapsedFields?: string[],
@@ -170,7 +187,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
 			field.type, portName, type, parentId, elementIndex, field,
-			fieldFQN, parent, isCollapsed, hidden, isWithinSelectClause);
+			fieldFQN, fieldFQN, parent, isCollapsed, hidden, isWithinSelectClause);
 		this.addPort(fieldPort);
 
 		if (field.type.typeName === PrimitiveBalType.Record) {
@@ -193,7 +210,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForHeaderField(
-		field: TypeField, name: string,
+		field: TypeField,
+		name: string,
 		type: "IN" | "OUT",
 		portPrefix: string,
 		collapsedFields?: string[],
@@ -213,8 +231,9 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		}
 		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
-			field, portName, type, undefined, undefined, editableRecordField, fieldName, undefined,
-			isCollapsed, false, isWithinSelectClause);
+			field, portName, type, undefined, undefined, editableRecordField,
+			fieldName, fieldName, undefined, isCollapsed, false, isWithinSelectClause
+		);
 		this.addPort(fieldPort)
 
 		return fieldPort;

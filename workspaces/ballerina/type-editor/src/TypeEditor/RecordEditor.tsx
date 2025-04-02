@@ -49,7 +49,6 @@ interface FieldValidationError {
 
 export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorProps>((props, ref) => {
     const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql, onValidationError } = props;
-    const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
 
     const [validationErrors, setValidationErrors] = useState<FieldValidationError[]>([{identifier: false, type: false}]);
     const [hasRecordError, setHasRecordError] = useState(false);
@@ -103,23 +102,14 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
         addMember
     }));
 
-    const deleteSelected = () => {
-        const newMembers = type.members.filter((_, index) => !selectedMembers.includes(index));
-        setSelectedMembers([]);
-        onChange({ ...type, members: newMembers });
-    }
-
-    const onSelect = (index: number) => () => {
-        setSelectedMembers([...selectedMembers, index]);
-    }
-
-    const onDeselect = (index: number) => () => {
-        setSelectedMembers(selectedMembers.filter(i => i !== index));
-    }
-
     const handleMemberChange = (index: number) => (member: Member) => {
         const newMembers = [...type.members];
         newMembers[index] = member;
+        onChange({ ...type, members: newMembers });
+    }
+
+    const handleDeleteMember = (index: number) => () => {
+        const newMembers = type.members.filter((_, i) => i !== index);
         onChange({ ...type, members: newMembers });
     }
 
@@ -136,8 +126,6 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
                             <Codicon name="arrow-circle-up" />&nbsp;XML
                         </Button>
                         <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
-                        <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>
-                        {/* <Button appearance="icon"><Codicon name="kebab-vertical" /></Button> */}
                     </div>
                 </Header>
             }
@@ -145,11 +133,9 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
                 <>
                     <FieldEditor
                         key={index}
-                        selected={selectedMembers.includes(index)}
                         member={member}
                         onChange={handleMemberChange(index)}
-                        onSelect={onSelect(index)}
-                        onDeselect={onDeselect(index)}
+                        onDelete={handleDeleteMember(index)}
                         type={type}
                         onValidationError={onValidationError}
                         onFieldValidation={(isIdentifier, hasError) => handleFieldValidation(index, isIdentifier, hasError)}

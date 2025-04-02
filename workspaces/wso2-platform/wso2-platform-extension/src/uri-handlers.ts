@@ -8,24 +8,27 @@
  */
 
 import { join } from "path";
+import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import { CommandIds, type Organization, type Project, getComponentKindRepoSource, parseGitURL } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, type ProviderResult, type QuickPickItem, type Uri, commands, window, workspace } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getUserInfoForCmd } from "./cmds/cmd-utils";
+import { choreoEnvConfig } from "./config";
 import { ext } from "./extensionVariables";
-import { getGitRemotes, getGitRoot } from "./git/util";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
 import { contextStore, getContextKey, waitForContextStoreToLoad } from "./stores/context-store";
 import { dataCacheStore } from "./stores/data-cache-store";
 import { locationStore } from "./stores/location-store";
+import { webviewStateStore } from "./stores/webview-state-store";
 import { delay, openDirectory } from "./utils";
 
 export function activateURIHandlers() {
 	window.registerUriHandler({
 		handleUri(uri: Uri): ProviderResult<void> {
 			getLogger().debug(`Handling URI: ${uri.toString()}`);
+			const extName = webviewStateStore.getState().state.extensionName;
 
 			if (uri.path === "/signin") {
 				getLogger().info("WSO2 Platform Login Callback hit");
@@ -37,16 +40,19 @@ export function activateURIHandlers() {
 					// It means that the login was initiated from somewhere else or an old page was opened/refreshed in the browser
 					window.withProgress(
 						{
-							title: "Verifying user details and logging into WSO2 Platform...",
+							title: `Verifying user details and logging into ${extName}...`,
 							location: ProgressLocation.Notification,
 						},
 						async () => {
 							try {
 								const orgId = contextStore?.getState().state?.selected?.org?.id?.toString();
-								const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode, orgId);
+								const callbackUrl = extName === "Devant" ? `${choreoEnvConfig.getDevantUrl()}/vscode-auth` : undefined;
+								const clientId = extName === "Devant" ? choreoEnvConfig.getDevantAsguadeoClientId() : undefined;
+								const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode, orgId, callbackUrl, clientId);
 								if (userInfo) {
 									await delay(1000);
 									authStore.getState().loginSuccess(userInfo);
+									window.showInformationMessage(`Successfully signed into ${extName}`);
 								}
 							} catch (error: any) {
 								if (!(error instanceof ResponseError) || error.code !== ErrorCode.NoOrgsAvailable) {

@@ -65,7 +65,10 @@ export function CellWidget(props: CellWidgetProps) {
         engine.repaintCanvas();
     };
 
-    const strokeWidth = previewMode ? CELL_LINE_PREVIEW_WIDTH : node.getDynamicLineWidth(zoomLevel, CELL_LINE_MIN_WIDTH);
+    const strokeWidth = previewMode 
+        ? Math.max((cellHeight / 200), CELL_LINE_PREVIEW_WIDTH) 
+        : node.getDynamicLineWidth(zoomLevel, CELL_LINE_MIN_WIDTH);
+
     const transform = previewMode ? `scale(${ICON_SCALE.PREVIEW})` : "none";
 
     return (

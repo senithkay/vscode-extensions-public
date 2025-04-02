@@ -12,14 +12,12 @@ import { TypeField } from './TypeField';
 
 interface FieldEditorProps {
     member: Member;
-    selected: boolean;
     onChange: (member: Member) => void;
-    onSelect: () => void;
-    onDeselect: () => void;
     type: Type;
     onValidationError: (isError: boolean) => void;
     onFieldValidation: (isIdentifier: boolean, hasError: boolean) => void;
     onRecordValidation: (hasError: boolean) => void;
+    onDelete: () => void;
 }
 
 const ButtonDeactivated = styled.div<{}>`
@@ -33,8 +31,26 @@ const ButtonActive = styled.div<{}>`
 
 
 
+const ExpandIconButton = styled(Button)`
+    padding: 4px;
+    &:hover {
+        background: transparent;
+    }
+`;
+
+const CollapsibleSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid var(--vscode-welcomePage-tileBorder);
+    margin-left: 25px;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 4px;
+`;
+
 export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
-    const { member, selected, onChange, onSelect, onDeselect, type, onValidationError, onFieldValidation, onRecordValidation } = props;
+    const { member, onChange, onDelete, type, onValidationError, onFieldValidation, onRecordValidation } = props;
     const [panelOpened, setPanelOpened] = useState<boolean>(false);
     const recordEditorRef = useRef<{ addMember: () => void }>(null);
     // const typeFieldRef = useRef<HTMLInputElement>(null);
@@ -240,7 +256,12 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     return (
         <>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'start' }}>
-                <CheckBox label="" checked={selected} onChange={() => { selected ? onDeselect() : onSelect(); }} />
+                <ExpandIconButton
+                    appearance="icon"
+                    onClick={() => setPanelOpened(!panelOpened)}
+                >
+                    <Codicon name={panelOpened ? "chevron-down" : "chevron-right"} />
+                </ExpandIconButton>
                 <IdentifierField
                     value={member.name}
                     onChange={handleNameChange}
@@ -276,10 +297,12 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 <Button appearance="icon" onClick={toggleRecord}>
                     {isRecord(member.type) ? <ButtonActive>{`{`}&nbsp;{`}`}</ButtonActive> : <ButtonDeactivated>{`{`}&nbsp;{`}`}</ButtonDeactivated>}
                 </Button>
-                <Button appearance="icon" onClick={() => setPanelOpened(!panelOpened)}><Codicon name="kebab-vertical" /></Button>
+                <Button appearance="icon" onClick={onDelete}>
+                    <Codicon name="trash" />
+                </Button>
             </div>
             {panelOpened && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
+                <CollapsibleSection>
                     <TextField label='Default Value' value={member.defaultValue} onChange={handleMemberDefaultValueChange} style={{ width: '180px' }} />
                     <TextField label='Description' value={member.docs} onChange={handleDescriptionChange} style={{ width: '180px' }} />
                     <CheckBox
@@ -287,7 +310,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                         checked={member?.optional}
                         onChange={toggleOptional}
                     />
-                </div >
+                </CollapsibleSection>
             )}
             {isRecord(member.type) && typeof member.type !== 'string' && (
                 <div style={{ marginLeft: '24px' }}>

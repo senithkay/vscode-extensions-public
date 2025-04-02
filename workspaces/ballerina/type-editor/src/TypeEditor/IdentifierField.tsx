@@ -57,6 +57,7 @@ export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps
                     offset: rootType?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
                 },
                 offset: 0,
+                lineOffset: 0,
                 codedata: {
                     node: "VARIABLE",
                     lineRange: {

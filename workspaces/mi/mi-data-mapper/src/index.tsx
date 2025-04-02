@@ -20,6 +20,8 @@ import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { hasFields } from "./components/Diagram/utils/node-utils";
 
+export { resetStoresForNewLoad } from "./store/store";
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {

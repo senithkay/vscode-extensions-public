@@ -145,6 +145,8 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
                 return '<root><element>value</element></root>';
             case 'JSONSCHEMA':
                 return `Enter JSON Schema`;
+            case 'XSD':
+                return `Enter XSD`;
             default:
                 return 'Enter your data';
         }

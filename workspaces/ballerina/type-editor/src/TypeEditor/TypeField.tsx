@@ -103,6 +103,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                     offset: rootType?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
                 },
                 offset: 0,
+                lineOffset: 0,
                 codedata: {
                     node: "VARIABLE",
                     lineRange: {
@@ -199,7 +200,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
 
         const range = selection.getRangeAt(0);
 
-        if (typeFieldRef.current.parentElement.contains(range.startContainer)) {
+        if (typeFieldRef.current?.parentElement?.contains(range.startContainer)) {
             setTypeFieldCursorPosition(
                 typeFieldRef.current.shadowRoot.querySelector('input').selectionStart ?? 0
             );
