@@ -143,7 +143,6 @@ export interface ParameterModel extends PropertyModel {
     kind?: "REQUIRED" | "OPTIONAL",
     type?: PropertyModel;
     name?: PropertyModel;
-    // defaultValue?: PropertyModel|string;
 }
 
 

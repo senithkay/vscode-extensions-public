@@ -262,8 +262,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         // Trigger actions on focus
         await onFocus?.();
         handleOnFieldFocus?.(field.key);
-
-        handleChangeHelperPaneState(true);
     };
 
     const handleBlur = async () => {
@@ -441,8 +439,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             onSave={onSave}
                             onCancel={onCancel}
                             onRemove={onRemove}
+                            enableExIcon={false}
                             isHelperPaneOpen={isHelperPaneOpen}
-                            changeHelperPaneState={undefined}
+                            changeHelperPaneState={handleChangeHelperPaneState}
                             helperPaneOrigin={helperPaneOrigin}
                             getHelperPane={handleGetHelperPane}
                             helperPaneHeight={helperPaneHeight}
