@@ -12,6 +12,7 @@ import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
 import { Overview } from "../Overview";
+import { t } from "xstate";
 
 export class Proxy {
 
@@ -44,11 +45,9 @@ export class Proxy {
     }
 
     public async edit() {
-        // Wait for the proxy to be created
-        await this._page.waitForTimeout(2000);
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', 'testProxy']);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', 'testProxy'], true);
 
         const webView = await switchToIFrame('Proxy View', this._page);
         if (!webView) {
