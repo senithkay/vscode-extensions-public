@@ -8,9 +8,10 @@
  */
 
 import styled from "@emotion/styled";
-import { Member, Type } from "@wso2-enterprise/ballerina-core";
+import { Member, Type, TypeProperty } from "@wso2-enterprise/ballerina-core";
 import React from "react";
 import { TypeField } from "./TypeField";
+import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField/TextField";
 
 interface ArrayEditorProps {
     type: Type;
@@ -46,17 +47,39 @@ namespace S {
         color: var(--vscode-editor-foreground);
         margin-bottom: 4px;
     `;
+
+    export const Fields = styled.div`
+        display: flex;
+        gap: 15px;
+        margin-bottom: 8px;
+        flex-direction: column;
+        flex-grow: 1;
+    `;
 }
 export function ArrayEditor(props: ArrayEditorProps) {
-    console.log(props.type);
+    console.log("ARRAY EDITOR PROPS", props.type);
     const newMember: Member = {
         kind: "TYPE",
         type: "string",
         refs: [],
         name: ""
     };
-    
+
+    const defaultSizeProperty: TypeProperty = {
+        metadata: {
+            label: "Size of the Array",
+            description: "Array dimensions"
+        },
+        valueType: "STRING",
+        value: "",
+        optional: true,
+        editable: true,
+        advanced: false
+    }
+
     const member = props.type?.members?.length > 0 ? props.type.members[0] : newMember;
+    const sizeProperty = props.type.properties?.arraySize ?? defaultSizeProperty;
+
     const updateMember = (newType: string) => {
         props.onChange({
             ...props.type,
@@ -64,17 +87,39 @@ export function ArrayEditor(props: ArrayEditorProps) {
         });
     };
 
+    const updateSize = (newSize: string) => {
+        props.onChange({
+            ...props.type,
+            properties: {
+                ...props.type.properties,
+                arraySize: {
+                    ...sizeProperty,
+                    value: newSize
+                }
+            }
+        });
+    };
+
     return (
         <S.Container>
             <S.Header>
-                <TypeField
-                    type={member.type}
-                    memberName={typeof member.type === 'string' ? member.type : member.name}
-                    onChange={(newType) => updateMember(newType)}
-                    placeholder="Enter type"
-                    sx={{ flexGrow: 1 }}
-                    label="Array Type"
-                />
+                <S.Fields>
+                    <TypeField
+                        type={member.type}
+                        memberName={typeof member.type === 'string' ? member.type : member.name}
+                        onChange={(newType) => updateMember(newType)}
+                        placeholder="Enter type"
+                        sx={{ flexGrow: 1 }}
+                        label="Type of the Array"
+                        required={true}
+                    />
+                    <TextField
+                        label="Size of the Array"
+                        value={sizeProperty.value}
+                        sx={{ flexGrow: 1 }}
+                        onChange={(e) => updateSize(e.target.value)}
+                    />
+                </S.Fields>
             </S.Header>
         </S.Container>
     );
