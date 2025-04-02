@@ -223,19 +223,13 @@ namespace S {
         }
 
         code {
-            background-color: var(--vscode-editor-inactiveSelectionBackground);
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: var(--vscode-editor-font-family);
+            // hide code blocks
+            display: none;
         }
 
         pre {
-            background-color: var(--vscode-editor-inactiveSelectionBackground);
-            padding: 8px;
-            border-radius: 4px;
-            overflow-x: auto;
-            margin: 8px 0;
-            font-family: var(--vscode-font-family);
+            // hide code blocks
+            display: none;
         }
 
         ul,
@@ -628,6 +622,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         }
     };
 
+    const infoLabelTest = "###This is a test info label\n ```ballerina\n let a = 1; \n``` \n <h1>This is a test</h1> ##new line\n sample text";
+
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
@@ -636,7 +632,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 {infoLabel && (
                     <S.MarkdownWrapper>
                         <S.MarkdownContainer ref={markdownRef} isExpanded={isMarkdownExpanded}>
-                            <ReactMarkdown>{stripHtmlTags(infoLabel)}</ReactMarkdown>
+                            <ReactMarkdown>{stripHtmlTags(infoLabelTest)}</ReactMarkdown>
                         </S.MarkdownContainer>
                         {markdownRef.current && markdownRef.current.scrollHeight > 200 && (
                             <S.ButtonContainer>
