@@ -334,7 +334,7 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType: DIRE
             "command": SHARED_COMMANDS.SHOW_VISUALIZER,
             "arguments": [vscode.Uri.parse(comp.path), comp.position, resetHistory]
         };
-        fileEntry.contextValue = itemType.toLowerCase();
+        fileEntry.contextValue = itemType;
         fileEntry.tooltip = comp.context;
         // Get the children for services only
         if (itemType === DIRECTORY_MAP.SERVICE) {
@@ -350,36 +350,3 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType: DIRE
     return entries;
 }
 
-async function addConfigurations(rootPath, resp) {
-    const filePath = `${rootPath}/Ballerina.toml`;
-    const response = await extension.langClient?.getBallerinaProjectConfigSchema({
-        documentIdentifier: {
-            uri: Uri.file(filePath).toString()
-        }
-    });
-    const project = await extension.langClient.getBallerinaProject({
-        documentIdentifier: {
-            uri: Uri.file(filePath).toString()
-        }
-    }) as BallerinaProject;
-    const packageName = project.packageName!;
-    const resData = response as PackageConfigSchema;
-    const configSchema = resData.configSchema;
-    const props: object = configSchema.properties;
-    let orgName;
-    for (const key of Object.keys(props)) {
-        if (props[key].properties[packageName]) {
-            orgName = props[key].properties;
-        }
-    }
-    if (orgName) {
-        const configs: Property = orgName[packageName];
-        const properties = configs.properties;
-        for (let propertyKey in properties) {
-            if (properties.hasOwnProperty(propertyKey)) {
-                const property: Property = properties[propertyKey];
-                resp.directoryMap[DIRECTORY_MAP.CONFIGURABLE].push({ name: propertyKey, path: "", type: property.type, icon: "local-entry" });
-            }
-        }
-    }
-}
