@@ -98,7 +98,7 @@ export default function createTests() {
       await resource.add();
     });
 
-    test('Message Store tests', async () => {
+    test('Data related tests', async () => {
       let ms: MessageStore;
       await test.step('Add Message Store', async () => {
         console.log('Creating new Message Store');
@@ -121,6 +121,30 @@ export default function createTests() {
       await test.step('Edit Message Processor', async () => {
         console.log('Editing Message Processor');
         await msp.editMessageSamplingProcessor();
+      });
+
+      let dataSource: DataSource;
+      await test.step('Add Data Source', async () => {
+        console.log('Creating new Data Source');
+        dataSource = new DataSource(page.page);
+        await dataSource.init();
+        await dataSource.add();
+      });
+      await test.step('Edit Data Source', async () => {
+        console.log('Editing Data Source');
+        await dataSource.edit();
+      });
+
+      await test.step('Add Data Service', async () => {
+        console.log('Creating new Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.init();
+        await dataService.add();
+      });
+      await test.step('Edit Data Service', async () => {
+        console.log('Editing Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.edit();
       });
     });
 
@@ -163,34 +187,6 @@ export default function createTests() {
       await test.step('Edit Proxy Service', async () => {
         console.log('Editing Proxy Service');
         await proxyService.edit();
-      });
-    });
-
-    test('Add Data Source', async () => {
-      let dataSource: DataSource;
-      await test.step('Add Data Source', async () => {
-        console.log('Creating new Data Source');
-        dataSource = new DataSource(page.page);
-        await dataSource.init();
-        await dataSource.add();
-      });
-      await test.step('Edit Data Source', async () => {
-        console.log('Editing Data Source');
-        await dataSource.edit();
-      });
-    });
-
-    test('Add Data Service', async () => {
-      await test.step('Add Data Service', async () => {
-        console.log('Creating new Data Service');
-        const dataService = new DataService(page.page);
-        await dataService.init();
-        await dataService.add();
-      });
-      await test.step('Edit Data Service', async () => {
-        console.log('Editing Data Service');
-        const dataService = new DataService(page.page);
-        await dataService.edit();
       });
     });
   });
