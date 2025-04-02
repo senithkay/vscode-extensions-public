@@ -2,7 +2,7 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, buildProjectStructure } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
@@ -14,6 +14,7 @@ import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
 import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
+import { buildProjectArtifactsStructure } from './utils/project-artifacts';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -67,14 +68,28 @@ const stateMachine = createMachine<MachineContext>(
                 invoke: {
                     src: 'activateLanguageServer',
                     onDone: {
-                        target: "extensionReady",
+                        target: "fetchProjectStructure",
                         actions: assign({
                             langClient: (context, event) => event.data.langClient,
                             isBISupported: (context, event) => event.data.isBISupported
                         })
                     },
                     onError: {
-                        target: "extensionReady"
+                        target: "lsError"
+                    }
+                }
+            },
+            fetchProjectStructure: {
+                invoke: {
+                    src: 'registerProjectArtifactsStructure',
+                    onDone: {
+                        target: "extensionReady",
+                        actions: assign({
+                            projectStructure: (context, event) => event.data.projectStructure
+                        })
+                    },
+                    onError: {
+                        target: "lsError"
                     }
                 }
             },
@@ -204,11 +219,25 @@ const stateMachine = createMachine<MachineContext>(
                     if (!ls.biSupported) {
                         commands.executeCommand('setContext', 'BI.status', 'updateNeed');
                     }
-                    // TODO: Remove this once the LS change for event driven tree update is present
-                    StateMachine.updateProjectStructure(await buildProjectStructure(context.projectUri, ls.langClient));
                     resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
                 } catch (error) {
                     throw new Error("LS Activation failed", error);
+                }
+            });
+        },
+        registerProjectArtifactsStructure: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    // If the project uri is not set, we don't need to build the project structure
+                    if (context.projectUri) {
+                        // Register the event driven listener to get the artifact changes
+                        context.langClient.registerPublishArtifacts();
+                        // Initial Project Structure
+                        const projectStructure = await buildProjectArtifactsStructure(context.projectUri, context.langClient);
+                        resolve({ projectStructure });
+                    }
+                } catch (error) {
+                    throw new Error("Project Structure Build failed", error);
                 }
             });
         },
@@ -413,7 +442,7 @@ export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, res
 export function updateView(refreshTreeView?: boolean) {
     let lastView = getLastHistory();
     // Step over to the next location if the last view is skippable
-    if (lastView.location.view.includes("SKIP")) {
+    if (lastView?.location.view.includes("SKIP")) {
         history.pop(); // Remove the last entry
         lastView = getLastHistory(); // Get the new last entry
     }

@@ -200,7 +200,9 @@ import {
     OpenAPIGeneratedModulesRequest,
     OpenAPIGeneratedModulesResponse,
     OpenAPIClientDeleteResponse,
-    OpenAPIClientDeleteRequest
+    OpenAPIClientDeleteRequest,
+    ProjectArtifactsRequest,
+    ProjectArtifacts
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -340,6 +342,8 @@ enum EXTENDED_APIS {
     OPEN_API_GENERATE_CLIENT = 'openAPIService/genClient',
     OPEN_API_GENERATED_MODULES = 'openAPIService/getModules',
     OPEN_API_CLIENT_DELETE = 'openAPIService/deleteModule',
+    GET_ARTIFACTS = 'designModelService/artifacts',
+    PUBLISH_ARTIFACTS = 'designModelService/publishArtifacts'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -423,6 +427,16 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     registerPublishDiagnostics(): void {
         this.onNotification(VSCODE_APIS.PUBLISH_DIAGNOSTICS, () => {
         });
+    }
+
+    registerPublishArtifacts(): void {
+        this.onNotification(EXTENDED_APIS.PUBLISH_ARTIFACTS, (res: ProjectArtifacts) => {
+            console.log("Publish Artifacts", res);
+        });
+    }
+
+    async getProjectArtifacts(params: ProjectArtifactsRequest): Promise<ProjectArtifacts> {
+        return this.sendRequest<ProjectArtifacts>(EXTENDED_APIS.GET_ARTIFACTS, params);
     }
 
     async definition(params: DefinitionParams): Promise<Location | Location[] | LocationLink[]> {

@@ -111,7 +111,6 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import * as path from 'path';
@@ -406,7 +405,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 case DIRECTORY_MAP.AUTOMATION:
                     res = await createBIAutomation(params);
                     break;
-                case DIRECTORY_MAP.FUNCTIONS || DIRECTORY_MAP.DATA_MAPPERS:
+                case DIRECTORY_MAP.FUNCTION || DIRECTORY_MAP.DATA_MAPPER:
                     res = await createBIFunction(params);
                     break;
                 default:
@@ -418,18 +417,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getProjectStructure(): Promise<ProjectStructureResponse> {
         return new Promise(async (resolve) => {
-            const projectPath = StateMachine.context().projectUri;
-            let res: ProjectStructureResponse;
             const stateContext = StateMachine.context();
-            if (stateContext.projectStructure) {
-                res = stateContext.projectStructure;
-            } else {
-                res = await buildProjectStructure(
-                    projectPath,
-                    StateMachine.context().langClient
-                );
-            }
-            resolve(res);
+            resolve(stateContext.projectStructure);
         });
     }
 
@@ -712,7 +701,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async deployProject(): Promise<DeploymentResponse> {
         const projectStructure = await this.getProjectStructure();
 
-        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
+        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICE];
         const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
 
         let scopes: SCOPE[] = [];
