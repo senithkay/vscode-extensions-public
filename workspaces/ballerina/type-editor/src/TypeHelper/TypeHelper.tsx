@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import {
     Codicon,
@@ -35,6 +35,7 @@ type TypeHelperComponentProps = {
     loading?: boolean;
     loadingTypeBrowser?: boolean;
     basicTypes: TypeHelperCategory[];
+    importedTypes: TypeHelperCategory[];
     operators: TypeHelperOperator[];
     typeBrowserTypes: TypeHelperCategory[];
     typeBrowserRef: React.RefObject<HTMLDivElement>;
@@ -119,6 +120,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
         loading = false,
         loadingTypeBrowser = false,
         basicTypes,
+        importedTypes,
         operators,
         typeBrowserTypes,
         onChange,
@@ -130,6 +132,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
     const [searchValue, setSearchValue] = useState<string>('');
     const [isTypeBrowserOpen, setIsTypeBrowserOpen] = useState<boolean>(false);
     const [activePanelIndex, setActivePanelIndex] = useState<number>(PANEL_TABS.TYPES);
+    const [showImportedTypes, setShowImportedTypes] = useState<boolean>(false);
 
     const handleOperatorClick = (operator: TypeHelperOperator) => {
         if (operator.insertType === 'global') {
@@ -171,6 +174,30 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
         );
     };
 
+    const handleTypeBrowserItemClick = async (item: TypeHelperItem) => {
+        const prefixRegex = /[a-zA-Z0-9_':]*$/;
+        const suffixRegex = /^[a-zA-Z0-9_':]*/;
+        const prefixMatch = currentType.slice(0, currentCursorPosition).match(prefixRegex);
+        const suffixMatch = currentType.slice(currentCursorPosition).match(suffixRegex);
+        const prefixCursorPosition = currentCursorPosition - (prefixMatch?.[0]?.length ?? 0);
+        const suffixCursorPosition = currentCursorPosition + (suffixMatch?.[0]?.length ?? 0);
+
+        try {
+            const updateText = await onTypeItemClick(item);
+            if (updateText) {
+                onChange(
+                    currentType.slice(0, prefixCursorPosition) + updateText + currentType.slice(suffixCursorPosition),
+                    prefixCursorPosition + updateText.length
+                );
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
+        // Close the type browser
+        onClose();
+    }
+
     const handleHelperPaneSearch = (searchText: string) => {
         setSearchValue(searchText);
         onSearchTypeHelper(searchText, isTypePanelOpen(activePanelIndex));
@@ -210,26 +237,58 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                         {loading ? (
                             <HelperPane.Loader rows={3} columns={2} sections={3} />
                         ) : (
-                            basicTypes?.length > 0 &&
-                            basicTypes.map((category) => (
-                                <HelperPane.Section
-                                    key={category.category}
-                                    title={category.category}
-                                    titleSx={{ fontFamily: 'GilmerMedium' }}
-                                    columns={2}
-                                >
-                                    {category.items.map((item) => (
-                                        <HelperPane.CompletionItem
-                                            key={`${category.category}-${item.name}`}
-                                            label={item.name}
-                                            getIcon={() => getIcon(item.type)}
-                                            onClick={() => handleTypeItemClick(item)}
-                                        />
+                            basicTypes?.length > 0 && (
+                                <>
+                                    {basicTypes.map((category) => (
+                                        <HelperPane.Section
+                                            key={category.category}
+                                            title={category.category}
+                                            titleSx={{ fontFamily: 'GilmerMedium' }}
+                                            columns={2}
+                                        >
+                                            {category.items.map((item) => (
+                                                <HelperPane.CompletionItem
+                                                    key={`${category.category}-${item.name}`}
+                                                    label={item.name}
+                                                    getIcon={() => getIcon(item.type)}
+                                                    onClick={() => handleTypeItemClick(item)}
+                                                />
+                                            ))}
+                                        </HelperPane.Section>
                                     ))}
-                                </HelperPane.Section>
-                            ))
+                                    {importedTypes?.[0]?.subCategory?.length > 0 && (
+                                        <HelperPane.CollapsibleSection title="Imported Types" defaultCollapsed={true}>
+                                            {importedTypes.map((category) => (
+                                                <HelperPane.Section
+                                                    key={category.category}
+                                                    title={category.category}
+                                                    titleSx={{ fontFamily: 'GilmerMedium' }}
+                                                >
+                                                    {category.subCategory?.map((subCategory) => (
+                                                        <HelperPane.SubSection
+                                                            key={subCategory.category}
+                                                            title={subCategory.category}
+                                                            columns={2}
+                                                        >
+                                                            {subCategory.items?.map((item) => (
+                                                                <HelperPane.CompletionItem
+                                                                    key={`${subCategory.category}-${item.name}`}
+                                                                    label={item.name}
+                                                                    getIcon={() => getIcon(item.type)}
+                                                                    onClick={() => handleTypeBrowserItemClick(item)}
+                                                                />
+                                                            ))}
+                                                        </HelperPane.SubSection>
+                                                    ))}
+                                                </HelperPane.Section>
+                                            ))}
+                                        </HelperPane.CollapsibleSection>
+                                    )}
+                                </>
+                            )
                         )}
                     </HelperPane.PanelView>
+                    
                     <HelperPane.PanelView id={PANEL_TABS.OPERATORS}>
                         {loading ? (
                             <HelperPane.Loader rows={5} columns={1} sections={1} />
@@ -265,7 +324,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                     loadingTypeBrowser={loadingTypeBrowser}
                     typeBrowserTypes={typeBrowserTypes}
                     onSearchTypeBrowser={onSearchTypeBrowser}
-                    onTypeItemClick={onTypeItemClick}
+                    onTypeItemClick={handleTypeBrowserItemClick}
                     onChange={onChange}
                     onClose={() => setIsTypeBrowserOpen(false)}
                 />
