@@ -43,8 +43,7 @@ namespace S {
     `;
 
     export const Title = styled.div<{}>`
-        font-size: 12px;
-        opacity: 0.9;
+        font-size: 13px;
     `;
 
     export const BodyText = styled.div<{}>`
@@ -70,18 +69,19 @@ namespace S {
     export const Component = styled.div<{ enabled?: boolean; expanded?: boolean }>`
         display: flex;
         flex-direction: row;
-        align-items: center;
         gap: 5px;
-        padding: 5px;
+        padding: 7px 5px;
         border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 5px;
-        height: ${({ expanded }) => expanded ? 'auto' : '36px'};
+        height: ${({ expanded }) => (expanded ? "auto" : "36px")};
         min-height: 36px;
         cursor: ${({ enabled }) => (enabled ? "pointer" : "not-allowed")};
         font-size: 14px;
         transition: all 0.3s ease;
         ${({ enabled }) => !enabled && "opacity: 0.5;"}
-        ${({ expanded }) => expanded && `
+        ${({ expanded }) =>
+            expanded &&
+            `
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             border: 1px solid ${ThemeColors.PRIMARY};
             background-color: ${ThemeColors.PRIMARY_CONTAINER};
@@ -90,35 +90,50 @@ namespace S {
         `}
         &:hover {
             ${({ enabled }) =>
-            enabled &&
-            `
+                enabled &&
+                `
         background-color: ${ThemeColors.PRIMARY_CONTAINER};
         border: 1px solid ${ThemeColors.PRIMARY};
     `}
         }
     `;
 
-    export const ComponentTitle = styled.div<{ expanded?: boolean }>`
+    export const ComponentContent = styled.div<{ expanded?: boolean }>`
         text-overflow: ellipsis;
         overflow: hidden;
-        white-space: ${({ expanded }) => (expanded ? 'normal' : 'nowrap')};
+        white-space: ${({ expanded }) => (expanded ? "normal" : "nowrap")};
         width: 280px;
-        word-break: ${({ expanded }) => expanded ? 'normal' : 'break-all'};
+        word-break: ${({ expanded }) => (expanded ? "normal" : "break-all")};
         overflow-wrap: break-word;
         transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
     `;
 
-    export const ComponentIcon = styled.div<{ expanded?: boolean }>`
+    export const CardIcon = styled.div<{ expanded?: boolean }>`
         padding: 0 8px;
         display: flex;
-        align-items: center;
         justify-content: center;
+        align-items: center;
         & svg {
             height: 16px;
             width: 16px;
             fill: ${ThemeColors.ON_SURFACE};
             stroke: ${ThemeColors.ON_SURFACE};
         }
+    `;
+
+    export const ComponentIcon = styled(CardIcon)`
+        height: 24px;
+    `;
+
+    export const ComponentTitle = styled.div<{}>`
+        color: ${ThemeColors.ON_SURFACE};
+    `;
+
+    export const ComponentDescription = styled.div<{}>`
+        color: ${ThemeColors.ON_SURFACE_VARIANT};
     `;
 }
 
@@ -156,7 +171,7 @@ export function GroupList(props: GroupListProps) {
     return (
         <S.Card>
             <S.TitleRow onClick={handleToggleList}>
-                <S.ComponentIcon>{category.icon || <LogIcon />}</S.ComponentIcon>
+                <S.CardIcon>{category.icon || <LogIcon />}</S.CardIcon>
                 <S.Title>{category.title}</S.Title>
                 <S.CardAction>
                     {openList ? <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />}
@@ -180,9 +195,14 @@ export function GroupList(props: GroupListProps) {
                                     <S.ComponentIcon expanded={expandedTitleIndex === index}>
                                         {node.icon || <CallIcon />}
                                     </S.ComponentIcon>
-                                    <S.ComponentTitle expanded={expandedTitleIndex === index}>
-                                        {getComponentTitle(node)}
-                                    </S.ComponentTitle>
+                                    <S.ComponentContent expanded={expandedTitleIndex === index}>
+                                        <S.ComponentTitle>{getComponentTitle(node)}</S.ComponentTitle>
+                                        {expandedTitleIndex === index && (
+                                            <S.ComponentDescription>
+                                                {getComponentDescription(node)}
+                                            </S.ComponentDescription>
+                                        )}
+                                    </S.ComponentContent>
                                 </S.Component>
                             ))}
                     </S.Grid>
@@ -194,24 +214,18 @@ export function GroupList(props: GroupListProps) {
 
 export default GroupList;
 
-// Hide http client method descriptions since verbs are more user friendly
 function getComponentTitle(node: Node) {
-    // if label contains http verbs, return the label
-    const httpVerbs = [
-        "get",
-        "post",
-        "put",
-        "delete",
-        "patch",
-        "head",
-        "options",
-        "forward",
-        "redirect",
-        "trace",
-        "connect",
-    ];
-    if (httpVerbs.includes(node.label.toLowerCase()) && node.description.includes("HTTP")) {
-        return node.label;
+    if (node.id === "RESOURCE_ACTION_CALL") {
+        return node.description;
     }
-    return node.description || node.label;
+
+    return node.label;
+}
+
+function getComponentDescription(node: Node) {
+    if (node.id === "RESOURCE_ACTION_CALL") {
+        return "";
+    }
+
+    return node.description;
 }
