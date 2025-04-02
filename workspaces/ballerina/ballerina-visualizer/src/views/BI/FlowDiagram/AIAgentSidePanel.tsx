@@ -246,7 +246,6 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     fileName={projectPath}
                     targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                     fields={fields}
-                    onBack={handleOnCancel}
                     onSubmit={handleToolSubmit}
                     submitText={"Save Tool"}
                 />
