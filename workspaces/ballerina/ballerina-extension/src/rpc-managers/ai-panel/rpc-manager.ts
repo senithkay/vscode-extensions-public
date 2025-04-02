@@ -745,8 +745,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async markAlertShown(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        // throw new Error('Not implemented');
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
 

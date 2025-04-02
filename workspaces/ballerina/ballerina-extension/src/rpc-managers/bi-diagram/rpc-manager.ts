@@ -47,7 +47,7 @@ import {
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
     DeploymentResponse,
-    DevantComponent,
+    DevantMetadata,
     EVENT_TYPE,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
@@ -121,6 +121,7 @@ import {
     Task,
     TaskDefinition,
     Uri, ViewColumn, commands,
+    extensions,
     tasks,
     window, workspace
 } from "vscode";
@@ -136,6 +137,7 @@ import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { refreshAccessToken } from "../ai-panel/utils";
 import { findScopeByModule, getFunctionNodePosition } from "./utils";
 import { BACKEND_URL } from "../../features/ai/utils";
+import { IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -695,7 +697,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             },
         };
 
-        await commands.executeCommand("wso2.wso2-platform.create.component", params);
+        await commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, params);
     }
 
     async deployProject(): Promise<DeploymentResponse> {
@@ -735,7 +737,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri
         };
-        commands.executeCommand("wso2.wso2-platform.create.component", params);
+        commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, params);
 
         return { isCompleted: true };
     }
@@ -1417,27 +1419,34 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return { mentions: recordNames };
     }
 
-    async getDevantComponent(): Promise<DevantComponent | undefined> {
-        // get project root from state machine 
-        // find the repo root from the project root
-        // read .choreo/context.yaml in repo root 
-        // extract org and project from context.yaml
-        // use the current directory name as component name 
-        // return the response 
-        const projectRoot = StateMachine.context().projectUri;
-        const repoRoot = getRepoRoot(projectRoot);
-        if (!repoRoot) {
-            return undefined;
+    async getDevantMetadata(): Promise<DevantMetadata | undefined> {
+        let hasContextYaml = false;
+        let isLoggedIn = false;
+        try {
+            const projectRoot = StateMachine.context().projectUri;
+            const repoRoot = getRepoRoot(projectRoot);
+            if (repoRoot) {
+                const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
+                if (fs.existsSync(contextYamlPath)) {
+                    hasContextYaml = true;
+                }
+            }
+
+            const platformExt = extensions.getExtension("wso2.wso2-platform");
+            if (!platformExt) {
+                return { hasComponent: hasContextYaml, isLoggedIn: false };
+            }
+            const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
+            isLoggedIn = platformExtAPI.isLoggedIn();
+            if (isLoggedIn) {
+                const components = platformExtAPI.getComponents(projectRoot);
+                return { isLoggedIn, hasComponent: components.length > 0 };
+            }
+            return { isLoggedIn, hasComponent: hasContextYaml };
+        } catch(err){
+            console.error("failed to call getDevantMetadata: ", err);
+            return { hasComponent: hasContextYaml, isLoggedIn };
         }
-        const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
-        if (!fs.existsSync(contextYamlPath)) {
-            return undefined;
-        }
-        const contextYaml = fs.readFileSync(contextYamlPath, "utf8");
-        const org = contextYaml.match(/org: (.*)/)[1];
-        const project = contextYaml.match(/project: (.*)/)[1];
-        const component = path.basename(projectRoot);
-        return { org, project, component };
     }
 
     async getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {
