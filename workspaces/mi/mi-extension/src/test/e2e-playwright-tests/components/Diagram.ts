@@ -105,7 +105,7 @@ export class Diagram {
     public async goToConnectionsPage() {
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
-        sidePanel.goToConnectionsPage();
+        await sidePanel.goToConnectionsPage();
     }
 
     public async addNewConnectionFromConnectionsTab(index: number = 0) {
@@ -113,14 +113,14 @@ export class Diagram {
 
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
-        sidePanel.goToConnectionsPage();
-        sidePanel.addNewConnection();
+        await sidePanel.goToConnectionsPage();
+        await sidePanel.addNewConnection();
     }
 
     public async addNewConnectionFromOperationForm() {
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
-        sidePanel.addNewConnection();
+        await sidePanel.addNewConnection();
     }
 
     public async getConnector(connectorName: string, operationName: string, index: number = 0) {
@@ -280,8 +280,7 @@ class SidePanel {
         await confiramtionBtn.waitFor();
         await confiramtionBtn.click();
 
-        const connectorsPageBtn = this.sidePanel.locator(`vscode-button:text("Mediators") >> ..`);
-        await connectorsPageBtn.waitFor();
+        await this.goToMediatorsPage();
 
         await connector.waitFor({ state: "hidden" });
     }
@@ -299,6 +298,12 @@ class SidePanel {
         await addModulesPageBtn.click();
     }
 
+    public async goToMediatorsPage() {
+        const connectorsPageBtn = this.sidePanel.locator(`vscode-button:text("Mediators") >> ..`);
+        await connectorsPageBtn.waitFor();
+        await connectorsPageBtn.click();
+    }
+
     public async goToConnectionsPage() {
         const connectorsPageBtn = this.sidePanel.locator(`vscode-button:text("Connections") >> ..`);
         await connectorsPageBtn.waitFor();
@@ -306,7 +311,7 @@ class SidePanel {
     }
 
     public async addNewConnection() {
-        const addNewConnectionBtn = await this.sidePanel.locator(`div:text("Add new connection")`);
+        const addNewConnectionBtn = this.sidePanel.locator(`div:text("Add new connection")`);
         await addNewConnectionBtn.waitFor();
         await addNewConnectionBtn.click();
     }

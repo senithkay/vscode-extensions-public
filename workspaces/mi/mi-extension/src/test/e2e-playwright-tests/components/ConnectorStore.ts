@@ -44,10 +44,19 @@ export class ConnectorStore {
         await operationBtn.click();
     }
 
-    public async confirmDownloadDependency() {
-        await this.webView.waitForSelector(`p:text("Dependencies will be added to the project. Do you want to continue?")`);
-        const confiramtionBtn = await getVsCodeButton(this.container, "Yes", "primary");
-        await confiramtionBtn.click();
+    public async confirmDownloadDependency(failIfNotFound: boolean = false) {
+        try {
+            console.log('Confirming download of dependencies');
+            await this.webView.waitForSelector(`p:text("Dependencies will be added to the project. Do you want to continue?")`);
+            const confiramtionBtn = await getVsCodeButton(this.container, "Yes", "primary");
+            await confiramtionBtn.click();
+            console.log('Download dependency confirmed');
+        } catch (error) {
+            if (failIfNotFound) {
+                throw new Error("Failed to confirm download dependency");
+            }
+            console.log("Dependency download confirmation not found");
+        }
     }
 
 }

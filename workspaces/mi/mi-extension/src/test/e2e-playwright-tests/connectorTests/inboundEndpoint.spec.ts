@@ -10,7 +10,7 @@
 import { expect, test } from '@playwright/test';
 import { Form } from '../components/Form';
 import { AddArtifact } from '../components/AddArtifact';
-import { clearNotificationAlerts, initTest, page } from '../Utils';
+import { initTest, page } from '../Utils';
 import { InboundEPForm } from '../components/InboundEp';
 import { Diagram } from '../components/Diagram';
 import { Overview } from '../components/Overview';
@@ -25,8 +25,7 @@ export default function createTests() {
             await test.step('Create new HTTPS inbound endpoint', async () => {
                 // Create HTTPS inbound endpoint with automatically generated sequences
 
-                const { title: iframeTitle, webview } = await page.getCurrentWebview();
-                await webview?.waitForLoadState();
+                const { title: iframeTitle } = await page.getCurrentWebview();
 
                 if (iframeTitle === MACHINE_VIEW.Overview) {
                     const overviewPage = new Overview(page.page);
@@ -56,7 +55,6 @@ export default function createTests() {
                         }
                     }
                 });
-                await clearNotificationAlerts(page.page);
                 await inboundEPForm.submit('Create');
 
                 const diagram = new Diagram(page.page, 'Event Integration');
