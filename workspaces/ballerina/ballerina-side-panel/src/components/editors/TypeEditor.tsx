@@ -244,7 +244,8 @@ export function TypeEditor(props: TypeEditorProps) {
 
                                 // Set show default completion
                                 const typeExists = types.find((type) => type.label.includes(value));
-                                if (value && !typeExists) {
+                                const validTypeForCreation = value.match(/^[a-zA-Z_'][a-zA-Z0-9_]*$/);
+                                if (value && !typeExists && validTypeForCreation) {
                                     setShowDefaultCompletion(true);
                                 } else {
                                     setShowDefaultCompletion(false);
