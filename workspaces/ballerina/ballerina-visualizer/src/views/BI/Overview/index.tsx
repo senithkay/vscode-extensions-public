@@ -735,13 +735,11 @@ export function Overview(props: ComponentDiagramProps) {
     }
 
     async function handleClose() {
-        //TODO: Set state to never show this alert again
         await rpcClient.getAiPanelRpcClient().markAlertShown();
         setShowAlert(false);
     }
 
     async function showLoginAlert() {
-        //TODO: Read state and return true/false
         const resp = await rpcClient.getAiPanelRpcClient().showSignInAlert();
         setShowAlert(resp);
         return resp;
