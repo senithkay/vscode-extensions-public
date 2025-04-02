@@ -49,7 +49,6 @@ const InputContainer = styled.div`
     border: calc(var(--border-width)* 1px) solid var(--dropdown-border);
     height: calc(var(--input-height)* 1px);
     min-width: var(--input-min-width);
-    width: calc(100% - 34px);
     padding: 0 calc(var(--design-unit) * 2px + 1px);
     margin-top: 10px;
 `;
