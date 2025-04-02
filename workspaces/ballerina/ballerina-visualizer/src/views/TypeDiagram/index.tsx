@@ -51,6 +51,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const [editingTypeId, setEditingTypeId] = React.useState<string | undefined>(undefined);
     const [focusedNodeId, setFocusedNodeId] = React.useState<string | undefined>(undefined);
     const [editingType, setEditingType] = React.useState<Type>();
+    const [highlightedNodeId, setHighlightedNodeId] = React.useState<string | undefined>(selectedTypeId);
 
     useEffect(() => {
         if (rpcClient) {
@@ -128,6 +129,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
         }
         setEditingType(type);
         setEditingTypeId(typeId);
+        setHighlightedNodeId(typeId);
     };
 
     const onTypeEditorClosed = () => {
@@ -209,7 +211,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     {typesModel ? (
                         <TypeDesignDiagram
                             typeModel={typesModel}
-                            selectedNodeId={selectedTypeId}
+                            selectedNodeId={highlightedNodeId}
                             focusedNodeId={focusedNodeId}
                             updateFocusedNodeId={onFocusedNodeIdChange}
                             showProblemPanel={showProblemPanel}
