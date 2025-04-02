@@ -79,7 +79,7 @@ export interface ComponentConfigYamlContent {
 
 // component yaml v1.2
 export interface ComponentYamlContent {
-	schemaVersion: string;
+	schemaVersion: "1.0" | "1.1" | "1.2";
 	/* optional Incoming connection details for the component */
 	endpoints?: ComponentYamlEndpoint[];
 	// TODO re-enable following after verifying the format
