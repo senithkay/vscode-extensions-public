@@ -107,6 +107,7 @@ const INVALID_RECORD_REFERENCE: Error = new Error(
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
 const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`;
+const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -1255,32 +1256,40 @@ export function AIChat() {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
         const developerMdContent = await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
         const updatedChatHistory = generateChatHistoryForSummarize(chatArray);
-        const response = await fetchWithToken(
-            backendRootUri + "/prompt/summarize",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
-                signal: signal,
-            },
-            rpcClient
-        );
-
         setIsCodeAdded(true);
-        previouslyIntegratedChatIndex = integratedChatIndex;
-        integratedChatIndex = chatArray.length;
-        localStorage.setItem(
-            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
-            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
-        );
-        const chatSummaryResponseStr = await streamToString(response.body);
-        await rpcClient
-            .getAiPanelRpcClient()
-            .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation });
-        previousDevelopmentDocumentContent = developerMdContent;
+
+        if (await rpcClient.getAiPanelRpcClient().isNaturalProgrammingDirectoryExists(chatLocation)) {
+            fetchWithToken(
+                backendRootUri + "/prompt/summarize",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
+                    signal: signal,
+                },
+                rpcClient
+            ).then(async (response) => {
+                const chatSummaryResponseStr = await streamToString(response.body);
+                await rpcClient
+                    .getAiPanelRpcClient()
+                    .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation }).then(() => {
+                        previouslyIntegratedChatIndex = integratedChatIndex;
+                        integratedChatIndex = chatArray.length;
+                        localStorage.setItem(
+                            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
+                            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
+                        );
+                        previousDevelopmentDocumentContent = developerMdContent;
+                    }).catch((error: any) => {
+                        rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+                    });
+            }).catch((error: any) => {
+                rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+            });;
+        }
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
