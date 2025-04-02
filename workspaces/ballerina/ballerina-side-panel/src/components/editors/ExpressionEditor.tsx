@@ -18,8 +18,10 @@ import {
     FormExpressionEditor,
     FormExpressionEditorRef,
     HelperPaneHeight,
+    Icon,
     RequiredFormInput,
-    ThemeColors
+    ThemeColors,
+    Tooltip
 } from '@wso2-enterprise/ui-toolkit';
 import { getPropertyFromFormField, sanitizeType } from './utils';
 import { FormField, FormExpressionEditorProps } from '../Form/types';
@@ -57,6 +59,21 @@ export namespace S {
         flexDirection: 'column',
         gap: '4px',
         fontFamily: 'var(--font-family)'
+    });
+
+    export const Ribbon = styled.div({
+        backgroundColor: ThemeColors.PRIMARY,
+        opacity: 0.6,
+        width: '24px',
+        height: `calc(100% - 6.5px)`,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        borderTopLeftRadius: '2px',
+        borderBottomLeftRadius: '2px',
+        borderRight: 'none',
+        marginTop: '3.75px',
+        paddingTop: '4px'
     });
 
     export const TitleContainer = styled.div`
@@ -133,6 +150,11 @@ export namespace S {
             margin-right: 6px;
         }
     `;
+
+    export const DefaultValue = styled.span`
+        font-family: monospace;
+        font-size: 12px;
+    `;
 }
 
 export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, ContextAwareExpressionEditorProps>(
@@ -151,6 +173,22 @@ export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, 
         );
     }
 );
+
+export const EditorRibbon = () => {
+    return (
+        <Tooltip content="Add Expression" containerSx={{ cursor: 'default' }}>
+            <S.Ribbon>
+                <Icon name="bi-expression" sx={{ 
+                    color: ThemeColors.ON_PRIMARY, 
+                    fontSize: '12px', 
+                    width: '12px', 
+                    height: '12px', 
+                    cursor: 'default'
+                }} />
+            </S.Ribbon>
+        </Tooltip>
+    );
+};
 
 export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEditorProps>((props, ref) => {
     const {
@@ -224,6 +262,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         // Trigger actions on focus
         await onFocus?.();
         handleOnFieldFocus?.(field.key);
+
+        handleChangeHelperPaneState(true);
     };
 
     const handleBlur = async () => {
@@ -313,6 +353,21 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         )
     ];
 
+    const defaultValueText = field.defaultValue ? 
+        <>Defaults to <S.DefaultValue>{field.defaultValue}</S.DefaultValue></> : null;
+    const documentation = field.documentation 
+        ? field.documentation.endsWith('.') 
+            ? field.documentation 
+            : `${field.documentation}.`
+        : '';
+    
+    const combinedDescription = (
+        <>
+            {documentation && <span>{documentation} </span>}
+            {defaultValueText}
+        </>
+    );
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -321,7 +376,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                         <S.Label>{field.label}</S.Label>
                         {!field.optional && <RequiredFormInput />}
                     </S.LabelContainer>
-                    <S.Description>{field.documentation}</S.Description>
+                    <S.Description>{combinedDescription}</S.Description>
                 </S.Header>
                 {field.valueTypeConstraint && (
                     <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
@@ -343,6 +398,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             completions={completions}
                             value={sanitizedExpression ? sanitizedExpression(value) : value}
                             autoFocus={autoFocus}
+                            startAdornment={<EditorRibbon />}
                             onChange={async (newValue: string, updatedCursorPosition: number) => {
                                 const rawValue = rawExpression ? rawExpression(newValue) : newValue;
                                 onChange(rawValue);
@@ -386,12 +442,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             onCancel={onCancel}
                             onRemove={onRemove}
                             isHelperPaneOpen={isHelperPaneOpen}
-                            changeHelperPaneState={handleChangeHelperPaneState}
+                            changeHelperPaneState={undefined}
                             helperPaneOrigin={helperPaneOrigin}
                             getHelperPane={handleGetHelperPane}
                             helperPaneHeight={helperPaneHeight}
                             helperPaneWidth={recordTypeField ? 400 : undefined}
-                            placeholder={field.placeholder}
                             growRange={growRange}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
