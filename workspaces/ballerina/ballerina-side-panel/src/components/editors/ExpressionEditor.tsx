@@ -73,7 +73,8 @@ export namespace S {
         borderBottomLeftRadius: '2px',
         borderRight: 'none',
         marginTop: '3.75px',
-        paddingTop: '4px'
+        paddingTop: '4px',
+        cursor: 'pointer'
     });
 
     export const TitleContainer = styled.div`
@@ -157,6 +158,21 @@ export namespace S {
     `;
 }
 
+export const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
+    return (
+        <Tooltip content="Add Expression" containerSx={{ cursor: 'default' }}>
+            <S.Ribbon onClick={onClick}>
+                <Icon name="bi-expression" sx={{ 
+                    color: ThemeColors.ON_PRIMARY, 
+                    fontSize: '12px', 
+                    width: '12px', 
+                    height: '12px'
+                }} />
+            </S.Ribbon>
+        </Tooltip>
+    );
+};
+
 export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, ContextAwareExpressionEditorProps>(
     (props, ref) => {
         const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
@@ -173,22 +189,6 @@ export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, 
         );
     }
 );
-
-export const EditorRibbon = () => {
-    return (
-        <Tooltip content="Add Expression" containerSx={{ cursor: 'default' }}>
-            <S.Ribbon>
-                <Icon name="bi-expression" sx={{ 
-                    color: ThemeColors.ON_PRIMARY, 
-                    fontSize: '12px', 
-                    width: '12px', 
-                    height: '12px', 
-                    cursor: 'default'
-                }} />
-            </S.Ribbon>
-        </Tooltip>
-    );
-};
 
 export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEditorProps>((props, ref) => {
     const {
@@ -314,6 +314,14 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         setIsHelperPaneOpen(isOpen);
     };
 
+    const toggleHelperPaneState = () => {
+        if (!isHelperPaneOpen) {
+            exprRef.current?.focus();
+        } else {
+            handleChangeHelperPaneState(false);
+        }
+    };
+
     const handleGetHelperPane = (
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
@@ -353,6 +361,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const defaultValueText = field.defaultValue ? 
         <>Defaults to <S.DefaultValue>{field.defaultValue}</S.DefaultValue></> : null;
+
     const documentation = field.documentation 
         ? field.documentation.endsWith('.') 
             ? field.documentation 
@@ -396,7 +405,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             completions={completions}
                             value={sanitizedExpression ? sanitizedExpression(value) : value}
                             autoFocus={autoFocus}
-                            startAdornment={<EditorRibbon />}
+                            startAdornment={<EditorRibbon onClick={toggleHelperPaneState} />}
                             onChange={async (newValue: string, updatedCursorPosition: number) => {
                                 const rawValue = rawExpression ? rawExpression(newValue) : newValue;
                                 onChange(rawValue);
