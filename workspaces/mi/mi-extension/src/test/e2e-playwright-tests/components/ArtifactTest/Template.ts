@@ -10,7 +10,8 @@
 import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
-import { clearNotificationAlerts } from "../../Utils";
+import { AddArtifact } from "../AddArtifact";
+import { Overview } from "../Overview";
 
 export class Template {
 
@@ -20,16 +21,14 @@ export class Template {
     public async init() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        const overviewWebView = await switchToIFrame("Project Overview", this._page);
-        if (!overviewWebView) {
-            throw new Error("Failed to switch to Add Artifact iframe");
-        }
-        await overviewWebView.getByRole('button', { name: ' Add Artifact' }).click();
-        const createIntegrationSection = await overviewWebView.waitForSelector(`h3:text("Create an Integration") >> ..`);
-        const viewMoreBtn = await createIntegrationSection.waitForSelector(`p:text("View More") >> ..`);
-        await viewMoreBtn.click();
-        const btn = await createIntegrationSection.waitForSelector(`div:text("Template") >> ../../../..`);
-        await btn.click();
+
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        await overviewPage.goToAddArtifact();
+
+        const addArtifactPage = new AddArtifact(this._page);
+        await addArtifactPage.init();
+        await addArtifactPage.add('Template');
     }
 
     public async addTemplate() {
@@ -54,7 +53,6 @@ export class Template {
         await tmplAddEPFrame.getByLabel('REST').click();
         await tmplAddEPFrame.locator('#traceEnabled').getByLabel('Enable').click();
         await tmplAddEPFrame.locator('#statisticsEnabled').getByLabel('Enable').click();
-        await clearNotificationAlerts(this._page);
         await tmplAddEPFrame.getByRole('button', { name: 'Create' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
@@ -83,7 +81,6 @@ export class Template {
         await tmplAddEPFrame.getByLabel('SOAP 1.2').click();
         await tmplAddEPFrame.locator('#traceEnabled').getByLabel('Disable').click();
         await tmplAddEPFrame.locator('#statisticsEnabled').getByLabel('Disable').click();
-        await clearNotificationAlerts(this._page);
         await tmplAddEPFrame.getByRole('button', { name: 'Save Changes' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {

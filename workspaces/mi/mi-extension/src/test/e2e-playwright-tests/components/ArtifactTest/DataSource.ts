@@ -10,7 +10,8 @@
 import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
-import { clearNotificationAlerts } from "../../Utils";
+import { AddArtifact } from "../AddArtifact";
+import { Overview } from "../Overview";
 
 export class DataSource {
 
@@ -18,23 +19,19 @@ export class DataSource {
     }
 
     public async init() {
-        await clearNotificationAlerts(this._page);
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        const overviewWebView = await switchToIFrame("Project Overview", this._page);
-        if (!overviewWebView) {
-            throw new Error("Failed to switch to Add Artifact iframe");
-        }
-        await overviewWebView.getByRole('button', { name: ' Add Artifact' }).click();
-        const createIntegrationSection = await overviewWebView.waitForSelector(`h3:text("Create an Integration") >> ..`);
-        const viewMoreBtn = await createIntegrationSection.waitForSelector(`p:text("View More") >> ..`);
-        await viewMoreBtn.click();
-        const btn = await createIntegrationSection.waitForSelector(`div:text("Data Source") >> ../../../..`);
-        await btn.click();
+
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        await overviewPage.goToAddArtifact();
+
+        const addArtifactPage = new AddArtifact(this._page);
+        await addArtifactPage.init();
+        await addArtifactPage.add('Data Source');
     }
 
     public async add() {
-        await clearNotificationAlerts(this._page);
         const dsWebView = await switchToIFrame('Data Source Creation Form', this._page);
         if (!dsWebView) {
             throw new Error("Failed to switch to Data Source Creation Form iframe");
@@ -47,14 +44,12 @@ export class DataSource {
         await dsFrame.getByRole('textbox', { name: 'Username*' }).fill('wso2');
         await dsFrame.getByRole('textbox', { name: 'Password' }).click();
         await dsFrame.getByRole('textbox', { name: 'Password' }).fill('wso2');
-        await clearNotificationAlerts(this._page);
         await dsFrame.getByRole('button', { name: 'Next' }).click();
         await dsFrame.getByLabel('Continue without any database').click();
         await dsFrame.getByRole('button', { name: 'Create' }).click();
     }
 
     public async edit() {
-        await clearNotificationAlerts(this._page);
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Sources', 'testDataSource'], true);
@@ -70,7 +65,6 @@ export class DataSource {
         await frame.getByRole('textbox', { name: 'Database Name*' }).fill('NewTestDB');
         await frame.getByRole('textbox', { name: 'Username*' }).fill('newwso2');
         await frame.getByRole('textbox', { name: 'Password' }).fill('newwso2');
-        await clearNotificationAlerts(this._page);
         await frame.getByRole('button', { name: 'Next' }).click();
         await frame.getByLabel('Continue without any database').click();
         await frame.getByRole('button', { name: 'Update' }).click();
