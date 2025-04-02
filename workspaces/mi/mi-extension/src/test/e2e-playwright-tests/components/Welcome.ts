@@ -10,7 +10,6 @@
 import { Locator } from "@playwright/test";
 import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { ExtendedPage, getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
-import { clearNotificationAlerts } from "../Utils";
 
 export class Welcome {
     private container!: Locator;
@@ -36,7 +35,6 @@ export class Welcome {
 
     public async setupEnvironment() {
         const { title: iframeTitle, webview } = await this.page.getCurrentWebview();
-        await webview?.waitForLoadState();
 
         if (iframeTitle === MACHINE_VIEW.ADD_ARTIFACT) {
             return true;
@@ -48,7 +46,6 @@ export class Welcome {
 
         console.log('Setting up environment');
         const container = webview?.locator('div#root');
-        await clearNotificationAlerts(this.page.page);
         const javaErrorMessage = container?.locator('div:has-text("Java is not properly setup")');
         await javaErrorMessage?.waitFor({ timeout: 8000 }).catch(() => { });
         if (await javaErrorMessage!.count() > 0) {

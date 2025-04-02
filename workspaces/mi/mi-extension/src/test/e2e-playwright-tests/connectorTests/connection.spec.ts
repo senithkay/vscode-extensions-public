@@ -11,7 +11,7 @@ import { test, expect } from '@playwright/test';
 import { Form } from '../components/Form';
 import { AddArtifact } from '../components/AddArtifact';
 import { ConnectorStore } from '../components/ConnectorStore';
-import { clearNotificationAlerts, initTest, page } from '../Utils';
+import { initTest, page } from '../Utils';
 import { ProjectExplorer } from '../components/ProjectExplorer';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { Overview } from '../components/Overview';
@@ -25,8 +25,7 @@ export default function createTests() {
             await test.step('Create new Connection', async () => {
                 console.log('Initializing AddArtifact page for connection creation');
 
-                const { title: iframeTitle, webview } = await page.getCurrentWebview();
-                await webview?.waitForLoadState();
+                const { title: iframeTitle } = await page.getCurrentWebview();
 
                 if (iframeTitle === MACHINE_VIEW.Overview) {
                     const overviewPage = new Overview(page.page);
@@ -43,7 +42,6 @@ export default function createTests() {
                 console.log('Searching for Email connector');
                 await connectorStore.search('Email');
                 await connectorStore.selectOperation('IMAP');
-                console.log('Confirming download of dependencies');
                 await connectorStore.confirmDownloadDependency();
 
                 const connectionForm = new Form(page.page, 'Connector Store Form');
@@ -69,7 +67,6 @@ export default function createTests() {
                         }
                     }
                 });
-                await clearNotificationAlerts(page.page);
                 await connectionForm.submit('Add');
 
                 console.log('Finding created connection in Project Explorer');

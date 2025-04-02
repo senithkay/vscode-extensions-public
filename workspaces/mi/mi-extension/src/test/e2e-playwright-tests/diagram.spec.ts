@@ -22,8 +22,7 @@ export default function createTests() {
 
     test("Diagram Tests", async () => {
       test.skip('Create new API', async () => {
-        const { title: iframeTitle, webview } = await page.getCurrentWebview();
-        await webview?.waitForLoadState();
+        const { title: iframeTitle } = await page.getCurrentWebview();
 
         if (iframeTitle === MACHINE_VIEW.Overview) {
           const overviewPage = new Overview(page.page);
