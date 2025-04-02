@@ -239,7 +239,7 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         const services = response.designModel.services
             .filter(({ type }) => {
                 const lowerType = type.toLowerCase();
-                return lowerType.includes('http') || lowerType.includes('agent');
+                return lowerType.includes('http') || lowerType.includes('ai');
             })
             .map(({ displayName, absolutePath, location, attachedListeners, type }) => {
                 const trimmedPath = absolutePath.trim();
@@ -859,7 +859,7 @@ function disposeErrorWatcher() {
 // Service information interface
 enum ServiceType {
     HTTP = 'http',
-    AGENT = 'agent'
+    AGENT = 'ai'
 }
 
 interface ServiceInfo {

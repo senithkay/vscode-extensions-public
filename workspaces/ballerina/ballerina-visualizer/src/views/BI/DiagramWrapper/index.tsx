@@ -151,7 +151,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         isAutomation = true;
     }
 
-    if (serviceType === 'ai.agent') {
+    if (serviceType === 'ai') {
         isAgent = true;
     }
 
