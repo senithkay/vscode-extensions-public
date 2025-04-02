@@ -60,6 +60,7 @@ const StyledInput = styled.div`
 export interface StyledInputRef {
     focus: () => void;
     getCursorPosition: () => number;
+    setCursorToPosition: (element: HTMLDivElement, position: number) => void;
     ref: React.RefObject<HTMLDivElement>;
 }
 
@@ -70,10 +71,11 @@ interface StyledInputProps {
     onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
     onBlur: (e: React.FocusEvent<HTMLDivElement>) => void;
     placeholder: string;
+    onPostDOMUpdate?: () => void;
 }
 
 export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>(
-    ({ value, onChange, onInput, onKeyDown, onBlur, placeholder }, ref) => {
+    ({ value, onChange, onInput, onKeyDown, onBlur, placeholder, onPostDOMUpdate }, ref) => {
         const [internalContent, setInternalContent] = useState<string>(value);
         const divRef = useRef<HTMLDivElement>(null);
 
@@ -149,9 +151,10 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
             () => ({
                 focus: focusDiv,
                 getCursorPosition,
+                setCursorToPosition,
                 ref: divRef,
             }),
-            [focusDiv, getCursorPosition]
+            [focusDiv, getCursorPosition, setCursorToPosition]
         );
 
         /**
@@ -207,6 +210,11 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
                 divRef.current.innerHTML = internalContent;
                 setCursorToPosition(divRef.current, prevCursorPos + diff + 1);
             }
+
+            if (typeof onPostDOMUpdate === "function") {
+                onPostDOMUpdate();
+            }
+
         }, [internalContent, getCursorPosition, setCursorToPosition]);
 
         /**

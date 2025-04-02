@@ -9,13 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 
-import React, {
-    useState,
-    useRef,
-    KeyboardEvent,
-    ChangeEvent,
-    useEffect,
-} from "react";
+import React, { useState, useRef, KeyboardEvent, ChangeEvent, useEffect } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import {
@@ -185,6 +179,8 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const activeSuggestionRef = useRef<HTMLLIElement | null>(null);
+    const shouldLogCursorAfterUpdate = useRef(false);
+    const [commandMode, setCommandMode] = useState<number>(0);
 
     const setActiveSuggestion = (newIndex: number, suggestionList: string[]) => {
         setActiveSuggestionIndex(newIndex);
@@ -228,6 +224,15 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
         [activeSuggestionIndex]
     );
 
+    useEffect(
+        function resetInputOnEmptyState() {
+            if (inputValue === "<br>") {
+                setInputValue("");
+            }
+        },
+        [inputValue]
+    );
+
     // Handle input changes
     const handleInputChange = (event: ChangeEvent<HTMLDivElement>) => {
         const value = event.target.innerText;
@@ -256,17 +261,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                 setActiveSuggestionValue(null);
 
                 // Handle @ - Mentions
-                const currentCursorPosition = inputRef.current.getCursorPosition();
-                const valueUpToCursor = normalizedValue.slice(0, currentCursorPosition);
-                const atIndex = valueUpToCursor.lastIndexOf("@");
-                if (atIndex !== -1) {
-                    const query = valueUpToCursor.slice(atIndex + 1).toLowerCase();
-                    const filteredMentions = mentions.filter((mention) => mention.toLowerCase().startsWith(query));
-
-                    setFilteredSuggestions(filteredMentions);
-                    setShowSuggestions(filteredMentions.length > 0);
-                    setIsMentionMode(filteredMentions.length > 0);
-                }
+                handleAtMentions(normalizedValue);
                 return;
             }
         }
@@ -285,6 +280,20 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
         } else {
             setActiveSuggestionIndex(0);
             setActiveSuggestionValue(null);
+        }
+    };
+
+    const handleAtMentions = (normalizedValue: string) => {
+        const currentCursorPosition = inputRef.current.getCursorPosition();
+        const valueUpToCursor = normalizedValue.slice(0, currentCursorPosition);
+        const atIndex = valueUpToCursor.lastIndexOf("@");
+        if (atIndex !== -1) {
+            const query = valueUpToCursor.slice(atIndex + 1).toLowerCase();
+            const filteredMentions = mentions.filter((mention) => mention.toLowerCase().startsWith(query));
+
+            setFilteredSuggestions(filteredMentions);
+            setShowSuggestions(filteredMentions.length > 0);
+            setIsMentionMode(filteredMentions.length > 0);
         }
     };
 
@@ -470,12 +479,17 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                 line-height: 1;
                 font-family: 'Source Code Pro', monospace;
                 margin-right: 2px;
-            " contentEditable="false">${encodedSuggestion}</div>`;
+            " contentEditable="false">${encodedSuggestion}</div> `;
 
             setInputValue(textBeforeAt + textAfterAt.replace(replaceSubstring, highlightedBadge));
 
             setIsMentionMode(false);
             setShowSuggestions(false);
+            await new Promise((resolve) => setTimeout(resolve, 0));
+            setCommandMode((currentValue) => {
+                return currentValue + 1;
+            });
+            // console.log("Input Value Setted as: " + textBeforeAt + textAfterAt.replace(replaceSubstring, highlightedBadge))
             return;
         }
 
@@ -498,6 +512,9 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             try {
                 const loadedMentions = await loadMentions(selectedCommand, suggestion);
                 setMentions(loadedMentions);
+                setCommandMode((currentValue) => {
+                    return currentValue + 1;
+                });
             } catch (err) {
                 console.error("Error fetching data:", err);
             }
@@ -588,6 +605,29 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
         setAttachments((prev) => prev.filter((_, i) => i !== index));
     };
 
+    const executeOnPostDOMUpdate = () => {
+        if (shouldLogCursorAfterUpdate.current) {
+            shouldLogCursorAfterUpdate.current = false;
+            const cleaned = decodeHTML(inputValue);
+            const atPosition = cleaned.indexOf("@");
+            console.log(inputValue);
+            console.log(cleaned);
+            console.log(atPosition);
+            if (atPosition !== -1) {
+                inputRef.current?.setCursorToPosition(inputRef.current.ref.current, atPosition + 1);
+                handleAtMentions(cleaned);
+            }
+        }
+    };
+
+    useEffect(() => {
+        setInputValue((currentInputValue) => {
+            const updatedValue = inputValue.replace(/&lt;.*?&gt;/, "@");
+            return updatedValue;
+        });
+        shouldLogCursorAfterUpdate.current = true;
+    }, [commandMode]);
+
     return (
         <Container ref={containerRef}>
             <FlexRow>
@@ -600,6 +640,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                         onKeyDown={handleKeyDown}
                         onBlur={() => setShowSuggestions(false)}
                         placeholder="Describe your integration..."
+                        onPostDOMUpdate={executeOnPostDOMUpdate}
                     />
                     {/* 3. Attachments Display */}
                     {attachments.length > 0 && (
