@@ -37,11 +37,7 @@ import {
     RecordTypeField,
 } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
-import { formatJSONLikeString } from "./utils";
-
-const stripHtmlTags = (content: string): string => {
-    return content?.replace(/<[^>]*>/g, "") || "";
-};
+import { formatJSONLikeString, stripHtmlTags } from "./utils";
 
 namespace S {
     export const Container = styled(SidePanelBody) <{ nestedForm?: boolean; compact?: boolean }>`

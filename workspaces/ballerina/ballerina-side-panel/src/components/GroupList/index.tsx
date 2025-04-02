@@ -12,6 +12,7 @@ import { Codicon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { CallIcon, LogIcon } from "../../resources";
 import { Category, Node } from "./../NodeList/types";
+import { stripHtmlTags } from "../Form/utils";
 
 namespace S {
     export const Card = styled.div<{}>`
@@ -216,10 +217,10 @@ export default GroupList;
 
 function getComponentTitle(node: Node) {
     if (node.id === "RESOURCE_ACTION_CALL") {
-        return node.description;
+        return stripHtmlTags(node.description);
     }
 
-    return node.label;
+    return stripHtmlTags(node.label);
 }
 
 function getComponentDescription(node: Node) {
@@ -227,5 +228,5 @@ function getComponentDescription(node: Node) {
         return "";
     }
 
-    return node.description;
+    return stripHtmlTags(node.description);
 }
