@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon, FormActions } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
@@ -288,14 +288,6 @@ const AddConnector = (props: AddConnectorProps) => {
                                     />
                                 </Field>
                             ))}
-                            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                                <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(onClick)}
-                                >
-                                    Submit
-                                </Button>
-                            </div>
                         </>
                     ) : (
                         // Render connection selection field when no template is present
@@ -327,14 +319,6 @@ const AddConnector = (props: AddConnectorProps) => {
                                     )}
                                 />
                             </Field>
-                            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                                <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(onClick)}
-                                >
-                                    Submit
-                                </Button>
-                            </div>
                         </>
                     ))
                 ) :
@@ -354,22 +338,22 @@ const AddConnector = (props: AddConnectorProps) => {
                             ignoreFields={props.connectionName ? ["configRef"] : []}
                             addNewConnection={addNewConnection}
                             range={props.nodePosition} />
-                        <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                            <Button
-                                appearance="secondary"
-                                onClick={handleOnClose}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                appearance="primary"
-                                onClick={handleSubmit(onClick)}
-                            >
-                                {isUpdate ? "Update" : "Add"}
-                            </Button>
-                        </div>
                     </>
             }
+            <FormActions>
+                <Button
+                    appearance="secondary"
+                    onClick={handleOnClose}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(onClick)}
+                >
+                    {isUpdate ? "Update" : "Add"}
+                </Button>
+            </FormActions>
         </FormContainer>
     );
 };
