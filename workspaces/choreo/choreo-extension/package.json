@@ -224,12 +224,6 @@
           "default": "",
           "description": "The path to Choreo RPC server",
           "scope": "window"
-        },
-        "FeaturePreview.ProxyCreation": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable proxy creation from GitHub repository",
-          "scope": "window"
         }
       }
     },
