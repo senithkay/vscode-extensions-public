@@ -52,7 +52,6 @@ export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneCondit
 
 export type FormExpressionEditorElProps = FormExpressionEditorProps & {
     containerRef: MutableRefObject<HTMLDivElement>;
-    buttonRef?: MutableRefObject<HTMLDivElement>;
 }
 
 export type FormExpressionEditorRef = ExpressionEditorRef & {

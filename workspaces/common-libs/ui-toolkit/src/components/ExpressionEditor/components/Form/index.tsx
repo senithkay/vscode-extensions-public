@@ -85,7 +85,6 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
     } = props;
     const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const buttonRef = useRef<HTMLDivElement>(null)
 
     useImperativeHandle(ref, () => expressionEditorRef.current);
 
@@ -114,7 +113,6 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
                     <ExpressionEditor
                         ref={expressionEditorRef}
                         containerRef={containerRef}
-                        buttonRef={buttonRef}
                         {...rest}
                     />
                     {endAdornment}
@@ -124,7 +122,6 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
                         ? getExpressionEditorIcon()
                         : props.changeHelperPaneState && (
                             <Button
-                                ref={buttonRef}
                                 appearance="icon"
                                 onClick={handleHelperPaneToggle}
                                 tooltip="Open Helper View"
