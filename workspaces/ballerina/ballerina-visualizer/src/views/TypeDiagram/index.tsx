@@ -73,6 +73,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     useEffect(() => {
         setFocusedNodeId(undefined);
+        setHighlightedNodeId(selectedTypeId);
     }, [selectedTypeId]);
 
     const getComponentModel = async () => {
@@ -145,6 +146,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const onFocusedNodeIdChange = (typeId: string) => {
         setFocusedNodeId(typeId);
         onTypeEditorClosed();
+        setHighlightedNodeId(undefined);
     };
 
     const Header = () => (
