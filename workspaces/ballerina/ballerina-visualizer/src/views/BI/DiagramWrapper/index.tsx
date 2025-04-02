@@ -15,10 +15,11 @@ import { BISequenceDiagram } from "../SequenceDiagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
-import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FOCUS_FLOW_DIAGRAM_VIEW, FocusFlowDiagramView } from "@wso2-enterprise/ballerina-core";
 import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import styled from "@emotion/styled";
+import { BIFocusFlowDiagram } from "../FocusFlowDiagram";
 
 const ActionButton = styled(Button)`
     display: flex;
@@ -57,22 +58,50 @@ const Parameters = styled.span`
 export interface DiagramWrapperProps {
     syntaxTree: STNode;
     projectPath: string;
+    filePath?: string;
+    view?: FocusFlowDiagramView;
 }
 
 export function DiagramWrapper(param: DiagramWrapperProps) {
-    const { syntaxTree, projectPath } = param;
+    const { syntaxTree, projectPath, filePath, view } = param;
     const { rpcClient } = useRpcContext();
 
     const [showSequenceDiagram, setShowSequenceDiagram] = useState(false);
     const [enableSequenceDiagram, setEnableSequenceDiagram] = useState(false);
     const [loadingDiagram, setLoadingDiagram] = useState(false);
     const [fileName, setFileName] = useState("");
+    const [serviceType, setServiceType] = useState("");
+    const [basePath, setBasePath] = useState("");
+    const [listener, setListener] = useState("");
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {
             if (location.metadata?.enableSequenceDiagram) {
                 setEnableSequenceDiagram(true);
             }
+
+            rpcClient.getBIDiagramRpcClient().getEnclosedFunction({
+                filePath: location.documentUri,
+                position: {
+                    line: location?.position?.startLine,
+                    offset: location?.position?.startColumn
+                },
+                findClass: true
+            }).then((serviceLocation) => {
+                rpcClient.getServiceDesignerRpcClient().getServiceModelFromCode({
+                    filePath: serviceLocation.filePath,
+                    codedata: {
+                        lineRange: {
+                            startLine: { line: serviceLocation?.startLine.line, offset: serviceLocation?.startLine.offset },
+                            endLine: { line: serviceLocation?.endLine.line, offset: serviceLocation?.endLine.offset }
+                        }
+                    }
+                }).then((serviceModel) => {
+                    setServiceType(serviceModel.service?.type);
+                    setBasePath(serviceModel.service?.properties?.basePath?.value?.trim());
+                    setListener(serviceModel.service?.properties?.listener?.value?.trim());
+                })
+            });
         });
     }, [rpcClient]);
 
@@ -93,20 +122,17 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
 
     const handleEdit = (fileUri?: string) => {
         const context: VisualizerLocation = {
-            view: MACHINE_VIEW.BIFunctionForm,
+            view: view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION ? MACHINE_VIEW.BINPFunctionForm : MACHINE_VIEW.BIFunctionForm,
             identifier: (syntaxTree as ResourceAccessorDefinition).functionName.value,
             documentUri: fileUri,
         };
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleResourceTryIt = (methodValue: string, pathValue: string) => {
-        const commands = ["kolab.tryit", false, { methodValue, pathValue }]
-        rpcClient.getCommonRpcClient().executeCommand({ commands });
-    };
-
     let isAutomation = false;
     let isResource = false;
+    let isRemote = false;
+    let isAgent = false;
     let method = "";
     const parameters = getParameters(syntaxTree);
 
@@ -116,18 +142,31 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
     } else if (STKindChecker.isFunctionDefinition(syntaxTree)) {
         isResource = false;
         method = syntaxTree.functionName.value;
+    } else if (STKindChecker.isObjectMethodDefinition(syntaxTree)) {
+        isRemote = syntaxTree.qualifierList?.some(qualifier => STKindChecker.isRemoteKeyword(qualifier)) || false;
+        method = syntaxTree.functionName.value;
     }
 
     if (!isResource && method === "main") {
         isAutomation = true;
     }
 
+    if (serviceType === 'ai.agent') {
+        isAgent = true;
+    }
+
+    const handleResourceTryIt = (methodValue: string, pathValue: string) => {
+        const resource = serviceType === 'http' ? { methodValue, pathValue } : undefined;
+        const commands = ["ballerina.tryit", false, resource, { basePath, listener }]
+        rpcClient.getCommonRpcClient().executeCommand({ commands });
+    };
+
     return (
         <View>
             <TopNavigationBar />
             {isResource && !isAutomation && (
                 <TitleBar
-                    title={"Resource"}
+                    title={isAgent ? "AI Chat Agent" : "Resource"}
                     subtitleElement={
                         <SubTitleWrapper>
                             <AccessorType>{method}</AccessorType>
@@ -136,16 +175,29 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                         </SubTitleWrapper>
                     }
                     actions={
-                        <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}>
-                            <Icon name="play" isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
-                            Try It
-                        </ActionButton>
+                        serviceType === 'http' || isAgent ? (
+                            <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}>
+                                <Icon name={isAgent ? "comment-discussion" : "play"} isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                                {isAgent ? "Chat" : "Try It"}
+                            </ActionButton>
+                        ) : null
                     }
                 />
             )}
-            {!isResource && !isAutomation && (
+            {isRemote && (
                 <TitleBar
-                    title={"Function"}
+                    title={"Remote"}
+                    subtitleElement={
+                        <SubTitleWrapper>
+                            <Path>{method}</Path>
+                            {parameters && <Parameters>({parameters})</Parameters>}
+                        </SubTitleWrapper>
+                    }
+                />
+            )}
+            {!isResource && !isAutomation && !isRemote && (
+                <TitleBar
+                    title={getTitle(view)}
                     subtitleElement={
                         <SubTitleWrapper>
                             <Path>{method}</Path>
@@ -176,7 +228,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     }
                 />
             )}
-            {enableSequenceDiagram && (
+            {enableSequenceDiagram && !isAgent && (
                 <Switch
                     leftLabel="Flow"
                     rightLabel="Sequence"
@@ -201,16 +253,34 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     onUpdate={handleUpdateDiagram}
                     onReady={handleReadyDiagram}
                 />
-            ) : (
-                <BIFlowDiagram
-                    syntaxTree={syntaxTree}
-                    projectPath={projectPath}
-                    onUpdate={handleUpdateDiagram}
-                    onReady={handleReadyDiagram}
-                />
-            )}
+            ) :
+                view ? (
+                    <BIFocusFlowDiagram
+                        syntaxTree={syntaxTree}
+                        projectPath={projectPath}
+                        filePath={filePath}
+                        onUpdate={handleUpdateDiagram}
+                        onReady={handleReadyDiagram}
+                        view={view}
+                    />
+                ) : (
+                    <BIFlowDiagram
+                        syntaxTree={syntaxTree}
+                        projectPath={projectPath}
+                        onUpdate={handleUpdateDiagram}
+                        onReady={handleReadyDiagram}
+                    />
+                )
+            }
         </View>
     );
+}
+
+function getTitle(view: FocusFlowDiagramView) {
+    if (view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION) {
+        return "Natural Function";
+    }
+    return "Function";
 }
 
 function getResourcePath(resource: STNode) {
@@ -224,10 +294,29 @@ function getResourcePath(resource: STNode) {
 }
 
 function getParameters(syntaxTree: STNode) {
-    if (STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
+    if (STKindChecker.isResourceAccessorDefinition(syntaxTree) ||
+        (STKindChecker.isObjectMethodDefinition(syntaxTree) &&
+            syntaxTree.qualifierList?.some(qualifier => STKindChecker.isRemoteKeyword(qualifier)))) {
         return syntaxTree.functionSignature.parameters
             .map((param) => {
                 if (!STKindChecker.isCommaToken(param)) {
+                    return `${param.paramName.value}: ${param.typeName.source.trim()}`;
+                }
+                return null;
+            })
+            .filter(Boolean)
+            .join(", ");
+    } else if (
+        STKindChecker.isFunctionDefinition(syntaxTree) &&
+        syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
+    ) {
+        return syntaxTree.functionSignature.parameters
+            .map((param) => {
+                if (
+                    !STKindChecker.isCommaToken(param) &&
+                    param.paramName.value !== "prompt" &&
+                    param.paramName.value !== "context"
+                ) {
                     return `${param.paramName.value}: ${param.typeName.source.trim()}`;
                 }
                 return null;

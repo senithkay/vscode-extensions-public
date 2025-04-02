@@ -87,6 +87,8 @@ import {
     GetProjectUuidResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse,
     CreateDataServiceRequest,
     CreateDataServiceResponse,
     CreateDssDataSourceRequest,
@@ -229,7 +231,11 @@ import {
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
-    GetArtifactTypeResponse
+    GetArtifactTypeResponse,
+    LocalInboundConnectorsResponse,
+    BuildProjectRequest,
+    DeployProjectRequest,
+    DeployProjectResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -312,6 +318,8 @@ export interface MiDiagramAPI {
     createRegistryResource: (params: CreateRegistryResourceRequest) => Promise<CreateRegistryResourceResponse>;
     getAvailableResources: (params: GetAvailableResourcesRequest) => Promise<GetAvailableResourcesResponse>;
     createClassMediator: (params: CreateClassMediatorRequest) => Promise<CreateClassMediatorResponse>;
+    createBallerinaModule: (params: CreateBallerinaModuleRequest) => Promise<CreateBallerinaModuleResponse>;
+    buildBallerinaModule: (projectPath: string) => Promise<void>;
     getSelectiveWorkspaceContext: () => Promise<GetSelectiveWorkspaceContextResponse>;
     getSelectiveArtifacts: (params: GetSelectiveArtifactsRequest) => Promise<GetSelectiveArtifactsResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
@@ -346,7 +354,8 @@ export interface MiDiagramAPI {
     getArtifactType: (params: GetArtifactTypeRequest) => Promise<GetArtifactTypeResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
     getAllAPIcontexts: () => Promise<APIContextsResponse>;
-    buildProject: () => void;
+    buildProject: (params: BuildProjectRequest) => void;
+    deployProject: (params: DeployProjectRequest) => Promise<DeployProjectResponse>;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
@@ -376,12 +385,13 @@ export interface MiDiagramAPI {
     tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     shutDownTryoutServer: () => Promise<boolean>;
     getMIVersionFromPom: () => Promise<MiVersionResponse>;
-    saveInputPayload: (params:SavePayloadRequest) => Promise<boolean>;
-    getInputPayloads: (params:GetPayloadsRequest) => Promise<GetPayloadsResponse>;
-    getMediatorInputOutputSchema: (params:MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
+    saveInputPayload: (params: SavePayloadRequest) => Promise<boolean>;
+    getInputPayloads: (params: GetPayloadsRequest) => Promise<GetPayloadsResponse>;
+    getMediatorInputOutputSchema: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
     updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
+    getLocalInboundConnectors: () => Promise<LocalInboundConnectorsResponse>;
     getConnectionSchema: (param: GetConnectionSchemaRequest) => Promise<GetConnectionSchemaResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getHelperPaneInfo: (params: GetHelperPaneInfoRequest) => Promise<GetHelperPaneInfoResponse>;

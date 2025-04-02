@@ -21,12 +21,12 @@ import {
     resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeModel, FlowNode, Branch, LineRange, NodePosition } from "../utils/types";
+import { Flow, NodeModel, FlowNode, Branch, LineRange, NodePosition, ToolData } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
-import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
+import { DiagramContextProvider, DiagramContextState, ExpressionContextProps } from "./DiagramContext";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
@@ -44,11 +44,20 @@ export interface DiagramProps {
     onDeleteNode?: (node: FlowNode) => void;
     onAddComment?: (comment: string, target: LineRange) => void;
     onNodeSelect?: (node: FlowNode) => void;
+    onNodeSave?: (node: FlowNode) => void;
     addBreakpoint?: (node: FlowNode) => void;
     removeBreakpoint?: (node: FlowNode) => void;
     onConnectionSelect?: (connectionName: string) => void;
     goToSource?: (node: FlowNode) => void;
     openView?: (filePath: string, position: NodePosition) => void;
+    // agent node callbacks
+    agentNode?: {
+        onModelSelect: (node: FlowNode) => void;
+        onAddTool: (node: FlowNode) => void;
+        onSelectTool: (tool: ToolData, node: FlowNode) => void;
+        onDeleteTool: (tool: ToolData, node: FlowNode) => void;
+        goToTool: (tool: ToolData, node: FlowNode) => void;
+    };
     // ai suggestions callbacks
     suggestions?: {
         fetching: boolean;
@@ -58,6 +67,7 @@ export interface DiagramProps {
     projectPath?: string;
     breakpointInfo?: BreakpointInfo;
     readOnly?: boolean;
+    expressionContext?: ExpressionContextProps;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -68,15 +78,18 @@ export function Diagram(props: DiagramProps) {
         onDeleteNode,
         onAddComment,
         onNodeSelect,
+        onNodeSave,
         onConnectionSelect,
         goToSource,
         openView,
+        agentNode,
         suggestions,
         projectPath,
         addBreakpoint,
         removeBreakpoint,
         breakpointInfo,
         readOnly,
+        expressionContext
     } = props;
 
     const [showErrorFlow, setShowErrorFlow] = useState(false);
@@ -193,14 +206,17 @@ export function Diagram(props: DiagramProps) {
         onDeleteNode: onDeleteNode,
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
+        onNodeSave: onNodeSave,
         addBreakpoint: addBreakpoint,
         removeBreakpoint: removeBreakpoint,
         onConnectionSelect: onConnectionSelect,
         goToSource: goToSource,
         openView: openView,
+        agentNode: agentNode,
         suggestions: suggestions,
         projectPath: projectPath,
         readOnly: onAddNode === undefined || onDeleteNode === undefined || onNodeSelect === undefined || readOnly,
+        expressionContext: expressionContext
     };
 
     const getActiveBreakpointNode = (nodes: NodeModel[]): NodeModel => {

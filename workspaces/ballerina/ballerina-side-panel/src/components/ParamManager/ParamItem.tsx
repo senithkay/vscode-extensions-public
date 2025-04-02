@@ -26,26 +26,30 @@ import { Parameter } from "./ParamManager";
 import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 
 interface ParamItemProps {
-    params: Parameter;
+    param: Parameter;
     readonly?: boolean;
     onDelete?: (param: Parameter) => void;
     onEditClick?: (param: Parameter) => void;
 }
 
 export function ParamItem(props: ParamItemProps) {
-    const { params, readonly, onDelete, onEditClick } = props;
+    const { param, readonly, onDelete, onEditClick } = props;
+    const { formValues, key } = param;
 
-    let label = params.key;
+    const type = formValues["type"] || "";
+    const identifier = formValues["variable"] || key;
+
+    let label = key;
 
     const handleDelete = () => {
-        onDelete(params);
+        onDelete(param);
     };
     const handleEdit = () => {
         if (!readonly) {
-            onEditClick(params);
+            onEditClick(param);
         }
     };
-    const icon = (typeof params.icon === "string") ? <Icon name={params.icon} /> : params.icon;
+    const icon = (typeof param.icon === "string") ? <Icon name={param.icon} /> : param.icon;
 
     return (
         <HeaderLabel data-testid={`${label}-item`}>
@@ -53,14 +57,14 @@ export function ParamItem(props: ParamItemProps) {
                 {icon ? (
                     <IconTextWrapper>
                         <IconWrapper> {icon} </IconWrapper>
-                        {params.key}
+                        {type}
                     </IconTextWrapper>
                 ) : (
                     <KeyTextWrapper>
-                        <Key> {params.key} </Key>
+                        <Key> {type} </Key>
                     </KeyTextWrapper>
                 )}
-                <ValueTextWrapper> {params.value} </ValueTextWrapper>
+                <ValueTextWrapper> {identifier} </ValueTextWrapper>
             </ContentWrapper>
             <ActionWrapper>
                 {!readonly && (

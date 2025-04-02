@@ -22,7 +22,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMViewsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { createSourceForUserInput, modifyChildFieldsOptionality, modifyFieldOptionality } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
@@ -68,7 +68,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         exprBarFocusedPort: state.focusedPort,
         setExprBarFocusedPort: state.setFocusedPort
     }));
-    const viewsStore = useDMViewsStore();
 
     let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;
@@ -159,7 +158,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleModifyFieldOptionality = async () => {
-        viewsStore.setViews(context.views);
         try {
             await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
         } catch (error) {

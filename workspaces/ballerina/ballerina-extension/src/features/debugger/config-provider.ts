@@ -114,7 +114,7 @@ async function handleMainFunctionParams(config: DebugConfiguration) {
             for (i = 0; i < params.length; i++) {
                 let param = params[i];
                 let value = param.defaultValue ? param.defaultValue : getValueFromProgramArgs(programArgs, i);
-                await showInputBox(param.paramName, value).then(r => {
+                await showInputBox(param.paramName, value, param.type, false).then(r => {
                     values.push(r);
                 });
             }
@@ -123,7 +123,7 @@ async function handleMainFunctionParams(config: DebugConfiguration) {
             while (true) {
                 let value = getValueFromProgramArgs(programArgs, i);
                 i++;
-                let result = await showInputBox(res.restParams.paramName, value);
+                let result = await showInputBox(res.restParams.paramName, value, res.restParams.type, true);
                 if (result) {
                     values.push(result);
                 } else {
@@ -135,15 +135,91 @@ async function handleMainFunctionParams(config: DebugConfiguration) {
     }
 }
 
-async function showInputBox(paramName: string, value: string) {
+async function showInputBox(paramName: string, value: string, type: string, isRest: boolean) {
+    // TODO: The type information should come from the LS
+    let baseType = type;
+    let isOptional = false;
+    if (baseType.endsWith('?')) {
+        isOptional = true;
+        baseType = baseType.substring(0, baseType.length - 1);
+    }
+
+    // Construct prompt message based on the flags
+    let promptMessage = '';
+    if (isOptional) {
+        promptMessage = 'This is optional and can be left empty';
+    } else if (isRest) {
+        promptMessage = 'This parameter accepts multiple values. ' +
+            "You'll be prompted to enter each value one by one. Press 'Escape' when finished.";
+    }
+
+    // Construct placeholder message based on the type and the flags
+    let placeholderMessage = `Enter value for '${paramName}'`;
+    switch (baseType) {
+        case 'boolean':
+            placeholderMessage += ' (enter "true" or "false")';
+            break;
+        case 'int':
+            placeholderMessage += ' (e.g., 42)';
+            break;
+        case 'float':
+        case 'decimal':
+            placeholderMessage += ' (e.g., 3.14)';
+            break;
+        case 'byte':
+            placeholderMessage += ' (e.g. 127)';
+            break;
+        case 'string':
+            placeholderMessage += ' (e.g., text)';
+            break;
+    }
+
+    // Show the input box to the user
     const inout = await window.showInputBox({
-        title: paramName,
+        title: `${paramName} (type: ${type})`,
         ignoreFocusOut: true,
-        placeHolder: `Enter value for parameter: ${paramName}`,
-        prompt: "",
-        value: value
+        placeHolder: placeholderMessage,
+        prompt: promptMessage,
+        value: value,
+        validateInput: (input: string) => {
+            if (!isOptional && input === "") {
+                return `The input is required`;
+            }
+
+            // Validate the input value based on its type
+            switch (baseType) {
+                case 'string':
+                    return null;
+                case 'int':
+                    if (!Number.isInteger(Number(input)) || isNaN(Number(input))) {
+                        return "The input must be an integer";
+                    }
+                    return null;
+                case 'float':
+                case 'decimal':
+                    if (isNaN(Number(input))) {
+                        return "The input must be a number";
+                    }
+                    return null;
+                case 'byte':
+                    const byteValue = Number(input);
+                    if (!Number.isInteger(byteValue) || isNaN(byteValue) || byteValue < 0 || byteValue > 255) {
+                        return "The input must be an integer between 0 and 255";
+                    }
+                    return null;
+                case 'boolean':
+                    if (input !== 'true' && input !== 'false') {
+                        return "The input must be either 'true' or 'false'";
+                    }
+                    return null;
+                default:
+                    return `Unsupported type: ${baseType}. Expected one of: string, int, float, decimal, byte, boolean`;
+            }
+        },
     });
-    return inout;
+
+    // Add quotes to string by default
+    return baseType === "string" && !isOptional ? `"${inout}"` : inout;
 }
 
 async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: DebugConfiguration) {
@@ -249,7 +325,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         const debugServerPort = await findFreePort();
         config.debugServer = debugServerPort.toString();
     }
-    
+
     // Notify debug server that the debug session is started in low-code mode
     const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
     if (isWebviewPresent && StateMachine.context().isBI) {
@@ -278,6 +354,11 @@ export async function constructDebugConfig(uri: Uri, testDebug: boolean, args?: 
             debugConfig = debugConfigs[i];
             break;
         }
+    }
+
+    if (!debugConfig) {
+        window.showErrorMessage("Failed to resolve correct Ballerina debug configuration for the current workspace.");
+        return Promise.reject();
     }
 
     debugConfig.script = uri.fsPath;
@@ -325,10 +406,14 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                         notifyBreakpointChange();
 
-                        // Trigger Try-It view when starting/restarting debug sessions in low-code mode
-                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
-                            commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
-                        });
+                        // if `suggestTryit` is undefined, that means the debug session is directly started from the debug button. Therefore we should trigger the Try-It view.
+                        const suggestTryit = session.configuration.suggestTryit === undefined || session.configuration.suggestTryit === true;
+                        if (suggestTryit) {
+                            // Trigger Try-It view when starting/restarting debug sessions in low-code mode
+                            waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then(() => {
+                                commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
+                            });
+                        }
                     } else if (msg.command === "setBreakpoints") {
                         const breakpoints = msg.body.breakpoints;
                         // convert debug points to client breakpoints
@@ -478,15 +563,16 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         // Check if config generation is required before starting the debug session
         await prepareAndGenerateConfig(ballerinaExtInstance, session.configuration.script, false, StateMachine.context().isBI, false);
-        if (session.configuration.noDebug && StateMachine.context().isBI) {
-            return new Promise((resolve) => {
-                resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
-            });
-        }
 
         if (session.configuration.noDebug && ballerinaExtInstance.enabledRunFast()) {
             return new Promise((resolve) => {
                 resolve(new DebugAdapterInlineImplementation(new FastRunDebugAdapter()));
+            });
+        }
+
+        if (session.configuration.noDebug && StateMachine.context().isBI) {
+            return new Promise((resolve) => {
+                resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
             });
         }
 
@@ -497,14 +583,13 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         const cmd = this.getScriptPath(args);
         args.push(port.toString());
 
-        let opt: ExecutableOptions = { cwd: cwd };
+        let opt: ExecutableOptions = { cwd, shell: true };
         opt.env = Object.assign({}, process.env, configEnv);
 
-        const serverProcess = child_process.spawn(cmd, args, opt);
-
-        log(`Starting debug adapter: '${this.ballerinaExtInstance.getBallerinaCmd()} start-debugger-adapter ${port.toString()}`);
-
         try {
+            log(`Starting debug adapter: '${this.ballerinaExtInstance.getBallerinaCmd()} start-debugger-adapter ${port.toString()}`);
+            const serverProcess = child_process.spawn(cmd, args, opt);
+
             await new Promise<void>((resolve) => {
                 serverProcess.stdout.on('data', (data) => {
                     if (data.toString().includes('Debug server started')) {
@@ -609,7 +694,7 @@ class BIRunAdapter extends LoggingDebugSession {
         }
 
         // Get Ballerina home path from settings
-        const config = workspace.getConfiguration('kolab');
+        const config = workspace.getConfiguration('ballerina');
         const ballerinaHome = config.get<string>('home');
         if (ballerinaHome) {
             // Add ballerina home to build path only if it's configured
@@ -671,7 +756,7 @@ async function runFast(root: string, options: { debugPort?: number; env?: Map<st
         if (window.activeTextEditor?.document.isDirty) {
             await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
         }
-        const { debugPort, env = new Map(), programArgs = [] } = options;
+        const { debugPort = -1, env = new Map(), programArgs = [] } = options;
         const commandArguments = [
             { key: "path", value: root },
             { key: "debugPort", value: debugPort },
@@ -726,6 +811,6 @@ function findFreePort(): Promise<number> {
 }
 
 function isFastRunEnabled(): boolean {
-    const config = workspace.getConfiguration('kolab');
+    const config = workspace.getConfiguration('ballerina');
     return config.get<boolean>('enableRunFast');
 }

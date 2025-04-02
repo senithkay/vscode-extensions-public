@@ -7,14 +7,37 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { SCOPE } from '@wso2-enterprise/ballerina-core';
 import { BallerinaExtension } from '../core';
-import { WorkspaceConfiguration, workspace } from 'vscode';
+import { WorkspaceConfiguration, workspace, Uri } from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export enum VERSION {
     BETA = 'beta',
     ALPHA = 'alpha',
     PREVIEW = 'preview'
 }
+
+export const AGENTS_FILE = "agents.bal";
+export const AUTOMATION_FILE = "automation.bal";
+export const CONFIG_FILE = "config.bal";
+export const CONNECTIONS_FILE = "connections.bal";
+export const DATA_MAPPING_FILE = "data_mappings.bal";
+export const FUNCTIONS_FILE = "functions.bal";
+export const MAIN_FILE = "main.bal";
+export const TYPES_FILE = "types.bal";
+
+export const BI_PROJECT_FILES = [
+    AGENTS_FILE,
+    AUTOMATION_FILE,
+    CONFIG_FILE,
+    CONNECTIONS_FILE,
+    DATA_MAPPING_FILE,
+    FUNCTIONS_FILE,
+    MAIN_FILE,
+    TYPES_FILE
+];
 
 interface BallerinaPluginConfig extends WorkspaceConfiguration {
     home?: string;
@@ -23,7 +46,7 @@ interface BallerinaPluginConfig extends WorkspaceConfiguration {
 }
 
 export function getPluginConfig(): BallerinaPluginConfig {
-    return workspace.getConfiguration('kolab');
+    return workspace.getConfiguration('ballerina');
 }
 
 export function isWindows(): boolean {
@@ -69,3 +92,50 @@ export function isSupportedSLVersion(ballerinaExtInstance: BallerinaExtension, m
     return false;
 }
 
+export function checkIsBI(uri: Uri): boolean {
+    const config = workspace.getConfiguration('ballerina', uri);
+    const inspected = config.inspect<boolean>('isBI');
+
+    if (inspected) {
+        const valuesToCheck = [
+            inspected.workspaceFolderValue,
+            inspected.workspaceValue,
+            inspected.globalValue
+        ];
+        return valuesToCheck.find(value => value === true) !== undefined; // Return true if isBI is set to true
+    }
+    return false; // Return false if isBI is not set
+}
+
+export function checkIsBallerina(uri: Uri): boolean {
+    const ballerinaTomlPath = path.join(uri.fsPath, 'Ballerina.toml');
+    return fs.existsSync(ballerinaTomlPath);
+}
+
+export function fetchScope(uri: Uri): SCOPE {
+    const config = workspace.getConfiguration('ballerina', uri);
+    const inspected = config.inspect<SCOPE>('scope');
+
+    if (inspected) {
+        const valuesToCheck = [
+            inspected.workspaceFolderValue,
+            inspected.workspaceValue,
+            inspected.globalValue
+        ];
+        const scope = valuesToCheck.find(value => value !== undefined) as SCOPE;
+        if (scope) {
+            // Create BI files if the scope is set
+            setupBIFiles(uri.fsPath);
+        }
+        return scope;
+    }
+}
+
+export function setupBIFiles(projectDir: string): void {
+    BI_PROJECT_FILES.forEach(file => {
+        const filePath = path.join(projectDir, file);
+        if (!fs.existsSync(filePath)) {
+            fs.writeFileSync(filePath, '');
+        }
+    });
+}

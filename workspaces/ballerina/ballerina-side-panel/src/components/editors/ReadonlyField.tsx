@@ -9,51 +9,92 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { TextField, Codicon, Button } from "@wso2-enterprise/ui-toolkit";
-import { useFormContext } from "../../context";
+import { Button, Icon, RequiredFormInput } from "@wso2-enterprise/ui-toolkit";
 import { capitalize } from "./utils";
+import styled from "@emotion/styled";
 
 interface ReadonlyFieldProps {
     field: FormField;
 }
 
+const Container = styled.div`
+    width: 100%;
+    cursor: not-allowed;
+`;
+
+const Label = styled.div`
+    color: var(--vscode-editor-foreground);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 4px;
+`;
+
+const Description = styled.div`
+    font-family: var(--font-family);
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-top: 4px;
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-bottom: 4px;
+    text-align: left;
+`;
+
+const InputContainer = styled.div`
+    display: flex;
+    align-items: center;
+    color: var(--input-foreground);
+    background: var(--input-background);
+    border-radius: calc(var(--corner-radius)* 1px);
+    border: calc(var(--border-width)* 1px) solid var(--dropdown-border);
+    height: calc(var(--input-height)* 1px);
+    min-width: var(--input-min-width);
+    width: calc(100% - 34px);
+    padding: 0 calc(var(--design-unit) * 2px + 1px);
+    margin-top: 10px;
+`;
+
+const Value = styled.span`
+    flex: 1;
+`;
+
+const StyledButton = styled(Button)`
+    padding: 0;
+    margin-right: -6px;
+    cursor: not-allowed;
+
+    :host([disabled]) {
+        opacity: 1 !important;
+    }
+
+    &.ms-Button--disabled {
+        opacity: 1 !important;
+    }
+
+    & .codicon {
+        opacity: 1 !important;
+        color: var(--vscode-input-foreground) !important;
+    }
+`;
+
 export function ReadonlyField(props: ReadonlyFieldProps) {
     const { field } = props;
-    const { form } = useFormContext();
-    const { register } = form;
-
-    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
 
     return (
-        <TextField
-            id={field.key}
-            name={field.key}
-            {...register(field.key, { required: !field.optional && !field.placeholder, value: field.value })}
-            label={capitalize(field.label)}
-            required={!field.optional}
-            description={field.documentation}
-            placeholder={field.placeholder}
-            readOnly={!field.editable}
-            inputProps={{
-                endAdornment: (
-                    <Button
-                        appearance="icon"
-                        tooltip="Read-only"
-                        disabled
-                        sx={{ cursor: 'default', padding: 0 }}
-                        buttonSx={{ padding: 0, opacity: 1 }}
-                    >
-                        <Codicon
-                            name="lock-small"
-                            sx={{ cursor: 'default' }}
-                        />
-                    </Button>
-                )
-            }}
-            sx={{
-                width: "100%"
-            }}
-            errorMsg={errorMsg}
-        />
+        <Container>
+            <Label>
+                <div style={{ color: "var(--vscode-editor-foreground)" }}>
+                    <label>{capitalize(field.label)}</label>
+                </div>
+                {!field.optional && <RequiredFormInput />}
+            </Label>
+            {field.documentation && <Description>{field.documentation}</Description>}
+            <InputContainer>
+                <Value>{field.value}</Value>
+                <StyledButton appearance="icon" tooltip="Read only" disabled>
+                    <Icon name="bi-lock" sx={{ fontSize: 16, width: 16, height: 16}} />
+                </StyledButton>
+            </InputContainer>
+        </Container>
     );
 }

@@ -115,8 +115,8 @@ namespace S {
         ${({ enabled }) => !enabled && "opacity: 0.5;"}
         &:hover {
             ${({ enabled }) =>
-            enabled &&
-            `
+                enabled &&
+                `
                 background-color: ${ThemeColors.PRIMARY_CONTAINER};
                 border: 1px solid ${ThemeColors.PRIMARY};
             `}
@@ -124,11 +124,8 @@ namespace S {
     `;
 
     export const ComponentTitle = styled.div`
-        text-overflow: ellipsis;
-        overflow: hidden;
         white-space: nowrap;
         width: 124px;
-        word-break: break-all;
     `;
 
     export const IconContainer = styled.div`
@@ -223,8 +220,6 @@ export function NodeList(props: NodeListProps) {
         onClose,
     } = props;
 
-    console.log(">>> categories", { categories });
-
     const [searchText, setSearchText] = useState<string>("");
     const [showGeneratePanel, setShowGeneratePanel] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
@@ -276,9 +271,24 @@ export function NodeList(props: NodeListProps) {
                 }
 
                 return (
-                    <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)} title={node.label}>
+                    <S.Component
+                        key={node.id + index}
+                        enabled={node.enabled}
+                        onClick={() => handleAddNode(node)}
+                        title={node.label}
+                    >
                         <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
-                        <S.ComponentTitle>{node.label}</S.ComponentTitle>
+                        <S.ComponentTitle
+                            ref={(el) => {
+                                if (el && el.scrollWidth > el.clientWidth) {
+                                    el.style.fontSize = "13px";
+                                    el.style.wordBreak = "break-word";
+                                    el.style.whiteSpace = "normal";
+                                }
+                            }}
+                        >
+                            {node.label}
+                        </S.ComponentTitle>
                     </S.Component>
                 );
             })}
@@ -306,11 +316,23 @@ export function NodeList(props: NodeListProps) {
                 {groups.map((group, index) => {
                     const isConnectionCategory = group.title === "Connections";
                     const isProjectFunctionsCategory = group.title === "Current Integration";
-                    const isFunctionsCategory = isProjectFunctionsCategory && title === "Functions";
-                    if ((!group || group.items.length === 0) && !isConnectionCategory && !isProjectFunctionsCategory) {
+                    const isDataMapperCategory = isProjectFunctionsCategory && title === "Data Mappers";
+                    const isAgentCategory = group.title === "Agents";
+                    const isNpFunctionCategory = isProjectFunctionsCategory && title === "Natural Functions";
+                    if (
+                        (!group || group.items.length === 0) &&
+                        !isConnectionCategory &&
+                        !isProjectFunctionsCategory &&
+                        !isAgentCategory &&
+                        !isNpFunctionCategory
+                    ) {
                         return null;
                     }
                     if (searchText && group.items.length === 0) {
+                        return null;
+                    }
+                    // skip current integration category if onAddFunction is not provided and items are empty
+                    if (!onAddFunction && isProjectFunctionsCategory && group.items?.length === 0) {
                         return null;
                     }
                     return (
@@ -324,44 +346,84 @@ export function NodeList(props: NodeListProps) {
                                 {!isSubCategory && (
                                     <>
                                         <S.Title>{group.title}</S.Title>
-                                        {(isConnectionCategory || isProjectFunctionsCategory) && (
-                                            <Button
-                                                appearance="icon"
-                                                tooltip={
-                                                    isConnectionCategory
-                                                        ? "Add Connection"
-                                                        : `Create ${isFunctionsCategory ? "Function" : "Data Mapper"}`
-                                                }
-                                                onClick={
-                                                    isConnectionCategory
-                                                        ? handleAddConnection
-                                                        : handleAddFunction
-                                                }
-                                            >
-                                                <Codicon name="add" />
-                                            </Button>
+                                        {(isConnectionCategory || isProjectFunctionsCategory || isAgentCategory) && (
+                                            <>
+                                                {onAddConnection && isConnectionCategory && (
+                                                    <Button
+                                                        appearance="icon"
+                                                        tooltip="Add Connection"
+                                                        onClick={handleAddConnection}
+                                                    >
+                                                        <Codicon name="add" />
+                                                    </Button>
+                                                )}
+                                                {onAddFunction && isDataMapperCategory && (
+                                                    <Button
+                                                        appearance="icon"
+                                                        tooltip="Create Data Mapper"
+                                                        onClick={handleAddFunction}
+                                                    >
+                                                        <Codicon name="add" />
+                                                    </Button>
+                                                )}
+                                                {onAddFunction &&
+                                                    isProjectFunctionsCategory &&
+                                                    !isDataMapperCategory &&
+                                                    !isNpFunctionCategory && (
+                                                        <Button
+                                                            appearance="icon"
+                                                            tooltip="Create Function"
+                                                            onClick={handleAddFunction}
+                                                        >
+                                                            <Codicon name="add" />
+                                                        </Button>
+                                                    )}
+                                                {onAddFunction && isNpFunctionCategory && (
+                                                    <Button
+                                                        appearance="icon"
+                                                        tooltip="Create Natural Function"
+                                                        onClick={handleAddFunction}
+                                                    >
+                                                        <Codicon name="add" />
+                                                    </Button>
+                                                )}
+                                            </>
                                         )}
                                     </>
                                 )}
                             </S.Row>
-                            {/* {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>} */}
-                            {isConnectionCategory && group.items.length === 0 && (
+                            {onAddConnection && isConnectionCategory && group.items.length === 0 && (
                                 <S.HighlightedButton onClick={handleAddConnection}>
-                                    <Codicon name="add" iconSx={{ fontSize: 12 }} />
+                                    <Codicon
+                                        name="add"
+                                        iconSx={{ fontSize: 12 }}
+                                        sx={{ display: "flex", alignItems: "center" }}
+                                    />
                                     Add Connection
                                 </S.HighlightedButton>
                             )}
-                            {isProjectFunctionsCategory && group.items.length === 0 && !searchText && !isSearching && (
-                                <S.HighlightedButton onClick={handleAddFunction}>
-                                    <Codicon name="add" iconSx={{ fontSize: 12 }} />
-                                    {`Create ${isFunctionsCategory ? "Function" : "Data Mapper"}`}
-                                </S.HighlightedButton>
-                            )}
+                            {onAddFunction &&
+                                isProjectFunctionsCategory &&
+                                group.items.length === 0 &&
+                                !searchText &&
+                                !isSearching && (
+                                    <S.HighlightedButton onClick={handleAddFunction}>
+                                        <Codicon name="add" iconSx={{ fontSize: 12 }} />
+                                        {`Create ${
+                                            isDataMapperCategory
+                                                ? "Data Mapper"
+                                                : isNpFunctionCategory
+                                                ? "Natural Function"
+                                                : "Function"
+                                        }`}
+                                    </S.HighlightedButton>
+                                )}
                             {group.items.length > 0 && "id" in group.items.at(0)
                                 ? getNodesContainer(group.items as Node[])
-                                : isConnectionCategory || isProjectFunctionsCategory
-                                    ? getConnectionContainer(group.items as Category[])
-                                    : getCategoryContainer(group.items as Category[], true)}
+                                : (onAddConnection && isConnectionCategory) ||
+                                  (onAddFunction && isProjectFunctionsCategory)
+                                ? getConnectionContainer(group.items as Category[])
+                                : getCategoryContainer(group.items as Category[], true)}
                         </S.CategoryRow>
                     );
                 })}

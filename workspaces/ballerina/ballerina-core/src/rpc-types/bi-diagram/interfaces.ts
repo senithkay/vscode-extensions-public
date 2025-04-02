@@ -70,6 +70,10 @@ export interface ProjectComponentsResponse {
     components: BallerinaProjectComponents
 }
 
+export interface RecordsInWorkspaceMentions {
+    mentions: string[]
+}
+
 export interface ReadmeContentRequest {
     read: boolean
     content?: string;
@@ -150,4 +154,17 @@ export interface FormDidCloseParams {
 
 export interface EndOfFileRequest {
     filePath: string;
+}
+export enum BuildMode {
+    JAR = "jar",
+    DOCKER = "docker"
+}
+
+export interface DevantMetadata {
+    isLoggedIn?: boolean;
+    hasComponent?: boolean;
+}
+
+export interface GeneratedClientSaveResponse {
+    errorMessage?: string;
 }

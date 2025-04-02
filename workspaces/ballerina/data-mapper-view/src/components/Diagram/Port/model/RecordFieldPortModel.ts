@@ -63,7 +63,8 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		public parentId: string,
 		public index?: number,
 		public editableRecordField?: EditableRecordField,
-		public fieldFQN?: string,
+		public fieldFQN?: string, // Field FQN with optional included, ie. person?.name?.firstName
+		public optionalOmittedFieldFQN?: string, // Field FQN without optional, ie. person.name.firstName
 		public parentModel?: RecordFieldPortModel,
 		public collapsed?: boolean,
 		public hidden?: boolean,
@@ -93,7 +94,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 
 				const mappingType = getMappingType(sourcePort, targetPort);
-				if (userActionRequiredMapping(mappingType)) {
+				if (userActionRequiredMapping(mappingType, targetPort)) {
 					// Source update behavior is determined by the user.
 					return;
 				}

@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Typography, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { ListenerModel, LineRange } from "@wso2-enterprise/ballerina-core";
+import { ListenerModel, LineRange, RecordTypeField, PropertyModel, PropertyTypeMemberInfo, Property } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../../Forms/FormGeneratorNew";
@@ -55,8 +55,33 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const { listenerModel, onSubmit, onBack, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
+    const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
 
     useEffect(() => {
+        const recordTypeFields: RecordTypeField[] = Object.entries(listenerModel.properties)
+            .filter(([_, property]) =>
+                property.typeMembers &&
+                property.typeMembers.some(member => member.kind === "RECORD_TYPE")
+            )
+            .map(([key, property]) => ({
+                key,
+                property: {
+                    ...property,
+                    metadata: {
+                        label: property.metadata?.label || key,
+                        description: property.metadata?.description || ''
+                    },
+                    valueType: property?.valueType || 'string',
+                    diagnostics: {
+                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0, 
+                        diagnostics: property.diagnostics
+                    }
+                } as Property,
+                recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+            }));
+        console.log(">>> recordTypeFields", recordTypeFields);
+        setRecordTypeFields(recordTypeFields);
+
         listenerModel && setListenerFields(convertConfig(listenerModel));
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [listenerModel]);
@@ -106,7 +131,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                             <BodyText>
                                 {formSubmitText === "Save" ? editTitle : createTitle}
                             </BodyText> */}
-                            <FormHeader title={`${listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration`} subtitle={`${formSubmitText === "Save" ? editTitle : createTitle}`} />
+                            <FormHeader title={`${listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration`} />
                             {filePath && targetLineRange &&
                                 <FormGeneratorNew
                                     fileName={filePath}
@@ -115,6 +140,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                                     onSubmit={handleListenerSubmit}
                                     onBack={onBack}
                                     submitText={formSubmitText}
+                                    recordTypeFields={recordTypeFields}
                                 />
                             }
                         </FormContainer>
@@ -138,6 +164,7 @@ function convertConfig(listener: ListenerModel): FormField[] {
             documentation: expression?.metadata.description || "",
             valueType: expression.valueTypeConstraint,
             editable: expression.editable,
+            enabled: expression.enabled ?? true,
             optional: expression.optional,
             value: expression.value,
             valueTypeConstraint: expression.valueTypeConstraint,

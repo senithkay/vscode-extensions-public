@@ -36,6 +36,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
                     id={event.model.value && event.model.value.getName()}
                     dmType={event.model.dmType}
                     getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
+                    context={event.model.context}
                 />
             );
         }
@@ -45,6 +46,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
                 id={event.model.value.getName()}
                 dmType={event.model.dmType}
                 getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
+                context={event.model.context}
                 valueLabel={event.model.value.getName()}
             />
         )

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { LibraryBrowser } from './LibraryBrowser';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
@@ -17,13 +17,14 @@ import { convertToHelperPaneFunction, extractFunctionInsertText } from '../../..
 import { debounce } from 'lodash';
 
 type FunctionsPageProps = {
+    anchorRef: RefObject<HTMLDivElement>;
     fileName: string;
     targetLineRange: LineRange;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: FunctionsPageProps) => {
+export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, onChange }: FunctionsPageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
@@ -36,7 +37,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
         debounce((searchText: string, includeAvailableFunctions?: string) => {
             rpcClient
                 .getBIDiagramRpcClient()
-                .getFunctions({
+                .search({
                     position: targetLineRange,
                     filePath: fileName,
                     queryMap: {
@@ -44,7 +45,8 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                         limit: 12,
                         offset: 0,
                         ...(!!includeAvailableFunctions && { includeAvailableFunctions })
-                    }
+                    },
+                    searchKind: "FUNCTION"
                 })
                 .then((response) => {
                     if (response.categories?.length) {
@@ -56,7 +58,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                     }
                 })
                 .then(() => setIsLoading(false));
-        }, 1100),
+        }, 150),
         [rpcClient, fileName, targetLineRange]
     );
 
@@ -72,7 +74,8 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
         const response = await rpcClient.getBIDiagramRpcClient().addFunction({
             filePath: fileName,
             codedata: item.codedata,
-            kind: item.kind as FunctionKind
+            kind: item.kind as FunctionKind,
+            searchKind: 'FUNCTION'
         });
 
         if (response.template) {
@@ -117,8 +120,13 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                 {functionInfo?.category.map((category) => {
                     /* If no sub category found */
                     if (!category.subCategory) {
+                        if (!category.items || category.items.length === 0) {
+                            return null;
+                        }
+
                         return (
                             <HelperPane.Section
+                                key={category.label}
                                 title={category.label}
                                 collapsible
                                 defaultCollapsed
@@ -126,7 +134,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                                 collapsedItemsCount={6}
                                 titleSx={{ fontFamily: 'GilmerMedium' }}
                             >
-                                {category.items.map((item) => (
+                                {category.items?.map((item) => (
                                     <HelperPane.CompletionItem
                                         key={`${category.label}-${item.label}`}
                                         label={item.label}
@@ -140,9 +148,17 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
                     }
 
                     /* If sub category found */
+                    if (!category.subCategory || category.subCategory.length === 0) {
+                        return null;
+                    }
+
                     return (
-                        <HelperPane.Section title={category.label} titleSx={{ fontFamily: 'GilmerMedium' }}>
-                            {category.subCategory.map((subCategory) => (
+                        <HelperPane.Section
+                            key={category.label}
+                            title={category.label}
+                            titleSx={{ fontFamily: 'GilmerMedium' }}
+                        >
+                            {category.subCategory?.map((subCategory) => (
                                 <HelperPane.SubSection
                                     key={`${category.label}-${subCategory.label}`}
                                     title={subCategory.label}
@@ -167,13 +183,14 @@ export const FunctionsPage = ({ fileName, targetLineRange, onClose, onChange }: 
             </HelperPane.Body>
             <HelperPane.Footer>
                 <HelperPane.IconButton
-                    title="Open library browser"
+                    title="Open function browser"
                     getIcon={() => <Codicon name="library" />}
                     onClick={() => setIsLibraryBrowserOpen(true)}
                 />
             </HelperPane.Footer>
             {isLibraryBrowserOpen && (
                 <LibraryBrowser
+                    anchorRef={anchorRef}
                     isLoading={isLoading}
                     libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
                     setFilterText={handleFunctionSearch}

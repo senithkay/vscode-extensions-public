@@ -31,9 +31,9 @@ export const ConnectionNode = styled.div<StyleProps>`
     gap: 10px;
     padding: 2px;
     pointer-events: all;
-    cursor: ${(props: StyleProps) => (props.previewMode ? "default" : "grab")};
+    cursor: ${(props: StyleProps) => (props.previewMode ? "pointer" : "grab")};
     &:active {
-        cursor: ${(props: StyleProps) => (props.previewMode ? "default" : "grabbing")};
+        cursor: ${(props: StyleProps) => (props.previewMode ? "pointer" : "grabbing")};
     }
 `;
 

@@ -12,23 +12,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { FlowNode, LinePosition } from '@wso2-enterprise/ballerina-core';
 
-export const useExperimentalEnabled = () => {
-    const { rpcClient } = useRpcContext();
-
-    const isExperimentalEnabled = async () => {
-        return await rpcClient.getCommonRpcClient().experimentalEnabled();
-    };
-
-    const {
-        data: experimentalEnabled,
-        isFetching: isFetchingExperimentalEnabled,
-        isError,
-        refetch,
-    } = useQuery(['isExperimentalEnabled', {}], () => isExperimentalEnabled(), { networkMode: 'always' });
-
-    return { experimentalEnabled, isFetchingExperimentalEnabled, isError, refetch };
-};
-
 export const useInlineDataMapperModel = (
     filePath: string,
     flowNode: FlowNode,

@@ -11,6 +11,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
+import { DevantMetadata } from "./rpc-types/bi-diagram/interfaces";
 
 export type MachineStateValue =
     | 'initialize'
@@ -37,10 +38,20 @@ export enum EVENT_TYPE {
     CLOSE_VIEW = "CLOSE_VIEW"
 }
 
+export enum SCOPE {
+    AUTOMATION = "automation",
+    INTEGRATION_AS_API = "integration-as-api",
+    EVENT_INTEGRATION = "event-integration",
+    FILE_INTEGRATION = "file-integration",
+    AI_AGENT = "ai-agent",
+    ANY = "any"
+}
+
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export enum MACHINE_VIEW {
     Overview = "Overview",
+    BallerinaUpdateView = "Ballerina Update View",
     SequenceDiagram = "Sequence Diagram",
     ServiceDesigner = "Service Designer",
     ERDiagram = "ER Diagram",
@@ -50,21 +61,24 @@ export enum MACHINE_VIEW {
     SetupView = "Setup View",
     BIDiagram = "BI Diagram",
     BIWelcome = "BI Welcome",
-    BIProjectForm = "BI Project Form",
+    BIProjectForm = "BI Project SKIP",
     BIComponentView = "BI Component View",
     AddConnectionWizard = "Add Connection Wizard",
     ViewConfigVariables = "View Config Variables",
     EditConfigVariables = "Edit Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",
-    BIMainFunctionForm = "Add Automation",
-    BIFunctionForm = "Add Function",
-    BITestFunctionForm = "Add Test Function",
-    BIServiceWizard = "Service Wizard",
+    BIMainFunctionForm = "Add Automation SKIP",
+    BIFunctionForm = "Add Function SKIP",
+    BINPFunctionForm = "Add Natural Function SKIP",
+    BITestFunctionForm = "Add Test Function SKIP",
+    BIServiceWizard = "Service Wizard SKIP",
     BIServiceConfigView = "Service Config View",
     BIListenerConfigView = "Listener Config View",
     BIServiceClassDesigner = "Service Class Designer",
     BIServiceClassConfigView = "Service Class Config View",
-    BIDataMapperForm = "Add Data Mapper",
+    BIDataMapperForm = "Add Data Mapper SKIP",
+    AIAgentDesigner = "AI Agent Designer",
+    AIChatAgentWizard = "AI Chat Agent Wizard"
 }
 
 export interface MachineEvent {
@@ -77,6 +91,12 @@ export interface CommandProps {
     isService?: boolean
 }
 
+export const FOCUS_FLOW_DIAGRAM_VIEW = {
+    NP_FUNCTION: "NP_FUNCTION",
+} as const;
+
+export type FocusFlowDiagramView = typeof FOCUS_FLOW_DIAGRAM_VIEW[keyof typeof FOCUS_FLOW_DIAGRAM_VIEW];
+
 // State Machine context values
 export interface VisualizerLocation {
     view?: MACHINE_VIEW | null;
@@ -86,14 +106,17 @@ export interface VisualizerLocation {
     position?: NodePosition;
     syntaxTree?: STNode;
     isBI?: boolean;
+    focusFlowDiagramView?: FocusFlowDiagramView;
     serviceType?: string;
     type?: Type;
     isGraphql?: boolean;
     metadata?: VisualizerMetadata;
+    scope?: SCOPE;
 }
 
 export interface VisualizerMetadata {
     haveLS?: boolean;
+    isBISupported?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
     target?: LinePosition;

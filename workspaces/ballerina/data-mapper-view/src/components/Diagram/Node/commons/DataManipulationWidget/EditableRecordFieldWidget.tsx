@@ -100,10 +100,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const portIn = getPort(fieldId + ".IN");
     const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
     const mappingConstruct = STKindChecker.isMappingConstructor(parentMappingConstruct) && parentMappingConstruct;
-    const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source && !Object.keys(portIn.links)?.length;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
     const isRecord = field.type.typeName === PrimitiveBalType.Record;
     const typeName = getTypeName(field.type);
+    const hasValue = specificField && specificField.valueExpr;
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
     const isUnionTypedElement = field.originalType.typeName === PrimitiveBalType.Union;

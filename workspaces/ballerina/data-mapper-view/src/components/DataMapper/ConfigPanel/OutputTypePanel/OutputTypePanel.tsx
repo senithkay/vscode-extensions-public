@@ -11,11 +11,11 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { Button, Codicon, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 
 import { Title } from "../DataMapperConfigPanel";
 import { InputParamEditor } from "../InputParamsPanel/InputParamEditor";
-import { DataMapperOutputParam, WarningBannerProps } from "../InputParamsPanel/types";
+import { DataMapperOutputParam } from "../InputParamsPanel/types";
 import { RecordButtonGroup } from "../RecordButtonGroup";
 import { CompletionResponseWithModule } from "../TypeBrowser";
 import { getTypeIncompatibilityMsg } from "../utils";
@@ -33,27 +33,6 @@ export interface OutputConfigWidgetProps {
     handleOutputDeleteClick: () => void;
 }
 
-const WarningContainer = styled.div`
-    margin-top: 20;
-    margin-left: 16;
-    margin-right: 16;
-    background-color: '#FFF5EB';
-    border-style: 'solid';
-    padding: 8;
-    min-width: 120;
-    width: 'fit-content';
-    text-align: 'left';
-    display: 'flex';
-    border-color: '#FFCC8C';
-`;
-
-const WarningBanner = (props: WarningBannerProps) => (
-    <WarningContainer>
-        <Icon sx={{ width: "16px", marginRight: "8px", marginTop: "5px" }} name="error-icon" />
-        <Typography variant="body1">{props.message}</Typography>
-    </WarningContainer>
-);
-
 export function OutputTypePanel(props: OutputConfigWidgetProps) {
     const {
         outputType,
@@ -68,20 +47,18 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
         handleOutputDeleteClick
     } = props;
 
-    const typeIncompatibilityMsg = outputType.isUnsupported
-        && getTypeIncompatibilityMsg(outputType.typeNature, outputType.type, "output");
-    const typeUnsupportedBanner = outputType.isUnsupported && (
-        <Warning
-            data-testid="unsupported-output-banner"
-            message={typeIncompatibilityMsg}
-        />
-    );
-
     const label = (
         <>
             <TypeName isInvalid={outputType.isUnsupported}>{outputType.isArray ? `${outputType.type}[]` : outputType.type}</TypeName>
         </>
     );
+
+    const handleEdit = () => {
+        if (!outputType.isUnsupported) {
+            handleShowOutputType();
+        }
+    };
+
 
     return (
         <OutputTypeConfigPanel data-testid='dm-output'>
@@ -109,7 +86,7 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
             ) : (
                 <>
                     <OutputTypeContainer isInvalid={outputType.isUnsupported}>
-                        <ClickToEditContainer isInvalid={outputType.isUnsupported} onClick={!outputType.isUnsupported && handleShowOutputType}>
+                        <ClickToEditContainer isInvalid={outputType.isUnsupported} onClick={handleEdit}>
                             {label}
                         </ClickToEditContainer>
                         <Box>
@@ -131,7 +108,11 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
                             </DeleteButton>
                         </Box>
                     </OutputTypeContainer>
-                    {outputType.type && outputType.isUnsupported && typeUnsupportedBanner}
+                    {outputType.type && outputType.isUnsupported && (
+                        <ErrorBanner
+                            errorMsg={getTypeIncompatibilityMsg(outputType.typeNature, outputType.type, "output")}
+                        />
+                    )}
                 </>
             )}
         </OutputTypeConfigPanel>
@@ -158,12 +139,6 @@ const OutputTypeConfigPanel = styled.div`
     color: 'var(--vscode-foreground)';
     width: 100%;
 `;
-
-const Warning = styled(WarningBanner)`
-    border-width: 1px !important;
-    width: unset;
-    margin: 5px 0;
-`
 
 const DeleteButton = styled(Button)`
     padding: 0;

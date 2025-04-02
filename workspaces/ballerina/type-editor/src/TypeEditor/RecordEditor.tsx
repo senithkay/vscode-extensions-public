@@ -14,9 +14,10 @@ import { Button } from '@wso2-enterprise/ui-toolkit';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 import { FieldEditor } from './FieldEditor';
 import styled from '@emotion/styled';
+import { TypeHelperCategory, TypeHelperOperator } from '../TypeHelper';
 
 
- const Header = styled.div`
+const Header = styled.div`
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -42,7 +43,6 @@ interface RecordEditorProps {
 
 export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorProps>((props, ref) => {
     const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql } = props;
-    const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
 
     const addMember = () => {
         const memberCount = Object.keys(type.members).length;
@@ -61,23 +61,14 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
         addMember
     }));
 
-    const deleteSelected = () => {
-        const newMembers = type.members.filter((_, index) => !selectedMembers.includes(index));
-        setSelectedMembers([]);
-        onChange({ ...type, members: newMembers });
-    }
-
-    const onSelect = (index: number) => () => {
-        setSelectedMembers([...selectedMembers, index]);
-    }
-
-    const onDeselect = (index: number) => () => {
-        setSelectedMembers(selectedMembers.filter(i => i !== index));
-    }
-
     const handleMemberChange = (index: number) => (member: Member) => {
         const newMembers = [...type.members];
         newMembers[index] = member;
+        onChange({ ...type, members: newMembers });
+    }
+
+    const handleDeleteMember = (index: number) => () => {
+        const newMembers = type.members.filter((_, i) => i !== index);
         onChange({ ...type, members: newMembers });
     }
 
@@ -85,23 +76,26 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
         <div className="record-editor">
             {!isAnonymous &&
                 <Header>
-                    <SectionTitle>{isGraphql ? 'Input Object Fields' : 'Record'}</SectionTitle>
+                    <SectionTitle>{isGraphql ? 'Input Object Fields' : 'Fields'}</SectionTitle>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <Button appearance="icon" onClick={onImportJson}>
-                            <Codicon name="arrow-circle-down" />&nbsp;JSON
+                            <Codicon name="arrow-circle-up" />&nbsp;JSON
                         </Button>
                         <Button appearance="icon" onClick={onImportXml}>
-                            <Codicon name="arrow-circle-down" />&nbsp;XML
+                            <Codicon name="arrow-circle-up" />&nbsp;XML
                         </Button>
                         <Button appearance="icon" onClick={addMember}><Codicon name="add" /></Button>
-                        <Button appearance="icon" onClick={deleteSelected}><Codicon name="trash" /></Button>
-                        {/* <Button appearance="icon"><Codicon name="kebab-vertical" /></Button> */}
                     </div>
-            </Header>
+                </Header>
             }
             {type.members.map((member, index) => (
                 <>
-                    <FieldEditor selected={selectedMembers.includes(index)} member={member} onChange={handleMemberChange(index)} onSelect={onSelect(index)} onDeselect={onDeselect(index)} />
+                    <FieldEditor
+                        key={index}
+                        member={member}
+                        onChange={handleMemberChange(index)}
+                        onDelete={handleDeleteMember(index)}
+                    />
                 </>
             ))}
         </div >

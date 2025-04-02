@@ -7,50 +7,81 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { CSSProperties } from "react";
 import { ApiIcon, DatabaseIcon, HttpIcon } from "../../resources";
 import { FlowNode } from "../../utils/types";
 
 interface ConnectorIconProps {
-    node: FlowNode;
+    node?: FlowNode;
     url?: string;
     fallbackIcon?: React.ReactNode;
+    style?: CSSProperties; // Custom style for images
+    iconStyle?: CSSProperties; // Custom style for icons
+    className?: string;
 }
 
 export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
-    const { node, url, fallbackIcon } = props;
+    const { node, url, fallbackIcon, style, iconStyle, className } = props;
     const [imageError, setImageError] = React.useState(false);
+
+    // Default styles for images
+    const defaultImageStyle: CSSProperties = {
+        width: "24px"
+    };
+
+    // Merge default styles with custom styles
+    const mergedImageStyle: CSSProperties = {
+        ...defaultImageStyle,
+        ...style
+    };
+
+    // Default styles for icons
+    const defaultIconStyle: CSSProperties = {};
+
+    // Merge default icon styles with custom icon styles
+    const mergedIconStyle: CSSProperties = {
+        ...defaultIconStyle,
+        ...iconStyle
+    };
 
     if (url && isValidUrl(url) && !imageError) {
         return (
-            <img src={url} alt={node.codedata.module} style={{ width: "24px" }} onError={() => setImageError(true)} />
+            <img 
+                src={url} 
+                style={mergedImageStyle} 
+                className={className}
+                onError={() => setImageError(true)} 
+            />
         );
+    } else if (url && fallbackIcon) {
+        return <div style={mergedIconStyle} className={className}>{fallbackIcon}</div>;
     }
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
-    if (node.metadata.icon && isValidUrl(node.metadata.icon) && !imageError) {
+    if (node?.metadata?.icon && isValidUrl(node.metadata.icon) && !imageError) {
         return (
             <img
                 src={node.metadata.icon}
                 alt={node.codedata.module}
-                style={{ width: "24px" }}
+                style={mergedImageStyle}
+                className={className}
                 onError={() => setImageError(true)}
             />
         );
     }
 
     if (fallbackIcon && imageError) {
-        return <>{fallbackIcon}</>;
+        return <div style={mergedIconStyle} className={className}>{fallbackIcon}</div>;
     }
 
-    if (databaseClients.includes(node.codedata.module)) {
-        return <DatabaseIcon />;
+    if (node?.codedata?.module && databaseClients.includes(node.codedata.module)) {
+        return <div style={mergedIconStyle} className={className}><DatabaseIcon /></div>;
     }
-    if (node.codedata.module === "http") {
-        return <HttpIcon />;
+    if (node?.codedata?.module === "http") {
+        return <div style={mergedIconStyle} className={className}><HttpIcon /></div>;
     }
 
-    return <ApiIcon />;
+    return <div style={mergedIconStyle} className={className}><ApiIcon /></div>;
 }
 
 export default ConnectorIcon;
