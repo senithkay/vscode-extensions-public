@@ -620,8 +620,6 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
     });
     const parsedXml = parser.parse(originalXml);
 
-    fs.promises.writeFile('/Users/kalindu/wso2mi/Projects/eeeee/pre.json', JSON.stringify(parsedXml, null, 2));
-
     updatePomXml(parsedXml, "project.properties.{project.runtime.version}", version);
     updatePomXml(parsedXml, "project.properties.{car.plugin.version}", LATEST_CAR_PLUGIN_VERSION);
     updatePomXml(parsedXml, "project.properties.{dockerfile.base.image}", "wso2/wso2mi:${project.runtime.version}");
@@ -635,7 +633,6 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
         commentPropName: "#comment",
         indentBy: "    "
     });
-    fs.promises.writeFile('/Users/kalindu/wso2mi/Projects/eeeee/post.json', JSON.stringify(parsedXml, null, 2));
 
     const updatedXml = builder.build(parsedXml);
 
@@ -652,7 +649,7 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
  *   - Array iteration: "project.profiles.profile[].build"
  *   - Conditional selection: "plugin[artifactId=vscode-car-plugin]"
  * @param value - The new value to set
- * @returns boolean - true if at least one match was found and updated
+ * @param createIfNotFound - Whether to create the last node if not found (default: true)
  */
 function updatePomXml(parsedXml: any[], path: string, value: string, createIfNotFound = true): void {
     // Parse the path parts, handling the special curly brace syntax for properties with dots
