@@ -229,6 +229,9 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             if (inputValue === "<br>") {
                 setInputValue("");
             }
+            if (inputValue === "") {
+                setIsMentionMode(false);
+            }
         },
         [inputValue]
     );
@@ -479,7 +482,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                 line-height: 1;
                 font-family: 'Source Code Pro', monospace;
                 margin-right: 2px;
-            " contentEditable="false">${encodedSuggestion}</div> `;
+            " contentEditable="false">${encodedSuggestion}</div>`;
 
             setInputValue(textBeforeAt + textAfterAt.replace(replaceSubstring, highlightedBadge));
 
@@ -489,7 +492,6 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             setCommandMode((currentValue) => {
                 return currentValue + 1;
             });
-            // console.log("Input Value Setted as: " + textBeforeAt + textAfterAt.replace(replaceSubstring, highlightedBadge))
             return;
         }
 
@@ -610,9 +612,6 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             shouldLogCursorAfterUpdate.current = false;
             const cleaned = decodeHTML(inputValue);
             const atPosition = cleaned.indexOf("@");
-            console.log(inputValue);
-            console.log(cleaned);
-            console.log(atPosition);
             if (atPosition !== -1) {
                 inputRef.current?.setCursorToPosition(inputRef.current.ref.current, atPosition + 1);
                 handleAtMentions(cleaned);

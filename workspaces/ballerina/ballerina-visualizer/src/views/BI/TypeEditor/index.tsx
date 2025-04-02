@@ -13,7 +13,7 @@ import { LineRange, Type } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { TypeEditor, TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
 import { TYPE_HELPER_OPERATORS } from './constants';
-import { filterOperators, filterTypes, getTypeBrowserTypes, getTypes } from './utils';
+import { filterOperators, filterTypes, getImportedTypes, getTypeBrowserTypes, getTypes } from './utils';
 
 type FormTypeEditorProps = {
     type?: Type;
@@ -33,6 +33,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
     const [loadingTypeBrowser, setLoadingTypeBrowser] = useState<boolean>(false);
 
     const [basicTypes, setBasicTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
+    const [importedTypes, setImportedTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
     const [filteredBasicTypes, setFilteredBasicTypes] = useState<TypeHelperCategory[]>([]);
     const [filteredOperators, setFilteredOperators] = useState<TypeHelperOperator[]>([]);
     const [filteredTypeBrowserTypes, setFilteredTypeBrowserTypes] = useState<TypeHelperCategory[]>([]);
@@ -73,18 +74,58 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                         .then((types) => {
                             setBasicTypes(getTypes(types));
                             setFilteredBasicTypes(getTypes(types));
+
+                            /* Get imported types */
+                            rpcClient
+                                .getBIDiagramRpcClient()
+                                .search({
+                                    filePath: filePath,
+                                    position: targetLineRange,
+                                    queryMap: {
+                                        q: '',
+                                        offset: 0,
+                                        limit: 60
+                                    },
+                                    searchKind: 'TYPE'
+                                })
+                                .then((response) => {
+                                    const importedTypes = getImportedTypes(response.categories);
+                                    setImportedTypes(importedTypes);
+                                })
+                                .finally(() => {
+                                    setLoading(false);
+                                });
                         })
-                        .finally(() => {
+                        .catch((error) => {
+                            console.error(error);
                             setLoading(false);
                         });
                 }
             } else if (isType) {
                 setFilteredBasicTypes(filterTypes(basicTypes, searchText));
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        filePath: filePath,
+                        position: targetLineRange,
+                        queryMap: {
+                            q: searchText,
+                            offset: 0,
+                            limit: 60
+                        },
+                        searchKind: 'TYPE'
+                    })
+                    .then((response) => {
+                        const importedTypes = getImportedTypes(response.categories);
+                        setImportedTypes(importedTypes);
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
             } else {
                 setFilteredOperators(filterOperators(TYPE_HELPER_OPERATORS, searchText));
+                setLoading(false);
             }
-
-            setLoading(false);
         }, 150),
         [basicTypes, filePath, targetLineRange]
     );
@@ -155,6 +196,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                         loading,
                         loadingTypeBrowser,
                         basicTypes: filteredBasicTypes,
+                        importedTypes,
                         operators: filteredOperators,
                         typeBrowserTypes: filteredTypeBrowserTypes,
                         onSearchTypeHelper: handleSearchTypeHelper,

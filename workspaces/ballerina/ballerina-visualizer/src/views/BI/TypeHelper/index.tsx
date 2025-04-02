@@ -21,7 +21,7 @@ import {
     TypeHelperOperator
 } from '@wso2-enterprise/type-editor';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { filterOperators, filterTypes, getTypeBrowserTypes, getTypes } from '../TypeEditor/utils';
+import { filterOperators, filterTypes, getImportedTypes, getTypeBrowserTypes, getTypes } from '../TypeEditor/utils';
 import { TYPE_HELPER_OPERATORS } from '../TypeEditor/constants';
 
 type TypeHelperProps = {
@@ -55,6 +55,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
     const [loadingTypeBrowser, setLoadingTypeBrowser] = useState<boolean>(false);
 
     const [basicTypes, setBasicTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
+    const [importedTypes, setImportedTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
     const [filteredBasicTypes, setFilteredBasicTypes] = useState<TypeHelperCategory[]>([]);
     const [filteredOperators, setFilteredOperators] = useState<TypeHelperOperator[]>([]);
     const [filteredTypeBrowserTypes, setFilteredTypeBrowserTypes] = useState<TypeHelperCategory[]>([]);
@@ -71,23 +72,64 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                                 line: targetLineRange.startLine.line,
                                 offset: targetLineRange.startLine.offset
                             },
-                            typeConstraint: "anydata"
+                            typeConstraint: 'anydata'
                         })
                         .then((types) => {
-                            setBasicTypes(getTypes(types));
-                            setFilteredBasicTypes(getTypes(types));
+                            const basicTypes = getTypes(types);
+                            setBasicTypes(basicTypes);
+                            setFilteredBasicTypes(basicTypes);
+
+                            /* Get imported types */
+                            rpcClient
+                                .getBIDiagramRpcClient()
+                                .search({
+                                    filePath: filePath,
+                                    position: targetLineRange,
+                                    queryMap: {
+                                        q: '',
+                                        offset: 0,
+                                        limit: 60
+                                    },
+                                    searchKind: 'TYPE'
+                                })
+                                .then((response) => {
+                                    const importedTypes = getImportedTypes(response.categories);
+                                    setImportedTypes(importedTypes);
+                                })
+                                .finally(() => {
+                                    setLoading(false);
+                                });
                         })
-                        .finally(() => {
+                        .catch((error) => {
+                            console.error(error);
                             setLoading(false);
                         });
                 }
             } else if (isType) {
                 setFilteredBasicTypes(filterTypes(basicTypes, searchText));
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        filePath: filePath,
+                        position: targetLineRange,
+                        queryMap: {
+                            q: searchText,
+                            offset: 0,
+                            limit: 60
+                        },
+                        searchKind: 'TYPE'
+                    })
+                    .then((response) => {
+                        const importedTypes = getImportedTypes(response.categories);
+                        setImportedTypes(importedTypes);
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
             } else {
                 setFilteredOperators(filterOperators(TYPE_HELPER_OPERATORS, searchText));
+                setLoading(false);
             }
-
-            setLoading(false);
         }, 150),
         [basicTypes, filePath, targetLineRange]
     );
@@ -157,6 +199,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
             loading={loading}
             loadingTypeBrowser={loadingTypeBrowser}
             basicTypes={filteredBasicTypes}
+            importedTypes={importedTypes}
             operators={filteredOperators}
             typeBrowserTypes={filteredTypeBrowserTypes}
             typeBrowserRef={typeBrowserRef}

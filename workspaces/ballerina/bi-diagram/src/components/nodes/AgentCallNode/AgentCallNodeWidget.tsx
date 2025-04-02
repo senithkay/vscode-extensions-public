@@ -812,15 +812,15 @@ function sanitizeAgentData(data: AgentData) {
 // this should replace with CDN icons
 function getLlmModelIcons(modelType: string) {
     switch (modelType) {
-        case "OpenAiModel":
+        case "OpenAiProvider":
             return <OpenAiIcon />;
-        case "AzureOpenAiModel":
+        case "AzureOpenAiProvider":
             return <AzureOpenAiIcon />;
-        case "AnthropicModel":
+        case "AnthropicProvider":
             return <AnthropicIcon />;
-        case "OllamaModel":
+        case "OllamaProvider":
             return <OllamaIcon />;
-        case "MistralAiModel":
+        case "MistralAiProvider":
             return <MistralAIIcon />;
         default:
             return <DefaultLlmIcon />;
