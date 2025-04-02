@@ -55,8 +55,15 @@ export function ChoiceForm(props: ChoiceFormProps) {
     useEffect(() => {
         const realValue = selectedOption - 1;
         const property = field.choices[realValue];
-        setDynamicFields(convertConfig(property));
-        setValue(field.key, realValue);
+        const choiceProperty = convertConfig(property);
+        setDynamicFields(choiceProperty);
+        if (choiceProperty.length > 0) {
+            Object.entries(property.properties).forEach(([propKey, propValue]) => {
+                if (propValue.value !== undefined) {
+                    setValue(propKey, propValue.value);
+                }
+            });
+        }
     }, [selectedOption]);
 
     const convertConfig = (model: PropertyModel): FormField[] => {

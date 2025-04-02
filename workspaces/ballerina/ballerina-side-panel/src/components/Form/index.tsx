@@ -44,7 +44,7 @@ const stripHtmlTags = (content: string): string => {
 };
 
 namespace S {
-    export const Container = styled(SidePanelBody)<{ nestedForm?: boolean; compact?: boolean }>`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean; compact?: boolean }>`
         display: flex;
         flex-direction: column;
         gap: ${({ compact }) => (compact ? "8px" : "20px")};
@@ -389,6 +389,25 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     if (existingType !== newType) {
                         setValue(field.key, newType);
                         mergeFormDataWithFlowNode && getVisualiableFields();
+                    }
+                }
+
+                // Handle choice fields and their properties
+                if (field?.choices && field.choices.length > 0) {
+                    // Get the selected choice index (default to 0 if not set)
+                    const selectedChoiceIndex = formValues[field.key] !== undefined ?
+                        Number(formValues[field.key]) : 0;
+
+                    const selectedChoice = field.choices[selectedChoiceIndex];
+
+                    if (selectedChoice && selectedChoice?.properties) {
+                        Object.entries(selectedChoice.properties).forEach(([propKey, propValue]) => {
+                            if (propValue?.value !== undefined) {
+                                defaultValues[propKey] = propValue.value;
+                            }
+
+                            diagnosticsMap.push({ key: propKey, diagnostics: [] });
+                        });
                     }
                 }
 
