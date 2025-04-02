@@ -25,7 +25,7 @@ import { DataService } from '../components/ArtifactTest/DataService';
 
 export default function createTests() {
   test.describe('Artifact Tests', async () => {
-    initTest(false);
+    initTest();
 
     let automation: Automation;
     test('Automation tests', async () => {
