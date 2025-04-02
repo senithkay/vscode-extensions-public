@@ -12,7 +12,6 @@ import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
 import { Overview } from "../Overview";
-import { t } from "xstate";
 
 export class Proxy {
 
