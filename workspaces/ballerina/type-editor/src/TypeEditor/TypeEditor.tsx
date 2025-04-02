@@ -22,6 +22,7 @@ import { AdvancedOptions } from "./AdvancedOptions";
 import { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from "../TypeHelper";
 import { TypeHelperContext } from "../Context";
 import { isValidBallerinaIdentifier } from "./TypeUtil";
+import { ArrayEditor } from "./ArrayEditor";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -129,7 +130,8 @@ enum TypeKind {
     RECORD = "Record",
     ENUM = "Enum",
     CLASS = "Service Class",
-    UNION = "Union"
+    UNION = "Union",
+    ARRAY = "Array"
 }
 
 const undoRedoManager = new UndoRedoManager();
@@ -153,6 +155,8 @@ export function TypeEditor(props: TypeEditorProps) {
                     return TypeKind.CLASS;
                 case "UNION":
                     return TypeKind.UNION;
+                case "ARRAY":
+                    return TypeKind.ARRAY;
                 default:
                     return TypeKind.RECORD;
             }
@@ -212,6 +216,9 @@ export function TypeEditor(props: TypeEditorProps) {
                     break;
                 case "UNION":
                     setSelectedTypeKind(TypeKind.UNION);
+                    break;
+                case "ARRAY":
+                    setSelectedTypeKind(TypeKind.ARRAY);
                     break;
                 default:
                     setSelectedTypeKind(TypeKind.RECORD);
@@ -365,6 +372,13 @@ export function TypeEditor(props: TypeEditorProps) {
                     <ClassEditor
                         type={type}
                         isGraphql={isGraphql}
+                        onChange={setType}
+                    />
+                );
+            case TypeKind.ARRAY:
+                return (
+                    <ArrayEditor
+                        type={type}
                         onChange={setType}
                     />
                 );
