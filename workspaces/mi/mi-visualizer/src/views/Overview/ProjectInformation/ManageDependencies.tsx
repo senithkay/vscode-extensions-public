@@ -128,7 +128,7 @@ export function ManageDependencies(props: ManageDependenciesProps) {
 
         const dependenciesToUpdate = [...updatedDependencies, ...addedDependencies];
         if (dependenciesToUpdate.length > 0) {
-            await rpcClient.getMiVisualizerRpcClient().updateDependencies({
+            await rpcClient.getMiVisualizerRpcClient().updateDependenciesFromOverview({
                 dependencies: dependenciesToUpdate
             });
         }
