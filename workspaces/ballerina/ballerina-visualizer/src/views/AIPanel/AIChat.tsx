@@ -28,7 +28,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import styled from "@emotion/styled";
-import AIChatInput from "./Components/AIChatInput";
+import AIChatInput from "./Components/AIChatInputComponents/AIChatInput";
 import ProgressTextSegment, { Spinner } from "./Components/ProgressTextSegment";
 import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
