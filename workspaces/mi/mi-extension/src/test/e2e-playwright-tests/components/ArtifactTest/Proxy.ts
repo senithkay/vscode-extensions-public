@@ -44,6 +44,8 @@ export class Proxy {
     }
 
     public async edit() {
+        // Wait for the proxy to be created
+        await this._page.waitForTimeout(2000);
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', 'testProxy']);
