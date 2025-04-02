@@ -622,8 +622,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
         }
     };
 
-    const infoLabelTest = "###This is a test info label\n ```ballerina\n let a = 1; \n``` \n <h1>This is a test</h1> ##new line\n sample text";
-
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
@@ -632,7 +630,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 {infoLabel && (
                     <S.MarkdownWrapper>
                         <S.MarkdownContainer ref={markdownRef} isExpanded={isMarkdownExpanded}>
-                            <ReactMarkdown>{stripHtmlTags(infoLabelTest)}</ReactMarkdown>
+                            <ReactMarkdown>{stripHtmlTags(infoLabel)}</ReactMarkdown>
                         </S.MarkdownContainer>
                         {markdownRef.current && markdownRef.current.scrollHeight > 200 && (
                             <S.ButtonContainer>
