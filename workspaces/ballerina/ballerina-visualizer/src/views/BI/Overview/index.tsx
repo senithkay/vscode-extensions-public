@@ -177,9 +177,15 @@ const DeployButtonContainer = styled.div`
 
 const ReadmeHeaderContainer = styled.div`
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    justify-content: space-between;
+    gap: 8px;
+`;
+
+const ReadmeButtonContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 2px;
 `;
 
 const ReadmeContent = styled.div`
@@ -690,6 +696,13 @@ export function Overview(props: ComponentDiagramProps) {
         });
     };
 
+    const handleGenerateWithReadme = () => {
+        rpcClient.getBIDiagramRpcClient().openAIChat({
+            scafold: true,
+            readme: true,
+        });
+    };
+
     const handleEditReadme = () => {
         rpcClient.getBIDiagramRpcClient().openReadme();
     };
@@ -825,9 +838,16 @@ export function Overview(props: ComponentDiagramProps) {
             <FooterPanel>
                 <ReadmeHeaderContainer>
                     <Title variant="h2">README</Title>
-                    <Button appearance="icon" onClick={handleEditReadme} buttonSx={{ padding: "4px 8px" }}>
-                        <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
-                    </Button>
+                    <ReadmeButtonContainer>
+                        {readmeContent && isEmptyProject() && (
+                            <Button appearance="icon" onClick={handleGenerateWithReadme} buttonSx={{ padding: "4px 8px" }}>
+                                <Codicon name="wand" sx={{ marginRight: 4, fontSize: 16 }} /> Generate with Readme
+                            </Button>
+                        )}
+                        <Button appearance="icon" onClick={handleEditReadme} buttonSx={{ padding: "4px 8px" }}>
+                            <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
+                        </Button>
+                    </ReadmeButtonContainer>
                 </ReadmeHeaderContainer>
                 <ReadmeContent>
                     {readmeContent ? (

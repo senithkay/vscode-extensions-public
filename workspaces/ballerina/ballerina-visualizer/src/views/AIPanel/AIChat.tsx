@@ -299,6 +299,8 @@ export function AIChat() {
 
                         if (initPrompt.exists) {
                             setUserInput(template ? command + " " + template : command);
+                        } else {
+                            setUserInput("/generate ")
                         }
                     });
                 rpcClient
@@ -864,8 +866,10 @@ export function AIChat() {
             fileName: file.name,
             content: file.content
         }))
+        
         requestBody.fileAttachmentContents = fileAttatchments;
         lastAttatchmentsRef.current = fileAttatchments;
+
         const response = await fetchWithToken(
             backendRootUri + "/code",
             {
