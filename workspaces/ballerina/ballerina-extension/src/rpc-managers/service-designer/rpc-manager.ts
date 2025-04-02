@@ -234,7 +234,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     // This is a hack to inject the AI agent code into the chat service function
     // This has to be replaced once we have a proper design for AI Agent Chat Service
     async injectAIAgent(service: ServiceModel, result: SourceUpdateResponse): Promise<SourceUpdateResponse> {
-        // We will only inject if the typpe is ai and serviceType is ChatService
+        // We will only inject if the type is `ai` and serviceType is `ChatService`
         if (service.type === "ai") {
             // Inject the import if missing
             const importStatement = `import ballerinax/ai`;
