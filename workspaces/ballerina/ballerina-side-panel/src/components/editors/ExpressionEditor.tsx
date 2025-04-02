@@ -221,17 +221,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     const handleFocus = async () => {
         setFocused(true);
 
-        // Retrive completions
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-        cursorPositionRef.current = cursorPosition;
-        const triggerCharacter =
-            cursorPosition > 0 ? triggerCharacters.find((char) => fieldValue[cursorPosition - 1] === char) : undefined;
-        if (triggerCharacter) {
-            await retrieveCompletions(fieldValue, getPropertyFromFormField(field), cursorPosition, triggerCharacter);
-        } else {
-            await retrieveCompletions(fieldValue, getPropertyFromFormField(field), cursorPosition);
-        }
-
         // Trigger actions on focus
         await onFocus?.();
         handleOnFieldFocus?.(field.key);

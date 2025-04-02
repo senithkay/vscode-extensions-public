@@ -11,6 +11,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmdirSync, unlinkSync
 import * as os from "os";
 import * as path from "path";
 import { dirname } from "path";
+import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import {
 	CommandIds,
 	type ContextItem,
@@ -23,7 +24,6 @@ import {
 import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
-import { getGitRemotes, getGitRoot } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";

@@ -6,7 +6,7 @@
 import * as path from "path";
 import { type Disposable, type InputBoxOptions, type QuickPickOptions, Uri, l10n, window, workspace } from "vscode";
 import type { Credentials, CredentialsProvider } from "./api/git";
-import type { IIPCHandler, IIPCServer } from "./ipc/ipcServer";
+import type { IIPCHandler, IIPCServer } from "./ipcServer";
 import type { ITerminalEnvironmentProvider } from "./terminal";
 import { EmptyDisposable, type IDisposable, toDisposable } from "./util";
 

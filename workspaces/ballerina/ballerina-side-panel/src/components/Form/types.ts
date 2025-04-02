@@ -96,8 +96,7 @@ type FormCompletionConditionalProps = {
         value: string,
         property: ExpressionProperty,
         offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
+        triggerCharacter?: string
     ) => Promise<void>;
     extractArgsFromFunction?: (
         value: string,

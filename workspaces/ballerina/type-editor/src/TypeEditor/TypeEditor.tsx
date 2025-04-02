@@ -198,6 +198,32 @@ export function TypeEditor(props: TypeEditorProps) {
     const [tempName, setTempName] = useState("");
     const { rpcClient } = useRpcContext();
 
+     useEffect(() => {
+        if (props.type) {
+            setType(props.type);
+            
+            const nodeKind = props.type.codedata.node;
+            switch (nodeKind) {
+                case "RECORD":
+                    setSelectedTypeKind(TypeKind.RECORD);
+                    break;
+                case "ENUM":
+                    setSelectedTypeKind(TypeKind.ENUM);
+                    break;
+                case "CLASS":
+                    setSelectedTypeKind(TypeKind.CLASS);
+                    break;
+                case "UNION":
+                    setSelectedTypeKind(TypeKind.UNION);
+                    break;
+                default:
+                    setSelectedTypeKind(TypeKind.RECORD);
+            }
+        }
+        
+        setIsNewType(props.newType);
+    }, [props.type, props.newType]);
+
     useEffect(() => {
         if (type && isNewType) {
             // Add a small delay to ensure the input is mounted
@@ -291,8 +317,6 @@ export function TypeEditor(props: TypeEditorProps) {
         }
         props.onTypeChange(type);
     }
-
-    console.log("===Type Model===", type);
 
     const handleTypeImport = (types: Type[], isXml: boolean = false) => {
         const importType = types[0];

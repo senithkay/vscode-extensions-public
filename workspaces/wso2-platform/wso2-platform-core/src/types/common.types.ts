@@ -9,6 +9,10 @@
 
 import type { ChoreoComponentType, DeploymentStatus, DevantScopes } from "../enums";
 
+export interface IWso2PlatformExtensionAPI {
+	isLoggedIn(): boolean;
+	getComponents(fsPath: string): ComponentKind[];
+}
 export interface Organization {
 	id: number;
 	uuid: string;

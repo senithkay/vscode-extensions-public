@@ -10,7 +10,7 @@ import React, { useRef, useState, useEffect } from "react";
 
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { TypeField } from "@wso2-enterprise/ballerina-core";
-import { Dropdown, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Dropdown, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../../ParameterBranch";
 import { useHelperPaneStyles } from "../../styles";
@@ -47,7 +47,7 @@ export default function UnionType(props: TypeProps) {
         const unionFieldName = getUnionParamName(unionField);
         param.members.forEach((field) => {
             field.selected = getUnionParamName(field) === unionFieldName;
-            
+
             // If this is the selected field and it has nested fields, update them
             if (field.selected && field.fields && field.fields.length > 0) {
                 // Set required fields to selected
@@ -64,12 +64,12 @@ export default function UnionType(props: TypeProps) {
         updateFormFieldMemberSelection(selectedMember);
         setSelectedMemberType(type);
         setParameter(selectedMember);
-        
+
         // If the parent is selected and the selected member has fields, ensure required fields are selected
         if (param.selected && selectedMember && selectedMember.fields && selectedMember.fields.length > 0) {
             updateFieldsSelection(selectedMember.fields, true);
         }
-        
+
         onChange();
     };
 
@@ -130,6 +130,25 @@ export default function UnionType(props: TypeProps) {
                             {"(Optional)"}
                         </Typography>
                     )}
+                    {param.documentation && (
+                        <Tooltip
+                            content={
+                                <Typography
+                                    className={helperStyleClass.paramTreeDescriptionText}
+                                    variant="body3"
+                                >
+                                    {param.documentation}
+                                </Typography>
+                            }
+                            position="right"
+                            sx={{ maxWidth: '300px', whiteSpace: 'normal', pointerEvents: 'none' }}
+                        >
+                            <Codicon
+                                name="info"
+                                sx={{ marginLeft: '4px' }}
+                            />
+                        </Tooltip>
+                    )}
                     <div className={helperStyleClass.listDropdownWrapper} data-testid="arg-dropdown">
                         <Dropdown
                             onValueChange={handleMemberType}
@@ -141,17 +160,6 @@ export default function UnionType(props: TypeProps) {
                         />
                     </div>
                 </div>
-                {param.documentation && (
-                    <div className={helperStyleClass.documentationWrapper}>
-                        <Typography
-                            className={helperStyleClass.docParamDescriptionText}
-                            variant="body3"
-                            data-testid="arg-documentation"
-                        >
-                            {param.documentation}
-                        </Typography>
-                    </div>
-                )}
                 {paramSelected && parameter && (
                     <div className={helperStyleClass.listItemBody}>
                         <ParameterBranch parameters={[parameter]} depth={depth + 1} onChange={onChange} />

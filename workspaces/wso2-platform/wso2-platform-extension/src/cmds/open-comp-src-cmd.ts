@@ -8,12 +8,13 @@
  */
 
 import { ChoreoBuildPackNames, CommandIds, type Organization, type Project } from "@wso2-enterprise/wso2-platform-core";
-import { type ExtensionContext, commands, window } from "vscode";
+import { type ExtensionContext, ProgressLocation, commands, window } from "vscode";
+import { ext } from "../extensionVariables";
 import { waitForContextStoreToLoad } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
+import { webviewStateStore } from "../stores/webview-state-store";
 import { cloneOrOpenDir } from "../uri-handlers";
 import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
-import { webviewStateStore } from "../stores/webview-state-store";
 
 export function openCompSrcCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -28,37 +29,48 @@ export function openCompSrcCommand(context: ExtensionContext) {
 				integrationDisplayType: string;
 			}) => {
 				try {
+					if (
+						params?.technology === ChoreoBuildPackNames.Ballerina ||
+						params?.technology === ChoreoBuildPackNames.MicroIntegrator ||
+						params?.technology === "mi"
+					) {
+						webviewStateStore.getState().setExtensionName("Devant");
+					}
 					const userInfo = await getUserInfoForCmd("clone project repository");
 					if (userInfo) {
-						if (params?.technology === ChoreoBuildPackNames.Ballerina || params?.technology === ChoreoBuildPackNames.MicroIntegrator) {
-							webviewStateStore.getState().setExtensionName("Devant");
-						}
 						let selectedOrg: Organization;
 						if (typeof params?.org === "string") {
 							selectedOrg =
-								userInfo.organizations.find((item) => item.handle === params.org || item.name === params.org) ??
+								userInfo.organizations.find((item) => item.handle === params?.org || item.name === params?.org) ??
 								(await selectOrg(userInfo, "Select organization"));
-						} else if (params.org) {
+						} else if (params?.org) {
 							selectedOrg = params?.org;
 						} else {
 							selectedOrg = await selectOrg(userInfo, "Select organization");
 						}
 
-						let selectedProject: Project;
+						let selectedProject: Project | undefined;
 						if (typeof params?.project === "string") {
-							selectedProject =
-								dataCacheStore
-									.getState()
-									.getProjects(selectedOrg.handle)
-									.find((item) => item.handler === params?.project || item.name === params?.project || item.id === params?.component) ||
-								(await selectProject(
-									selectedOrg,
-									`Loading projects from '${selectedOrg.name}'`,
-									`Select the project from '${selectedOrg.name}', that needs to be cloned`,
-								));
-						} else if (params.project) {
+							const projectsCache = dataCacheStore.getState().getProjects(selectedOrg.handle);
+							selectedProject = projectsCache.find(
+								(item) => item.handler === params?.project || item.name === params?.project || item.id === params?.component,
+							);
+
+							if (!selectedProject) {
+								const projects = await window.withProgress(
+									{ title: `Fetching projects of organization ${selectedOrg.name}...`, location: ProgressLocation.Notification },
+									() => ext.clients.rpcClient.getProjects(selectedOrg.id.toString()),
+								);
+								dataCacheStore.getState().setProjects(selectedOrg.handle, projects);
+								selectedProject = projects.find(
+									(item) => item.handler === params?.project || item.name === params?.project || item.id === params?.component,
+								);
+							}
+						} else if (params?.project) {
 							selectedProject = params?.project;
-						} else {
+						}
+
+						if (!selectedProject) {
 							selectedProject = await selectProject(
 								selectedOrg,
 								`Loading projects from '${selectedOrg.name}'`,
