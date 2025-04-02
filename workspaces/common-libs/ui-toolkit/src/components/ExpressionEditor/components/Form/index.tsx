@@ -80,6 +80,7 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
         startAdornment,
         endAdornment,
         expressionEditorIconName = 'function-icon',
+        enableExIcon = true,
         ...rest
     } = props;
     const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
@@ -118,33 +119,34 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
                     />
                     {endAdornment}
                 </Ex.ExpressionBox>
-                {getExpressionEditorIcon
-                    ? getExpressionEditorIcon()
-                    : props.changeHelperPaneState && (
-                        <Button
-                            ref={buttonRef}
-                            appearance="icon"
-                            onClick={handleHelperPaneToggle}
-                            tooltip="Open Helper View"
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                width: "26px",
-                                height: "26px",
-                                ...(props.isHelperPaneOpen && State.Selected.Button),
-                            }}
-                            buttonSx={{ width: "26px", height: "26px" }}
-                        >
-                            <Icon
-                                name={expressionEditorIconName}
-                                sx={{ height: "20px", width: "18px" }}
-                                iconSx={{
-                                    fontSize: "16px",
-                                    ...(props.isHelperPaneOpen && State.Selected.Icon),
+                {enableExIcon && (
+                    getExpressionEditorIcon
+                        ? getExpressionEditorIcon()
+                        : props.changeHelperPaneState && (
+                            <Button
+                                ref={buttonRef}
+                                appearance="icon"
+                                onClick={handleHelperPaneToggle}
+                                tooltip="Open Helper View"
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    width: "26px",
+                                    height: "26px",
+                                    ...(props.isHelperPaneOpen && State.Selected.Button),
                                 }}
-                            />
-                        </Button>
-                    )}
+                                buttonSx={{ width: "26px", height: "26px" }}
+                            >
+                                <Icon
+                                    name={expressionEditorIconName}
+                                    sx={{ height: "20px", width: "18px" }}
+                                    iconSx={{
+                                        fontSize: "16px",
+                                        ...(props.isHelperPaneOpen && State.Selected.Icon),
+                                    }}
+                                />
+                            </Button>
+                        ))}
                 {onRemove && (
                     <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
                         <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
