@@ -216,6 +216,9 @@ export function TypeEditor(props: TypeEditorProps) {
                 case "UNION":
                     setSelectedTypeKind(TypeKind.UNION);
                     break;
+                case "ARRAY":
+                    setSelectedTypeKind(TypeKind.ARRAY);
+                    break;
                 default:
                     setSelectedTypeKind(TypeKind.RECORD);
             }
