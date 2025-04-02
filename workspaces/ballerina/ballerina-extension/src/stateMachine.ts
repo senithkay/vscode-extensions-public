@@ -42,9 +42,15 @@ const stateMachine = createMachine<MachineContext>(
                 target: "extensionReady",
             },
             UPDATE_PROJECT_STRUCTURE: {
-                actions: assign({
-                    projectStructure: (context, event) => event.payload
-                })
+                actions: [
+                    assign({
+                        projectStructure: (context, event) => event.payload
+                    }),
+                    (context, event) => {
+                        notifyCurrentWebview();
+                        commands.executeCommand("BI.project-explorer.refresh");
+                    }
+                ]
             }
         },
         states: {

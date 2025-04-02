@@ -202,12 +202,14 @@ import {
     OpenAPIClientDeleteResponse,
     OpenAPIClientDeleteRequest,
     ProjectArtifactsRequest,
-    ProjectArtifacts
+    ProjectArtifacts,
+    Artifacts
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../features/telemetry";
 import { DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
+import { updateProjectArtifacts } from "../utils/project-artifacts";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -430,8 +432,9 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     registerPublishArtifacts(): void {
-        this.onNotification(EXTENDED_APIS.PUBLISH_ARTIFACTS, (res: ProjectArtifacts) => {
+        this.onNotification(EXTENDED_APIS.PUBLISH_ARTIFACTS, (res: Artifacts) => {
             console.log("Publish Artifacts", res);
+            updateProjectArtifacts(res);
         });
     }
 

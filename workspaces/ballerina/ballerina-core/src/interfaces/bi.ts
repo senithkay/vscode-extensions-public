@@ -227,6 +227,7 @@ export interface ProjectStructureResponse {
 }
 
 export interface ProjectStructureArtifactResponse {
+    id: string;
     name: string;
     path: string;
     type: string;

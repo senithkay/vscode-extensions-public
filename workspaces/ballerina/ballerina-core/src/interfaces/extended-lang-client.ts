@@ -1430,15 +1430,27 @@ export interface BaseArtifact<T = any> {
     value?: T; // Generic value property to hold different types
 }
 
+// Artifact Types
+export enum ARTIFACT_TYPE {
+    Functions = "Functions",
+    Connections = "Connections",
+    Listeners = "Listeners",
+    EntryPoints = "Entry Points",
+    Types = "Types",
+    NaturalFunctions = "Natural Functions",
+    DataMappers = "Data Mappers",
+    Configurations = "Configurations"
+}
+
 export interface Artifacts {
-    Functions: Record<string, BaseArtifact>;
-    Connections: Record<string, BaseArtifact>;
-    Listeners: Record<string, BaseArtifact>;
-    "Entry Points": Record<string, BaseArtifact>;
-    Types: Record<string, BaseArtifact>;
-    "Natural Functions": Record<string, BaseArtifact>;
-    "Data Mappers": Record<string, BaseArtifact>;
-    Configurations: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.Functions]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.Connections]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.Listeners]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.EntryPoints]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.Types]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.NaturalFunctions]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.DataMappers]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.Configurations]: Record<string, BaseArtifact>;
 }
 
 export interface ProjectArtifactsRequest {
