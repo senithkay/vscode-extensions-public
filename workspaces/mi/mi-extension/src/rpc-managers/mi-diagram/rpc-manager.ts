@@ -271,7 +271,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
-import { DiagramService, APIResource, NamedSequence, UnitTest } from "../../../../syntax-tree/lib/src";
+import { DiagramService, APIResource, NamedSequence, UnitTest, Proxy } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
@@ -325,19 +325,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
         return new Promise((resolve) => {
-            const documentUri = StateMachine.context().documentUri!;
-            const nameWithExtension = path.basename(documentUri, path.extname(documentUri));
-            const name = nameWithExtension.split(".")[0];
-            const { type, key } = this.getResourceInfoToSavePayload(params.model);
-            const content = {
-                type: type
-            }
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.model);
+            let content;
             if (type == "API") {
-                content[key] = { "requests": params.payload };
-                content[key]["defaultRequest"] = params.defaultPayload;
+                content = this.readInputPayloadFile(name) ?? { type };
+                content[key] = { requests: params.payload };
+                content[key].defaultRequest = params.defaultPayload;
             } else {
-                content["requests"] = params.payload;
-                content["defaultRequest"] = params.defaultPayload;
+                content = { type };
+                content.requests = params.payload;
+                content.defaultRequest = params.defaultPayload;
             }
             const projectUri = StateMachine.context().projectUri!;
             const tryout = path.join(projectUri, ".tryout");
@@ -350,13 +347,21 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     getResourceInfoToSavePayload(model: DiagramService) {
-        if ("uriTemplate" in model || "urlMapping" in model) {
+        if (model.tag === 'resource') {
             return {
+                name: (model as APIResource).api,
                 type: "API",
                 key: (model as APIResource).uriTemplate ?? (model as APIResource).urlMapping
             }
+        } else if (model.tag === 'proxy') {
+            return {
+                name: (model as Proxy).name,
+                type: "PROXY",
+                key: (model as Proxy).name
+            }
         } else {
             return {
+                name: (model as NamedSequence).name,
                 type: "SEQUENCE",
                 key: (model as NamedSequence).name
             }
@@ -365,28 +370,32 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return new Promise((resolve) => {
-            const documentUri = params.documentUri;
-            const nameWithExtension = path.basename(documentUri, path.extname(documentUri));
-            const name = nameWithExtension.split(".")[0];
-            const { type, key } = this.getResourceInfoToSavePayload(params.model);
-            const projectUri = StateMachine.context().projectUri!;
-            const tryout = path.join(projectUri, ".tryout", name + ".json");
-            if (fs.existsSync(tryout)) {
-                const allPayloads = JSON.parse(fs.readFileSync(tryout, "utf8"));
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.model);
+            const allPayloads = this.readInputPayloadFile(name);
+            if (allPayloads) {
                 let defaultPayload;
                 let payloads;
                 if (type == "API") {
                     payloads = allPayloads[key]?.requests ?? [];
                     defaultPayload = allPayloads[key]?.defaultRequest ?? "";
                 } else {
-                    payloads =
-                        defaultPayload = allPayloads.defaultRequest;
+                    payloads = allPayloads.requests ?? [];
+                    defaultPayload = allPayloads.defaultRequest;
                 }
                 resolve({ payloads, defaultPayload });
             } else {
                 resolve({ payloads: [], defaultPayload: "" });
             }
         });
+    }
+
+    readInputPayloadFile(name: string) {
+        const projectUri = StateMachine.context().projectUri!;
+        const tryout = path.join(projectUri, ".tryout", name + ".json");
+        if (fs.existsSync(tryout)) {
+            return JSON.parse(fs.readFileSync(tryout, "utf8"));
+        }
+        return null;
     }
 
     async tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {

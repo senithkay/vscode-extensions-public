@@ -28,13 +28,14 @@ interface MediatorPageProps {
     model: DiagramService;
 }
 export function MediatorPage(props: MediatorPageProps) {
-    const { mediatorData, connectorData, mediatorType, documentUri, nodeRange, isUpdate, showForm } = props;
+    const { mediatorData, connectorData, mediatorType, documentUri, nodeRange, isUpdate, showForm, model } = props;
     const [activeTab, setActiveTab] = React.useState("form");
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { dirtyFields, errors } } = useForm<any>({
         defaultValues: {
         }
     });
     const canTryOut = (mediatorData || connectorData?.form)?.canTryOut;
+    const isTryoutSupported = (model.tag === 'resource' || model.tag === 'sequence'); // Allow tryout for APIs and sequences only
 
     const onChangeTab = (tabId: string) => {
         if (activeTab === tabId) {
@@ -99,7 +100,12 @@ export function MediatorPage(props: MediatorPageProps) {
                 </PanelContent>}
 
                 <PanelContent id={"tryout"}>
-                    {(!showForm || canTryOut) && <TryOutView
+                    {!isTryoutSupported && (
+                        <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <Icon name="warning" isCodicon /> Try-Out feature is not supported for this artifact type.
+                        </Typography>
+                    )}
+                    {isTryoutSupported && (!showForm || canTryOut) && <TryOutView
                         documentUri={documentUri}
                         nodeRange={nodeRange}
                         mediatorType={mediatorType}
@@ -107,9 +113,9 @@ export function MediatorPage(props: MediatorPageProps) {
                         isActive={activeTab === "tryout" || !showForm}
                         model={props.model}
                     />}
-                    {((mediatorData || connectorData) && !canTryOut) && (
+                    {isTryoutSupported && ((mediatorData || connectorData) && !canTryOut) && (
                         <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <Icon name="warning" isCodicon /> Please update your MI runtime to the latest version to use the tryout feature.
+                            <Icon name="warning" isCodicon /> Please update your MI runtime to the latest version to use the Try-Out feature.
                         </Typography>
                     )}
                 </PanelContent>

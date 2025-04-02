@@ -133,6 +133,18 @@ export function TryOutView(props: TryoutProps) {
                 isServerLess: false,
                 contentType: inputPayload?.contentType ?? 'text/plain',
                 inputPayload: inputPayload?.contentType == 'application/json' ? JSON.stringify(inputPayload?.content) : inputPayload?.content,
+                queryParams: inputPayload.queryParams && typeof inputPayload.queryParams === 'object'
+                    ? Object.keys(inputPayload.queryParams).map((key: string) => ({
+                        key: key,
+                        value: (inputPayload.queryParams as Record<string, any>)[key]
+                    }))
+                    : [],
+                pathParams: inputPayload.pathParams && typeof inputPayload.pathParams === 'object'
+                    ? Object.keys(inputPayload.pathParams).map((key: string) => ({
+                        key: key,
+                        value: (inputPayload.pathParams as Record<string, any>)[key]
+                    }))
+                    : [],
                 mediatorType: props.mediatorType,
                 edits: []
             });

@@ -1882,6 +1882,8 @@ export interface MediatorTryOutRequest {
     column: number;
     contentType?: string;
     inputPayload?: string;
+    queryParams?: Param[];
+    pathParams?: Param[];
     mediatorType?: string;
     mediatorInfo?: MediatorTryOutInfo,
     tryoutId?: string;
@@ -1890,6 +1892,11 @@ export interface MediatorTryOutRequest {
         text: string;
         range: Range;
     }[]
+}
+
+export interface Param {
+    key: string;
+    value: string;
 }
 
 export interface MediatorTryOutResponse {
@@ -1946,6 +1953,8 @@ export interface InputPayload {
     name: string;
     contentType: string;
     content: string;
+    queryParams: { [key: string]: string }[];
+    pathParams: { [key: string]: string }[];
 }
 
 export interface GetMediatorsRequest {

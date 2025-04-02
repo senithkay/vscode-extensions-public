@@ -717,6 +717,11 @@ export function FormGenerator(props: FormGeneratorProps) {
                         },
                         ...(validateType) && {
                             validate: (value) => {
+                                let validateType = element.value.validateType;
+                                if (typeof validateType === 'object' && 'conditionField' in validateType) {
+                                    const conditionFieldValue = getValues(validateType.conditionField);
+                                    validateType = validateType.mapping[conditionFieldValue];
+                                }
                                 if (validateType === 'number' && isNaN(value)) {
                                     return "Value should be a number";
                                 }
@@ -728,6 +733,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                                         JSON.parse(value);
                                     } catch (e) {
                                         return "Value should be a valid JSON";
+                                    }
+                                }
+                                if (validateType === 'xml' && typeof value !== 'object') {
+                                    const parser = new DOMParser();
+                                    const xmlDoc = parser.parseFromString(value, "application/xml");
+                                    if (xmlDoc.getElementsByTagName("parsererror").length) {
+                                        return "Value should be a valid XML";
                                     }
                                 }
                                 return true;

@@ -38,6 +38,8 @@ export function SetPayloads(props: SetPayloadsProps) {
     const [requests, setRequests] = React.useState<any[]>([]);
     const [defaultPayload, setDefaultPayload] = React.useState<string>();
     const [requestsNames, setRequestsNames] = React.useState<string[]>([]);
+    const [isAPI, setIsAPI] = React.useState(false);
+    const [supportPayload, setSupportPayload] = React.useState(false);
 
     useEffect(() => {
         rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri, model }).then((res) => {
@@ -45,13 +47,27 @@ export function SetPayloads(props: SetPayloadsProps) {
                 ? res.payloads.map(payload => ({
                     name: payload.name,
                     contentType: payload.contentType,
-                    content: payload.contentType == 'application/json' ? JSON.stringify(payload.content, null, 2) : payload.content
+                    content: payload.contentType == 'application/json' ? JSON.stringify(payload.content, null, 2) : payload.content,
+                    queryParams: payload.queryParams && typeof payload.queryParams === 'object'
+                        ? Object.keys(payload.queryParams).map((key: string) => ({
+                            queryParamName: key,
+                            queryParamValue: (payload.queryParams as Record<string, any>)[key]
+                        }))
+                        : [],
+                    pathParams: payload.pathParams && typeof payload.pathParams === 'object'
+                        ? Object.keys(payload.pathParams).map((key: string) => ({
+                            pathParamName: key,
+                            pathParamValue: (payload.pathParams as Record<string, any>)[key]
+                        }))
+                        : []
                 }))
                 : [{ name: "Default", content: JSON.stringify(res.payloads) }];
             setRequests(requests);
             setDefaultPayload(res.defaultPayload);
             setRequestsNames(requests.map((request) => request.name));
             setIsLoading(false);
+            setIsAPI(model.tag === 'resource');
+            setSupportPayload(supportsRequestBody('methods' in model ? model.methods as string[] : ["POST"]));
         });
     }, []);
 
@@ -67,12 +83,22 @@ export function SetPayloads(props: SetPayloadsProps) {
     }, [requests]);
 
     const onSavePayload = async () => {
-        const content = requests.map((request) => {
-            return {
-                name: request.name,
-                contentType: request.contentType,
-                content: request.contentType == 'application/json' ? JSON.parse(request.content) : request.content
-            };
+        const content = requests.map(({ name, contentType, content, queryParams, pathParams }) => {
+            const result: any = { name };
+
+            if (supportPayload) {
+                result.contentType = contentType;
+                result.content = contentType === 'application/json' ? JSON.parse(content) : content;
+            }
+            if (isAPI) {
+                result.queryParams = Array.isArray(queryParams)
+                    ? Object.fromEntries(queryParams.map(({ queryParamName, queryParamValue }) => [queryParamName, queryParamValue]))
+                    : {};
+                result.pathParams = Array.isArray(pathParams)
+                    ? Object.fromEntries(pathParams.map(({ pathParamName, pathParamValue }) => [pathParamName, pathParamValue]))
+                    : {};
+            }
+            return result;
         });
         await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: content, model: model, defaultPayload: defaultPayload });
         closeSidePanel();
@@ -80,6 +106,11 @@ export function SetPayloads(props: SetPayloadsProps) {
 
     const closeSidePanel = () => {
         clearSidePanelState(sidePanelContext);
+    }
+
+    const supportsRequestBody = (methods: string[]): boolean => {
+        const methodsWithBody = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+        return methods.some(method => methodsWithBody.has(method.toUpperCase()));
     }
 
     if (isLoading) {
@@ -108,6 +139,7 @@ export function SetPayloads(props: SetPayloadsProps) {
                     name: "contentType",
                     displayName: "Content Type",
                     inputType: "combo",
+                    hidden: !supportPayload,
                     required: true,
                     comboValues: ["application/json", "application/xml", "text/plain"],
                     defaultValue: "application/json",
@@ -121,10 +153,88 @@ export function SetPayloads(props: SetPayloadsProps) {
                     displayName: "Request body", 
                     inputType: "codeTextArea",
                     required: true,
-                    validateType: "json",
+                    hidden: !supportPayload,
+                    validateType: {
+                        conditionField: "contentType",
+                        mapping: {
+                            "application/json": "json",
+                            "application/xml": "xml",
+                            "text/plain": "text"
+                        }
+                    },
                     helpTip: "",
                 },
             },
+            {
+                type: "table",
+                value: {
+                    name: "queryParams",
+                    displayName: "Query Params",
+                    title: "Query Param Values",
+                    description: "Editing of the query params",
+                    tableKey: "queryParamName",
+                    tableValue: "queryParamValue",
+                    canAddNew: false,
+                    elements: [
+                        {
+                            type: "attribute",
+                            value: {
+                                name: "queryParamName",
+                                displayName: "Name",
+                                inputType: "string",
+                                required: false,
+                                helpTip: ""
+                            }
+                        },
+                        {
+                            type: "attribute",
+                            value: {
+                                name: "queryParamValue",
+                                displayName: "Value",
+                                inputType: "string",
+                                required: false,
+                                helpTip: ""
+                            }
+                        }
+                    ],
+                    hidden: !isAPI,
+                }
+            },
+            {
+                type: "table",
+                value: {
+                    name: "pathParams",
+                    displayName: "Path Params",
+                    title: "Path Param Values",
+                    description: "Editing of the path params",
+                    tableKey: "pathParamName",
+                    tableValue: "pathParamValue",
+                    canAddNew: false,
+                    elements: [
+                        {
+                            type: "attribute",
+                            value: {
+                                name: "pathParamName",
+                                displayName: "Name",
+                                inputType: "string",
+                                required: false,
+                                helpTip: ""
+                            }
+                        },
+                        {
+                            type: "attribute",
+                            value: {
+                                name: "pathParamValue",
+                                displayName: "Value",
+                                inputType: "string",
+                                required: false,
+                                helpTip: ""
+                            }
+                        }
+                    ],
+                    hidden: !isAPI,
+                }
+            }
         ],
         tableKey: 'name',
         tableValue: 'content',
