@@ -360,7 +360,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     ];
 
     const defaultValueText = field.defaultValue ? 
-        <>Defaults to <S.DefaultValue>{field.defaultValue}</S.DefaultValue></> : null;
+        <div>Defaults to <S.DefaultValue>{field.defaultValue}</S.DefaultValue></div> : null;
 
     const documentation = field.documentation 
         ? field.documentation.endsWith('.') 
