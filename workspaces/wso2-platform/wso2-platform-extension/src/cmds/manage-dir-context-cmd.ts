@@ -17,15 +17,16 @@ import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickI
 import { ext } from "../extensionVariables";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
+import { getUserInfoForCmd, isRpcActive, setExtensionName } from "./cmd-utils";
 import { removeContext } from "./create-directory-context-cmd";
-import { getUserInfoForCmd, setExtensionName } from "./cmd-utils";
 
 export function manageProjectContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.ManageDirectoryContext, async (params: IManageDirContextCmdParams) => {
-			setExtensionName(params?.extName)
+			setExtensionName(params?.extName);
 			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
+				isRpcActive(ext);
 				await getUserInfoForCmd("manage project");
 
 				const quickPickOptions: QuickPickItem[] = [];

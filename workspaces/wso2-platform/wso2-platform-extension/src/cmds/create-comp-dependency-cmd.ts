@@ -9,17 +9,19 @@
 
 import { CommandIds, ComponentViewDrawers, type ICreateDependencyParams, getComponentKey } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ViewColumn, commands, window } from "vscode";
+import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
-import { getUserInfoForCmd, setExtensionName } from "./cmd-utils";
+import { getUserInfoForCmd, isRpcActive, setExtensionName } from "./cmd-utils";
 import { getComponentStateOfPath } from "./view-comp-dependency-cmd";
 
 export function createComponentDependencyCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.CreateComponentDependency, async (params: ICreateDependencyParams) => {
-			setExtensionName(params?.extName)
+			setExtensionName(params?.extName);
 			try {
+				isRpcActive(ext);
 				const userInfo = await getUserInfoForCmd("create component dependency");
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;

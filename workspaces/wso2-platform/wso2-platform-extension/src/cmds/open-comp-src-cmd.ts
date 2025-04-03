@@ -14,13 +14,14 @@ import { waitForContextStoreToLoad } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { cloneOrOpenDir } from "../uri-handlers";
-import { getUserInfoForCmd, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
+import { getUserInfoForCmd, isRpcActive, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
 export function openCompSrcCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.OpenCompSrcDir, async (params: IOpenCompSrcCmdParams) => {
-			setExtensionName(params?.extName)
+			setExtensionName(params?.extName);
 			try {
+				isRpcActive(ext);
 				if (
 					params?.technology === ChoreoBuildPackNames.Ballerina ||
 					params?.technology === ChoreoBuildPackNames.MicroIntegrator ||
@@ -89,7 +90,7 @@ export function openCompSrcCommand(context: ExtensionContext) {
 						params?.technology || null,
 						params?.integrationType || null,
 						params?.integrationDisplayType || null,
-						params?.extName
+						params?.extName,
 					);
 				}
 			} catch (err: any) {

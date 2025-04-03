@@ -58,12 +58,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	initRPCServer()
 		.then(async () => {
 			await ext.clients.rpcClient.init();
-
 			authStore.getState().initAuth();
-
-			activateCmds(context);
-			activateURIHandlers();
-			activateCodeLenses(context);
 			continueCreateComponent();
 			getLogger().debug("WSO2 Platform Extension activated");
 		})
@@ -72,9 +67,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		});
 
 	// activateStatusBarItem();
-	commands.registerCommand(CommandIds.OpenWalkthrough, () => {
-		commands.executeCommand("workbench.action.openWalkthrough", "wso2.wso2-platform#choreo.getStarted", false);
-	});
+	activateCmds(context);
+	activateURIHandlers();
+	activateCodeLenses(context);
 	registerPreInitHandlers();
 	registerYamlLanguageServer();
 	return ext.api;

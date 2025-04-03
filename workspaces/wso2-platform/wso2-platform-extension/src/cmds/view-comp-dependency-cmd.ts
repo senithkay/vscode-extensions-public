@@ -21,13 +21,14 @@ import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
-import { getUserInfoForCmd, resolveQuickPick, setExtensionName } from "./cmd-utils";
+import { getUserInfoForCmd, isRpcActive, resolveQuickPick, setExtensionName } from "./cmd-utils";
 
 export function viewComponentDependencyCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.ViewDependency, async (params: IViewDependencyCmdParams) => {
-			setExtensionName(params?.extName)
+			setExtensionName(params?.extName);
 			try {
+				isRpcActive(ext);
 				const userInfo = await getUserInfoForCmd("view component dependency");
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;

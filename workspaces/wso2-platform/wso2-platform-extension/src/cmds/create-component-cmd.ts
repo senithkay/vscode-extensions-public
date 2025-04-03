@@ -36,7 +36,7 @@ import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, isSamePath, isSubpath, openDirectory } from "../utils";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView, type IComponentCreateFormParams } from "../webviews/ComponentFormView";
-import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew, setExtensionName } from "./cmd-utils";
+import { getUserInfoForCmd, isRpcActive, selectOrg, selectProjectWithCreateNew, setExtensionName } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
 
 let componentWizard: ComponentFormView;
@@ -44,8 +44,9 @@ let componentWizard: ComponentFormView;
 export function createNewComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentCmdParams) => {
-			setExtensionName(params?.extName)
+			setExtensionName(params?.extName);
 			try {
+				isRpcActive(ext);
 				let isIntegration = false;
 				if (params?.buildPackLang === ChoreoBuildPackNames.Ballerina || params?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
 					isIntegration = true;

@@ -7,9 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, ExtensionName, type ComponentKind, type Organization, type Project, type UserInfo } from "@wso2-enterprise/wso2-platform-core";
+import {
+	CommandIds,
+	type ComponentKind,
+	type ExtensionName,
+	type Organization,
+	type Project,
+	type UserInfo,
+} from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, type QuickPickItem, QuickPickItemKind, type WorkspaceFolder, commands, window, workspace } from "vscode";
-import { ext } from "../extensionVariables";
+import { type ExtensionVariables, ext } from "../extensionVariables";
 import { authStore, waitForLogin } from "../stores/auth-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
@@ -334,7 +341,13 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 };
 
 export const setExtensionName = (extName?: ExtensionName) => {
-	if(extName){
+	if (extName) {
 		webviewStateStore.getState().setExtensionName(extName);
 	}
-}
+};
+
+export const isRpcActive = (ext: ExtensionVariables) => {
+	if (!ext.clients.rpcClient.isActive()) {
+		throw new Error(`${webviewStateStore.getState().state.extensionName} extension is still hasn't been initialized...`);
+	}
+};

@@ -27,11 +27,6 @@
   "contributes": {
     "commands": [
       {
-        "command": "wso2.wso2-platform.getStarted",
-        "title": "Get Started",
-        "category": "WSO2"
-      },
-      {
         "command": "wso2.wso2-platform.sign.in",
         "title": "Sign In",
         "category": "WSO2",
