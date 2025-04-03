@@ -14,10 +14,16 @@ import { buildClientSchema, getIntrospectionQuery, GraphQLSchema } from "graphql
 import "graphiql/graphiql.css";
 import "./style.css";
 
-declare const vscode: vscode;
-interface vscode {
+
+declare const acquireVsCodeApi: () => {
     postMessage(message: any): void;
-}
+    getConfiguration(): {
+        get(key: string): string | undefined;
+    };
+};
+
+// Initialize vscode API safely
+const vscode = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : undefined;
 
 interface Request {
     url: string,
@@ -34,7 +40,7 @@ function fetcher(api: string, body: Object, headers: string | undefined): Promis
         body: JSON.stringify(body),
     }
 
-    vscode.postMessage({
+    vscode?.postMessage({
         command: 'graphqlRequest',
         req: request
     });
@@ -62,7 +68,14 @@ export const GraphqlView = (props: any) => {
     const [headers, setHeaders] = useState<string | undefined>(JSON.stringify({
         "Content-Type": "application/json",
     }));
-    let _graphiql;
+
+    // Get VSCode theme
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+    useEffect(() => {
+        // Set the theme from the vscode theme
+        setTheme(document.body.classList.contains('vscode-dark') ? 'dark' : 'light');
+    }, []);
 
     useEffect(() => {
         fetcher(serviceAPI, { query: getIntrospectionQuery() }, headers)
@@ -86,37 +99,23 @@ export const GraphqlView = (props: any) => {
                 onEdit={_handleEditQuery}
                 explorerIsOpen={showExplorer}
                 onToggleExplorer={_handleToggleExplorer}
+                defaultTheme={theme}
             />
             <GraphiQL
-                ref={ref => (_graphiql = ref!)}
                 fetcher={_fetcher}
+                schema={schema}
                 headers={headers}
                 query={query}
                 onEditQuery={_handleEditQuery}
                 onEditHeaders={_handleEditHeaders}
+                onTogglePluginVisibility={_handleToggleExplorer}
+                defaultEditorToolsVisibility={true}
+                forcedTheme={theme}
             >
                 <GraphiQL.Logo>
                     <div></div>
                 </GraphiQL.Logo>
-
-                <GraphiQL.Toolbar>
-                    <GraphiQL.Button
-                        onClick={() => { _graphiql.ref.props.prettify() }}
-                        label="Prettify"
-                        title="Prettify Query (Shift-Ctrl-P)"
-                    />
-                    <GraphiQL.Button
-                        onClick={() => { _graphiql.ref.props.historyContext.toggle() }}
-                        label="History"
-                        title="Show History"
-                    />
-                    <GraphiQL.Button
-                        onClick={_handleToggleExplorer}
-                        label="Explorer"
-                        title="Toggle Explorer"
-                    />
-                </GraphiQL.Toolbar>
             </GraphiQL>
-        </div>);
-
+        </div>
+    );
 };
