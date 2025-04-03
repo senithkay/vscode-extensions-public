@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 import * as vscode from "vscode";
 import { type ConfigurationChangeEvent, commands, window, workspace } from "vscode";
 import { PlatformExtensionApi } from "./PlatformExtensionApi";
@@ -66,12 +65,12 @@ export async function activate(context: vscode.ExtensionContext) {
 			getLogger().error("Failed to initialize rpc client", e);
 		});
 
-	// activateStatusBarItem();
 	activateCmds(context);
 	activateURIHandlers();
 	activateCodeLenses(context);
 	registerPreInitHandlers();
 	registerYamlLanguageServer();
+	// activateStatusbar(context);
 	return ext.api;
 }
 
