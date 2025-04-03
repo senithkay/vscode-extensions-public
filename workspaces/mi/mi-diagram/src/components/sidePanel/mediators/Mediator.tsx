@@ -106,7 +106,7 @@ export function MediatorPage(props: MediatorPageProps) {
                         mediatorType={mediatorType}
                         getValues={getValues}
                         isActive={activeTab === "tryout" || !showForm}
-                        model={props.model}
+                        artifactModel={props.model}
                         isTryoutSupported={isTryoutSupported}
                     />}
                     {isTryoutSupported && ((mediatorData || connectorData) && !canTryOut) && (

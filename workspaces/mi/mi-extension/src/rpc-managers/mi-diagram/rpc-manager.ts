@@ -325,7 +325,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
         return new Promise((resolve) => {
-            const { name, type, key } = this.getResourceInfoToSavePayload(params.model);
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.artifactModel);
             let content;
             if (type == "API") {
                 content = this.readInputPayloadFile(name) ?? { type };
@@ -346,31 +346,31 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    getResourceInfoToSavePayload(model: DiagramService) {
-        if (model.tag === 'resource') {
+    getResourceInfoToSavePayload(artifactModel: DiagramService) {
+        if (artifactModel.tag === 'resource') {
             return {
-                name: (model as APIResource).api,
+                name: (artifactModel as APIResource).api,
                 type: "API",
-                key: (model as APIResource).uriTemplate ?? (model as APIResource).urlMapping
+                key: (artifactModel as APIResource).uriTemplate ?? (artifactModel as APIResource).urlMapping
             }
-        } else if (model.tag === 'proxy') {
+        } else if (artifactModel.tag === 'proxy') {
             return {
-                name: (model as Proxy).name,
+                name: (artifactModel as Proxy).name,
                 type: "PROXY",
-                key: (model as Proxy).name
+                key: (artifactModel as Proxy).name
             }
         } else {
             return {
-                name: (model as NamedSequence).name,
+                name: (artifactModel as NamedSequence).name,
                 type: "SEQUENCE",
-                key: (model as NamedSequence).name
+                key: (artifactModel as NamedSequence).name
             }
         }
     }
 
     async getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return new Promise((resolve) => {
-            const { name, type, key } = this.getResourceInfoToSavePayload(params.model);
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.artifactModel);
             const allPayloads = this.readInputPayloadFile(name);
             if (allPayloads) {
                 let defaultPayload;

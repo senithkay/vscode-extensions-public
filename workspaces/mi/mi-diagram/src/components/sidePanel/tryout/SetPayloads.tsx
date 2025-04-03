@@ -28,12 +28,12 @@ interface SetPayloadsProps {
     nodeRange?: any;
     getValues?: any;
     isActive?: boolean;
-    model: DiagramService;
+    artifactModel: DiagramService;
 }
 export function SetPayloads(props: SetPayloadsProps) {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { documentUri, model } = props;
+    const { documentUri, artifactModel } = props;
     const [isLoading, setIsLoading] = React.useState(true);
     const [requests, setRequests] = React.useState<any[]>([]);
     const [defaultPayload, setDefaultPayload] = React.useState<string>();
@@ -42,7 +42,7 @@ export function SetPayloads(props: SetPayloadsProps) {
     const [supportPayload, setSupportPayload] = React.useState(false);
 
     useEffect(() => {
-        rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri, model }).then((res) => {
+        rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri, artifactModel }).then((res) => {
             const requests = Array.isArray(res.payloads)
                 ? res.payloads.map(payload => ({
                     name: payload.name,
@@ -66,8 +66,8 @@ export function SetPayloads(props: SetPayloadsProps) {
             setDefaultPayload(res.defaultPayload);
             setRequestsNames(requests.map((request) => request.name));
             setIsLoading(false);
-            setIsAPI(model.tag === 'resource');
-            setSupportPayload(supportsRequestBody('methods' in model ? model.methods as string[] : ["POST"]));
+            setIsAPI(artifactModel.tag === 'resource');
+            setSupportPayload(supportsRequestBody('methods' in artifactModel ? artifactModel.methods as string[] : ["POST"]));
         });
     }, []);
 
@@ -100,7 +100,7 @@ export function SetPayloads(props: SetPayloadsProps) {
             }
             return result;
         });
-        await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: content, model: model, defaultPayload: defaultPayload });
+        await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: content, artifactModel, defaultPayload });
         closeSidePanel();
     };
 

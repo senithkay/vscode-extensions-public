@@ -677,7 +677,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         const name = getNameForController(element.value.name);
         const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
         const matchPattern = element.value.matchPattern;
-        const validateType = element.value.validateType;
+        let validateType = element.value.validateType;
         const defaultValue = getDefaultValue(element);
 
         if (getValues(name) === undefined) {
@@ -717,7 +717,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                         },
                         ...(validateType) && {
                             validate: (value) => {
-                                let validateType = element.value.validateType;
                                 if (typeof validateType === 'object' && 'conditionField' in validateType) {
                                     const conditionFieldValue = getValues(validateType.conditionField);
                                     validateType = validateType.mapping[conditionFieldValue];

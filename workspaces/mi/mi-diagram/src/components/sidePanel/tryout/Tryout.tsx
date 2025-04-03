@@ -37,12 +37,12 @@ interface TryoutProps {
     mediatorType: string;
     getValues: any;
     isActive: boolean;
-    model: DiagramService;
+    artifactModel: DiagramService;
     isTryoutSupported: boolean;
 }
 
 export function TryOutView(props: TryoutProps) {
-    const { documentUri, nodeRange, model, isTryoutSupported } = props;
+    const { documentUri, nodeRange, artifactModel, isTryoutSupported } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const [isLoading, setIsLoading] = React.useState(true);
     const [isTryOutInputLoading, setIsTryOutInputLoading] = React.useState(true);
@@ -100,7 +100,7 @@ export function TryOutView(props: TryoutProps) {
 
     const getRequestPayloads = async () => {
         try {
-            const { payloads, defaultPayload } = await rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri, model });
+            const { payloads, defaultPayload } = await rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri, artifactModel });
             if (!Array.isArray(payloads)) {
                 setInputPayloads([{ name: 'Default', content: JSON.stringify(payloads) }]);
                 setSelectedPayload('Default');
@@ -208,7 +208,7 @@ export function TryOutView(props: TryoutProps) {
         )
     } else if (!nodeRange) {
         return (
-            <SetPayloads documentUri={documentUri} model={props.model} />
+            <SetPayloads documentUri={documentUri} artifactModel={artifactModel} />
         );
     } else if (!isTryoutSupported) {
         return (<Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>

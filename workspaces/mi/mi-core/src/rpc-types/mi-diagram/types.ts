@@ -1935,13 +1935,13 @@ export interface Params {
 
 export interface SavePayloadRequest {
     payload: any;
-    model: DiagramService;
+    artifactModel: DiagramService;
     defaultPayload: string;
 }
 
 export interface GetPayloadsRequest {
     documentUri: string;
-    model: DiagramService;
+    artifactModel: DiagramService;
 }
 
 export interface GetPayloadsResponse {
