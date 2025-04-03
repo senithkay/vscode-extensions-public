@@ -510,11 +510,11 @@
     //   "projectFolder": "workspaces/ballerina/expression-editor",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    // {
-    //   "packageName": "graphqlview-lib",
-    //   "projectFolder": "workspaces/ballerina/graphql",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "graphqlview-lib",
+      "projectFolder": "workspaces/ballerina/graphql",
+      "versionPolicyName": "ballerina-extension"
+    },
     {
       "packageName": "@wso2-enterprise/ballerina-graphql-design-diagram",
       "projectFolder": "workspaces/ballerina/graphql-design-diagram",

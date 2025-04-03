@@ -237,15 +237,19 @@ export function TypeEditor(props: TypeEditorProps) {
                             showDefaultCompletion={showDefaultCompletion}
                             getDefaultCompletion={() => getDefaultCompletion(value)}
                             value={value}
-                            onChange={async (value: string, updatedCursorPosition: number) => {
-                                onChange(value);
-                                debouncedTypeEdit(value);
+                            onChange={async (updatedValue: string, updatedCursorPosition: number) => {
+                                if (updatedValue === value) {
+                                    return;
+                                }
+
+                                onChange(updatedValue);
+                                debouncedTypeEdit(updatedValue);
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Set show default completion
-                                const typeExists = types.find((type) => type.label.includes(value));
-                                const validTypeForCreation = value.match(/^[a-zA-Z_'][a-zA-Z0-9_]*$/);
-                                if (value && !typeExists && validTypeForCreation) {
+                                const typeExists = types.find((type) => type.label.includes(updatedValue));
+                                const validTypeForCreation = updatedValue.match(/^[a-zA-Z_'][a-zA-Z0-9_]*$/);
+                                if (updatedValue && !typeExists && validTypeForCreation) {
                                     setShowDefaultCompletion(true);
                                 } else {
                                     setShowDefaultCompletion(false);

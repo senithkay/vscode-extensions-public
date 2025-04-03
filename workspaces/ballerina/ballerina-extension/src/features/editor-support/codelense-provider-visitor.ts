@@ -25,7 +25,7 @@ import { SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
 export class CodeLensProviderVisitor implements Visitor {
     activeEditorUri: Uri;
     codeLenses: CodeLens[] = [];
-    supportedServiceTypes: string[] = ["http", "ai"];
+    supportedServiceTypes: string[] = ["http", "ai.agent", "graphql"];
 
     constructor(activeEditorUri: Uri) {
         this.activeEditorUri = activeEditorUri;

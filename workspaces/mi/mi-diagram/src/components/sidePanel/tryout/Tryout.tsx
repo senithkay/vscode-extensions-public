@@ -13,7 +13,7 @@ import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from '../../Form/CodeTextArea';
 import ReactJson, { InteractionProps } from 'react-json-view';
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { DiagramService, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Header, MediatorProperties, MediatorTryOutInfo, Params } from '@wso2-enterprise/mi-core';
 import { ERROR_MESSAGES, REACT_JSON_THEME } from '../../../resources/constants';
 import { getParamManagerValues } from '../../..';
@@ -37,10 +37,12 @@ interface TryoutProps {
     mediatorType: string;
     getValues: any;
     isActive: boolean;
+    artifactModel: DiagramService;
+    isTryoutSupported: boolean;
 }
 
 export function TryOutView(props: TryoutProps) {
-    const { documentUri, nodeRange } = props;
+    const { documentUri, nodeRange, artifactModel, isTryoutSupported } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const [isLoading, setIsLoading] = React.useState(true);
     const [isTryOutInputLoading, setIsTryOutInputLoading] = React.useState(true);
@@ -98,13 +100,13 @@ export function TryOutView(props: TryoutProps) {
 
     const getRequestPayloads = async () => {
         try {
-            const { payloads } = await rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri });
+            const { payloads, defaultPayload } = await rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri, artifactModel });
             if (!Array.isArray(payloads)) {
                 setInputPayloads([{ name: 'Default', content: JSON.stringify(payloads) }]);
                 setSelectedPayload('Default');
             } else {
                 setInputPayloads(payloads);
-                setSelectedPayload(payloads?.[0]?.name);
+                setSelectedPayload(defaultPayload);
             }
         } catch (error) {
             console.error("Error fetching input payload:", error);
@@ -123,14 +125,27 @@ export function TryOutView(props: TryoutProps) {
                 return;
             }
 
-            const inputPayload = inputPayloads.find((payload) => payload.name === selectedPayload)?.content;
+            const inputPayload = inputPayloads.find((payload) => payload.name === selectedPayload);
             const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
                 tryoutId,
                 file: documentUri,
                 line: nodeRange.start.line,
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
-                inputPayload: JSON.stringify(inputPayload),
+                contentType: inputPayload?.contentType ?? 'text/plain',
+                inputPayload: inputPayload?.contentType == 'application/json' ? JSON.stringify(inputPayload?.content) : inputPayload?.content,
+                queryParams: inputPayload.queryParams && typeof inputPayload.queryParams === 'object'
+                    ? Object.keys(inputPayload.queryParams).map((key: string) => ({
+                        key: key,
+                        value: (inputPayload.queryParams as Record<string, any>)[key]
+                    }))
+                    : [],
+                pathParams: inputPayload.pathParams && typeof inputPayload.pathParams === 'object'
+                    ? Object.keys(inputPayload.pathParams).map((key: string) => ({
+                        key: key,
+                        value: (inputPayload.pathParams as Record<string, any>)[key]
+                    }))
+                    : [],
                 mediatorType: props.mediatorType,
                 edits: []
             });
@@ -193,8 +208,12 @@ export function TryOutView(props: TryoutProps) {
         )
     } else if (!nodeRange) {
         return (
-            <SetPayloads />
+            <SetPayloads documentUri={documentUri} artifactModel={artifactModel} />
         );
+    } else if (!isTryoutSupported) {
+        return (<Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <Icon name="warning" isCodicon /> Try-Out feature is not supported for this artifact type.
+        </Typography>)
     }
 
     const helpTipElement =

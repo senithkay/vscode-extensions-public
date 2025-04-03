@@ -14,10 +14,16 @@ import { buildClientSchema, getIntrospectionQuery, GraphQLSchema } from "graphql
 import "graphiql/graphiql.css";
 import "./style.css";
 
-declare const vscode: vscode;
-interface vscode {
+
+declare const acquireVsCodeApi: () => {
     postMessage(message: any): void;
-}
+    getConfiguration(): {
+        get(key: string): string | undefined;
+    };
+};
+
+// Initialize vscode API safely
+const vscode = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : undefined;
 
 interface Request {
     url: string,
@@ -34,7 +40,7 @@ function fetcher(api: string, body: Object, headers: string | undefined): Promis
         body: JSON.stringify(body),
     }
 
-    vscode.postMessage({
+    vscode?.postMessage({
         command: 'graphqlRequest',
         req: request
     });
@@ -55,14 +61,21 @@ function fetcher(api: string, body: Object, headers: string | undefined): Promis
 
 export const GraphqlView = (props: any) => {
     const serviceAPI: string = props.data.serviceAPI;
+    const icons: { dark: string, light: string } = props.data.icons;
 
     const [query, setQuery] = useState<string | undefined>('');
     const [schema, setSchema] = useState<GraphQLSchema | null>();
-    const [showExplorer, setShowExplorer] = useState(false);
     const [headers, setHeaders] = useState<string | undefined>(JSON.stringify({
         "Content-Type": "application/json",
     }));
-    let _graphiql;
+
+    // Get VSCode theme
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+    useEffect(() => {
+        // Set the theme from the vscode theme
+        setTheme(document.body.classList.contains('vscode-dark') ? 'dark' : 'light');
+    }, []);
 
     useEffect(() => {
         fetcher(serviceAPI, { query: getIntrospectionQuery() }, headers)
@@ -73,50 +86,63 @@ export const GraphqlView = (props: any) => {
 
     const _handleEditQuery = (query?: string): void => setQuery(query);
     const _handleEditHeaders = (headers?: string): void => setHeaders(headers);
-    const _handleToggleExplorer = (): void => setShowExplorer(!showExplorer);
     const _fetcher = (params: Object) => {
         return fetcher(serviceAPI, params, headers);
     };
 
+    const BallerinaIcon = () => {
+        return <img src={icons[theme]} />;
+    }
+
+    const Explorer = () => {
+        const [explorerQuery, setExplorerQuery] = useState<string | undefined>('');
+        const [explorerSchema, setExplorerSchema] = useState<GraphQLSchema | null>();
+        const [explorerTheme, setExplorerTheme] = useState<'light' | 'dark'>('light');
+
+        useEffect(() => {
+
+            setExplorerQuery(query);
+            setExplorerSchema(schema);
+            setExplorerTheme(theme);
+        }, [query, schema, theme]);
+
+        const handleExplorerEdit = (newQuery?: string) => {
+            setExplorerQuery(newQuery);
+            _handleEditQuery(newQuery);
+        };
+
+        return (
+            <GraphiQLExplorer
+                schema={explorerSchema}
+                query={explorerQuery}
+                onEdit={handleExplorerEdit}
+                explorerIsOpen={true}
+                defaultTheme={explorerTheme}
+            />
+        );
+    };
+
     return (
         <div className="graphiql-container">
-            <GraphiQLExplorer
-                schema={schema}
-                query={query}
-                onEdit={_handleEditQuery}
-                explorerIsOpen={showExplorer}
-                onToggleExplorer={_handleToggleExplorer}
-            />
             <GraphiQL
-                ref={ref => (_graphiql = ref!)}
                 fetcher={_fetcher}
+                schema={schema}
                 headers={headers}
                 query={query}
                 onEditQuery={_handleEditQuery}
                 onEditHeaders={_handleEditHeaders}
+                defaultEditorToolsVisibility={true}
+                forcedTheme={theme}
+                visiblePlugin={"Ballerina Explorer"}
+                plugins={[
+                    {
+                        title: 'Ballerina Explorer',
+                        content: Explorer,
+                        icon: BallerinaIcon
+                    }
+                ]}
             >
-                <GraphiQL.Logo>
-                    <div></div>
-                </GraphiQL.Logo>
-
-                <GraphiQL.Toolbar>
-                    <GraphiQL.Button
-                        onClick={() => { _graphiql.ref.props.prettify() }}
-                        label="Prettify"
-                        title="Prettify Query (Shift-Ctrl-P)"
-                    />
-                    <GraphiQL.Button
-                        onClick={() => { _graphiql.ref.props.historyContext.toggle() }}
-                        label="History"
-                        title="Show History"
-                    />
-                    <GraphiQL.Button
-                        onClick={_handleToggleExplorer}
-                        label="Explorer"
-                        title="Toggle Explorer"
-                    />
-                </GraphiQL.Toolbar>
             </GraphiQL>
-        </div>);
-
+        </div >
+    );
 };
