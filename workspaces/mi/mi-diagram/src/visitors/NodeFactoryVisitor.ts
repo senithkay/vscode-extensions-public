@@ -836,6 +836,12 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.THROTTLE, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
 
+        if (node.onAcceptAttribute) {
+            node.onAccept.viewState.id = `${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}-onAccept`;
+        }
+        if (node.onRejectAttribute) {
+            node.onReject.viewState.id = `${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}-onReject`;
+        }
         this.visitSubSequences(node, MEDIATORS.THROTTLE, {
             OnAccept: node.onAccept,
             OnReject: node.onReject,
