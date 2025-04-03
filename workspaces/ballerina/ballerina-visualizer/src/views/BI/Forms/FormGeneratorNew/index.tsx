@@ -37,16 +37,19 @@ import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, The
 import {
     convertBalCompletion,
     convertToVisibleTypes,
+    getInfoFromExpressionValue,
     updateLineRange
 } from "../../../../utils/bi";
 import { debounce, set } from "lodash";
 import { getHelperPane } from "../../HelperPane";
 import { FormTypeEditor } from "../../TypeEditor";
 import { getTypeHelper } from "../../TypeHelper";
+import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
 
 interface TypeEditorState {
     isOpen: boolean;
     field?: FormField; // Optional, to store the field being edited
+    newTypeValue?: string;
 }
 
 interface FormProps {
@@ -97,13 +100,13 @@ export function FormGeneratorNew(props: FormProps) {
     const { rpcClient } = useRpcContext();
     // console.log("======FormGeneratorNew======,", fields)
 
-    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
+    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false, newTypeValue: "" });
 
     /* Expression editor related state and ref variables */
+    const prevCompletionFetchText = useRef<string>("");
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
@@ -154,134 +157,122 @@ export function FormGeneratorNew(props: FormProps) {
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
-        setFilteredTypes([]);
         setTypes([]);
         triggerCompletionOnNextRequest.current = false;
     };
 
-    const debouncedRetrieveCompletions = useCallback(debounce(
-        async (value: string, property: ExpressionProperty, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
-            let expressionCompletions: CompletionItem[] = [];
-            const effectiveText = value.slice(0, offset);
-            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-            const endOfStatementRegex = /[\)\]]\s*$/;
-            if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
-                // Case 1: When a character unrelated to triggering completions is entered
-                setCompletions([]);
-            } else if (
-                completions.length > 0 &&
-                completionFetchText.length > 0 &&
-                !triggerCharacter &&
-                !onlyVariables &&
-                !triggerCompletionOnNextRequest.current
-            ) {
-                // Case 2: When completions have already been retrieved and only need to be filtered
-                expressionCompletions = completions
-                    .filter((completion) => {
-                        const lowerCaseText = completionFetchText.toLowerCase();
-                        const lowerCaseLabel = completion.label.toLowerCase();
-
-                        return lowerCaseLabel.includes(lowerCaseText);
-                    })
-                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
-            } else {
-                // Case 3: When completions need to be retrieved from the language server
-                // Retrieve completions from the ls
-                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
-                    filePath: fileName,
-                    context: {
-                        expression: value,
-                        startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                        offset: offset,
-                        codedata: undefined,
-                        property: property
-                    },
-                    completionContext: {
-                        triggerKind: triggerCharacter ? 2 : 1,
-                        triggerCharacter: triggerCharacter as TriggerCharacter
-                    }
-                });
-
-                if (onlyVariables) {
-                    // If only variables are requested, filter out the completions based on the kind
-                    // 'kind' for variables = 6
-                    completions = completions?.filter((completion) => completion.kind === 6);
-                    triggerCompletionOnNextRequest.current = true;
-                } else {
-                    triggerCompletionOnNextRequest.current = false;
-                }
-
-                // Convert completions to the ExpressionBar format
-                let convertedCompletions: CompletionItem[] = [];
-                completions?.forEach((completion) => {
-                    if (completion.detail) {
-                        // HACK: Currently, completion with additional edits apart from imports are not supported
-                        // Completions that modify the expression itself (ex: member access)
-                        convertedCompletions.push(convertBalCompletion(completion));
-                    }
-                });
-                setCompletions(convertedCompletions);
-
-                if (triggerCharacter) {
-                    expressionCompletions = convertedCompletions;
-                } else {
-                    expressionCompletions = convertedCompletions
+    const debouncedRetrieveCompletions = useCallback(
+        debounce(
+            async (
+                value: string,
+                property: ExpressionProperty,
+                offset: number,
+                triggerCharacter?: string
+            ) => {
+                let expressionCompletions: CompletionItem[] = [];
+                const { parentContent, currentContent } = value
+                    .slice(0, offset)
+                    .match(EXPRESSION_EXTRACTION_REGEX)?.groups ?? {};
+                if (
+                    completions.length > 0 &&
+                    !triggerCharacter &&
+                    parentContent === prevCompletionFetchText.current
+                ) {
+                    expressionCompletions = completions
                         .filter((completion) => {
-                            const lowerCaseText = completionFetchText.toLowerCase();
+                            const lowerCaseText = currentContent.toLowerCase();
                             const lowerCaseLabel = completion.label.toLowerCase();
 
                             return lowerCaseLabel.includes(lowerCaseText);
                         })
                         .sort((a, b) => a.sortText.localeCompare(b.sortText));
-                }
-            }
+                } else {
+                    const { lineOffset, charOffset } = getInfoFromExpressionValue(value, offset);
+                    let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
+                        filePath: fileName,
+                        context: {
+                            expression: value,
+                            startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                            lineOffset: lineOffset,
+                            offset: charOffset,
+                            codedata: undefined,
+                            property: property
+                        },
+                        completionContext: {
+                            triggerKind: triggerCharacter ? 2 : 1,
+                            triggerCharacter: triggerCharacter as TriggerCharacter
+                        }
+                    });
 
-            setFilteredCompletions(expressionCompletions);
-        },
-        250
-    ), [rpcClient, completions, fileName, targetLineRange, triggerCompletionOnNextRequest.current]);
+                    // Convert completions to the ExpressionEditor format
+                    let convertedCompletions: CompletionItem[] = [];
+                    completions?.forEach((completion) => {
+                        if (completion.detail) {
+                            // HACK: Currently, completion with additional edits apart from imports are not supported
+                            // Completions that modify the expression itself (ex: member access)
+                            convertedCompletions.push(convertBalCompletion(completion));
+                        }
+                    });
+                    setCompletions(convertedCompletions);
+
+                    if (triggerCharacter) {
+                        expressionCompletions = convertedCompletions;
+                    } else {
+                        expressionCompletions = convertedCompletions
+                            .filter((completion) => {
+                                const lowerCaseText = currentContent.toLowerCase();
+                                const lowerCaseLabel = completion.label.toLowerCase();
+
+                                return lowerCaseLabel.includes(lowerCaseText);
+                            })
+                            .sort((a, b) => a.sortText.localeCompare(b.sortText));
+                    }
+                }
+
+                prevCompletionFetchText.current = parentContent ?? "";
+                setFilteredCompletions(expressionCompletions);
+            },
+            250
+        ),
+        [rpcClient, completions, fileName, targetLineRange]
+    );
 
     const handleRetrieveCompletions = useCallback(async (
         value: string,
         property: ExpressionProperty,
         offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
+        triggerCharacter?: string
     ) => {
-        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter, onlyVariables);
+        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter);
 
         if (triggerCharacter) {
             await debouncedRetrieveCompletions.flush();
         }
     }, [debouncedRetrieveCompletions]);
 
-    const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number, typeConstraint: string) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: fileName,
-                position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                typeConstraint: typeConstraint,
-            });
+    const debouncedGetVisibleTypes = useCallback(
+        debounce(async (typeConstraint?: string) => {
+            let visibleTypes: CompletionItem[] = types;
+            if (!types.length) {
+                const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                    filePath: fileName,
+                    position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                    typeConstraint: typeConstraint,
+                });
 
-            visibleTypes = convertToVisibleTypes(types);
-            setTypes(visibleTypes);
-        }
+                visibleTypes = convertToVisibleTypes(types);
+                setTypes(visibleTypes);
+            }
+        }, 250),
+        [rpcClient, types, fileName, targetLineRange]
+    );
 
-        const effectiveText = value.slice(0, cursorPosition);
-        let filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-    }, 250), [rpcClient, types, fileName, targetLineRange]);
-
-    const handleGetVisibleTypes = useCallback(async (value: string, cursorPosition: number, typeConstraint?: string) => {
-        await debouncedGetVisibleTypes(value, cursorPosition, typeConstraint);
-    }, [debouncedGetVisibleTypes]);
+    const handleGetVisibleTypes = useCallback(
+        async (typeConstraint?: string) => {
+            await debouncedGetVisibleTypes(typeConstraint);
+        },
+        [debouncedGetVisibleTypes]
+    );
 
     const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
         if (additionalTextEdits?.[0].newText) {
@@ -394,13 +385,13 @@ export function FormGeneratorNew(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setTypeEditorState({ isOpen, field: editingField });
+        setTypeEditorState({ isOpen, field: editingField, newTypeValue: f[editingField?.key] });
     };
 
     const defaultType = (): Type => {
         if (typeEditorState.field.type === 'PARAM_MANAGER') {
             return {
-                name: "MyType",
+                name: typeEditorState.newTypeValue || "MyType",
                 editable: true,
                 metadata: {
                     label: "",
@@ -416,7 +407,7 @@ export function FormGeneratorNew(props: FormProps) {
             };
         }
         return {
-            name: "MyType",
+            name: typeEditorState.newTypeValue || "MyType",
             editable: true,
             metadata: {
                 label: "",
@@ -441,7 +432,7 @@ export function FormGeneratorNew(props: FormProps) {
             completions: filteredCompletions,
             triggerCharacters: TRIGGER_CHARACTERS,
             retrieveCompletions: handleRetrieveCompletions,
-            types: filteredTypes,
+            types: types,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
             getTypeHelper: handleGetTypeHelper,
@@ -453,7 +444,7 @@ export function FormGeneratorNew(props: FormProps) {
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
-        filteredTypes,
+        types,
         handleRetrieveCompletions,
         handleGetVisibleTypes,
         handleGetHelperPane,
@@ -476,6 +467,7 @@ export function FormGeneratorNew(props: FormProps) {
                 <FormTypeEditor
                     newType={true}
                     onTypeChange={handleTypeChange}
+                    newTypeValue={typeEditorState.newTypeValue}
                     {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>

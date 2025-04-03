@@ -22,6 +22,7 @@ import { AdvancedOptions } from "./AdvancedOptions";
 import { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from "../TypeHelper";
 import { TypeHelperContext } from "../Context";
 import { isValidBallerinaIdentifier } from "./TypeUtil";
+import { ArrayEditor } from "./ArrayEditor";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -105,11 +106,13 @@ interface TypeEditorProps {
     rpcClient: BallerinaRpcClient;
     onTypeChange: (type: Type) => void;
     newType: boolean;
+    newTypeValue?: string;
     isGraphql?: boolean;
     typeHelper: {
         loading?: boolean;
         loadingTypeBrowser?: boolean;
         basicTypes: TypeHelperCategory[];
+        importedTypes: TypeHelperCategory[];
         operators: TypeHelperOperator[];
         typeBrowserTypes: TypeHelperCategory[];
         onSearchTypeHelper: (searchText: string, isType?: boolean) => void;
@@ -128,7 +131,8 @@ enum TypeKind {
     RECORD = "Record",
     ENUM = "Enum",
     CLASS = "Service Class",
-    UNION = "Union"
+    UNION = "Union",
+    ARRAY = "Array"
 }
 
 const undoRedoManager = new UndoRedoManager();
@@ -138,6 +142,7 @@ const undoRedoManager = new UndoRedoManager();
 export function TypeEditor(props: TypeEditorProps) {
     console.log("===TypeEditorProps===", props);
     const { isGraphql } = props;
+    let initialTypeKind = props.type?.codedata?.node;
     const [selectedTypeKind, setSelectedTypeKind] = useState<TypeKind>(() => {
         if (props.type) {
             // Map the type's node kind to TypeKind enum
@@ -151,6 +156,8 @@ export function TypeEditor(props: TypeEditorProps) {
                     return TypeKind.CLASS;
                 case "UNION":
                     return TypeKind.UNION;
+                case "ARRAY":
+                    return TypeKind.ARRAY;
                 default:
                     return TypeKind.RECORD;
             }
@@ -163,7 +170,7 @@ export function TypeEditor(props: TypeEditorProps) {
         }
         // Initialize with default type for new types
         const defaultType = {
-            name: "",
+            name: props.newTypeValue ?? "",
             members: [] as Member[],
             editable: true,
             metadata: {
@@ -179,6 +186,9 @@ export function TypeEditor(props: TypeEditorProps) {
             includes: [] as string[],
             allowAdditionalFields: false
         };
+        if (!initialTypeKind) {
+            initialTypeKind = defaultType.codedata.node;
+        }
         return defaultType as unknown as Type;
     });
 
@@ -189,6 +199,35 @@ export function TypeEditor(props: TypeEditorProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [tempName, setTempName] = useState("");
     const { rpcClient } = useRpcContext();
+
+     useEffect(() => {
+        if (props.type) {
+            setType(props.type);
+            
+            const nodeKind = props.type.codedata.node;
+            switch (nodeKind) {
+                case "RECORD":
+                    setSelectedTypeKind(TypeKind.RECORD);
+                    break;
+                case "ENUM":
+                    setSelectedTypeKind(TypeKind.ENUM);
+                    break;
+                case "CLASS":
+                    setSelectedTypeKind(TypeKind.CLASS);
+                    break;
+                case "UNION":
+                    setSelectedTypeKind(TypeKind.UNION);
+                    break;
+                case "ARRAY":
+                    setSelectedTypeKind(TypeKind.ARRAY);
+                    break;
+                default:
+                    setSelectedTypeKind(TypeKind.RECORD);
+            }
+        }
+        
+        setIsNewType(props.newType);
+    }, [props.type, props.newType]);
 
     useEffect(() => {
         if (type && isNewType) {
@@ -253,12 +292,10 @@ export function TypeEditor(props: TypeEditorProps) {
     const getAvailableTypeKinds = (isGraphql: boolean | undefined, currentType?: TypeKind): TypeKind[] => {
         if (isGraphql) {
             // For GraphQL mode, filter options based on current type
-            if (currentType === TypeKind.RECORD) {
+            if (initialTypeKind === "RECORD") {
                 return [TypeKind.RECORD, TypeKind.ENUM, TypeKind.UNION];
-            } else if (currentType === TypeKind.CLASS) {
+            } else if (initialTypeKind === "CLASS") {
                 return [TypeKind.CLASS, TypeKind.ENUM, TypeKind.UNION];
-            } else {
-                return [TypeKind.RECORD, TypeKind.CLASS, TypeKind.ENUM, TypeKind.UNION];
             }
         }
         // Return all options for non-GraphQL mode
@@ -285,8 +322,6 @@ export function TypeEditor(props: TypeEditorProps) {
         }
         props.onTypeChange(type);
     }
-
-    console.log("===Type Model===", type);
 
     const handleTypeImport = (types: Type[], isXml: boolean = false) => {
         const importType = types[0];
@@ -338,6 +373,13 @@ export function TypeEditor(props: TypeEditorProps) {
                     <ClassEditor
                         type={type}
                         isGraphql={isGraphql}
+                        onChange={setType}
+                    />
+                );
+            case TypeKind.ARRAY:
+                return (
+                    <ArrayEditor
+                        type={type}
                         onChange={setType}
                     />
                 );

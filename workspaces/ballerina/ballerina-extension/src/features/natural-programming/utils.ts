@@ -28,6 +28,7 @@ import {
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
+import { BACKEND_URL } from '../ai/utils';
 
 let controller = new AbortController();
 
@@ -448,8 +449,6 @@ export function getPluginConfig(): BallerinaPluginConfig {
 
 export async function getBackendURL(): Promise<string> {
     return new Promise(async (resolve) => {
-        const config = getPluginConfig();
-        const BACKEND_URL = config.get('rootUrl') as string;
         resolve(BACKEND_URL);
     });
 }
@@ -475,6 +474,11 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
     }
 
     return result;
+}
+
+export function handleChatSummaryFailure(message: string) {
+    vscode.window.showWarningMessage(message);
+    return;
 }
 
 // Function to find a file in a case-insensitive way

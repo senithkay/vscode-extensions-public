@@ -15,6 +15,7 @@ import { RPCClient } from "./client";
 function isChoreoCliInstalled(): Promise<boolean> {
 	return new Promise((resolve) => {
 		const rpcPath = getChoreoExecPath();
+		console.log("RPC Path: ", rpcPath);
 		if (fs.existsSync(rpcPath)) {
 			exec(`"${rpcPath}" --version`, (error) => {
 				console.log("error", error);

@@ -62,12 +62,22 @@ export function AttributeWidget(props: AttributeProps) {
                 />
                 <AttributeName>{attribute.name}</AttributeName>
                 {node.entityObject?.codedata?.node !== 'UNION' &&
+                    node.entityObject?.codedata?.node !== 'ENUM' &&
+                    node.entityObject?.codedata?.node !== 'ARRAY' &&
                     <AttributeType
                         isAnonymous={false}
                         isSelected={isSelected || isHovered}
                         onClick={onClickOnType}
                     >
                         {attributeType}
+                    </AttributeType>
+                }
+                {node.entityObject?.codedata?.node === 'ENUM' && ('defaultValue' in attribute && attribute.defaultValue) &&
+                    <AttributeType
+                        isAnonymous={false}
+                        isSelected={isSelected || isHovered}
+                    >
+                        {attribute.defaultValue}
                     </AttributeType>
                 }
                 {/* {isHovered && attribute.sourceLocation && editingEnabled &&

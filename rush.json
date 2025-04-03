@@ -441,6 +441,11 @@
       "versionPolicyName": "service-designer"
     },
     {
+      "packageName": "@wso2-enterprise/git-vscode",
+      "projectFolder": "workspaces/common-libs/git-vscode",
+      "versionPolicyName": "git-vscode"
+    },
+    {
       "packageName": "@wso2-enterprise/wso2-platform-core",
       "projectFolder": "workspaces/wso2-platform/wso2-platform-core",
       "versionPolicyName": "wso2-platform-extension"

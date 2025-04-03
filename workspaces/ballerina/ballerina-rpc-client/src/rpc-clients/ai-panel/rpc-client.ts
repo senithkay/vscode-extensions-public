@@ -66,8 +66,11 @@ import {
     getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
+    getThemeKind,
     getTypesFromRecord,
+    handleChatSummaryError,
     isCopilotSignedIn,
+    isNaturalProgrammingDirectoryExists,
     isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
@@ -153,6 +156,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getRefreshToken(): Promise<string> {
         return this._messenger.sendRequest(getRefreshToken, HOST_EXTENSION);
+    }
+
+    getThemeKind(): Promise<string> {
+        return this._messenger.sendRequest(getThemeKind, HOST_EXTENSION);
     }
 
     generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
@@ -287,8 +294,16 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
     }
 
-    addChatSummary(filepathAndSummary: AIChatSummary): void {
-        return this._messenger.sendNotification(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    addChatSummary(filepathAndSummary: AIChatSummary): Promise<boolean> {
+        return this._messenger.sendRequest(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    }
+
+    handleChatSummaryError(message: string): void {
+        return this._messenger.sendNotification(handleChatSummaryError, HOST_EXTENSION, message);
+    }
+
+    isNaturalProgrammingDirectoryExists(projectPath: string): Promise<boolean> {
+        return this._messenger.sendRequest(isNaturalProgrammingDirectoryExists, HOST_EXTENSION, projectPath);
     }
 
     readDeveloperMdFile(directoryPath: string): Promise<string> {

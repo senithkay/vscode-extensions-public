@@ -106,6 +106,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenersResponse = await context.langClient.getListeners(params);
                 resolve(res);
@@ -133,6 +134,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenerSourceCodeResponse = await context.langClient.addListenerSourceCode(params);
                 const position = await this.updateSource(res);
@@ -154,6 +156,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenerSourceCodeResponse = await context.langClient.updateListenerSourceCode(params);
                 const position = await this.updateSource(res);
@@ -175,6 +178,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ServiceModelResponse = await context.langClient.getServiceModel(params);
                 resolve(res);
@@ -191,6 +195,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const identifiers = [];
                 for (let property in params.service.properties) {
@@ -229,10 +234,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     // This is a hack to inject the AI agent code into the chat service function
     // This has to be replaced once we have a proper design for AI Agent Chat Service
     async injectAIAgent(service: ServiceModel, result: SourceUpdateResponse): Promise<SourceUpdateResponse> {
-        // We will only inject if the typpe is ai.agent and serviceType is ChatService
-        if (service.type === "ai.agent") {
+        // We will only inject if the type is `ai` and serviceType is `ChatService`
+        if (service.type === "ai") {
             // Inject the import if missing
-            const importStatement = `import ballerinax/ai.agent`;
+            const importStatement = `import ballerinax/ai`;
             await injectImportIfMissing(importStatement, path.join(StateMachine.context().projectUri, `agents.bal`));
 
             //get AgentName
@@ -256,6 +261,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             }
             const injectionPosition = updatedService.service.functions[0].codedata.lineRange.endLine;
             const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
+            this.ensureFileExists(serviceFile);
             await injectAgentCode(agentName, serviceFile, injectionPosition);
             const functionPosition: NodePosition = {
                 startLine: updatedService.service.functions[0].codedata.lineRange.startLine.line,
@@ -277,6 +283,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const identifiers = [];
                 for (let property in params.service.properties) {
@@ -329,6 +336,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
@@ -509,5 +517,14 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 console.log(">>> error fetching function model", error);
             }
         });
+    }
+
+    private ensureFileExists(targetFile: string) {
+        // Check if the file exists
+        if (!fs.existsSync(targetFile)) {
+            // Create the file if it does not exist
+            fs.writeFileSync(targetFile, "");
+            console.log(`>>> Created file at ${targetFile}`);
+        }
     }
 }

@@ -28,41 +28,62 @@ import {
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 
-export const INPUT_NODES = [
-    RequiredParamNode,
-    FromClauseNode,
-    LetExpressionNode,
-    ModuleVariableNode,
-    EnumTypeNode,
-    LetClauseNode,
-    JoinClauseNode,
-    ExpandedMappingHeaderNode
-];
+export type InputNode =
+    | RequiredParamNode
+    | FromClauseNode
+    | LetExpressionNode
+    | ModuleVariableNode
+    | EnumTypeNode
+    | LetClauseNode
+    | JoinClauseNode
+    | ExpandedMappingHeaderNode;
 
-export const OUTPUT_NODES = [
-    MappingConstructorNode,
-    ListConstructorNode,
-    PrimitiveTypeNode,
-    UnionTypeNode,
-    UnsupportedIONode
-];
+export type NodeWithoutTypeDesc = 
+    | LetExpressionNode
+    | ModuleVariableNode
+    | EnumTypeNode
+    | ExpandedMappingHeaderNode;
 
-export const INTERMEDIATE_NODES = [
-    LinkConnectorNode,
-    QueryExpressionNode
-];
+type OutputNode =
+    | MappingConstructorNode
+    | ListConstructorNode
+    | PrimitiveTypeNode
+    | UnionTypeNode
+    | UnsupportedIONode;
 
+type IntermediateNode = 
+    | LinkConnectorNode
+    | QueryExpressionNode;
+    
 export const MIN_VISIBLE_HEIGHT = 68;
 export const INPUT_NODE_DEFAULT_RIGHT_X = IO_NODE_DEFAULT_WIDTH;
 
-export function isInputNode(node: BaseModel) {
-    return INPUT_NODES.some(nodeType => node instanceof nodeType);
+export function isInputNode(node: BaseModel): node is InputNode {
+    return (
+        node instanceof RequiredParamNode ||
+        node instanceof FromClauseNode ||
+        node instanceof LetExpressionNode ||
+        node instanceof ModuleVariableNode ||
+        node instanceof EnumTypeNode ||
+        node instanceof LetClauseNode ||
+        node instanceof JoinClauseNode ||
+        node instanceof ExpandedMappingHeaderNode
+    );
 }
 
-export function isOutputNode(node: BaseModel) {
-    return OUTPUT_NODES.some(nodeType => node instanceof nodeType);
+export function isOutputNode(node: BaseModel): node is OutputNode {
+    return (
+        node instanceof MappingConstructorNode ||
+        node instanceof ListConstructorNode ||
+        node instanceof PrimitiveTypeNode ||
+        node instanceof UnionTypeNode ||
+        node instanceof UnsupportedIONode
+    );
 }
 
-export function isIntermediateNode(node: BaseModel) {
-    return INTERMEDIATE_NODES.some(nodeType => node instanceof nodeType);
+export function isIntermediateNode(node: BaseModel): node is IntermediateNode {
+    return (
+        node instanceof LinkConnectorNode ||
+        node instanceof QueryExpressionNode
+    );
 }
