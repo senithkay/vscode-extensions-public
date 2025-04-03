@@ -89,7 +89,7 @@ export default function createTests() {
         await connectorStore.selectOperation('LOCAL');
 
         const connectionForm = new Form(page.page, 'Resource View');
-        await connectionForm.switchToFormView();
+        await connectionForm.switchToFormView(true);
         console.log('Filling out connection form');
         await connectionForm.fill({
           values: {
@@ -182,7 +182,7 @@ export default function createTests() {
         await connectorStore.confirmDownloadDependency();
 
         const connectionForm = new Form(page.page, 'Resource View');
-        await connectionForm.switchToFormView();
+        await connectionForm.switchToFormView(true);
         console.log('Filling out connection form');
         await connectionForm.fill({
           values: {
