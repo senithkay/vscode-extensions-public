@@ -4453,6 +4453,8 @@ ${keyValuesXML}`;
                 if (resp.length === 1) {
                     const type = resp[0]
                     integrationType = mapTypeToScope(type);
+                } else if (resp.length === 0) {
+                    window.showErrorMessage("You don't have any artifacts within this project. Please add an artifact and try again.");
                 } else {
                     // Show a quick pick to select deployment option
                     const selectedScope = await window.showQuickPick(resp, {
