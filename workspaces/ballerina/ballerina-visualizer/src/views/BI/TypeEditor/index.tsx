@@ -19,11 +19,12 @@ type FormTypeEditorProps = {
     type?: Type;
     onTypeChange: (type: Type) => void;
     newType: boolean;
+    newTypeValue?: string;
     isGraphql?: boolean;
 };
 
 export const FormTypeEditor = (props: FormTypeEditorProps) => {
-    const { type, onTypeChange, newType, isGraphql } = props;
+    const { type, onTypeChange, newType, newTypeValue, isGraphql } = props;
     const { rpcClient } = useRpcContext();
 
     const [filePath, setFilePath] = useState<string | undefined>(undefined);
@@ -191,6 +192,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                     rpcClient={rpcClient}
                     onTypeChange={onTypeChange}
                     newType={newType}
+                    newTypeValue={newTypeValue}
                     isGraphql={isGraphql}
                     typeHelper={{
                         loading,

@@ -106,6 +106,7 @@ interface TypeEditorProps {
     rpcClient: BallerinaRpcClient;
     onTypeChange: (type: Type) => void;
     newType: boolean;
+    newTypeValue?: string;
     isGraphql?: boolean;
     typeHelper: {
         loading?: boolean;
@@ -169,7 +170,7 @@ export function TypeEditor(props: TypeEditorProps) {
         }
         // Initialize with default type for new types
         const defaultType = {
-            name: "",
+            name: props.newTypeValue ?? "",
             members: [] as Member[],
             editable: true,
             metadata: {

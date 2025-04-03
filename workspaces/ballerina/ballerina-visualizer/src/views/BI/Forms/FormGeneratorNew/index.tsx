@@ -49,6 +49,7 @@ import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
 interface TypeEditorState {
     isOpen: boolean;
     field?: FormField; // Optional, to store the field being edited
+    newTypeValue?: string;
 }
 
 interface FormProps {
@@ -99,7 +100,7 @@ export function FormGeneratorNew(props: FormProps) {
     const { rpcClient } = useRpcContext();
     // console.log("======FormGeneratorNew======,", fields)
 
-    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
+    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false, newTypeValue: "" });
 
     /* Expression editor related state and ref variables */
     const prevCompletionFetchText = useRef<string>("");
@@ -384,7 +385,7 @@ export function FormGeneratorNew(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setTypeEditorState({ isOpen, field: editingField });
+        setTypeEditorState({ isOpen, field: editingField, newTypeValue: f[editingField?.key] });
     };
 
     const defaultType = (): Type => {
@@ -466,6 +467,7 @@ export function FormGeneratorNew(props: FormProps) {
                 <FormTypeEditor
                     newType={true}
                     onTypeChange={handleTypeChange}
+                    newTypeValue={typeEditorState.newTypeValue}
                     {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>

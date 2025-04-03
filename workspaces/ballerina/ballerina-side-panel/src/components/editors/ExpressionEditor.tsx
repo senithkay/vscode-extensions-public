@@ -406,8 +406,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             value={sanitizedExpression ? sanitizedExpression(value) : value}
                             autoFocus={autoFocus}
                             startAdornment={<EditorRibbon onClick={toggleHelperPaneState} />}
-                            onChange={async (newValue: string, updatedCursorPosition: number) => {
-                                const rawValue = rawExpression ? rawExpression(newValue) : newValue;
+                            onChange={async (updatedValue: string, updatedCursorPosition: number) => {
+                                if (updatedValue === value) {
+                                    return;
+                                }
+
+                                const rawValue = rawExpression ? rawExpression(updatedValue) : updatedValue;
                                 onChange(rawValue);
                                 debouncedUpdateSubPanelData(rawValue);
                                 cursorPositionRef.current = updatedCursorPosition;
