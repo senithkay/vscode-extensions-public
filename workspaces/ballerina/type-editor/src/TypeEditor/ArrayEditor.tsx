@@ -112,6 +112,7 @@ export function ArrayEditor(props: ArrayEditorProps) {
                         sx={{ flexGrow: 1 }}
                         label="Type of the Array"
                         required={true}
+                        rootType={props.type}
                     />
                     <TextField
                         label="Size of the Array"
