@@ -49,7 +49,6 @@ import { StateMachine } from "../../stateMachine";
 import { injectAgent, injectAgentCode, injectImportIfMissing } from "../../utils";
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
-
     async exportOASFile(params: ExportOASRequest): Promise<ExportOASResponse> {
         return new Promise(async (resolve) => {
             const res: ExportOASResponse = { openSpecFile: null };
@@ -112,6 +111,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
+            StateMachine.setEditMode();
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
@@ -125,8 +125,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     position: position
                 };
                 commands.executeCommand("BI.project-explorer.refresh");
+                StateMachine.setReadyMode();
                 resolve(result);
             } catch (error) {
+                StateMachine.setReadyMode();
                 console.log(error);
             }
         });
@@ -170,9 +172,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-
     async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
+            StateMachine.setEditMode();
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
@@ -206,8 +208,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 };
                 result = await this.injectAIAgent(params.service, result);
                 commands.executeCommand("BI.project-explorer.refresh");
+                StateMachine.setReadyMode();
                 resolve(result);
             } catch (error) {
+                StateMachine.setReadyMode();
                 console.log(error);
             }
         });
