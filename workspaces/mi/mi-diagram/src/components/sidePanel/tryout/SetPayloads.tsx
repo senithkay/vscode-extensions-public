@@ -246,11 +246,7 @@ export function SetPayloads(props: SetPayloadsProps) {
             <Typography
                 sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
                 variant="body3">
-                {`Save the payload to try out the mediators`}
-                <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '10px' }}>
-                    <Icon name="info" isCodicon />
-                    <Typography variant="body3">Only JSON request types are supported</Typography>
-                </Typography>
+                {`Save Payload for Expression Completions and Mediator Tryouts`}
             </Typography>
             <AutoComplete
                 name="defaultPayload"
