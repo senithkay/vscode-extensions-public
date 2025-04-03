@@ -136,14 +136,45 @@ export class Diagram {
         await sidePanel.close();
     }
 
-    public async clickPlusButtonByPosition(line: number, column: number) {
+    public async addDataMapper(name: string) {
+
+        await this.clickPlusButtonByIndex(0);
+
+        await this.diagramWebView.locator('[id="card-select-Data\\ Mapper"]').click();
+        await this.diagramWebView.getByText('Add new').click();
+        await this.diagramWebView.getByRole('textbox', { name: 'Name' }).click();
+        await this.diagramWebView.getByRole('textbox', { name: 'Name' }).fill(name);
+        await this.diagramWebView.getByRole('button', { name: 'Create' }).click();
+        await this.diagramWebView.getByRole('button', { name: 'Add' }).click();
+
+        await this.openDataMapperFromTreeView(name);
+
+    }
+
+    public async openDataMapperFromResourceView(name: string) {
+        const mediator = await this.getMediator('DataMapper');
+        await mediator.clickLink(name);
+    }
+
+    public async openDataMapperFromTreeView(name: string) {
+        const oaLabel = await this._page.waitForSelector('div[aria-label="Other Artifacts"]', { timeout: 180000 });
+        await oaLabel.click();
+
+        const dmLabel = await this._page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
+        await dmLabel.click();
+
+        const dmItem = await this._page.waitForSelector(`div[aria-label="${name}"]`, { timeout: 180000 });
+        await dmItem.click();
+    }
+
+    private async clickPlusButtonByPosition(line: number, column: number) {
         const link = (await this.getDiagramContainer()).locator(`g[data-linkid=${line},${column}]`);
         await link.waitFor();
         await link.hover();
         await link.getByTestId("add-mediator-button").click();
     }
 
-    public async clickPlusButtonByIndex(index: number) {
+    private async clickPlusButtonByIndex(index: number) {
         const plusBtns = (await this.getDiagramContainer()).getByTestId("add-mediator-button");
         if (await plusBtns.count() > 1) {
             await plusBtns.nth(index).hover();
@@ -152,10 +183,6 @@ export class Diagram {
             await plusBtns.hover();
             await plusBtns.click();
         }
-    }
-
-    public getWebView() {
-        return this.diagramWebView;
     }
 
     private async getDiagramContainer() {

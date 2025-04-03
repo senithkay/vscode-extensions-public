@@ -27,10 +27,9 @@ export default function createTests() {
     initTest(true, true);
 
     if (NEED_INITIAL_SETUP) setupProject();
-    tryBasicMappings();
-    // tryArrayMappings();
-
-    // Test functions
+    testBasicMappings();
+    // testArrayMappings();
+   
     function setupProject() {
       test('Setup project for Data Mapper', async () => {
 
@@ -72,23 +71,29 @@ export default function createTests() {
       });
     }
 
-    function tryBasicMappings() {
+    function testBasicMappings() {
       test('Try Basic Mappings', async () => {
 
         console.log('Trying Basic Mappings');
 
         let dm: DataMapper;
+        const DM_NAME = 'basic';
 
-        await clearNotificationAlerts();
+        await clearNotificationsByCloseButton(page);
+
+        const diagram = new Diagram(page.page, 'Resource');
+        await diagram.init();
 
         if (NEED_INITIAL_SETUP) {
-          dm = await addDataMapper('basic');
+          await diagram.addDataMapper(DM_NAME);
+          dm = new DataMapper(page.page, DM_NAME);
+          await dm.init();
           await dm.loadJsonFromCompFolder();
           expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
         } else {
-          dm = await openDataMapperFromTreeView('basic');
-          //await dm.loadJsonFromCompFolder();
-          expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
+          await diagram.openDataMapperFromTreeView(DM_NAME);
+          dm = new DataMapper(page.page, DM_NAME);
+          await dm.init();
         }
 
         const dmWebView = dm.getWebView();
@@ -166,19 +171,25 @@ export default function createTests() {
       });
     }
 
-    function tryArrayMappings() {
+    function testArrayMappings() {
       test('Try Array Mappings', async () => {
 
         let dm: DataMapper;
+        const DM_NAME = 'array';
+
+        const diagram = new Diagram(page.page, 'Resource');
+        await diagram.init();
 
         if (NEED_INITIAL_SETUP) {
-          dm = await addDataMapper('array');
+          await diagram.addDataMapper(DM_NAME);
+          dm = new DataMapper(page.page, DM_NAME);
+          await dm.init();
           await dm.loadJsonFromCompFolder();
           expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
         } else {
-          dm = await openDataMapperFromTreeView('array');
-          //await dm.loadJsonFromCompFolder();
-          expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
+          await diagram.openDataMapperFromTreeView(DM_NAME);
+          dm = new DataMapper(page.page, DM_NAME);
+          await dm.init();
         }
 
         const dmWebView = dm.getWebView();
@@ -343,61 +354,6 @@ export default function createTests() {
       });
     }
 
-    // Helper functions
-    async function addDataMapper(name: string) {
-      // add data mapper to the service designer, return the data mapper object , should be used inside a test
-      const diagram = new Diagram(page.page, 'Resource');
-
-      await diagram.init();
-      await diagram.clickPlusButtonByIndex(0);
-
-      const diagramWebView = diagram.getWebView();
-
-      await diagramWebView.locator('[id="card-select-Data\\ Mapper"]').click();
-      await diagramWebView.getByText('Add new').click();
-      await diagramWebView.getByRole('textbox', { name: 'Name' }).click();
-      await diagramWebView.getByRole('textbox', { name: 'Name' }).fill(name);
-      await diagramWebView.getByRole('button', { name: 'Create' }).click();
-      await diagramWebView.getByRole('button', { name: 'Add' }).click();
-
-      const dm = await openDataMapperFromTreeView(name);
-      expect(dm.verifyFileCreation()).toBeTruthy();
-      return dm;
-    }
-
-    async function openDataMapperFromResourceView(name: string) {
-      // open data mapper from resource view
-      const diagram = new Diagram(page.page, 'Resource');
-      await diagram.init();
-      console.log('.:.Getting mediator');
-      const mediator = await diagram.getMediator('DataMapper');
-      await mediator.clickLink(name);
-
-      const dm = new DataMapper(page.page, name);
-      await dm.init();
-      return dm;
-    }
-
-    async function openDataMapperFromTreeView(name: string) {
-      // open data mapper from tree view
-
-      // await page.page.getByRole('treeitem', { name: 'Other Artifacts' }).locator('a').click({ timeout: 180000 });
-      // await page.page.getByRole('treeitem', { name: 'Data Mappers' }).locator('a').click({ timeout: 180000 });
-      // await page.page.getByRole('treeitem', { name }).locator('a').click({ timeout: 180000 });
-
-      const oaLabel = await page.page.waitForSelector('div[aria-label="Other Artifacts"]', { timeout: 180000 });
-      await oaLabel.click();
-      const dmLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
-      await dmLabel.click();
-      await page.page.waitForTimeout(1000);
-      const dmItem = await page.page.waitForSelector(`div[aria-label="${name}"]`, { timeout: 180000 });
-      await dmItem.click();
-
-
-      const dm = new DataMapper(page.page, name);
-      await dm.init();
-      return dm;
-    }
   }
   );
 }
