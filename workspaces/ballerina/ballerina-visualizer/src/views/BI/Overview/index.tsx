@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
     ProjectDiagnostics,
     ProjectSource,
@@ -17,7 +17,9 @@ import {
     BuildMode,
     BI_COMMANDS,
     DevantMetadata,
-    SHARED_COMMANDS
+    SHARED_COMMANDS,
+    DIRECTORY_MAP,
+    SCOPE
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox, ProgressIndicator, Overlay } from "@wso2-enterprise/ui-toolkit";
@@ -30,6 +32,7 @@ import ReactMarkdown from "react-markdown";
 import { useQuery } from '@tanstack/react-query'
 import { CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { AlertBoxWithClose } from "../../AIPanel/AlertBoxWithClose";
+import { findScopeByModule } from "./utils";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -279,6 +282,7 @@ interface DeploymentOptionProps {
     onToggle: () => void;
     onDeploy: () => void;
     learnMoreLink?: string;
+    hasDeployableIntegration?: boolean;
 }
 
 function DeploymentOption({
@@ -289,6 +293,7 @@ function DeploymentOption({
     onToggle,
     onDeploy,
     learnMoreLink,
+    hasDeployableIntegration
 }: DeploymentOptionProps) {
     const { rpcClient } = useRpcContext();
 
@@ -317,10 +322,15 @@ function DeploymentOption({
                         <VSCodeLink onClick={openLearnMoreURL} style={{ marginLeft: '4px' }}>Learn more</VSCodeLink>
                     )}
                 </p>
-                <Button appearance="secondary" onClick={(e) => {
-                    e.stopPropagation();
-                    onDeploy();
-                }}>
+                <Button
+                    appearance="secondary"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDeploy();
+                    }}
+                    disabled={!hasDeployableIntegration}
+                    tooltip={hasDeployableIntegration ? "" : "No deployable integration found"}
+                >
                     {buttonText}
                 </Button>
             </DeploymentBody>
@@ -334,9 +344,17 @@ interface DeploymentOptionsProps {
     handleDeploy: () => Promise<void>;
     goToDevant: () => void;
     devantMetadata: DevantMetadata | undefined;
+    hasDeployableIntegration: boolean;
 }
 
-function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, goToDevant, devantMetadata }: DeploymentOptionsProps) {
+function DeploymentOptions({
+    handleDockerBuild,
+    handleJarBuild, 
+    handleDeploy, 
+    goToDevant, 
+    devantMetadata, 
+    hasDeployableIntegration
+}: DeploymentOptionsProps) {
     const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
 
     const toggleOption = (option: string) => {
@@ -366,6 +384,7 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                         onToggle={() => toggleOption("devant")}
                         onDeploy={() => goToDevant()}
                         learnMoreLink={"https://wso2.com/devant/docs"}
+                        hasDeployableIntegration={hasDeployableIntegration}
                     />
                 ) : (
                     <DeploymentOption
@@ -376,6 +395,7 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                         onToggle={() => toggleOption("cloud")}
                         onDeploy={handleDeploy}
                         learnMoreLink={"https://wso2.com/devant/docs"}
+                        hasDeployableIntegration={hasDeployableIntegration}
                     />
                 )}
 
@@ -386,6 +406,7 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                     isExpanded={expandedOptions.has('docker')}
                     onToggle={() => toggleOption('docker')}
                     onDeploy={handleDockerBuild}
+                    hasDeployableIntegration={hasDeployableIntegration}
                 />
 
                 <DeploymentOption
@@ -395,6 +416,7 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                     isExpanded={expandedOptions.has('vm')}
                     onToggle={() => toggleOption('vm')}
                     onDeploy={handleJarBuild}
+                    hasDeployableIntegration={hasDeployableIntegration}
                 />
             </div>
         </>
@@ -535,6 +557,27 @@ export function Overview(props: ComponentDiagramProps) {
         });
     }, [responseText]);
 
+    const deployableIntegrationTypes = useMemo(() => {
+        if (!projectStructure) {
+            return [];
+        }
+
+        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
+        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
+    
+        let scopes: SCOPE[] = [];
+        if (services) {
+            const svcScopes = services
+                .map(svc => findScopeByModule(svc?.serviceModel.moduleName))
+                .filter(svc => svc !== undefined);
+            scopes = Array.from(new Set(svcScopes));
+        }
+        if (automation?.length > 0) {
+            scopes.push(SCOPE.AUTOMATION);
+        }
+    
+        return scopes;
+    }, [projectStructure]);
 
     function isEmptyProject(): boolean {
         return Object.values(projectStructure.directoryMap || {}).every((array) => array.length === 0);
@@ -670,7 +713,9 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     const handleDeploy = async () => {
-        await rpcClient.getBIDiagramRpcClient().deployProject();
+        await rpcClient.getBIDiagramRpcClient().deployProject({
+            integrationTypes: deployableIntegrationTypes
+        });
     };
 
     const handleICP = (icpEnabled: boolean) => {
@@ -827,6 +872,7 @@ export function Overview(props: ComponentDiagramProps) {
                         handleDeploy={handleDeploy}
                         goToDevant={goToDevant}
                         devantMetadata={devantMetadata}
+                        hasDeployableIntegration={deployableIntegrationTypes.length > 0}
                     />
                     <Divider sx={{ margin: "16px 0" }} />
                     <IntegrationControlPlane enabled={enabled} handleICP={handleICP} />
