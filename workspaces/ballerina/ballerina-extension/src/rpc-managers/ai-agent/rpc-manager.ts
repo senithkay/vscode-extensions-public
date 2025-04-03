@@ -65,6 +65,18 @@ export class AiAgentRpcManager implements AIAgentAPI {
         });
     }
 
+    async getAllMemoryManagers(params: AIModelsRequest): Promise<AINodesResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: AINodesResponse = await context.langClient.getAllMemoryManagers(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
     async getModels(params: AIModelsRequest): Promise<AIModelsResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
@@ -416,6 +428,5 @@ export class AiAgentRpcManager implements AIAgentAPI {
             console.log(">>> error updating source", error);
         }
     }
-
 }
 

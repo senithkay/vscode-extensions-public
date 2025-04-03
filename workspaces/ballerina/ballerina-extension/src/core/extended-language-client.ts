@@ -330,6 +330,7 @@ enum EXTENDED_APIS {
     BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition',
     BI_AI_ALL_AGENTS = 'agentManager/getAllAgents',
     BI_AI_ALL_MODELS = 'agentManager/getAllModels',
+    BI_AI_ALL_MEMORY_MANAGERS = 'agentManager/getAllMemoryManagers',
     BI_AI_GET_MODELS = 'agentManager/getModels',
     BI_AI_GET_TOOLS = 'agentManager/getTools',
     BI_AI_GEN_TOOLS = 'agentManager/genTool',
@@ -1018,6 +1019,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getAllModels(params: AIModelsRequest): Promise<AINodesResponse> {
         return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MODELS, params);
+    }
+
+    async getAllMemoryManagers(params: AIModelsRequest): Promise<AINodesResponse> {
+        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MEMORY_MANAGERS, params);
     }
 
     async getModels(params: AIModelsRequest): Promise<AIModelsResponse> {

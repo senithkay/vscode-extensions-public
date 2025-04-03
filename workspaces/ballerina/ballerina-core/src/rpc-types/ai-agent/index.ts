@@ -13,6 +13,7 @@ import { AIAgentRequest, AIAgentResponse, AIAgentToolsUpdateRequest } from "./in
 export interface AIAgentAPI {
     getAllAgents: (params: AINodesRequest) => Promise<AINodesResponse>;
     getAllModels: (params: AIModelsRequest) => Promise<AINodesResponse>;
+    getAllMemoryManagers: (params: AIModelsRequest) => Promise<AINodesResponse>;
     getModels: (params: AIModelsRequest) => Promise<AIModelsResponse>;
     getTools: (params: AIToolsRequest) => Promise<AIToolsResponse>;
     genTool: (params: AIGentToolsRequest) => Promise<AIGentToolsResponse>;

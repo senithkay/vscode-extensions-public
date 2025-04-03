@@ -15,6 +15,7 @@ import { RequestType } from "vscode-messenger-common";
 const _preFix = "ai-agent";
 export const getAllAgents: RequestType<AINodesRequest, AINodesResponse> = { method: `${_preFix}/getAllAgents` };
 export const getAllModels: RequestType<AIModelsRequest, AINodesResponse> = { method: `${_preFix}/getAllModels` };
+export const getAllMemoryManagers: RequestType<AIModelsRequest, AINodesResponse> = { method: `${_preFix}/getAllMemoryManagers` };
 export const getModels: RequestType<AIModelsRequest, AIModelsResponse> = { method: `${_preFix}/getModels` };
 export const getTools: RequestType<AIToolsRequest, AIToolsResponse> = { method: `${_preFix}/getTools` };
 export const genTool: RequestType<AIGentToolsRequest, AIGentToolsResponse> = { method: `${_preFix}/genTool` };
