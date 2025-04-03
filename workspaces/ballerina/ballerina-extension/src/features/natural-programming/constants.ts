@@ -24,7 +24,6 @@ export const PROGRESS_BAR_MESSAGE_FOR_DRIFT = "Checking the drift between code a
 export const PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN = "Fetching and saving access token for natural functions";
 export const WARNING_MESSAGE = "You need to sign up for Ballerina Copilot to detect drift between code and documentation.";
 export const WARNING_MESSAGE_DEFAULT = "Failed to detect drift between code and documentation. Please try again";
-export const WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND = "You need to log in for Ballerina Copilot to get an access token";
 export const WARNING_MESSAGE_FOR_NO_ACTIVE_PROJECT = "The current directory does not contain a Ballerina project.";
 export const LACK_OF_API_DOCUMENTATION_WARNING = "lacks api documentation";
 export const LACK_OF_API_DOCUMENTATION_WARNING_2 = "does not have any api documentation";

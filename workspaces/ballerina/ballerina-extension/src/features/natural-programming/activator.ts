@@ -16,8 +16,9 @@ import { addDefaultModelConfigForNaturalFunctions, getBackendURL,
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
 import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
-    WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND, PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN, WARNING_MESSAGE_FOR_NO_ACTIVE_PROJECT
+    PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN, WARNING_MESSAGE_FOR_NO_ACTIVE_PROJECT
  } from './constants';
+ import { handleLogin } from "../../rpc-managers/ai-panel/utils";
 import { BallerinaProject } from '@wso2-enterprise/ballerina-core';
 import { getCurrentBallerinaProjectFromContext } from '../config-generator/configGenerator';
 import path from 'path';
@@ -162,13 +163,13 @@ async function addConfigFile(configPath: string) {
             try {
                 const token: string = await getTokenForNaturalFunction();
                 if (token == null) {
-                    vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
+                    handleLogin();
                     return;
                 }
 
                 addDefaultModelConfigForNaturalFunctions(configPath, token, await getBackendURL());
             } catch (error) {
-                vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
+                handleLogin();
                 return;
             }
         }
