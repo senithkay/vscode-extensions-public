@@ -456,12 +456,12 @@
             },
             {
                 "command": "ballerina.verifyDocs",
-                "title": "Experimental: Check drift between code and documentation",
+                "title": "Check drift between code and documentation (Experimental)",
                 "category": "Ballerina"
             },
             {
                 "command": "ballerina.configureDefaultModelForNaturalFunctions",
-                "title": "Experimental: Configure default model for natural functions",
+                "title": "Configure default model for natural functions (Experimental)",
                 "category": "Ballerina"
             },
             {
