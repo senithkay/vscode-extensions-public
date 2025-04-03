@@ -580,7 +580,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                 <StyledButton
                                                     appearance="primary"
                                                     onClick={editTypeName}
-                                                    disabled={isTypeNameValid || !tempName || tempName === type.name}
+                                                    disabled={!isTypeNameValid || !tempName}
                                                 >
                                                     Save
                                                 </StyledButton>
