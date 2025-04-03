@@ -199,7 +199,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 
 					if (componentAlreadyExists && gitRoot && selectedProject && selectedOrg) {
 						const resp = await window.showInformationMessage(
-							`A component for the selected directory already exists within ${selectedProject?.name}. Do you want to proceed and create another component?`,
+							`A component for the selected directory already exists within you project(${selectedProject?.name}). Do you want to proceed and create another component?`,
 							{ modal: true },
 							"Proceed",
 						);
