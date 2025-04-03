@@ -137,7 +137,7 @@ function getComposerJSFiles(componentName: string, disableComDebug: boolean, dev
     ];
 }
 
-export function getComposerWebViewOptions(componentName: string, webView: Webview, { disableComDebug = true, devHost = process.env.WEB_VIEW_DEV_HOST as string } = {}): Partial<WebViewOptions> {
+export function getComposerWebViewOptions(componentName: string, webView: Webview, { disableComDebug = false, devHost = process.env.WEB_VIEW_DEV_HOST as string } = {}): Partial<WebViewOptions> {
     return {
         cssFiles: getComposerCSSFiles(disableComDebug, devHost, webView),
         jsFiles: getComposerJSFiles(componentName, disableComDebug, devHost, webView)
