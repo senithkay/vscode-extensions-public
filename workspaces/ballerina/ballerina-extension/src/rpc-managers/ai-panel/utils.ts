@@ -1448,11 +1448,7 @@ export async function searchDocumentation(message: string): Promise<string | Err
         })
     });
 
-    if (response as Response) {
-        return await filterDocumentation(response as Response);
-    } else {
-        return SERVER_ERROR;
-    }
+    return await filterDocumentation(response as Response);
     
 }
 
@@ -2203,6 +2199,9 @@ export async function fetchWithToken(url: string, options: RequestInit) {
                 'Authorization': `Bearer ${newToken}`,
             };
             response = await fetch(url, options);
+        } else {
+            await handleLogin();
+            return;
         }
     }
     return response;
