@@ -11,7 +11,8 @@ import vscode from 'vscode';
 import { ENABLE_BACKGROUND_DRIFT_CHECK } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { addDefaultModelConfigForNaturalFunctions, getBackendURL, getLLMDiagnostics, getTokenForNaturalFunction, getVsCodeRootPath } from "./utils";
+import { addDefaultModelConfigForNaturalFunctions, getBackendURL, 
+    getLLMDiagnostics, getTokenForNaturalFunction, getVsCodeRootPath } from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
 import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
