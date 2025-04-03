@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -15,6 +15,7 @@ import {
     GoToSourceRequest,
     OpenExternalUrlRequest,
     RunExternalCommandRequest,
+    ShowErrorMessageRequest,
     WorkspaceFileRequest,
     executeCommand,
     experimentalEnabled,
@@ -26,6 +27,7 @@ import {
     openExternalUrl,
     runBackgroundTerminalCommand,
     selectFileOrDirPath,
+    showErrorMessage
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { CommonRpcManager } from "./rpc-manager";
@@ -42,4 +44,5 @@ export function registerCommonRpcHandlers(messenger: Messenger) {
     messenger.onRequest(selectFileOrDirPath, (args: FileOrDirRequest) => rpcManger.selectFileOrDirPath(args));
     messenger.onRequest(experimentalEnabled, () => rpcManger.experimentalEnabled());
     messenger.onRequest(getWorkspaceRoot, () => rpcManger.getWorkspaceRoot());
+    messenger.onNotification(showErrorMessage, (args: ShowErrorMessageRequest) => rpcManger.showErrorMessage(args));
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -20,6 +20,7 @@ import {
     OpenExternalUrlRequest,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
+    ShowErrorMessageRequest,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspaceRootResponse,
@@ -33,7 +34,8 @@ import {
     goToSource,
     openExternalUrl,
     runBackgroundTerminalCommand,
-    selectFileOrDirPath
+    selectFileOrDirPath,
+    showErrorMessage
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -83,5 +85,9 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     getWorkspaceRoot(): Promise<WorkspaceRootResponse> {
         return this._messenger.sendRequest(getWorkspaceRoot, HOST_EXTENSION);
+    }
+
+    showErrorMessage(params: ShowErrorMessageRequest): void {
+        return this._messenger.sendNotification(showErrorMessage, HOST_EXTENSION, params);
     }
 }

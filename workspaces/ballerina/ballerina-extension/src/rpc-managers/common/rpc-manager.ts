@@ -24,6 +24,7 @@ import {
     OpenExternalUrlRequest,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
+    ShowErrorMessageRequest,
     SyntaxTree,
     TypeResponse,
     WorkspaceFileRequest,
@@ -208,5 +209,9 @@ export class CommonRpcManager implements CommonRPCAPI {
             const workspaceFolders = workspace.workspaceFolders;
             resolve(workspaceFolders ? { path: workspaceFolders[0].uri.fsPath } : { path: "" });
         });
+    }
+
+    async showErrorMessage(params: ShowErrorMessageRequest): Promise<void> {
+        window.showErrorMessage(params.message);
     }
 }
