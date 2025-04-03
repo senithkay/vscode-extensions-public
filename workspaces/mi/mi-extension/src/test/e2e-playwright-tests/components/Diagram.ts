@@ -136,14 +136,14 @@ export class Diagram {
         await sidePanel.close();
     }
 
-    private async clickPlusButtonByPosition(line: number, column: number) {
+    public async clickPlusButtonByPosition(line: number, column: number) {
         const link = (await this.getDiagramContainer()).locator(`g[data-linkid=${line},${column}]`);
         await link.waitFor();
         await link.hover();
         await link.getByTestId("add-mediator-button").click();
     }
 
-    private async clickPlusButtonByIndex(index: number) {
+    public async clickPlusButtonByIndex(index: number) {
         const plusBtns = (await this.getDiagramContainer()).getByTestId("add-mediator-button");
         if (await plusBtns.count() > 1) {
             await plusBtns.nth(index).hover();
@@ -152,6 +152,10 @@ export class Diagram {
             await plusBtns.hover();
             await plusBtns.click();
         }
+    }
+
+    public getWebView() {
+        return this.diagramWebView;
     }
 
     private async getDiagramContainer() {
@@ -172,6 +176,12 @@ class Mediator {
         const form = new SidePanel(this.container);
         await form.init();
         await form.updateMediator(props);
+    }
+
+    public async clickLink(linkText: string) {
+        const link = this.mediatotNode.locator(`div:text("${linkText}")`);
+        await link.waitFor();
+        await link.click();
     }
 
     public async getDescription() {

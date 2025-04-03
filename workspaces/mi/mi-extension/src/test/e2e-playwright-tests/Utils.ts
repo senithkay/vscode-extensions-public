@@ -80,6 +80,13 @@ export async function clearNotificationAlerts() {
     }
 }
 
+export async function clearNotificationsByCloseButton(page: ExtendedPage) {
+    const notificationsCloseButton = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
+    while (await notificationsCloseButton.count() > 0) {
+        await notificationsCloseButton.first().click({ force: true });
+    }
+}
+
 export async function toggleNotifications(disable: boolean) {
     const notificationStatus = page.page.locator('#status\\.notifications');
     await notificationStatus.waitFor();
