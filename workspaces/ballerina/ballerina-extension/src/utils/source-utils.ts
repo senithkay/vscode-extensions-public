@@ -54,7 +54,7 @@ export async function injectAgentCode(name: string, serviceFile: string, injecti
     // Update the service function code 
     const serviceEdit = new vscode.WorkspaceEdit();
     const serviceSourceCode = `
-        string stringResult = check _${name}Agent->run(request.message);
+        string stringResult = check _${name}Agent->run(request.message, request.sessionId);
         return {message: stringResult};
 `;
     serviceEdit.insert(Uri.file(serviceFile), new Position(injectionPosition.line, 0), serviceSourceCode);

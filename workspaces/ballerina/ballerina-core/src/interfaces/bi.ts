@@ -294,7 +294,8 @@ export type NodePropertyKey =
     | "functionName"
     | "systemPrompt"
     | "prompt"
-    | "enableModelContext";
+    | "enableModelContext"
+    | "memoryId";
 
 export type BranchKind = "block" | "worker";
 

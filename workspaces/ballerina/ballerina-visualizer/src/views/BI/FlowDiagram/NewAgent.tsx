@@ -217,6 +217,7 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
         // update the agent call node
         const updatedAgentCallNode = cloneDeep(agentCallNode);
         updatedAgentCallNode.properties.query.value = rawData["query"];
+        updatedAgentCallNode.properties.memoryId.value = rawData["memoryId"];
         updatedAgentCallNode.properties.connection.value = agentVarName;
         updatedAgentCallNode.codedata.parentSymbol = agentVarName;
         // HACK: add line range
