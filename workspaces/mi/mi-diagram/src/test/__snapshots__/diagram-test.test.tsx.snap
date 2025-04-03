@@ -31831,7 +31831,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 d="M -22 0 L -22 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
-                stroke-dasharray="5,5"
+                stroke-dasharray="0"
                 stroke-width="2"
               />
               <defs>
@@ -31868,7 +31868,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 d="M -22 0 L -22 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
-                stroke-dasharray="5,5"
+                stroke-dasharray="0"
                 stroke-width="2"
               />
               <defs>

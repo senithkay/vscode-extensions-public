@@ -155,7 +155,7 @@ export class SizingVisitor implements Visitor {
                 subSequenceHeight += type === NodeTypes.GROUP_NODE ? NODE_DIMENSIONS.END.HEIGHT : NODE_GAP.Y;
                 subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
                 subSequencesWidth = Math.max(subSequencesWidth, subSequenceWidth);
-                subSequence.viewState = { x: 0, y: 0, w: subSequenceWidth, h: subSequenceHeight, l: subSequenceL, r: subSequenceR, isBrokenLines: sequenceKey !== "default" };
+                subSequence.viewState = { x: 0, y: 0, w: subSequenceWidth, h: subSequenceHeight, l: subSequenceL, r: subSequenceR, isBrokenLines: sequenceKey !== "default" && !subSequence.sequenceAttribute };
                 this.addDiagnostics(subSequence);
             }
         }
