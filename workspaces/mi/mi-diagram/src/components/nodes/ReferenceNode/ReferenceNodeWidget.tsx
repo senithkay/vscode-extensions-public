@@ -108,7 +108,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const getDefinition = async () => {
         let range;
         if (node.mediatorName === MEDIATORS.SEQUENCE) {
-            range = node.stNode?.range?.startTagRange ?? node.getParentStNode()?.range.startTagRange;
+            range = node.stNode?.range?.startTagRange ?? node.getParentStNode()?.range?.startTagRange;
         } else if (node.mediatorName === MEDIATORS.AGGREGATE) {
             range = (node.stNode as Aggregate)?.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.range?.startTagRange;
         }
