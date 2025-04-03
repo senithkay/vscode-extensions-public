@@ -23,6 +23,7 @@ import { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from "../TypeH
 import { TypeHelperContext } from "../Context";
 import { URI, Utils } from "vscode-uri";
 import { debounce } from "lodash";
+import { ArrayEditor } from "./ArrayEditor";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -130,7 +131,8 @@ enum TypeKind {
     RECORD = "Record",
     ENUM = "Enum",
     CLASS = "Service Class",
-    UNION = "Union"
+    UNION = "Union",
+    ARRAY = "Array"
 }
 
 const undoRedoManager = new UndoRedoManager();
@@ -154,6 +156,8 @@ export function TypeEditor(props: TypeEditorProps) {
                     return TypeKind.CLASS;
                 case "UNION":
                     return TypeKind.UNION;
+                case "ARRAY":
+                    return TypeKind.ARRAY;
                 default:
                     return TypeKind.RECORD;
             }
@@ -215,6 +219,9 @@ export function TypeEditor(props: TypeEditorProps) {
                     break;
                 case "UNION":
                     setSelectedTypeKind(TypeKind.UNION);
+                    break;
+                case "ARRAY":
+                    setSelectedTypeKind(TypeKind.ARRAY);
                     break;
                 default:
                     setSelectedTypeKind(TypeKind.RECORD);
@@ -376,6 +383,13 @@ export function TypeEditor(props: TypeEditorProps) {
                         isGraphql={isGraphql}
                         onChange={setType}
                         onValidationError={handleValidationError}
+                    />
+                );
+            case TypeKind.ARRAY:
+                return (
+                    <ArrayEditor
+                        type={type}
+                        onChange={setType}
                     />
                 );
             default:

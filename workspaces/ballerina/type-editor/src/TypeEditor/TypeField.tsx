@@ -25,11 +25,13 @@ interface TypeFieldProps {
     onValidationError?: (isError: boolean) => void;
     rootType: Type;
     isAnonymousRecord?: boolean;
+    label?: string;
+    required?: boolean;
 }
 
 // TODO: Use this component for all the Type fields in TypeEditor
 export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, ref) => {
-    const { type, onChange, placeholder, sx, memberName, rootType, onValidationError, isAnonymousRecord } = props;
+    const { type, onChange, placeholder, sx, memberName, rootType, onValidationError, isAnonymousRecord, label, required } = props;
 
     const typeFieldRef = useRef<HTMLInputElement>(null);
     const typeHelperRef = useRef<HTMLDivElement>(null);
@@ -241,6 +243,8 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                 onChange={handleTypeChange}
                 onFocus={handleTypeFieldFocus}
                 onBlur={handleTypeFieldBlur}
+                label={label}
+                required={required}
             />
             <TypeHelper
                 ref={typeHelperRef}
