@@ -38,10 +38,11 @@ interface TryoutProps {
     getValues: any;
     isActive: boolean;
     model: DiagramService;
+    isTryoutSupported: boolean;
 }
 
 export function TryOutView(props: TryoutProps) {
-    const { documentUri, nodeRange, model } = props;
+    const { documentUri, nodeRange, model, isTryoutSupported } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const [isLoading, setIsLoading] = React.useState(true);
     const [isTryOutInputLoading, setIsTryOutInputLoading] = React.useState(true);
@@ -209,6 +210,10 @@ export function TryOutView(props: TryoutProps) {
         return (
             <SetPayloads documentUri={documentUri} model={props.model} />
         );
+    } else if (!isTryoutSupported) {
+        return (<Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <Icon name="warning" isCodicon /> Try-Out feature is not supported for this artifact type.
+        </Typography>)
     }
 
     const helpTipElement =

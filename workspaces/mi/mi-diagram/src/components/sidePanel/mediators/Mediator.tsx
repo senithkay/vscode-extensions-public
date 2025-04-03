@@ -100,18 +100,14 @@ export function MediatorPage(props: MediatorPageProps) {
                 </PanelContent>}
 
                 <PanelContent id={"tryout"}>
-                    {!isTryoutSupported && (
-                        <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <Icon name="warning" isCodicon /> Try-Out feature is not supported for this artifact type.
-                        </Typography>
-                    )}
-                    {isTryoutSupported && (!showForm || canTryOut) && <TryOutView
+                    {(!showForm || canTryOut) && <TryOutView
                         documentUri={documentUri}
                         nodeRange={nodeRange}
                         mediatorType={mediatorType}
                         getValues={getValues}
                         isActive={activeTab === "tryout" || !showForm}
                         model={props.model}
+                        isTryoutSupported={isTryoutSupported}
                     />}
                     {isTryoutSupported && ((mediatorData || connectorData) && !canTryOut) && (
                         <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
