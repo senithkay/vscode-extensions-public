@@ -8,10 +8,32 @@
  */
 
 import { test } from '@playwright/test';
-import connectionTests from './connectionTests/connection.spec';
-import inboundEpTests from './connectionTests/inboundEndpoint.spec';
-import datamapperTests from './datamapper.spec';
+import connectionTests from './connectorTests/connection.spec';
+import connectorTests from './connectorTests/connector.spec';
+import inboundEpTests from './connectorTests/inboundEndpoint.spec';
+import artifactTests from './artifactTests/artifact.spec';
+import { page } from './Utils';
+const fs = require('fs');
+const path = require('path');
+const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
 
+test.describe.configure({ mode: 'default' });
+
+test.beforeAll(async () => {
+    if (fs.existsSync(videosFolder)) {
+        fs.rmSync(videosFolder, { recursive: true, force: true });
+    }
+    console.log('>>> Starting test suite');
+});
+
+test.describe(artifactTests);
 test.describe(connectionTests);
+test.describe(connectorTests);
 test.describe(inboundEpTests);
-test.describe(datamapperTests);
+
+test.afterAll(async () => {
+    console.log(`>>> Finished test suite`);
+    const dateTime = new Date().toISOString().replace(/:/g, '-');
+    page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.webm`));
+    await page.page?.close();
+});

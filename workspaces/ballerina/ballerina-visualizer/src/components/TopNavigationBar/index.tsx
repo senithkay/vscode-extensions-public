@@ -11,6 +11,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 
 const NavContainer = styled.div`
     display: flex;
@@ -135,36 +136,36 @@ export function TopNavigationBar(props: TopNavigationBarProps) {
 
 function getShortNames(name: string) {
     switch (name) {
-        case "BI Diagram":
+        case MACHINE_VIEW.BIDiagram:
             return "Diagram";
-        case "BI Component View":
+        case MACHINE_VIEW.BIComponentView:
             return "Artifacts";
-        case "BI Welcome":
+        case MACHINE_VIEW.BIWelcome:
             return "Welcome";
-        case "BI Project Form":
+        case MACHINE_VIEW.BIProjectForm:
             return "Project";
-        case "Add Automation":
+        case MACHINE_VIEW.BIMainFunctionForm:
             return "Automation";
-        case "Add Function":
+        case MACHINE_VIEW.BIFunctionForm:
             return "Function";
-        case "Add Test Function":
+        case MACHINE_VIEW.BITestFunctionForm:
             return "Test Function";
-        case "Service Wizard":
-        case "Service Config View":
+        case MACHINE_VIEW.BIServiceWizard:
+        case MACHINE_VIEW.BIServiceConfigView:
             return "Service";
-        case "Service Designer":
+        case MACHINE_VIEW.ServiceDesigner:
             return "Service Designer";
-        case "Listener Config View":
+        case MACHINE_VIEW.BIListenerConfigView:
             return "Listener";
-        case "Add Data Mapper":
+        case MACHINE_VIEW.BIDataMapperForm:
             return "Data Mapper";
-        case "Add Connection Wizard":
-        case "Edit Connection Wizard":
+        case MACHINE_VIEW.AddConnectionWizard:
+        case MACHINE_VIEW.EditConnectionWizard:
             return "Connection";
-        case "View Config Variables":
-        case "Edit Config Variables":
+        case MACHINE_VIEW.ViewConfigVariables:
+        case MACHINE_VIEW.EditConfigVariables:
             return "Configurable Variables";
-        case "Type Diagram":
+        case MACHINE_VIEW.TypeDiagram:
         case "Edit Type":
         case "Add Type":
             return "Types";

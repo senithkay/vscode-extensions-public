@@ -37,4 +37,14 @@ export class ProjectExplorer {
         return currentItem;
     }
 
+    public async goToOverview(projectName: string) {
+        // wait for 1s
+        const projectExplorerRoot = this.explorer.locator(`div[role="treeitem"][aria-label="Project ${projectName}"]`);
+        await projectExplorerRoot.waitFor();
+        await projectExplorerRoot.hover();
+        const locator = this.explorer.getByLabel('Open Project Overview');
+        await locator.waitFor();
+        await locator.click();
+    }
+
 }

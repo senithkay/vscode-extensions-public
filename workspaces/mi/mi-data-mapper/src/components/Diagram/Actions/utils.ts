@@ -12,7 +12,8 @@ import {
     ObjectOutputNode,
     InputNode,
     ArrayOutputNode,
-    SubMappingNode
+    SubMappingNode,
+    UnionOutputNode
 } from "../Node";
 import { ArrayFilterNode } from "../Node/ArrayFilter"
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
@@ -31,6 +32,7 @@ export const INPUT_NODES = [
 export const OUTPUT_NODES = [
     ArrayOutputNode,
     ObjectOutputNode,
+    UnionOutputNode,
     PrimitiveOutputNode
 ];
 

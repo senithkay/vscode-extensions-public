@@ -236,6 +236,13 @@ export function openAIWebview(initialPrompt?: string) {
     }
 }
 
+export function closeAIWebview() {
+    if (AiPanelWebview.currentPanel) {
+        AiPanelWebview.currentPanel.dispose();
+        AiPanelWebview.currentPanel = undefined;
+    }
+}
+
 export function navigateAIView(type: EVENT_TYPE, viewLocation?: AIVisualizerLocation) {
     aiStateService.send({ type: type, viewLocation: viewLocation });
 }

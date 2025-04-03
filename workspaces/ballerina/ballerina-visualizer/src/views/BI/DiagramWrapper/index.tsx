@@ -131,6 +131,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
 
     let isAutomation = false;
     let isResource = false;
+    let isRemote = false;
     let isAgent = false;
     let method = "";
     const parameters = getParameters(syntaxTree);
@@ -140,6 +141,9 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
         method = (syntaxTree as ResourceAccessorDefinition).functionName.value;
     } else if (STKindChecker.isFunctionDefinition(syntaxTree)) {
         isResource = false;
+        method = syntaxTree.functionName.value;
+    } else if (STKindChecker.isObjectMethodDefinition(syntaxTree)) {
+        isRemote = syntaxTree.qualifierList?.some(qualifier => STKindChecker.isRemoteKeyword(qualifier)) || false;
         method = syntaxTree.functionName.value;
     }
 
@@ -180,7 +184,18 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     }
                 />
             )}
-            {!isResource && !isAutomation && (
+            {isRemote && (
+                <TitleBar
+                    title={"Remote"}
+                    subtitleElement={
+                        <SubTitleWrapper>
+                            <Path>{method}</Path>
+                            {parameters && <Parameters>({parameters})</Parameters>}
+                        </SubTitleWrapper>
+                    }
+                />
+            )}
+            {!isResource && !isAutomation && !isRemote && (
                 <TitleBar
                     title={getTitle(view)}
                     subtitleElement={
@@ -238,7 +253,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     onUpdate={handleUpdateDiagram}
                     onReady={handleReadyDiagram}
                 />
-            ) : 
+            ) :
                 view ? (
                     <BIFocusFlowDiagram
                         syntaxTree={syntaxTree}
@@ -279,7 +294,9 @@ function getResourcePath(resource: STNode) {
 }
 
 function getParameters(syntaxTree: STNode) {
-    if (STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
+    if (STKindChecker.isResourceAccessorDefinition(syntaxTree) ||
+        (STKindChecker.isObjectMethodDefinition(syntaxTree) &&
+            syntaxTree.qualifierList?.some(qualifier => STKindChecker.isRemoteKeyword(qualifier)))) {
         return syntaxTree.functionSignature.parameters
             .map((param) => {
                 if (!STKindChecker.isCommaToken(param)) {

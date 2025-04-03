@@ -41,7 +41,7 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DeploymentResponse,
-    DevantComponent,
+    DevantMetadata,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -114,7 +114,7 @@ import {
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
-    getDevantComponent,
+    getDevantMetadata,
     getEnclosedFunction,
     getEndOfFile,
     getExpressionCompletions,
@@ -389,8 +389,8 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getFunctionNames, HOST_EXTENSION);
     }
 
-    getDevantComponent(): Promise<DevantComponent | undefined> {
-        return this._messenger.sendRequest(getDevantComponent, HOST_EXTENSION);
+    getDevantMetadata(): Promise<DevantMetadata | undefined> {
+        return this._messenger.sendRequest(getDevantMetadata, HOST_EXTENSION);
     }
 
     generateOpenApiClient(params: OpenAPIClientGenerationRequest): Promise<GeneratedClientSaveResponse> {

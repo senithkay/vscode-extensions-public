@@ -14,8 +14,7 @@ export async function switchToIFrame(
     page: Page,
     timeout: number = 150000
 ): Promise<Frame | null> {
-    if(process.env.ci)
-        await page.waitForTimeout(5000); // To fix intermittent issues in CI
+    await page.waitForLoadState();
     const webviewFrame = await page.waitForSelector('iframe.webview.ready', { timeout });
     const frame = await webviewFrame.contentFrame();
     if (!frame) {
@@ -34,7 +33,7 @@ export async function switchToIFrame(
 export async function getVsCodeButton(container: Locator, text: string, type: 'primary' | 'secondary'): Promise<Locator> {
     const btn = container.locator(`vscode-button:has-text("${text}")`);
     await btn.waitFor();
-    expect(await btn.getAttribute('appearance')).toBe(type);
+    expect(btn).toHaveAttribute('appearance', type);
     return btn;
 }
 
