@@ -25,17 +25,17 @@ interface MediatorPageProps {
     documentUri: string;
     isUpdate: boolean;
     showForm: boolean;
-    model: DiagramService;
+    artifactModel: DiagramService;
 }
 export function MediatorPage(props: MediatorPageProps) {
-    const { mediatorData, connectorData, mediatorType, documentUri, nodeRange, isUpdate, showForm, model } = props;
+    const { mediatorData, connectorData, mediatorType, documentUri, nodeRange, isUpdate, showForm, artifactModel } = props;
     const [activeTab, setActiveTab] = React.useState("form");
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { dirtyFields, errors } } = useForm<any>({
         defaultValues: {
         }
     });
     const canTryOut = (mediatorData || connectorData?.form)?.canTryOut;
-    const isTryoutSupported = (model.tag === 'resource' || model.tag === 'sequence'); // Allow tryout for APIs and sequences only
+    const isTryoutSupported = (artifactModel.tag === 'resource' || artifactModel.tag === 'sequence'); // Allow tryout for APIs and sequences only
 
     const onChangeTab = (tabId: string) => {
         if (activeTab === tabId) {
@@ -106,7 +106,7 @@ export function MediatorPage(props: MediatorPageProps) {
                         mediatorType={mediatorType}
                         getValues={getValues}
                         isActive={activeTab === "tryout" || !showForm}
-                        artifactModel={props.model}
+                        artifactModel={props.artifactModel}
                         isTryoutSupported={isTryoutSupported}
                     />}
                     {isTryoutSupported && ((mediatorData || connectorData) && !canTryOut) && (

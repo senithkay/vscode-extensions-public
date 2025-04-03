@@ -29,7 +29,7 @@ interface MediatorProps {
     documentUri: string;
     searchValue?: string;
     clearSearch?: () => void;
-    model: DiagramService;
+    artifactModel: DiagramService;
 }
 
 const INBUILT_MODULES = ["favourites", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
@@ -150,7 +150,7 @@ export function Mediators(props: MediatorProps) {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
-                        model={props.model}
+                        artifactModel={props.artifactModel}
                     />
                 </div>;
         } else {
@@ -165,7 +165,7 @@ export function Mediators(props: MediatorProps) {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
-                        model={props.model}
+                        artifactModel={props.artifactModel}
                     />
                 </div>;
         }

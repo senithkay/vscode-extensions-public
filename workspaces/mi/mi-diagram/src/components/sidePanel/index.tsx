@@ -53,7 +53,7 @@ export interface SidePanelListProps {
     nodePosition: Range;
     trailingSpace: string;
     documentUri: string;
-    model: DiagramService;
+    artifactModel: DiagramService;
 }
 
 export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: any, title?: string, icon?: string | ReactNode) => {
@@ -130,7 +130,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
-                        model={props.model}
+                        artifactModel={props.artifactModel}
                     />;
                     sidepanelAddPage(sidePanelContext, page, `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}`, sidePanelContext.formValues.icon);
                 } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
@@ -163,12 +163,12 @@ const SidePanelList = (props: SidePanelListProps) => {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={!isStartNode}
-                        model={props.model}
+                        artifactModel={props.artifactModel}
                     />;
                     sidepanelAddPage(sidePanelContext, page, title, icon);
                 }
             } else {
-                const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} model={props.model} />;
+                const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} artifactModel={props.artifactModel} />;
                 sidepanelAddPage(sidePanelContext, home);
             }
             setLoading(false);

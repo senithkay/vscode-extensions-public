@@ -51,7 +51,7 @@ export interface MediatorPageProps {
     nodePosition: any;
     trailingSpace: string;
     documentUri: string;
-    model: DiagramService;
+    artifactModel: DiagramService;
 }
 export function HomePage(props: MediatorPageProps) {
     const [searchValue, setSearchValue] = useState<string>('');
@@ -113,7 +113,7 @@ export function HomePage(props: MediatorPageProps) {
                         trailingSpace={props.trailingSpace}
                         searchValue={searchValue}
                         clearSearch={clearSearch}
-                        model={props.model} />
+                        artifactModel={props.artifactModel} />
                 </ComponentList>
             )}
             {isConnections && (
@@ -124,7 +124,7 @@ export function HomePage(props: MediatorPageProps) {
                         searchValue={searchValue}
                         clearSearch={clearSearch}
                         trailingSpace={props.trailingSpace}
-                        model={props.model} />
+                        artifactModel={props.artifactModel} />
                 </ComponentList>
             )}
         </Wrapper>

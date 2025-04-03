@@ -77,7 +77,7 @@ export interface ConnectorPageProps {
     clearSearch?: () => void;
     nodePosition: any;
     trailingSpace: string;
-    model: DiagramService;
+    artifactModel: DiagramService;
 }
 
 export function ConnectionPage(props: ConnectorPageProps) {
@@ -294,7 +294,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                 documentUri={props.documentUri}
                 nodeRange={props.nodePosition}
                 showForm={true}
-                model={props.model}
+                artifactModel={props.artifactModel}
             />
         </div>;
         sidepanelAddPage(sidePanelContext, page, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, icon);
