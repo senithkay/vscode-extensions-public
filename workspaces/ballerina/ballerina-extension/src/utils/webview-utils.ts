@@ -49,7 +49,7 @@ export interface WebViewOptions {
     bodyCss?: string;
 }
 
-export function getLibraryWebViewContent(options: WebViewOptions, webView: Webview, background: string ="#fff", padding: string="0px"): string {
+export function getLibraryWebViewContent(options: WebViewOptions, webView: Webview, background: string = "#fff", padding: string = "0px"): string {
     const {
         jsFiles,
         cssFiles,
@@ -129,7 +129,7 @@ function getComposerCSSFiles(disableComDebug: boolean, devHost: string, webView:
 }
 
 function getComposerJSFiles(componentName: string, disableComDebug: boolean, devHost: string, webView: Webview): string[] {
-    const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs') + sep + componentName + '.js'; 
+    const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs') + sep + componentName + '.js';
     return [
         (isDevMode && !disableComDebug) ? join(devHost, componentName + '.js')
             : webView.asWebviewUri(Uri.file(filePath)).toString(),
@@ -137,7 +137,7 @@ function getComposerJSFiles(componentName: string, disableComDebug: boolean, dev
     ];
 }
 
-export function getComposerWebViewOptions(componentName: string, webView: Webview, { disableComDebug = false, devHost = process.env.WEB_VIEW_DEV_HOST as string } = {}): Partial<WebViewOptions> {
+export function getComposerWebViewOptions(componentName: string, webView: Webview, { disableComDebug = true, devHost = process.env.WEB_VIEW_DEV_HOST as string } = {}): Partial<WebViewOptions> {
     return {
         cssFiles: getComposerCSSFiles(disableComDebug, devHost, webView),
         jsFiles: getComposerJSFiles(componentName, disableComDebug, devHost, webView)
