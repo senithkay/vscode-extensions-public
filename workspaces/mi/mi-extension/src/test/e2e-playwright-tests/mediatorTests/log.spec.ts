@@ -18,7 +18,7 @@ import { Diagram } from './../components/Diagram';
 
 export default function createTests() {
   test.describe(async () => {
-    initTest(false);
+    initTest();
 
     test("Log Mediator Tests", async () => {
       await test.step('Create new API', async () => {
