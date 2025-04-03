@@ -153,7 +153,10 @@
                     "ballerina.enableBackgroundDriftCheck": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Enable background drift check for Ballerina source."
+                        "description": "Enable background drift check for Ballerina source.",
+                        "tags": [
+                            "experimental"
+                        ]
                     },
                     "ballerina.enablePerformanceForecast": {
                         "type": "boolean",
@@ -453,12 +456,12 @@
             },
             {
                 "command": "ballerina.verifyDocs",
-                "title": "Check drift between code and documentation",
+                "title": "Check drift between code and documentation (Experimental)",
                 "category": "Ballerina"
             },
             {
                 "command": "ballerina.configureDefaultModelForNaturalFunctions",
-                "title": "Configure default model for natural functions",
+                "title": "Configure default model for natural functions (Experimental)",
                 "category": "Ballerina"
             },
             {
