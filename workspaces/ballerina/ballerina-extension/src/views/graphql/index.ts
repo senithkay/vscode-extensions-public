@@ -9,9 +9,9 @@
 
 import { showGraphqlView } from "./graphqlViewPanel";
 import { MESSAGE_TYPE, showMessage } from "../../utils/showMessage";
-import { ExtendedLangClient, RUN_PROJECT_TO_TRYIT } from "../../core";
+import { RUN_PROJECT_TO_TRYIT } from "../../core";
 
-export async function createGraphqlView(langClient: ExtendedLangClient, serviceAPI: string) {
+export async function createGraphqlView(serviceAPI: string) {
     showMessage(RUN_PROJECT_TO_TRYIT, MESSAGE_TYPE.INFO, true);
-    showGraphqlView(langClient, serviceAPI);
+    showGraphqlView(serviceAPI);
 }

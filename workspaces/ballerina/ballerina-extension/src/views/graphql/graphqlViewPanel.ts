@@ -19,7 +19,7 @@ import { extension } from "../../BalExtensionContext";
 
 let graphqlViewPanel: WebviewPanel | undefined;
 
-export async function showGraphqlView(langClient: ExtendedLangClient, serviceAPI: string): Promise<void> {
+export async function showGraphqlView(serviceAPI: string): Promise<void> {
     if (graphqlViewPanel) {
         graphqlViewPanel.dispose();
     }
@@ -53,8 +53,20 @@ export async function showGraphqlView(langClient: ExtendedLangClient, serviceAPI
         }
     );
 
+    const darkIcon = graphqlViewPanel.webview.asWebviewUri(
+        Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-bi-graphql.svg'))
+    );
+    const lightIcon = graphqlViewPanel.webview.asWebviewUri(
+        Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-bi-graphql.svg'))
+    );
+
+    const icons = {
+        dark: darkIcon.toString(),
+        light: lightIcon.toString()
+    }
+
     if (graphqlViewPanel) {
-        const html = render({ serviceAPI }, graphqlViewPanel.webview);
+        const html = render({ serviceAPI, icons }, graphqlViewPanel.webview);
         if (html) {
             graphqlViewPanel.webview.html = html;
         }

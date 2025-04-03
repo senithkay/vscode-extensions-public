@@ -142,8 +142,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             const port = selectedPort;
             const path = serviceMetadata.basePath;
             const service = `http://localhost:${port}${path}`;
-            const langClient = StateMachine.langClient();
-            await createGraphqlView(langClient, service);
+            await createGraphqlView(service);
         } else {
             const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
             selectedService.port = selectedPort;
