@@ -59,7 +59,7 @@ namespace S {
 const EditRow = styled.div`
     display: flex;
     gap: 8px;
-    align-items: flex-end;
+    align-items: flex-start;
     width: 100%;
 `;
 
@@ -83,6 +83,7 @@ const ButtonGroup = styled.div`
     display: flex;
     gap: 8px;
     margin-bottom: 2px; 
+    margin-top: 38px;
 `;
 
 const StyledButton = styled(Button)`
