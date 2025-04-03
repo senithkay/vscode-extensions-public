@@ -235,14 +235,19 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	});
 	const _getGithubUrlState = async (orgId: string): Promise<string> => {
 		const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.wso2-platform/ghapp`));
-		const state = { origin: "vscode.choreo.ext", orgId, callbackUri: callbackUrl.toString(), extensionName: webviewStateStore.getState().state.extensionName };
+		const state = {
+			origin: "vscode.choreo.ext",
+			orgId,
+			callbackUri: callbackUrl.toString(),
+			extensionName: webviewStateStore.getState().state.extensionName,
+		};
 		return Buffer.from(JSON.stringify(state), "binary").toString("base64");
 	};
 	messenger.onRequest(TriggerGithubAuthFlow, async (orgId: string) => {
 		const { authUrl, clientId, redirectUrl, devantRedirectUrl } = choreoEnvConfig.getGHAppConfig();
 		const extName = webviewStateStore.getState().state.extensionName;
 		const state = await _getGithubUrlState(orgId);
-		const ghURL = Uri.parse(`${authUrl}?redirect_uri=${extName === 'Devant' ? devantRedirectUrl : redirectUrl}&client_id=${clientId}&state=${state}`);
+		const ghURL = Uri.parse(`${authUrl}?redirect_uri=${extName === "Devant" ? devantRedirectUrl : redirectUrl}&client_id=${clientId}&state=${state}`);
 		await env.openExternal(ghURL);
 	});
 	messenger.onRequest(TriggerGithubInstallFlow, async (orgId: string) => {
@@ -387,7 +392,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		const resourceRef = `service:/${project.handler}/${component.metadata?.handler}/v1/${params?.marketplaceItem?.component?.endpointId}/${params.visibility}`;
 		if (existsSync(componentYamlPath)) {
 			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			let schemaVersion = Number(componentYamlFileContent.schemaVersion)
+			const schemaVersion = Number(componentYamlFileContent.schemaVersion);
 			if (schemaVersion < 1.2) {
 				componentYamlFileContent.schemaVersion = "1.2";
 			}

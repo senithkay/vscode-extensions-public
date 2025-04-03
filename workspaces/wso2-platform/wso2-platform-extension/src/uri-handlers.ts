@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { join } from "path";
+import path, { join } from "path";
 import {
 	CommandIds,
 	type ICloneProjectCmdParams,
@@ -20,6 +20,7 @@ import { ProgressLocation, type ProviderResult, type QuickPickItem, type Uri, co
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getUserInfoForCmd } from "./cmds/cmd-utils";
+import { updateContextFile } from "./cmds/create-directory-context-cmd";
 import { choreoEnvConfig } from "./config";
 import { ext } from "./extensionVariables";
 import { getGitRemotes, getGitRoot } from "./git/util";
@@ -29,7 +30,7 @@ import { contextStore, getContextKey, waitForContextStoreToLoad } from "./stores
 import { dataCacheStore } from "./stores/data-cache-store";
 import { locationStore } from "./stores/location-store";
 import { webviewStateStore } from "./stores/webview-state-store";
-import { delay, openDirectory } from "./utils";
+import { delay, isSamePath, openDirectory } from "./utils";
 
 export function activateURIHandlers() {
 	window.registerUriHandler({
@@ -173,7 +174,7 @@ export const cloneOrOpenDir = async (
 		if (selectedPaths.size > 0) {
 			const selectedPath = await getSelectedPath(Array.from(selectedPaths));
 			if (selectedPath) {
-				openProjectDirectory(join(selectedPath, subDir), !!matchingComp);
+				await switchContextAndOpenDir(join(selectedPath, subDir), org, project, matchingComp ? componentName : null);
 			}
 		} else {
 			commands.executeCommand(CommandIds.CloneProject, {
@@ -189,7 +190,7 @@ export const cloneOrOpenDir = async (
 	} else if (projectLocations.length > 0) {
 		const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
 		if (selectedPath) {
-			openProjectDirectory(selectedPath);
+			await switchContextAndOpenDir(selectedPath, org, project);
 		}
 	} else {
 		commands.executeCommand(CommandIds.CloneProject, {
@@ -200,6 +201,50 @@ export const cloneOrOpenDir = async (
 			integrationType,
 			integrationDisplayType,
 		} as ICloneProjectCmdParams);
+	}
+};
+
+const switchContextAndOpenDir = async (selectedPath: string, org: Organization, project: Project, componentName?: string | null) => {
+	const gitRoot = await getGitRoot(ext.context, selectedPath);
+	if (!gitRoot) {
+		window.showErrorMessage(`Failed to find Git root of ${selectedPath}`);
+		return;
+	}
+	const projectCache = dataCacheStore.getState().getProjects(org?.handle);
+	const contextFilePath = updateContextFile(gitRoot, authStore.getState().state.userInfo!, project, org, projectCache);
+
+	const isWithinWorkspace = workspace.workspaceFolders?.some((item) => isSamePath(item.uri?.fsPath, selectedPath));
+	if (isWithinWorkspace) {
+		if (
+			contextStore.getState().state?.selected?.orgHandle === org.handle &&
+			contextStore.getState().state?.selected?.projectHandle === project.handler
+		) {
+			window.showInformationMessage(`You are already within the ${componentName ? "component" : "project"} directory`);
+		} else {
+			const matching = contextStore.getState().state.items[getContextKey(org, project)];
+			if (matching) {
+				contextStore.getState().changeContext(matching);
+			} else {
+				contextStore.getState().refreshState();
+				await waitForContextStoreToLoad();
+				if (contextStore.getState().state?.selected?.orgHandle !== org.handle) {
+					await window.withProgress({ title: `Switching to organization ${org.name}...`, location: ProgressLocation.Notification }, () =>
+						ext?.clients?.rpcClient?.changeOrgContext(org?.id?.toString()!),
+					);
+				}
+
+				contextStore.getState().onSetNewContext(org, project, {
+					contextFileFsPath: contextFilePath,
+					dirFsPath: selectedPath,
+					workspaceName: path.basename(gitRoot),
+					projectRootFsPath: path.dirname(path.dirname(contextFilePath)),
+				});
+			}
+			window.showInformationMessage(`Switching to ${project.name} within organization ${org.name}`);
+		}
+	} else {
+		ext.context.globalState.update("open-local-repo", getContextKey(org, project));
+		openProjectDirectory(selectedPath, !!componentName);
 	}
 };
 

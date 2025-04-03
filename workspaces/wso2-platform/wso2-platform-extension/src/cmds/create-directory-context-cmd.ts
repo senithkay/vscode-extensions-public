@@ -24,7 +24,7 @@ import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { getGitRemotes, getGitRoot } from "../git/util";
-import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
+import { contextStore, getContextKey, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
@@ -142,6 +142,7 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 							projectRootFsPath: path.dirname(path.dirname(contextFilePath)),
 						});
 					} else {
+						ext.context.globalState.update("open-local-repo", getContextKey(selectedOrg, selectedProject));
 						openDirectory(gitRoot, "Where do you want to open the project directory?");
 					}
 				}

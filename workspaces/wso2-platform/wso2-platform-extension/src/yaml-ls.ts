@@ -9,10 +9,10 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as yaml from "js-yaml";
 import { Uri, extensions } from "vscode";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
-import * as yaml from "js-yaml";
 
 const SCHEMA = "choreo";
 
@@ -30,8 +30,8 @@ export async function registerYamlLanguageServer(): Promise<void> {
 			componentYamlInit: `${SCHEMA}://schema/component-init`,
 			componentV1_0Yaml: `${SCHEMA}://schema/component-v1.0`,
 			componentV1_1Yaml: `${SCHEMA}://schema/component-v1.1`,
-			componentV1_2Yaml: `${SCHEMA}://schema/component-v1.2`
-		}
+			componentV1_2Yaml: `${SCHEMA}://schema/component-v1.2`,
+		};
 		const schemasPaths = {
 			[schemas2.endpointsYaml]: path.join(schemaBasePath, "endpoints-yaml-schema.json"),
 			[schemas2.componentConfigYaml]: path.join(schemaBasePath, "component-config-yaml-schema.json"),
@@ -39,29 +39,32 @@ export async function registerYamlLanguageServer(): Promise<void> {
 			[schemas2.componentV1_0Yaml]: path.join(schemaBasePath, "component-yaml-schema-1_0.json"),
 			[schemas2.componentV1_1Yaml]: path.join(schemaBasePath, "component-yaml-schema-1_1.json"),
 			[schemas2.componentV1_2Yaml]: path.join(schemaBasePath, "component-yaml-schema-1_2.json"),
-		}
+		};
 
 		function onRequestSchemaURI(resource: string): string | undefined {
-			if(resource.endsWith(`.choreo/endpoints.yaml`)){
+			if (resource.endsWith(".choreo/endpoints.yaml")) {
 				return schemas2.endpointsYaml;
-			}else if(resource.endsWith(`.choreo/component-config.yaml`)){
+			}
+			if (resource.endsWith(".choreo/component-config.yaml")) {
 				return schemas2.componentConfigYaml;
-			}else if(resource.endsWith(`.choreo/component.yaml`)){
-				try{
+			}
+			if (resource.endsWith(".choreo/component.yaml")) {
+				try {
 					const filePath = Uri.parse(resource).fsPath;
-					let parsedData: {schemaVersion?: number | string} = yaml.load(fs.readFileSync(filePath, "utf8")) as any;
-					const schemaVersion = parsedData?.schemaVersion?.toString()
-					if (schemaVersion === "1.0" || schemaVersion === "1"){
-						return schemas2.componentV1_0Yaml
-					}else if (schemaVersion === "1.1"){
-						return schemas2.componentV1_1Yaml
-					}else if (schemaVersion === "1.2"){
-						return schemas2.componentV1_2Yaml
-					}else{
-						return schemas2.componentYamlInit
+					const parsedData: { schemaVersion?: number | string } = yaml.load(fs.readFileSync(filePath, "utf8")) as any;
+					const schemaVersion = parsedData?.schemaVersion?.toString();
+					if (schemaVersion === "1.0" || schemaVersion === "1") {
+						return schemas2.componentV1_0Yaml;
 					}
-				}catch{
-					return schemas2.componentYamlInit
+					if (schemaVersion === "1.1") {
+						return schemas2.componentV1_1Yaml;
+					}
+					if (schemaVersion === "1.2") {
+						return schemas2.componentV1_2Yaml;
+					}
+					return schemas2.componentYamlInit;
+				} catch {
+					return schemas2.componentYamlInit;
 				}
 			}
 		}
