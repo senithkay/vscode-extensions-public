@@ -85,7 +85,7 @@ import * as vscode from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from "vscode-messenger-common";
 import { registerChoreoRpcResolver } from "../choreo-rpc";
-import { getChoreoExecPath } from "../choreo-rpc/cli-install";
+import { getChoreoEnv, getChoreoExecPath } from "../choreo-rpc/cli-install";
 import { quickPickWithLoader } from "../cmds/cmd-utils";
 import { submitCreateComponentHandler } from "../cmds/create-component-cmd";
 import { choreoEnvConfig } from "../config";
@@ -224,14 +224,13 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		outputChanelMap.get(params.key)?.show();
 	});
 	messenger.onRequest(ViewRuntimeLogs, async ({ orgName, projectName, componentName, deploymentTrackName, envName, type }) => {
-		const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
-		window
-			.createTerminal(
-				`${componentName}:${type.replace("component-", "")}-logs`,
-				`export CHOREO_ENV=${vscode.workspace.getConfiguration().get("WSO2.WSO2-Platform.Advanced.ChoreoEnvironment")} && ${getChoreoExecPath()}`,
-				args,
-			)
-			.show();
+		// todo: export the env from here
+		if (getChoreoEnv() !== "prod") {
+			window.showErrorMessage("Choreo extension currently displays runtime logs is only if 'WSO2.Platform.Advanced.ChoreoEnvironment' is set to 'prod'");
+			return;
+		}
+		const args = ["logs", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
+		window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, getChoreoExecPath(), args).show();
 	});
 	const _getGithubUrlState = async (orgId: string): Promise<string> => {
 		const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.wso2-platform/ghapp`));

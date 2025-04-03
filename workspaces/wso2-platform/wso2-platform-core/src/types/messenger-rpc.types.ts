@@ -130,7 +130,7 @@ export interface ShowInOutputChannelReq {
 }
 
 export interface ViewRuntimeLogsReq {
-	type: "component-application" | "component-gateway";
+	type: "application" | "gateway";
 	orgName: string;
 	projectName: string;
 	componentName: string;

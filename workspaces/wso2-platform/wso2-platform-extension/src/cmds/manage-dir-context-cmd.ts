@@ -15,11 +15,10 @@ import {
 } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
-import { authStore } from "../stores/auth-store";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { removeContext } from "./create-directory-context-cmd";
-import { setExtensionName } from "./cmd-utils";
+import { getUserInfoForCmd, setExtensionName } from "./cmd-utils";
 
 export function manageProjectContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -27,10 +26,7 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 			setExtensionName(params?.extName)
 			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
-				const userInfo = authStore.getState().state.userInfo;
-				if (!userInfo) {
-					throw new Error("User is not logged in");
-				}
+				await getUserInfoForCmd("manage project");
 
 				const quickPickOptions: QuickPickItem[] = [];
 
