@@ -32,7 +32,7 @@ export class Form {
         }
     }
 
-    public async switchToFormView() {
+    public async switchToFormView(isPopUp?: boolean) {
         if (!this._name || !this._page) {
             throw new Error("Name and Page are required to switch to Form View");
         }
@@ -40,7 +40,11 @@ export class Form {
         if (!webview) {
             throw new Error("Failed to switch to Form View iframe");
         }
-        this.container = webview.locator('div#root');
+        if (isPopUp) {
+            this.container = webview.locator('#popUpPanel');
+        } else {
+            this.container = webview.locator('div#root');
+        }
     }
 
     public async close() {
