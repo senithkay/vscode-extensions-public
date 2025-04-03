@@ -101,12 +101,17 @@ export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps
         validateIdentifierName(e.target.value);
     };
 
+    const handleOnFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
+        validateIdentifierName(e.target.value);
+    }
+
     return (
         <TextField
             ref={ref}
             value={value}
             onChange={handleChange}
             onBlur={handleOnBlur}
+            onFocus={handleOnFocus}
             placeholder={placeholder}
             errorMsg={internalErrorMsg}
             label={label}

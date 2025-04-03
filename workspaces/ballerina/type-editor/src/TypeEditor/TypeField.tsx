@@ -60,12 +60,13 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
             ?.setSelectionRange(newCursorPosition, newCursorPosition);
     };
 
-    const handleTypeFieldFocus = () => {
+    const handleTypeFieldFocus = (e: React.FocusEvent<HTMLInputElement>) => {
         const rect = typeFieldRef.current.getBoundingClientRect();
         const sidePanelLeft = window.innerWidth - 400; // Side panel width
         const helperPaneLeftOffset = sidePanelLeft - rect.left;
         setHelperPaneOffset({ top: 0, left: helperPaneLeftOffset });
         setHelperPaneOpened(true);
+        validateType(e.target.value);
     };
 
     const handleTypeFieldBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
@@ -88,8 +89,17 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
         if (isAnonymousRecord) {
             return;
         }
+
+        // Skip validation for imported module types (module:Type format) till imported validation are sorted
+        if (value.includes(':')) {
+            const [moduleName, typeName] = value.split(':');
+            if (moduleName && typeName) {
+                // Valid module:Type format, skip validation
+                return;
+            }
+        }
         const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
-        
+
         const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
             filePath: Utils.joinPath(URI.file(projectUri), 'types.bal').fsPath
         });
@@ -98,7 +108,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
             filePath: rootType?.codedata?.lineRange?.fileName || "types.bal",
             context: {
                 expression: value,
-                startLine:{
+                startLine: {
                     line: rootType?.codedata?.lineRange?.startLine?.line ?? endPosition.line,
                     offset: rootType?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
                 },
@@ -116,9 +126,9 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                             offset: rootType?.codedata?.lineRange?.endLine?.offset ?? endPosition.offset
                         },
                         fileName: rootType?.codedata?.lineRange?.fileName
-                    },  
+                    },
                 },
-                property:  {
+                property: {
                     metadata: {
                         label: "",
                         description: "",
@@ -129,7 +139,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                     editable: true
                 }
             }
-        }); 
+        });
         console.log("+++=RESPONSE TYPE", response);
         if (response.diagnostics.length > 0) {
             setTypeError(response.diagnostics[0].message);
@@ -142,7 +152,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
 
     // const validateType = async (value: string) => {
     //     const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
-        
+
     //     const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
     //         filePath: Utils.joinPath(URI.file(projectUri), 'types.bal').fsPath
     //     });

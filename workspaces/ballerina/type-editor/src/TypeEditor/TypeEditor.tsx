@@ -431,6 +431,10 @@ export function TypeEditor(props: TypeEditorProps) {
         await validateTypeName(e.target.value); 
     };
 
+    const handleOnFieldFocus = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        await validateTypeName(e.target.value);
+    }
+
     const validateTypeName = useCallback(debounce(async (value: string) => {
         const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
 
@@ -545,6 +549,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                     value={tempName}
                                                     errorMsg={nameError}
                                                     onBlur={handleOnBlur}
+                                                    onFocus={handleOnFieldFocus}
                                                     onChange={(e) => handleOnTypeNameUpdate(e.target.value)}
                                                     description={type.properties["name"].metadata.description}
                                                     required={!type.properties["name"].optional}
@@ -589,7 +594,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                 handleOnTypeNameChange((e.target as HTMLInputElement).value);
                                             }
                                         }}
-                                        onFocus={(e) => e.target.select()}
+                                        onFocus={(e) => {e.target.select(); validateTypeName(e.target.value)}}
                                         ref={nameInputRef}
                                     />
                                 </TextFieldWrapper>
