@@ -7,25 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { MAX_FILE_SIZE } from '../constants';
+import { MAX_FILE_SIZE, VALID_FILE_TYPES } from "../views/AIPanel/constants";
 
 /**
  * Function to Handle file attachment
  */
 
-export const handleFileAttach = (
-    e: any,
-    setFiles: Function,
-    setImages: Function,
-    setFileUploadStatus: Function,
-) => {
+export const handleFileAttach = (e: any, setFiles: Function, setImages: Function, setFileUploadStatus: Function) => {
     const files = e.target.files;
-    const validFileTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
-    const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
+    const validFileTypes = VALID_FILE_TYPES.files;
+    const validImageTypes = VALID_FILE_TYPES.images;
 
     for (const file of files) {
         if (file.size > MAX_FILE_SIZE) {
-            setFileUploadStatus({ type: 'error', text: `File '${file.name}' exceeds the size limit of 5 MB.` });
+            setFileUploadStatus({ type: "error", text: `File '${file.name}' exceeds the size limit of 5 MB.` });
             continue;
         }
 
@@ -33,21 +28,28 @@ export const handleFileAttach = (
             const reader = new FileReader();
             reader.onload = (event: any) => {
                 const fileContents = event.target.result;
-                setFiles((prevFiles: any) => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
-                setFileUploadStatus({ type: 'success', text: `File uploaded successfully.` });
+                setFiles((prevFiles: any) => [
+                    ...prevFiles,
+                    { fileName: file.name, fileType: file.type, fileContent: fileContents },
+                ]);
+                setFileUploadStatus({ type: "success", text: `File uploaded successfully.` });
             };
-            reader.readAsText(file);
+            if (file.type === "application/pdf") {
+                reader.readAsDataURL(file); // Convert PDF to base64
+            } else {
+                reader.readAsText(file);
+            }
         } else if (validImageTypes.includes(file.type)) {
             const reader = new FileReader();
             reader.onload = (event: any) => {
                 const imageBase64 = event.target.result;
                 setImages((prevImages: any) => [...prevImages, { imageName: file.name, imageBase64: imageBase64 }]);
-                setFileUploadStatus({ type: 'success', text: `File uploaded successfully.` });
+                setFileUploadStatus({ type: "success", text: `File uploaded successfully.` });
             };
             reader.readAsDataURL(file);
         } else {
-            setFileUploadStatus({ type: 'error', text: `File format not supported for '${file.name}'` });
+            setFileUploadStatus({ type: "error", text: `File format not supported for '${file.name}'` });
         }
     }
-    e.target.value = '';  
+    e.target.value = "";
 };

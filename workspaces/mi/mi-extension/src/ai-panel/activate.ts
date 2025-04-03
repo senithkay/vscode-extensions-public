@@ -16,6 +16,7 @@ import { extension } from '../MIExtensionContext';
 
 interface FileObject {
     fileName: string;
+    fileType: string;
     fileContent: string;
 }
 

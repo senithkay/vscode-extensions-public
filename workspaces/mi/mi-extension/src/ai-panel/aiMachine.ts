@@ -38,6 +38,7 @@ interface AiMachineContext extends AIVisualizerLocation {
 
 interface FileObject {
     fileName: string;
+    fileType: string;
     fileContent: string;
 }
 

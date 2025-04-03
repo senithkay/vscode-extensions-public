@@ -12,6 +12,7 @@ import { ExtensionContext } from "vscode";
 
 interface FileObject {
     fileName: string;
+    fileType: string;
     fileContent: string;
 }
 

@@ -221,6 +221,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    handleFileRequest,
+    handleFileResponse,
     getAllDependenciesRequest,
     getSTRequest,
     getSTResponse,
@@ -262,7 +264,7 @@ import {
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
-import { copy, remove } from 'fs-extra';
+import { copy, exists, remove } from 'fs-extra';
 import { isEqual, reject } from "lodash";
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
@@ -3263,6 +3265,57 @@ ${endpointAttributes}
 
 
     }
+
+    async handleFileWithFS(params: handleFileRequest): Promise<handleFileResponse> {
+        const { fileName, filePath, operation, content } = params;
+
+        if (!filePath) {
+            console.error("File path is undefined");
+            return { status: false, content: "File path is required" };
+        }
+
+        const isExist = fs.existsSync(filePath);
+
+        try {
+            switch (operation) {
+                case 'read':
+                    if (isExist) {
+                        const fileContent = fs.readFileSync(filePath, "utf-8");
+                        return { status: true, content: fileContent };
+                    } else {
+                        return { status: false, content: "File not found" };
+                    }
+
+                case 'write':
+                    if (content !== undefined) {
+                        await replaceFullContentToFile(filePath, content);
+                        window.showInformationMessage(`Reverted ${fileName} to last checkpoint.`);
+                        return { status: true, content : content };
+                    } else {
+                        console.error("File content is undefined");
+                        return { status: false, content: "File content is required for write operation" };
+                    }
+
+                case 'delete':
+                    if (isExist) {
+                        fs.unlinkSync(filePath);
+                        window.showInformationMessage(`Deleted ${fileName} successfully.`);
+                        return { status: true, content: "File deleted successfully" };
+                    } else {
+                        window.showInformationMessage(`File with name ${fileName} not found.`);
+                        return { status: false, content: "File not found" };
+                    }
+
+                default:
+                    console.error(`Invalid file operation: ${operation}`);
+                    return { status: false, content: "Invalid file operation" };
+            } 
+        } catch (error) {
+            console.error(`Error during file operation (${operation}) at ${filePath}:`, error);
+            return { status: false, content: `Error during file operation: ${(error as Error).message}` };
+        }
+    }
+        
     async highlightCode(params: HighlightCodeRequest) {
         const documentUri = StateMachine.context().documentUri;
         let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
@@ -3284,12 +3337,12 @@ ${endpointAttributes}
             throw new Error('No workspace is currently open');
         }
 
-        var rootPath = workspaceFolders[0].uri.fsPath;
-        rootPath += '/src/main/wso2mi/artifacts';
+        var workspaceDir = workspaceFolders[0].uri.fsPath;
+        const artifactDirPath = workspaceDir + '/src/main/wso2mi/artifacts';
         const fileContents: string[] = [];
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
         for (const folder of resourceFolders) {
-            const folderPath = path.join(rootPath, folder);
+            const folderPath = path.join(artifactDirPath, folder);
             // Check if the folder exists before reading its contents
             if (fs.existsSync(folderPath)) {
                 const files = await fs.promises.readdir(folderPath);
@@ -3305,7 +3358,7 @@ ${endpointAttributes}
                 }
             }
         }
-        return { context: fileContents };
+        return { context: fileContents, rootPath: workspaceDir };
     }
 
     async getProjectUuid(): Promise<GetProjectUuidResponse> {
@@ -3865,13 +3918,14 @@ ${endpointAttributes}
         if (currentFile && !fs.lstatSync(currentFile).isDirectory()) {
             currentFileContent = fs.readFileSync(currentFile, 'utf8');
         }
-        var rootPath = workspaceFolders[0].uri.fsPath;
-        rootPath += '/src/main/wso2mi/artifacts';
+         
+        const workspaceDir = workspaceFolders[0].uri.fsPath;;
+        const artifactDirPath = workspaceDir + '/src/main/wso2mi/artifacts';
         const fileContents: string[] = [];
         fileContents.push(currentFileContent);
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
         for (const folder of resourceFolders) {
-            const folderPath = path.join(rootPath, folder);
+            const folderPath = path.join(artifactDirPath, folder);
             // Check if the folder exists before reading its contents
             if (fs.existsSync(folderPath)) {
                 const files = await fs.promises.readdir(folderPath);
@@ -3891,14 +3945,19 @@ ${endpointAttributes}
             }
         }
 
-        return { context: fileContents };
+        return { context: fileContents, rootPath: workspaceDir };
     }
 
     async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
-
         const config = vscode.workspace.getConfiguration('MI');
         const ROOT_URL = config.get('rootUrl') as string;
-        return { url: ROOT_URL };
+        const ENHANCED_ROOT_URL = config.get('enhancedRootUrl') as string;
+        const RUNTIME_THRESHOLD_VERSION = RUNTIME_VERSION_440;
+        const runtimeVersion = await getMIVersionFromPom();
+        
+        const isVersionThresholdReached = runtimeVersion ? compareVersions(runtimeVersion, RUNTIME_THRESHOLD_VERSION) : -1;
+
+        return isVersionThresholdReached < 0 ? { url: ROOT_URL } : { url: ENHANCED_ROOT_URL };
     }
 
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {

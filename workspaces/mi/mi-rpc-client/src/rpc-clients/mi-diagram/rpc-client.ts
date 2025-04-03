@@ -186,6 +186,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    handleFileRequest,
+    handleFileResponse,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -309,6 +311,7 @@ import {
     updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile,
+    handleFileWithFS,
     StoreConnectorJsonResponse,
     getStoreConnectorJSON,
     TestDbConnectionRequest,
@@ -674,6 +677,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(writeContentToFile, HOST_EXTENSION, params);
     }
 
+    handleFileWithFS(params: handleFileRequest): Promise<handleFileResponse> {
+        return this._messenger.sendRequest(handleFileWithFS, HOST_EXTENSION, params);
+    }
+
     highlightCode(params: HighlightCodeRequest): void {
         return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
     }
@@ -771,7 +778,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     }
 
     copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
-        return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params)
+        return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params);
     }
 
     copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {

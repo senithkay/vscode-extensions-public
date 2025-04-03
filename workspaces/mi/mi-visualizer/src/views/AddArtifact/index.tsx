@@ -19,6 +19,7 @@ import path from "path";
 import { handleFileAttach } from "../../utils/fileAttach";
 import { RUNTIME_VERSION_440 } from "../../constants";
 import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+import { VALID_FILE_TYPES } from "../AIPanel/constants";
 
 const Container = styled.div({
     display: "flex",
@@ -311,6 +312,7 @@ export function AddArtifactView() {
                                     type="file"
                                     style={{ display: "none" }}
                                     multiple
+                                    accept={[...VALID_FILE_TYPES.files, ...VALID_FILE_TYPES.images].join(",")}
                                     onChange={(e: any) => handleFileAttach(e, setFiles, setImages, setFileUploadStatus)}
                                 />
                                 <Button 

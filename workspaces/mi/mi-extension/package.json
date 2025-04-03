@@ -107,6 +107,11 @@
             "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v2.0",
             "description": "Root URL for Backend Services\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v2.0"
           },
+          "MI.enhancedRootUrl": {
+            "type": "string",
+            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v3",
+            "description": "Enhanced Root URL for Backend Services on Synapse Expressions\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v3"
+          },
           "MI.authOrg": {
             "type": "string",
             "default": "wso2mi",

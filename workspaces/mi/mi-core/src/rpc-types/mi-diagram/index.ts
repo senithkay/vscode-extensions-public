@@ -40,6 +40,8 @@ import {
     AIUserInput,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    handleFileRequest,
+    handleFileResponse,
     CreateLocalEntryRequest,
     CreateLocalEntryResponse,
     FileDirResponse,
@@ -135,7 +137,8 @@ import {
     GetSelectiveArtifactsResponse,
     GetBackendRootUrlResponse,
     RegistryArtifactNamesResponse,
-    ListRegistryArtifactsRequest, RangeFormatRequest,
+    ListRegistryArtifactsRequest,
+    RangeFormatRequest,
     MigrateProjectRequest,
     MigrateProjectResponse,
     DownloadConnectorResponse,
@@ -306,6 +309,7 @@ export interface MiDiagramAPI {
     migrateProject: (params: MigrateProjectRequest) => Promise<MigrateProjectResponse>;
     getAIResponse: (params: AIUserInput) => Promise<string>;
     writeContentToFile: (params: WriteContentToFileRequest) => Promise<WriteContentToFileResponse>;
+    handleFileWithFS: (params: handleFileRequest) => Promise<handleFileResponse>;
     highlightCode: (params: HighlightCodeRequest) => void;
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;

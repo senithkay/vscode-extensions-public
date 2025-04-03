@@ -1,0 +1,497 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { CopilotChatEntry, RpcClientType, Role, MessageType, ChatMessage } from "./types";
+
+import { GetWorkspaceContextResponse, MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import {
+    MI_ARTIFACT_EDIT_BACKEND_URL,
+    MI_ARTIFACT_GENERATION_BACKEND_URL,
+    MI_SUGGESTIVE_QUESTIONS_BACKEND_URL,
+    COPILOT_ERROR_MESSAGES,
+} from "./constants";
+import { ApiResponse, FileInfo, ImageInfo, BackendRequestType } from './types';
+import path from "path";
+
+
+export async function getProjectRuntimeVersion(rpcClient: RpcClientType): Promise<string | undefined> {
+        try {
+            return ((await rpcClient.getMiVisualizerRpcClient().getProjectDetails()).primaryDetails.runtimeVersion.value);
+        } catch (error) {
+            console.error('Failed to fetch project version:', error);
+            return undefined;
+        }
+    }
+
+export async function fetchBackendUrl(rpcClient:RpcClientType): Promise<string | undefined> {
+        try {
+            return (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+            // Do something with backendRootUri
+        } catch (error) {
+            console.error('Failed to fetch backend URL:', error);
+            return undefined;
+        }
+    }
+
+export async function getProjectUUID(rpcClient: RpcClientType): Promise<string | undefined> {
+        try {
+            return (await rpcClient.getMiDiagramRpcClient().getProjectUuid()).uuid;
+        } catch (error) {
+            console.error('Failed to fetch project UUID:', error);
+            return undefined;
+        }
+    }
+
+
+export async function handleAddtoWorkspace(rpcClient: RpcClientType, codeBlocks: string[]) {
+    await rpcClient
+        .getMiDiagramRpcClient()
+        .writeContentToFile({ content: codeBlocks })
+        .then((response) => {
+            console.log(response);
+        });
+
+    rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
+    rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.open-project-overview"] });
+};    
+
+// Add selected code to the workspace
+export async function handleAddSelectiveCodetoWorkspace(rpcClient: RpcClientType, codeSegment: string) {
+        var selectiveCodeBlocks: string[] = [];
+        selectiveCodeBlocks.push(codeSegment);
+        await rpcClient
+            .getMiDiagramRpcClient()
+            .writeContentToFile({ content: selectiveCodeBlocks })
+            .then((response) => {
+                console.log(response);
+            });
+        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });   
+        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.open-project-overview"] }); 
+    };
+
+export function getStatusText(status: number) {
+        switch (status) {
+            case 400: return COPILOT_ERROR_MESSAGES.BAD_REQUEST;
+            case 401: return COPILOT_ERROR_MESSAGES.UNAUTHORIZED;
+            case 403: return COPILOT_ERROR_MESSAGES.FORBIDDEN;
+            case 404: return COPILOT_ERROR_MESSAGES.NOT_FOUND;
+            case 429: return COPILOT_ERROR_MESSAGES.TOKEN_COUNT_EXCEEDED;
+            case 422: return COPILOT_ERROR_MESSAGES.ERROR_422
+            // Add more status codes as needed
+            default: return '';
+        }
+    }
+
+export function splitHalfGeneratedCode(content: string) {
+        const segments = [];
+        const regex = /```([\s\S]*?)$/g;
+        let match;
+        let lastIndex = 0;
+
+        while ((match = regex.exec(content)) !== null) {
+            if (match.index > lastIndex) {
+                segments.push({ isCode: false, loading: false, text: content.slice(lastIndex, match.index) });
+            }
+            segments.push({ isCode: true, loading: true, text: match[0] });
+            lastIndex = regex.lastIndex;
+        }
+
+        if (lastIndex < content.length) {
+            segments.push({ isCode: false, loading: false, text: content });
+        }
+        return segments;
+    }
+
+export function splitContent(content: string) {
+        if (!content) {
+            return [];
+        }
+        const segments = [];
+        let match;
+        const regex = /```xml([\s\S]*?)```/g;
+        let start = 0;
+
+        while ((match = regex.exec(content)) !== null) {
+            if (match.index > start) {
+                const segment = content.slice(start, match.index);
+                segments.push(...splitHalfGeneratedCode(segment));
+            }
+            segments.push({ isCode: true, loading: false, text: match[1] });
+            start = regex.lastIndex;
+        }
+        if (start < content.length) {
+            segments.push(...splitHalfGeneratedCode(content.slice(start)));
+        }
+        return segments;
+    }
+
+export function identifyLanguage(segmentText: string): string {
+        if (segmentText.includes('<') && segmentText.includes('>') && /(?:name|key)="([^"]+)"/.test(segmentText)) {
+            return "xml";
+        } else if (segmentText.includes('```toml')) {
+            return "toml";
+        } else if (segmentText.startsWith('```')) {
+            // Split the string to get the first line
+            const firstLine = segmentText.split('\n', 1)[0];
+            // Remove the starting ```
+            return firstLine.substring(3).trim();
+        } else {
+            return "";
+        }
+    }
+
+export async function identifyArtifactTypeAndPath(name: string, segmentText: string, rpcClient: RpcClientType): Promise<{type: string, path: string}> {
+    const tagMatch = segmentText.match(/<(\w+)[^>]*>/);
+    console.log("Tag match - ", tagMatch);
+    console.log("Segment text - ", segmentText);
+    let fileType = "";
+    if (tagMatch) {
+        const tag = tagMatch[1];
+        console.log("Tag - ", tag);
+        switch (tag) {
+            case "api":
+                fileType = "apis";
+                break;
+            case "endpoint":
+                fileType = "endpoints";
+                break;
+            case "sequence":
+                fileType = "sequences";
+                break;
+            case "proxy":
+                fileType = "proxy-services";
+                break;
+            case "inboundEndpoint":
+                fileType = "inbound-endpoints";
+                break;
+            case "messageStore":
+                fileType = "message-stores";
+                break;
+            case "messageProcessor":
+                fileType = "message-processors";
+                break;
+            case "task":
+                fileType = "tasks";
+                break;
+            case "localEntry":
+                fileType = "local-entries";
+                break;
+            case "template":
+                fileType = "templates";
+                break;
+            case "registry":
+                fileType = "registry";
+                break;
+            case "unit":
+                fileType = "unit-test";
+                break;
+            default:
+                fileType = "";
+        }
+        console.log("File type - ", fileType);
+    }
+    if (fileType) {
+        const directoryPath = (await getContext(rpcClient))[0].rootPath;
+        const basePath = directoryPath
+            .split(path.sep)
+            .slice(0, directoryPath.split(path.sep).indexOf("src"))
+            .join(path.sep);
+        console.log("Base Path - ", basePath);
+        
+        var fullPath = "";
+        if (fileType === "apis") {
+            const version = segmentText.match(/<api [^>]*version="([^"]+)"/);
+            if (version) {
+                fullPath = path.join(
+                    basePath ?? "",
+                    "src",
+                    "main",
+                    "wso2mi",
+                    "artifacts",
+                    fileType,
+                    path.sep,
+                    `${name}_v${version[1]}.xml`
+                );
+            } else {
+                fullPath = path.join(
+                    basePath ?? "",
+                    "src",
+                    "main",
+                    "wso2mi",
+                    "artifacts",
+                    fileType,
+                    path.sep,
+                    `${name}.xml`
+                );
+            }
+        } else if (fileType === "unit-test") {
+            fullPath = path.join(basePath ?? "", "src", "main", "test", path.sep, `${name}.xml`);
+        } else {
+            fullPath = path.join(
+                basePath ?? "",
+                "src",
+                "main",
+                "wso2mi",
+                "artifacts",
+                fileType,
+                path.sep,
+                `${name}.xml`
+            );
+        }
+    }
+    return {type: fileType, path: fullPath};
+} 
+
+export function compareVersions(v1: string, v2: string): number {
+        // Extract only the numeric parts of the version string
+        const getVersionNumbers = (str: string): string => {
+            const match = str.match(/(\d+(\.\d+)*)/);
+            return match ? match[0] : '0';
+        };
+    
+        const version1 = getVersionNumbers(v1);
+        const version2 = getVersionNumbers(v2);
+    
+        const parts1 = version1.split('.').map(part => parseInt(part, 10));
+        const parts2 = version2.split('.').map(part => parseInt(part, 10));
+    
+        for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+            const part1 = parts1[i] || 0;
+            const part2 = parts2[i] || 0;
+    
+            if (part1 > part2) { return 1; }
+            if (part1 < part2) { return -1; }
+        }
+        return 0;
+    }
+
+export async function generateSuggestions(
+    backendRootUri: string,
+    chatHistory: CopilotChatEntry[],
+    rpcClient: RpcClientType,
+    controller: AbortController
+): Promise<ChatMessage[]> {
+    try {
+        const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
+        const context = await getContext(rpcClient);
+        const response = await fetchWithRetry(
+            BackendRequestType.Suggestions,
+            url,
+            {
+                messages: chatHistory,
+                context: context[0].context,
+                num_suggestions: 1,
+                type: "artifact_gen",
+            },
+            rpcClient,
+            controller,
+            chatHistory
+        );
+
+        const data = (await response.json()) as ApiResponse;
+
+        if (data.event === "suggestion_generation_success") {
+            console.log ("Suggestions: ", data.questions);
+            return data.questions.map((question) => ({
+                id: generateId(),
+                role: Role.default,
+                content: question,
+                type: MessageType.Question,
+            }));
+        } else {
+            console.error("Error generating suggestions:", data.error);
+            throw new Error("Failed to generate suggestions: " + data.error);
+        }
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+export function updateTokenInfo(machineView: any) {
+    let timeToReset = machineView.userTokens.time_to_reset;
+    timeToReset = timeToReset / (60 * 60 * 24);
+    const maxTokens = machineView.userTokens.max_usage;
+    let remainingTokenPercentage: number;
+    let remaingTokenLessThanOne: boolean = false;
+
+    if (maxTokens == -1) {
+        remainingTokenPercentage = -1;
+    } else {
+        const remainingTokens = machineView.userTokens.remaining_tokens;
+        remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+
+        remainingTokenPercentage = Math.round(remainingTokenPercentage);
+        if (remainingTokenPercentage < 0) {
+            remainingTokenPercentage = 0;
+        }
+    }
+
+    return { timeToReset, remainingTokenPercentage, remaingTokenLessThanOne };
+}
+
+export async function getBackendUrlAndView(rpcClient: RpcClientType): Promise<{ backendUrl: string; view: string }> {
+    const machineView = await rpcClient?.getVisualizerState();
+    switch (machineView?.view) {
+        case MACHINE_VIEW.Overview:
+        case MACHINE_VIEW.ADD_ARTIFACT:
+            return { backendUrl: MI_ARTIFACT_GENERATION_BACKEND_URL, view: "Overview" };
+        default:
+            return { backendUrl: MI_ARTIFACT_EDIT_BACKEND_URL, view: "Artifact" };
+    }
+}
+
+// Helper Functions
+async function getContext(rpcClient: RpcClientType, view?: string): Promise<GetWorkspaceContextResponse[]> {
+    const machineView = await rpcClient?.getVisualizerState();
+    const currentView = view || machineView?.view;
+
+    switch (currentView) {
+        case MACHINE_VIEW.Overview:
+            return [await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext()];
+        default:
+            return [await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext()];
+    }
+}
+
+export function openUpdateExtensionView (rpcClient: RpcClientType) {
+    rpcClient?.getMiVisualizerRpcClient().openView({ 
+      type: EVENT_TYPE.OPEN_VIEW, 
+      location: { view: MACHINE_VIEW.UpdateExtension } 
+    });
+  };
+
+// Utility function to generate unique 8-digit numeric IDs
+export function generateId(): number {
+    const min = 10000000; // Minimum 8-digit number
+    const max = 99999999; // Maximum 8-digit number
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Utility function to convert CopilotChatEntry to ChatMessage
+export function convertChat(entry: CopilotChatEntry): ChatMessage {
+    let role: Role.MIUser | Role.MICopilot | Role.default, type;
+    if (entry.role === Role.CopilotUser) {
+        role = Role.MIUser;
+        type = MessageType.UserMessage;
+    } else if (entry.role === Role.CopilotAssistant) {
+        role = Role.MICopilot;
+        type = MessageType.AssistantMessage;
+    }
+
+    return {
+        id: entry.id,
+        role: role,
+        content: entry.content,
+        type: type,
+    };
+}
+
+export async function fetchCodeGenerationsWithRetry(
+    url: string,
+    chatHistory: CopilotChatEntry[],
+    files: FileInfo[],
+    images: ImageInfo[],
+    rpcClient: RpcClientType,
+    controller: AbortController,
+    view?: string
+): Promise<Response> {
+
+    const context = await getContext(rpcClient, view);
+    const payloads = await rpcClient.getMiDiagramRpcClient().getInputPayloads({documentUri: ""});
+    const stringifiedUploadedFiles = files.map((file) => JSON.stringify(file));
+    const imageBase64Array = images.map((image) => image.imageBase64);
+
+    return fetchWithRetry(BackendRequestType.UserPrompt, url, {
+        messages: chatHistory,
+        context: context[0].context,
+        payloads: payloads,
+        files: stringifiedUploadedFiles,
+        images: imageBase64Array,
+    }, rpcClient, controller, chatHistory);
+}
+
+export async function fetchWithRetry(
+    type: BackendRequestType,
+    url: string,
+    body: {},
+    rpcClient: RpcClientType,
+    controller: AbortController,
+    chatHistory?: CopilotChatEntry[]
+): Promise<Response> {
+    let retryCount = 0;
+    const maxRetries = 2;
+    const token = await rpcClient?.getMiDiagramRpcClient().getUserAccessToken();
+    console.log("Body", JSON.stringify(body));
+
+    let response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token.token}`,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+    });
+
+    const handleFetchError = (response: Response) => {
+        const newMessages = [...chatHistory];
+        const statusText = getStatusText(response.status);
+        let error = `Failed to fetch response. Status: ${statusText}`;
+
+        if (response.status == 429) {
+            response.json().then((body) => {
+                error += body.detail;
+            });
+        } else if (response.status == 422) {
+            error = getStatusText(422);
+        }
+
+        newMessages[newMessages.length - 1].content += error;
+        newMessages[newMessages.length - 1].type = MessageType.Error;
+        return newMessages;
+    };
+
+    if (response.status == 401) {
+        await rpcClient?.getMiDiagramRpcClient().refreshAccessToken();
+        const newToken = await rpcClient?.getMiDiagramRpcClient().getUserAccessToken();
+
+        response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${newToken.token}`,
+            },
+            body: JSON.stringify(body),
+            signal: controller.signal,
+        });
+    } else if (response.status == 404) {
+        if (retryCount < maxRetries) {
+            retryCount++;
+            const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            return fetchWithRetry(type, url, body, rpcClient, controller); // Retry the request
+        } else {
+            openUpdateExtensionView(rpcClient);
+            throw new Error("Resource not found : Check backend URL");
+        }
+    } else if (!response.ok) {
+        switch (type) {
+            case BackendRequestType.Suggestions:
+                openUpdateExtensionView(rpcClient);
+                throw new Error("Failed to fetch initial questions");
+            case BackendRequestType.UserPrompt:
+                handleFetchError(response);
+                throw new Error("Failed to fetch code genrations");
+            default:
+        }
+    } else {
+        return response;
+    }
+}

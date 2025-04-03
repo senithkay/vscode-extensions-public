@@ -183,6 +183,7 @@ export interface PopupVisualizerLocation extends VisualizerLocation {
 
 interface FileObject {
     fileName: string;
+    fileType: string;
     fileContent: string;
 }
 
