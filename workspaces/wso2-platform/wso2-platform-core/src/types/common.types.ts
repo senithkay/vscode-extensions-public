@@ -311,6 +311,7 @@ export interface GHAppConfig {
 	authUrl: string;
 	clientId: string;
 	redirectUrl: string;
+	devantRedirectUrl: string;
 }
 
 export interface StateReason {
