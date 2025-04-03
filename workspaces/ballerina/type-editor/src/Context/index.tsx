@@ -21,6 +21,8 @@ export type TypeHelperContext = {
     loadingTypeBrowser?: boolean;
     // Array of types for the type helper
     basicTypes: TypeHelperCategory[];
+    // Array of imported types for the type helper
+    importedTypes: TypeHelperCategory[];
     // Array of operators for type helper
     operators: TypeHelperOperator[];
     // Callback function to search the type helper
@@ -37,6 +39,7 @@ const defaultTypeHelperContext: TypeHelperContext = {
     loading: false,
     loadingTypeBrowser: false,
     basicTypes: [],
+    importedTypes: [],
     operators: [],
     typeBrowserTypes: [],
     onSearchTypeHelper: () => {},
