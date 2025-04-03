@@ -42,7 +42,7 @@ export function activateUriHandlers() {
                     window.showInformationMessage('Opening component');
                     if (org && project && component && technology && integrationType) {
                         commands.executeCommand(PlatformExtCommandIds.OpenCompSrcDir, {
-                            org, project, component, technology, integrationType, integrationDisplayType
+                            org, project, component, technology, integrationType, integrationDisplayType, extName: "Devant"
                         } as IOpenCompSrcCmdParams);
                     } else {
                         window.showErrorMessage('Invalid component URL parameters');

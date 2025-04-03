@@ -14,6 +14,7 @@ import { dirname } from "path";
 import {
 	CommandIds,
 	type ContextItem,
+	ICmdParamsBase,
 	type Organization,
 	type Project,
 	type UserInfo,
@@ -27,11 +28,12 @@ import { getGitRemotes, getGitRoot } from "../git/util";
 import { contextStore, getContextKey, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
-import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew, setExtensionName } from "./cmd-utils";
 
 export function createDirectoryContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.CreateDirectoryContext, async () => {
+		commands.registerCommand(CommandIds.CreateDirectoryContext, async (params: ICmdParamsBase) => {
+			setExtensionName(params?.extName)
 			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
 				const userInfo = await getUserInfoForCmd(`link a directory with a ${extensionName} project`);

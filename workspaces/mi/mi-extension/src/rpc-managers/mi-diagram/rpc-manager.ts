@@ -4420,10 +4420,11 @@ ${keyValuesXML}`;
             if (!checkForDevantExt()) {
                 return;
             }
-            const params = {
+            const params: ICreateComponentCmdParams = {
                 buildPackLang: "microintegrator",
                 name: path.basename(StateMachine.context().projectUri!),
-                componentDir: StateMachine.context().projectUri
+                componentDir: StateMachine.context().projectUri,
+                extName: "Devant",
             };
 
             const langClient = StateMachine.context().langClient!;
@@ -4470,7 +4471,7 @@ ${keyValuesXML}`;
                     return { success: false };
                 }
 
-                const paramsWithType: ICreateComponentCmdParams = { ...params, integrationType: integrationType as DevantScopes };
+                const paramsWithType: ICreateComponentCmdParams = { ...params, integrationType: integrationType as DevantScopes, };
 
                 commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, paramsWithType);
                 resolve({ success: true });

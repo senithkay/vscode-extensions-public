@@ -728,7 +728,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             integrationType: integrationType as any,
             buildPackLang: "ballerina", // Example language
             name: path.basename(StateMachine.context().projectUri),
-            componentDir: StateMachine.context().projectUri
+            componentDir: StateMachine.context().projectUri,
+            extName: "Devant"
         };
         commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, params);
 

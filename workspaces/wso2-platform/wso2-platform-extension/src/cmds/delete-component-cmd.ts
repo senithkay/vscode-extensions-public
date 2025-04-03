@@ -15,11 +15,12 @@ import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { closeComponentDetailsView } from "../webviews/ComponentDetailsView";
-import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
+import { getUserInfoForCmd, selectComponent, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
 export function deleteComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.DeleteComponent, async (params: IDeleteComponentCmdParams) => {
+			setExtensionName(params?.extName)
 			try {
 				const extensionName = webviewStateStore.getState().state.extensionName;
 				const userInfo = await getUserInfoForCmd("delete a component");

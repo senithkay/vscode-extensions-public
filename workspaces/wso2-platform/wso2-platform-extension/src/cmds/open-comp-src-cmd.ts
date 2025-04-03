@@ -14,11 +14,12 @@ import { waitForContextStoreToLoad } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { cloneOrOpenDir } from "../uri-handlers";
-import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
+import { getUserInfoForCmd, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
 export function openCompSrcCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.OpenCompSrcDir, async (params: IOpenCompSrcCmdParams) => {
+			setExtensionName(params?.extName)
 			try {
 				if (
 					params?.technology === ChoreoBuildPackNames.Ballerina ||
@@ -88,6 +89,7 @@ export function openCompSrcCommand(context: ExtensionContext) {
 						params?.technology || null,
 						params?.integrationType || null,
 						params?.integrationDisplayType || null,
+						params?.extName
 					);
 				}
 			} catch (err: any) {

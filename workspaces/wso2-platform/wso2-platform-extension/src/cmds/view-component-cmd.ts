@@ -13,11 +13,12 @@ import { CommandIds, type IViewComponentDetailsCmdParams, getComponentKindRepoSo
 import { type ExtensionContext, commands, window } from "vscode";
 import { contextStore } from "../stores/context-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
-import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
+import { getUserInfoForCmd, selectComponent, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
 export function viewComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.ViewComponent, async (params: IViewComponentDetailsCmdParams) => {
+			setExtensionName(params?.extName)
 			try {
 				const userInfo = await getUserInfoForCmd("view component details");
 				if (userInfo) {

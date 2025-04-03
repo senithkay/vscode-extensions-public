@@ -22,14 +22,12 @@ import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { getNormalizedPath, isSamePath } from "../utils";
-import { getUserInfoForCmd, quickPickWithLoader, selectOrg, selectProject } from "./cmd-utils";
+import { getUserInfoForCmd, quickPickWithLoader, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
 export function openInConsoleCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.OpenInConsole, async (params: IOpenInConsoleCmdParams) => {
-			if (params?.extensionName) {
-				webviewStateStore.getState().setExtensionName(params?.extensionName);
-			}
+			setExtensionName(params?.extName)
 			try {
 				const extensionName = webviewStateStore.getState().state.extensionName;
 				const userInfo = await getUserInfoForCmd(`open a component in ${extensionName} console`);

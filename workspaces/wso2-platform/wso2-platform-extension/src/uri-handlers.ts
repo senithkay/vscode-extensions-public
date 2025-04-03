@@ -10,6 +10,7 @@
 import path, { join } from "path";
 import {
 	CommandIds,
+	ExtensionName,
 	type ICloneProjectCmdParams,
 	type Organization,
 	type Project,
@@ -130,6 +131,7 @@ export const cloneOrOpenDir = async (
 	technology: string | null,
 	integrationType: string | null,
 	integrationDisplayType: string | null,
+	extName?: ExtensionName
 ) => {
 	const projectLocations = locationStore.getState().getLocations(project.handler, org.handle);
 
@@ -185,6 +187,7 @@ export const cloneOrOpenDir = async (
 				technology,
 				integrationType,
 				integrationDisplayType,
+				extName
 			} as ICloneProjectCmdParams);
 		}
 	} else if (projectLocations.length > 0) {

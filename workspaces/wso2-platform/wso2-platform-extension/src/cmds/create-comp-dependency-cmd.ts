@@ -12,12 +12,13 @@ import { type ExtensionContext, ViewColumn, commands, window } from "vscode";
 import { contextStore } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
-import { getUserInfoForCmd } from "./cmd-utils";
+import { getUserInfoForCmd, setExtensionName } from "./cmd-utils";
 import { getComponentStateOfPath } from "./view-comp-dependency-cmd";
 
 export function createComponentDependencyCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.CreateComponentDependency, async (params: ICreateDependencyParams) => {
+			setExtensionName(params?.extName)
 			try {
 				const userInfo = await getUserInfoForCmd("create component dependency");
 				if (userInfo) {

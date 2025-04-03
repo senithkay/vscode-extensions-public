@@ -727,7 +727,7 @@ export function Overview(props: ComponentDiagramProps) {
 
     const goToDevant = () => {
         rpcClient.getCommonRpcClient().executeCommand({
-            commands:[PlatformExtCommandIds.OpenInConsole,{extensionName:"Devant",componentFsPath: projectPath} as IOpenInConsoleCmdParams]
+            commands:[PlatformExtCommandIds.OpenInConsole,{extName:"Devant",componentFsPath: projectPath} as IOpenInConsoleCmdParams]
         })
     };
 

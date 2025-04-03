@@ -25,12 +25,13 @@ import { initGit } from "../git/main";
 import { authStore } from "../stores/auth-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { createDirectory, openDirectory } from "../utils";
-import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
+import { getUserInfoForCmd, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
 
 export function cloneRepoCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.CloneProject, async (params: ICloneProjectCmdParams) => {
+			setExtensionName(params?.extName)
 			try {
 				const userInfo = await getUserInfoForCmd("clone project repository");
 				if (userInfo) {

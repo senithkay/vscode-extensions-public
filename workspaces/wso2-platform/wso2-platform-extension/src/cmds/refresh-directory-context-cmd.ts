@@ -7,14 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, ICmdParamsBase } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, commands } from "vscode";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
+import { setExtensionName } from "./cmd-utils";
 
 export function refreshContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.RefreshDirectoryContext, async () => {
+		commands.registerCommand(CommandIds.RefreshDirectoryContext, async (params: ICmdParamsBase) => {
+			setExtensionName(params?.extName)
 			const userInfo = authStore.getState().state.userInfo;
 			if (!userInfo) {
 				throw new Error("You are not logged in. Please log in and retry.");

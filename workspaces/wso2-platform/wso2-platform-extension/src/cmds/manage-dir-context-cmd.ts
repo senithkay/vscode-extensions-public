@@ -19,10 +19,12 @@ import { authStore } from "../stores/auth-store";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { removeContext } from "./create-directory-context-cmd";
+import { setExtensionName } from "./cmd-utils";
 
 export function manageProjectContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.ManageDirectoryContext, async (params: IManageDirContextCmdParams) => {
+			setExtensionName(params?.extName)
 			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
 				const userInfo = authStore.getState().state.userInfo;

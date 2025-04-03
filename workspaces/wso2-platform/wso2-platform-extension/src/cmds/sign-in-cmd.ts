@@ -7,17 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, ICmdParamsBase } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, commands, window } from "vscode";
 import * as vscode from "vscode";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
 import { webviewStateStore } from "../stores/webview-state-store";
+import { setExtensionName } from "./cmd-utils";
 
 export function signInCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.SignIn, async () => {
+		commands.registerCommand(CommandIds.SignIn, async (params: ICmdParamsBase) => {
+			setExtensionName(params?.extName)
 			try {
 				getLogger().debug("Signing in to WSO2 Platform");
 				const callbackUrl = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.wso2-platform/signin`));

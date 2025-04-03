@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, type ComponentKind, type Organization, type Project, type UserInfo } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, ExtensionName, type ComponentKind, type Organization, type Project, type UserInfo } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, type QuickPickItem, QuickPickItemKind, type WorkspaceFolder, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { authStore, waitForLogin } from "../stores/auth-store";
@@ -332,3 +332,9 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 	}
 	return userInfo;
 };
+
+export const setExtensionName = (extName?: ExtensionName) => {
+	if(extName){
+		webviewStateStore.getState().setExtensionName(extName);
+	}
+}
