@@ -489,6 +489,13 @@ export class SizingVisitor implements Visitor {
 
     endVisitThrottle = (node: Throttle): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
+
+        if (node.onAcceptAttribute) {
+            node.onAccept = { sequenceAttribute: node.onAcceptAttribute, key: "onAccept", tag: "sequence" } as any;
+        }
+        if (node.onRejectAttribute) {
+            node.onReject = { sequenceAttribute: node.onRejectAttribute, key: "onReject", tag: "sequence" } as any;
+        }
         this.calculateAdvancedMediator(node, {
             OnAccept: node.onAccept,
             OnReject: node.onReject
