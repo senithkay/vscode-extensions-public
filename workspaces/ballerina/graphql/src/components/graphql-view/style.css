@@ -11,10 +11,6 @@
     transition-duration: 0.3s !important;
 }
 
-.CodeMirror-scroll {
-  background: #ffffff !important;
-}
-
 .topBarWrap .topBar {
   height: unset;
   padding: 8px;
