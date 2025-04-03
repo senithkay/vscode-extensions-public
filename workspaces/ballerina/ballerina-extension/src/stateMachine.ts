@@ -183,14 +183,7 @@ const stateMachine = createMachine<MachineContext>(
                                 })
                             },
                             FILE_EDIT: {
-                                target: "viewEditing",
-                                actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier,
-                                    type: (context, event) => event.viewLocation?.type,
-                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
-                                })
+                                target: "viewEditing"
                             },
                         }
                     },
@@ -198,13 +191,6 @@ const stateMachine = createMachine<MachineContext>(
                         on: {
                             EDIT_DONE: {
                                 target: "viewReady",
-                                actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier,
-                                    type: (context, event) => event.viewLocation?.type,
-                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
-                                })
                             }
                         }
                     }
@@ -431,6 +417,8 @@ export const StateMachine = {
     context: () => { return stateService.getSnapshot().context; },
     langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
+    setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
+    setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
     updateProjectStructure: (payload: ProjectStructureResponse) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload }); },
     resetToExtensionReady: () => {
