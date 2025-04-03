@@ -24,15 +24,15 @@ interface IdentifierFieldProps {
 }
 
 export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps>((props, ref) => {
-    const { 
-        value, 
-        onChange, 
-        placeholder, 
+    const {
+        value,
+        onChange,
+        placeholder,
         rootType,
         label,
         onValidationError
     } = props;
-    
+
     const [internalErrorMsg, setInternalErrorMsg] = useState<string>("");
     const { rpcClient } = useRpcContext();
 
@@ -47,12 +47,12 @@ export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps
         const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
             filePath: Utils.joinPath(URI.file(projectUri), 'types.bal').fsPath
         });
-        
+
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: rootType?.codedata?.lineRange?.fileName || "types.bal",
             context: {
                 expression: value,
-                startLine:{
+                startLine: {
                     line: rootType?.codedata?.lineRange?.startLine?.line ?? endPosition.line,
                     offset: rootType?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
                 },
@@ -70,7 +70,7 @@ export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps
                             offset: rootType?.codedata?.lineRange?.endLine?.offset ?? endPosition.offset
                         },
                         fileName: rootType?.codedata?.lineRange?.fileName
-                    },  
+                    },
                 },
                 property: {
                     metadata: {
@@ -84,8 +84,6 @@ export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps
                 }
             }
         });
-
-        console.log("+++=DIAGNOSTICS", response);
 
 
         if (response.diagnostics.length > 0) {

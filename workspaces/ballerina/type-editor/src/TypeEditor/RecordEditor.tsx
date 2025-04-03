@@ -9,12 +9,10 @@
 
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Codicon, Icon, CheckBox } from '@wso2-enterprise/ui-toolkit';
+import { Codicon } from '@wso2-enterprise/ui-toolkit';
 import { Button } from '@wso2-enterprise/ui-toolkit';
-import { TextField } from '@wso2-enterprise/ui-toolkit';
 import { FieldEditor } from './FieldEditor';
 import styled from '@emotion/styled';
-import { TypeHelperCategory, TypeHelperOperator } from '../TypeHelper';
 
 
 const Header = styled.div`
@@ -50,7 +48,7 @@ interface FieldValidationError {
 export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorProps>((props, ref) => {
     const { type, isAnonymous = false, onChange, onImportJson, onImportXml, isGraphql, onValidationError } = props;
 
-    const [validationErrors, setValidationErrors] = useState<FieldValidationError[]>([{identifier: false, type: false}]);
+    const [validationErrors, setValidationErrors] = useState<FieldValidationError[]>([{ identifier: false, type: false }]);
     const [hasRecordError, setHasRecordError] = useState(false);
 
 
@@ -66,9 +64,6 @@ export const RecordEditor = forwardRef<{ addMember: () => void }, RecordEditorPr
                 newErrors[functionIndex] = { ...newErrors[functionIndex], type: hasError };
             }
 
-            // Check if any function has either type or identifier errors
-            // const hasAnyError = newErrors.some(error => error.identifier || error.type);
-            // onValidationError?.(hasAnyError);
             return newErrors;
         });
     };

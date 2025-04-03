@@ -147,7 +147,6 @@ interface FunctionValidationError {
 
 
 export function ClassEditor({ type, onChange, isGraphql, onValidationError }: ClassEditorProps) {
-    // const nameInputRefs = useRef<HTMLInputElement[]>([]);
     const [showParameterForm, setShowParameterForm] = useState<number | null>(null);
     const [expandedFunctions, setExpandedFunctions] = useState<number[]>([]);
     const [parameterForm, setParameterForm] = useState<ParameterFormData>({
@@ -156,18 +155,17 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
         defaultValue: ''
     });
     const [editingParamIndex, setEditingParamIndex] = useState<number | null>(null);
-    // const [nameErrors, setNameErrors] = useState<Record<number, string>>({});
     const [paramNameError, setParamNameError] = useState<string>('');
 
-    const [validationErrors, setValidationErrors] = useState<FunctionValidationError[]>([{identifier: false, type: false}]);
+    const [validationErrors, setValidationErrors] = useState<FunctionValidationError[]>([{ identifier: false, type: false }]);
 
     const handleValidationError = (functionIndex: number, isIdentifier: boolean, hasError: boolean) => {
         setValidationErrors(prev => {
             const newErrors = [...prev];
             // Ensure the field exists
-        if (!newErrors[functionIndex]) {
-            newErrors[functionIndex] = { identifier: false, type: false };
-        }
+            if (!newErrors[functionIndex]) {
+                newErrors[functionIndex] = { identifier: false, type: false };
+            }
             if (isIdentifier) {
                 newErrors[functionIndex] = { ...newErrors[functionIndex], identifier: hasError };
             } else {
@@ -247,9 +245,6 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
     };
 
     const handleParameterSave = (functionIndex: number) => {
-        // if (!validateParameterName(parameterForm.name)) {
-        //     return;
-        // }
 
         const updatedFunctions = [...(type.functions || [])];
         const currentFunction = updatedFunctions[functionIndex];
@@ -311,55 +306,6 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
         });
     };
 
-    // Add function to validate name
-    // const validateFunctionName = (index: number, name: string) => {
-    //     if (!isValidBallerinaIdentifier(name)) {
-    //         setNameErrors(prev => ({
-    //             ...prev,
-    //             [index]: 'Invalid Identifier.'
-    //         }));
-    //         return false;
-    //     } else {
-    //         setNameErrors(prev => {
-    //             const newErrors = { ...prev };
-    //             delete newErrors[index];
-    //             return newErrors;
-    //         });
-    //         return true;
-    //     }
-    // };
-
-    // const handleNameChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const newName = e.target.value;
-    //     updateFunction(index, { name: newName });
-    // };
-
-    // Add handler for blur event to validate
-    // const handleNameBlur = (index: number, e: React.FocusEvent<HTMLInputElement>) => {
-    //     validateFunctionName(index, e.target.value);
-    // };
-
-    // Add function to validate parameter name
-    // const validateParameterName = (name: string): boolean => {
-    //     if (!isValidBallerinaIdentifier(name)) {
-    //         setParamNameError('Invalid Identifier.');
-    //         return false;
-    //     } else {
-    //         setParamNameError('');
-    //         return true;
-    //     }
-    // };
-
-    // const handleParameterNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const newName = e.target.value;
-    //     setParameterForm(prev => ({ ...prev, name: newName }));
-    // };
-
-    // Add handler for parameter name blur
-    // const handleParameterNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    //     validateParameterName(e.target.value);
-    // };
-
     return (
         <S.Container>
             <S.Header>
@@ -378,14 +324,6 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
                         >
                             <Codicon name={expandedFunctions.includes(index) ? "chevron-down" : "chevron-right"} />
                         </S.ExpandIconButton>
-                        {/* <TextField
-                            value={func.name}
-                            ref={(el) => nameInputRefs.current[index] = el}
-                            onChange={(e) => handleNameChange(index, e)}
-                            onBlur={(e) => handleNameBlur(index, e)}
-                            errorMsg={nameErrors[index]}
-                            placeholder="Name"
-                        /> */}
                         <IdentifierField
                             value={func.name}
                             onChange={(newName) => updateFunction(index, { name: newName })}
@@ -443,13 +381,6 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
 
                             {showParameterForm === index && (
                                 <S.ParameterForm>
-                                    {/* <TextField
-                                        placeholder={isGraphql ? "Argument Name" : "Parameter Name"}
-                                        value={parameterForm.name}
-                                        onChange={handleParameterNameChange}
-                                        onBlur={handleParameterNameBlur}
-                                        errorMsg={paramNameError}
-                                    /> */}
                                     <IdentifierField
                                         value={parameterForm.name}
                                         onChange={(newName) => setParameterForm(prev => ({ ...prev, name: newName }))}

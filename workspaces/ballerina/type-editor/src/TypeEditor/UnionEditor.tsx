@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
-import { Dropdown, Button, Icon, Codicon, TextField } from "@wso2-enterprise/ui-toolkit";
+import React, { useState } from "react";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { Type, Member, TypeWithIdentifier, VisibleType } from "@wso2-enterprise/ballerina-core";
+import { Type, Member } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeField } from "./TypeField";
 

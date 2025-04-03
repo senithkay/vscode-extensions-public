@@ -9,7 +9,7 @@
 
 import React, { forwardRef, useRef, useState, useEffect, useCallback } from 'react';
 import { TextField, Position } from '@wso2-enterprise/ui-toolkit';
-import { Member, Type } from '@wso2-enterprise/ballerina-core';
+import { Type } from '@wso2-enterprise/ballerina-core';
 import { typeToSource } from './TypeUtil';
 import { TypeHelper } from '../TypeHelper';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -29,7 +29,6 @@ interface TypeFieldProps {
     required?: boolean;
 }
 
-// TODO: Use this component for all the Type fields in TypeEditor
 export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, ref) => {
     const { type, onChange, placeholder, sx, memberName, rootType, onValidationError, isAnonymousRecord, label, required } = props;
 
@@ -142,7 +141,6 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                 }
             }
         });
-        console.log("+++=RESPONSE TYPE", response);
         if (response.diagnostics.length > 0) {
             setTypeError(response.diagnostics[0].message);
             onValidationError?.(true);
@@ -151,58 +149,6 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
             onValidationError?.(false);
         }
     }, 250), [rpcClient, rootType]);
-
-    // const validateType = async (value: string) => {
-    //     const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
-
-    //     const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
-    //         filePath: Utils.joinPath(URI.file(projectUri), 'types.bal').fsPath
-    //     });
-
-    //     const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
-    //         filePath: rootType?.codedata?.lineRange?.fileName || "types.bal",
-    //         context: {
-    //             expression: value,
-    //             startLine:{
-    //                 line: rootType?.codedata?.lineRange?.startLine?.line || endPosition.line,
-    //                 offset: rootType?.codedata?.lineRange?.startLine?.offset || endPosition.offset
-    //             },
-    //             offset: 0,
-    //             codedata: {
-    //                 node: "VARIABLE",
-    //                 lineRange: {
-    //                     startLine: {
-    //                         line: rootType?.codedata?.lineRange?.startLine?.line || endPosition.line,
-    //                         offset: rootType?.codedata?.lineRange?.startLine?.offset || endPosition.offset
-    //                     },
-    //                     endLine: {
-    //                         line: rootType?.codedata?.lineRange?.endLine?.line || endPosition.line,
-    //                         offset: rootType?.codedata?.lineRange?.endLine?.offset || endPosition.offset
-    //                     },
-    //                     fileName: rootType?.codedata?.lineRange?.fileName
-    //                 },  
-    //             },
-    //             property:  {
-    //                 metadata: {
-    //                     label: "",
-    //                     description: "",
-    //                 },
-    //                 valueType: "TYPE",
-    //                 value: "",
-    //                 optional: false,
-    //                 editable: true
-    //             }
-    //         }
-    //     }); 
-    //     console.log("+++=RESPONSE TYPE", response);
-    //     if (response.diagnostics.length > 0) {
-    //         setTypeError(response.diagnostics[0].message);
-    //         onValidationError?.(true);
-    //     } else {
-    //         setTypeError("");
-    //         onValidationError?.(false);
-    //     }
-    // }
 
     const handleSelectionChange = () => {
         const selection = window.getSelection();

@@ -306,10 +306,6 @@ export function TypeEditor(props: TypeEditorProps) {
     };
 
     const onTypeChange = async (type: Type) => {
-        // if (!isValidBallerinaIdentifier(type.name)) {
-        //     setNameError("Invalid Identifier.");
-        //     return;
-        // }
         const name = type.name;
         // IF type nodeKind is CLASS then we call graphqlEndpoint
         // TODO: for TypeDiagram we need to give a generic class creation

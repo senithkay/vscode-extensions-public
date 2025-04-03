@@ -1,12 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import React, { useRef, useState } from 'react';
 import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Button, CheckBox, Codicon, Position, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { typeToSource, defaultAnonymousRecordType, isValidBallerinaIdentifier } from './TypeUtil';
+import { typeToSource, defaultAnonymousRecordType } from './TypeUtil';
 import { RecordEditor } from './RecordEditor';
-import { TypeHelper } from '../TypeHelper';
 import { AdvancedOptions } from './AdvancedOptions';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { IdentifierField } from './IdentifierField';
 import { TypeField } from './TypeField';
 
@@ -53,16 +60,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     const { member, onChange, onDelete, type, onValidationError, onFieldValidation, onRecordValidation } = props;
     const [panelOpened, setPanelOpened] = useState<boolean>(false);
     const recordEditorRef = useRef<{ addMember: () => void }>(null);
-    // const typeFieldRef = useRef<HTMLInputElement>(null);
-    // const typeHelperRef = useRef<HTMLDivElement>(null);
-    // const typeBrowserRef = useRef<HTMLDivElement>(null);
-    // const [typeFieldCursorPosition, setTypeFieldCursorPosition] = useState<number>(0);
-    // const [helperPaneOffset, setHelperPaneOffset] = useState<Position>({ top: 0, left: 0 });
-    // const [helperPaneOpened, setHelperPaneOpened] = useState<boolean>(false);
-    // const [nameError, setNameError] = useState<string>('');
-    // const { rpcClient } = useRpcContext();
-
-
 
     const toggleOptional = () => {
         onChange({
@@ -78,13 +75,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         });
     }
 
-    // const handleMemberNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     onChange({
-    //         ...member,
-    //         name: e.target.value
-    //     });
-    // }
-
     const handleNameChange = (value: string) => {
         onChange({
             ...member,
@@ -92,64 +82,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         });
     }
 
-    // const handleMemberNameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {   
-    //     console.log("+++=TYPE IN MEMBER NAME BLUR", type)
-    //     const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
-    //         filePath: type?.codedata?.lineRange?.fileName || "types.bal",
-    //         context: {
-    //             expression: e.target.value,
-    //             startLine:{
-    //                 line: type?.codedata?.lineRange?.startLine?.line || 0,
-    //                 offset: type?.codedata?.lineRange?.startLine?.offset || 0
-    //             },
-    //             offset: 0,
-    //             codedata: {
-    //                 node: "VARIABLE",
-    //                 lineRange: {
-    //                     startLine: {
-    //                         line: type?.codedata?.lineRange?.startLine?.line || 0,
-    //                         offset: type?.codedata?.lineRange?.startLine?.offset || 0
-    //                     },
-    //                     endLine: {
-    //                         line: type?.codedata?.lineRange?.endLine?.line || 0,
-    //                         offset: type?.codedata?.lineRange?.endLine?.offset || 0
-    //                     },
-    //                     fileName: type?.codedata?.lineRange?.fileName
-    //                 },  
-    //             },
-    //             property:  {
-    //                 metadata: {
-    //                     label: "",
-    //                     description: "",
-    //                 },
-    //                 valueType: "IDENTIFIER",
-    //                 value: "",
-    //                 optional: false,
-    //                 editable: true
-    //             }
-    //         }
-    //     });   
-        
-    //     console.log("+++=RESPONSE FIELD", response);
-    //     if (response.diagnostics.length > 0) {
-    //         setNameError(response.diagnostics[0].message);
-    //     } else {
-    //         setNameError('');
-    //     }
-        
-    //     // if (!isValidBallerinaIdentifier( e.target.value)) {
-    //     //     setNameError('Invalid Identifier.');
-    //     // } else {
-    //     //     setNameError('');
-    //     // }
-    // }
-
-    // const handleMemberTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     onChange({
-    //         ...member,
-    //         type: e.target.value
-    //     });
-    // }
 
     const handleTypeChange = (value: string) => {
         onChange({
@@ -157,21 +89,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
             type: value
         });
     }
-
-    // const handleTypeHelperChange = (newType: string, newCursorPosition: number) => {
-    //     onChange({
-    //         ...member,
-    //         type: newType
-    //     });
-    //     setTypeFieldCursorPosition(newCursorPosition);
-
-    //     // Focus the type field
-    //     typeFieldRef.current?.focus();
-    //     // Set cursor position
-    //     typeFieldRef.current?.shadowRoot
-    //         ?.querySelector('input')
-    //         ?.setSelectionRange(newCursorPosition, newCursorPosition);
-    // }
 
     const handleMemberDefaultValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange({
@@ -203,56 +120,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         return false;
     }
 
-    // const handleTypeFieldFocus = () => {
-    //     const rect = typeFieldRef.current.getBoundingClientRect();
-    //     const sidePanelLeft = window.innerWidth - 400; // Side panel width
-    //     const helperPaneLeftOffset = sidePanelLeft - rect.left;
-    //     setHelperPaneOffset({ top: 0, left: helperPaneLeftOffset });
-    //     setHelperPaneOpened(true);
-    // }
-
-    // const handleSelectionChange = () => {
-    //     const selection = window.getSelection();
-    //     if (!selection) {
-    //         return;
-    //     }
-
-    //     const range = selection.getRangeAt(0);
-
-    //     if (typeFieldRef.current.parentElement.contains(range.startContainer)) {
-    //         setTypeFieldCursorPosition(
-    //             typeFieldRef.current.shadowRoot.querySelector('input').selectionStart ?? 0
-    //         );
-    //     }
-    // }
-
-    /* Track cursor position */
-    // useEffect(() => {
-    //     const typeField = typeFieldRef.current;
-    //     if (!typeField) {
-    //         return;
-    //     }
-
-    //     document.addEventListener('selectionchange', handleSelectionChange);
-    //     return () => {
-    //         document.removeEventListener('selectionchange', handleSelectionChange);
-    //     }
-    // }, [typeFieldRef.current]);
-
-    // const handleTypeFieldBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    //     /* Prevent blur event when clicked on the type helper */
-    //     const searchElements = Array.from(document.querySelectorAll('#helper-pane-search'));
-    //     if (
-    //         (typeHelperRef.current?.contains(e.relatedTarget as Node) ||
-    //             typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
-    //         !searchElements.some(element => element.contains(e.relatedTarget as Node))
-    //     ) {
-    //         e.preventDefault();
-    //         e.stopPropagation();
-    //         typeFieldRef.current?.shadowRoot?.querySelector('input')?.focus();
-    //     }
-    // };
-
     return (
         <>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'start' }}>
@@ -276,19 +143,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                     rootType={type}
                     isAnonymousRecord={isRecord(member.type)}
                 />
-                {/* <TextField
-                    value={member.name}
-                    onChange={handleMemberNameChange}
-                    onBlur={handleMemberNameBlur}
-                    errorMsg={nameError}
-                /> */}
-                {/* <TextField
-                    ref={typeFieldRef}
-                    value={typeToSource(member.type)}
-                    onChange={handleMemberTypeChange}
-                    onFocus={handleTypeFieldFocus}
-                    onBlur={handleTypeFieldBlur}
-                /> */}
                 {isRecord(member.type) &&
                     <Button appearance="icon" onClick={() => recordEditorRef.current?.addMember()}>
                         <Codicon name="add" />
@@ -326,17 +180,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                     <AdvancedOptions type={member.type as Type} onChange={(type: Type) => onChange({ ...member, type })} />
                 </div>
             )}
-            {/* <TypeHelper
-                ref={typeHelperRef}
-                typeFieldRef={typeFieldRef}
-                typeBrowserRef={typeBrowserRef}
-                currentType={typeToSource(member.type)}
-                currentCursorPosition={typeFieldCursorPosition}
-                onChange={handleTypeHelperChange}
-                positionOffset={helperPaneOffset}
-                open={helperPaneOpened}
-                onClose={() => setHelperPaneOpened(false)}
-            /> */}
         </>
     );
 };
