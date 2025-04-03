@@ -31182,10 +31182,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1xp0n93"
+      class="css-1uzq6hu"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="504"
+      height="922"
       width="150"
     >
       <div
@@ -31330,10 +31330,148 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid="10,2"
+            data-linkid="10,3"
           >
             <g
-              data-testid="link-10,2"
+              data-testid="link-10,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-32"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="target_start-11,4,target_reference-11,4"
+          >
+            <g
+              data-testid="link-target_start-11,4,target_reference-11,4"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="target_reference-11,4,target_end-11,4"
+          >
+            <g
+              data-testid="link-target_reference-11,4,target_end-11,4"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="13,2"
+          >
+            <g
+              data-testid="link-13,2"
               pointer-events="auto"
             >
               <path
@@ -31609,8 +31747,231 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           </div>
           <div
             class="node css-nlpftr"
+            data-nodeid="iterate-10-3"
+            style="top: 440px; left: 0px;"
+          >
+            <div
+              data-testid="groupNode-iterate-10-3"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="iterate-10-3"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-znnhbi"
+                      >
+                        <i
+                          class="fw-Iterate"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Iterate
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="css-as7ops"
+                  />
+                </div>
+              </div>
+              <div
+                class="css-h1q2y6"
+                height="368"
+                width="150"
+              >
+                <div
+                  class="port css-1l1tlbe"
+                  data-name="out"
+                  data-nodeid="iterate-10-3"
+                  style="margin-left: 97px;"
+                />
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="target_start"
+            style="top: 550px; left: 63px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-target_start"
+              style="cursor: default;"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="target_start"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-progressBar-background)"
+                  r="10"
+                />
+                <path
+                  d="M16 30a14 14 0 1 1 14-14a14.016 14.016 0 0 1-14 14m0-26a12 12 0 1 0 12 12A12.014 12.014 0 0 0 16 4"
+                  fill="var(--vscode-progressBar-background)"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="target_start"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="target_reference"
+            style="top: 624px; left: 0px;"
+          >
+            <div
+              data-testid="referenceNode-target_reference"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-1f8szr7"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="target_reference"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-CallSequence"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Sequence
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            >
+                              iterateSeq
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="target_reference"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="target_end"
+            style="top: 734px; left: 63px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-target_end"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="target_end"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-progressBar-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="target_end"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 858px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -31751,144 +32112,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 			);"
         >
           <g
-            data-linkid="16,12"
-          >
-            <g
-              data-testid="link-16,12"
-              pointer-events="auto"
-            >
-              <path
-                d="M -22 0 L -22 0"
-                fill="none"
-                stroke="transparent"
-                stroke-width="16"
-              />
-              <path
-                d="M -22 0 L -22 0"
-                fill="none"
-                stroke="var(--vscode-progressBar-background)"
-                stroke-dasharray="0"
-                stroke-width="2"
-              />
-              <foreignobject
-                data-testid="add-mediator-button"
-                height="30"
-                width="20"
-                x="-32"
-                y="-15"
-              >
-                <div
-                  class="css-j9sfmh-NodeLinkWidget"
-                >
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                      fill="var(--vscode-editor-background)"
-                    />
-                    <path
-                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
-                      fill="var(--vscode-progressBar-background)"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight="4"
-                  markerWidth="4"
-                  orient="auto"
-                  refX="3"
-                  refY="2"
-                  viewBox="0 0 4 4"
-                >
-                  <polygon
-                    fill="var(--vscode-progressBar-background)"
-                    points="0,4 0,0 4,2"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid="target_start-17,16,target_reference-17,16"
-          >
-            <g
-              data-testid="link-target_start-17,16,target_reference-17,16"
-              pointer-events="auto"
-            >
-              <path
-                d="M -22 0 L -22 0"
-                fill="none"
-                stroke="transparent"
-                stroke-width="16"
-              />
-              <path
-                d="M -22 0 L -22 0"
-                fill="none"
-                stroke="var(--vscode-progressBar-background)"
-                stroke-dasharray="0"
-                stroke-width="2"
-              />
-              <defs>
-                <marker
-                  markerHeight="4"
-                  markerWidth="4"
-                  orient="auto"
-                  refX="3"
-                  refY="2"
-                  viewBox="0 0 4 4"
-                >
-                  <polygon
-                    fill="var(--vscode-progressBar-background)"
-                    points="0,4 0,0 4,2"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid="target_reference-17,16,target_end-17,16"
-          >
-            <g
-              data-testid="link-target_reference-17,16,target_end-17,16"
-              pointer-events="auto"
-            >
-              <path
-                d="M -22 0 L -22 0"
-                fill="none"
-                stroke="transparent"
-                stroke-width="16"
-              />
-              <path
-                d="M -22 0 L -22 0"
-                fill="none"
-                stroke="var(--vscode-progressBar-background)"
-                stroke-dasharray="0"
-                stroke-width="2"
-              />
-              <defs>
-                <marker
-                  markerHeight="4"
-                  markerWidth="4"
-                  orient="auto"
-                  refX="3"
-                  refY="2"
-                  viewBox="0 0 4 4"
-                >
-                  <polygon
-                    fill="var(--vscode-progressBar-background)"
-                    points="0,4 0,0 4,2"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
             data-linkid="19,12"
           >
             <g
@@ -31953,10 +32176,148 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid="20,8"
+            data-linkid="target_start-20,16,target_reference-20,16"
           >
             <g
-              data-testid="link-20,8"
+              data-testid="link-target_start-20,16,target_reference-20,16"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="target_reference-20,16,target_end-20,16"
+          >
+            <g
+              data-testid="link-target_reference-20,16,target_end-20,16"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="22,12"
+          >
+            <g
+              data-testid="link-22,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-32"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="23,8"
+          >
+            <g
+              data-testid="link-23,8"
               pointer-events="auto"
             >
               <path
@@ -32028,18 +32389,18 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
         >
           <div
             class="node css-nlpftr"
-            data-nodeid="start-resource-14-1"
+            data-nodeid="start-resource-17-1"
             style="top: 40px; left: 25px;"
           >
             <div
               class="css-2ttski"
-              data-testid="startNode-start-resource-14-1"
+              data-testid="startNode-start-resource-17-1"
               style="cursor: pointer;"
             >
               <div
                 class="port "
                 data-name="in"
-                data-nodeid="start-resource-14-1"
+                data-nodeid="start-resource-17-1"
               />
               <svg
                 height="40"
@@ -32075,17 +32436,17 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               <div
                 class="port "
                 data-name="out"
-                data-nodeid="start-resource-14-1"
+                data-nodeid="start-resource-17-1"
               />
             </div>
           </div>
           <div
             class="node css-nlpftr"
-            data-nodeid="iterate-16-12"
+            data-nodeid="iterate-19-12"
             style="top: 130px; left: 0px;"
           >
             <div
-              data-testid="groupNode-iterate-16-12"
+              data-testid="groupNode-iterate-19-12"
             >
               <div
                 class="css-6hu434"
@@ -32096,7 +32457,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                   <div
                     class="port css-3hvpph"
                     data-name="in"
-                    data-nodeid="iterate-16-12"
+                    data-nodeid="iterate-19-12"
                   />
                   <div
                     style="display: flex; flex-direction: row; width: 150px;"
@@ -32152,7 +32513,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 <div
                   class="port css-1l1tlbe"
                   data-name="out"
-                  data-nodeid="iterate-16-12"
+                  data-nodeid="iterate-19-12"
                   style="margin-left: 97px;"
                 />
               </div>
@@ -32304,11 +32665,11 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           </div>
           <div
             class="node css-nlpftr"
-            data-nodeid="respond-19-12"
+            data-nodeid="respond-22-12"
             style="top: 548px; left: 0px;"
           >
             <div
-              data-testid="mediatorNode-respond-19-12"
+              data-testid="mediatorNode-respond-22-12"
             >
               <div
                 class="css-6hu434"
@@ -32319,7 +32680,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                   <div
                     class="port css-3hvpph"
                     data-name="in"
-                    data-nodeid="respond-19-12"
+                    data-nodeid="respond-22-12"
                   />
                   <div
                     style="display: flex; flex-direction: row; width: 150px;"
@@ -32367,7 +32728,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                   <div
                     class="port css-1l1tlbe"
                     data-name="out"
-                    data-nodeid="respond-19-12"
+                    data-nodeid="respond-22-12"
                   />
                 </div>
               </div>
@@ -32376,17 +32737,17 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           </div>
           <div
             class="node css-nlpftr"
-            data-nodeid="inSequence-15-8"
+            data-nodeid="inSequence-18-8"
             style="top: 658px; left: 63px;"
           >
             <div
               class="css-2ttski"
-              data-testid="endNode-inSequence-15-8"
+              data-testid="endNode-inSequence-18-8"
             >
               <div
                 class="port "
                 data-name="in"
-                data-nodeid="inSequence-15-8"
+                data-nodeid="inSequence-18-8"
               />
               <svg
                 height="24"
@@ -32403,7 +32764,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               <div
                 class="port "
                 data-name="out"
-                data-nodeid="inSequence-15-8"
+                data-nodeid="inSequence-18-8"
               />
             </div>
           </div>
@@ -75219,10 +75580,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-tv8ebn"
+      class="css-1jl669b"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="469"
+      height="2419"
       width="350"
     >
       <div
@@ -75553,21 +75914,21 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid="{\\"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,2"
+            data-linkid="{\\"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,3"
           >
             <g
-              data-testid="link-{\\"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,2"
+              data-testid="link-{\\"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,3"
               pointer-events="auto"
             >
               <path
                 d="M 0 0 L 0 0"
-                fill="none"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,2-bg"
+                fill="none"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,3-bg"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
                 d="M 0 0 L 0 0"
-                fill="none"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,2"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,2-arrow-head)"
+                fill="none"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,3"start\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,3-arrow-head)"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
                 stroke-width="2"
@@ -75600,7 +75961,1783 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <defs>
-                <markerstart\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,2-arrow-head"
+                <markerstart\\":{\\"line\\":24,\\"character\\":3},\\"end\\":{\\"line\\":24,\\"character\\":14}}_end-25,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="undefined-25,3,25,3-onAccept-undefined,undefined"
+          >
+            <g
+              data-testid="link-undefined-25,3,25,3-onAccept-undefined,undefined"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnAccept
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="27,5,OnReject"
+          >
+            <g
+              data-testid="link-27,5,OnReject"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnReject
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="25,3-onAccept-undefined,undefined,{\\"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-25,3"
+          >
+            <g
+              data-testid="link-25,3-onAccept-undefined,undefined,{\\"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-25,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-25,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-25,3"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <markerstart\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-25,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="30,4"
+          >
+            <g
+              data-testid="link-30,4"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="{\\"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-32,3"
+          >
+            <g
+              data-testid="link-{\\"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-32,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-32,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-32,3"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-32,3-arrow-head)"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <markerstart\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end-32,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="34,5,OnAccept"
+          >
+            <g
+              data-testid="link-34,5,OnAccept"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnAccept
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="undefined-32,3,32,3-onReject-undefined,undefined"
+          >
+            <g
+              data-testid="link-undefined-32,3,32,3-onReject-undefined,undefined"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnReject
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="37,4"
+          >
+            <g
+              data-testid="link-37,4"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="32,3-onReject-undefined,undefined,{\\"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-32,3"
+          >
+            <g
+              data-testid="link-32,3-onReject-undefined,undefined,{\\"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-32,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-32,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-32,3"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <markerstart\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-32,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="{\\"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-39,3"
+          >
+            <g
+              data-testid="link-{\\"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-39,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-39,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-39,3"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-39,3-arrow-head)"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <markerstart\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end-39,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="undefined-39,3,39,3-onAccept-undefined,undefined"
+          >
+            <g
+              data-testid="link-undefined-39,3,39,3-onAccept-undefined,undefined"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnAccept
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="41,4,OnReject"
+          >
+            <g
+              data-testid="link-41,4,OnReject"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnReject
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="39,3-onAccept-undefined,undefined,{\\"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-39,3"
+          >
+            <g
+              data-testid="link-39,3-onAccept-undefined,undefined,{\\"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-39,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-39,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-39,3"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <markerstart\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-39,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="41,15"
+          >
+            <g
+              data-testid="link-41,15"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="{\\"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-43,3"
+          >
+            <g
+              data-testid="link-{\\"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-43,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-43,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-43,3"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-43,3-arrow-head)"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <markerstart\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end-43,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="45,4,OnAccept"
+          >
+            <g
+              data-testid="link-45,4,OnAccept"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnAccept
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="undefined-43,3,43,3-onReject-undefined,undefined"
+          >
+            <g
+              data-testid="link-undefined-43,3,43,3-onReject-undefined,undefined"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnReject
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="45,15"
+          >
+            <g
+              data-testid="link-45,15"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="43,3-onReject-undefined,undefined,{\\"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-43,3"
+          >
+            <g
+              data-testid="link-43,3-onReject-undefined,undefined,{\\"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-43,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-43,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-43,3"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <markerstart\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-43,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="{\\"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-47,3"
+          >
+            <g
+              data-testid="link-{\\"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-47,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-47,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-47,3"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-47,3-arrow-head)"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <markerstart\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end-47,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="49,4,OnAccept"
+          >
+            <g
+              data-testid="link-49,4,OnAccept"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnAccept
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="51,4,OnReject"
+          >
+            <g
+              data-testid="link-51,4,OnReject"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnReject
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="49,15"
+          >
+            <g
+              data-testid="link-49,15"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="51,15"
+          >
+            <g
+              data-testid="link-51,15"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="{\\"start\\":{\\"line\\":52,\\"character\\":3},\\"end\\":{\\"line\\":52,\\"character\\":14}}_end-53,3"
+          >
+            <g
+              data-testid="link-{\\"start\\":{\\"line\\":52,\\"character\\":3},\\"end\\":{\\"line\\":52,\\"character\\":14}}_end-53,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":52,\\"character\\":3},\\"end\\":{\\"line\\":52,\\"character\\":14}}_end-53,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":52,\\"character\\":3},\\"end\\":{\\"line\\":52,\\"character\\":14}}_end-53,3"start\\":{\\"line\\":52,\\"character\\":3},\\"end\\":{\\"line\\":52,\\"character\\":14}}_end-53,3-arrow-head)"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <markerstart\\":{\\"line\\":52,\\"character\\":3},\\"end\\":{\\"line\\":52,\\"character\\":14}}_end-53,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="undefined-53,3,53,3-onAccept-undefined,undefined"
+          >
+            <g
+              data-testid="link-undefined-53,3,53,3-onAccept-undefined,undefined"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnAccept
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="undefined-53,3,53,3-onReject-undefined,undefined"
+          >
+            <g
+              data-testid="link-undefined-53,3,53,3-onReject-undefined,undefined"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                height="100"
+                width="100"
+                x="-50"
+                y="-15"
+              >
+                <div
+                  style="display: flex; justify-content: center; align-items: center;"
+                >
+                  <div
+                    class="css-1t1qebt"
+                  >
+                    <div
+                      style="display: flex; justify-content: center; align-items: center; border-radius: 20px; padding: 2px 10px; box-sizing: border-box; font-family: var(--font-family);"
+                    >
+                      <span
+                        style="font-size: 14px;"
+                      >
+                        OnReject
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="53,3-onAccept-undefined,undefined,{\\"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3"
+          >
+            <g
+              data-testid="link-53,3-onAccept-undefined,undefined,{\\"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <markerstart\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="53,3-onReject-undefined,undefined,{\\"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3"
+          >
+            <g
+              data-testid="link-53,3-onReject-undefined,undefined,{\\"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <markerstart\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-53,3-arrow-head"
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-progressBar-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="{\\"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-55,2"
+          >
+            <g
+              data-testid="link-{\\"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-55,2"
+              pointer-events="auto"
+            >
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-55,2-bg"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M 0 0 L 0 0"
+                fill="none"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-55,2"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-55,2-arrow-head)"
+                stroke="var(--vscode-progressBar-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-10"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-progressBar-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <markerstart\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end-55,2-arrow-head"
                   markerHeight="4"
                   markerWidth="4"
                   orient="auto"
@@ -75810,8 +77947,1230 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           </div>
           <div
             class="node css-nlpftr"
+            data-nodeid="throttle-25-3"
+            style="top: 405px; left: 142.5px;"
+          >
+            <div
+              data-testid="conditionNode-throttle-25-3"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-133d2bl"
+                >
+                  <div
+                    class="port "
+                    data-name="in"
+                    data-nodeid="throttle-25-3"
+                  />
+                  <svg
+                    height="65"
+                    viewBox="0 0 70 70"
+                    width="65"
+                  >
+                    <rect
+                      fill="var(--vscode-editor-background)"
+                      height="50"
+                      rx="5"
+                      ry="5"
+                      stroke="#a8a8a8"
+                      stroke-width="2"
+                      transform="rotate(45 28 28)"
+                      width="50"
+                      x="12"
+                      y="2"
+                    />
+                    <svg
+                      height="30"
+                      viewBox="0 0 24 24"
+                      width="30"
+                      x="20"
+                      y="15"
+                    >
+                      <path
+                        d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"
+                        fill="var(--vscode-foreground)"
+                        transform="rotate(180)"
+                        transform-origin="50% 50%"
+                      />
+                    </svg>
+                  </svg>
+                  <div
+                    class="css-1rq9eq7"
+                  >
+                    <div
+                      class="css-h55zw6"
+                    >
+                      Throttle
+                    </div>
+                  </div>
+                  <div
+                    class="css-rcpm55"
+                  >
+                    <div
+                      class="css-1t1qebt"
+                    >
+                      <div
+                        class="css-1vc2u59"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="port "
+                    data-name="out"
+                    data-nodeid="throttle-25-3"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="25,3-onAccept"
+            style="top: 580px; left: 0px;"
+          >
+            <div
+              data-testid="referenceNode-25,3-onAccept"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-1f8szr7"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="25,3-onAccept"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-CallSequence"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Sequence
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            >
+                              throttle-onAcceptSeq
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="25,3-onAccept"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="log-27-5"
+            style="top: 580px; left: 200px;"
+          >
+            <div
+              data-testid="mediatorNode-log-27-5"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="log-27-5"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1gt6rr1"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-Log"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                            data-testid="mediator-name"
+                          >
+                            Log
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                              data-testid="mediator-description"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="log-27-5"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="{\\"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end"
+            style="top: 690px; left: 175px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="{\\"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="{\\"start\\":{\\"line\\":31,\\"character\\":3},\\"end\\":{\\"line\\":31,\\"character\\":14}}_end"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="throttle-32-3"
+            style="top: 740px; left: 142.5px;"
+          >
+            <div
+              data-testid="conditionNode-throttle-32-3"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-133d2bl"
+                >
+                  <div
+                    class="port "
+                    data-name="in"
+                    data-nodeid="throttle-32-3"
+                  />
+                  <svg
+                    height="65"
+                    viewBox="0 0 70 70"
+                    width="65"
+                  >
+                    <rect
+                      fill="var(--vscode-editor-background)"
+                      height="50"
+                      rx="5"
+                      ry="5"
+                      stroke="#a8a8a8"
+                      stroke-width="2"
+                      transform="rotate(45 28 28)"
+                      width="50"
+                      x="12"
+                      y="2"
+                    />
+                    <svg
+                      height="30"
+                      viewBox="0 0 24 24"
+                      width="30"
+                      x="20"
+                      y="15"
+                    >
+                      <path
+                        d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"
+                        fill="var(--vscode-foreground)"
+                        transform="rotate(180)"
+                        transform-origin="50% 50%"
+                      />
+                    </svg>
+                  </svg>
+                  <div
+                    class="css-1rq9eq7"
+                  >
+                    <div
+                      class="css-h55zw6"
+                    >
+                      Throttle
+                    </div>
+                  </div>
+                  <div
+                    class="css-rcpm55"
+                  >
+                    <div
+                      class="css-1t1qebt"
+                    >
+                      <div
+                        class="css-1vc2u59"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="port "
+                    data-name="out"
+                    data-nodeid="throttle-32-3"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="log-34-5"
+            style="top: 915px; left: 0px;"
+          >
+            <div
+              data-testid="mediatorNode-log-34-5"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="log-34-5"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1gt6rr1"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-Log"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                            data-testid="mediator-name"
+                          >
+                            Log
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                              data-testid="mediator-description"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="log-34-5"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="32,3-onReject"
+            style="top: 915px; left: 200px;"
+          >
+            <div
+              data-testid="referenceNode-32,3-onReject"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-1f8szr7"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="32,3-onReject"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-CallSequence"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Sequence
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            >
+                              throttle-onRejectSeq
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="32,3-onReject"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="{\\"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end"
+            style="top: 1025px; left: 175px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="{\\"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="{\\"start\\":{\\"line\\":38,\\"character\\":3},\\"end\\":{\\"line\\":38,\\"character\\":14}}_end"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="throttle-39-3"
+            style="top: 1075px; left: 142.5px;"
+          >
+            <div
+              data-testid="conditionNode-throttle-39-3"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-133d2bl"
+                >
+                  <div
+                    class="port "
+                    data-name="in"
+                    data-nodeid="throttle-39-3"
+                  />
+                  <svg
+                    height="65"
+                    viewBox="0 0 70 70"
+                    width="65"
+                  >
+                    <rect
+                      fill="var(--vscode-editor-background)"
+                      height="50"
+                      rx="5"
+                      ry="5"
+                      stroke="#a8a8a8"
+                      stroke-width="2"
+                      transform="rotate(45 28 28)"
+                      width="50"
+                      x="12"
+                      y="2"
+                    />
+                    <svg
+                      height="30"
+                      viewBox="0 0 24 24"
+                      width="30"
+                      x="20"
+                      y="15"
+                    >
+                      <path
+                        d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"
+                        fill="var(--vscode-foreground)"
+                        transform="rotate(180)"
+                        transform-origin="50% 50%"
+                      />
+                    </svg>
+                  </svg>
+                  <div
+                    class="css-1rq9eq7"
+                  >
+                    <div
+                      class="css-h55zw6"
+                    >
+                      Throttle
+                    </div>
+                  </div>
+                  <div
+                    class="css-rcpm55"
+                  >
+                    <div
+                      class="css-1t1qebt"
+                    >
+                      <div
+                        class="css-1vc2u59"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="port "
+                    data-name="out"
+                    data-nodeid="throttle-39-3"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="39,3-onAccept"
+            style="top: 1250px; left: 0px;"
+          >
+            <div
+              data-testid="referenceNode-39,3-onAccept"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-1f8szr7"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="39,3-onAccept"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-CallSequence"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Sequence
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            >
+                              throttle-onAcceptSeq
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="39,3-onAccept"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="onReject-40-4"
+            style="top: 1250px; left: 275px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="onReject-40-4"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="onReject-40-4"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="{\\"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end"
+            style="top: 1360px; left: 175px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="{\\"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="{\\"start\\":{\\"line\\":42,\\"character\\":3},\\"end\\":{\\"line\\":42,\\"character\\":14}}_end"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="throttle-43-3"
+            style="top: 1410px; left: 142.5px;"
+          >
+            <div
+              data-testid="conditionNode-throttle-43-3"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-133d2bl"
+                >
+                  <div
+                    class="port "
+                    data-name="in"
+                    data-nodeid="throttle-43-3"
+                  />
+                  <svg
+                    height="65"
+                    viewBox="0 0 70 70"
+                    width="65"
+                  >
+                    <rect
+                      fill="var(--vscode-editor-background)"
+                      height="50"
+                      rx="5"
+                      ry="5"
+                      stroke="#a8a8a8"
+                      stroke-width="2"
+                      transform="rotate(45 28 28)"
+                      width="50"
+                      x="12"
+                      y="2"
+                    />
+                    <svg
+                      height="30"
+                      viewBox="0 0 24 24"
+                      width="30"
+                      x="20"
+                      y="15"
+                    >
+                      <path
+                        d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"
+                        fill="var(--vscode-foreground)"
+                        transform="rotate(180)"
+                        transform-origin="50% 50%"
+                      />
+                    </svg>
+                  </svg>
+                  <div
+                    class="css-1rq9eq7"
+                  >
+                    <div
+                      class="css-h55zw6"
+                    >
+                      Throttle
+                    </div>
+                  </div>
+                  <div
+                    class="css-rcpm55"
+                  >
+                    <div
+                      class="css-1t1qebt"
+                    >
+                      <div
+                        class="css-1vc2u59"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="port "
+                    data-name="out"
+                    data-nodeid="throttle-43-3"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="onAccept-44-4"
+            style="top: 1585px; left: 75px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="onAccept-44-4"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="onAccept-44-4"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="43,3-onReject"
+            style="top: 1585px; left: 200px;"
+          >
+            <div
+              data-testid="referenceNode-43,3-onReject"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-1f8szr7"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="43,3-onReject"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-CallSequence"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Sequence
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            >
+                              throttle-onRejectSeq
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="43,3-onReject"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="{\\"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end"
+            style="top: 1695px; left: 175px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="{\\"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="{\\"start\\":{\\"line\\":46,\\"character\\":3},\\"end\\":{\\"line\\":46,\\"character\\":14}}_end"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="throttle-47-3"
+            style="top: 1745px; left: 142.5px;"
+          >
+            <div
+              data-testid="conditionNode-throttle-47-3"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-133d2bl"
+                >
+                  <div
+                    class="port "
+                    data-name="in"
+                    data-nodeid="throttle-47-3"
+                  />
+                  <svg
+                    height="65"
+                    viewBox="0 0 70 70"
+                    width="65"
+                  >
+                    <rect
+                      fill="var(--vscode-editor-background)"
+                      height="50"
+                      rx="5"
+                      ry="5"
+                      stroke="#a8a8a8"
+                      stroke-width="2"
+                      transform="rotate(45 28 28)"
+                      width="50"
+                      x="12"
+                      y="2"
+                    />
+                    <svg
+                      height="30"
+                      viewBox="0 0 24 24"
+                      width="30"
+                      x="20"
+                      y="15"
+                    >
+                      <path
+                        d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"
+                        fill="var(--vscode-foreground)"
+                        transform="rotate(180)"
+                        transform-origin="50% 50%"
+                      />
+                    </svg>
+                  </svg>
+                  <div
+                    class="css-1rq9eq7"
+                  >
+                    <div
+                      class="css-h55zw6"
+                    >
+                      Throttle
+                    </div>
+                  </div>
+                  <div
+                    class="css-rcpm55"
+                  >
+                    <div
+                      class="css-1t1qebt"
+                    >
+                      <div
+                        class="css-1vc2u59"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="port "
+                    data-name="out"
+                    data-nodeid="throttle-47-3"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="onAccept-48-4"
+            style="top: 1920px; left: 75px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="onAccept-48-4"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="onAccept-48-4"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="onReject-50-4"
+            style="top: 1920px; left: 275px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="onReject-50-4"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="onReject-50-4"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="{\\"start\\":{\\"line\\":52,\\"character\\":3},\\"end\\":{\\"line\\":52,\\"character\\":14}}_end"
+            style="top: 1970px; left: 175px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="{\\"start\\":{\\"line\\":52,\\"character\\":3},\\"end\\":{\\"line\\":52,\\"character\\":14}}_end"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="{\\"start\\":{\\"line\\":52,\\"character\\":3},\\"end\\":{\\"line\\":52,\\"character\\":14}}_end"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="throttle-53-3"
+            style="top: 2020px; left: 142.5px;"
+          >
+            <div
+              data-testid="conditionNode-throttle-53-3"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-133d2bl"
+                >
+                  <div
+                    class="port "
+                    data-name="in"
+                    data-nodeid="throttle-53-3"
+                  />
+                  <svg
+                    height="65"
+                    viewBox="0 0 70 70"
+                    width="65"
+                  >
+                    <rect
+                      fill="var(--vscode-editor-background)"
+                      height="50"
+                      rx="5"
+                      ry="5"
+                      stroke="#a8a8a8"
+                      stroke-width="2"
+                      transform="rotate(45 28 28)"
+                      width="50"
+                      x="12"
+                      y="2"
+                    />
+                    <svg
+                      height="30"
+                      viewBox="0 0 24 24"
+                      width="30"
+                      x="20"
+                      y="15"
+                    >
+                      <path
+                        d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"
+                        fill="var(--vscode-foreground)"
+                        transform="rotate(180)"
+                        transform-origin="50% 50%"
+                      />
+                    </svg>
+                  </svg>
+                  <div
+                    class="css-1rq9eq7"
+                  >
+                    <div
+                      class="css-h55zw6"
+                    >
+                      Throttle
+                    </div>
+                  </div>
+                  <div
+                    class="css-rcpm55"
+                  >
+                    <div
+                      class="css-1t1qebt"
+                    >
+                      <div
+                        class="css-1vc2u59"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="port "
+                    data-name="out"
+                    data-nodeid="throttle-53-3"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="53,3-onAccept"
+            style="top: 2195px; left: 0px;"
+          >
+            <div
+              data-testid="referenceNode-53,3-onAccept"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-1f8szr7"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="53,3-onAccept"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-CallSequence"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Sequence
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            >
+                              throttle-onAcceptSeq
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="53,3-onAccept"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="53,3-onReject"
+            style="top: 2195px; left: 200px;"
+          >
+            <div
+              data-testid="referenceNode-53,3-onReject"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-1f8szr7"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="53,3-onReject"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-CallSequence"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Sequence
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            >
+                              throttle-onRejectSeq
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="53,3-onReject"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="{\\"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end"
+            style="top: 2305px; left: 175px;"
+          >
+            <div
+              class="port css-1fb31et"
+              data-name="in"
+              data-nodeid="{\\"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end"
+            />
+            <div
+              class="port css-f25ld8"
+              data-name="out"
+              data-nodeid="{\\"start\\":{\\"line\\":54,\\"character\\":3},\\"end\\":{\\"line\\":54,\\"character\\":14}}_end"
+            />
+          </div>
+          <div
+            class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 405px; left: 163px;"
+            style="top: 2355px; left: 163px;"
           >
             <div
               class="css-2ttski"
