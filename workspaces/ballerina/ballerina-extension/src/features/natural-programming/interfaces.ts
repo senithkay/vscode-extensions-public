@@ -41,5 +41,5 @@ export interface BallerinaSource {
     readme: string; 
     requirements: string; 
     developerOverview: string; 
-    moduleName: string
+    moduleName: string;
 }

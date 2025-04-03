@@ -70,14 +70,14 @@ async function getLLMResponses(sources: BallerinaSource[], token: string, backen
         promises.push(commentResponsePromise);
 
         sources.forEach(source => {
-            let body: any[] = [source.balFiles, source.requirements, source.readme, source.developerOverview];
+            let body: string[] = [source.balFiles, source.requirements, source.readme, source.developerOverview];
 
             if (source.moduleName == null) {
-                body.push(moduleNames);
+                body.push(moduleNames.join(", "));
             } else {
-                body.push(null);
+                body.push("");
             }
-            
+
             const documentationSourceResponsePromise = fetchWithToken(
                 backendurl + PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT,
                 {
@@ -96,7 +96,7 @@ async function getLLMResponses(sources: BallerinaSource[], token: string, backen
         let responses: (Response | Error)[] = await Promise.all(promises);
         const firstResponse = responses[0];
 
-        const filteredResponses: Response[] = responses.filter(response => !isError(response) && !response.ok) as Response[];
+        const filteredResponses: Response[] = responses.filter(response => !isError(response) && response.ok) as Response[];
 
         if (filteredResponses.length === 0) {
             if (isError(firstResponse)) {
@@ -108,10 +108,13 @@ async function getLLMResponses(sources: BallerinaSource[], token: string, backen
         let extractedResponses: any[] = [];
 
         for (const response of filteredResponses) {
-            extractedResponses.push(await extractResponseAsJsonFromString(await streamToString(response.body)));
+            const extractedResponse = await extractResponseAsJsonFromString(await streamToString(response.body));
+            if (extractedResponse != null) {
+                extractedResponses.push(extractedResponse);
+            }
         }
 
-        return filteredResponses;
+        return extractedResponses;
     }
 }
 
@@ -336,7 +339,7 @@ function formatWithLineNumbers(content: string): string {
 }
 
 function getBalFiles(dir: string): string {
-    let balFiles = ""
+    let balFiles = "";
     if (!fs.existsSync(dir)) { return; }
     const files = fs.readdirSync(dir);
     for (const file of files) {
@@ -350,8 +353,8 @@ function getBalFiles(dir: string): string {
     return balFiles;
 }
 
-function getModuleBalSources(modulesDir: string): {completeBalFiles: string, modulesWithReadMe: {[key:string]: {readmeContent: string, moduleBalFiles: string}}} {
-    let completeBalFiles = ""
+function getModuleBalSources(modulesDir: string): { completeBalFiles: string, modulesWithReadMe: { [key: string]: { readmeContent: string, moduleBalFiles: string } } } {
+    let completeBalFiles = "";
     let modulesWithReadMe = {};
 
     if (!fs.existsSync(modulesDir)) { return; }
@@ -359,27 +362,32 @@ function getModuleBalSources(modulesDir: string): {completeBalFiles: string, mod
         fs.statSync(path.join(modulesDir, dir)).isDirectory()
     );
 
+    if (moduleDirs.length == 0) {
+        return null;
+    }
+
     for (const moduleName of moduleDirs) {
+        const relativeModulePath = `modules/${moduleName}/`;
         let moduleBalFiles = "";
         const modulePath = path.join(modulesDir, moduleName);
         const files = fs.readdirSync(modulePath);
-        const readmeContent = getReadmeContent(modulePath);
+        const readmeContent = getReadmeContent(modulePath, relativeModulePath);
 
         for (const file of files) {
             const fullPath = path.join(modulePath, file);
             if (fs.statSync(fullPath).isFile() && file.endsWith(".bal")) {
                 const content = fs.readFileSync(fullPath, "utf8");
                 const formattedContent = formatWithLineNumbers(content);
-                moduleBalFiles += `  <program filename=\"modules/${moduleName}/${file}\">\n    ${formattedContent}\n  </program>\n`;
+                moduleBalFiles += `  <program filename=\"${relativeModulePath}${file}\">\n    ${formattedContent}\n  </program>\n`;
             }
         }
 
         if (readmeContent.length > 0) {
-            modulesWithReadMe[moduleName] = {readmeContent, moduleBalFiles: "<project>\n" + moduleBalFiles + "</project>"};
+            modulesWithReadMe[moduleName] = { readmeContent, moduleBalFiles: "<project>\n" + moduleBalFiles + "</project>" };
         }
         completeBalFiles += moduleBalFiles;
     }
-    return {completeBalFiles, modulesWithReadMe};
+    return { completeBalFiles, modulesWithReadMe };
 }
 
 async function getRequirementAndDeveloperOverviewFiles(naturalLangDir: string): Promise<[string, string]> {
@@ -414,7 +422,7 @@ async function getRequirementAndDeveloperOverviewFiles(naturalLangDir: string): 
     return [requirementsContent, developerContent];
 }
 
-function getReadmeContent(folderPath: string): string {
+function getReadmeContent(folderPath: string, relativePath: string = ""): string {
     if (!fs.existsSync(folderPath)) { return ""; }
 
     const files = fs.readdirSync(folderPath);
@@ -425,11 +433,11 @@ function getReadmeContent(folderPath: string): string {
     const readmePath = path.join(folderPath, readmeFile);
     const content = fs.readFileSync(readmePath, "utf8");
 
-    return `<readme filename="${readmeFile}">\n${content}\n</readme>\n`;
+    return `<readme filename="${relativePath + readmeFile}">\n${content}\n</readme>\n`;
 }
 
-export async function getBallerinaSourceFiles(folderPath: string): 
-        Promise<BallerinaSource[]> {
+export async function getBallerinaSourceFiles(folderPath: string):
+    Promise<BallerinaSource[]> {
     let sources: BallerinaSource[] = [];
     let readmeContent = "";
     const moduleSources = getModuleBalSources(path.join(folderPath, "modules"));
@@ -438,7 +446,11 @@ export async function getBallerinaSourceFiles(folderPath: string):
 
     let balFiles = "<project>\n";
     balFiles += getBalFiles(folderPath);
-    balFiles += moduleSources.completeBalFiles;
+
+    if (moduleSources != null) {
+        balFiles += moduleSources.completeBalFiles;
+    }
+
     balFiles += "</project>";
 
     sources.push({
@@ -446,21 +458,23 @@ export async function getBallerinaSourceFiles(folderPath: string):
         readme: readmeContent.trim(),
         requirements: nlContent[0].trim(),
         developerOverview: nlContent[1].trim(),
-        moduleName: null
+        moduleName: ""
     });
 
-    Object.entries(moduleSources.modulesWithReadMe).map(([moduleName, module]) => {
-        const moduleBalFiles = module.moduleBalFiles;
-        const readmeContent = module.readmeContent;
-        
-        sources.push({
-          balFiles: moduleBalFiles,
-          readme: readmeContent.trim(),
-          requirements: nlContent[0].trim(),
-          developerOverview: nlContent[1].trim(),
-          moduleName
+    if (moduleSources != null) {
+        Object.entries(moduleSources.modulesWithReadMe).map(([moduleName, module]) => {
+            const moduleBalFiles = module.moduleBalFiles;
+            const readmeContent = module.readmeContent;
+
+            sources.push({
+                balFiles: moduleBalFiles,
+                readme: readmeContent.trim(),
+                requirements: nlContent[0].trim(),
+                developerOverview: nlContent[1].trim(),
+                moduleName
+            });
         });
-      });
+    }
 
     return sources;
 }
@@ -528,7 +542,7 @@ export function handleChatSummaryFailure(message: string) {
 function findFileCaseInsensitive(directory, fileName) {
     const files = fs.readdirSync(directory);
     const targetFile = files.find(file => file.toLowerCase() === fileName.toLowerCase());
-    const file = targetFile ? targetFile: fileName;
+    const file = targetFile ? targetFile : fileName;
     return path.join(directory, file);
 }
 
@@ -554,7 +568,7 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
         fileContent += `\n${targetTable}\n${urlLine}\n${accessTokenLine}\n`;
         fs.writeFileSync(configFilePath, fileContent);
         return;
-    } 
+    }
 
     // Table exists, update it
     const tableEndIndex = fileContent.indexOf('\n', tableStartIndex);
@@ -582,14 +596,14 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
     // If url or accessToken line does not exist, just replace the entire table
     let nextTableStartIndex = fileContent.indexOf('[', tableEndIndex + 1);
     if (nextTableStartIndex === -1) {
-        fileContent = fileContent.substring(0, tableStartIndex) 
-                + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+        fileContent = fileContent.substring(0, tableStartIndex)
+            + updatedTableContent + fileContent.substring(tableEndIndex + 1);
     } else {
         let nextLineBreakIndex = fileContent.substring(tableEndIndex + 1).indexOf('\n');
         if (nextLineBreakIndex === -1) {
             fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent;
         } else {
-            fileContent = fileContent.substring(0, tableStartIndex) 
+            fileContent = fileContent.substring(0, tableStartIndex)
                 + updatedTableContent + fileContent.substring(tableEndIndex + 1);
         }
     }
