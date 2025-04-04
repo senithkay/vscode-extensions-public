@@ -959,6 +959,8 @@ export interface AddFunctionRequest {
 
 export interface AddFunctionResponse {
     template: string;
+    moduleId: string;
+    prefix: string;
 }
 
 export interface RenameIdentifierRequest {

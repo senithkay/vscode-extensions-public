@@ -45,6 +45,7 @@ export type FormField = {
     lineRange?: LineRange;
     metadata?: Metadata;
     codedata?: {[key: string]: any};
+    imports?: {[key: string]: string};
 };
 
 export type ParameterValue = {
@@ -119,6 +120,7 @@ type FormTypeConditionalProps = {
     types: CompletionItem[];
     retrieveVisibleTypes: (typeConstraint?: string) => Promise<void>;
     getTypeHelper: (
+        fieldKey: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
@@ -139,6 +141,7 @@ type FormTypeConditionalProps = {
 
 type FormHelperPaneConditionalProps = {
     getHelperPane: (
+        fieldKey: string,
         exprRef: RefObject<FormExpressionEditorRef>,
         anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
