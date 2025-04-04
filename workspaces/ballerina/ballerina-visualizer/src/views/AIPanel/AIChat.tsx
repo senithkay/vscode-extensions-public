@@ -495,8 +495,8 @@ export function AIChat() {
             { role: "User", content: uerMessage, type: "user_message" },
             { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
         ]);
-
         await handleSendQuery(content);
+        setUserInput("/generate ");
     }
 
     function getUserMessage(content: [string, AttachmentResult[]]): string {

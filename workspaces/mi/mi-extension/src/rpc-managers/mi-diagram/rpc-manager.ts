@@ -256,7 +256,8 @@ import {
     DeployProjectResponse,
     CreateBallerinaModuleRequest,
     CreateBallerinaModuleResponse,
-    SCOPE
+    SCOPE,
+    DevantMetadata
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -269,7 +270,7 @@ import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
-import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, extensions, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
 import { DiagramService, APIResource, NamedSequence, UnitTest, Proxy } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
@@ -301,6 +302,8 @@ import { compareVersions, filterConnectorVersion, generateInitialDependencies, g
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { checkForDevantExt } from "../../extension";
 import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
+import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
+import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 const AdmZip = require('adm-zip');
 
@@ -4466,10 +4469,11 @@ ${keyValuesXML}`;
             if (!checkForDevantExt()) {
                 return;
             }
-            const params = {
+            const params: ICreateComponentCmdParams = {
                 buildPackLang: "microintegrator",
                 name: path.basename(StateMachine.context().projectUri!),
-                componentDir: StateMachine.context().projectUri
+                componentDir: StateMachine.context().projectUri,
+                extName: "Devant",
             };
 
             const langClient = StateMachine.context().langClient!;
@@ -4499,6 +4503,8 @@ ${keyValuesXML}`;
                 if (resp.length === 1) {
                     const type = resp[0]
                     integrationType = mapTypeToScope(type);
+                } else if (resp.length === 0) {
+                    window.showErrorMessage("You don't have any artifacts within this project. Please add an artifact and try again.");
                 } else {
                     // Show a quick pick to select deployment option
                     const selectedScope = await window.showQuickPick(resp, {
@@ -4514,15 +4520,52 @@ ${keyValuesXML}`;
                     return { success: false };
                 }
 
-                const paramsWithType = { ...params, integrationType };
+                const paramsWithType: ICreateComponentCmdParams = { ...params, integrationType: integrationType as DevantScopes, };
 
-                commands.executeCommand(COMMANDS.DEVAN_DEPLOY, paramsWithType);
+                commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, paramsWithType);
                 resolve({ success: true });
 
             } else {
                 resolve({ success: false });
             }
         });
+    }
+
+    async getDevantMetadata(): Promise<DevantMetadata> {
+        let hasContextYaml = false;
+        let isLoggedIn = false;
+        let hasComponent = false;
+        let hasLocalChanges = false;
+        try {
+            const projectRoot = StateMachine.context().projectUri;
+            if(projectRoot){
+                const repoRoot = getRepoRoot(projectRoot);
+                if (repoRoot) {
+                    const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
+                    if (fs.existsSync(contextYamlPath)) {
+                        hasContextYaml = true;
+                    }
+                }
+
+                const platformExt = extensions.getExtension("wso2.wso2-platform");
+                if (!platformExt) {
+                    return { hasComponent: hasContextYaml, isLoggedIn: false };
+                }
+                const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
+                hasLocalChanges = await platformExtAPI.localRepoHasChanges(projectRoot);
+                isLoggedIn = platformExtAPI.isLoggedIn();
+                if (isLoggedIn) {
+                    const components = platformExtAPI.getDirectoryComponents(projectRoot);
+                    hasComponent = components.length > 0;
+                    return { isLoggedIn, hasComponent, hasLocalChanges };
+                }
+                return { isLoggedIn, hasComponent: hasContextYaml, hasLocalChanges };
+            }
+            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
+        } catch(err){
+            console.error("failed to call getDevantMetadata: ", err);
+            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
+        }
     }
 
     async exportProject(params: ExportProjectRequest): Promise<void> {
@@ -5369,6 +5412,18 @@ ${keyValuesXML}`;
     }
 }
 
+export function getRepoRoot(projectRoot: string): string | undefined {
+    // traverse up the directory tree until .git directory is found
+    const gitDir = path.join(projectRoot, ".git");
+    if (fs.existsSync(gitDir)) {
+        return projectRoot;
+    }
+    // path is root return undefined
+    if (projectRoot === path.parse(projectRoot).root) {
+        return undefined;
+    }
+    return getRepoRoot(path.join(projectRoot, ".."));
+}
 
 export async function askProjectPath() {
     return await window.showOpenDialog({

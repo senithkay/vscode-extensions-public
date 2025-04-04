@@ -30,7 +30,7 @@ import ComponentDiagram from "../ComponentDiagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from "react-markdown";
 import { useQuery } from '@tanstack/react-query'
-import { CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { IOpenInConsoleCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { AlertBoxWithClose } from "../../AIPanel/AlertBoxWithClose";
 import { findScopeByModule } from "./utils";
 
@@ -283,6 +283,11 @@ interface DeploymentOptionProps {
     onDeploy: () => void;
     learnMoreLink?: string;
     hasDeployableIntegration?: boolean;
+    secondaryAction?: {
+        description: string;
+        buttonText: string;
+        onClick: () => void;
+    };
 }
 
 function DeploymentOption({
@@ -293,6 +298,7 @@ function DeploymentOption({
     onToggle,
     onDeploy,
     learnMoreLink,
+    secondaryAction,
     hasDeployableIntegration
 }: DeploymentOptionProps) {
     const { rpcClient } = useRpcContext();
@@ -333,6 +339,17 @@ function DeploymentOption({
                 >
                     {buttonText}
                 </Button>
+                {secondaryAction && (
+                    <>
+                        <p>{secondaryAction.description}</p>
+                        <Button appearance="primary" onClick={(e) => {
+                            e.stopPropagation();
+                            secondaryAction.onClick()
+                        }}>
+                            {secondaryAction.buttonText}
+                        </Button>
+                    </>
+                )}
             </DeploymentBody>
         </DeploymentOptionContainer>
     );
@@ -356,6 +373,7 @@ function DeploymentOptions({
     hasDeployableIntegration
 }: DeploymentOptionsProps) {
     const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
+    const { rpcClient } = useRpcContext();
 
     const toggleOption = (option: string) => {
         setExpandedOptions(prev => {
@@ -375,29 +393,33 @@ function DeploymentOptions({
             <div>
                 <Title variant="h3">Deployment Options</Title>
 
-                {devantMetadata?.hasComponent ? (
-                    <DeploymentOption
-                        title="Deployed in Devant"
-                        description="This integration is already deployed in Devant."
-                        buttonText="View in Devant"
-                        isExpanded={expandedOptions.has("devant")}
-                        onToggle={() => toggleOption("devant")}
-                        onDeploy={() => goToDevant()}
-                        learnMoreLink={"https://wso2.com/devant/docs"}
-                        hasDeployableIntegration={hasDeployableIntegration}
-                    />
-                ) : (
-                    <DeploymentOption
-                        title="Deploy to Devant"
-                        description="Deploy your integration to the cloud using Devant by WSO2."
-                        buttonText="Deploy"
-                        isExpanded={expandedOptions.has("cloud")}
-                        onToggle={() => toggleOption("cloud")}
-                        onDeploy={handleDeploy}
-                        learnMoreLink={"https://wso2.com/devant/docs"}
-                        hasDeployableIntegration={hasDeployableIntegration}
-                    />
-                )}
+                <DeploymentOption
+                    title={devantMetadata?.hasComponent ? "Deployed in Devant" : "Deploy to Devant"}
+                    description={
+                        devantMetadata?.hasComponent
+                            ? "This integration is already deployed in Devant."
+                            : "Deploy your integration to the cloud using Devant by WSO2."
+                    }
+                    buttonText={devantMetadata?.hasComponent ? "View in Devant" : "Deploy"}
+                    isExpanded={expandedOptions.has("devant")}
+                    onToggle={() => toggleOption("devant")}
+                    onDeploy={devantMetadata?.hasComponent ? () => goToDevant() : handleDeploy}
+                    learnMoreLink={"https://wso2.com/devant/docs"}
+                    hasDeployableIntegration={hasDeployableIntegration}
+                    secondaryAction={
+                        devantMetadata?.hasComponent && devantMetadata?.hasLocalChanges
+                            ? {
+                                  description: "To redeploy in Devant, please commit and push your changes.",
+                                  buttonText: "Open Source Control",
+                                  onClick: () =>
+                                      rpcClient
+                                          .getCommonRpcClient()
+                                          .executeCommand({ commands: ["workbench.scm.focus"] }),
+                              }
+                            : undefined
+                    }
+                />
+           
 
                 <DeploymentOption
                     title="Deploy with Docker"
@@ -471,9 +493,9 @@ export function Overview(props: ComponentDiagramProps) {
     const backendRootUri = useRef("");
     const [enabled, setEnableICP] = useState(false);
     const { data: devantMetadata } = useQuery({
-        queryKey:["devant-metadata",props.projectPath],
-        queryFn: ()=>rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
-        refetchInterval: 2000
+        queryKey: ["devant-metadata", props.projectPath],
+        queryFn: () => rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
+        refetchInterval: 5000
     })
     const [showAlert, setShowAlert] = React.useState(false);
 
@@ -770,7 +792,13 @@ export function Overview(props: ComponentDiagramProps) {
 
     const goToDevant = () => {
         rpcClient.getCommonRpcClient().executeCommand({
-            commands:[PlatformExtCommandIds.OpenInConsole,{extensionName:"Devant",componentFsPath: projectPath}]
+            commands:[
+                PlatformExtCommandIds.OpenInConsole,
+                {
+                    extName:"Devant",
+                    componentFsPath: projectPath, 
+                    newComponentParams:{ buildPackLang: "ballerina" }
+                } as IOpenInConsoleCmdParams]
         })
     };
 

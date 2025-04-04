@@ -8,6 +8,9 @@
 					<sequence></sequence>
 				</target>
 			</iterate>
+			<iterate expression="ex" id="id">
+				<target sequence="iterateSeq" />
+			</iterate>
 		</inSequence>
 		<faultSequence>
 		</faultSequence>

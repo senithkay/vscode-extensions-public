@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -12,6 +12,7 @@ import { dirname, relative, sep } from "path";
 import type { Readable } from "stream";
 import * as byline from "byline";
 import { type Disposable, type Event, EventEmitter, type ExtensionContext } from "vscode";
+import { getLogger } from "../logger/logger";
 import type { Branch, Remote } from "./api/git";
 import { initGit } from "./main";
 
@@ -581,7 +582,7 @@ export const getGitRoot = async (context: ExtensionContext, directoryPath: strin
 		const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
 		return repoRootPath;
 	} catch (err) {
-		console.error("Invalid Git Directory", err);
+		getLogger().error("Invalid Git Directory", err);
 		throw new Error("Not a Git directory");
 	}
 };

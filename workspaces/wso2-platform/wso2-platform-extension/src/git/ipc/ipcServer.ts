@@ -9,8 +9,8 @@ import * as http from "http";
 import * as os from "os";
 import * as path from "path";
 import type { Disposable } from "vscode";
-import type { ITerminalEnvironmentProvider } from "./terminal";
-import { toDisposable } from "./util";
+import type { ITerminalEnvironmentProvider } from "../terminal";
+import { toDisposable } from "../util";
 
 function getIPCHandlePath(id: string): string {
 	if (process.platform === "win32") {

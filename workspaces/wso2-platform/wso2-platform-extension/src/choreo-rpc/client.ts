@@ -131,6 +131,10 @@ export class RPCClient {
 			throw e;
 		}
 	}
+
+	isInitialized(): boolean {
+		return !!this._conn;
+	}
 }
 
 export class ChoreoRPCClient implements IChoreoRPCClient {
@@ -138,6 +142,10 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 
 	public constructor() {
 		this.init();
+	}
+
+	isActive(): boolean {
+		return !!this.client && this.client.isInitialized();
 	}
 
 	async init() {

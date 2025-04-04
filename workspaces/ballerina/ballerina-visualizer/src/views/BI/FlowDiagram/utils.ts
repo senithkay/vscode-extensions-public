@@ -47,7 +47,7 @@ export const transformCategories = (categories: Category[]): Category[] => {
     
     // filter out some categories that are not supported in the diagram
     // TODO: these categories should be supported in the future
-    const notSupportedCategories = ["PARALLEL_FLOW", "LOCK", "START", "TRANSACTION", "COMMIT", "ROLLBACK", "RETRY"];
+    const notSupportedCategories = ["PARALLEL_FLOW", "LOCK", "START", "TRANSACTION", "COMMIT", "ROLLBACK", "RETRY", "NP_FUNCTION"];
 
     filteredCategories = filteredCategories.map((category) => ({
         ...category,
