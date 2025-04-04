@@ -48,7 +48,9 @@ export function createNewComponentCommand(context: ExtensionContext) {
 			try {
 				isRpcActive(ext);
 				let isIntegration = false;
-				if (params?.buildPackLang === ChoreoBuildPackNames.Ballerina || params?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
+				if (webviewStateStore.getState().state.extensionName === "Devant"){
+					isIntegration = true;
+				} else if (params?.buildPackLang === ChoreoBuildPackNames.Ballerina || params?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
 					isIntegration = true;
 					webviewStateStore.getState().setExtensionName("Devant");
 				}
