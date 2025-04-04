@@ -24,6 +24,7 @@ import {
     BuildMode,
     ClassFieldModifierRequest,
     ComponentRequest,
+    DeploymentRequest,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
@@ -138,7 +139,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
     messenger.onRequest(renameIdentifier, (args: RenameIdentifierRequest) => rpcManger.renameIdentifier(args));
-    messenger.onRequest(deployProject, () => rpcManger.deployProject());
+    messenger.onRequest(deployProject, (args: DeploymentRequest) => rpcManger.deployProject(args));
     messenger.onNotification(openAIChat, (args: AIChatRequest) => rpcManger.openAIChat(args));
     messenger.onRequest(getSignatureHelp, (args: SignatureHelpRequest) => rpcManger.getSignatureHelp(args));
     messenger.onNotification(buildProject, (args: BuildMode) => rpcManger.buildProject(args));
