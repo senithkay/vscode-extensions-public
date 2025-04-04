@@ -1,7 +1,7 @@
-import {window, StatusBarAlignment, ExtensionContext, StatusBarItem} from "vscode";
-import { webviewStateStore } from "./stores/webview-state-store";
-import { WebviewState, AuthState } from "@wso2-enterprise/wso2-platform-core";
+import type { AuthState, WebviewState } from "@wso2-enterprise/wso2-platform-core";
+import { type ExtensionContext, StatusBarAlignment, type StatusBarItem, window } from "vscode";
 import { authStore } from "./stores/auth-store";
+import { webviewStateStore } from "./stores/webview-state-store";
 
 let statusBarItem: StatusBarItem;
 
@@ -10,18 +10,17 @@ export function activateStatusbar({ subscriptions }: ExtensionContext) {
 	// myStatusBarItem.command = myCommandId;
 	subscriptions.push(statusBarItem);
 
+	let webviewState: WebviewState = webviewStateStore.getState()?.state;
+	let authState: AuthState | null = authStore.getState()?.state;
+	webviewStateStore.subscribe((state) => {
+		webviewState = state.state;
+		updateStatusBarItem(webviewState, authState);
+	});
 
-   let webviewState: WebviewState = webviewStateStore.getState()?.state
-   let authState: AuthState| null = authStore.getState()?.state
-    webviewStateStore.subscribe((state)=>{
-        webviewState = state.state
-        updateStatusBarItem(webviewState, authState);
-    })
-
-    authStore.subscribe((state)=>{
-        authState = state.state
-        updateStatusBarItem(webviewState, authState);
-    })
+	authStore.subscribe((state) => {
+		authState = state.state;
+		updateStatusBarItem(webviewState, authState);
+	});
 
 	// update status bar item once at start
 	updateStatusBarItem(webviewState, authState);
@@ -35,4 +34,3 @@ function updateStatusBarItem(webviewState: WebviewState | null, authState?: Auth
 		statusBarItem.hide();
 	}
 }
-

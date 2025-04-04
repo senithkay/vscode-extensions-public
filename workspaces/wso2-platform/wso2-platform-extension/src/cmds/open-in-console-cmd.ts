@@ -78,7 +78,10 @@ export function openInConsoleCommand(context: ExtensionContext) {
 								)
 								.then((res) => {
 									if (res === "Proceed") {
-										commands.executeCommand(CommandIds.CreateNewComponent, { componentDir: params?.componentFsPath } as ICreateComponentCmdParams);
+										commands.executeCommand(CommandIds.CreateNewComponent, {
+											...(params?.newComponentParams || {}),
+											componentDir: params?.componentFsPath || params?.newComponentParams?.componentDir,
+										} as ICreateComponentCmdParams);
 									}
 								});
 						} else if (matchingComponent?.length === 1) {

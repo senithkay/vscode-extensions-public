@@ -176,7 +176,15 @@ export function Overview(props: OverviewProps) {
     };
 
     const goToDevant = () => {
-        rpcClient.getMiDiagramRpcClient().executeCommand({commands: [PlatformExtCommandIds.OpenInConsole, {extName:"Devant",componentFsPath: activeWorkspaces.fsPath} as IOpenInConsoleCmdParams]})
+        rpcClient.getMiDiagramRpcClient().executeCommand({
+            commands: [
+                PlatformExtCommandIds.OpenInConsole, 
+                {
+                    extName:"Devant",
+                    componentFsPath: activeWorkspaces.fsPath,
+                    newComponentParams: { buildPackLang: "microintegrator" }
+                } as IOpenInConsoleCmdParams]
+        })
     };
 
     const handleDeploy = (params: DeployProjectRequest) => {

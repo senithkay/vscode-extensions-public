@@ -53,6 +53,7 @@ export interface IOpenInConsoleCmdParams extends ICmdParamsBase{
 	project: Project;
 	component: ComponentKind;
 	componentFsPath: string;
+	newComponentParams?: ICreateComponentCmdParams
 }
 
 export interface IViewDependencyCmdParams extends ICmdParamsBase{
