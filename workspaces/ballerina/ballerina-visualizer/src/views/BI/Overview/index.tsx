@@ -16,7 +16,7 @@ import {
     MACHINE_VIEW,
     BuildMode,
     BI_COMMANDS,
-    DevantComponent,
+    DevantMetadata,
     SHARED_COMMANDS,
     DIRECTORY_MAP,
     SCOPE
@@ -29,6 +29,8 @@ import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent 
 import ComponentDiagram from "../ComponentDiagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from "react-markdown";
+import { useQuery } from '@tanstack/react-query'
+import { IOpenInConsoleCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { findScopeByModule } from "./utils";
 
 const SpinnerContainer = styled.div`
@@ -273,7 +275,11 @@ interface DeploymentOptionProps {
     onToggle: () => void;
     onDeploy: () => void;
     learnMoreLink?: string;
-    isDeploying?: boolean;
+    secondaryAction?: {
+        description: string;
+        buttonText: string;
+        onClick: () => void;
+    };
     hasDeployableIntegration?: boolean;
 }
 
@@ -285,7 +291,7 @@ function DeploymentOption({
     onToggle,
     onDeploy,
     learnMoreLink,
-    isDeploying,
+    secondaryAction,
     hasDeployableIntegration
 }: DeploymentOptionProps) {
     const { rpcClient } = useRpcContext();
@@ -301,7 +307,6 @@ function DeploymentOption({
             isExpanded={isExpanded}
             onClick={onToggle}
         >
-            {isDeploying && <ProgressIndicator />}
             <DeploymentHeader>
                 <Codicon
                     name={'circle-outline'}
@@ -327,6 +332,17 @@ function DeploymentOption({
                 >
                     {buttonText}
                 </Button>
+                {secondaryAction && (
+                    <>
+                        <p>{secondaryAction.description}</p>
+                        <Button appearance="primary" onClick={(e) => {
+                            e.stopPropagation();
+                            secondaryAction.onClick()
+                        }}>
+                            {secondaryAction.buttonText}
+                        </Button>
+                    </>
+                )}
             </DeploymentBody>
         </DeploymentOptionContainer>
     );
@@ -336,21 +352,21 @@ interface DeploymentOptionsProps {
     handleDockerBuild: () => void;
     handleJarBuild: () => void;
     handleDeploy: () => Promise<void>;
-    goToDevant: (devantComponent: DevantComponent) => void;
-    devantComponent: DevantComponent | undefined;
+    goToDevant: () => void;
+    devantMetadata: DevantMetadata | undefined;
     hasDeployableIntegration: boolean;
 }
 
 function DeploymentOptions({
-        handleDockerBuild,
-        handleJarBuild, 
-        handleDeploy, 
-        goToDevant, 
-        devantComponent, 
-        hasDeployableIntegration
-    }: DeploymentOptionsProps) {
+    handleDockerBuild,
+    handleJarBuild,
+    handleDeploy,
+    goToDevant,
+    devantMetadata,
+   hasDeployableIntegration
+}: DeploymentOptionsProps) {
     const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
-    const [isDeploying, setIsDeploying] = useState(false);
+    const { rpcClient } = useRpcContext();
 
     const toggleOption = (option: string) => {
         setExpandedOptions(prev => {
@@ -364,43 +380,37 @@ function DeploymentOptions({
         });
     };
 
-    const handleDeployToDevant = async () => {
-        setIsDeploying(true);
-        await handleDeploy();
-        setIsDeploying(false);
-    };
-
     return (
         <>
             <div>
                 <Title variant="h3">Deployment Options</Title>
 
-                {(devantComponent == undefined)  &&
-                    <DeploymentOption
-                        title="Deploy to Devant"
-                        description="Deploy your integration to the cloud using Devant by WSO2."
-                        buttonText="Deploy"
-                        isExpanded={expandedOptions.has('cloud')}
-                        onToggle={() => toggleOption('cloud')}
-                        onDeploy={handleDeployToDevant}
-                        learnMoreLink={"https://wso2.com/devant/docs"}
-                        isDeploying={isDeploying}
-                        hasDeployableIntegration={hasDeployableIntegration}
-                    />
-                }
-
-                {devantComponent != undefined &&
-                    <DeploymentOption
-                        title="Deployed in Devant"
-                        description="This integration is already deployed in Devant."
-                        buttonText="View in Devant"
-                        isExpanded={expandedOptions.has('devant')}
-                        onToggle={() => toggleOption('devant')}
-                        onDeploy={() => goToDevant(devantComponent)}
-                        learnMoreLink={"https://wso2.com/devant/docs"}
-                        hasDeployableIntegration={hasDeployableIntegration}
-                    />
-                }
+                <DeploymentOption
+                    title={devantMetadata?.hasComponent ? "Deployed in Devant" : "Deploy to Devant"}
+                    description={
+                        devantMetadata?.hasComponent
+                            ? "This integration is already deployed in Devant."
+                            : "Deploy your integration to the cloud using Devant by WSO2."
+                    }
+                    buttonText={devantMetadata?.hasComponent ? "View in Devant" : "Deploy"}
+                    isExpanded={expandedOptions.has("devant")}
+                    onToggle={() => toggleOption("devant")}
+                    onDeploy={devantMetadata?.hasComponent ? () => goToDevant() : handleDeploy}
+                    learnMoreLink={"https://wso2.com/devant/docs"}
+                    hasDeployableIntegration={hasDeployableIntegration}
+                    secondaryAction={
+                        devantMetadata?.hasComponent && devantMetadata?.hasLocalChanges
+                            ? {
+                                  description: "To redeploy in Devant, please commit and push your changes.",
+                                  buttonText: "Open Source Control",
+                                  onClick: () =>
+                                      rpcClient
+                                          .getCommonRpcClient()
+                                          .executeCommand({ commands: ["workbench.scm.focus"] }),
+                              }
+                            : undefined
+                    }
+                />
 
                 <DeploymentOption
                     title="Deploy with Docker"
@@ -422,10 +432,6 @@ function DeploymentOptions({
                     hasDeployableIntegration={hasDeployableIntegration}
                 />
             </div>
-            {
-                isDeploying
-                    && <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
-            }
         </>
     );
 }
@@ -462,11 +468,10 @@ function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlane
 
 interface ComponentDiagramProps {
     projectPath: string;
-    deployedComponent?: DevantComponent;
 }
 
 export function Overview(props: ComponentDiagramProps) {
-    const { projectPath, deployedComponent } = props;
+    const { projectPath } = props;
     const { rpcClient } = useRpcContext();
     const [workspaceName, setWorkspaceName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
@@ -478,7 +483,11 @@ export function Overview(props: ComponentDiagramProps) {
     const [loadingMessage, setLoadingMessage] = useState("");
     const backendRootUri = useRef("");
     const [enabled, setEnableICP] = useState(false);
-    const [devantComponent, setDevantComponent] = useState<DevantComponent | undefined>(undefined);
+    const { data: devantMetadata } = useQuery({
+        queryKey: ["devant-metadata", props.projectPath],
+        queryFn: () => rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
+        refetchInterval: 5000
+    })
 
     const fetchContext = () => {
         rpcClient
@@ -555,20 +564,6 @@ export function Overview(props: ComponentDiagramProps) {
             }
         });
     }, [responseText]);
-
-    useEffect(() => {
-        rpcClient.getBIDiagramRpcClient().getDevantComponent()
-            .then((res) => {
-                console.log(">>> devant component", { res });
-                setDevantComponent(res);
-            });
-    }, []);
-
-    useEffect(() => {
-        if (!devantComponent) {
-            setDevantComponent(deployedComponent);
-        }
-    }, [deployedComponent]);
 
     const deployableIntegrationTypes = useMemo(() => {
         if (!projectStructure) {
@@ -774,11 +769,18 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().buildProject(BuildMode.JAR);
     };
 
-    const goToDevant = (devantComponent: DevantComponent) => {
-        rpcClient.getCommonRpcClient().openExternalUrl({
-            url: `https://console.devant.dev/organizations/${devantComponent.org}`
-        });
+    const goToDevant = () => {
+        rpcClient.getCommonRpcClient().executeCommand({
+            commands:[
+                PlatformExtCommandIds.OpenInConsole,
+                {
+                    extName:"Devant",
+                    componentFsPath: projectPath,
+                    newComponentParams:{ buildPackLang: "ballerina" }
+                } as IOpenInConsoleCmdParams]
+        })
     };
+
 
     return (
         <PageLayout>
@@ -843,7 +845,7 @@ export function Overview(props: ComponentDiagramProps) {
                         handleJarBuild={handleJarBuild}
                         handleDeploy={handleDeploy}
                         goToDevant={goToDevant}
-                        devantComponent={devantComponent}
+                        devantMetadata={devantMetadata}
                         hasDeployableIntegration={deployableIntegrationTypes.length > 0}
                     />
                     <Divider sx={{ margin: "16px 0" }} />
