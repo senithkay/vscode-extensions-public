@@ -71,6 +71,7 @@ import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
 interface TypeEditorState {
     isOpen: boolean;
     fieldKey?: string; // Optional, to store the key of the field being edited
+    newTypeValue?: string;
 }
 
 interface FormProps {
@@ -142,7 +143,7 @@ export function FormGenerator(props: FormProps) {
     const { rpcClient } = useRpcContext();
 
     const [fields, setFields] = useState<FormField[]>([]);
-    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
+    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false, newTypeValue: "" });
     const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
 
@@ -151,7 +152,6 @@ export function FormGenerator(props: FormProps) {
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     useEffect(() => {
@@ -286,14 +286,13 @@ export function FormGenerator(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setTypeEditorState({ isOpen, fieldKey: editingField?.key });
+        setTypeEditorState({ isOpen, fieldKey: editingField?.key, newTypeValue: f[editingField?.key] });
     };
 
     /* Expression editor related functions */
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
-        setFilteredTypes([]);
         setTypes([]);
     };
 
@@ -390,7 +389,7 @@ export function FormGenerator(props: FormProps) {
     );
 
     const debouncedGetVisibleTypes = useCallback(
-        debounce(async (value: string, cursorPosition: number, typeConstraint?: string) => {
+        debounce(async (typeConstraint?: string) => {
             let visibleTypes: CompletionItem[] = types;
             if (!types.length) {
                 const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
@@ -402,23 +401,13 @@ export function FormGenerator(props: FormProps) {
                 visibleTypes = convertToVisibleTypes(types);
                 setTypes(visibleTypes);
             }
-
-            const effectiveText = value.slice(0, cursorPosition);
-            let filteredTypes = visibleTypes.filter((type) => {
-                const lowerCaseText = effectiveText.toLowerCase();
-                const lowerCaseLabel = type.label.toLowerCase();
-
-                return lowerCaseLabel.includes(lowerCaseText);
-            });
-
-            setFilteredTypes(filteredTypes);
         }, 250),
         [rpcClient, types, fileName, targetLineRange]
     );
 
     const handleGetVisibleTypes = useCallback(
-        async (value: string, cursorPosition: number, typeConstraint?: string) => {
-            await debouncedGetVisibleTypes(value, cursorPosition, typeConstraint);
+        async (typeConstraint?: string) => {
+            await debouncedGetVisibleTypes(typeConstraint);
         },
         [debouncedGetVisibleTypes]
     );
@@ -582,7 +571,7 @@ export function FormGenerator(props: FormProps) {
             triggerCharacters: TRIGGER_CHARACTERS,
             retrieveCompletions: handleRetrieveCompletions,
             extractArgsFromFunction: extractArgsFromFunction,
-            types: filteredTypes,
+            types: types,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
             getTypeHelper: handleGetTypeHelper,
@@ -595,7 +584,7 @@ export function FormGenerator(props: FormProps) {
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
-        filteredTypes,
+        types,
         handleRetrieveCompletions,
         extractArgsFromFunction,
         handleGetVisibleTypes,
@@ -699,7 +688,12 @@ export function FormGenerator(props: FormProps) {
             )}
             {typeEditorState.isOpen && (
                 <PanelContainer title={"New Type"} show={true} onClose={onTypeEditorClosed}>
-                    <FormTypeEditor newType={true} isGraphql={isGraphql} onTypeChange={onTypeChange} />
+                    <FormTypeEditor
+                        newType={true}
+                        newTypeValue={typeEditorState.newTypeValue}
+                        isGraphql={isGraphql}
+                        onTypeChange={onTypeChange}
+                    />
                 </PanelContainer>
             )}
         </>

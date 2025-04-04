@@ -28,7 +28,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import styled from "@emotion/styled";
-import AIChatInput from "./Components/AIChatInput";
+import AIChatInput from "./Components/AIChatInputComponents/AIChatInput";
 import ProgressTextSegment, { Spinner } from "./Components/ProgressTextSegment";
 import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
@@ -61,9 +61,11 @@ interface CodeBlock {
     filePath: string;
     content: string;
 }
+
 interface ChatEntry {
     actor: string;
     message: string;
+    isCodeGeneration?: boolean;
 }
 
 interface ApiResponse {
@@ -107,6 +109,7 @@ const INVALID_RECORD_REFERENCE: Error = new Error(
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
 const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`;
+const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`
 
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
@@ -129,7 +132,7 @@ const TEMPLATE_TESTS = [
     "generate tests for resource <method(space)path> function",
 ];
 export const TEMPLATE_DATAMAP = [
-    "generate mappings using input as <recordname(s)> and output as <recordname> using the function <functionname>",
+    "generate mappings using input as <recordname(s)> and output as <recordname> using the <functionname> function",
     "generate mappings for the <functionname> function",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
@@ -299,6 +302,8 @@ export function AIChat() {
 
                         if (initPrompt.exists) {
                             setUserInput(template ? command + " " + template : command);
+                        } else {
+                            setUserInput("/generate ")
                         }
                     });
                 rpcClient
@@ -356,10 +361,11 @@ export function AIChat() {
         }
     }
 
-    function addChatEntry(role: string, content: string): void {
+    function addChatEntry(role: string, content: string, isCodeGeneration: boolean = false ): void {
         chatArray.push({
             actor: role,
             message: content,
+            isCodeGeneration
         });
 
         localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
@@ -367,6 +373,7 @@ export function AIChat() {
 
     function updateChatEntry(chatIdx: number, newEntry: ChatEntry): void {
         if (chatIdx >= 0 && chatIdx < chatArray.length) {
+            newEntry.isCodeGeneration = chatArray[chatIdx].isCodeGeneration;
             chatArray[chatIdx] = newEntry;
 
             localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
@@ -864,8 +871,10 @@ export function AIChat() {
             fileName: file.name,
             content: file.content
         }))
+        
         requestBody.fileAttachmentContents = fileAttatchments;
         lastAttatchmentsRef.current = fileAttatchments;
+
         const response = await fetchWithToken(
             backendRootUri + "/code",
             {
@@ -1055,7 +1064,7 @@ export function AIChat() {
         }
 
         const userMessage = getUserMessage([message, attachments]);
-        addChatEntry("user", userMessage);
+        addChatEntry("user", userMessage, true);
         const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
         setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
         addChatEntry("assistant", assistant_response);
@@ -1231,7 +1240,6 @@ export function AIChat() {
                 }
 
                 segmentText = updatedContent.trim();
-                await rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: segmentText });
             } else if (command === "test") {
                 segmentText = `${originalContent}\n\n${segmentText}`;
             } else {
@@ -1251,32 +1259,40 @@ export function AIChat() {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
         const developerMdContent = await rpcClient.getAiPanelRpcClient().readDeveloperMdFile(chatLocation);
         const updatedChatHistory = generateChatHistoryForSummarize(chatArray);
-        const response = await fetchWithToken(
-            backendRootUri + "/prompt/summarize",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
-                signal: signal,
-            },
-            rpcClient
-        );
-
         setIsCodeAdded(true);
-        previouslyIntegratedChatIndex = integratedChatIndex;
-        integratedChatIndex = chatArray.length;
-        localStorage.setItem(
-            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
-            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
-        );
-        const chatSummaryResponseStr = await streamToString(response.body);
-        await rpcClient
-            .getAiPanelRpcClient()
-            .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation });
-        previousDevelopmentDocumentContent = developerMdContent;
+
+        if (await rpcClient.getAiPanelRpcClient().isNaturalProgrammingDirectoryExists(chatLocation)) {
+            fetchWithToken(
+                backendRootUri + "/prompt/summarize",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
+                    signal: signal,
+                },
+                rpcClient
+            ).then(async (response) => {
+                const chatSummaryResponseStr = await streamToString(response.body);
+                await rpcClient
+                    .getAiPanelRpcClient()
+                    .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation }).then(() => {
+                        previouslyIntegratedChatIndex = integratedChatIndex;
+                        integratedChatIndex = chatArray.length;
+                        localStorage.setItem(
+                            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
+                            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
+                        );
+                        previousDevelopmentDocumentContent = developerMdContent;
+                    }).catch((error: any) => {
+                        rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+                    });
+            }).catch((error: any) => {
+                rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+            });;
+        }
     };
 
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -1317,7 +1333,6 @@ export function AIChat() {
                     isTestCode = true;
                 }
                 const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
-                rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: revertContent });
                 await rpcClient
                     .getAiPanelRpcClient()
                     .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
@@ -3229,8 +3244,8 @@ function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
         .filter(
             (chatEntry) =>
                 chatEntry.actor.toLowerCase() == "user" &&
+                chatEntry.isCodeGeneration &&
                 !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) &&
-                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT) &&
-                !chatEntry.message.includes(CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION)
+                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
         );
 }

@@ -248,7 +248,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const hasMoreFunctions = serviceFunctions.length > 3;
     const visibleFunctions = serviceFunctions.slice(0, hasMoreFunctions ? 2 : serviceFunctions.length);
 
-    if ((model.node as CDService)?.type === "agent:Service") {
+    if ((model.node as CDService)?.type === "ai:Service") {
         return (
             <Node>
                 <TopPortWidget port={model.getPort("in")!} engine={engine} />

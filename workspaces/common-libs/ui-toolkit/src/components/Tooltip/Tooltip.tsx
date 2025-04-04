@@ -43,7 +43,7 @@ export interface TooltipProps {
 
 export interface TooltipConatinerProps {
     position?: string;
-    containerSx?: string;
+    containerSx?: any;
 }
 
 const TooltipContainer = styled.div<TooltipConatinerProps>`

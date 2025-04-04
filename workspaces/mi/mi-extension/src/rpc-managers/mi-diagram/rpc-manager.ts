@@ -272,7 +272,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, extensions, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
-import { UnitTest } from "../../../../syntax-tree/lib/src";
+import { DiagramService, APIResource, NamedSequence, UnitTest, Proxy } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
@@ -328,28 +328,77 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
         return new Promise((resolve) => {
-
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.artifactModel);
+            let content;
+            if (type == "API") {
+                content = this.readInputPayloadFile(name) ?? { type };
+                content[key] = { requests: params.payload };
+                content[key].defaultRequest = params.defaultPayload;
+            } else {
+                content = { type };
+                content.requests = params.payload;
+                content.defaultRequest = params.defaultPayload;
+            }
             const projectUri = StateMachine.context().projectUri!;
             const tryout = path.join(projectUri, ".tryout");
             if (!fs.existsSync(tryout)) {
                 fs.mkdirSync(tryout);
             }
-            fs.writeFileSync(path.join(tryout, "input.json"), params.payload);
+            fs.writeFileSync(path.join(tryout, name + ".json"), JSON.stringify(content, null, 2));
             resolve(true);
         });
     }
 
+    getResourceInfoToSavePayload(artifactModel: DiagramService) {
+        if (artifactModel.tag === 'resource') {
+            return {
+                name: (artifactModel as APIResource).api,
+                type: "API",
+                key: (artifactModel as APIResource).uriTemplate ?? (artifactModel as APIResource).urlMapping
+            }
+        } else if (artifactModel.tag === 'proxy') {
+            return {
+                name: (artifactModel as Proxy).name,
+                type: "PROXY",
+                key: (artifactModel as Proxy).name
+            }
+        } else {
+            return {
+                name: (artifactModel as NamedSequence).name,
+                type: "SEQUENCE",
+                key: (artifactModel as NamedSequence).name
+            }
+        }
+    }
+
     async getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return new Promise((resolve) => {
-            const projectUri = StateMachine.context().projectUri!;
-            const tryout = path.join(projectUri, ".tryout", "input.json");
-            if (fs.existsSync(tryout)) {
-                const payloads = JSON.parse(fs.readFileSync(tryout, "utf8"));
-                resolve({ payloads });
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.artifactModel);
+            const allPayloads = this.readInputPayloadFile(name);
+            if (allPayloads) {
+                let defaultPayload;
+                let payloads;
+                if (type == "API") {
+                    payloads = allPayloads[key]?.requests ?? [];
+                    defaultPayload = allPayloads[key]?.defaultRequest ?? "";
+                } else {
+                    payloads = allPayloads.requests ?? [];
+                    defaultPayload = allPayloads.defaultRequest;
+                }
+                resolve({ payloads, defaultPayload });
             } else {
-                resolve({ payloads: [] })
+                resolve({ payloads: [], defaultPayload: "" });
             }
         });
+    }
+
+    readInputPayloadFile(name: string) {
+        const projectUri = StateMachine.context().projectUri!;
+        const tryout = path.join(projectUri, ".tryout", name + ".json");
+        if (fs.existsSync(tryout)) {
+            return JSON.parse(fs.readFileSync(tryout, "utf8"));
+        }
+        return null;
     }
 
     async tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {

@@ -49,7 +49,7 @@ export interface WebViewOptions {
     bodyCss?: string;
 }
 
-export function getLibraryWebViewContent(options: WebViewOptions, webView: Webview, background: string ="#fff", padding: string="0px"): string {
+export function getLibraryWebViewContent(options: WebViewOptions, webView: Webview, background: string = "#fff", padding: string = "0px"): string {
     const {
         jsFiles,
         cssFiles,
@@ -129,7 +129,7 @@ function getComposerCSSFiles(disableComDebug: boolean, devHost: string, webView:
 }
 
 function getComposerJSFiles(componentName: string, disableComDebug: boolean, devHost: string, webView: Webview): string[] {
-    const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs') + sep + componentName + '.js'; 
+    const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs') + sep + componentName + '.js';
     return [
         (isDevMode && !disableComDebug) ? join(devHost, componentName + '.js')
             : webView.asWebviewUri(Uri.file(filePath)).toString(),
