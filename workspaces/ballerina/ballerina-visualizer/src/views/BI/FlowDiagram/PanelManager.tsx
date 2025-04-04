@@ -205,18 +205,19 @@ export function PanelManager(props: PanelManagerProps) {
                     />
                 );
 
-            case SidePanelView.NP_FUNCTION_LIST:
-                return (
-                    <NodeList
-                        categories={categories}
-                        onSelect={onSelectNode}
-                        onSearchTextChange={(searchText) => onSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
-                        onAddFunction={onAddNPFunction}
-                        onClose={onClose}
-                        title={"Natural Functions"}
-                        onBack={onBack}
-                    />
-                );
+            // TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314
+            // case SidePanelView.NP_FUNCTION_LIST:
+            //     return (
+            //         <NodeList
+            //             categories={categories}
+            //             onSelect={onSelectNode}
+            //             onSearchTextChange={(searchText) => onSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
+            //             onAddFunction={onAddNPFunction}
+            //             onClose={onClose}
+            //             title={"Natural Functions"}
+            //             onBack={onBack}
+            //         />
+            //     );
 
             case SidePanelView.DATA_MAPPER_LIST:
                 return (
