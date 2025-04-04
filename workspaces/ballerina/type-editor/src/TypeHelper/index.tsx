@@ -168,6 +168,7 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
         loading,
         loadingTypeBrowser,
         basicTypes,
+        importedTypes,
         operators,
         typeBrowserTypes,
         onSearchTypeHelper,
@@ -237,6 +238,7 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
                                 loading={loading}
                                 loadingTypeBrowser={loadingTypeBrowser}
                                 basicTypes={basicTypes}
+                                importedTypes={importedTypes}
                                 operators={operators}
                                 typeBrowserTypes={typeBrowserTypes}
                                 typeBrowserRef={typeBrowserRef}

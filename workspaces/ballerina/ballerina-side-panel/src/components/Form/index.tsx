@@ -37,14 +37,10 @@ import {
     RecordTypeField,
 } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
-import { formatJSONLikeString } from "./utils";
-
-const stripHtmlTags = (content: string): string => {
-    return content?.replace(/<[^>]*>/g, "") || "";
-};
+import { formatJSONLikeString, stripHtmlTags } from "./utils";
 
 namespace S {
-    export const Container = styled(SidePanelBody)<{ nestedForm?: boolean; compact?: boolean }>`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean; compact?: boolean }>`
         display: flex;
         flex-direction: column;
         gap: ${({ compact }) => (compact ? "8px" : "20px")};
@@ -223,19 +219,13 @@ namespace S {
         }
 
         code {
-            background-color: var(--vscode-editor-inactiveSelectionBackground);
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: var(--vscode-editor-font-family);
+            // hide code blocks
+            display: none;
         }
 
         pre {
-            background-color: var(--vscode-editor-inactiveSelectionBackground);
-            padding: 8px;
-            border-radius: 4px;
-            overflow-x: auto;
-            margin: 8px 0;
-            font-family: var(--vscode-font-family);
+            // hide code blocks
+            display: none;
         }
 
         ul,
@@ -389,6 +379,25 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     if (existingType !== newType) {
                         setValue(field.key, newType);
                         mergeFormDataWithFlowNode && getVisualiableFields();
+                    }
+                }
+
+                // Handle choice fields and their properties
+                if (field?.choices && field.choices.length > 0) {
+                    // Get the selected choice index (default to 0 if not set)
+                    const selectedChoiceIndex = formValues[field.key] !== undefined ?
+                        Number(formValues[field.key]) : 0;
+
+                    const selectedChoice = field.choices[selectedChoiceIndex];
+
+                    if (selectedChoice && selectedChoice?.properties) {
+                        Object.entries(selectedChoice.properties).forEach(([propKey, propValue]) => {
+                            if (propValue?.value !== undefined) {
+                                defaultValues[propKey] = propValue.value;
+                            }
+
+                            diagnosticsMap.push({ key: propKey, diagnostics: [] });
+                        });
                     }
                 }
 

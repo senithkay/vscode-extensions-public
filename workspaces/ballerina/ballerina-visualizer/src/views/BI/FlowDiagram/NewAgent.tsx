@@ -90,7 +90,7 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
             .getAllModels({ agent: agentCodeData.object, filePath: agentFilePath.current });
         console.log(">>> allModels", allModels);
         // get openai model
-        const defaultModel = allModels.models.find((model) => model.object === "OpenAiModel");
+        const defaultModel = allModels.models.find((model) => model.object === "OpenAiProvider");
         if (!defaultModel) {
             console.log(">>> no default model found");
             return;

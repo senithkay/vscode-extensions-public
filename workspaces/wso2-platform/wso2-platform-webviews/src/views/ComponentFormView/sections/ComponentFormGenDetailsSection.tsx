@@ -270,7 +270,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 						loading={isLoadingGitCred}
 					/>
 				)}
-				{!invalidRepoMsg && branches?.length > 0 && (
+				{!invalidRepoMsg && (
 					<Dropdown
 						label="Branch"
 						key="gen-details-branch"
@@ -279,6 +279,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 						control={form.control}
 						items={branches}
 						loading={isLoadingBranches}
+						disabled={branches?.length === 0}
 					/>
 				)}
 				{invalidRepoMsg && (
@@ -304,7 +305,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 			</div>
 
 			<div className="flex justify-end gap-3 pt-6 pb-2">
-				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={!!invalidRepoMsg}>
+				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={!!invalidRepoMsg || branches?.length === 0}>
 					Next
 				</Button>
 			</div>

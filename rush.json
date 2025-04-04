@@ -441,11 +441,6 @@
       "versionPolicyName": "service-designer"
     },
     {
-      "packageName": "@wso2-enterprise/git-vscode",
-      "projectFolder": "workspaces/common-libs/git-vscode",
-      "versionPolicyName": "git-vscode"
-    },
-    {
       "packageName": "@wso2-enterprise/wso2-platform-core",
       "projectFolder": "workspaces/wso2-platform/wso2-platform-core",
       "versionPolicyName": "wso2-platform-extension"
@@ -510,11 +505,11 @@
     //   "projectFolder": "workspaces/ballerina/expression-editor",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    // {
-    //   "packageName": "graphqlview-lib",
-    //   "projectFolder": "workspaces/ballerina/graphql",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "graphqlview-lib",
+      "projectFolder": "workspaces/ballerina/graphql",
+      "versionPolicyName": "ballerina-extension"
+    },
     {
       "packageName": "@wso2-enterprise/ballerina-graphql-design-diagram",
       "projectFolder": "workspaces/ballerina/graphql-design-diagram",

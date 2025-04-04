@@ -26,3 +26,7 @@ export function formatJSONLikeString(input: string): string {
     });
     return formattedLines.join('\n');
 }
+
+export function stripHtmlTags(content: string): string {
+    return content?.replace(/<[^>]*>/g, "") || "";
+}

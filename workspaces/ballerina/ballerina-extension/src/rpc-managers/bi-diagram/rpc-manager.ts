@@ -46,6 +46,7 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    DeploymentRequest,
     DeploymentResponse,
     DevantMetadata,
     EVENT_TYPE,
@@ -136,9 +137,9 @@ import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { refreshAccessToken } from "../ai-panel/utils";
-import { findScopeByModule, getFunctionNodePosition } from "./utils";
+import { getFunctionNodePosition } from "./utils";
 import { BACKEND_URL } from "../../features/ai/utils";
-import { IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -693,32 +694,10 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async createChoreoComponent(name: string, type: "service" | "manualTask" | "scheduleTask"): Promise<void> {
-        const params = {
-            initialValues: {
-                name,
-                type,
-                buildPackLang: "ballerina",
-            },
-        };
 
-        await commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, params);
-    }
 
-    async deployProject(): Promise<DeploymentResponse> {
-        const projectStructure = await this.getProjectStructure();
-
-        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
-        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
-
-        let scopes: SCOPE[] = [];
-        if (services) {
-            const svcScopes = services.map((svc) => findScopeByModule(svc?.serviceModel.moduleName));
-            scopes = Array.from(new Set(svcScopes));
-        }
-        if (automation) {
-            scopes.push(SCOPE.AUTOMATION);
-        }
+    async deployProject(params: DeploymentRequest): Promise<DeploymentResponse> {
+        const scopes = params.integrationTypes;
 
         let integrationType: SCOPE;
 
@@ -736,13 +715,14 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             return { isCompleted: true };
         }
 
-        const params = {
-            integrationType: integrationType,
+        const deployementParams: ICreateComponentCmdParams = {
+            integrationType: integrationType as any,
             buildPackLang: "ballerina", // Example language
             name: path.basename(StateMachine.context().projectUri),
-            componentDir: StateMachine.context().projectUri
+            componentDir: StateMachine.context().projectUri,
+            extName: "Devant"
         };
-        commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, params);
+        commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, deployementParams);
 
         return { isCompleted: true };
     }
@@ -1427,6 +1407,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async getDevantMetadata(): Promise<DevantMetadata | undefined> {
         let hasContextYaml = false;
         let isLoggedIn = false;
+        let hasComponent = false;
+        let hasLocalChanges = false;
         try {
             const projectRoot = StateMachine.context().projectUri;
             const repoRoot = getRepoRoot(projectRoot);
@@ -1442,15 +1424,17 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 return { hasComponent: hasContextYaml, isLoggedIn: false };
             }
             const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
+            hasLocalChanges = await platformExtAPI.localRepoHasChanges(projectRoot);
             isLoggedIn = platformExtAPI.isLoggedIn();
             if (isLoggedIn) {
-                const components = platformExtAPI.getComponents(projectRoot);
-                return { isLoggedIn, hasComponent: components.length > 0 };
+                const components = platformExtAPI.getDirectoryComponents(projectRoot);
+                hasComponent = components.length > 0;
+                return { isLoggedIn, hasComponent, hasLocalChanges };
             }
-            return { isLoggedIn, hasComponent: hasContextYaml };
+            return { isLoggedIn, hasComponent: hasContextYaml, hasLocalChanges };
         } catch(err){
             console.error("failed to call getDevantMetadata: ", err);
-            return { hasComponent: hasContextYaml, isLoggedIn };
+            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
         }
     }
 

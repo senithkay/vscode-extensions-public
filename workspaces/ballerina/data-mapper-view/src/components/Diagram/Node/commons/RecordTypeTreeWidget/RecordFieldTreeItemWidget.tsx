@@ -52,7 +52,6 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const isPortDisabled = hasLinkViaCollectClause && Object.keys(portOut.getLinks()).length === 0;
-    portOut.isDisabledDueToCollectClause = isPortDisabled;
 
     let fields: TypeField[];
     let optional = false;
@@ -66,8 +65,11 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     }
 
     let expanded = true;
-    if (portOut && portOut.collapsed) {
-        expanded = false;
+    if (portOut) {
+        if (portOut.collapsed) {
+            expanded = false;
+        }
+        portOut.isDisabledDueToCollectClause = isPortDisabled;
     }
 
     const typeName = getTypeName(field);

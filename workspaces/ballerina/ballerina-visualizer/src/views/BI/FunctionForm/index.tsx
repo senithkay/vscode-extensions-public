@@ -234,7 +234,29 @@ export function FunctionForm(props: FunctionFormProps) {
             }
         }
         console.log("Updated function node: ", functionNodeCopy);
-        await rpcClient.getBIDiagramRpcClient().getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
+        const sourceCode = await rpcClient
+            .getBIDiagramRpcClient()
+            .getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
+        
+        if (!sourceCode.textEdits) {
+            const functionType = getFunctionType();
+            await rpcClient
+                .getCommonRpcClient()
+                .showErrorMessage({
+                    message: `${functionName ? `Failed to update the ${functionType}` : `Failed to create the ${functionType}`}. `
+                });
+        }
+    };
+
+    const getFunctionType = () => {
+        if (isDataMapper) {
+            return "Data Mapper";
+        } else if (isNpFunction) {
+            return "Natural Function";
+        } else if (isAutomation || functionName === "main") {
+            return "Automation";
+        }
+        return "Function";
     };
 
     useEffect(() => {
