@@ -25,6 +25,7 @@ import { filterOperators, filterTypes, getImportedTypes, getTypeBrowserTypes, ge
 import { TYPE_HELPER_OPERATORS } from '../TypeEditor/constants';
 
 type TypeHelperProps = {
+    fieldKey: string;
     typeBrowserRef: RefObject<HTMLDivElement>;
     filePath: string;
     targetLineRange: LineRange;
@@ -34,10 +35,12 @@ type TypeHelperProps = {
     typeHelperState: boolean;
     onChange: (newType: string, newCursorPosition: number) => void;
     changeTypeHelperState: (isOpen: boolean) => void;
+    updateImports: (key: string, imports: {[key: string]: string}) => void;
 };
 
 const TypeHelperEl = (props: TypeHelperProps) => {
     const {
+        fieldKey,
         typeHelperState,
         filePath,
         targetLineRange,
@@ -46,7 +49,8 @@ const TypeHelperEl = (props: TypeHelperProps) => {
         helperPaneHeight,
         onChange,
         changeTypeHelperState,
-        typeBrowserRef
+        typeBrowserRef,
+        updateImports
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -184,7 +188,15 @@ const TypeHelperEl = (props: TypeHelperProps) => {
             searchKind: 'TYPE'
         });
 
-        return response.template ?? '';
+        if (response) {
+            const importStatement = {
+                [response.prefix]: response.moduleId
+            };
+            updateImports(fieldKey, importStatement);
+            return response.template;
+        }
+
+        return '';
     };
 
     const handleTypeHelperClose = () => {

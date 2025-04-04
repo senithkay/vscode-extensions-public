@@ -166,6 +166,7 @@ export function TypeEditor(props: TypeEditorProps) {
         helperPaneHeight: HelperPaneHeight
     ) => {
         return getTypeHelper(
+            field.key,
             typeBrowserRef,
             value,
             cursorPositionRef.current,

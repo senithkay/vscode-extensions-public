@@ -298,6 +298,7 @@ export function FormGeneratorNew(props: FormProps) {
     };
 
     const handleGetHelperPane = (
+        fieldKey: string,
         exprRef: RefObject<FormExpressionEditorRef>,
         anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
@@ -313,6 +314,7 @@ export function FormGeneratorNew(props: FormProps) {
         }
 
         return getHelperPane({
+            fieldKey: fieldKey,
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
@@ -322,11 +324,13 @@ export function FormGeneratorNew(props: FormProps) {
             currentValue: value,
             onChange: onChange,
             helperPaneHeight: helperPaneHeight,
-            recordTypeField: recordTypeField
+            recordTypeField: recordTypeField,
+            updateImports: handleUpdateImports
         });
     };
 
     const handleGetTypeHelper = (
+        fieldKey: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
@@ -336,6 +340,7 @@ export function FormGeneratorNew(props: FormProps) {
         typeHelperHeight: HelperPaneHeight
     ) => {
         return getTypeHelper({
+            fieldKey: fieldKey,
             typeBrowserRef: typeBrowserRef,
             filePath: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
@@ -344,7 +349,8 @@ export function FormGeneratorNew(props: FormProps) {
             helperPaneHeight: typeHelperHeight,
             typeHelperState: typeHelperState,
             onChange: onChange,
-            changeTypeHelperState: changeHelperPaneState
+            changeTypeHelperState: changeHelperPaneState,
+            updateImports: handleUpdateImports
         });
     }
 
@@ -393,6 +399,19 @@ export function FormGeneratorNew(props: FormProps) {
         setFields(updatedFields);
         setTypeEditorState({ isOpen, field: editingField, newTypeValue: f[editingField?.key] });
     };
+
+    const handleUpdateImports = (key: string, imports: {[key: string]: string}) => {
+        const updatedFields = fields.map((field) => {
+            if (field.key === key) {
+                const existingImports = field.imports || {};
+                if (!Object.keys(existingImports).includes(imports[key])) {
+                    return { ...field, imports: { ...existingImports, ...imports } };
+                }
+            }
+            return field;
+        });
+        setFields(updatedFields);
+    }
 
     const defaultType = (): Type => {
         if (typeEditorState.field.type === 'PARAM_MANAGER') {
@@ -471,9 +490,11 @@ export function FormGeneratorNew(props: FormProps) {
                 onClose={onCloseTypeEditor}
             >
                 <FormTypeEditor
+                    fieldKey={typeEditorState.field?.key}
                     newType={true}
                     onTypeChange={handleTypeChange}
                     newTypeValue={typeEditorState.newTypeValue}
+                    updateImports={handleUpdateImports}
                     {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>

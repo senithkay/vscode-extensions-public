@@ -17,6 +17,7 @@ import { LineRange } from '@wso2-enterprise/ballerina-core';
 import { RecordTypeField } from '@wso2-enterprise/ballerina-core';
 
 export type HelperPaneProps = {
+    fieldKey: string;
     fileName: string;
     targetLineRange: LineRange;
     exprRef: RefObject<FormExpressionEditorRef>;
@@ -27,9 +28,11 @@ export type HelperPaneProps = {
     onChange: (value: string, updatedCursorPosition: number) => void;
     helperPaneHeight: HelperPaneHeight;
     recordTypeField?: RecordTypeField;
+    updateImports: (key: string, imports: {[key: string]: string}) => void;
 };
 
 const HelperPaneEl = ({
+    fieldKey,
     fileName,
     targetLineRange,
     exprRef,
@@ -39,7 +42,8 @@ const HelperPaneEl = ({
     currentValue,
     onChange,
     helperPaneHeight,
-    recordTypeField
+    recordTypeField,
+    updateImports
 }: HelperPaneProps) => {
     const handleChange = (value: string, isRecordConfigureChange?: boolean) => {
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -98,11 +102,13 @@ const HelperPaneEl = ({
                     </HelperPane.PanelView>
                     <HelperPane.PanelView id={recordTypeField ? 2 : 1}>
                         <FunctionsPage
+                            fieldKey={fieldKey}
                             anchorRef={anchorRef}
                             fileName={fileName}
                             targetLineRange={targetLineRange}
                             onClose={onClose}
                             onChange={handleChange}
+                            updateImports={updateImports}
                         />
                     </HelperPane.PanelView>
                     <HelperPane.PanelView id={recordTypeField ? 3 : 2}>
@@ -121,6 +127,7 @@ const HelperPaneEl = ({
 /**
  * Function to render the helper pane for the expression editor
  * 
+ * @param fieldKey Key of the field
  * @param fileName File name of the expression editor
  * @param targetLineRange Modified line range of the expression editor
  * @param exprRef Ref object of the expression editor
@@ -131,10 +138,12 @@ const HelperPaneEl = ({
  * @param onChange Function to handle changes in the expression editor
  * @param helperPaneHeight Height of the helper pane
  * @param recordTypeField Record type field
+ * @param updateImports Function to update the import statements of the expression editor
  * @returns JSX.Element Helper pane element
  */
 export const getHelperPane = (props: HelperPaneProps) => {
     const {
+        fieldKey,
         fileName,
         targetLineRange,
         exprRef,
@@ -144,11 +153,13 @@ export const getHelperPane = (props: HelperPaneProps) => {
         currentValue,
         onChange,
         helperPaneHeight,
-        recordTypeField
+        recordTypeField,
+        updateImports
     } = props;
 
     return (
         <HelperPaneEl
+            fieldKey={fieldKey}
             fileName={fileName}
             targetLineRange={targetLineRange}
             exprRef={exprRef}
@@ -159,6 +170,7 @@ export const getHelperPane = (props: HelperPaneProps) => {
             onChange={onChange}
             helperPaneHeight={helperPaneHeight}
             recordTypeField={recordTypeField}
+            updateImports={updateImports}
         />
     );
 };

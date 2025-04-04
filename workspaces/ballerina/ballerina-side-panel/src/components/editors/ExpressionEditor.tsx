@@ -328,6 +328,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         helperPaneHeight: HelperPaneHeight
     ) => {
         return getHelperPane?.(
+            field.key,
             exprRef,
             anchorRef,
             field.placeholder,

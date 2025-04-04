@@ -289,6 +289,19 @@ export function FormGenerator(props: FormProps) {
         setTypeEditorState({ isOpen, fieldKey: editingField?.key, newTypeValue: f[editingField?.key] });
     };
 
+    const handleUpdateImports = (key: string, imports: {[key: string]: string}) => {
+        const updatedFields = fields.map((field) => {
+            if (field.key === key) {
+                const existingImports = field.imports || {};
+                if (!Object.keys(existingImports).includes(imports[key])) {
+                    return { ...field, imports: { ...existingImports, ...imports } };
+                }
+            }
+            return field;
+        });
+        setFields(updatedFields);
+    }
+
     /* Expression editor related functions */
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
@@ -514,6 +527,7 @@ export function FormGenerator(props: FormProps) {
     };
 
     const handleGetHelperPane = (
+        fieldKey: string,
         exprRef: RefObject<FormExpressionEditorRef>,
         anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
@@ -530,6 +544,7 @@ export function FormGenerator(props: FormProps) {
         }
 
         return getHelperPane({
+            fieldKey: fieldKey,
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
@@ -539,11 +554,13 @@ export function FormGenerator(props: FormProps) {
             currentValue: value,
             onChange: onChange,
             helperPaneHeight: helperPaneHeight,
-            recordTypeField: recordTypeField
+            recordTypeField: recordTypeField,
+            updateImports: handleUpdateImports
         });
     };
 
     const handleGetTypeHelper = (
+        fieldKey: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
@@ -553,6 +570,7 @@ export function FormGenerator(props: FormProps) {
         typeHelperHeight: HelperPaneHeight
     ) => {
         return getTypeHelper({
+            fieldKey: fieldKey,
             typeBrowserRef: typeBrowserRef,
             filePath: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
@@ -561,7 +579,8 @@ export function FormGenerator(props: FormProps) {
             helperPaneHeight: typeHelperHeight,
             typeHelperState: typeHelperState,
             onChange: onChange,
-            changeTypeHelperState: changeHelperPaneState
+            changeTypeHelperState: changeHelperPaneState,
+            updateImports: handleUpdateImports
         });
     }
 
@@ -689,10 +708,12 @@ export function FormGenerator(props: FormProps) {
             {typeEditorState.isOpen && (
                 <PanelContainer title={"New Type"} show={true} onClose={onTypeEditorClosed}>
                     <FormTypeEditor
+                        fieldKey={typeEditorState.fieldKey}
                         newType={true}
                         newTypeValue={typeEditorState.newTypeValue}
                         isGraphql={isGraphql}
                         onTypeChange={onTypeChange}
+                        updateImports={handleUpdateImports}
                     />
                 </PanelContainer>
             )}

@@ -17,14 +17,24 @@ import { convertToHelperPaneFunction, extractFunctionInsertText } from '../../..
 import { debounce } from 'lodash';
 
 type FunctionsPageProps = {
+    fieldKey: string;
     anchorRef: RefObject<HTMLDivElement>;
     fileName: string;
     targetLineRange: LineRange;
     onClose: () => void;
     onChange: (value: string) => void;
+    updateImports: (key: string, imports: {[key: string]: string}) => void;
 };
 
-export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, onChange }: FunctionsPageProps) => {
+export const FunctionsPage = ({
+    fieldKey,
+    anchorRef,
+    fileName,
+    targetLineRange,
+    onClose,
+    onChange,
+    updateImports
+}: FunctionsPageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
@@ -78,7 +88,11 @@ export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, o
             searchKind: 'FUNCTION'
         });
 
-        if (response.template) {
+        if (response) {
+            const importStatement = {
+                [response.prefix]: response.moduleId
+            };
+            updateImports(fieldKey, importStatement);
             return extractFunctionInsertText(response.template);
         }
 
