@@ -64,14 +64,16 @@ export default function createTests() {
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         await diagram.addMediator('Log');
+        await diagram.getMediator('log');
       });
 
       await test.step('Delete log mediator', async () => {
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         const mediator = await diagram.getMediator('log');
-        const webview = await diagram.getDiagramWebView();
-        await mediator.delete(webview);
+        await mediator.delete();
+        const logMediatorsCount = await diagram.getMediatorsCount('log');
+        expect(logMediatorsCount).toBe(0);
       });
 
       await test.step('Add log mediator in to resource with custom values', async () => {
@@ -101,6 +103,7 @@ export default function createTests() {
             }
           }
         });
+        await diagram.getMediator('log');
       });
 
       await test.step('Edit log mediator in resource', async () => {
@@ -131,6 +134,8 @@ export default function createTests() {
             }
           }
         });
+        const editedDescription = await mediator.getDescription();
+        expect(editedDescription).toBe('log mediator edited');
       });
     });
   });

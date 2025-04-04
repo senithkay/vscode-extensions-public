@@ -40,6 +40,11 @@ export class Diagram {
         return title;
     }
 
+    public async getMediatorsCount(mediatorName: string) {
+        const container = await this.getDiagramContainer();
+        return await container.locator(`[data-testid^="mediatorNode-${mediatorName}-"]`).count();
+    }
+
     public async getMediator(mediatorName: string, index: number = 0) {
         const mediatorNode = (await this.getDiagramContainer()).locator(`[data-testid^="mediatorNode-${mediatorName}-"]`).nth(index).locator('div').first();
         await mediatorNode.waitFor();
@@ -54,13 +59,13 @@ export class Diagram {
         return new Mediator(this.diagramWebView, connectorNode);
     }
 
-    public async addMediator(mediatorName: string, props?: FormFillProps, index: number = 0) {
+    public async addMediator(mediatorName: string, data?: FormFillProps, index: number = 0) {
         await this.clickPlusButtonByIndex(index);
 
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
         await sidePanel.search(mediatorName);
-        await sidePanel.addMediator(mediatorName, props);
+        await sidePanel.addMediator(mediatorName, data);
     }
 
     public async downloadConnectorThroughModulesList(name: string, index: number = 0, version?: string) {
@@ -178,9 +183,10 @@ class Mediator {
         await form.updateMediator(props);
     }
 
-    public async delete(parentWebView: Frame) {
+    public async delete() {
         await this.mediatotNode.getByRole("img").click();
-        await parentWebView.getByText('Delete').click();
+        await this.container.getByText('Delete').click();
+        await this.mediatotNode.waitFor({ state: 'detached' });
     }
 
     public async getDescription() {
@@ -208,7 +214,7 @@ class SidePanel {
         await searchInput.type(str);
     }
 
-    public async addMediator(mediatorName: string, props?: FormFillProps) {
+    public async addMediator(mediatorName: string, data?: FormFillProps) {
         const mediator = this.sidePanel.locator(`#card-select-${mediatorName}`);
         await mediator.waitFor();
         await mediator.click();
@@ -219,8 +225,8 @@ class SidePanel {
         await formDiv.waitFor();
 
         const form = new Form(undefined, undefined, formDiv);
-        if (props) {
-            await form.fill(props);
+        if (data) {
+            await form.fill(data);
         }
         await form.submit("Add");
     }
@@ -229,6 +235,7 @@ class SidePanel {
         const form = new Form(undefined, undefined, this.sidePanel);
         await form.fill(props);
         await form.submit("Update");
+        await this.sidePanel.waitFor({ state: 'detached' })
     }
 
     public async addConnector(connectorName: string, operationName: string) {
