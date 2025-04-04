@@ -227,7 +227,7 @@ export function TypeEditor(props: TypeEditorProps) {
         }
         
         setIsNewType(props.newType);
-    }, [props.type, props.newType]);
+    }, [props.type?.name, props.newType]);
 
     useEffect(() => {
         if (type && isNewType) {
