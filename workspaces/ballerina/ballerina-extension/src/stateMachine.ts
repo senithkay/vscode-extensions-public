@@ -227,6 +227,8 @@ const stateMachine = createMachine<MachineContext>(
                         // Initial Project Structure
                         const projectStructure = await buildProjectArtifactsStructure(context.projectUri, context.langClient);
                         resolve({ projectStructure });
+                    } else {
+                        resolve({ projectStructure: undefined });
                     }
                 } catch (error) {
                     throw new Error("Project Structure Build failed", error);
@@ -436,7 +438,7 @@ export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, res
 export function updateView(refreshTreeView?: boolean) {
     let lastView = getLastHistory();
     // Step over to the next location if the last view is skippable
-    if (lastView?.location.view.includes("SKIP")) {
+    if (!refreshTreeView && lastView?.location.view.includes("SKIP")) {
         history.pop(); // Remove the last entry
         lastView = getLastHistory(); // Get the new last entry
     }

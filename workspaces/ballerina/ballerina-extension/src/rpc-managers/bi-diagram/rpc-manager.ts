@@ -189,7 +189,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
                     if (params?.isConnector) {
+                        StateMachine.setEditMode();
                         await this.updateSource(model, flowNode, true, isFunctionNodeUpdate);
+                        StateMachine.setReadyMode();
                         resolve(model);
                         commands.executeCommand("BI.project-explorer.refresh");
                     } else {
@@ -200,6 +202,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .catch((error) => {
                     console.log(">>> error fetching source code from ls", error);
                     return new Promise((resolve) => {
+                        StateMachine.setReadyMode();
                         resolve(undefined);
                     });
                 });
@@ -1115,15 +1118,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const projectUri = StateMachine.context().projectUri;
         const filePath = path.join(projectUri, params.filePath);
         return new Promise((resolve, reject) => {
+            StateMachine.setEditMode();
             console.log(">>> updating type request", params.type);
             StateMachine.langClient()
                 .updateType({ filePath, type: params.type, description: "" })
                 .then((updateTypeResponse: UpdateTypeResponse) => {
                     console.log(">>> update type response", updateTypeResponse);
                     this.updateSource(updateTypeResponse);
+                    StateMachine.setReadyMode();
                     resolve(updateTypeResponse);
                 }).catch((error) => {
                     console.log(">>> error fetching types from ls", error);
+                    StateMachine.setReadyMode();
                     reject(error);
                 });
         });
@@ -1443,7 +1449,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 return { isLoggedIn, hasComponent: components.length > 0 };
             }
             return { isLoggedIn, hasComponent: hasContextYaml };
-        } catch(err){
+        } catch (err) {
             console.error("failed to call getDevantMetadata: ", err);
             return { hasComponent: hasContextYaml, isLoggedIn };
         }

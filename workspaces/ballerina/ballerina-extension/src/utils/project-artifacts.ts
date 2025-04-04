@@ -276,7 +276,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             }
             break;
         case ARTIFACT_TYPE.Listeners:
-            const listenerValue = await getEntryValue(artifact, "http-service")
+            const listenerValue = await getEntryValue(artifact, "http-service");
             const listenerValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].findIndex(value => value.id === artifact.id);
             if (listenerValueIndex !== -1) {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER][listenerValueIndex] = listenerValue;
@@ -285,7 +285,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             }
             break;
         case ARTIFACT_TYPE.Functions:
-            const functionValue = await getEntryValue(artifact, "function")
+            const functionValue = await getEntryValue(artifact, "function");
             const functionValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION].findIndex(value => value.id === artifact.id);
             if (functionValueIndex !== -1) {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION][functionValueIndex] = functionValue;
@@ -294,7 +294,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             }
             break;
         case ARTIFACT_TYPE.DataMappers:
-            const dataMapperValue = await getEntryValue(artifact, "dataMapper")
+            const dataMapperValue = await getEntryValue(artifact, "dataMapper");
             const dataMapperValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER].findIndex(value => value.id === artifact.id);
             if (dataMapperValueIndex !== -1) {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER][dataMapperValueIndex] = dataMapperValue;
@@ -303,7 +303,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             }
             break;
         case ARTIFACT_TYPE.Connections:
-            const connectionValue = await getEntryValue(artifact, "connection")
+            const connectionValue = await getEntryValue(artifact, "connection");
             const connectionValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION].findIndex(value => value.id === artifact.id);
             if (connectionValueIndex !== -1) {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION][connectionValueIndex] = connectionValue;
@@ -312,7 +312,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             }
             break;
         case ARTIFACT_TYPE.Types:
-            const typeValue = await getEntryValue(artifact, "type")
+            const typeValue = await getEntryValue(artifact, "type");
             const typeValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE].findIndex(value => value.id === artifact.id);
             if (typeValueIndex !== -1) {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE][typeValueIndex] = typeValue;
@@ -321,7 +321,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             }
             break;
         case ARTIFACT_TYPE.Configurations:
-            const configurableValue = await getEntryValue(artifact, "config")
+            const configurableValue = await getEntryValue(artifact, "config");
             const configurableValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE].findIndex(value => value.id === artifact.id);
             if (configurableValueIndex !== -1) {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE][configurableValueIndex] = configurableValue;
@@ -330,7 +330,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             }
             break;
         case ARTIFACT_TYPE.NaturalFunctions:
-            const npFunctionValue = await getEntryValue(artifact, "function")
+            const npFunctionValue = await getEntryValue(artifact, "function");
             const npFunctionValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION].findIndex(value => value.id === artifact.id);
             if (npFunctionValueIndex !== -1) {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION][npFunctionValueIndex] = npFunctionValue;
