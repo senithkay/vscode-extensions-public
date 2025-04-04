@@ -989,6 +989,7 @@
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
     "@wso2-enterprise/mi-data-mapper-utils": "workspace:*",
     "@wso2-enterprise/mi-diagram": "workspace:*",
+    "@wso2-enterprise/wso2-platform-core": "workspace:*",
     "ts-morph": "^22.0.0",
     "await-notify": "^1.0.1",
     "yaml": "~2.4.3"

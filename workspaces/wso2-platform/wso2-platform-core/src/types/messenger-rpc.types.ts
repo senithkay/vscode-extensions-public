@@ -130,7 +130,7 @@ export interface ShowInOutputChannelReq {
 }
 
 export interface ViewRuntimeLogsReq {
-	type: "component-application" | "component-gateway";
+	type: "application" | "gateway";
 	orgName: string;
 	projectName: string;
 	componentName: string;
@@ -160,13 +160,6 @@ export interface OpenDialogOptions {
 export interface ShowConfirmBoxReq {
 	message: string;
 	buttonText: string;
-}
-
-export interface ViewComponentDetailsReq {
-	organization: Organization;
-	project: Project;
-	component: ComponentKind;
-	componentPath: string;
 }
 
 export interface ShowWebviewQuickPickItemsReq {

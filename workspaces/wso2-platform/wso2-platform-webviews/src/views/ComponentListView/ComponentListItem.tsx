@@ -10,9 +10,9 @@
 import {
 	CommandIds,
 	type ContextStoreComponentState,
+	type IViewComponentDetailsCmdParams,
 	type Organization,
 	type Project,
-	type ViewComponentDetailsReq,
 	getComponentTypeText,
 	getTypeForDisplayType,
 } from "@wso2-enterprise/wso2-platform-core";
@@ -36,7 +36,7 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened, org,
 			project: project,
 			organization: org,
 			componentPath: item.componentFsPath,
-		} as ViewComponentDetailsReq);
+		} as IViewComponentDetailsCmdParams);
 
 	return (
 		<div

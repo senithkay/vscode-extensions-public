@@ -77,9 +77,9 @@ export interface ComponentConfigYamlContent {
 	};
 }
 
-// component yaml v1.1
+// component yaml v1.2
 export interface ComponentYamlContent {
-	schemaVersion: 1.1;
+	schemaVersion: "1.0" | "1.1" | "1.2";
 	/* optional Incoming connection details for the component */
 	endpoints?: ComponentYamlEndpoint[];
 	// TODO re-enable following after verifying the format
@@ -97,6 +97,41 @@ export interface ComponentYamlContent {
 		/** LEGACY (used with version 1.0).Defines the service references from the Internal Marketplace. */
 		serviceReferences?: ServiceReference[];
 	};
+	/** optional Defines runtime configurations */
+	configurations?: {
+		/** optional List of environment variables to be injected into the component. */
+		env?: EnvVar[];
+		/** optional List of files to be injected into the component from config form */
+		file?: ComponentYamlFileConfig[];
+	};
+}
+
+interface EnvVar {
+	name: string;
+	valueFrom: ValueSource;
+}
+
+interface ValueSource {
+	connectionRef?: ComponentYamlConnectionRef;
+	configForm?: ComponentYamlConfigForm;
+}
+
+interface ComponentYamlConfigForm {
+	displayName?: string;
+	required?: boolean;
+	type?: "string" | "number" | "boolean" | "secret" | "object" | "array";
+}
+
+interface ComponentYamlFileConfig {
+	name: string;
+	mountPath: string;
+	type: "yaml" | "json" | "toml";
+	values: ComponentYamlFileValue[];
+}
+
+interface ComponentYamlFileValue {
+	name: string;
+	valueFrom: ValueSource;
 }
 
 export interface ComponentYamlEndpoint {
