@@ -469,7 +469,7 @@ export async function getBallerinaSourceFiles(folderPath: string):
             sources.push({
                 balFiles: moduleBalFiles,
                 readme: readmeContent.trim(),
-                requirements: nlContent[0].trim(),
+                requirements: "",
                 developerOverview: nlContent[1].trim(),
                 moduleName
             });
