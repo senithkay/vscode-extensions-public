@@ -40,7 +40,7 @@ export class API {
         this.webView = apiWebView;
     }
 
-    public async add() {
+    public async addAPI() {
         const frame = this.webView.locator('div#root');
         await frame.getByRole('textbox', { name: 'Name*' }).fill('TestAPI');
         await frame.getByRole('textbox', { name: 'Context*' }).fill('/test');
@@ -50,13 +50,15 @@ export class API {
         await frame.getByRole('button', { name: 'Create' }).click();
     }
 
-    public async edit() {
+    public async editAPI() {
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }
         const frame = webView.locator('div#root');
-        await frame.getByTestId('edit-button').click();
+        const editBtn = await frame.getByTestId('edit-button');
+        await editBtn.waitFor();
+        await editBtn.click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
             throw new Error("Failed to switch to API Form iframe");
@@ -75,14 +77,57 @@ export class API {
         await apiFormFrame.locator('#property-value').getByPlaceholder('Property value').click();
         await apiFormFrame.locator('#property-value').getByPlaceholder('Property value').fill('testValue');
         await apiFormFrame.getByRole('button', { name: 'Save changes' }).click();
+    }
 
+    public async addResource() {
         const desWebView = await switchToIFrame('Service Designer', this._page);
         if (!desWebView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }
+        const frame = desWebView.locator('div#root');
+        await frame.getByRole('button', { name: ' Resource' }).click();
+        await frame.getByRole('textbox', { name: 'Resource Path' }).fill('/testResource');
+        await frame.getByText('Add Path Param').click();
+        await frame.getByRole('textbox', { name: 'Path Parameter*' }).fill('p1');
+        await frame.getByRole('button', { name: 'Add' }).click();
+        await frame.getByText('Add Query Param').click();
+        await frame.getByRole('textbox', { name: 'Query Parameter*' }).fill('q1');
+        await frame.getByRole('button', { name: 'Add' }).click();
+        await frame.getByLabel('GET').click();
+        await frame.getByLabel('DELETE').click();
+        await frame.getByRole('button', { name: 'Create' }).click();
+    }
+
+    public async editResource() {
+        const webView = await switchToIFrame('Service Designer', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Service Designer iframe");
+        }
+        const frame = webView.locator('div#root');
+        await frame.getByTestId('service-design-view').locator('i').nth(1).click();
+        // wait until go to source text appear
+        await webView.getByRole('gridcell', { name: 'Edit' }).click();
+        await frame.getByText('Add Query Param').click();
+        await frame.getByRole('textbox', { name: 'Query Parameter*' }).fill('q2');
+        await frame.getByRole('button', { name: 'Add' }).click();
+        await frame.getByLabel('POST').click();
+        await frame.getByRole('button', { name: 'Update' }).click();
+    }
+
+    public async deleteResource() {
+        const desWebView = await switchToIFrame('Service Designer', this._page);
+        if (!desWebView) {
+            throw new Error("Failed to switch to Service Designer iframe");
+        }
+        const frame = desWebView.locator('div#root');
+        await frame.getByTestId('service-design-view').locator('i').first().click();
+        await desWebView.getByRole('gridcell', { name: 'Delete' }).click();
     }
 
     public async createOpenApiFromSidePanel() {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        
         const overviewPage = new Overview(this._page);
         await overviewPage.init();
         await overviewPage.goToAddArtifact();
@@ -153,5 +198,22 @@ export class API {
         await this._page.getByLabel('input').fill(desination);
         await this._page.getByRole('button', { name: 'OK' }).click();
         await apiFormFrame.getByRole('button', { name: 'Create' }).click();
+        const webView = await switchToIFrame('Service Designer', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Service Designer iframe");
+        }
+    }
+
+    public async deleteAPI() {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.findItem(['Project testProject'], true);
+        await this._page.getByLabel('Open Project Overview').click();
+        const webview = await switchToIFrame("Project Overview", this._page);
+        if (!webview) {
+            throw new Error("Failed to switch to Overview iframe");
+        }
+        await this._page.getByLabel('Open Project Overview').click();
+        await webview.locator('div:nth-child(7) > .css-ta44yg > .css-t6i1up > .css-ij0d9h > vscode-button > svg > path').click();
+        await webview.getByText('Delete').click();
     }
 }
