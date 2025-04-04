@@ -14,6 +14,7 @@ import { dirname } from "path";
 import {
 	CommandIds,
 	type ContextItem,
+	type ICmdParamsBase,
 	type Organization,
 	type Project,
 	type UserInfo,
@@ -24,16 +25,18 @@ import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { getGitRemotes, getGitRoot } from "../git/util";
-import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
+import { contextStore, getContextKey, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
-import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import { getUserInfoForCmd, isRpcActive, selectOrg, selectProjectWithCreateNew, setExtensionName } from "./cmd-utils";
 
 export function createDirectoryContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.CreateDirectoryContext, async () => {
+		commands.registerCommand(CommandIds.CreateDirectoryContext, async (params: ICmdParamsBase) => {
+			setExtensionName(params?.extName);
 			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
+				isRpcActive(ext);
 				const userInfo = await getUserInfoForCmd(`link a directory with a ${extensionName} project`);
 				let gitRoot: string | undefined = "";
 				if (userInfo) {
@@ -129,9 +132,10 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 					const contextFilePath = updateContextFile(gitRoot, userInfo, selectedProject, selectedOrg, projectList);
 
 					// todo: check this in windows
-					const isWithinWorkspace = workspace.workspaceFolders?.some((item) => isSubpath(item.uri?.fsPath, gitRoot!));
+					const isWithinWorkspace = workspace.workspaceFolders?.some((item) => isSubpath(gitRoot!, item.uri?.fsPath));
 
 					if (isWithinWorkspace) {
+						contextStore.getState().refreshState();
 						await waitForContextStoreToLoad();
 
 						contextStore.getState().onSetNewContext(selectedOrg, selectedProject, {
@@ -141,6 +145,7 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 							projectRootFsPath: path.dirname(path.dirname(contextFilePath)),
 						});
 					} else {
+						ext.context.globalState.update("open-local-repo", getContextKey(selectedOrg, selectedProject));
 						openDirectory(gitRoot, "Where do you want to open the project directory?");
 					}
 				}

@@ -237,7 +237,8 @@ import {
     DeployProjectRequest,
     DeployProjectResponse,
     CreateBallerinaModuleResponse,
-    CreateBallerinaModuleRequest
+    CreateBallerinaModuleRequest,
+    DevantMetadata
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -359,6 +360,7 @@ export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method:
 export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` };
 export const buildProject: NotificationType<BuildProjectRequest> = { method: `${_preFix}/buildProject` };
 export const deployProject: RequestType<DeployProjectRequest, DeployProjectResponse> = { method: `${_preFix}/deployProject` };
+export const getDevantMetadata: RequestType<void, DevantMetadata> = { method: `${_preFix}/getDevantMetadata` };
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };

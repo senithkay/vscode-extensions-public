@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { Button, FormActions, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, FormActions, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import SidePanelContext, { clearSidePanelState } from "../SidePanelContexProvider";
@@ -15,6 +15,7 @@ import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ParameterManager from "../../Form/GigaParamManager/ParameterManager";
+import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 const TryoutContainer = styled.div`
     height: 100%;
@@ -27,40 +28,89 @@ interface SetPayloadsProps {
     nodeRange?: any;
     getValues?: any;
     isActive?: boolean;
+    artifactModel: DiagramService;
 }
 export function SetPayloads(props: SetPayloadsProps) {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { documentUri } = props;
+    const { documentUri, artifactModel } = props;
     const [isLoading, setIsLoading] = React.useState(true);
     const [requests, setRequests] = React.useState<any[]>([]);
+    const [defaultPayload, setDefaultPayload] = React.useState<string>();
+    const [requestsNames, setRequestsNames] = React.useState<string[]>([]);
+    const [isAPI, setIsAPI] = React.useState(false);
+    const [supportPayload, setSupportPayload] = React.useState(false);
 
     useEffect(() => {
-        rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri }).then((res) => {
+        rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri, artifactModel }).then((res) => {
             const requests = Array.isArray(res.payloads)
                 ? res.payloads.map(payload => ({
                     name: payload.name,
-                    content: JSON.stringify(payload.content)
+                    contentType: payload.contentType,
+                    content: payload.contentType == 'application/json' ? JSON.stringify(payload.content, null, 2) : payload.content,
+                    queryParams: payload.queryParams && typeof payload.queryParams === 'object'
+                        ? Object.keys(payload.queryParams).map((key: string) => ({
+                            queryParamName: key,
+                            queryParamValue: (payload.queryParams as Record<string, any>)[key]
+                        }))
+                        : [],
+                    pathParams: payload.pathParams && typeof payload.pathParams === 'object'
+                        ? Object.keys(payload.pathParams).map((key: string) => ({
+                            pathParamName: key,
+                            pathParamValue: (payload.pathParams as Record<string, any>)[key]
+                        }))
+                        : []
                 }))
                 : [{ name: "Default", content: JSON.stringify(res.payloads) }];
             setRequests(requests);
+            setDefaultPayload(res.defaultPayload);
+            setRequestsNames(requests.map((request) => request.name));
             setIsLoading(false);
+            setIsAPI(artifactModel.tag === 'resource');
+            setSupportPayload(supportsRequestBody('methods' in artifactModel ? artifactModel.methods as string[] : ["POST"]));
         });
     }, []);
 
+    useEffect(() => {
+        const requestsNames = requests.map((request) => request.name);
+        setRequestsNames(requestsNames);
+        if (defaultPayload && !requestsNames.includes(defaultPayload)) {
+            setDefaultPayload(requestsNames[0].name);
+        }
+        if (!defaultPayload && requestsNames.length > 0) {
+            setDefaultPayload(requestsNames[0]);
+        }
+    }, [requests]);
+
     const onSavePayload = async () => {
-        const content = requests.map((request) => {
-            return {
-                name: request.name,
-                content: JSON.parse(request.content)
-            };
+        const content = requests.map(({ name, contentType, content, queryParams, pathParams }) => {
+            const result: any = { name };
+
+            if (supportPayload) {
+                result.contentType = contentType;
+                result.content = contentType === 'application/json' ? JSON.parse(content) : content;
+            }
+            if (isAPI) {
+                result.queryParams = Array.isArray(queryParams)
+                    ? Object.fromEntries(queryParams.map(({ queryParamName, queryParamValue }) => [queryParamName, queryParamValue]))
+                    : {};
+                result.pathParams = Array.isArray(pathParams)
+                    ? Object.fromEntries(pathParams.map(({ pathParamName, pathParamValue }) => [pathParamName, pathParamValue]))
+                    : {};
+            }
+            return result;
         });
-        await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: JSON.stringify(content) });
+        await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: content, artifactModel, defaultPayload });
         closeSidePanel();
     };
 
     const closeSidePanel = () => {
         clearSidePanelState(sidePanelContext);
+    }
+
+    const supportsRequestBody = (methods: string[]): boolean => {
+        const methodsWithBody = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+        return methods.some(method => methodsWithBody.has(method.toUpperCase()));
     }
 
     if (isLoading) {
@@ -86,14 +136,105 @@ export function SetPayloads(props: SetPayloadsProps) {
             {
                 type: "attribute",
                 value: {
+                    name: "contentType",
+                    displayName: "Content Type",
+                    inputType: "combo",
+                    hidden: !supportPayload,
+                    required: true,
+                    comboValues: ["application/json", "application/xml", "text/plain"],
+                    defaultValue: "application/json",
+                    helpTip: "",
+                },
+            },
+            {
+                type: "attribute",
+                value: {
                     name: "content",
                     displayName: "Request body", 
                     inputType: "codeTextArea",
                     required: true,
-                    validateType: "json",
+                    hidden: !supportPayload,
+                    validateType: {
+                        conditionField: "contentType",
+                        mapping: {
+                            "application/json": "json",
+                            "application/xml": "xml",
+                            "text/plain": "text"
+                        }
+                    },
                     helpTip: "",
                 },
             },
+            {
+                type: "table",
+                value: {
+                    name: "queryParams",
+                    displayName: "Query Params",
+                    title: "Query Param Values",
+                    description: "Editing of the query params",
+                    tableKey: "queryParamName",
+                    tableValue: "queryParamValue",
+                    canAddNew: false,
+                    elements: [
+                        {
+                            type: "attribute",
+                            value: {
+                                name: "queryParamName",
+                                displayName: "Name",
+                                inputType: "string",
+                                required: false,
+                                helpTip: ""
+                            }
+                        },
+                        {
+                            type: "attribute",
+                            value: {
+                                name: "queryParamValue",
+                                displayName: "Value",
+                                inputType: "string",
+                                required: false,
+                                helpTip: ""
+                            }
+                        }
+                    ],
+                    hidden: !isAPI,
+                }
+            },
+            {
+                type: "table",
+                value: {
+                    name: "pathParams",
+                    displayName: "Path Params",
+                    title: "Path Param Values",
+                    description: "Editing of the path params",
+                    tableKey: "pathParamName",
+                    tableValue: "pathParamValue",
+                    canAddNew: false,
+                    elements: [
+                        {
+                            type: "attribute",
+                            value: {
+                                name: "pathParamName",
+                                displayName: "Name",
+                                inputType: "string",
+                                required: false,
+                                helpTip: ""
+                            }
+                        },
+                        {
+                            type: "attribute",
+                            value: {
+                                name: "pathParamValue",
+                                displayName: "Value",
+                                inputType: "string",
+                                required: false,
+                                helpTip: ""
+                            }
+                        }
+                    ],
+                    hidden: !isAPI,
+                }
+            }
         ],
         tableKey: 'name',
         tableValue: 'content',
@@ -105,13 +246,17 @@ export function SetPayloads(props: SetPayloadsProps) {
             <Typography
                 sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
                 variant="body3">
-                {`Save the payload to try out the mediators`}
-                <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '10px' }}>
-                    <Icon name="info" isCodicon />
-                    <Typography variant="body3">Only JSON request types are supported</Typography>
-                </Typography>
+                {`Save Payload for Expression Completions and Mediator Tryouts`}
             </Typography>
-
+            <AutoComplete
+                name="defaultPayload"
+                label="Default Payload"
+                items={requestsNames}
+                value={defaultPayload}
+                onValueChange={setDefaultPayload}
+                required={true}
+                allowItemCreate={false}
+            />
             <ParameterManager
                 formData={parameterManagerConfig}
                 parameters={requests}

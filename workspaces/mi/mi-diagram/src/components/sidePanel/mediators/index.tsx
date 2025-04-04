@@ -12,6 +12,7 @@ import React, { useState } from "react";
 import { Mediators } from "./List";
 import styled from "@emotion/styled";
 import { ConnectionPage } from "../connections";
+import { DiagramService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 const Wrapper = styled.div`
     height: calc(100vh - 150px);
@@ -50,6 +51,7 @@ export interface MediatorPageProps {
     nodePosition: any;
     trailingSpace: string;
     documentUri: string;
+    artifactModel: DiagramService;
 }
 export function HomePage(props: MediatorPageProps) {
     const [searchValue, setSearchValue] = useState<string>('');
@@ -110,7 +112,8 @@ export function HomePage(props: MediatorPageProps) {
                         documentUri={props.documentUri}
                         trailingSpace={props.trailingSpace}
                         searchValue={searchValue}
-                        clearSearch={clearSearch} />
+                        clearSearch={clearSearch}
+                        artifactModel={props.artifactModel} />
                 </ComponentList>
             )}
             {isConnections && (
@@ -120,7 +123,8 @@ export function HomePage(props: MediatorPageProps) {
                         documentUri={props.documentUri}
                         searchValue={searchValue}
                         clearSearch={clearSearch}
-                        trailingSpace={props.trailingSpace} />
+                        trailingSpace={props.trailingSpace}
+                        artifactModel={props.artifactModel} />
                 </ComponentList>
             )}
         </Wrapper>

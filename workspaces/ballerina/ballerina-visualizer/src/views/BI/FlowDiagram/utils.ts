@@ -7,17 +7,49 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Category, AvailableNode, FlowNode, ProjectComponentsResponse, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+import { Category, AvailableNode, FlowNode, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { cloneDeep } from "lodash";
 import { URI, Utils } from "vscode-uri";
 
+// Filter out connections where name starts with _ and module is "ai" or "ai.agent"
+export const filterConnections = (categories: Category[]): Category[] => {
+    return categories.map((category) => {
+        if (category.metadata.label === "Connections") {
+            const filteredItems = category.items.filter((item) => {
+                if (
+                    "metadata" in item &&
+                    "items" in item &&
+                    item.items.length > 0 &&
+                    "codedata" in item.items.at(0)
+                ) {
+                    const name = item.metadata.label || "";
+                    const module = (item.items.at(0) as AvailableNode)?.codedata.module || "";
+
+                    // Filter out items where name starts with _ and module is "ai" or "ai.agent"
+                    return !(name.startsWith("_") && (module === "ai" || module === "ai.agent"));
+                }
+                return true;
+            });
+
+            return {
+                ...category,
+                items: filteredItems,
+            };
+        }
+        return category;
+    });
+};
+
 export const transformCategories = (categories: Category[]): Category[] => {
+    // First filter connections
+    let filteredCategories = filterConnections(categories);
+    
     // filter out some categories that are not supported in the diagram
     // TODO: these categories should be supported in the future
-    const notSupportedCategories = ["PARALLEL_FLOW", "LOCK", "START", "TRANSACTION", "COMMIT", "ROLLBACK", "RETRY"];
+    const notSupportedCategories = ["PARALLEL_FLOW", "LOCK", "START", "TRANSACTION", "COMMIT", "ROLLBACK", "RETRY", "NP_FUNCTION"];
 
-    let filteredCategories = categories.map((category) => ({
+    filteredCategories = filteredCategories.map((category) => ({
         ...category,
         items: category?.items?.filter(
             (item) => !("codedata" in item) || !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
@@ -43,13 +75,13 @@ export const transformCategories = (categories: Category[]): Category[] => {
         // add new item
         statementCategory.items.push({
             codedata: {
-                module: "ai.agent",
+                module: "ai",
                 node: "AGENT_CALL",
                 object: "Agent",
                 org: "ballerinax",
                 parentSymbol: "",
                 symbol: "run",
-                version: "0.7.16",
+                version: "1.0.0",
             },
             enabled: true,
             metadata: {

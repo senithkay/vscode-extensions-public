@@ -12,6 +12,8 @@ import {
 	CommandIds,
 	type ComponentsDetailsWebviewProps,
 	type DeploymentTrack,
+	type IDeleteComponentCmdParams,
+	type IOpenInConsoleCmdParams,
 	getComponentKindRepoSource,
 	getComponentTypeText,
 	getIntegrationComponentTypeText,
@@ -37,7 +39,7 @@ export const HeaderSection: FC<
 			component,
 			project,
 			organization,
-		});
+		} as IOpenInConsoleCmdParams);
 
 	const openGitPage = () => ChoreoWebViewAPI.getInstance().openExternal(getComponentKindRepoSource(component.spec.source).repo);
 
@@ -47,7 +49,7 @@ export const HeaderSection: FC<
 				component,
 				project,
 				organization,
-			}),
+			} as IDeleteComponentCmdParams),
 	});
 
 	const headerLabels: { label: string; value: string; onClick?: () => void; onClickTitle?: string }[] = [];
@@ -70,7 +72,11 @@ export const HeaderSection: FC<
 	return (
 		<HeaderSectionView
 			title={component.metadata.displayName}
-			secondaryTitle={extensionName === "Devant" ? getIntegrationComponentTypeText(componentTypeTxt, component?.spec?.subType) : getComponentTypeText(componentTypeTxt)}
+			secondaryTitle={
+				extensionName === "Devant"
+					? getIntegrationComponentTypeText(componentTypeTxt, component?.spec?.subType)
+					: getComponentTypeText(componentTypeTxt)
+			}
 			tags={headerLabels}
 			buttons={[
 				{ label: "Open in Console", onClick: () => openInConsole() },

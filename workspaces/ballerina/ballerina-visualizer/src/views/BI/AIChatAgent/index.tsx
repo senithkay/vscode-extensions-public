@@ -17,25 +17,16 @@ import {
     ServiceModel,
     FunctionModel,
     STModification,
-    removeStatement,
     DIRECTORY_MAP,
     ProjectStructureArtifactResponse,
     PropertyModel,
 } from "@wso2-enterprise/ballerina-core";
-import { Codicon, Icon, LinkButton, ProgressRing, Typography, View } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Icon, LinkButton, Typography, View } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { ResourceAccordion } from "../ServiceDesigner/components/ResourceAccordion";
-import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { FunctionConfigForm } from "../ServiceDesigner/Forms/FunctionConfigForm";
-import { ResourceForm } from "../ServiceDesigner/Forms/ResourceForm";
-import { FunctionForm } from "../ServiceDesigner/Forms/FunctionForm";
-import { applyModifications } from "../../../utils/utils";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
 import { LoadingRing } from "../../../components/Loader";
-import AgentConfigForm from "../AIAgents/Forms/AgentConfigForm";
-import { AIAgentWizard } from "../AIAgents/AIAgentWizard";
 
 const LoadingContainer = styled.div`
     display: flex;
@@ -86,7 +77,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
     const [showFunctionConfigForm, setShowFunctionConfigForm] = useState<boolean>(false);
     const [projectListeners, setProjectListeners] = useState<ProjectStructureArtifactResponse[]>([]);
 
-    const supportedServiceTypes = ["http", "ai.agent"];
+    const supportedServiceTypes = ["http", "ai"];
 
     useEffect(() => {
         fetchService();
@@ -227,15 +218,15 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
                         {serviceModel && supportedServiceTypes.includes(serviceModel.moduleName) && (
                             <VSCodeButton
                                 appearance="secondary"
-                                title={serviceModel.moduleName === "ai.agent" ? "Chat with Agent" : "Try Service"}
+                                title={serviceModel.moduleName === "ai" ? "Chat with Agent" : "Try Service"}
                                 onClick={handleServiceTryIt}
                             >
                                 <Icon
-                                    name={serviceModel.moduleName === "ai.agent" ? "comment-discussion" : "play"}
+                                    name={serviceModel.moduleName === "ai" ? "comment-discussion" : "play"}
                                     isCodicon={true}
                                     sx={{ marginRight: 8, fontSize: 16 }}
                                 />{" "}
-                                {serviceModel.moduleName === "ai.agent" ? "Chat" : "Try It"}
+                                {serviceModel.moduleName === "ai" ? "Chat" : "Try It"}
                             </VSCodeButton>
                         )}
                     </>

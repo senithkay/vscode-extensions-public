@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
+import React, { useContext, useState } from 'react';
+import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { EntityModel } from '../EntityModel';
 import { EntityHead, EntityName } from '../styles';
@@ -61,8 +61,7 @@ const HeaderWrapper = styled.div`
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
-    const { setFocusedNodeId, setSelectedNodeId, onEditNode, goToSource } = useContext(DiagramContext);
-    const headPorts = useRef<PortModel[]>([]);
+    const { setFocusedNodeId, onEditNode, goToSource } = useContext(DiagramContext);
 
     const displayName: string = node.getID()?.slice(node.getID()?.lastIndexOf(':') + 1);
 
@@ -104,37 +103,13 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
         { id: "focusView", label: "Focused View", onClick: () => onFocusedView() }
     ];
 
-    useEffect(() => {
-        headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
-        headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-    }, [node])
-
-    const handleOnHover = (task: string) => {
-        // setIsHovered(task === 'SELECT' ? true : false);
-        node.handleHover(headPorts.current, task);
-    }
-
     const isClickable = true;
 
-    const handleOnClickOnEntityName = () => {
-        setSelectedNodeId(node.getID());
-        setFocusedNodeId && setFocusedNodeId(undefined);
-        
-        if (onEditNode) {
-            if (node.isGraphqlRoot) {
-                onEditNode(node.getID(), true);
-            } else {
-                onEditNode(node.getID());
-            } 
-        }
-    }
 
     return (
         <CtrlClickGo2Source node={node.entityObject}>
             <EntityHead
                 isSelected={isSelected}
-                onMouseOver={() => handleOnHover('SELECT')}
-                onMouseLeave={() => handleOnHover('UNSELECT')}
                 data-testid={`entity-head-${displayName}`}
             >
                 <EntityPortWidget
@@ -150,7 +125,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                         )}
                         <EntityName
                             isClickable={isClickable}
-                            onClick={handleOnClickOnEntityName}
+                            onClick={onNodeEdit}
                             onDoubleClick={onFocusedView}
                         >
                             {displayName}

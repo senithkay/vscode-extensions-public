@@ -15,7 +15,6 @@ import {
 	CloseComponentViewDrawer,
 	CloseWebViewNotification,
 	type CommitHistory,
-	type ComponentConfigYamlContent,
 	type ComponentYamlContent,
 	ContextStoreChangedNotification,
 	CreateLocalConnectionsConfig,
@@ -48,7 +47,6 @@ import {
 	OpenExternal,
 	OpenExternalChoreo,
 	OpenSubDialogRequest,
-	type OpenTestViewReq,
 	type ProxyConfig,
 	ReadFile,
 	ReadLocalEndpointsConfig,
@@ -92,14 +90,14 @@ import { quickPickWithLoader } from "../cmds/cmd-utils";
 import { submitCreateComponentHandler } from "../cmds/create-component-cmd";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
-import { getConfigFileDrifts, getGitHead, getGitRemotes, getGitRoot, hasDirtyRepo, removeCredentialsFromGitURL } from "../git/util";
+import { getGitHead, getGitRemotes, getGitRoot, hasDirtyRepo, removeCredentialsFromGitURL } from "../git/util";
 import { getLogger } from "../logger/logger";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { sendTelemetryEvent, sendTelemetryException } from "../telemetry/utils";
-import { getNormalizedPath, getSubPath, goTosource, readLocalEndpointsConfig, readLocalProxyConfig, saveFile } from "../utils";
+import { getConfigFileDrifts, getNormalizedPath, getSubPath, goTosource, readLocalEndpointsConfig, readLocalProxyConfig, saveFile } from "../utils";
 
 // Register handlers
 function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
@@ -226,24 +224,31 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		outputChanelMap.get(params.key)?.show();
 	});
 	messenger.onRequest(ViewRuntimeLogs, async ({ orgName, projectName, componentName, deploymentTrackName, envName, type }) => {
-		const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
-		window
-			.createTerminal(
-				`${componentName}:${type.replace("component-", "")}-logs`,
-				`export CHOREO_ENV=${vscode.workspace.getConfiguration().get("WSO2.WSO2-Platform.Advanced.ChoreoEnvironment")} && ${getChoreoExecPath()}`,
-				args,
-			)
-			.show();
+		// todo: export the env from here
+		if (getChoreoEnv() !== "prod") {
+			window.showErrorMessage(
+				"Choreo extension currently displays runtime logs is only if 'WSO2.Platform.Advanced.ChoreoEnvironment' is set to 'prod'",
+			);
+			return;
+		}
+		const args = ["logs", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
+		window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, getChoreoExecPath(), args).show();
 	});
 	const _getGithubUrlState = async (orgId: string): Promise<string> => {
 		const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.wso2-platform/ghapp`));
-		const state = { origin: "vscode.choreo.ext", orgId, callbackUri: callbackUrl.toString() };
+		const state = {
+			origin: "vscode.choreo.ext",
+			orgId,
+			callbackUri: callbackUrl.toString(),
+			extensionName: webviewStateStore.getState().state.extensionName,
+		};
 		return Buffer.from(JSON.stringify(state), "binary").toString("base64");
 	};
 	messenger.onRequest(TriggerGithubAuthFlow, async (orgId: string) => {
-		const { authUrl, clientId, redirectUrl } = choreoEnvConfig.getGHAppConfig();
+		const { authUrl, clientId, redirectUrl, devantRedirectUrl } = choreoEnvConfig.getGHAppConfig();
+		const extName = webviewStateStore.getState().state.extensionName;
 		const state = await _getGithubUrlState(orgId);
-		const ghURL = Uri.parse(`${authUrl}?redirect_uri=${redirectUrl}&client_id=${clientId}&state=${state}`);
+		const ghURL = Uri.parse(`${authUrl}?redirect_uri=${extName === "Devant" ? devantRedirectUrl : redirectUrl}&client_id=${clientId}&state=${state}`);
 		await env.openExternal(ghURL);
 	});
 	messenger.onRequest(TriggerGithubInstallFlow, async (orgId: string) => {
@@ -288,7 +293,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 				mkdirSync(join(params.componentDir, ".choreo"));
 			}
 			const endpointFileContent: ComponentYamlContent = {
-				schemaVersion: 1.1,
+				schemaVersion: "1.2",
 				endpoints:
 					params.endpoints?.map((item, index) => ({
 						name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
@@ -331,7 +336,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			if (!existsSync(join(params.componentDir, ".choreo"))) {
 				mkdirSync(join(params.componentDir, ".choreo"));
 			}
-			const endpointFileContent: ComponentYamlContent = { schemaVersion: 1.1, proxy: proxyConfig };
+			const endpointFileContent: ComponentYamlContent = { schemaVersion: "1.2", proxy: proxyConfig };
 			writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
 		}
 	});
@@ -388,8 +393,9 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		const resourceRef = `service:/${project.handler}/${component.metadata?.handler}/v1/${params?.marketplaceItem?.component?.endpointId}/${params.visibility}`;
 		if (existsSync(componentYamlPath)) {
 			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			if (componentYamlFileContent.schemaVersion < 1.1) {
-				componentYamlFileContent.schemaVersion = 1.1;
+			const schemaVersion = Number(componentYamlFileContent.schemaVersion);
+			if (schemaVersion < 1.2) {
+				componentYamlFileContent.schemaVersion = "1.2";
 			}
 			componentYamlFileContent.dependencies = {
 				...componentYamlFileContent.dependencies,
@@ -404,7 +410,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 				mkdirSync(join(params.componentDir, ".choreo"));
 			}
 			const endpointFileContent: ComponentYamlContent = {
-				schemaVersion: 1.1,
+				schemaVersion: "1.2",
 				dependencies: { connectionReferences: [{ name: params?.name, resourceRef }] },
 			};
 			writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
@@ -511,7 +517,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		webviewStateStore.getState().onCloseComponentDrawer(componentKey);
 	});
 	messenger.onRequest(HasDirtyLocalGitRepo, async (componentPath: string) => {
-		return hasDirtyRepo(componentPath, ext.context);
+		return hasDirtyRepo(componentPath, ext.context, ["context.yaml"]);
 	});
 	messenger.onRequest(GetConfigFileDrifts, async (params: GetConfigFileDriftsReq) => {
 		return getConfigFileDrifts(params.type, params.repoUrl, params.branch, params.repoDir, ext.context);

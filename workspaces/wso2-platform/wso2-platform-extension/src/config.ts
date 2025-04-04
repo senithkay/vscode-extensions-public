@@ -15,6 +15,7 @@ interface IChoreoEnvConfig {
 	choreoConsoleBaseUrl: string;
 	billingConsoleBaseUrl: string;
 	devantConsoleBaseUrl: string;
+	devantAsguadeoClientId: string;
 }
 
 const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
@@ -23,10 +24,12 @@ const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
 		authUrl: "https://github.com/login/oauth/authorize",
 		clientId: "Iv1.804167a242012c66",
 		redirectUrl: "https://console.choreo.dev/ghapp",
+		devantRedirectUrl: "https://console.devant.dev/ghapp",
 	},
 	choreoConsoleBaseUrl: "https://console.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.wso2.com",
-	devantConsoleBaseUrl: "https://devant.wso2.com",
+	devantConsoleBaseUrl: "https://console.devant.dev",
+	devantAsguadeoClientId: "09YlJuqQZdFNRDC0sx3DHHDnZvIa",
 };
 
 const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
@@ -35,10 +38,12 @@ const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
 		authUrl: "https://github.com/login/oauth/authorize",
 		clientId: "Iv1.20fd2645fc8a5aab",
 		redirectUrl: "https://console.st.choreo.dev/ghapp",
+		devantRedirectUrl: "https://preview-st.devant.dev/ghapp",
 	},
 	choreoConsoleBaseUrl: "https://console.st.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.st.wso2.com",
 	devantConsoleBaseUrl: "https://preview-st.devant.dev",
+	devantAsguadeoClientId: "fO22Kjf5AIZSGRO4R3kYUgTadyYa",
 };
 
 const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
@@ -47,10 +52,12 @@ const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
 		authUrl: "https://github.com/login/oauth/authorize",
 		clientId: "Iv1.f6cf2cd585148ee7",
 		redirectUrl: "https://consolev2.preview-dv.choreo.dev/ghapp",
+		devantRedirectUrl: "https://preview-dv.devant.dev/ghapp",
 	},
 	choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
 	billingConsoleBaseUrl: "https://subscriptions.dv.wso2.com",
 	devantConsoleBaseUrl: "https://preview-dv.devant.dev",
+	devantAsguadeoClientId: "zL9kF4GCPiN2veO8judQvwlqLb8a",
 };
 
 class ChoreoEnvConfig {
@@ -70,6 +77,10 @@ class ChoreoEnvConfig {
 
 	public getDevantUrl(): string {
 		return this._config.devantConsoleBaseUrl;
+	}
+
+	public getDevantAsguadeoClientId(): string {
+		return this._config.devantAsguadeoClientId;
 	}
 }
 

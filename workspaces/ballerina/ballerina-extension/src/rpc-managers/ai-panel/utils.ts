@@ -32,9 +32,9 @@ import axios from "axios";
 import { getPluginConfig } from "../../../src/utils";
 import path from "path";
 import * as fs from 'fs';
+import { AUTH_CLIENT_ID, AUTH_ORG, BACKEND_URL } from "../../features/ai/utils";
 
-export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
-const BACKEND_BASE_URL = BACKEND_API_URL_V2.replace(/\/v2\.0$/, "");
+const BACKEND_BASE_URL = BACKEND_URL.replace(/\/v2\.0$/, "");
 //TODO: Temp workaround as custom domain seem to block file uploads
 const CONTEXT_UPLOAD_URL_V1 = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/ballerina-copilot/context-upload-api/v1.0";
 // const CONTEXT_UPLOAD_URL_V1 = BACKEND_BASE_URL + "/context-api/v1.0";
@@ -705,9 +705,6 @@ export async function refreshAccessToken(): Promise<string> {
     };
 
     const config = getPluginConfig();
-    const AUTH_ORG = config.get('authOrg') as string;
-    const AUTH_CLIENT_ID = config.get('authClientID') as string;
-
     const refresh_token = await extension.context.secrets.get('BallerinaAIRefreshToken');
     if (!refresh_token) {
         throw new Error("Refresh token is not available.");
@@ -718,7 +715,7 @@ export async function refreshAccessToken(): Promise<string> {
                 client_id: AUTH_CLIENT_ID,
                 refresh_token: refresh_token,
                 grant_type: 'refresh_token',
-                scope: 'openid'
+                scope: 'openid email'
             });
             const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
             const newAccessToken = response.data.access_token;
@@ -1415,7 +1412,7 @@ export function notifyNoGeneratedMappings() {
 }
 
 async function sendDatamapperRequest(parameterDefinitions: ParameterMetadata | ErrorCode, accessToken: string | ErrorCode): Promise<Response | ErrorCode> {
-    const response = await fetchWithTimeout(BACKEND_API_URL_V2 + "/datamapper", {
+    const response = await fetchWithTimeout(BACKEND_URL + "/datamapper", {
         method: "POST",
         headers: {
             'Accept': 'application/json',
@@ -1451,11 +1448,7 @@ export async function searchDocumentation(message: string): Promise<string | Err
         })
     });
 
-    if (response as Response) {
-        return await filterDocumentation(response as Response);
-    } else {
-        return SERVER_ERROR;
-    }
+    return await filterDocumentation(response as Response);
     
 }
 
@@ -2206,6 +2199,9 @@ export async function fetchWithToken(url: string, options: RequestInit) {
                 'Authorization': `Bearer ${newToken}`,
             };
             response = await fetch(url, options);
+        } else {
+            await handleLogin();
+            return;
         }
     }
     return response;

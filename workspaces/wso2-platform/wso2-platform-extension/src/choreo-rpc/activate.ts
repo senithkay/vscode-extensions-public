@@ -15,18 +15,31 @@ import { RPCClient } from "./client";
 function isChoreoCliInstalled(): Promise<boolean> {
 	return new Promise((resolve) => {
 		const rpcPath = getChoreoExecPath();
-		if (fs.existsSync(rpcPath)) {
-			exec(`"${rpcPath}" --version`, (error) => {
-				console.log("error", error);
-				if (error) {
-					resolve(false);
-				} else {
-					resolve(true);
-				}
-			});
-		} else {
-			resolve(false);
+		console.log("RPC path: ", rpcPath);
+
+		if (!fs.existsSync(rpcPath)) {
+			return resolve(false);
 		}
+
+		const process = exec(`"${rpcPath}" --version`, (error) => {
+			if (error) {
+				console.error("error", error);
+				fs.rmSync(rpcPath);
+				resolve(false);
+			} else {
+				resolve(true);
+			}
+		});
+
+		const timeout = setTimeout(() => {
+			process.kill(); // Kill the process if it exceeds 5 seconds
+			console.error("Timeout: Process took too long");
+			fs.rmSync(rpcPath);
+			console.error("Delete RPC path and try again", rpcPath);
+			resolve(false);
+		}, 5000);
+
+		process.on("exit", () => clearTimeout(timeout));
 	});
 }
 

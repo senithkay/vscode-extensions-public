@@ -8,7 +8,7 @@
  */
 
 import * as path from "path";
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, type IViewDependencyCmdParams } from "@wso2-enterprise/wso2-platform-core";
 import * as vscode from "vscode";
 import * as yaml from "yaml";
 import { webviewStateStore } from "./stores/webview-state-store";
@@ -28,7 +28,7 @@ class YAMLCodeLensProvider implements vscode.CodeLensProvider {
 			title: "Add Connection",
 			command: CommandIds.CreateComponentDependency,
 			tooltip: `Add a new API connection to your ${webviewStateStore.getState().state.extensionName} component`,
-			arguments: [{ componentFsPath, isCodeLens: true }],
+			arguments: [{ componentFsPath, isCodeLens: true } as IViewDependencyCmdParams],
 		};
 
 		const viewDependencyCmd: vscode.Command = {

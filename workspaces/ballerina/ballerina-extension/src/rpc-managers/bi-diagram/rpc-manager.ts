@@ -46,8 +46,9 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    DeploymentRequest,
     DeploymentResponse,
-    DevantComponent,
+    DevantMetadata,
     EVENT_TYPE,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
@@ -122,6 +123,7 @@ import {
     Task,
     TaskDefinition,
     Uri, ViewColumn, commands,
+    extensions,
     tasks,
     window, workspace
 } from "vscode";
@@ -134,8 +136,10 @@ import { StateMachine, openView, updateView } from "../../stateMachine";
 import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
-import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
-import { findScopeByModule, getFunctionNodePosition } from "./utils";
+import { refreshAccessToken } from "../ai-panel/utils";
+import { getFunctionNodePosition } from "./utils";
+import { BACKEND_URL } from "../../features/ai/utils";
+import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -475,7 +479,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     };
                     console.log(">>> request ai suggestion", { request: requestBody });
                     // generate new nodes
-                    const response = await fetchWithToken(BACKEND_API_URL_V2 + "/inline/generation", requestOptions);
+                    const response = await fetchWithToken(BACKEND_URL + "/inline/generation", requestOptions);
                     if (!response.ok) {
                         console.log(">>> ai completion api call failed ", response);
                         return new Promise((resolve) => {
@@ -690,32 +694,10 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async createChoreoComponent(name: string, type: "service" | "manualTask" | "scheduleTask"): Promise<void> {
-        const params = {
-            initialValues: {
-                name,
-                type,
-                buildPackLang: "ballerina",
-            },
-        };
 
-        await commands.executeCommand("wso2.wso2-platform.create.component", params);
-    }
 
-    async deployProject(): Promise<DeploymentResponse> {
-        const projectStructure = await this.getProjectStructure();
-
-        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
-        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
-
-        let scopes: SCOPE[] = [];
-        if (services) {
-            const svcScopes = services.map((svc) => findScopeByModule(svc?.serviceModel.moduleName));
-            scopes = Array.from(new Set(svcScopes));
-        }
-        if (automation) {
-            scopes.push(SCOPE.AUTOMATION);
-        }
+    async deployProject(params: DeploymentRequest): Promise<DeploymentResponse> {
+        const scopes = params.integrationTypes;
 
         let integrationType: SCOPE;
 
@@ -733,13 +715,14 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             return { isCompleted: true };
         }
 
-        const params = {
-            integrationType: integrationType,
+        const deployementParams: ICreateComponentCmdParams = {
+            integrationType: integrationType as any,
             buildPackLang: "ballerina", // Example language
             name: path.basename(StateMachine.context().projectUri),
-            componentDir: StateMachine.context().projectUri
+            componentDir: StateMachine.context().projectUri,
+            extName: "Devant"
         };
-        commands.executeCommand("wso2.wso2-platform.create.component", params);
+        commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, deployementParams);
 
         return { isCompleted: true };
     }
@@ -1199,7 +1182,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         };
         console.log(">>> request ai suggestion", { request: requestBody });
         // generate new nodes
-        const response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+        const response = await fetchWithToken(BACKEND_URL + "/completion", requestOptions);
         if (!response.ok) {
             console.log(">>> ai completion api call failed ", response);
             return new Promise((resolve) => {
@@ -1421,27 +1404,38 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return { mentions: recordNames };
     }
 
-    async getDevantComponent(): Promise<DevantComponent | undefined> {
-        // get project root from state machine 
-        // find the repo root from the project root
-        // read .choreo/context.yaml in repo root 
-        // extract org and project from context.yaml
-        // use the current directory name as component name 
-        // return the response 
-        const projectRoot = StateMachine.context().projectUri;
-        const repoRoot = getRepoRoot(projectRoot);
-        if (!repoRoot) {
-            return undefined;
+    async getDevantMetadata(): Promise<DevantMetadata | undefined> {
+        let hasContextYaml = false;
+        let isLoggedIn = false;
+        let hasComponent = false;
+        let hasLocalChanges = false;
+        try {
+            const projectRoot = StateMachine.context().projectUri;
+            const repoRoot = getRepoRoot(projectRoot);
+            if (repoRoot) {
+                const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
+                if (fs.existsSync(contextYamlPath)) {
+                    hasContextYaml = true;
+                }
+            }
+
+            const platformExt = extensions.getExtension("wso2.wso2-platform");
+            if (!platformExt) {
+                return { hasComponent: hasContextYaml, isLoggedIn: false };
+            }
+            const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
+            hasLocalChanges = await platformExtAPI.localRepoHasChanges(projectRoot);
+            isLoggedIn = platformExtAPI.isLoggedIn();
+            if (isLoggedIn) {
+                const components = platformExtAPI.getDirectoryComponents(projectRoot);
+                hasComponent = components.length > 0;
+                return { isLoggedIn, hasComponent, hasLocalChanges };
+            }
+            return { isLoggedIn, hasComponent: hasContextYaml, hasLocalChanges };
+        } catch(err){
+            console.error("failed to call getDevantMetadata: ", err);
+            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
         }
-        const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
-        if (!fs.existsSync(contextYamlPath)) {
-            return undefined;
-        }
-        const contextYaml = fs.readFileSync(contextYamlPath, "utf8");
-        const org = contextYaml.match(/org: (.*)/)[1];
-        const project = contextYaml.match(/project: (.*)/)[1];
-        const component = path.basename(projectRoot);
-        return { org, project, component };
     }
 
     async getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {

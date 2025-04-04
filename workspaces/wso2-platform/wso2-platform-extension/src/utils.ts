@@ -12,6 +12,7 @@ import * as os from "os";
 import { join } from "path";
 import * as path from "path";
 import {
+	ChoreoComponentType,
 	type ComponentConfigYamlContent,
 	type ComponentYamlContent,
 	type Endpoint,
@@ -19,9 +20,13 @@ import {
 	type ReadLocalEndpointsConfigResp,
 	type ReadLocalProxyConfigResp,
 	getRandomNumber,
+	parseGitURL,
 } from "@wso2-enterprise/wso2-platform-core";
 import * as yaml from "js-yaml";
-import { Uri, commands, window, workspace } from "vscode";
+import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
+import type { IFileStatus } from "./git/git";
+import { initGit } from "./git/main";
+import { getGitRemotes } from "./git/util";
 import { getLogger } from "./logger/logger";
 
 export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
@@ -181,6 +186,15 @@ export const saveFile = async (
 	return "";
 };
 
+export const isSamePath = (parent: string, sub: string): boolean => {
+	const normalizedParent = getNormalizedPath(parent).toLowerCase();
+	const normalizedSub = getNormalizedPath(sub).toLowerCase();
+	if (normalizedParent === normalizedSub) {
+		return true;
+	}
+	return false;
+};
+
 export const isSubpath = (parent: string, sub: string): boolean => {
 	const normalizedParent = getNormalizedPath(parent).toLowerCase();
 	const normalizedSub = getNormalizedPath(sub).toLowerCase();
@@ -195,7 +209,7 @@ export const isSubpath = (parent: string, sub: string): boolean => {
 export const getSubPath = (subPath: string, parentPath: string): string | null => {
 	const normalizedParent = getNormalizedPath(parentPath);
 	const normalizedSub = getNormalizedPath(subPath);
-	if (normalizedParent === normalizedSub) {
+	if (normalizedParent.toLocaleLowerCase() === normalizedSub.toLocaleLowerCase()) {
 		return ".";
 	}
 
@@ -278,3 +292,115 @@ export async function withRetries<T>(fn: () => Promise<T>, functionName: string,
 export function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export const getConfigFileDrifts = async (
+	type: string,
+	gitUrl: string,
+	branch: string,
+	directoryPath: string,
+	context: ExtensionContext,
+): Promise<string[]> => {
+	try {
+		const fileNames = new Set<string>();
+		const git = await initGit(context);
+		const repoRoot = await git?.getRepositoryRoot(directoryPath);
+		if (repoRoot) {
+			const subPath = path.relative(repoRoot, directoryPath);
+
+			if (git) {
+				const gitRepo = git.open(repoRoot, { path: repoRoot });
+				const status = await gitRepo.getStatus({ untrackedChanges: "separate", subDirectory: subPath });
+
+				status.status.forEach((item: IFileStatus) => {
+					if (item.path.endsWith("endpoints.yaml")) {
+						fileNames.add("endpoints.yaml");
+					} else if (item.path.endsWith("component-config.yaml")) {
+						fileNames.add("component-config.yaml");
+					} else if (item.path.endsWith("component.yaml")) {
+						fileNames.add("component.yaml");
+					}
+
+					if (type === ChoreoComponentType.Service) {
+						const eps = readLocalEndpointsConfig(directoryPath);
+						eps.endpoints?.forEach((epItem) => {
+							if (epItem.schemaFilePath && item.path.endsWith(epItem.schemaFilePath)) {
+								fileNames.add(epItem.schemaFilePath);
+							}
+						});
+					} else if (type === ChoreoComponentType.ApiProxy) {
+						const proxyConfig = readLocalProxyConfig(directoryPath);
+						if (proxyConfig?.proxy?.schemaFilePath && item.path.endsWith(proxyConfig?.proxy?.schemaFilePath)) {
+							fileNames.add(proxyConfig?.proxy?.schemaFilePath);
+						}
+						if (proxyConfig?.proxy?.docPath && item.path.endsWith(proxyConfig?.proxy?.docPath)) {
+							fileNames.add(proxyConfig?.proxy?.docPath);
+						}
+						if (proxyConfig?.proxy?.thumbnailPath && item.path.endsWith(proxyConfig?.proxy?.thumbnailPath)) {
+							fileNames.add(proxyConfig?.proxy?.thumbnailPath);
+						}
+					}
+				});
+				if (fileNames.size) {
+					return Array.from(fileNames);
+				}
+
+				const remotes = await getGitRemotes(context, repoRoot);
+				const matchingRemoteName = remotes.find((item) => {
+					const parsed1 = parseGitURL(item.fetchUrl);
+					const parsed2 = parseGitURL(gitUrl);
+					if (parsed1 && parsed2) {
+						const [org, repoName] = parsed1;
+						const [componentRepoOrg, componentRepoName] = parsed2;
+						return org === componentRepoOrg && repoName === componentRepoName;
+					}
+				})?.name;
+
+				if (matchingRemoteName) {
+					try {
+						await gitRepo.fetch({ silent: true, remote: matchingRemoteName });
+					} catch {
+						// ignore error
+					}
+					const changes = await gitRepo.diffWith(`${matchingRemoteName}/${branch}`);
+					const componentConfigYamlPath = join(directoryPath, ".choreo", "component-config.yaml");
+					const endpointsYamlPath = join(directoryPath, ".choreo", "endpoints.yaml");
+					const componentYamlPath = join(directoryPath, ".choreo", "component.yaml");
+					const configPaths = [componentYamlPath, componentConfigYamlPath, endpointsYamlPath];
+
+					if (type === ChoreoComponentType.Service) {
+						const eps = readLocalEndpointsConfig(directoryPath);
+						eps.endpoints?.forEach((epItem) => {
+							if (epItem.schemaFilePath) {
+								configPaths.push(join(directoryPath, epItem.schemaFilePath));
+							}
+						});
+					} else if (type === ChoreoComponentType.ApiProxy) {
+						const proxyConfig = readLocalProxyConfig(directoryPath);
+						if (proxyConfig?.proxy?.schemaFilePath) {
+							configPaths.push(join(directoryPath, proxyConfig?.proxy?.schemaFilePath));
+						}
+						if (proxyConfig?.proxy?.docPath) {
+							configPaths.push(join(directoryPath, proxyConfig?.proxy?.docPath));
+						}
+						if (proxyConfig?.proxy?.thumbnailPath) {
+							configPaths.push(join(directoryPath, proxyConfig?.proxy?.thumbnailPath));
+						}
+					}
+
+					changes.forEach((item) => {
+						if (configPaths.includes(item.uri.path)) {
+							fileNames.add(path.basename(item.uri.path));
+						}
+					});
+					if (fileNames.size) {
+						return Array.from(fileNames);
+					}
+				}
+			}
+		}
+		return Array.from(fileNames);
+	} catch (err) {
+		console.log(err);
+		return [];
+	}
+};

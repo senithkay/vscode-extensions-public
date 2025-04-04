@@ -131,6 +131,10 @@ export class RPCClient {
 			throw e;
 		}
 	}
+
+	isInitialized(): boolean {
+		return !!this._conn;
+	}
 }
 
 export class ChoreoRPCClient implements IChoreoRPCClient {
@@ -138,6 +142,10 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 
 	public constructor() {
 		this.init();
+	}
+
+	isActive(): boolean {
+		return !!this.client && this.client.isInitialized();
 	}
 
 	async init() {
@@ -243,21 +251,23 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		return response.userInfo;
 	}
 
-	async getSignInUrl(callbackUrl: string): Promise<string | undefined> {
+	async getSignInUrl({ baseUrl, callbackUrl, clientId }: { callbackUrl: string; baseUrl?: string; clientId?: string }): Promise<string | undefined> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}
-		const response = await this.client.sendRequest<{ loginUrl: string }>("auth/getSignInUrl", { callbackUrl }, 2000);
+		const response = await this.client.sendRequest<{ loginUrl: string }>("auth/getSignInUrl", { callbackUrl, baseUrl, clientId }, 2000);
 		return response.loginUrl;
 	}
 
-	async signInWithAuthCode(authCode: string, orgId?: string): Promise<UserInfo | undefined> {
+	async signInWithAuthCode(authCode: string, orgId?: string, redirectUrl?: string, clientId?: string): Promise<UserInfo | undefined> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}
 		const response = await this.client.sendRequest<{ userInfo: UserInfo }>("auth/signInWithAuthCode", {
 			authCode,
 			orgId,
+			redirectUrl,
+			clientId,
 		});
 		return response.userInfo;
 	}

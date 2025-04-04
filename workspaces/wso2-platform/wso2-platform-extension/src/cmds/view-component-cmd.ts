@@ -9,16 +9,19 @@
 
 import { existsSync } from "fs";
 import * as path from "path";
-import { CommandIds, type ViewComponentDetailsReq, getComponentKindRepoSource } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, type IViewComponentDetailsCmdParams, getComponentKindRepoSource } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, commands, window } from "vscode";
+import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
-import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
+import { getUserInfoForCmd, isRpcActive, selectComponent, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
 export function viewComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.ViewComponent, async (params: ViewComponentDetailsReq) => {
+		commands.registerCommand(CommandIds.ViewComponent, async (params: IViewComponentDetailsCmdParams) => {
+			setExtensionName(params?.extName);
 			try {
+				isRpcActive(ext);
 				const userInfo = await getUserInfoForCmd("view component details");
 				if (userInfo) {
 					let selectedOrg = params?.organization;

@@ -70,6 +70,7 @@ import {
     GetRecordModelFromSourceRequest,
     UpdateTypesRequest,
     UpdateTypesResponse,
+    DeploymentRequest,
     DeploymentResponse,
     OpenAPIClientGenerationRequest,
     OpenAPIGeneratedModulesRequest,
@@ -96,7 +97,7 @@ import {
     EndOfFileRequest,
     RecordsInWorkspaceMentions,
     BuildMode,
-    DevantComponent,
+    DevantMetadata,
     GeneratedClientSaveResponse
 } from "./interfaces";
 
@@ -123,7 +124,7 @@ export interface BIDiagramAPI {
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
     renameIdentifier: (params: RenameIdentifierRequest) => Promise<void>;
-    deployProject: () => Promise<DeploymentResponse>;
+    deployProject: (params: DeploymentRequest) => Promise<DeploymentResponse>;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     buildProject: (mode: BuildMode) => void;
@@ -157,7 +158,7 @@ export interface BIDiagramAPI {
     search: (params: BISearchRequest) => Promise<BISearchResponse>;
     getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
     getFunctionNames: () => Promise<RecordsInWorkspaceMentions>;
-    getDevantComponent: () => Promise<DevantComponent | undefined>;
+    getDevantMetadata: () => Promise<DevantMetadata | undefined>;
     generateOpenApiClient: (params: OpenAPIClientGenerationRequest) => Promise<GeneratedClientSaveResponse>;
     getOpenApiGeneratedModules: (params: OpenAPIGeneratedModulesRequest) => Promise<OpenAPIGeneratedModulesResponse>;
     deleteOpenApiGeneratedModules: (params: OpenAPIClientDeleteRequest) => Promise<OpenAPIClientDeleteResponse>;

@@ -1247,7 +1247,7 @@ const useViewRunTimeLogs = (
 	deploymentTrack: DeploymentTrack,
 ) => {
 	const { mutate: viewRuntimeLogs } = useMutation({
-		mutationFn: (logType: "component-application" | "component-gateway") =>
+		mutationFn: (logType: "application" | "gateway") =>
 			ChoreoWebViewAPI.getInstance().viewRuntimeLogs({
 				componentName: component.metadata.name,
 				projectName: project.name,
@@ -1260,15 +1260,15 @@ const useViewRunTimeLogs = (
 	return { viewRuntimeLogs };
 };
 
-const useSelectLogType = (componentType: string, onSelectLogType: (logType: "component-gateway" | "component-application") => void) => {
+const useSelectLogType = (componentType: string, onSelectLogType: (logType: "gateway" | "application") => void) => {
 	const { mutate: selectLogType } = useMutation({
 		mutationFn: async () => {
 			if ([ChoreoComponentType.Service, ChoreoComponentType.Webhook].includes(componentType as ChoreoComponentType)) {
 				const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
 					title: "Select Log Type",
 					items: [
-						{ label: "Application Logs", item: "component-application" },
-						{ label: "Gateway Logs", item: "component-gateway" },
+						{ label: "Application Logs", item: "application" },
+						{ label: "Gateway Logs", item: "gateway" },
 					],
 				});
 
@@ -1276,9 +1276,9 @@ const useSelectLogType = (componentType: string, onSelectLogType: (logType: "com
 					onSelectLogType(pickedItem.item);
 				}
 			} else if (componentType === ChoreoComponentType.ApiProxy) {
-				onSelectLogType("component-gateway");
+				onSelectLogType("gateway");
 			} else {
-				onSelectLogType("component-application");
+				onSelectLogType("application");
 			}
 		},
 	});

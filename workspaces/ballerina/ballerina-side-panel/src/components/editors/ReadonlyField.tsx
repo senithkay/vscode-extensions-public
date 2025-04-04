@@ -9,7 +9,7 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { Codicon, Button, RequiredFormInput } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, RequiredFormInput, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { capitalize } from "./utils";
 import styled from "@emotion/styled";
 
@@ -19,17 +19,22 @@ interface ReadonlyFieldProps {
 
 const Container = styled.div`
     width: 100%;
-    font-family: var(--vscode-font-family);
-    font-size: var(--vscode-font-size);
+    cursor: not-allowed;
 `;
 
 const Label = styled.div`
+    color: var(--vscode-editor-foreground);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
     display: flex;
     flex-direction: row;
     margin-bottom: 4px;
 `;
 
 const Description = styled.div`
+    font-family: var(--font-family);
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-top: 4px;
     color: var(--vscode-list-deemphasizedForeground);
     margin-bottom: 4px;
     text-align: left;
@@ -38,16 +43,13 @@ const Description = styled.div`
 const InputContainer = styled.div`
     display: flex;
     align-items: center;
-    height: 24px;
-    background-color: var(--vscode-input-background);
-    border: 1px solid var(--vscode-input-border);
-    border-radius: 5px;
-    padding: 0 8px;
-    font-size: 12px;
-    color: var(--vscode-input-foreground);
-    opacity: 0.8;
-    min-width: 120px;
-    width: fit-content;
+    color: var(--input-foreground);
+    background: var(--input-background);
+    border-radius: calc(var(--corner-radius)* 1px);
+    border: calc(var(--border-width)* 1px) solid var(--dropdown-border);
+    height: calc(var(--input-height)* 1px);
+    min-width: var(--input-min-width);
+    padding: 0 calc(var(--design-unit) * 2px + 1px);
     margin-top: 10px;
 `;
 
@@ -56,8 +58,9 @@ const Value = styled.span`
 `;
 
 const StyledButton = styled(Button)`
-    cursor: default !important;
     padding: 0;
+    margin-right: -6px;
+    cursor: not-allowed;
 
     :host([disabled]) {
         opacity: 1 !important;
@@ -84,23 +87,14 @@ export function ReadonlyField(props: ReadonlyFieldProps) {
                 </div>
                 {!field.optional && <RequiredFormInput />}
             </Label>
-            {field.documentation && (
-                <Description>
-                    {field.documentation}
-                </Description>
-            )}
+            {field.documentation && <Description>{field.documentation}</Description>}
             <InputContainer>
                 <Value>{field.value}</Value>
-                <StyledButton
-                    appearance="icon"
-                    tooltip="Read-only"
-                    disabled
-                >
-                    <Codicon
-                        name="lock-small"
-                        sx={{ cursor: 'default', paddingLeft: '4px' }}
-                    />
-                </StyledButton>
+                <Tooltip content="Read only field">
+                    <StyledButton appearance="icon" disabled>
+                        <Icon name="bi-lock" sx={{ fontSize: 16, width: 16, height: 16}} />
+                    </StyledButton>
+                </Tooltip>
             </InputContainer>
         </Container>
     );

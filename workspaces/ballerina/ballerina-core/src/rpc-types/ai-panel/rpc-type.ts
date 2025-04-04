@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics, SourceFile } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "ai-panel";
@@ -36,7 +36,6 @@ export const getShadowDiagnostics: RequestType<ProjectSource, ProjectDiagnostics
 export const checkSyntaxError: RequestType<ProjectSource, boolean> = { method: `${_preFix}/checkSyntaxError` };
 export const getInitialPrompt: RequestType<void, InitialPrompt> = { method: `${_preFix}/getInitialPrompt` };
 export const clearInitialPrompt: NotificationType<void> = { method: `${_preFix}/clearInitialPrompt` };
-export const refreshFile: NotificationType<SourceFile> = { method: `${_preFix}/refreshFile` };
 export const getGeneratedTests: RequestType<TestGenerationRequest, TestGenerationResponse> = { method: `${_preFix}/getGeneratedTests` };
 export const getTestDiagnostics: RequestType<TestGenerationResponse, ProjectDiagnostics> = { method: `${_preFix}/getTestDiagnostics` };
 export const getServiceSourceForName: RequestType<string, string> = { method: `${_preFix}/getServiceSourceForName` };
@@ -60,7 +59,9 @@ export const markAlertShown: NotificationType<void> = { method: `${_preFix}/mark
 export const getFromDocumentation: RequestType<string, string> = { method: `${_preFix}/getFromDocumentation` };
 export const isRequirementsSpecificationFileExist: RequestType<string, boolean> = { method: `${_preFix}/isRequirementsSpecificationFileExist` };
 export const getDriftDiagnosticContents: RequestType<string, LLMDiagnostics> = { method: `${_preFix}/getDriftDiagnosticContents` };
-export const addChatSummary: NotificationType<AIChatSummary> = { method: `${_preFix}/addChatSummary` };
+export const addChatSummary: RequestType<AIChatSummary, boolean> = { method: `${_preFix}/addChatSummary` };
+export const handleChatSummaryError: NotificationType<string> = { method: `${_preFix}/handleChatSummaryError` };
+export const isNaturalProgrammingDirectoryExists: RequestType<string, boolean> = { method: `${_preFix}/isNaturalProgrammingDirectoryExists` };
 export const readDeveloperMdFile: RequestType<string, string> = { method: `${_preFix}/readDeveloperMdFile` };
 export const updateDevelopmentDocument: NotificationType<DeveloperDocument> = { method: `${_preFix}/updateDevelopmentDocument` };
 export const updateRequirementSpecification: NotificationType<RequirementSpecification> = { method: `${_preFix}/updateRequirementSpecification` };

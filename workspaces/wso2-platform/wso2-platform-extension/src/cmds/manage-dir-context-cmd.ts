@@ -7,23 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/wso2-platform-core";
+import {
+	CommandIds,
+	type ContextItemEnriched,
+	type IManageDirContextCmdParams,
+	type IOpenInConsoleCmdParams,
+} from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
-import { authStore } from "../stores/auth-store";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
+import { getUserInfoForCmd, isRpcActive, setExtensionName } from "./cmd-utils";
 import { removeContext } from "./create-directory-context-cmd";
 
 export function manageProjectContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.ManageDirectoryContext, async (params: { onlyShowSwitchProject?: boolean }) => {
+		commands.registerCommand(CommandIds.ManageDirectoryContext, async (params: IManageDirContextCmdParams) => {
+			setExtensionName(params?.extName);
 			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
-				const userInfo = authStore.getState().state.userInfo;
-				if (!userInfo) {
-					throw new Error("User is not logged in");
-				}
+				isRpcActive(ext);
+				await getUserInfoForCmd("manage project");
 
 				const quickPickOptions: QuickPickItem[] = [];
 
@@ -71,7 +75,7 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 				});
 
 				if (selection?.label === "Open in Console") {
-					commands.executeCommand(CommandIds.OpenInConsole, { project: selected?.project, organization: selected?.org });
+					commands.executeCommand(CommandIds.OpenInConsole, { project: selected?.project, organization: selected?.org } as IOpenInConsoleCmdParams);
 				} else if (selection?.label === "Link with a different project" || selection?.label === "Link with a project") {
 					commands.executeCommand(CommandIds.CreateDirectoryContext);
 				} else if ((selection as any)?.item) {

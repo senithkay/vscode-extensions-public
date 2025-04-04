@@ -1,12 +1,10 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
- *
- * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 
 import { useState } from "react";
@@ -37,6 +35,7 @@ interface CodeSectionProps {
     command: string;
     diagnostics: any[];
     onRetryRepair: () => void;
+    isPromptExecutedInCurrentWindow: boolean;
 }
 
 const EntryContainer = styled.div<{ hasErrors: boolean; isOpen: boolean; isHovered: boolean }>(
@@ -71,6 +70,7 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
     command,
     diagnostics = [],
     onRetryRepair = () => {},
+    isPromptExecutedInCurrentWindow,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
@@ -140,9 +140,11 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
                                 tooltip={
                                     isSyntaxError
                                         ? "Syntax issues detected in generated integration. Reattempt required"
-                                        : ""
+                                        : !isPromptExecutedInCurrentWindow
+                                            ? "Code was generated for different session, please regenerate again"
+                                            : ""
                                 }
-                                disabled={!buttonsActive || isSyntaxError}
+                                disabled={!buttonsActive || isSyntaxError || !isPromptExecutedInCurrentWindow}
                             >
                                 <Codicon name="add" />
                                 &nbsp;&nbsp;Add to Integration
@@ -154,7 +156,12 @@ export const CodeSection: React.FC<CodeSectionProps> = ({
                                     e.stopPropagation();
                                     handleRevertChanges(allCodeSegments, setIsCodeAdded, command);
                                 }}
-                                disabled={!buttonsActive}
+                                tooltip={
+                                    !isPromptExecutedInCurrentWindow
+                                        ? "Code was generated for different session, please regenerate again"
+                                        : ""
+                                }
+                                disabled={!buttonsActive || !isPromptExecutedInCurrentWindow}
                             >
                                 <Codicon name="history" />
                                 &nbsp;&nbsp;Revert to Checkpoint
