@@ -11,6 +11,7 @@ import React from 'react';
 
 import { Button, Typography } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
+import { ISSUES_URL } from '../utils';
 
 const useStyles = (() => ({
     errorContainer: css({
@@ -59,7 +60,7 @@ export function AutoMapError(props: AutoMapError) {
             </Typography>
             {shouldRenderGithubRepo(code) && (
                 <Typography >
-                    Please raise an issue with a sample code in our <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">issue tracker.</a>
+                    Please raise an issue with a sample code in our <a href={ISSUES_URL}>issue tracker.</a>
                 </Typography>
             )}
             <Button

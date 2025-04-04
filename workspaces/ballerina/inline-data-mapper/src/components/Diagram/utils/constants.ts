@@ -20,7 +20,7 @@ export const GAP_BETWEEN_FILTER_NODE_AND_INPUT_NODE = 50;
 export const GAP_BETWEEN_NODE_HEADER_AND_BODY = 10;
 export const GAP_BETWEEN_FIELDS = 1;
 
-export const ISSUES_URL = "https://github.com/wso2/ballerina-plugin-vscode/issues";
+export const ISSUES_URL = "https://github.com/wso2/product-ballerina-integrator/issues";
 
 export const OFFSETS = {
     SOURCE_NODE: {

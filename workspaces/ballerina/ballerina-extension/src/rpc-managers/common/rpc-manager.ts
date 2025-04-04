@@ -24,6 +24,7 @@ import {
     OpenExternalUrlRequest,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
+    ShowErrorMessageRequest,
     SyntaxTree,
     TypeResponse,
     WorkspaceFileRequest,
@@ -31,12 +32,12 @@ import {
     WorkspacesFileResponse,
 } from "@wso2-enterprise/ballerina-core";
 import child_process from 'child_process';
-import { Uri, commands, env, window, workspace } from "vscode";
+import { Uri, commands, env, window, workspace, MarkdownString } from "vscode";
 import { URI } from "vscode-uri";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
-import { askFilePath, askProjectPath, getUpdatedSource } from "./utils";
+import { askFilePath, askProjectPath, BALLERINA_INTEGRATOR_ISSUES_URL, getUpdatedSource } from "./utils";
 import path from 'path';
 
 export class CommonRpcManager implements CommonRPCAPI {
@@ -208,5 +209,11 @@ export class CommonRpcManager implements CommonRPCAPI {
             const workspaceFolders = workspace.workspaceFolders;
             resolve(workspaceFolders ? { path: workspaceFolders[0].uri.fsPath } : { path: "" });
         });
+    }
+
+    async showErrorMessage(params: ShowErrorMessageRequest): Promise<void> {
+        const messageWithLink = new MarkdownString(params.message);
+        messageWithLink.appendMarkdown(`\n\nPlease [create an issue](${BALLERINA_INTEGRATOR_ISSUES_URL}) if the issue persists.`);
+        window.showErrorMessage(messageWithLink.value);
     }
 }
