@@ -129,19 +129,20 @@ export class Form {
         return await input.getAttribute('current-value');
     }
 
-    public async fillParamManager(props: ParamManagerValues) {
+    public async fillParamManager(props: ParamManagerValues, paramManagerLabel:string = "Add Parameter",
+                                  keyLabel: string = "Name*", valueLabel: string = "Value*", saveBtnLabel: string = "Save") {
         for (const key in props) {
-            const addParamaterBtn = this.container.locator(`div:text("Add Parameter")`).locator('..');
+            const addParamaterBtn = this.container.locator(`div:text("${paramManagerLabel}")`).locator('..');
             await addParamaterBtn.waitFor();
             await addParamaterBtn.click();
 
             const value = props[key];
-            const keyInput = await getWebviewInput(this.container, "Key*");
+            const keyInput = await getWebviewInput(this.container, keyLabel);
             await keyInput.fill(key);
-            const valueInput = await getWebviewInput(this.container, "Value*");
+            const valueInput = await getWebviewInput(this.container, valueLabel);
             await valueInput.fill(value);
 
-            const saveBtn = this.container.locator(`div:text("Save")`).locator('..');
+            const saveBtn = this.container.locator(`div:text("${saveBtnLabel}")`).locator('..');
             await saveBtn.waitFor();
             await saveBtn.click();
         }
