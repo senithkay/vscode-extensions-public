@@ -54,68 +54,66 @@ async function getLLMResponses(sources: BallerinaSource[], token: string, backen
     let promises: Promise<Response | Error>[] = [];
     const moduleNames: string[] = sources.map(source => source.moduleName).filter(name => name != null);
 
-    if (sources.length > 0) {
-        const commentResponsePromise = fetchWithToken(
-            backendurl + API_DOCS_DRIFT_CHECK_ENDPOINT,
+    const commentResponsePromise = fetchWithToken(
+        backendurl + API_DOCS_DRIFT_CHECK_ENDPOINT,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify([sources[0].balFiles]),
+            signal: controller.signal,
+        },
+    );
+    promises.push(commentResponsePromise);
+
+    sources.forEach(source => {
+        let body: string[] = [source.balFiles, source.requirements, source.readme, source.developerOverview];
+
+        if (source.moduleName == null) {
+            body.push(moduleNames.join(", "));
+        } else {
+            body.push("");
+        }
+
+        const documentationSourceResponsePromise = fetchWithToken(
+            backendurl + PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT,
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify([sources[0].balFiles]),
+                body: JSON.stringify(body),
                 signal: controller.signal,
             },
         );
-        promises.push(commentResponsePromise);
+        promises.push(documentationSourceResponsePromise);
+    });
 
-        sources.forEach(source => {
-            let body: string[] = [source.balFiles, source.requirements, source.readme, source.developerOverview];
+    let responses: (Response | Error)[] = await Promise.all(promises);
+    const firstResponse = responses[0];
 
-            if (source.moduleName == null) {
-                body.push(moduleNames.join(", "));
-            } else {
-                body.push("");
-            }
+    const filteredResponses: Response[] = responses.filter(response => !isError(response) && response.ok) as Response[];
 
-            const documentationSourceResponsePromise = fetchWithToken(
-                backendurl + PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(body),
-                    signal: controller.signal,
-                },
-            );
-            promises.push(documentationSourceResponsePromise);
-        });
-
-        let responses: (Response | Error)[] = await Promise.all(promises);
-        const firstResponse = responses[0];
-
-        const filteredResponses: Response[] = responses.filter(response => !isError(response) && response.ok) as Response[];
-
-        if (filteredResponses.length === 0) {
-            if (isError(firstResponse)) {
-                return HttpStatusCode.InternalServerError;
-            }
-            return firstResponse.status;
+    if (filteredResponses.length === 0) {
+        if (isError(firstResponse)) {
+            return HttpStatusCode.InternalServerError;
         }
-
-        let extractedResponses: any[] = [];
-
-        for (const response of filteredResponses) {
-            const extractedResponse = await extractResponseAsJsonFromString(await streamToString(response.body));
-            if (extractedResponse != null) {
-                extractedResponses.push(extractedResponse);
-            }
-        }
-
-        return extractedResponses;
+        return firstResponse.status;
     }
+
+    let extractedResponses: any[] = [];
+
+    for (const response of filteredResponses) {
+        const extractedResponse = await extractResponseAsJsonFromString(await streamToString(response.body));
+        if (extractedResponse != null) {
+            extractedResponses.push(extractedResponse);
+        }
+    }
+
+    return extractedResponses;
 }
 
 async function createDiagnosticCollection(responses: any[], projectUri: string, diagnosticCollection: vscode.DiagnosticCollection) {
@@ -399,14 +397,15 @@ async function getRequirementAndDeveloperOverviewFiles(naturalLangDir: string): 
 
     for (const file of files) {
         const fullPath = path.join(naturalLangDir, file);
+        const filenameLowercase = file.toLowerCase();
 
-        if (file.toLowerCase().startsWith(DEVELOPER_OVERVIEW_FILENAME)) {
+        if (filenameLowercase.startsWith(DEVELOPER_OVERVIEW_FILENAME)) {
             developerContent = `<developer_documentation filename=\"${DEVELOPER_OVERVIEW_RELATIVE_PATH}\">\n${fs.readFileSync(fullPath, "utf8")}\n</developer_documentation>\n`;
         }
 
-        if (file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)) {
+        if (filenameLowercase.startsWith(REQUIREMENT_DOC_PREFIX)) {
             let content = "";
-            if (file.toLowerCase().startsWith(REQUIREMENT_TEXT_DOCUMENT) || file.toLowerCase().startsWith(REQUIREMENT_MD_DOCUMENT)) {
+            if (filenameLowercase.startsWith(REQUIREMENT_TEXT_DOCUMENT) || filenameLowercase.startsWith(REQUIREMENT_MD_DOCUMENT)) {
                 content = fs.readFileSync(fullPath, "utf8");
             } else {
                 const requirementContent = await requirementsSpecification(fullPath);
