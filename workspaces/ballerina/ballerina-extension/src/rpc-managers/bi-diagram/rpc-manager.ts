@@ -715,8 +715,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             return { isCompleted: true };
         }
 
-        // const params: ICreateComponentCmdParams = {
-        //     integrationType: integrationType as any,
         const deployementParams: ICreateComponentCmdParams = {
             integrationType: integrationType as any,
             buildPackLang: "ballerina", // Example language
