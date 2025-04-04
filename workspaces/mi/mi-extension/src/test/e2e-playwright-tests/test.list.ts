@@ -18,6 +18,7 @@ import logMediatorTests from './mediatorTests/log.spec';
 import cacheMediatorTests from './mediatorTests/cache.spec';
 import throttleMediatorTests from './mediatorTests/throttle.spec';
 import callSequenceMediatorTests from './mediatorTests/callSequence.spec';
+import validateMediatorTests from './mediatorTests/validate.spec';
 import overviewPageTests from './OverviewPageTests/projectSettingPage.spec';
 import { page } from './Utils';
 const fs = require('fs');
@@ -43,6 +44,7 @@ test.describe(logMediatorTests);
 test.describe(cacheMediatorTests);
 test.describe(throttleMediatorTests);
 test.describe(callSequenceMediatorTests);
+test.describe(validateMediatorTests);
 test.describe(artifact430Tests);
 
 test.afterAll(async () => {
