@@ -598,7 +598,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                         )}
                         {errorKind && <IOErrorComponent errorKind={errorKind} classes={classes} />}
                         {autoMapError && <AutoMapErrorComponent autoMapError={autoMapError} classes={classes} />}
-                        {dmNodes.length > 0 && !hasInvalidIO && (
+                        {dmNodes.length > 0 && !hasInvalidIO && !errorKind && (
                             <DataMapperDiagram
                                 nodes={dmNodes}
                                 onError={handleErrors}
