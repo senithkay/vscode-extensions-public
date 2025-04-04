@@ -111,45 +111,50 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 
     vscode.commands.registerCommand("ballerina.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {
-        const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
-        const activeTextEditor = vscode.window.activeTextEditor;
-        let activeFilePath = "";
-        let configPath = "";
-
-        if (activeTextEditor) {
-            activeFilePath = activeTextEditor.document.uri.fsPath;
-        }
-
-        if (currentProject == null &&  activeFilePath == "") {
-            configPath = getVsCodeRootPath();
-        } else {
-            try {
-                const currentBallerinaProject: BallerinaProject = await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
-
-                if (!currentBallerinaProject) {
-                    configPath = getVsCodeRootPath();
-                } else {
-                    if (currentBallerinaProject.kind == 'SINGLE_FILE_PROJECT') {
-                        configPath = path.dirname(currentBallerinaProject.path);
-                    } else {
-                        configPath = currentBallerinaProject.path;
-                    }
-                    if (configPath == undefined && configPath == "") {
-                        configPath = getVsCodeRootPath();
-                    }
-                }
-            } catch (error) {
-                configPath = getVsCodeRootPath();
-            }
-        }
-
+        const configPath = await getConfigFilePath(ballerinaExtInstance);
         if (configPath == undefined || configPath == "") {
             vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NO_ACTIVE_PROJECT);
             return;
         }
-
+        
         addConfigFile(configPath);
     });
+}
+
+function getConfigFilePath(ballerinaExtInstance: BallerinaExtension): string {
+    const activeTextEditor = vscode.window.activeTextEditor;
+    const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
+    let activeFilePath = "";
+    let configPath = "";
+
+    if (activeTextEditor) {
+        activeFilePath = activeTextEditor.document.uri.fsPath;
+    }
+
+    if (currentProject == null &&  activeFilePath == "") {
+        configPath = getVsCodeRootPath();
+    } else {
+        try {
+            const currentBallerinaProject: BallerinaProject = await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
+
+            if (!currentBallerinaProject) {
+                return getVsCodeRootPath();
+            } else {
+                if (currentBallerinaProject.kind == 'SINGLE_FILE_PROJECT') {
+                    configPath = path.dirname(currentBallerinaProject.path);
+                } else {
+                    configPath = currentBallerinaProject.path;
+                }
+
+                if (configPath == undefined && configPath == "") {
+                    return getVsCodeRootPath();
+                }
+                return configPath;
+            }
+        } catch (error) {
+            return getVsCodeRootPath();
+        }
+    }
 }
 
 async function addConfigFile(configPath: string) {

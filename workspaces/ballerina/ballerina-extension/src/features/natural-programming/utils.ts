@@ -577,7 +577,6 @@ export function getVsCodeRootPath(): string {
     if (workspaceFolders && workspaceFolders.length > 0) {
         return workspaceFolders[0].uri.fsPath;
     } else {
-        console.log('No workspace folder is open.');
         return "";
     }
 }
