@@ -46,7 +46,7 @@ export class Proxy {
     public async edit() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', 'testProxy']);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', 'testProxy'], true);
 
         const webView = await switchToIFrame('Proxy View', this._page);
         if (!webView) {

@@ -253,7 +253,7 @@ class SidePanel {
     public async updateMediator(props: FormFillProps) {
         const form = new Form(undefined, undefined, this.sidePanel);
         await form.fill(props);
-        await form.submit("Submit");
+        await form.submit("Update");
     }
 
     public async addConnector(connectorName: string, operationName: string) {
@@ -270,7 +270,7 @@ class SidePanel {
         const form = new Form(undefined, undefined, this.sidePanel);
         await form.fill(props);
 
-        await form.submit("Submit");
+        await form.submit("Add");
     }
 
     public async downloadConnector(name: string, version?: string, inDrawer?: boolean) {
