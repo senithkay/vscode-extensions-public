@@ -14,7 +14,8 @@ import {
     EVENT_TYPE,
     FileListEntry,
     MACHINE_VIEW,
-    VisualizerLocation
+    VisualizerLocation,
+    GenerateMappingsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
