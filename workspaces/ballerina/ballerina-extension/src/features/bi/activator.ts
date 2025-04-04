@@ -11,7 +11,7 @@ import {
     BI_COMMANDS,
     BIDeleteByComponentInfoRequest,
     ComponentInfo,
-    DIRECTORY_SUB_TYPE,
+    DIRECTORY_MAP,
     EVENT_TYPE,
     FlowNode,
     FOCUS_FLOW_DIAGRAM_VIEW,
@@ -85,24 +85,24 @@ export function activate(context: BallerinaExtension) {
     commands.registerCommand(BI_COMMANDS.DELETE_COMPONENT, async (item: any) => {
         console.log(">>> delete component", item);
 
-        if (item.contextValue === DIRECTORY_SUB_TYPE.CONNECTION) {
+        if (item.contextValue === DIRECTORY_MAP.CONNECTION) {
             await handleConnectionDeletion(item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.FUNCTION
-            || item.contextValue === DIRECTORY_SUB_TYPE.DATA_MAPPER) {
+        } else if (item.contextValue === DIRECTORY_MAP.FUNCTION
+            || item.contextValue === DIRECTORY_MAP.DATA_MAPPER) {
             await handleComponentDeletion('functions', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.TYPE) {
+        } else if (item.contextValue === DIRECTORY_MAP.TYPE) {
             await handleComponentDeletion('records', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.SERVICE) {
+        } else if (item.contextValue === DIRECTORY_MAP.SERVICE) {
             await handleComponentDeletion('services', item.tooltip, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.LISTENER) {
+        } else if (item.contextValue === DIRECTORY_MAP.LISTENER) {
             await handleComponentDeletion('listeners', item.tooltip, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.AUTOMATION) {
+        } else if (item.contextValue === DIRECTORY_MAP.AUTOMATION) {
             await handleComponentDeletion('automations', item.tooltip, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.CONFIGURATION) {
+        } else if (item.contextValue === DIRECTORY_MAP.CONFIGURABLE) {
             await handleComponentDeletion('configurableVariables', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.NATURAL_FUNCTION) {
+        } else if (item.contextValue === DIRECTORY_MAP.NP_FUNCTION) {
             await handleComponentDeletion('naturalFunctions', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.LOCAL_CONNECTORS) {
+        } else if (item.contextValue === DIRECTORY_MAP.LOCAL_CONNECTORS) {
             await handleLocalModuleDeletion(item.label, item.info);
         }
     });

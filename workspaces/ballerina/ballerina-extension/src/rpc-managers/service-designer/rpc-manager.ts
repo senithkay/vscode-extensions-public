@@ -9,7 +9,6 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    DIRECTORY_MAP,
     ExportOASRequest,
     ExportOASResponse,
     FunctionModelRequest,
@@ -26,9 +25,6 @@ import {
     ListenersRequest,
     ListenersResponse,
     OpenAPISpec,
-    ProjectStructureResponse,
-    RecordSTRequest,
-    RecordSTResponse,
     ResourceSourceCodeResponse,
     STModification,
     ServiceDesignerAPI,
@@ -41,32 +37,17 @@ import {
     SourceUpdateResponse,
     SyntaxTree,
     TriggerModelsRequest,
-    TriggerModelsResponse,
-    buildProjectStructure
+    TriggerModelsResponse
 } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, NodePosition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import * as fs from 'fs';
 import { existsSync, writeFileSync } from "fs";
 import * as yaml from 'js-yaml';
 import * as path from 'path';
-import { Uri, commands, window, workspace, WorkspaceEdit, Position } from "vscode";
+import { Uri, commands, window, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
-import { injectAgent, injectImportIfMissing, injectAgentCode } from "../../utils";
+import { injectAgent, injectAgentCode, injectImportIfMissing } from "../../utils";
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
-
-    // TODO: Remove this as its no longer used
-    async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
-        return new Promise(async (resolve) => {
-            // const context = StateMachine.context();
-            // const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
-            // res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
-            //     if (type.name === params.recordName) {
-            //         resolve({ recordST: type.st as TypeDefinition });
-            //     }
-            // });
-            // resolve(null);
-        });
-    }
 
     async exportOASFile(params: ExportOASRequest): Promise<ExportOASResponse> {
         return new Promise(async (resolve) => {
@@ -130,6 +111,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
+            StateMachine.setEditMode();
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
@@ -143,8 +125,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     position: position
                 };
                 commands.executeCommand("BI.project-explorer.refresh");
+                StateMachine.setReadyMode();
                 resolve(result);
             } catch (error) {
+                StateMachine.setReadyMode();
                 console.log(error);
             }
         });
@@ -188,9 +172,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-
     async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
+            StateMachine.setEditMode();
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
@@ -224,8 +208,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 };
                 result = await this.injectAIAgent(params.service, result);
                 commands.executeCommand("BI.project-explorer.refresh");
+                StateMachine.setReadyMode();
                 resolve(result);
             } catch (error) {
+                StateMachine.setReadyMode();
                 console.log(error);
             }
         });

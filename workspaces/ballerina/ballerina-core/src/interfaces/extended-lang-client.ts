@@ -14,7 +14,7 @@ import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Positi
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField, ComponentInfo } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode, Property, PropertyTypeMemberInfo } from "./bi";
+import { Category, Flow, FlowNode, CodeData, ConfigVariable, FunctionNode, Property, PropertyTypeMemberInfo, DIRECTORY_MAP } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 import { FieldType, FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
@@ -1409,6 +1409,62 @@ export interface DeploymentResponse {
     isCompleted: boolean;
 }
 
+
+// 2201.12.3 -> New Project Component Artifacts Tree
+
+export interface BaseArtifact<T = any> {
+    id: string;
+    location: {
+        fileName: string;
+        startLine: {
+            line: number;
+            offset: number;
+        };
+        endLine: {
+            line: number;
+            offset: number;
+        };
+    };
+    type: DIRECTORY_MAP;
+    name: string;
+    module?: string;
+    scope: string;
+    icon?: string; // Optional for those that have an icon
+    children?: Record<string, BaseArtifact>; // To allow nested structures
+    accessor?: string; // Specific to Entry Points
+    value?: T; // Generic value property to hold different types
+}
+
+// Artifact Types
+export enum ARTIFACT_TYPE {
+    Functions = "Functions",
+    Connections = "Connections",
+    Listeners = "Listeners",
+    EntryPoints = "Entry Points",
+    Types = "Types",
+    NaturalFunctions = "Natural Functions",
+    DataMappers = "Data Mappers",
+    Configurations = "Configurations"
+}
+
+export interface Artifacts {
+    [ARTIFACT_TYPE.Functions]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.Connections]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.Listeners]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.EntryPoints]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.Types]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.NaturalFunctions]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.DataMappers]: Record<string, BaseArtifact>;
+    [ARTIFACT_TYPE.Configurations]: Record<string, BaseArtifact>;
+}
+
+export interface ProjectArtifactsRequest {
+    projectPath: string;
+}
+export interface ProjectArtifacts {
+    artifacts: Artifacts;
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -1495,4 +1551,5 @@ export interface ExtendedLangClientInterface extends BIInterface {
     getSyntaxTreeNode(params: SyntaxTreeNodeParams): Promise<SyntaxTreeNode | NOT_SUPPORTED_TYPE>;
     updateStatusBar(): void;
     getDidOpenParams(): DidOpenParams;
+    getProjectArtifacts(params: ProjectArtifactsRequest): Promise<ProjectArtifacts>;
 }
