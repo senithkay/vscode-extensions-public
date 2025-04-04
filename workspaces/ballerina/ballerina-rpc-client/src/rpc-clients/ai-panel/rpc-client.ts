@@ -32,7 +32,6 @@ import {
     ProjectDiagnostics,
     ProjectSource,
     RequirementSpecification,
-    SourceFile,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
@@ -85,7 +84,6 @@ import {
     promptWSO2AILogout,
     readDeveloperMdFile,
     refreshAccessToken,
-    refreshFile,
     showSignInAlert,
     stopAIMappings,
     updateDevelopmentDocument,
@@ -196,10 +194,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     clearInitialPrompt(): void {
         return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
-    }
-
-    refreshFile(params: SourceFile): void {
-        return this._messenger.sendNotification(refreshFile, HOST_EXTENSION, params);
     }
 
     getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {
