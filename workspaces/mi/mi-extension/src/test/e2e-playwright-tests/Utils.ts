@@ -14,6 +14,7 @@ import path from "path";
 import { ElectronApplication, Page } from "@playwright/test";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
+import os from 'os';
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -119,3 +120,20 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
     });
 }
 
+export async function copyFile(source: string, destination: string) {
+    console.log('Copying openapi.yaml file');
+    console.log('directory', __dirname);
+
+    if (existsSync(destination)) {
+        fs.rmSync(destination);
+    }
+    fs.copyFileSync(source, destination);
+    //  copy the openapi.yaml file to the data folder
+
+    // const swaggerFile = path.join(__dirname, 'test-resources', 'openapi.yaml');
+    // const destination = path.join(newProjectPath, 'testProject', 'artifacts', 'api', 'swagger.yaml');
+    // if (existsSync(destination)) {
+    //     fs.rmSync(destination);
+    // }
+    // fs.copyFileSync(swaggerFile, destination);
+}
