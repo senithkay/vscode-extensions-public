@@ -1134,15 +1134,16 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
         return new Promise((resolve, reject) => {
-            StateMachine.langClient().updateImports({
-                ...params,
-                importStatement: params.importStatement.trim()
-            })
-                .then(() => {
-                    resolve({ importStatementOffset: params.importStatement.length });
+            StateMachine.langClient()
+                .updateImports({
+                    ...params,
+                    importStatement: params.importStatement.trim()
+                })
+                .then((response) => {
+                    resolve({ ...response, importStatementOffset: params.importStatement.length });
                 })
                 .catch((error) => {
-                    console.error("Error updating imports", error);
+                    console.error('Error updating imports', error);
                     reject(error);
                 });
         });

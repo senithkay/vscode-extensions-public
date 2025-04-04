@@ -176,7 +176,7 @@ type FormExpressionEditorBaseProps = {
         shouldUpdateNode?: boolean,
         variableType?: string
     ) => Promise<void>;
-    onCompletionItemSelect?: (value: string, additionalTextEdits?: TextEdit[]) => Promise<void>;
+    onCompletionItemSelect?: (value: string, fieldKey: string, additionalTextEdits?: TextEdit[]) => Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCancel?: () => void;

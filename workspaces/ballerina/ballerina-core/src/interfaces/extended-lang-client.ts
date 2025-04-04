@@ -938,7 +938,12 @@ export interface UpdateImportsRequest {
     importStatement: string;
 }
 
-export interface UpdateImportsResponse {
+export interface ImportsInfoResponse {
+    prefix: string;
+    moduleId: string;
+}
+
+export interface UpdateImportsResponse extends ImportsInfoResponse {
     importStatementOffset: number;
 }
 
@@ -1521,7 +1526,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
     getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
     updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
-    updateImports: (params: UpdateImportsRequest) => Promise<void>;
+    updateImports: (params: UpdateImportsRequest) => Promise<ImportsInfoResponse>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
     convertJsonToRecordType: (params: JsonToRecordParams) => Promise<TypeDataWithReferences>;
     convertXmlToRecordType: (params: XMLToRecordParams) => Promise<TypeDataWithReferences>;

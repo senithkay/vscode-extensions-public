@@ -494,13 +494,24 @@ export function FormGenerator(props: FormProps) {
         [rpcClient, fileName, targetLineRange, node]
     );
 
-    const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
+    const handleCompletionItemSelect = async (
+        value: string,
+        fieldKey: string,
+        additionalTextEdits?: TextEdit[]
+    ) => {
         if (additionalTextEdits?.[0]?.newText) {
             const response = await rpcClient.getBIDiagramRpcClient().updateImports({
                 filePath: fileName,
                 importStatement: additionalTextEdits[0].newText,
             });
             expressionOffsetRef.current += response.importStatementOffset;
+
+            if (response.prefix && response.moduleId) {
+                const importStatement = {
+                    [response.prefix]: response.moduleId
+                }
+                handleUpdateImports(fieldKey, importStatement);
+            }
         }
         debouncedRetrieveCompletions.cancel();
         debouncedGetVisibleTypes.cancel();
