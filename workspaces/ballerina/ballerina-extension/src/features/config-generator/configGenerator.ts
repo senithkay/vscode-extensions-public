@@ -118,7 +118,8 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
         let requiredConfigsFound = false;
 
         // Process each root organization (ballerina, ballerinax, etc.)
-        for (const orgKey of Object.keys(allProps)) {
+        const allOrgs: string[] = Object.keys(allProps);
+        for (const orgKey of allOrgs) {
             const orgProps = allProps[orgKey].properties;
 
             // Process each package within the organization
@@ -131,7 +132,7 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
                 }
 
                 // Get existing configs for this path if available
-                const existingModuleConfigs = getExistingConfigsForPath(context, existingConfigs, orgKey, pkgKey);
+                const existingModuleConfigs = getExistingConfigsForPath(context, existingConfigs, allOrgs, orgKey, pkgKey);
 
                 // Find missing required configs
                 const moduleNewValues: ConfigProperty[] = [];
@@ -167,7 +168,7 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
 }
 
 // Helper function to navigate nested toml structure and get existing configs
-function getExistingConfigsForPath(context: ConfigGenerationContext, existingConfigs: any, orgKey: string, pkgKey: string): any {
+function getExistingConfigsForPath(context: ConfigGenerationContext, existingConfigs: any, allOrgs: string[], orgKey: string, pkgKey: string): any {
     if (!existingConfigs) {
         return {};
     }
@@ -176,7 +177,7 @@ function getExistingConfigsForPath(context: ConfigGenerationContext, existingCon
     if (!existingConfigs[orgKey] && orgKey == context.orgName && pkgKey == context.packageName) {
         const rootLevelConfigs = {};
         for (const key in existingConfigs) {
-            if (typeof existingConfigs[key] !== 'object' || existingConfigs[key] === null) {
+            if (!allOrgs.includes(key)) {
                 rootLevelConfigs[key] = existingConfigs[key];
             }
         }
@@ -509,11 +510,11 @@ function convertConfigToToml(config: any, groupedValues: Map<string, Map<string,
         const value = config[key];
         if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
             // Check if this is a nested module structure or a regular object property
-            const isNestedModule = Object.values(value).some(v => 
-                typeof v === 'object' && v !== null && !Array.isArray(v) && 
+            const isNestedModule = Object.values(value).some(v =>
+                typeof v === 'object' && v !== null && !Array.isArray(v) &&
                 Object.keys(v).length > 0
             );
-            
+
             if (!isNestedModule) {
                 result += `${key} = ${formatTomlValue(value)}\n`;
             }
