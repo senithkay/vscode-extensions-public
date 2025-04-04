@@ -116,12 +116,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NO_ACTIVE_PROJECT);
             return;
         }
-        
+
         addConfigFile(configPath);
     });
 }
 
-function getConfigFilePath(ballerinaExtInstance: BallerinaExtension): string {
+async function getConfigFilePath(ballerinaExtInstance: BallerinaExtension): Promise<string> {
     const activeTextEditor = vscode.window.activeTextEditor;
     const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
     let activeFilePath = "";
@@ -132,7 +132,7 @@ function getConfigFilePath(ballerinaExtInstance: BallerinaExtension): string {
     }
 
     if (currentProject == null &&  activeFilePath == "") {
-        configPath = getVsCodeRootPath();
+        return getVsCodeRootPath();
     } else {
         try {
             const currentBallerinaProject: BallerinaProject = await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
