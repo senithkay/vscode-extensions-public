@@ -22,9 +22,8 @@ export default function createTests() {
 
   test.describe('Data Mapper Tests', () => {
     const NEED_INITIAL_SETUP = true;
-    const NEED_CLEANUP = true;
 
-    initTest(true, true);
+    initTest(true);
 
     if (NEED_INITIAL_SETUP) setupProject();
     testBasicMappings();
@@ -32,7 +31,7 @@ export default function createTests() {
     function setupProject() {
       test('Setup project for Data Mapper', async () => {
 
-        test.step('Create new API', async () => {
+        await test.step('Create new API', async () => {
 
           console.log('Creating new API for datamapper');
   
@@ -57,7 +56,7 @@ export default function createTests() {
           await apiForm.submit();
         });
   
-        test.step('Service designer', async () => {
+        await test.step('Service designer', async () => {
           // service designer
           console.log('Opening Service designer for datamapper');
   

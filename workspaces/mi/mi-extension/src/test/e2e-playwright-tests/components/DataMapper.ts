@@ -9,7 +9,6 @@
 
 import { expect, Frame, Locator, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
-import { Form, FormFillProps } from "./Form";
 import * as fs from 'fs';
 import { dataFolder, newProjectPath, page } from '../Utils';
 import path from "path";
@@ -41,8 +40,6 @@ export class DataMapper {
     public getWebView() {
         return this.webView;
     }
-
-
 
     public async scrollClickOutput(locator: Locator) {
         await this.scrollOutputUntilClickable(locator);
