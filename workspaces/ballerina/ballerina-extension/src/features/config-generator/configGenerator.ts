@@ -502,12 +502,25 @@ function getDefaultValueForConfig(property: Property): any {
 function convertConfigToToml(config: any, groupedValues: Map<string, Map<string, ConfigProperty[]>>): string {
     let result = '';
     const rootProps = Object.keys(config).filter(key =>
-        !key.includes('.') && (typeof config[key] !== 'object' || config[key] === null || Array.isArray(config[key]))
+        !key.includes('.')
     );
 
     for (const key of rootProps) {
         const value = config[key];
-        result += `${key} = ${formatTomlValue(value)}\n`;
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            // Check if this is a nested module structure or a regular object property
+            const isNestedModule = Object.values(value).some(v => 
+                typeof v === 'object' && v !== null && !Array.isArray(v) && 
+                Object.keys(v).length > 0
+            );
+            
+            if (!isNestedModule) {
+                result += `${key} = ${formatTomlValue(value)}\n`;
+            }
+        } else {
+            // Handle primitive values and arrays as before
+            result += `${key} = ${formatTomlValue(value)}\n`;
+        }
     }
     if (rootProps.length > 0) {
         result += '\n';
