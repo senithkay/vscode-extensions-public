@@ -172,10 +172,8 @@ export class API {
     public async createWSDLFromSidePanel() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'APIs'], true);
-        const addAPIButton = this._page.getByLabel('Add API');
-        await addAPIButton.waitFor();
-        await addAPIButton.click();
+        await this._page.locator('#list_id_2_1').getByLabel('APIs').locator('div').filter({ hasText: 'APIs' }).click();
+        await this._page.getByLabel('Add API').click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
             throw new Error("Failed to switch to API Form iframe");
@@ -192,10 +190,8 @@ export class API {
     public async createWSDLFromFile() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'APIs'], true);
-        const addAPIButton = this._page.getByLabel('Add API');
-        await addAPIButton.waitFor();
-        await addAPIButton.click();
+        await this._page.locator('#list_id_2_1').getByLabel('APIs').locator('div').filter({ hasText: 'APIs' }).click();
+        await this._page.getByLabel('Add API').click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
             throw new Error("Failed to switch to API Form iframe");
