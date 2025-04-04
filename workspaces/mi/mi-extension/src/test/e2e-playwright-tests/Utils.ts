@@ -128,12 +128,4 @@ export async function copyFile(source: string, destination: string) {
         fs.rmSync(destination);
     }
     fs.copyFileSync(source, destination);
-    //  copy the openapi.yaml file to the data folder
-
-    // const swaggerFile = path.join(__dirname, 'test-resources', 'openapi.yaml');
-    // const destination = path.join(newProjectPath, 'testProject', 'artifacts', 'api', 'swagger.yaml');
-    // if (existsSync(destination)) {
-    //     fs.rmSync(destination);
-    // }
-    // fs.copyFileSync(swaggerFile, destination);
 }
