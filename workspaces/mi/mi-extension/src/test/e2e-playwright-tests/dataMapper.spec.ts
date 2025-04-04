@@ -71,9 +71,9 @@ export default function createTests() {
     }
 
     function testBasicMappings() {
-      test('Try Basic Mappings', async () => {
+      test('Test Basic Mappings', async () => {
 
-        console.log('Trying Basic Mappings');
+        console.log('Testing Basic Mappings');
 
         let dm: DataMapper;
         const DM_NAME = 'basic';
