@@ -46,7 +46,11 @@ export class API {
         await frame.getByRole('textbox', { name: 'Context*' }).fill('/test');
         await frame.locator('#version-type div').nth(1).click();
         await frame.getByLabel('Context', { exact: true }).click();
-        await frame.getByRole('textbox', { name: 'Version' }).fill('1.0.1');
+        const version = frame.getByRole('textbox', { name: 'Version' });
+        await version.waitFor();
+        await version.fill('1.0.1');
+        await this._page.pause();
+        await frame.getByRole('radio', { name: 'None' }).click();
         await frame.getByRole('button', { name: 'Create' }).click();
     }
 

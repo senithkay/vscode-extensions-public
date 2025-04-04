@@ -121,8 +121,7 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
 }
 
 export async function copyFile(source: string, destination: string) {
-    console.log('Copying openapi.yaml file');
-    console.log('directory', __dirname);
+    console.log('Copying file from ' + source + ' to ' + destination);
 
     if (existsSync(destination)) {
         fs.rmSync(destination);
