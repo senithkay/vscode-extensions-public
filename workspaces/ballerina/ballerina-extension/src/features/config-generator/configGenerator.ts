@@ -519,7 +519,7 @@ function convertConfigToToml(config: any, groupedValues: Map<string, Map<string,
                 result += `${key} = ${formatTomlValue(value)}\n`;
             }
         } else {
-            // Handle primitive values and arrays as before
+            // Handle primitive values and arrays
             result += `${key} = ${formatTomlValue(value)}\n`;
         }
     }
