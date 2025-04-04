@@ -46,6 +46,7 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    DeploymentRequest,
     DeploymentResponse,
     DevantMetadata,
     EVENT_TYPE,
@@ -135,7 +136,7 @@ import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { refreshAccessToken } from "../ai-panel/utils";
-import { findScopeByModule, getFunctionNodePosition } from "./utils";
+import { getFunctionNodePosition } from "./utils";
 import { BACKEND_URL } from "../../features/ai/utils";
 import { IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
@@ -703,20 +704,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         await commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, params);
     }
 
-    async deployProject(): Promise<DeploymentResponse> {
-        const projectStructure = await this.getProjectStructure();
-
-        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICE];
-        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
-
-        let scopes: SCOPE[] = [];
-        if (services) {
-            const svcScopes = services.map((svc) => findScopeByModule(svc?.serviceModel.moduleName));
-            scopes = Array.from(new Set(svcScopes));
-        }
-        if (automation) {
-            scopes.push(SCOPE.AUTOMATION);
-        }
+    async deployProject(params: DeploymentRequest): Promise<DeploymentResponse> {
+        const scopes = params.integrationTypes;
 
         let integrationType: SCOPE;
 
@@ -734,13 +723,13 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             return { isCompleted: true };
         }
 
-        const params = {
+        const deployementParams = {
             integrationType: integrationType,
             buildPackLang: "ballerina", // Example language
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri
         };
-        commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, params);
+        commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, deployementParams);
 
         return { isCompleted: true };
     }
