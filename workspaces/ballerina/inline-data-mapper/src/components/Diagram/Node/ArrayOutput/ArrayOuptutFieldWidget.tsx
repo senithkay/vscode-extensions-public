@@ -364,7 +364,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     {hasOutputBeforeInput && <OutputBeforeInputNotification />}
                 </div>
             )}
-            {(expanded && expression) && (
+            {(expanded && expression && !connectedViaLink) && (
                 <div data-testid={`array-widget-${portIn?.getName()}-values`}>
                     <div className={classes.innerTreeLabel}>
                         <span>[</span>

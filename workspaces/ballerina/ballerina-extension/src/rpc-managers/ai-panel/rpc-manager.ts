@@ -832,11 +832,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
     }
 
-    async refreshFile(params: SourceFile): Promise<void> {
-        modifyFileContent({ filePath : params.filePath, content: params.content });
-        updateView();
-    }
-
     async getThemeKind(): Promise<string> {
         return new Promise((resolve) => {
             const themeKind = window.activeColorTheme.kind;

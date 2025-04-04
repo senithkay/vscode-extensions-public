@@ -1240,7 +1240,6 @@ export function AIChat() {
                 }
 
                 segmentText = updatedContent.trim();
-                await rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: segmentText });
             } else if (command === "test") {
                 segmentText = `${originalContent}\n\n${segmentText}`;
             } else {
@@ -1334,7 +1333,6 @@ export function AIChat() {
                     isTestCode = true;
                 }
                 const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
-                rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: revertContent });
                 await rpcClient
                     .getAiPanelRpcClient()
                     .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
