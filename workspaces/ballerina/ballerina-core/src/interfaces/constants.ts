@@ -37,6 +37,5 @@ export const BI_COMMANDS = {
     BI_EDIT_TEST_FUNCTION: 'BI.test.edit.function',
     BI_ADD_TEST_FUNCTION: 'BI.test.add.function',
     BI_EDIT_TEST_FUNCTION_DEF: 'BI.test.edit.function.def',
-    ADD_NATURAL_FUNCTION: 'BI.project-explorer.add-natural-function',
-    NOTIFY_DEPLOYMENT_COMPLETION: 'BI.notify-deployment-completion'
+    ADD_NATURAL_FUNCTION: 'BI.project-explorer.add-natural-function'
 };

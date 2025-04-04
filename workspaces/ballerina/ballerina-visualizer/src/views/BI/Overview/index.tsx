@@ -16,7 +16,7 @@ import {
     MACHINE_VIEW,
     BuildMode,
     BI_COMMANDS,
-    DevantComponent
+    DevantMetadata
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox, ProgressIndicator, Overlay } from "@wso2-enterprise/ui-toolkit";
@@ -26,6 +26,8 @@ import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent 
 import ComponentDiagram from "../ComponentDiagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from "react-markdown";
+import { useQuery } from '@tanstack/react-query'
+import { CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -269,7 +271,6 @@ interface DeploymentOptionProps {
     onToggle: () => void;
     onDeploy: () => void;
     learnMoreLink?: string;
-    isDeploying?: boolean;
 }
 
 function DeploymentOption({
@@ -280,7 +281,6 @@ function DeploymentOption({
     onToggle,
     onDeploy,
     learnMoreLink,
-    isDeploying
 }: DeploymentOptionProps) {
     const { rpcClient } = useRpcContext();
 
@@ -295,7 +295,6 @@ function DeploymentOption({
             isExpanded={isExpanded}
             onClick={onToggle}
         >
-            {isDeploying && <ProgressIndicator />}
             <DeploymentHeader>
                 <Codicon
                     name={'circle-outline'}
@@ -325,13 +324,12 @@ interface DeploymentOptionsProps {
     handleDockerBuild: () => void;
     handleJarBuild: () => void;
     handleDeploy: () => Promise<void>;
-    goToDevant: (devantComponent: DevantComponent) => void;
-    devantComponent: DevantComponent | undefined;
+    goToDevant: () => void;
+    devantMetadata: DevantMetadata | undefined;
 }
 
-function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, goToDevant, devantComponent }: DeploymentOptionsProps) {
+function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, goToDevant, devantMetadata }: DeploymentOptionsProps) {
     const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
-    const [isDeploying, setIsDeploying] = useState(false);
 
     const toggleOption = (option: string) => {
         setExpandedOptions(prev => {
@@ -345,41 +343,32 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
         });
     };
 
-    const handleDeployToDevant = async () => {
-        setIsDeploying(true);
-        await handleDeploy();
-        setIsDeploying(false);
-    };
-
     return (
         <>
             <div>
                 <Title variant="h3">Deployment Options</Title>
 
-                {(devantComponent == undefined)  &&
-                    <DeploymentOption
-                        title="Deploy to Devant"
-                        description="Deploy your integration to the cloud using Devant by WSO2."
-                        buttonText="Deploy"
-                        isExpanded={expandedOptions.has('cloud')}
-                        onToggle={() => toggleOption('cloud')}
-                        onDeploy={handleDeployToDevant}
-                        learnMoreLink={"https://wso2.com/devant/docs"}
-                        isDeploying={isDeploying}
-                    />
-                }
-
-                {devantComponent != undefined &&
+                {devantMetadata?.hasComponent ? (
                     <DeploymentOption
                         title="Deployed in Devant"
                         description="This integration is already deployed in Devant."
                         buttonText="View in Devant"
-                        isExpanded={expandedOptions.has('devant')}
-                        onToggle={() => toggleOption('devant')}
-                        onDeploy={() => goToDevant(devantComponent)}
+                        isExpanded={expandedOptions.has("devant")}
+                        onToggle={() => toggleOption("devant")}
+                        onDeploy={() => goToDevant()}
                         learnMoreLink={"https://wso2.com/devant/docs"}
                     />
-                }
+                ) : (
+                    <DeploymentOption
+                        title="Deploy to Devant"
+                        description="Deploy your integration to the cloud using Devant by WSO2."
+                        buttonText="Deploy"
+                        isExpanded={expandedOptions.has("cloud")}
+                        onToggle={() => toggleOption("cloud")}
+                        onDeploy={handleDeploy}
+                        learnMoreLink={"https://wso2.com/devant/docs"}
+                    />
+                )}
 
                 <DeploymentOption
                     title="Deploy with Docker"
@@ -399,10 +388,6 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                     onDeploy={handleJarBuild}
                 />
             </div>
-            {
-                isDeploying
-                    && <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 1000 }} />
-            }
         </>
     );
 }
@@ -439,11 +424,10 @@ function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlane
 
 interface ComponentDiagramProps {
     projectPath: string;
-    deployedComponent?: DevantComponent;
 }
 
 export function Overview(props: ComponentDiagramProps) {
-    const { projectPath, deployedComponent } = props;
+    const { projectPath } = props;
     const { rpcClient } = useRpcContext();
     const [workspaceName, setWorkspaceName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
@@ -455,7 +439,11 @@ export function Overview(props: ComponentDiagramProps) {
     const [loadingMessage, setLoadingMessage] = useState("");
     const backendRootUri = useRef("");
     const [enabled, setEnableICP] = useState(false);
-    const [devantComponent, setDevantComponent] = useState<DevantComponent | undefined>(undefined);
+    const { data: devantMetadata } = useQuery({
+        queryKey:["devant-metadata",props.projectPath],
+        queryFn: ()=>rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
+        refetchInterval: 2000
+    })
 
     const fetchContext = () => {
         rpcClient
@@ -532,20 +520,6 @@ export function Overview(props: ComponentDiagramProps) {
             }
         });
     }, [responseText]);
-
-    useEffect(() => {
-        rpcClient.getBIDiagramRpcClient().getDevantComponent()
-            .then((res) => {
-                console.log(">>> devant component", { res });
-                setDevantComponent(res);
-            });
-    }, []);
-
-    useEffect(() => {
-        if (!devantComponent) {
-            setDevantComponent(deployedComponent);
-        }
-    }, [deployedComponent]);
 
     function isEmptyProject(): boolean {
         return Object.values(projectStructure.directoryMap || {}).every((array) => array.length === 0);
@@ -727,10 +701,10 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().buildProject(BuildMode.JAR);
     };
 
-    const goToDevant = (devantComponent: DevantComponent) => {
-        rpcClient.getCommonRpcClient().openExternalUrl({
-            url: `https://console.devant.dev/organizations/${devantComponent.org}`
-        });
+    const goToDevant = () => {
+        rpcClient.getCommonRpcClient().executeCommand({
+            commands:[PlatformExtCommandIds.OpenInConsole,{extensionName:"Devant",componentFsPath: projectPath}]
+        })
     };
 
     return (
@@ -796,8 +770,7 @@ export function Overview(props: ComponentDiagramProps) {
                         handleJarBuild={handleJarBuild}
                         handleDeploy={handleDeploy}
                         goToDevant={goToDevant}
-                        devantComponent={devantComponent}
-                        isDeployed={props.isDeployed}
+                        devantMetadata={devantMetadata}
                     />
                     <Divider sx={{ margin: "16px 0" }} />
                     <IntegrationControlPlane enabled={enabled} handleICP={handleICP} />
