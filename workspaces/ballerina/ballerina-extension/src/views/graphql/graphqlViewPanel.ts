@@ -63,7 +63,7 @@ export async function showGraphqlView(serviceAPI: string): Promise<void> {
     const icons = {
         dark: darkIcon.toString(),
         light: lightIcon.toString()
-    }
+    };
 
     if (graphqlViewPanel) {
         const html = render({ serviceAPI, icons }, graphqlViewPanel.webview);
