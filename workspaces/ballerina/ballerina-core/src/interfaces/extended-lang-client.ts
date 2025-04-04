@@ -20,6 +20,7 @@ import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 import { FieldType, FunctionModel, ListenerModel, ServiceClassModel, ServiceModel } from "./service";
 import { CDModel } from "./component-diagram";
 import { IDMModel, Mapping } from "./inline-data-mapper";
+import { SCOPE } from "../state-machine-types";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -1399,6 +1400,9 @@ export type OpenAPIClientDeleteResponse = {
 
 // <-------- Deployment Related ------->
 
+export interface DeploymentRequest {
+    integrationTypes: SCOPE[];
+}
 export interface DeploymentResponse {
     isCompleted: boolean;
 }

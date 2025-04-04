@@ -46,6 +46,7 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    DeploymentRequest,
     DeploymentResponse,
     DevantMetadata,
     EVENT_TYPE,
@@ -136,7 +137,7 @@ import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
-import { findScopeByModule, getFunctionNodePosition } from "./utils";
+import { getFunctionNodePosition } from "./utils";
 import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
@@ -692,20 +693,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async deployProject(): Promise<DeploymentResponse> {
-        const projectStructure = await this.getProjectStructure();
-
-        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
-        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
-
-        let scopes: SCOPE[] = [];
-        if (services) {
-            const svcScopes = services.map((svc) => findScopeByModule(svc?.serviceModel.moduleName));
-            scopes = Array.from(new Set(svcScopes));
-        }
-        if (automation) {
-            scopes.push(SCOPE.AUTOMATION);
-        }
+    async deployProject(params: DeploymentRequest): Promise<DeploymentResponse> {
+        const scopes = params.integrationTypes;
 
         let integrationType: SCOPE;
 

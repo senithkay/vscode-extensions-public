@@ -114,14 +114,14 @@ export class ModuleVariableNode extends DataMapperNodeModel {
             if (type && (type.typeName === PrimitiveBalType.Record)) {
                 const fields = type.fields;
                 fields.forEach((subField) => {
-                    this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT",
-                        varName, MODULE_VARIABLE_SOURCE_PORT_PREFIX, parentPort,
-                        this.context.collapsedFields, parentPort.collapsed);
+                    this.numberOfFields += this.addPortsForInputRecordField(
+                        subField, "OUT", varName, varName, MODULE_VARIABLE_SOURCE_PORT_PREFIX,
+                        parentPort, this.context.collapsedFields, parentPort.collapsed);
                 });
             } else {
-                this.numberOfFields += this.addPortsForInputRecordField(type, "OUT",
-                    varName, MODULE_VARIABLE_SOURCE_PORT_PREFIX, parentPort,
-                    this.context.collapsedFields, parentPort.collapsed);
+                this.numberOfFields += this.addPortsForInputRecordField(
+                    type, "OUT", varName, varName, MODULE_VARIABLE_SOURCE_PORT_PREFIX,
+                    parentPort, this.context.collapsedFields, parentPort.collapsed);
             }
         });
     }

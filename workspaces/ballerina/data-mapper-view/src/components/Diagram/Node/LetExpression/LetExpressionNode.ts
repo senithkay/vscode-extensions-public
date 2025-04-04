@@ -85,14 +85,18 @@ export class LetExpressionNode extends DataMapperNodeModel {
                             if (type && (type.typeName === PrimitiveBalType.Record)) {
                                 const fields = type.fields;
                                 fields.forEach((subField) => {
-                                    this.numberOfFields += 1 + this.addPortsForInputRecordField(subField, "OUT",
-                                        varName.value, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
-                                        this.context.collapsedFields, parentPort.collapsed);
+                                    this.numberOfFields += 1 + this.addPortsForInputRecordField(
+                                        subField, "OUT", varName.value, varName.value,
+                                        LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort, this.context.collapsedFields,
+                                        parentPort.collapsed
+                                    );
                                 });
                             } else {
-                                this.numberOfFields += this.addPortsForInputRecordField(type, "OUT",
-                                    varName.value, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
-                                    this.context.collapsedFields, parentPort.collapsed);
+                                this.numberOfFields += this.addPortsForInputRecordField(
+                                    type, "OUT", varName.value, varName.value,
+                                    LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort, this.context.collapsedFields,
+                                    parentPort.collapsed
+                                );
                             }
 
                             this.letVarDecls.push({varName: varName.value, type, declaration: decl});

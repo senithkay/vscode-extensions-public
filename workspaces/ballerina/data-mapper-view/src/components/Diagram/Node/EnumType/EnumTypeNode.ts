@@ -191,6 +191,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
                     field.type,
                     "OUT",
                     varName,
+                    varName,
                     ENUM_TYPE_SOURCE_PORT_PREFIX,
                     parentPort,
                     this.context.collapsedFields,
