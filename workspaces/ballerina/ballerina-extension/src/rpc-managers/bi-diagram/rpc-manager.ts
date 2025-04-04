@@ -46,6 +46,7 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    DeploymentRequest,
     DeploymentResponse,
     DevantComponent,
     EVENT_TYPE,
@@ -135,8 +136,7 @@ import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
-import { findScopeByModule, getFunctionNodePosition } from "./utils";
-
+import { getFunctionNodePosition } from "./utils";
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getFlowModel(): Promise<BIFlowModelResponse> {
@@ -702,20 +702,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         await commands.executeCommand("wso2.wso2-platform.create.component", params);
     }
 
-    async deployProject(): Promise<DeploymentResponse> {
-        const projectStructure = await this.getProjectStructure();
-
-        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
-        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
-
-        let scopes: SCOPE[] = [];
-        if (services) {
-            const svcScopes = services.map((svc) => findScopeByModule(svc?.serviceModel.moduleName));
-            scopes = Array.from(new Set(svcScopes));
-        }
-        if (automation) {
-            scopes.push(SCOPE.AUTOMATION);
-        }
+    async deployProject(params: DeploymentRequest): Promise<DeploymentResponse> {
+        const scopes = params.integrationTypes;
 
         let integrationType: SCOPE;
 
@@ -733,13 +721,13 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             return { isCompleted: true };
         }
 
-        const params = {
+        const deployementParams = {
             integrationType: integrationType,
             buildPackLang: "ballerina", // Example language
             name: path.basename(StateMachine.context().projectUri),
             componentDir: StateMachine.context().projectUri
         };
-        commands.executeCommand("wso2.wso2-platform.create.component", params);
+        commands.executeCommand("wso2.wso2-platform.create.component", deployementParams);
 
         return { isCompleted: true };
     }
