@@ -79,6 +79,7 @@ export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps
                     },
                     valueType: "IDENTIFIER",
                     value: "",
+                    valueTypeConstraint: "Object",
                     optional: false,
                     editable: true
                 }

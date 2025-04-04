@@ -400,6 +400,8 @@ export function TypeEditor(props: TypeEditorProps) {
     };
 
     const cancelEditing = () => {
+        validateTypeName(type.name);
+        
         setIsEditing(false);
         setTempName("");
     };
@@ -477,13 +479,19 @@ export function TypeEditor(props: TypeEditorProps) {
                         fileName: type?.codedata?.lineRange?.fileName
                     },  
                 },
-                property: type?.properties["name"] || {
+                property: type?.properties["name"] ? 
+                {
+                    ...type.properties["name"],
+                    valueTypeConstraint: "Global"
+                } : 
+                {
                     metadata: {
                         label: "",
                         description: "",
                     },
                     valueType: "IDENTIFIER",
                     value: "",
+                    valueTypeConstraint: "Global",
                     optional: false,
                     editable: true
                 }
