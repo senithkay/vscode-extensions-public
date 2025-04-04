@@ -173,7 +173,9 @@ export class API {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'APIs'], true);
-        await this._page.getByLabel('Add API').click();
+        const addAPIButton = this._page.getByLabel('Add API');
+        await addAPIButton.waitFor();
+        await addAPIButton.click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
             throw new Error("Failed to switch to API Form iframe");
@@ -191,7 +193,9 @@ export class API {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'APIs'], true);
-        await this._page.getByLabel('Add API').click();
+        const addAPIButton = this._page.getByLabel('Add API');
+        await addAPIButton.waitFor();
+        await addAPIButton.click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
             throw new Error("Failed to switch to API Form iframe");
