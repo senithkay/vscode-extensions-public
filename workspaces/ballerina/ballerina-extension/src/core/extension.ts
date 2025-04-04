@@ -1522,7 +1522,7 @@ export class BallerinaExtension {
     }
 
     public enableLSDebug(): boolean {
-        return this.overrideBallerinaHome() && <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
+        return <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
     }
 
     public enabledLiveReload(): boolean {
