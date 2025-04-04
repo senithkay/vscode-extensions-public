@@ -82,12 +82,13 @@ export function OtherArtifactsPanel() {
                     title="Function"
                     onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
                 />
-                <ButtonCard
+                {/* TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314 */}
+                {/* <ButtonCard
                     icon={<Icon name="bi-ai-function" />}
                     title="Natural Function"
                     onClick={() => handleClick(DIRECTORY_MAP.NATURAL_FUNCTIONS)}
                     isBeta
-                />
+                /> */}
                 <ButtonCard
                     icon={<Icon name="dataMapper" />}
                     title="Data Mapper"
