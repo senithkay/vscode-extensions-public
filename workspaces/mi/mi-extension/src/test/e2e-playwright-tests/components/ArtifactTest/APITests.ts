@@ -23,25 +23,33 @@ export class API {
     }
 
     public async init() {
+        console.log("API init");
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
 
         const overviewPage = new Overview(this._page);
         await overviewPage.init();
+        console.log("Initialized overview page");
         await overviewPage.goToAddArtifact();
+        console.log("Navigated to add artifact");
 
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
+        console.log("Initialized add artifact page");
         await addArtifactPage.add('API');
+        console.log("Clicked on API");
         const apiWebView = await switchToIFrame('API Form', this._page);
         if (!apiWebView) {
             throw new Error("Failed to switch to API Form iframe");
         }
+        console.log("Switched to API Form iframe");
         this.webView = apiWebView;
     }
 
     public async addAPI() {
         const frame = this.webView.locator('div#root');
+        await frame.waitFor();
         await frame.getByRole('textbox', { name: 'Name*' }).fill('TestAPI');
         await frame.getByRole('textbox', { name: 'Context*' }).fill('/test');
         await frame.locator('#version-type div').nth(1).click();
@@ -49,7 +57,6 @@ export class API {
         const version = frame.getByRole('textbox', { name: 'Version' });
         await version.waitFor();
         await version.fill('1.0.1');
-        await this._page.pause();
         await frame.getByRole('radio', { name: 'None' }).click();
         await frame.getByRole('button', { name: 'Create' }).click();
     }
