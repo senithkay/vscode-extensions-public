@@ -7,17 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { FormField } from "../Form/types";
 import { Button, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { debounce } from "lodash";
+import { getPropertyFromFormField } from "./utils";
 
 const EditRow = styled.div`
     display: flex;
     gap: 8px;
-    align-items: flex-end;
+    align-items: flex-start;
     width: 100%;
 `;
 
@@ -40,7 +42,8 @@ const EditButton = styled(Button)`
 const ButtonGroup = styled.div`
     display: flex;
     gap: 8px;
-    margin-bottom: 2px; 
+    margin-bottom: 2px;
+    margin-top: 38px;
 `;
 
 const StyledButton = styled(Button)`
@@ -123,6 +126,8 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
     const { register, setValue } = form;
     const [isEditing, setIsEditing] = useState(false);
     const [tempValue, setTempValue] = useState(field.value || "");
+    const [identifierErrorMsg, setIdentifierErrorMsg] = useState<string>(field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n"));
+    const [isIdentifierValid, setIsIdentifierValid] = useState<boolean>(true);
 
     const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
 
@@ -132,8 +137,11 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
     };
 
     const cancelEditing = () => {
-        setIsEditing(false);
+        if (typeof field.value === 'string') {
+            validateIdentifierName(field.value);
+        }
         setTempValue("");
+        setIsEditing(false);
     };
 
     const saveEdit = async () => {
@@ -155,6 +163,47 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
         setIsEditing(false);
     };
 
+    const validateIdentifierName = useCallback(debounce(async (value: string) => {
+
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: field.lineRange?.fileName,
+            context: {
+                expression: value,
+                startLine: {
+                    line: field.lineRange?.startLine?.line,
+                    offset: field.lineRange?.startLine?.offset
+                },
+                offset: 0,
+                lineOffset: 0,
+                codedata: field.codedata,
+                property: getPropertyFromFormField(field)
+            }
+        });
+
+
+        if (response.diagnostics.length > 0) {
+            setIdentifierErrorMsg(response.diagnostics[0].message);
+            setIsIdentifierValid(false);
+        } else {
+            setIdentifierErrorMsg("");
+            setIsIdentifierValid(true);
+        }
+    }, 250), [rpcClient, field]);
+
+    const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+        validateIdentifierName(e.target.value);
+    }
+
+    const handleOnFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
+        validateIdentifierName(e.target.value);
+    }
+
+    const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTempValue(e.target.value);
+        validateIdentifierName(e.target.value);
+    }
+
+
     return (
         <>
             {!field.editable && !isEditing && (
@@ -175,49 +224,50 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
                         />
                     </TextFieldWrapper>
                     <EditButton appearance="icon" onClick={startEditing} tooltip="Rename">
-                        <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }}/>
+                        <Icon name="bi-edit" sx={{ width: 18, height: 18, fontSize: 18 }} />
                     </EditButton>
                 </InputWrapper>
             )}
             {isEditing && (
                 <>
-                <EditableRow>
-                    <EditRow>
-                        <TextFieldWrapper>
-                            <TextField
-                                id={field.key}
-                                label={field.label}
-                                value={tempValue}
-                                onChange={(e) => setTempValue(e.target.value)}
-                                description={field.documentation}
-                                required={!field.optional}
-                                placeholder={field.placeholder}
-                                errorMsg={errorMsg}
-                                autoFocus
-                            />
-                        </TextFieldWrapper>
-                        <ButtonGroup>
-                            <StyledButton
-                                appearance="secondary"
-                                onClick={cancelEditing}
-                            >
-                                Cancel
-                            </StyledButton>
-                            <StyledButton
-                                appearance="primary"
-                                onClick={saveEdit}
-                                disabled={!tempValue || tempValue === field.value}
-                            >
-                                Save
-                            </StyledButton>
-                        </ButtonGroup>
-                    </EditRow>
+                    <EditableRow>
+                        <EditRow>
+                            <TextFieldWrapper>
+                                <TextField
+                                    id={field.key}
+                                    label={field.label}
+                                    value={tempValue}
+                                    onChange={(e) => handleOnChange(e)}
+                                    description={field.documentation}
+                                    required={!field.optional}
+                                    placeholder={field.placeholder}
+                                    errorMsg={identifierErrorMsg}
+                                    onBlur={(e) => handleOnBlur(e)}
+                                    onFocus={(e) => handleOnFocus(e)}
+                                    autoFocus
+                                />
+                            </TextFieldWrapper>
+                            <ButtonGroup>
+                                <StyledButton
+                                    appearance="secondary"
+                                    onClick={cancelEditing}
+                                >
+                                    Cancel
+                                </StyledButton>
+                                <StyledButton
+                                    appearance="primary"
+                                    onClick={saveEdit}
+                                    disabled={!tempValue || !isIdentifierValid}
+                                >
+                                    Save
+                                </StyledButton>
+                            </ButtonGroup>
+                        </EditRow>
 
                         <WarningText variant="body3">
                             Note: Renaming will update all references across the project
                         </WarningText>
-                </EditableRow>
-
+                    </EditableRow>
                 </>
             )}
         </>
