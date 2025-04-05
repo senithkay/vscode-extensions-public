@@ -21,7 +21,7 @@ import {
     ParentPopupData,
     BISearchRequest,
     CodeData,
-    AgentToolRequest,
+    AgentToolRequest
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -60,7 +60,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
 
     const targetRef = useRef<LineRange>({ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } });
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
-
+    const selectedNodeRef = useRef<AvailableNode>(undefined);
     useEffect(() => {
         fetchNodes();
     }, []);
@@ -156,6 +156,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         const { node } = metadata as { node: AvailableNode };
         // default node
         console.log(">>> on select node", { nodeId, metadata });
+        selectedNodeRef.current = node;
         setSelectedNodeCodeData(node.codedata);
         setSidePanelView(SidePanelView.TOOL_FORM);
     };
@@ -166,16 +167,6 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             location: {
                 view: MACHINE_VIEW.AddConnectionWizard,
                 documentUri: projectPath,
-            },
-            isPopup: true,
-        });
-    };
-
-    const handleOnAddFunction = () => {
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.BIFunctionForm,
             },
             isPopup: true,
         });
@@ -221,9 +212,15 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         },
     ];
 
-    const handleOnCancel = () => {
-        setSidePanelView(SidePanelView.NODE_LIST);
-    };
+    // add concert message to the fields if the tool is a function call
+    let concertMessage = "";
+    let concertRequired = false;
+    let description = "";
+    if (selectedNodeRef.current && selectedNodeRef.current.codedata.node === "FUNCTION_CALL") {
+        concertMessage = `Convert ${selectedNodeRef.current.metadata.label} function to an isolated function`;
+        concertRequired = true;
+        description = "Only isolated functions can be used as tools. Isolated functions ensure predictable behavior by avoiding shared state.";
+    }
 
     return (
         <>
@@ -248,6 +245,9 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     fields={fields}
                     onSubmit={handleToolSubmit}
                     submitText={"Save Tool"}
+                    concertMessage={concertMessage}
+                    concertRequired={concertRequired}
+                    description={description}
                 />
             )}
         </>

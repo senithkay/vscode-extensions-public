@@ -73,6 +73,9 @@ interface FormProps {
     helperPaneSide?: 'right' | 'left';
     recordTypeFields?: RecordTypeField[];
     disableSaveButton?: boolean;
+    concertMessage?: string;
+    concertRequired?: boolean;
+    description?: string;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -94,7 +97,10 @@ export function FormGeneratorNew(props: FormProps) {
         compact = false,
         helperPaneSide,
         recordTypeFields,
-        disableSaveButton = false
+        disableSaveButton = false,
+        concertMessage,
+        concertRequired,
+        description
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -499,6 +505,9 @@ export function FormGeneratorNew(props: FormProps) {
                     compact={compact}
                     recordTypeFields={recordTypeFields}
                     disableSaveButton={disableSaveButton}
+                    concertMessage={concertMessage}
+                    concertRequired={concertRequired}
+                    infoLabel={description}
                 />
             )}
             {typeEditorState.isOpen && (
