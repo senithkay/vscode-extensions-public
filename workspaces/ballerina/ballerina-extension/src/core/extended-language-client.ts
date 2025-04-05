@@ -203,7 +203,9 @@ import {
     OpenAPIClientDeleteRequest,
     ProjectArtifactsRequest,
     ProjectArtifacts,
-    Artifacts
+    Artifacts,
+    MemoryManagersRequest,
+    MemoryManagersResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -1038,8 +1040,8 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MODELS, params);
     }
 
-    async getAllMemoryManagers(params: AIModelsRequest): Promise<AINodesResponse> {
-        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MEMORY_MANAGERS, params);
+    async getAllMemoryManagers(params: MemoryManagersRequest): Promise<MemoryManagersResponse> {
+        return this.sendRequest<MemoryManagersResponse>(EXTENDED_APIS.BI_AI_ALL_MEMORY_MANAGERS, params);
     }
 
     async getModels(params: AIModelsRequest): Promise<AIModelsResponse> {

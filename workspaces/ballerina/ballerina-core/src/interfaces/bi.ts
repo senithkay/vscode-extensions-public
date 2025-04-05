@@ -278,7 +278,8 @@ export type NodePropertyKey =
     | "systemPrompt"
     | "prompt"
     | "enableModelContext"
-    | "memoryId";
+    | "memoryManager"
+    | "sessionId";
 
 export type BranchKind = "block" | "worker";
 
@@ -337,7 +338,8 @@ export type NodeKind =
     | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
     | "AUTOMATION"
-    | "CONFIG_VARIABLE";
+    | "CONFIG_VARIABLE"
+    | "CLASS_INIT";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];

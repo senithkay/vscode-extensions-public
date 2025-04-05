@@ -1327,6 +1327,12 @@ export interface AINodesResponse {
     agents?: CodeData[];
     models?: CodeData[];
 }
+export interface MemoryManagersRequest {
+    filePath: string;
+}
+export interface MemoryManagersResponse {
+    memoryManagers?: CodeData[];
+}
 export interface AIModelsResponse {
     models: string[];
 }

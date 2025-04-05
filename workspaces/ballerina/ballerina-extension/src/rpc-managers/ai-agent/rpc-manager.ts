@@ -24,6 +24,8 @@ import {
     AgentTool,
     AgentToolRequest,
     FlowNode,
+    MemoryManagersRequest,
+    MemoryManagersResponse,
     NodePosition,
     STModification,
     SyntaxTree,
@@ -65,11 +67,11 @@ export class AiAgentRpcManager implements AIAgentAPI {
         });
     }
 
-    async getAllMemoryManagers(params: AIModelsRequest): Promise<AINodesResponse> {
+    async getAllMemoryManagers(params: MemoryManagersRequest): Promise<MemoryManagersResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const res: AINodesResponse = await context.langClient.getAllMemoryManagers(params);
+                const res: MemoryManagersResponse = await context.langClient.getAllMemoryManagers(params);
                 resolve(res);
             } catch (error) {
                 console.log(error);
