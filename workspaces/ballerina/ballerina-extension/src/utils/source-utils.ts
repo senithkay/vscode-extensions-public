@@ -27,11 +27,10 @@ export async function injectImportIfMissing(importStatement: string, filePath: s
 export async function injectAgent(name: string, projectUri: string) {
     const agentCode = `
 final ai:OpenAiProvider _${name}Model = check new ("", ai:GPT_3_5_TURBO_0613);
-final ai:Agent _${name}Agent = check new (systemPrompt = {
-    role: "",
-    instructions: string \`\`
-}, model = _${name}Model, tools = []);
-    `;
+final ai:Agent _${name}Agent = check new (systemPrompt = {role: "", instructions: string \`\`},
+    model = _${name}Model,
+    tools = []
+);`;
     // Update the service function code 
     const agentsFile = path.join(projectUri, `agents.bal`);
     const agentEdit = new vscode.WorkspaceEdit();
