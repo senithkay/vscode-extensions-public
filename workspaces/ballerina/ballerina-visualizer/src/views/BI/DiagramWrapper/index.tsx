@@ -294,6 +294,10 @@ function getResourcePath(resource: STNode) {
 }
 
 function getParameters(syntaxTree: STNode) {
+    if(!syntaxTree) {
+        console.error(">>> cannot get parameters, syntaxTree is undefined");
+        return "";
+    }
     if (STKindChecker.isResourceAccessorDefinition(syntaxTree) ||
         (STKindChecker.isObjectMethodDefinition(syntaxTree) &&
             syntaxTree.qualifierList?.some(qualifier => STKindChecker.isRemoteKeyword(qualifier)))) {

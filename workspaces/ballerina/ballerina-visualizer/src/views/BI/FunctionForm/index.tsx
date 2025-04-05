@@ -97,6 +97,18 @@ export function FunctionForm(props: FunctionFormProps) {
             fields = automationFields;
         }
 
+        // update description fields as "TEXTAREA"
+        fields.forEach((field) => {
+            if (field.key === "functionNameDescription" || field.key === "typeDescription") {
+                field.type = "TEXTAREA";
+            }
+            if (field.key === "parameters") {
+                if ((field.valueTypeConstraint as any).value.parameterDescription) {
+                    (field.valueTypeConstraint as any).value.parameterDescription.type = "TEXTAREA";
+                }
+            }
+        });
+
         setFunctionFields(fields);
     }, [functionNode]);
 

@@ -42,8 +42,10 @@ import { applyModifications, textToModifications } from "../../../utils/utils";
 import { PanelManager, SidePanelView } from "./PanelManager";
 import {
     findAgentNodeFromAgentCallNode,
+    findFlowNodeByModuleVarName,
     findFunctionByName,
     getAgentFilePath,
+    removeAgentNode,
     removeToolFromAgentNode,
     transformCategories,
 } from "./utils";
@@ -476,27 +478,31 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
-    const handleOnDeleteNode = (node: FlowNode) => {
+    const handleOnDeleteNode = async (node: FlowNode) => {
         console.log(">>> on delete node", node);
         setShowProgressIndicator(true);
-        rpcClient
-            .getBIDiagramRpcClient()
-            .deleteFlowNode({
-                filePath: model.fileName,
-                flowNode: node,
-            })
-            .then((response) => {
-                console.log(">>> Updated source code after delete", response);
-                if (response.textEdits) {
-                    selectedNodeRef.current = undefined;
-                    handleOnCloseSidePanel();
-                } else {
-                    console.error(">>> Error updating source code", response);
-                }
-            })
-            .finally(() => {
+
+        const deleteNodeResponse = await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
+            filePath: model.fileName,
+            flowNode: node,
+        });
+        console.log(">>> Updated source code after delete", deleteNodeResponse);
+        if (!deleteNodeResponse.textEdits) {
+            console.error(">>> Error updating source code", deleteNodeResponse);
+        }
+
+        if (node.codedata.node === "AGENT_CALL") {
+            const agentNodeDeleteResponse = await removeAgentNode(node, rpcClient);
+            if (!agentNodeDeleteResponse) {
+                console.error(">>> Error deleting agent node", node);
                 setShowProgressIndicator(false);
-            });
+                return;
+            }
+        }
+
+        selectedNodeRef.current = undefined;
+        handleOnCloseSidePanel();
+        setShowProgressIndicator(false);
     };
 
     const handleOnAddComment = (comment: string, target: LineRange) => {
@@ -775,12 +781,25 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             const agentNode = await findAgentNodeFromAgentCallNode(node, rpcClient);
             const agentFilePath = await getAgentFilePath(rpcClient);
 
+            // remove memory manager statement if any
+            if (agentNode.properties.memoryManager && agentNode.properties.memoryManager?.value !== "()") {
+                const memoryManagerVar = agentNode.properties.memoryManager.value as string;
+                const memoryManagerNode = await findFlowNodeByModuleVarName(memoryManagerVar, rpcClient);
+                if (memoryManagerNode) {
+                    await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
+                        filePath: agentFilePath,
+                        flowNode: memoryManagerNode,
+                    });
+                    console.log(">>> deleted memory manager node", memoryManagerNode);
+                }
+            }
+
             // Create a clone of the agent node to modify
             const updatedAgentNode = cloneDeep(agentNode);
 
             // Remove memory manager from agent node
-            if (!(updatedAgentNode.properties as any).memoryManager) {
-                (updatedAgentNode.properties as any).memoryManager = {
+            if (!updatedAgentNode.properties.memoryManager) {
+                updatedAgentNode.properties.memoryManager = {
                     value: "",
                     advanced: true,
                     optional: true,
@@ -864,7 +883,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             return;
         }
         setShowProgressIndicator(false);
-        
+
         const context: VisualizerLocation = {
             documentUri: functionInfo.filePath,
             identifier: functionInfo.name,

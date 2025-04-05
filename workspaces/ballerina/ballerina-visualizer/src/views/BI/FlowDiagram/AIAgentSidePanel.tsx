@@ -68,12 +68,16 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     // Use effects to refresh the panel
     useEffect(() => {
         rpcClient.onProjectContentUpdated((state: boolean) => {
-            console.log(">>> on project content updated", state);
-            fetchNodes();
+            if (sidePanelView === SidePanelView.NODE_LIST) {
+                console.log(">>> on project content updated", state);
+                fetchNodes();
+            }
         });
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
-            console.log(">>> on parent popup submitted", parent);
-            fetchNodes();
+            if (sidePanelView === SidePanelView.NODE_LIST) {
+                console.log(">>> on parent popup submitted", parent);
+                fetchNodes();
+            }
         });
     }, [rpcClient]);
 

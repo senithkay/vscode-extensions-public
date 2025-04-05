@@ -72,6 +72,7 @@ export type Metadata = {
         isIsolatedFunction?: boolean;
         tools?: ToolData[];
         model?: ToolData;
+        memoryManager?: MemoryManagerData;
         agent?: AgentData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
@@ -89,6 +90,10 @@ export type AgentData = {
     instructions?: string;
 }
 
+export type MemoryManagerData = {
+    name: string;
+    type: string;
+}
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;

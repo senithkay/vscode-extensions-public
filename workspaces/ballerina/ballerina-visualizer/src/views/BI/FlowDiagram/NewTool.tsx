@@ -35,7 +35,6 @@ export function NewTool(props: NewToolProps): JSX.Element {
     const { rpcClient } = useRpcContext();
 
     const [agentNode, setAgentNode] = useState<FlowNode | null>(null);
-    const [existingTools, setExistingTools] = useState<string[]>([]);
     const [savingForm, setSavingForm] = useState<boolean>(false);
 
     const agentFilePath = useRef<string>("");

@@ -123,11 +123,11 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
         }
         agentNodeRef.current = agentNode;
         // get memory manager name
-        const memoryManagerName = (agentNode?.properties as any)?.memoryManager?.value || "";
+        const memoryManagerName = (agentNode?.properties?.memoryManager?.value as string) || "";
         console.log(">>> memory manager name", memoryManagerName);
         // get memory manager node
         const memoryManagerNode = moduleConnectionNodes.current.find(
-            (node) => node.properties.variable.value === memoryManagerName
+            (node) => node.properties.variable.value === memoryManagerName.trim().replace(/\n/g, "")
         );
         setSelectedMemoryManager(memoryManagerNode);
         console.log(">>> selected memory manager node", memoryManagerNode);
@@ -191,7 +191,7 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
         console.log(">>> response getSourceCode with template ", { response });
         // update agent node memory manager
         if (!agentNodeRef.current) {
-            console.error("Agent node not found", {agentCallNode, agentNodeRef});
+            console.error("Agent node not found", { agentCallNode, agentNodeRef });
             return;
         }
         const updatedAgentNode = cloneDeep(agentNodeRef.current);
@@ -206,6 +206,8 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
         setSavingForm(false);
     };
 
+    const memoryManagerDropdownPlaceholder = "Select a memory manager...";
+
     return (
         <Container>
             {memoryManagersCodeData?.length > 0 && (
@@ -215,7 +217,7 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
                         errorMsg=""
                         id="agent-memory-dropdown"
                         items={[
-                            { value: "Select a memory manager...", content: "Select a memory manager..." },
+                            { value: memoryManagerDropdownPlaceholder, content: memoryManagerDropdownPlaceholder },
                             ...memoryManagersCodeData.map((memory) => ({
                                 value: memory.object,
                                 content: memory.object,
@@ -224,7 +226,7 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
                         label="Select Memory Manager"
                         description={"Available Memory Managers"}
                         onValueChange={(value) => {
-                            if (value === "Select a memory manager...") {
+                            if (value === memoryManagerDropdownPlaceholder) {
                                 return; // Skip the init option
                             }
                             const selectedMemoryManagerCodeData = memoryManagersCodeData.find(
@@ -235,8 +237,8 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
                         }}
                         value={
                             selectedMemoryManagerCodeData?.object ||
-                            ((agentCallNode?.metadata?.data as any)?.memory?.type as string) ||
-                            ""
+                            (agentCallNode?.metadata?.data?.memoryManager?.type as string) ||
+                            memoryManagerDropdownPlaceholder
                         }
                         containerSx={{ width: "100%" }}
                     />
