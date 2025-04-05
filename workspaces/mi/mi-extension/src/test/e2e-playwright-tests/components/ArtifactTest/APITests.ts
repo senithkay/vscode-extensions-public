@@ -67,7 +67,7 @@ export class API {
             throw new Error("Failed to switch to Service Designer iframe");
         }
         const frame = webView.locator('div#root');
-        const editBtn = await frame.getByTestId('edit-button');
+        const editBtn = frame.getByTestId('edit-button').getByLabel('Icon Button');
         await editBtn.waitFor();
         await editBtn.click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
@@ -172,7 +172,7 @@ export class API {
     public async createWSDLFromSidePanel() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await this._page.locator('#list_id_2_1').getByLabel('APIs').locator('div').filter({ hasText: 'APIs' }).click();
+        await this._page.locator('#list_id_2_1').getByLabel('APIs').locator('div').filter({ hasText: 'APIs' }).hover();
         await this._page.getByLabel('Add API').click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
@@ -190,7 +190,7 @@ export class API {
     public async createWSDLFromFile() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await this._page.locator('#list_id_2_1').getByLabel('APIs').locator('div').filter({ hasText: 'APIs' }).click();
+        await this._page.locator('#list_id_2_1').getByLabel('APIs').locator('div').filter({ hasText: 'APIs' }).hover();
         await this._page.getByLabel('Add API').click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
