@@ -14,6 +14,7 @@ import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
 import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
+import { buildProjectArtifactsStructure } from './utils/project-artifacts';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -38,7 +39,18 @@ const stateMachine = createMachine<MachineContext>(
         },
         on: {
             RESET_TO_EXTENSION_READY: {
-                target: "extensionReady"
+                target: "extensionReady",
+            },
+            UPDATE_PROJECT_STRUCTURE: {
+                actions: [
+                    assign({
+                        projectStructure: (context, event) => event.payload
+                    }),
+                    (context, event) => {
+                        notifyCurrentWebview();
+                        commands.executeCommand("BI.project-explorer.refresh");
+                    }
+                ]
             }
         },
         states: {
@@ -62,14 +74,28 @@ const stateMachine = createMachine<MachineContext>(
                 invoke: {
                     src: 'activateLanguageServer',
                     onDone: {
-                        target: "extensionReady",
+                        target: "fetchProjectStructure",
                         actions: assign({
                             langClient: (context, event) => event.data.langClient,
                             isBISupported: (context, event) => event.data.isBISupported
                         })
                     },
                     onError: {
-                        target: "extensionReady"
+                        target: "lsError"
+                    }
+                }
+            },
+            fetchProjectStructure: {
+                invoke: {
+                    src: 'registerProjectArtifactsStructure',
+                    onDone: {
+                        target: "extensionReady",
+                        actions: assign({
+                            projectStructure: (context, event) => event.data.projectStructure
+                        })
+                    },
+                    onError: {
+                        target: "lsError"
                     }
                 }
             },
@@ -157,14 +183,7 @@ const stateMachine = createMachine<MachineContext>(
                                 })
                             },
                             FILE_EDIT: {
-                                target: "viewEditing",
-                                actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier,
-                                    type: (context, event) => event.viewLocation?.type,
-                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
-                                })
+                                target: "viewEditing"
                             },
                         }
                     },
@@ -172,13 +191,6 @@ const stateMachine = createMachine<MachineContext>(
                         on: {
                             EDIT_DONE: {
                                 target: "viewReady",
-                                actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier,
-                                    type: (context, event) => event.viewLocation?.type,
-                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
-                                })
                             }
                         }
                     }
@@ -202,6 +214,24 @@ const stateMachine = createMachine<MachineContext>(
                     resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
                 } catch (error) {
                     throw new Error("LS Activation failed", error);
+                }
+            });
+        },
+        registerProjectArtifactsStructure: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    // If the project uri is not set, we don't need to build the project structure
+                    if (context.projectUri) {
+                        // Register the event driven listener to get the artifact changes
+                        context.langClient.registerPublishArtifacts();
+                        // Initial Project Structure
+                        const projectStructure = await buildProjectArtifactsStructure(context.projectUri, context.langClient);
+                        resolve({ projectStructure });
+                    } else {
+                        resolve({ projectStructure: undefined });
+                    }
+                } catch (error) {
+                    throw new Error("Project Structure Build failed", error);
                 }
             });
         },
@@ -389,6 +419,8 @@ export const StateMachine = {
     context: () => { return stateService.getSnapshot().context; },
     langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
+    setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
+    setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
     updateProjectStructure: (payload: ProjectStructureResponse) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload }); },
     resetToExtensionReady: () => {
@@ -406,7 +438,7 @@ export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, res
 export function updateView(refreshTreeView?: boolean) {
     let lastView = getLastHistory();
     // Step over to the next location if the last view is skippable
-    if (lastView.location.view.includes("SKIP")) {
+    if (!refreshTreeView && lastView?.location.view.includes("SKIP")) {
         history.pop(); // Remove the last entry
         lastView = getLastHistory(); // Get the new last entry
     }

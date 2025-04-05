@@ -48,6 +48,12 @@ export function activateSubscriptions() {
     );
 
     context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.GET_STATE_CONTEXT, () => {
+            return StateMachine.context();
+        })
+    );
+
+    context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_BI_WELCOME, () => {
             if (StateMachine.langClient()) {
                 openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIWelcome });

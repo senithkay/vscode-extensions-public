@@ -67,11 +67,12 @@ export function FunctionForm(props: FunctionFormProps) {
             formType.current = 'Data Mapper';
             setTitleSubtitle('Transform data between different data types');
             setFormSubtitle('Create mappings on how to convert the inputs into a single output');
-        } else if (isNpFunction) {
-            nodeKind = 'NP_FUNCTION_DEFINITION';
-            formType.current = 'Natural Function';
-            setTitleSubtitle('Build a flow using a natural language description');
-            setFormSubtitle('Describe what you need in a prompt and let AI handle the implementation');
+        // TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314
+        // } else if (isNpFunction) {
+        //     nodeKind = 'NP_FUNCTION_DEFINITION';
+        //     formType.current = 'Natural Function';
+        //     setTitleSubtitle('Build a flow using a natural language description');
+        //     setFormSubtitle('Describe what you need in a prompt and let AI handle the implementation');
         } else {
             nodeKind = 'FUNCTION_DEFINITION';
             formType.current = 'Function';
