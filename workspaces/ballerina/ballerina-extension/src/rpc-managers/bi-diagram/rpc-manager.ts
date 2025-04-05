@@ -917,6 +917,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             StateMachine.langClient()
                 .getExpressionDiagnostics(params)
                 .then((diagnostics) => {
+                    console.log(">>> expression diagnostics response from ls", diagnostics);
                     resolve(diagnostics);
                 })
                 .catch((error) => {
