@@ -19,7 +19,7 @@ import { cloneDeep } from "lodash";
 import { RelativeLoader } from "../../../components/RelativeLoader";
 
 const Container = styled.div`
-    padding: 16px 0 16px 16px;
+    padding: 16px;
     height: 100%;
 `;
 
@@ -217,7 +217,7 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
         // update the agent call node
         const updatedAgentCallNode = cloneDeep(agentCallNode);
         updatedAgentCallNode.properties.query.value = rawData["query"];
-        updatedAgentCallNode.properties.memoryId.value = rawData["memoryId"];
+        updatedAgentCallNode.properties.sessionId.value = rawData["sessionId"];
         updatedAgentCallNode.properties.connection.value = agentVarName;
         updatedAgentCallNode.codedata.parentSymbol = agentVarName;
         // HACK: add line range

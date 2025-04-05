@@ -48,6 +48,7 @@ import {
     transformCategories,
 } from "./utils";
 import { ExpressionFormField, Category as PanelCategory } from "@wso2-enterprise/ballerina-side-panel";
+import { cloneDeep } from "lodash";
 
 const Container = styled.div`
     width: 100%;
@@ -722,11 +723,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         suggestedText.current = undefined;
     };
 
-    const handleOpenView = async (filePath: string, position: NodePosition) => {
+    const handleOpenView = async (filePath: string, position: NodePosition, identifier?: string) => {
         console.log(">>> open view: ", { filePath, position });
         const context: VisualizerLocation = {
             documentUri: filePath,
             position: position,
+            identifier: identifier,
         };
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
@@ -755,6 +757,56 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         showEditForm.current = true;
         setSidePanelView(SidePanelView.AGENT_MODEL);
         setShowSidePanel(true);
+    };
+
+    const handleOnSelectMemoryManager = (node: FlowNode) => {
+        console.log(">>> Select memory manager called", node);
+        selectedNodeRef.current = node;
+        showEditForm.current = true;
+        setSidePanelView(SidePanelView.AGENT_MEMORY_MANAGER);
+        setShowSidePanel(true);
+    };
+
+    const handleOnDeleteMemoryManager = async (node: FlowNode) => {
+        console.log(">>> Delete memory manager called", node);
+        selectedNodeRef.current = node;
+        setShowProgressIndicator(true);
+        try {
+            const agentNode = await findAgentNodeFromAgentCallNode(node, rpcClient);
+            const agentFilePath = await getAgentFilePath(rpcClient);
+
+            // Create a clone of the agent node to modify
+            const updatedAgentNode = cloneDeep(agentNode);
+
+            // Remove memory manager from agent node
+            if (!(updatedAgentNode.properties as any).memoryManager) {
+                (updatedAgentNode.properties as any).memoryManager = {
+                    value: "",
+                    advanced: true,
+                    optional: true,
+                    editable: true,
+                    valueType: "EXPRESSION",
+                    valueTypeConstraint: "agent:MemoryManager",
+                    metadata: {
+                        label: "Memory Manager",
+                        description: "The memory manager used by the agent to store and manage conversation history",
+                    },
+                    placeholder: "object {}",
+                };
+            } else {
+                agentNode.properties.memoryManager.value = "()";
+            }
+            // Generate the source code
+            const agentResponse = await rpcClient
+                .getBIDiagramRpcClient()
+                .getSourceCode({ filePath: agentFilePath, flowNode: agentNode });
+            console.log(">>> response getSourceCode after tool deletion", { agentResponse });
+        } catch (error) {
+            console.error("Error deleting memory manager:", error);
+            alert("Failed to remove memory manager. Please try again.");
+        } finally {
+            setShowProgressIndicator(false);
+        }
     };
 
     const handleOnAddTool = (node: FlowNode) => {
@@ -790,13 +842,35 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }, 500);
     };
 
-    const handleOnSelectTool = (tool: ToolData, node: FlowNode) => {
+    const handleOnSelectTool = async (tool: ToolData, node: FlowNode) => {
         console.log(">>> Edit tool called", { node, tool });
         selectedNodeRef.current = node;
         selectedClientName.current = tool.name;
         showEditForm.current = true;
-        setSidePanelView(SidePanelView.AGENT_TOOL);
-        setShowSidePanel(true);
+
+        setShowProgressIndicator(true);
+        const agentFilePath = await getAgentFilePath(rpcClient);
+        // get project components to find the function
+        const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
+        if (!projectComponents || !projectComponents.components) {
+            console.error("Project components not found");
+            return;
+        }
+        // find function from project components
+        const functionInfo = findFunctionByName(projectComponents.components, tool.name);
+        console.log(">>> functionInfo", functionInfo);
+        if (!functionInfo) {
+            console.error("Function not found");
+            return;
+        }
+        setShowProgressIndicator(false);
+        
+        const context: VisualizerLocation = {
+            documentUri: functionInfo.filePath,
+            identifier: functionInfo.name,
+            view: MACHINE_VIEW.BIFunctionForm,
+        };
+        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
     const handleOnDeleteTool = async (tool: ToolData, node: FlowNode) => {
@@ -866,6 +940,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 onSelectTool: handleOnSelectTool,
                 onDeleteTool: handleOnDeleteTool,
                 goToTool: handleOnGoToTool,
+                onSelectMemoryManager: handleOnSelectMemoryManager,
+                onDeleteMemoryManager: handleOnDeleteMemoryManager,
             },
             suggestions: {
                 fetching: fetchingAiSuggestions,

@@ -18,7 +18,7 @@ import { cloneDeep } from "lodash";
 import { findAgentNodeFromAgentCallNode, getAgentFilePath } from "./utils";
 
 const Container = styled.div`
-    padding: 16px 0 16px 16px;
+    padding: 16px;
 `;
 
 const Row = styled.div`

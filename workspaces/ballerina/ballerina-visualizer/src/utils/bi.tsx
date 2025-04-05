@@ -266,6 +266,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
             return "AI Agent";
         case SidePanelView.AGENT_MODEL:
             return "Configure LLM Model";
+        case SidePanelView.AGENT_MEMORY_MANAGER:
+            return "Configure Memory";
         case SidePanelView.AGENT_TOOL:
             return "Configure Tool";
         case SidePanelView.ADD_TOOL:
