@@ -21,7 +21,7 @@ import {
     ParentPopupData,
     BISearchRequest,
     CodeData,
-    AgentToolRequest
+    AgentToolRequest,
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -67,17 +67,9 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
 
     // Use effects to refresh the panel
     useEffect(() => {
-        rpcClient.onProjectContentUpdated((state: boolean) => {
-            if (sidePanelView === SidePanelView.NODE_LIST) {
-                console.log(">>> on project content updated", state);
-                fetchNodes();
-            }
-        });
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
-            if (sidePanelView === SidePanelView.NODE_LIST) {
-                console.log(">>> on parent popup submitted", parent);
-                fetchNodes();
-            }
+            console.log(">>> on parent popup submitted", parent);
+            fetchNodes();
         });
     }, [rpcClient]);
 
@@ -110,7 +102,6 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                 setCategories(filteredCategories);
                 console.log("filteredCategories", filteredCategories);
                 initialCategoriesRef.current = filteredCategories; // Store initial categories
-                setSidePanelView(SidePanelView.NODE_LIST);
                 setLoading(false);
             })
             .finally(() => {
@@ -131,11 +122,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             filePath: projectPath,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true",
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -223,7 +214,8 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     if (selectedNodeRef.current && selectedNodeRef.current.codedata.node === "FUNCTION_CALL") {
         concertMessage = `Convert ${selectedNodeRef.current.metadata.label} function to an isolated function`;
         concertRequired = true;
-        description = "Only isolated functions can be used as tools. Isolated functions ensure predictable behavior by avoiding shared state.";
+        description =
+            "Only isolated functions can be used as tools. Isolated functions ensure predictable behavior by avoiding shared state.";
     }
 
     return (
