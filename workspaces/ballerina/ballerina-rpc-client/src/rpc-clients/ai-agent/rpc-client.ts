@@ -21,6 +21,8 @@ import {
     AINodesResponse,
     AIToolsRequest,
     AIToolsResponse,
+    MemoryManagersRequest,
+    MemoryManagersResponse,
     createAIAgent,
     genTool,
     getAllAgents,
@@ -48,7 +50,7 @@ export class AiAgentRpcClient implements AIAgentAPI {
         return this._messenger.sendRequest(getAllModels, HOST_EXTENSION, params);
     }
 
-    getAllMemoryManagers(params: AIModelsRequest): Promise<AINodesResponse> {
+    getAllMemoryManagers(params: MemoryManagersRequest): Promise<MemoryManagersResponse> {
         return this._messenger.sendRequest(getAllMemoryManagers, HOST_EXTENSION, params);
     }
 
