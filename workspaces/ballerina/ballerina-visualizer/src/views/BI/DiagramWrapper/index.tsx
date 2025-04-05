@@ -136,15 +136,20 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
     let method = "";
     const parameters = getParameters(syntaxTree);
 
-    if (STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
+    if (syntaxTree && STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
         isResource = true;
         method = (syntaxTree as ResourceAccessorDefinition).functionName.value;
-    } else if (STKindChecker.isFunctionDefinition(syntaxTree)) {
+    } else if (syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)) {
         isResource = false;
         method = syntaxTree.functionName.value;
-    } else if (STKindChecker.isObjectMethodDefinition(syntaxTree)) {
+    } else if (syntaxTree && STKindChecker.isObjectMethodDefinition(syntaxTree)) {
         isRemote = syntaxTree.qualifierList?.some(qualifier => STKindChecker.isRemoteKeyword(qualifier)) || false;
         method = syntaxTree.functionName.value;
+    } else {
+        // FIXME: this is a temporary fix to navigate back to overview when the syntax tree is undefined
+        console.error(">>> cannot get method, syntaxTree is undefined");
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        return;
     }
 
     if (!isResource && method === "main") {
