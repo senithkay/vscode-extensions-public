@@ -498,7 +498,6 @@ export function TypeEditor(props: TypeEditorProps) {
             }
         });
 
-        console.log("+++=DIAGNOSTICS", response);
 
         if (response && response.diagnostics && response.diagnostics.length > 0) {
             setNameError(response.diagnostics[0].message);
