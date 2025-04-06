@@ -12,13 +12,13 @@ import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodeProper
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormFieldImport, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../Forms/FormGeneratorNew";
 import { TitleBar } from "../../../components/TitleBar";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { FormHeader } from "../../../components/FormHeader";
-import { convertConfig } from "../../../utils/bi";
+import { convertConfig, getImportsForProperty } from "../../../utils/bi";
 
 const FormContainer = styled.div`
     display: flex;
@@ -184,7 +184,7 @@ export function FunctionForm(props: FunctionFormProps) {
         console.log("Existing Function Node: ", flowNode);
     }
 
-    const handleSubmit = async (data: FormValues) => {
+    const handleSubmit = async (data: FormValues, fieldImports?: Record<string, FormFieldImport>) => {
         console.log("Function Form Data: ", data);
     
         const functionNodeCopy = { ...functionNode };
@@ -243,6 +243,8 @@ export function FunctionForm(props: FunctionFormProps) {
                     } else {
                         property.value = dataValue;
                     }
+                    const imports = getImportsForProperty(key, fieldImports);
+                    property.imports = imports;
                 }
             }
         }
