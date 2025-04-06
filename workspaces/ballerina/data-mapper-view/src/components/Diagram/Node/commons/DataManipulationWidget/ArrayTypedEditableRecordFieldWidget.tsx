@@ -119,7 +119,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     let isDisabled = portIn.descendantHasValue;
     if (!isDisabled) {
-        if (listConstructor && expanded && portIn.parentModel) {
+        const hasElements = listConstructor && listConstructor.expressions.length > 0;
+        if (listConstructor && hasElements && expanded && portIn.parentModel) {
             portIn.setDescendantHasValue();
             isDisabled = true;
         }

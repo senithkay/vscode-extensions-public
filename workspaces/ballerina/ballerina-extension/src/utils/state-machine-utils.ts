@@ -17,10 +17,14 @@ import { FindConstructByNameVisitor } from "./history/find-construct-by-name-vis
 import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-visitor";
 import { getConstructBodyString } from "./history/util";
 import { ballerinaExtInstance } from "../core";
+import { DATA_MAPPING_FILE, FUNCTIONS_FILE } from "./config";
 
 export async function getView(documentUri: string, position: NodePosition, projectUri?: string): Promise<HistoryEntry> {
     const haveTreeData = !!StateMachine.context().projectStructure;
-    if (haveTreeData) {
+    const isDataMapper = documentUri.endsWith(DATA_MAPPING_FILE);
+    const isFunction = documentUri.endsWith(FUNCTIONS_FILE);
+    // Workaround for opening the data mapper view and function diagram on creation
+    if (haveTreeData && !isDataMapper && !isFunction) {
         return getViewByArtifacts(documentUri, position, projectUri);
     } else {
         return await getViewBySTRange(documentUri, position, projectUri);

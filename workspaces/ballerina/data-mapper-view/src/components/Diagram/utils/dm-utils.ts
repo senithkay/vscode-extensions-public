@@ -1521,7 +1521,13 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
 			expr = expr.valueExpr;
 		}
 		const innerExpr = getInnermostExpressionBody(expr);
-		const value: string = innerExpr?.value || innerExpr?.source;
+		let value: string = innerExpr?.value || innerExpr?.source;
+
+		if (STKindChecker.isListConstructor(innerExpr) && innerExpr.expressions.length === 0) {
+			// Ensure new lines and spaces are removed in empty arrays
+			value = "[]";
+		}
+
 		if (value !== undefined) {
 			return isDefaultValue(editableRecordField.type, value) ? ValueType.Default : ValueType.NonEmpty;
 		}
