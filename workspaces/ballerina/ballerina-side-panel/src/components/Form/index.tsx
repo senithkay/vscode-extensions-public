@@ -17,6 +17,7 @@ import {
     LinkButton,
     ThemeColors,
     SidePanelBody,
+    CheckBox,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
@@ -40,7 +41,7 @@ import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString, stripHtmlTags } from "./utils";
 
 namespace S {
-    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean; compact?: boolean }>`
+    export const Container = styled(SidePanelBody)<{ nestedForm?: boolean; compact?: boolean }>`
         display: flex;
         flex-direction: column;
         gap: ${({ compact }) => (compact ? "8px" : "20px")};
@@ -202,7 +203,12 @@ namespace S {
         border-radius: 4px;
         transition: max-height 0.3s ease-in-out;
 
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             margin: 16px 0 8px 0;
             font-family: var(--vscode-font-family);
             font-weight: normal;
@@ -271,6 +277,19 @@ namespace S {
             background-color: var(--vscode-editor-inactiveSelectionBackground);
         }
     `;
+
+    export const ConcertContainer = styled.div`
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+        border-radius: 4px;
+    `;
+
+    export const ConcertMessage = styled.div`
+        font-size: 13px;
+        color: ${ThemeColors.ON_SURFACE_VARIANT};
+    `;
 }
 export interface FormProps {
     infoLabel?: string;
@@ -300,6 +319,8 @@ export interface FormProps {
     isInferredReturnType?: boolean;
     disableSaveButton?: boolean;
     compact?: boolean;
+    concertRequired?: boolean;
+    concertMessage?: string;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -330,6 +351,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         nestedForm,
         compact = false,
         isInferredReturnType,
+        concertRequired = true,
+        concertMessage,
     } = props;
 
     const {
@@ -353,6 +376,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const markdownRef = useRef<HTMLDivElement>(null);
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
+
+    const [isUserConcert, setIsUserConcert] = useState(false);
 
     useEffect(() => {
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
@@ -385,8 +410,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 // Handle choice fields and their properties
                 if (field?.choices && field.choices.length > 0) {
                     // Get the selected choice index (default to 0 if not set)
-                    const selectedChoiceIndex = formValues[field.key] !== undefined ?
-                        Number(formValues[field.key]) : 0;
+                    const selectedChoiceIndex = formValues[field.key] !== undefined ? Number(formValues[field.key]) : 0;
 
                     const selectedChoice = field.choices[selectedChoiceIndex];
 
@@ -607,7 +631,12 @@ export const Form = forwardRef((props: FormProps, ref) => {
         return hasDiagnostics;
     }, [diagnosticsInfo]);
 
-    const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
+    const handleConcertChange = (checked: boolean) => {
+        setIsUserConcert(checked);
+    };
+
+    const disableSaveButton =
+        !isValid || isValidating || props.disableSaveButton || (concertMessage && concertRequired && !isUserConcert);
 
     const handleShowMoreClick = () => {
         setIsMarkdownExpanded(!isMarkdownExpanded);
@@ -752,6 +781,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             }
                         })}
                 </S.CategoryRow>
+
+                {concertMessage && (
+                    <S.ConcertContainer>
+                        <CheckBox checked={isUserConcert} onChange={handleConcertChange} label={concertMessage} />
+                    </S.ConcertContainer>
+                )}
+
                 {onSubmit && (
                     <S.Footer>
                         {onCancelForm && (

@@ -188,7 +188,6 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                                         >
                                             {isCreating ? 'Creating...' : 'Create'}
                                         </Button>
-                                        <Button appearance="secondary">Cancel</Button>
                                     </ButtonContainer>
                                 </FormFields>
                             </FormContainer>

@@ -72,6 +72,7 @@ export type Metadata = {
         isIsolatedFunction?: boolean;
         tools?: ToolData[];
         model?: ToolData;
+        memoryManager?: MemoryManagerData;
         agent?: AgentData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
@@ -89,6 +90,10 @@ export type AgentData = {
     instructions?: string;
 }
 
+export type MemoryManagerData = {
+    name: string;
+    type: string;
+}
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
@@ -277,7 +282,9 @@ export type NodePropertyKey =
     | "functionName"
     | "systemPrompt"
     | "prompt"
-    | "enableModelContext";
+    | "enableModelContext"
+    | "memoryManager"
+    | "sessionId";
 
 export type BranchKind = "block" | "worker";
 
@@ -336,7 +343,8 @@ export type NodeKind =
     | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
     | "AUTOMATION"
-    | "CONFIG_VARIABLE";
+    | "CONFIG_VARIABLE"
+    | "CLASS_INIT";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];
