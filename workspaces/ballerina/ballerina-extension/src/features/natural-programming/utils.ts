@@ -24,11 +24,17 @@ import {
     LACK_OF_API_DOCUMENTATION_WARNING, LACK_OF_API_DOCUMENTATION_WARNING_2,
     NO_DOCUMENTATION_WARNING, CONFIG_FILE_NAME,
     MISSING_README_FILE_WARNING, MISSING_README_FILE_WARNING_2,
-    MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, MISSING_API_DOCS_2
+    MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, MISSING_API_DOCS_2,
+    PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
+    NO_BALLERINA_SOURCES_ERROR
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
 import { BACKEND_URL } from '../ai/utils';
+import { handleLogin } from "../../rpc-managers/ai-panel/utils";
+import { BallerinaProject } from '@wso2-enterprise/ballerina-core';
+import { getCurrentBallerinaProjectFromContext } from '../config-generator/configGenerator';
+import { BallerinaExtension } from 'src/core';
 
 let controller = new AbortController();
 
@@ -576,7 +582,97 @@ export function getVsCodeRootPath(): string {
 
     if (workspaceFolders && workspaceFolders.length > 0) {
         return workspaceFolders[0].uri.fsPath;
-    } else {
-        return "";
+    }
+
+    return "";
+}
+
+export async function getConfigFilePath(ballerinaExtInstance: BallerinaExtension, rootPath: string): Promise<string> {
+    if (await isBallerinaProjectAsync(rootPath)) {
+        return rootPath;
+    }
+
+    const activeTextEditor = vscode.window.activeTextEditor;
+    const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
+    let activeFilePath = "";
+    let configPath = "";
+
+    if (rootPath != "") {
+        return rootPath;
+    }
+
+    if (activeTextEditor) {
+        activeFilePath = activeTextEditor.document.uri.fsPath;
+    }
+
+    if (currentProject == null &&  activeFilePath == "") {
+        return await showNoBallerinaSourceWarningMessage();
+    }
+
+    try {
+        const currentBallerinaProject: BallerinaProject = await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
+
+        if (!currentBallerinaProject) {
+            return await showNoBallerinaSourceWarningMessage();
+        }
+            
+        if (currentBallerinaProject.kind == 'SINGLE_FILE_PROJECT') {
+            configPath = path.dirname(currentBallerinaProject.path);
+        } else {
+            configPath = currentBallerinaProject.path;
+        }
+
+        if (configPath == undefined && configPath == "") {
+            return await showNoBallerinaSourceWarningMessage();
+        }
+        return configPath;
+    } catch (error) {
+        return await showNoBallerinaSourceWarningMessage();
+    }
+}
+
+async function showNoBallerinaSourceWarningMessage() {
+    await vscode.window.showWarningMessage(NO_BALLERINA_SOURCES_ERROR);
+    return null;
+}
+
+export async function addConfigFile(configPath: string) {
+    await vscode.window.withProgress(
+        {
+            location: vscode.ProgressLocation.Notification,
+            title: PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
+            cancellable: false,
+        },
+        async () => {
+            try {
+                const token: string = await getTokenForNaturalFunction();
+                if (token == null) {
+                    handleLogin();
+                    return;
+                }
+
+                addDefaultModelConfigForNaturalFunctions(configPath, token, await getBackendURL());
+            } catch (error) {
+                handleLogin();
+                return;
+            }
+        }
+    );
+}
+
+async function isBallerinaProjectAsync(rootPath: string): Promise<boolean> {
+    try {
+        if (!fs.existsSync(rootPath)) {
+            return false;
+        }
+
+        const files = fs.readdirSync(rootPath);
+        return files.some(file => 
+            file.toLowerCase() === 'ballerina.toml' || 
+            file.toLowerCase().endsWith('.bal')
+        );
+    } catch (error) {
+        console.error(`Error checking Ballerina project: ${error}`);
+        return false;
     }
 }

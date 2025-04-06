@@ -11,17 +11,12 @@ import vscode from 'vscode';
 import { ENABLE_BACKGROUND_DRIFT_CHECK } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { addDefaultModelConfigForNaturalFunctions, getBackendURL, 
-    getLLMDiagnostics, getTokenForNaturalFunction, getVsCodeRootPath } from "./utils";
+import { addConfigFile, getConfigFilePath, getLLMDiagnostics} from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
-import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
-    PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN, WARNING_MESSAGE_FOR_NO_ACTIVE_PROJECT
+import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, 
+    MONITERED_EXTENSIONS, WARNING_MESSAGE_FOR_NO_ACTIVE_PROJECT
  } from './constants';
- import { handleLogin } from "../../rpc-managers/ai-panel/utils";
-import { BallerinaProject } from '@wso2-enterprise/ballerina-core';
-import { getCurrentBallerinaProjectFromContext } from '../config-generator/configGenerator';
-import path from 'path';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
@@ -111,72 +106,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 
     vscode.commands.registerCommand("ballerina.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {
-        const configPath = await getConfigFilePath(ballerinaExtInstance);
-        if (configPath == undefined || configPath == "") {
-            vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NO_ACTIVE_PROJECT);
-            return;
+        const configPath = await getConfigFilePath(ballerinaExtInstance, projectPath);
+        if (configPath != null) {
+            addConfigFile(configPath);
         }
-
-        addConfigFile(configPath);
     });
-}
-
-async function getConfigFilePath(ballerinaExtInstance: BallerinaExtension): Promise<string> {
-    const activeTextEditor = vscode.window.activeTextEditor;
-    const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
-    let activeFilePath = "";
-    let configPath = "";
-
-    if (activeTextEditor) {
-        activeFilePath = activeTextEditor.document.uri.fsPath;
-    }
-
-    if (currentProject == null &&  activeFilePath == "") {
-        return getVsCodeRootPath();
-    } else {
-        try {
-            const currentBallerinaProject: BallerinaProject = await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
-
-            if (!currentBallerinaProject) {
-                return getVsCodeRootPath();
-            } else {
-                if (currentBallerinaProject.kind == 'SINGLE_FILE_PROJECT') {
-                    configPath = path.dirname(currentBallerinaProject.path);
-                } else {
-                    configPath = currentBallerinaProject.path;
-                }
-
-                if (configPath == undefined && configPath == "") {
-                    return getVsCodeRootPath();
-                }
-                return configPath;
-            }
-        } catch (error) {
-            return getVsCodeRootPath();
-        }
-    }
-}
-
-async function addConfigFile(configPath: string) {
-    await vscode.window.withProgress(
-        {
-            location: vscode.ProgressLocation.Notification,
-            title: PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
-            cancellable: false,
-        },
-        async () => {
-            try {
-                const token: string = await getTokenForNaturalFunction();
-                if (token == null) {
-                    handleLogin();
-                    return;
-                }
-
-                addDefaultModelConfigForNaturalFunctions(configPath, token, await getBackendURL());
-            } catch (error) {
-                handleLogin();
-                return;
-            }
-        }
-    );
 }
