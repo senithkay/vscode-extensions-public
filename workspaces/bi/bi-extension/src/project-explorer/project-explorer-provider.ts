@@ -193,8 +193,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Listeners",
         vscode.TreeItemCollapsibleState.Collapsed,
         null,
-        'bell',
-        true
+        'radio',
+        false
     );
     listeners.contextValue = "listeners";
     listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENER], DIRECTORY_MAP.LISTENER);

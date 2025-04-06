@@ -143,7 +143,7 @@ async function getEntryValue(artifact: BaseArtifact, icon: string) {
             entryValue.icon = getCustomEntryNodeIcon(getTypePrefix(artifact.type));
             break;
         case DIRECTORY_MAP.CONNECTION:
-            // entryValue.icon = getCustomEntryNodeIcon(getTypePrefix(artifact.type));
+            entryValue.icon = icon;
             break;
         case DIRECTORY_MAP.RESOURCE:
             // Do things related to resource
