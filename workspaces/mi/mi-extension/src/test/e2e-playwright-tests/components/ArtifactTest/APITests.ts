@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { expect, Frame, Page } from "@playwright/test";
+import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { AddArtifact } from "../AddArtifact";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
@@ -58,7 +58,9 @@ export class API {
         await version.waitFor();
         await version.fill('1.0.1');
         await frame.getByRole('radio', { name: 'None' }).click();
-        await frame.getByRole('button', { name: 'Create' }).click();
+        const submitBtn = await getVsCodeButton(frame, 'Create', 'primary');
+        expect(await submitBtn.isEnabled()).toBeTruthy();
+        await submitBtn.click();
     }
 
     public async editAPI() {
@@ -87,7 +89,9 @@ export class API {
         await apiFormFrame.locator('#property-name').getByPlaceholder('Property name').fill('testProp');
         await apiFormFrame.locator('#property-value').getByPlaceholder('Property value').click();
         await apiFormFrame.locator('#property-value').getByPlaceholder('Property value').fill('testValue');
-        await apiFormFrame.getByRole('button', { name: 'Save changes' }).click();
+        const submitBtn = await getVsCodeButton(frame, 'Save changes', 'primary');
+        expect(await submitBtn.isEnabled()).toBeTruthy();
+        await submitBtn.click();
     }
 
     public async addResource() {
