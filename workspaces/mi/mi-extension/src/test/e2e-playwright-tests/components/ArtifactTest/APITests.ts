@@ -176,7 +176,7 @@ export class API {
     public async createWSDLFromSidePanel() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await this._page.locator('#list_id_2_1').getByLabel('APIs').locator('div').filter({ hasText: 'APIs' }).hover();
+        await projectExplorer.findItem(['Project testProject', 'APIs'], true);
         await this._page.getByLabel('Add API').click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
@@ -194,7 +194,7 @@ export class API {
     public async createWSDLFromFile() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await this._page.locator('#list_id_2_1').getByLabel('APIs').locator('div').filter({ hasText: 'APIs' }).hover();
+        await projectExplorer.findItem(['Project testProject', 'APIs'], true);
         await this._page.getByLabel('Add API').click();
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
