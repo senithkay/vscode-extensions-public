@@ -132,7 +132,6 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
     const [searchValue, setSearchValue] = useState<string>('');
     const [isTypeBrowserOpen, setIsTypeBrowserOpen] = useState<boolean>(false);
     const [activePanelIndex, setActivePanelIndex] = useState<number>(PANEL_TABS.TYPES);
-    const [showImportedTypes, setShowImportedTypes] = useState<boolean>(false);
 
     const handleOperatorClick = (operator: TypeHelperOperator) => {
         if (operator.insertType === 'global') {

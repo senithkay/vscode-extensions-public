@@ -196,3 +196,7 @@ export type FormExpressionEditorProps =
     FormHelperPaneConditionalProps &
     FormExpressionEditorBaseProps &
     SanitizedExpressionEditorProps;
+
+export type FormFieldImport = {
+    [prefix: string]: string;
+};

@@ -32,6 +32,7 @@ import {
     ExpressionFormField,
     FormExpressionEditorProps,
     PanelContainer,
+    FormFieldImport,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
@@ -84,7 +85,7 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     isGraphql?: boolean;
-    onSubmit: (node?: FlowNode, isDataMapper?: boolean) => void;
+    onSubmit: (node?: FlowNode, isDataMapper?: boolean, fieldImports?: Record<string, FormFieldImport>) => void;
     subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -143,6 +144,7 @@ export function FormGenerator(props: FormProps) {
     const { rpcClient } = useRpcContext();
 
     const [fields, setFields] = useState<FormField[]>([]);
+    const [fieldImports, setFieldImports] = useState<Record<string, FormFieldImport>>({});
     const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false, newTypeValue: "" });
     const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
@@ -248,7 +250,7 @@ export function FormGenerator(props: FormProps) {
             console.log(">>> Updated node", updatedNode);
 
             const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
-            onSubmit(updatedNode, isDataMapperFormUpdate);
+            onSubmit(updatedNode, isDataMapperFormUpdate, fieldImports);
         }
     };
 
@@ -290,16 +292,16 @@ export function FormGenerator(props: FormProps) {
     };
 
     const handleUpdateImports = (key: string, imports: {[key: string]: string}) => {
-        const updatedFields = fields.map((field) => {
-            if (field.key === key) {
-                const existingImports = field.imports || {};
-                if (!Object.keys(existingImports).includes(imports[key])) {
-                    return { ...field, imports: { ...existingImports, ...imports } };
-                }
+        const importKey = Object.keys(imports)?.[0];
+        if (Object.keys(fieldImports).includes(key)) {
+            if (importKey && !Object.keys(fieldImports[key]).includes(importKey)) {
+                const updatedImports = { ...fieldImports, [key]: { ...fieldImports[key], ...imports } };
+                setFieldImports(updatedImports);
             }
-            return field;
-        });
-        setFields(updatedFields);
+        } else {
+            const updatedImports = { ...fieldImports, [key]: imports };
+            setFieldImports(updatedImports);
+        }
     }
 
     /* Expression editor related functions */
@@ -714,6 +716,7 @@ export function FormGenerator(props: FormProps) {
                     actionButton={actionButton}
                     recordTypeFields={recordTypeFields}
                     isInferredReturnType={!!node.codedata?.inferredReturnType}
+                    fieldImports={fieldImports}
                 />
             )}
             {typeEditorState.isOpen && (
