@@ -28,6 +28,8 @@ const LeftContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1;
+    width: 100%;
 `;
 
 const RightContainer = styled.div`
@@ -47,6 +49,10 @@ const Title = styled.h2`
     font-size: 20px;
     font-weight: 600;
     color: var(--vscode-foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: fit-content;
 `;
 
 const SubTitle = styled.span`
@@ -75,13 +81,6 @@ const IconButton = styled.div`
         font-size: 24px;
     }
 `;
-
-const BetaSVGWrapper = styled.span`
-    display: inline-flex;
-    align-items: center;
-    margin-top: 2px;
-`;
-
 
 interface TitleBarProps {
     title: string;
