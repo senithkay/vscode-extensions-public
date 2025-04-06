@@ -368,7 +368,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
             for (const module of project.modules) {
                 const projectModule: ProjectModule = {
                     moduleName: module.moduleName,
-                    sourceFiles: []
+                    sourceFiles: [],
+                    isGenerated : module.isGenerated
                 };
                 for (const [fileName, content] of Object.entries(module.sources)) {
                     // const filePath = `modules/${module.moduleName}/${fileName}`;
@@ -968,6 +969,7 @@ interface BallerinaProject {
 interface BallerinaModule {
     moduleName: string;
     sources: { [key: string]: string };
+    isGenerated: boolean;
 }
 
 enum CodeGenerationType {
@@ -1020,6 +1022,13 @@ async function getCurrentProjectSource(requestType: string): Promise<BallerinaPr
 
     // Read modules
     const modulesDir = path.join(projectRoot, 'modules');
+    const generatedDir = path.join(projectRoot, 'generated');
+    await populateModules(modulesDir, project);
+    await populateModules(generatedDir, project);
+    return project;
+}
+
+async function populateModules(modulesDir: string, project: BallerinaProject) {
     if (fs.existsSync(modulesDir)) {
         const modules = fs.readdirSync(modulesDir, { withFileTypes: true });
         for (const moduleDir of modules) {
@@ -1027,6 +1036,7 @@ async function getCurrentProjectSource(requestType: string): Promise<BallerinaPr
                 const module: BallerinaModule = {
                     moduleName: moduleDir.name,
                     sources: {},
+                    isGenerated: path.basename(modulesDir) !== 'modules'
                 };
 
                 const moduleFiles = fs.readdirSync(path.join(modulesDir, moduleDir.name));
@@ -1041,8 +1051,6 @@ async function getCurrentProjectSource(requestType: string): Promise<BallerinaPr
             }
         }
     }
-
-    return project;
 }
 
 async function getBallerinaProjectRoot(): Promise<string | null> {

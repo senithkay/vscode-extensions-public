@@ -268,6 +268,7 @@ async function getProjectSource(dirPath: string): Promise<ProjectSource | null> 
                 const projectModule: ProjectModule = {
                     moduleName: moduleDir.name,
                     sourceFiles: [],
+                    isGenerated: false,
                 };
 
                 const moduleFiles = fs.readdirSync(path.join(modulesDir, moduleDir.name));

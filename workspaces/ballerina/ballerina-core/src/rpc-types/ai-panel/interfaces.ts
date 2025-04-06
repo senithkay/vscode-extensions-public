@@ -34,6 +34,7 @@ export interface ProjectSource {
 export interface ProjectModule {
     moduleName: string;
     sourceFiles: SourceFile[];
+    isGenerated: boolean;
 }
 
 export interface SourceFile {

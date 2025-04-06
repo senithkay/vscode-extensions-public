@@ -863,7 +863,7 @@ export function AIChat() {
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
-            sourceFiles: project.sourceFiles,
+            sourceFiles: transformProjectSource(project),
             operationType,
         };
 
@@ -950,6 +950,7 @@ export function AIChat() {
                     const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
                         assistant_response: assistant_response,
                     });
+                    console.log("Raw resp Before repair:", assistant_response);
                     assistant_response = postProcessResp.assistant_response;
                     diagnostics = postProcessResp.diagnostics.diagnostics;
                     console.log("Initial Diagnostics : ", diagnostics);
@@ -974,7 +975,7 @@ export function AIChat() {
                     let newReqBody : any= {
                         usecase: useCase,
                         chatHistory: chatArray,
-                        sourceFiles: project.sourceFiles,
+                        sourceFiles: transformProjectSource(project),
                         diagnosticRequest: diagReq,
                         functions: functionsRef.current,
                         operationType,
@@ -2063,7 +2064,7 @@ export function AIChat() {
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
-            sourceFiles: project.sourceFiles,
+            sourceFiles: transformProjectSource(project),
         };
 
         const response = await fetchWithToken(
@@ -2503,7 +2504,7 @@ export function AIChat() {
             const reqBody : any = {
                 usecase: usecase,
                 chatHistory: chatArray.slice(0, chatArray.length - 2),
-                sourceFiles: project.sourceFiles,
+                sourceFiles: transformProjectSource(project),
                 diagnosticRequest: diagReq,
                 functions: functionsRef.current,
                 operationType: CodeGenerationType.CODE_GENERATION,
@@ -3248,4 +3249,38 @@ function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
                 !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) &&
                 !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
         );
+}
+
+interface SourceFiles {
+    filePath:string;
+    content:string;
+};
+
+function transformProjectSource(project: ProjectSource): SourceFiles[] {
+    const sourceFiles: SourceFiles[] = [];
+    project.sourceFiles.forEach((file) => {
+        sourceFiles.push({
+            filePath: file.filePath,
+            content: file.content,
+        });
+    });
+    project.projectModules?.forEach((module) => {
+        let basePath = "";
+        if (!module.isGenerated) {
+            basePath += "modules/";
+        } else {
+            basePath += "generated/";
+        }
+
+        basePath += module.moduleName + "/";
+        // const path = 
+        module.sourceFiles.forEach((file) => {
+            sourceFiles.push({
+                filePath: basePath + file.filePath,
+                content: file.content,
+            });
+        }
+        );
+    });
+    return sourceFiles;
 }
