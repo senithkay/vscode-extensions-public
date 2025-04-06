@@ -291,7 +291,7 @@ export function FormGenerator(props: FormProps) {
         setTypeEditorState({ isOpen, fieldKey: editingField?.key, newTypeValue: f[editingField?.key] });
     };
 
-    const handleUpdateImports = (key: string, imports: {[key: string]: string}) => {
+    const handleUpdateImports = (key: string, imports: FormFieldImport) => {
         const importKey = Object.keys(imports)?.[0];
         if (Object.keys(fieldImports).includes(key)) {
             if (importKey && !Object.keys(fieldImports[key]).includes(importKey)) {
