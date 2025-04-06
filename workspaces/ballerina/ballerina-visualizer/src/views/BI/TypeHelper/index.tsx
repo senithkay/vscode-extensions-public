@@ -92,7 +92,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                                     queryMap: {
                                         q: '',
                                         offset: 0,
-                                        limit: 60
+                                        limit: 1000
                                     },
                                     searchKind: 'TYPE'
                                 })
@@ -119,7 +119,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                         queryMap: {
                             q: searchText,
                             offset: 0,
-                            limit: 60
+                            limit: 1000
                         },
                         searchKind: 'TYPE'
                     })
@@ -157,7 +157,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                         queryMap: {
                             q: searchText,
                             offset: 0,
-                            limit: 60
+                            limit: 1000
                         },
                         searchKind: 'TYPE'
                         })
