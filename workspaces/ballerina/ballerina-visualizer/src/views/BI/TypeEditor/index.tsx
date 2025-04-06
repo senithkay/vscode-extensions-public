@@ -16,15 +16,17 @@ import { TYPE_HELPER_OPERATORS } from './constants';
 import { filterOperators, filterTypes, getImportedTypes, getTypeBrowserTypes, getTypes } from './utils';
 
 type FormTypeEditorProps = {
+    fieldKey?: string;
     type?: Type;
     onTypeChange: (type: Type) => void;
     newType: boolean;
     newTypeValue?: string;
     isGraphql?: boolean;
+    updateImports?: (key: string, imports: {[key: string]: string}) => void;
 };
 
 export const FormTypeEditor = (props: FormTypeEditorProps) => {
-    const { type, onTypeChange, newType, newTypeValue, isGraphql } = props;
+    const { fieldKey, type, onTypeChange, newType, newTypeValue, isGraphql, updateImports } = props;
     const { rpcClient } = useRpcContext();
 
     const [filePath, setFilePath] = useState<string | undefined>(undefined);
@@ -181,7 +183,15 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
             searchKind: 'TYPE'
         });
 
-        return response.template ?? '';
+        if (response) {
+            const importStatement = {
+                [response.prefix]: response.moduleId
+            };
+            updateImports(fieldKey, importStatement);
+            return response.template;
+        }
+
+        return '';
     };
 
     return (

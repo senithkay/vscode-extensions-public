@@ -275,7 +275,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const handleCompletionSelect = async (value: string, item: CompletionItem) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(value, item.additionalTextEdits);
+        await onCompletionItemSelect?.(value, field.key, item.additionalTextEdits);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -328,6 +328,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         helperPaneHeight: HelperPaneHeight
     ) => {
         return getHelperPane?.(
+            field.key,
             exprRef,
             anchorRef,
             field.placeholder,

@@ -201,6 +201,7 @@ import {
     OpenAPIGeneratedModulesResponse,
     OpenAPIClientDeleteResponse,
     OpenAPIClientDeleteRequest,
+    ImportsInfoResponse,
     ProjectArtifactsRequest,
     ProjectArtifacts,
     Artifacts,
@@ -1024,8 +1025,8 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<GetGraphqlTypeResponse>(EXTENDED_APIS.BI_GET_GRAPHQL_TYPE, params);
     }
 
-    async updateImports(params: UpdateImportsRequest): Promise<void> {
-        return this.sendRequest<void>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
+    async updateImports(params: UpdateImportsRequest): Promise<ImportsInfoResponse> {
+        return this.sendRequest<ImportsInfoResponse>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
     }
 
     async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {

@@ -21,7 +21,7 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
+import { ExpressionFormField, FormExpressionEditorProps, FormField, FormFieldImport, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import {
@@ -38,7 +38,7 @@ import {
     RecordTypeField,
 } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
-import { formatJSONLikeString, stripHtmlTags } from "./utils";
+import { formatJSONLikeString, stripHtmlTags, updateFormFieldWithImports } from "./utils";
 
 namespace S {
     export const Container = styled(SidePanelBody)<{ nestedForm?: boolean; compact?: boolean }>`
@@ -321,6 +321,7 @@ export interface FormProps {
     compact?: boolean;
     concertRequired?: boolean;
     concertMessage?: string;
+    fieldImports?: Record<string, FormFieldImport>;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -353,6 +354,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         isInferredReturnType,
         concertRequired = true,
         concertMessage,
+        fieldImports
     } = props;
 
     const {
@@ -713,19 +715,20 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             ) {
                                 return;
                             }
+                            const updatedField = updateFormFieldWithImports(field, fieldImports);
                             return (
-                                <S.Row key={field.key}>
+                                <S.Row key={updatedField.key}>
                                     <EditorFactory
                                         ref={exprRef}
-                                        field={field}
+                                        field={updatedField}
                                         selectedNode={selectedNode}
                                         openRecordEditor={
-                                            openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))
+                                            openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, updatedField))
                                         }
                                         openSubPanel={handleOpenSubPanel}
                                         subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
-                                        autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
+                                        autoFocus={firstEditableFieldIndex === formFields.indexOf(updatedField)}
                                         visualizableFields={visualizableFields}
                                         recordTypeFields={recordTypeFields}
                                     />
@@ -761,14 +764,15 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         showAdvancedOptions &&
                         formFields.map((field) => {
                             if (field.advanced) {
+                                const updatedField = updateFormFieldWithImports(field, fieldImports);
                                 return (
-                                    <S.Row key={field.key}>
+                                    <S.Row key={updatedField.key}>
                                         <EditorFactory
                                             ref={exprRef}
-                                            field={field}
+                                            field={updatedField}
                                             openRecordEditor={
                                                 openRecordEditor &&
-                                                ((open: boolean) => handleOpenRecordEditor(open, field))
+                                                ((open: boolean) => handleOpenRecordEditor(open, updatedField))
                                             }
                                             openSubPanel={handleOpenSubPanel}
                                             subPanelView={subPanelView}

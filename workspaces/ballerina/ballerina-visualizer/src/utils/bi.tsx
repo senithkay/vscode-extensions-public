@@ -14,6 +14,7 @@ import {
     FormValues,
     ParameterValue,
     Parameter,
+    FormFieldImport,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow, ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import {
@@ -829,3 +830,14 @@ export function getInfoFromExpressionValue(
         charOffset: charOffset
     };
 }
+
+export const getImportsForProperty = (
+    key: string,
+    imports: Record<string, FormFieldImport>
+): FormFieldImport | undefined => {
+    if (!imports) {
+        return undefined;
+    }
+
+    return imports[key];
+};

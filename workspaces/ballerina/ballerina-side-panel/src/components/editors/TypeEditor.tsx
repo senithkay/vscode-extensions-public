@@ -123,7 +123,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCompletionSelect = async (value: string) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(value);
+        await onCompletionItemSelect?.(value, field.key);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -166,6 +166,7 @@ export function TypeEditor(props: TypeEditorProps) {
         helperPaneHeight: HelperPaneHeight
     ) => {
         return getTypeHelper(
+            field.key,
             typeBrowserRef,
             value,
             cursorPositionRef.current,

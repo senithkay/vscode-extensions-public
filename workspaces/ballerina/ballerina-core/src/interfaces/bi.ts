@@ -108,6 +108,7 @@ export type Property = {
     valueTypeConstraint?: string | string[];
     codedata?: CodeData;
     typeMembers?: PropertyTypeMemberInfo[];
+    imports?: {[key: string]: string};
 };
 
 export type PropertyTypeMemberInfo = {
