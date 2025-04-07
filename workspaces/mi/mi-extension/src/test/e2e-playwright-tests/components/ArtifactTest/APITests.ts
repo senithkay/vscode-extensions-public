@@ -139,40 +139,6 @@ export class API {
         await desWebView.getByRole('gridcell', { name: 'Delete' }).click();
     }
 
-    public async createOpenApiFromSidePanel() {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        await overviewPage.goToAddArtifact();
-
-        const addArtifactPage = new AddArtifact(this._page);
-        await addArtifactPage.init();
-        await addArtifactPage.add('API');
-
-        const openAPIFile = path.join(__dirname, 'data', 'openapi.yaml');
-        // Get the users home directory
-        const homeDir = os.homedir();
-        const desination = path.join(homeDir, 'openapi.yaml');
-        await copyFile(openAPIFile, desination);
-        const apiFormWebView = await switchToIFrame('API Form', this._page);
-        if (!apiFormWebView) {
-            throw new Error("Failed to switch to API Form iframe");
-        }
-        const apiFormFrame = apiFormWebView.locator('div#root');
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill('NewOpenAPI');
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/openAPI');
-        await apiFormFrame.locator('#version-type div').nth(1).click();
-        await apiFormFrame.getByLabel('Context', { exact: true }).click();
-        await apiFormFrame.getByRole('textbox', { name: 'Version' }).fill('1.0.0');
-        await apiFormFrame.getByLabel('From OpenAPI definition').click();
-        await apiFormFrame.getByRole('button', { name: 'Select Location' }).click();
-        await this._page.getByLabel('input').fill(desination);
-        await this._page.getByRole('button', { name: 'OK' }).click();
-        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
-    }
-
     public async createWSDLFromSidePanel() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
@@ -209,6 +175,44 @@ export class API {
         const homeDir = os.homedir();
         const desination = path.join(homeDir, 'wsdl.wsdl');
         await copyFile(wsdlFile, desination);
+        await apiFormFrame.getByRole('button', { name: 'Select Location' }).click();
+        await this._page.getByLabel('input').fill(desination);
+        await this._page.getByRole('button', { name: 'OK' }).click();
+        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
+        const webView = await switchToIFrame('Service Designer', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Service Designer iframe");
+        }
+    }
+
+    public async createOpenApi() {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        await overviewPage.goToAddArtifact();
+
+        const addArtifactPage = new AddArtifact(this._page);
+        await addArtifactPage.init();
+        await addArtifactPage.add('API');
+
+        const openAPIFile = path.join(__dirname, 'data', 'openapi.yaml');
+        // Get the users home directory
+        const homeDir = os.homedir();
+        const desination = path.join(homeDir, 'openapi.yaml');
+        await copyFile(openAPIFile, desination);
+        const apiFormWebView = await switchToIFrame('API Form', this._page);
+        if (!apiFormWebView) {
+            throw new Error("Failed to switch to API Form iframe");
+        }
+        const apiFormFrame = apiFormWebView.locator('div#root');
+        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill('NewOpenAPI');
+        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/openAPI');
+        await apiFormFrame.locator('#version-type div').nth(1).click();
+        await apiFormFrame.getByLabel('Context', { exact: true }).click();
+        await apiFormFrame.getByRole('textbox', { name: 'Version' }).fill('1.0.0');
+        await apiFormFrame.getByLabel('From OpenAPI definition').click();
         await apiFormFrame.getByRole('button', { name: 'Select Location' }).click();
         await this._page.getByLabel('input').fill(desination);
         await this._page.getByRole('button', { name: 'OK' }).click();
