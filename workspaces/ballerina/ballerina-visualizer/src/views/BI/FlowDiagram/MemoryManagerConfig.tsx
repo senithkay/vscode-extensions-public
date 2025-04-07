@@ -185,6 +185,11 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
         });
         nodeTemplate.codedata.isNew = true;
         console.log(">>> request getSourceCode with template ", { nodeTemplate });
+        // HACK: update the line range to the memory manager node
+        nodeTemplate.codedata.lineRange = {
+            ...agentNodeRef.current.codedata.lineRange,
+            endLine: agentNodeRef.current.codedata.lineRange.startLine,
+        };
         const response = await rpcClient
             .getBIDiagramRpcClient()
             .getSourceCode({ filePath: agentFilePath.current, flowNode: nodeTemplate });

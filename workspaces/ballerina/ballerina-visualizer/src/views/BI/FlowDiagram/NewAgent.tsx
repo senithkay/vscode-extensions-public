@@ -184,17 +184,6 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
         console.log(">>> save value", { data, rawData });
         setSavingForm(true);
 
-        // save model node
-        const modelResponse = await rpcClient
-            .getBIDiagramRpcClient()
-            .getSourceCode({ filePath: agentFilePath.current, flowNode: defaultModelNode });
-        console.log(">>> modelResponse getSourceCode", { modelResponse });
-        const modelVarName = defaultModelNode.properties.variable.value as string;
-
-        // wait 2 seconds (wait until LS is updated)
-        console.log(">>> wait 2 seconds");
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
         // save the agent node
         const updatedAgentNode = cloneDeep(agentNode);
         const roleValue = (rawData["role"] || "").replace(/"/g, '\\"');
@@ -209,6 +198,22 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
             .getSourceCode({ filePath: agentFilePath.current, flowNode: updatedAgentNode });
         console.log(">>> agentResponse getSourceCode", { agentResponse });
         const agentVarName = agentNode.properties.variable.value as string;
+
+        // wait 2 seconds (wait until LS is updated)
+        console.log(">>> wait 2 seconds");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // save model node
+        // HACK: update the line range to the model node
+        defaultModelNode.codedata.lineRange = {
+            ...agentNode.codedata.lineRange,
+            startLine: agentNode.codedata.lineRange.endLine,
+        };
+        const modelResponse = await rpcClient
+            .getBIDiagramRpcClient()
+            .getSourceCode({ filePath: agentFilePath.current, flowNode: defaultModelNode });
+        console.log(">>> modelResponse getSourceCode", { modelResponse });
+        const modelVarName = defaultModelNode.properties.variable.value as string;
 
         // wait 2 seconds (wait until LS is updated)
         console.log(">>> wait 2 seconds");
