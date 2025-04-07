@@ -8,13 +8,27 @@
  */
 
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
-import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, Overlay, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { LibraryBrowser } from './LibraryBrowser';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { LineRange, FunctionKind } from '@wso2-enterprise/ballerina-core';
 import { convertToHelperPaneFunction, extractFunctionInsertText } from '../../../utils/bi';
 import { debounce } from 'lodash';
+import { useMutation } from '@tanstack/react-query';
+import { createPortal } from 'react-dom';
+import { LoadingRing } from '../../../components/Loader';
+import styled from '@emotion/styled';
+
+const LoadingContainer = styled.div`
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 5000;
+`;
+
 
 type FunctionsPageProps = {
     fieldKey: string;
@@ -80,13 +94,18 @@ export const FunctionsPage = ({
         [debounceFetchFunctionInfo, searchValue]
     );
 
+    const { mutateAsync: addFunction, isLoading: isAddingFunction  } = useMutation(
+        (item: HelperPaneCompletionItem) => 
+            rpcClient.getBIDiagramRpcClient().addFunction({
+                filePath: fileName,
+                codedata: item.codedata,
+                kind: item.kind as FunctionKind,
+                searchKind: 'FUNCTION'
+            })
+    );
+
     const onFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
-        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
-            filePath: fileName,
-            codedata: item.codedata,
-            kind: item.kind as FunctionKind,
-            searchKind: 'FUNCTION'
-        });
+        const response = await addFunction(item);
 
         if (response) {
             const importStatement = {
@@ -213,6 +232,13 @@ export const FunctionsPage = ({
                     onChange={onChange}
                     onFunctionItemSelect={onFunctionItemSelect}
                 />
+            )}
+            {isAddingFunction && createPortal(
+                <>
+                    <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.7`, zIndex: 5000 }} />
+                    <LoadingContainer> <LoadingRing /> </LoadingContainer>
+                </>
+                , document.body
             )}
         </>
     );
