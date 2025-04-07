@@ -37,4 +37,4 @@ export const MONITERED_EXTENSIONS = [
     ".bal", ".md", ".txt", ".pdf", ".docx"
 ];
 export const CONFIG_FILE_NAME = "Config.toml";
-export const MAIN_MODULE = "MAIN_MODULE";
+export const DEFAULT_MODULE = "DEFAULT_MODULE";

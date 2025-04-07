@@ -25,7 +25,7 @@ import {
     NO_DOCUMENTATION_WARNING, CONFIG_FILE_NAME,
     MISSING_README_FILE_WARNING, MISSING_README_FILE_WARNING_2,
     MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, MISSING_API_DOCS_2,
-    MAIN_MODULE
+    DEFAULT_MODULE
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
@@ -51,9 +51,11 @@ export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
     await createDiagnosticCollection(responses, projectUri, diagnosticCollection);
 }
 
-async function getLLMResponses(sources: BallerinaSource[], token: string, backendurl: string): Promise<any[] | number> {
+async function getLLMResponses(sources: BallerinaSource[], token: string, backendurl: string)
+                                                                    : Promise<any[] | number> {
     let promises: Promise<Response | Error>[] = [];
-    const subModulesWithReameFiles: string[] = sources.map(source => source.moduleName).filter(name => name != MAIN_MODULE);
+    const NonDefaultModulesWithReadmeFiles: string[] 
+        = sources.map(source => source.moduleName).filter(name => name != DEFAULT_MODULE);
 
     const commentResponsePromise = fetchWithToken(
         backendurl + API_DOCS_DRIFT_CHECK_ENDPOINT,
@@ -72,8 +74,8 @@ async function getLLMResponses(sources: BallerinaSource[], token: string, backen
     sources.forEach(source => {
         let body: string[] = [source.balFiles, source.requirements, source.readme, source.developerOverview];
 
-        if (source.moduleName == MAIN_MODULE) {
-            body.push(subModulesWithReameFiles.join(", "));
+        if (source.moduleName == DEFAULT_MODULE) {
+            body.push(NonDefaultModulesWithReadmeFiles.join(", "));
         }
 
         const documentationSourceResponsePromise = fetchWithToken(
@@ -94,7 +96,8 @@ async function getLLMResponses(sources: BallerinaSource[], token: string, backen
     let responses: (Response | Error)[] = await Promise.all(promises);
     const firstResponse = responses[0];
 
-    const filteredResponses: Response[] = responses.filter(response => !isError(response) && response.ok) as Response[];
+    const filteredResponses: Response[] 
+            = responses.filter(response => !isError(response) && response.ok) as Response[];
 
     if (filteredResponses.length === 0) {
         if (isError(firstResponse)) {
@@ -115,7 +118,8 @@ async function getLLMResponses(sources: BallerinaSource[], token: string, backen
     return extractedResponses;
 }
 
-async function createDiagnosticCollection(responses: any[], projectUri: string, diagnosticCollection: vscode.DiagnosticCollection) {
+async function createDiagnosticCollection(responses: any[], projectUri: string, 
+                                                        diagnosticCollection: vscode.DiagnosticCollection) {
     let diagnosticsMap = new Map<string, vscode.Diagnostic[]>();
 
     for (const response of responses) {
@@ -350,10 +354,10 @@ function getBalFiles(dir: string): string {
     return balFiles;
 }
 
-function getModuleBalSources(modulesDir: string): { completeBalFiles: string, subModulesWithReadMe: 
+function getModuleBalSources(modulesDir: string): { completeBalFiles: string, NonDefaultModulesWithReadMe: 
                             { [key: string]: { readmeContent: string, moduleBalFiles: string } } } {
     let completeBalFiles = "";
-    let subModulesWithReadMe = {};
+    let NonDefaultModulesWithReadMe = {};
 
     if (!fs.existsSync(modulesDir)) { return; }
     const moduleDirs = fs.readdirSync(modulesDir).filter(dir =>
@@ -381,11 +385,11 @@ function getModuleBalSources(modulesDir: string): { completeBalFiles: string, su
         }
 
         if (readmeContent.length > 0) {
-            subModulesWithReadMe[moduleName] = { readmeContent, moduleBalFiles: "<project>\n" + moduleBalFiles + "</project>" };
+            NonDefaultModulesWithReadMe[moduleName] = { readmeContent, moduleBalFiles: "<project>\n" + moduleBalFiles + "</project>" };
         }
         completeBalFiles += moduleBalFiles;
     }
-    return { completeBalFiles, subModulesWithReadMe };
+    return { completeBalFiles, NonDefaultModulesWithReadMe };
 }
 
 async function getRequirementAndDeveloperOverviewFiles(naturalLangDir: string): Promise<[string, string]> {
@@ -438,10 +442,9 @@ function getReadmeContent(folderPath: string, relativePath: string = ""): string
 export async function getBallerinaSourceFiles(folderPath: string):
     Promise<BallerinaSource[]> {
     let sources: BallerinaSource[] = [];
-    let readmeContent = "";
     const moduleSources = getModuleBalSources(path.join(folderPath, "modules"));
     const nlContent = await getRequirementAndDeveloperOverviewFiles(path.join(folderPath, NATURAL_PROGRAMMING_PATH));
-    readmeContent = getReadmeContent(folderPath);
+    const readmeContent = getReadmeContent(folderPath);
 
     let balFiles = "<project>\n";
     balFiles += getBalFiles(folderPath);
@@ -457,11 +460,11 @@ export async function getBallerinaSourceFiles(folderPath: string):
         readme: readmeContent.trim(),
         requirements: nlContent[0].trim(),
         developerOverview: nlContent[1].trim(),
-        moduleName: MAIN_MODULE
+        moduleName: DEFAULT_MODULE
     });
 
     if (moduleSources != null) {
-        Object.entries(moduleSources.subModulesWithReadMe).map(([moduleName, module]) => {
+        Object.entries(moduleSources.NonDefaultModulesWithReadMe).map(([moduleName, module]) => {
             const moduleBalFiles = module.moduleBalFiles;
             const readmeContent = module.readmeContent;
 
