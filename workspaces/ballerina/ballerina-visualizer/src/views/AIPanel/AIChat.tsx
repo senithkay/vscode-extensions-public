@@ -51,7 +51,7 @@ import ReferenceDropdown from "./Components/ReferenceDropdown";
 import AccordionItem from "./Components/TestScenarioSegment";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TestGeneratorIntermediaryState } from "./features/testGenerator";
-import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
+import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, hasCodeBlocks, parseCopilotSSEEvent } from "./utils/sse_utils";
 import MarkdownRenderer from "./Components/MarkdownRenderer";
 import { CodeSection } from "./Components/CodeSection";
 import { CodeSegment } from "./Components/CodeSegment";
@@ -963,7 +963,7 @@ export function AIChat() {
                 const MAX_REPAIR_ATTEMPTS = 3;
                 let repair_attempt = 0;
                 let diagnosticFixResp = assistant_response;
-                while (diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
+                while (hasCodeBlocks(assistant_response) && diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
                     console.log("Repair iteration: ", repair_attempt);
                     console.log("Diagnotsics trynna fix: ", diagnostics);
                     const diagReq = {
