@@ -314,26 +314,23 @@ export function FunctionForm(props: FunctionFormProps) {
             />
             <ViewContent padding>
                 <Container>
-                    {!saving && (
-                        <>
-                            <FormHeader
-                                title={`${functionName ? 'Edit' : 'Create New'} ${formType.current}`}
-                                subtitle={formSubtitle}
+                    <FormHeader
+                        title={`${functionName ? 'Edit' : 'Create New'} ${formType.current}`}
+                        subtitle={formSubtitle}
+                    />
+                    <FormContainer>
+                        {filePath && targetLineRange && functionFields.length > 0 &&
+                            <FormGeneratorNew
+                                fileName={filePath}
+                                targetLineRange={targetLineRange}
+                                fields={functionFields}
+                                isSaving={saving}
+                                onSubmit={handleFormSubmit}
+                                submitText={saving ? (functionName ? "Saving" : "Creating") : (functionName ? "Save" : "Create")}
+                                selectedNode={functionNode?.codedata?.node}
                             />
-                            <FormContainer>
-                                {filePath && targetLineRange && functionFields.length > 0 &&
-                                    <FormGeneratorNew
-                                        fileName={filePath}
-                                        targetLineRange={targetLineRange}
-                                        fields={functionFields}
-                                        onSubmit={handleFormSubmit}
-                                        submitText={saving ? (functionName ? "Saving" : "Creating") : (functionName ? "Save" : "Create")}
-                                        selectedNode={functionNode?.codedata?.node}
-                                    />
-                                }
-                            </FormContainer>
-                        </>
-                    )}
+                        }
+                    </FormContainer>
                 </Container>
             </ViewContent>
         </View>
