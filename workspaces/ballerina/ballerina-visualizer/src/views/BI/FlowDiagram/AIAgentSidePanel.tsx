@@ -211,7 +211,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     let concertMessage = "";
     let concertRequired = false;
     let description = "";
-    if (selectedNodeRef.current && selectedNodeRef.current.codedata.node === "FUNCTION_CALL") {
+    if (
+        selectedNodeRef.current &&
+        selectedNodeRef.current.codedata.node === "FUNCTION_CALL" &&
+        !selectedNodeRef.current.codedata.org
+    ) {
         concertMessage = `Convert ${selectedNodeRef.current.metadata.label} function to an isolated function`;
         concertRequired = true;
         description =
