@@ -865,6 +865,7 @@ export function AIChat() {
             chatHistory: chatArray,
             sourceFiles: transformProjectSource(project),
             operationType,
+            packageName: project.projectName,
         };
 
         const fileAttatchments = attachments.map((file) => ({
@@ -979,6 +980,7 @@ export function AIChat() {
                         diagnosticRequest: diagReq,
                         functions: functionsRef.current,
                         operationType,
+                        packageName: project.projectName,
                     };
                     if (attachments.length > 0) {
                         newReqBody.fileAttachmentContents = fileAttatchments;
@@ -1003,6 +1005,7 @@ export function AIChat() {
                     } else {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
+                        console.log("Resposne of attempt" + repair_attempt + " : ", repairResponse);
                         // replace original response with new code blocks
                         diagnosticFixResp = replaceCodeBlocks(diagnosticFixResp, repairResponse);
                         const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
@@ -2065,6 +2068,7 @@ export function AIChat() {
             usecase: useCase,
             chatHistory: chatArray,
             sourceFiles: transformProjectSource(project),
+            packageName: project.projectName,
         };
 
         const response = await fetchWithToken(
@@ -2508,6 +2512,7 @@ export function AIChat() {
                 diagnosticRequest: diagReq,
                 functions: functionsRef.current,
                 operationType: CodeGenerationType.CODE_GENERATION,
+                packageName: project.projectName,
             };
 
             const attatchments = lastAttatchmentsRef.current;
@@ -3033,7 +3038,7 @@ export function getProjectFromResponse(req: string): ProjectSource {
         sourceFiles.push({ filePath, content: fileContent });
     }
 
-    return { sourceFiles };
+    return { sourceFiles, projectName: "" };
 }
 
 export enum SegmentType {

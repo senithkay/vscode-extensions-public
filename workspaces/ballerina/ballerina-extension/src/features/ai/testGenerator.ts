@@ -87,7 +87,8 @@ export async function generateTest(
                         filePath: "service.bal",
                         content: serviceDeclaration.source
                     }
-                ]
+                ],
+                projectName: ""
             };
 
             const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests(updatedTestGenRequest, serviceProjectSource, abortController, openApiSpec);
@@ -247,6 +248,7 @@ async function getProjectSource(dirPath: string): Promise<ProjectSource | null> 
         sourceFiles: [],
         projectTests: [],
         projectModules: [],
+        projectName: ""
     };
 
     // Read root-level .bal files

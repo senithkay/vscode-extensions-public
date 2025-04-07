@@ -76,6 +76,7 @@ import {
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
 import { handleLogin, handleStop, isErrorCode, isLoggedin, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
+import { langClient } from "src/features/ai/activator";
 
 export let hasStopped: boolean = false;
 
@@ -355,7 +356,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // Initialize the ProjectSource object
         const projectSource: ProjectSource = {
             sourceFiles: [],
-            projectModules: []
+            projectModules: [],
+            projectName: project.projectName,
         };
 
         // Iterate through root-level sources
@@ -935,7 +937,7 @@ export function getProjectFromResponse(req: string): ProjectSource {
         sourceFiles.push({ filePath, content: fileContent });
     }
 
-    return { sourceFiles };
+    return { sourceFiles, projectName: "" };
 }
 
 function getContentInsideQuotes(input: string): string | null {
@@ -962,6 +964,7 @@ function getErrorDiagnostics(diagnostics: Diagnostics[]): DiagnosticEntry[] {
 }
 
 interface BallerinaProject {
+    projectName: string;
     modules?: BallerinaModule[];
     sources: { [key: string]: string };
 }
@@ -985,9 +988,22 @@ async function getCurrentProjectSource(requestType: string): Promise<BallerinaPr
         return null;
     }
 
+    // Read the Ballerina.toml file to get package name
+    const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
+    let packageName = '';
+    if (fs.existsSync(ballerinaTomlPath)) {
+        const tomlContent = await fs.promises.readFile(ballerinaTomlPath, 'utf-8');
+        // Simple parsing to extract the package.name field
+        const packageNameMatch = tomlContent.match(/\[package\][^\[]*?name\s*=\s*["']([^"']*)["']/);
+        if (packageNameMatch && packageNameMatch[1]) {
+            packageName = packageNameMatch[1];
+        }
+    }
+
     const project: BallerinaProject = {
         modules: [],
         sources: {},
+        projectName: packageName
     };
 
     // Read root-level .bal files

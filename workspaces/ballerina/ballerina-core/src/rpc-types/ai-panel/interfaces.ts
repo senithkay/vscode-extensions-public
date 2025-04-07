@@ -29,6 +29,7 @@ export interface ProjectSource {
     projectModules?: ProjectModule[];
     projectTests?: SourceFile[];
     sourceFiles: SourceFile[];
+    projectName: string;
 }
 
 export interface ProjectModule {
