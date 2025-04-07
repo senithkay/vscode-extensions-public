@@ -12,7 +12,7 @@ import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodeProper
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { FormField, FormFieldImport, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../Forms/FormGeneratorNew";
 import { TitleBar } from "../../../components/TitleBar";
@@ -184,7 +184,7 @@ export function FunctionForm(props: FunctionFormProps) {
         console.log("Existing Function Node: ", flowNode);
     }
 
-    const handleSubmit = async (data: FormValues, fieldImports?: Record<string, FormFieldImport>) => {
+    const handleSubmit = async (data: FormValues, formImports?: FormImports) => {
         console.log("Function Form Data: ", data);
     
         const functionNodeCopy = { ...functionNode };
@@ -243,7 +243,7 @@ export function FunctionForm(props: FunctionFormProps) {
                     } else {
                         property.value = dataValue;
                     }
-                    const imports = getImportsForProperty(key, fieldImports);
+                    const imports = getImportsForProperty(key, formImports);
                     property.imports = imports;
                 }
             }

@@ -21,7 +21,8 @@ import {
     NodeKind,
     ExpressionProperty,
     RecordTypeField,
-    FormDiagnostics
+    FormDiagnostics,
+    Imports
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormField,
@@ -30,7 +31,7 @@ import {
     ExpressionFormField,
     FormExpressionEditorProps,
     PanelContainer,
-    FormFieldImport
+    FormImports
 } from "@wso2-enterprise/ballerina-side-panel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, ThemeColors } from "@wso2-enterprise/ui-toolkit";
@@ -64,7 +65,7 @@ interface FormProps {
     onBack?: () => void;
     editForm?: boolean;
     isGraphqlEditor?: boolean;
-    onSubmit: (data: FormValues, imports?: Record<string, FormFieldImport>) => void;
+    onSubmit: (data: FormValues, formImports?: FormImports) => void;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -118,7 +119,7 @@ export function FormGeneratorNew(props: FormProps) {
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
-    const [fieldImports, setFieldImports] = useState<Record<string, FormFieldImport>>({});
+    const [formImports, setFormImports] = useState<FormImports>({});
 
     useEffect(() => {
         if (fields) {
@@ -459,16 +460,16 @@ export function FormGeneratorNew(props: FormProps) {
         setTypeEditorState({ isOpen, field: editingField, newTypeValue: f[editingField?.key] });
     };
 
-    const handleUpdateImports = (key: string, imports: FormFieldImport) => {
+    const handleUpdateImports = (key: string, imports: Imports) => {
         const importKey = Object.keys(imports)?.[0];
-        if (Object.keys(fieldImports).includes(key)) {
-            if (importKey && !Object.keys(fieldImports[key]).includes(importKey)) {
-                const updatedImports = { ...fieldImports, [key]: { ...fieldImports[key], ...imports } };
-                setFieldImports(updatedImports);
+        if (Object.keys(formImports).includes(key)) {
+            if (importKey && !Object.keys(formImports[key]).includes(importKey)) {
+                const updatedImports = { ...formImports, [key]: { ...formImports[key], ...imports } };
+                setFormImports(updatedImports);
             }
         } else {
-            const updatedImports = { ...fieldImports, [key]: imports };
-            setFieldImports(updatedImports);
+            const updatedImports = { ...formImports, [key]: imports };
+            setFormImports(updatedImports);
         }
     }
 
@@ -539,7 +540,7 @@ export function FormGeneratorNew(props: FormProps) {
     ]);
 
     const handleSubmit = (values: FormValues) => {
-        onSubmit(values, fieldImports);
+        onSubmit(values, formImports);
     };
 
     const renderTypeEditor = (isGraphql: boolean) => (
@@ -589,7 +590,7 @@ export function FormGeneratorNew(props: FormProps) {
                     concertMessage={concertMessage}
                     concertRequired={concertRequired}
                     infoLabel={description}
-                    fieldImports={fieldImports}
+                    formImports={formImports}
                 />
             )}
             {typeEditorState.isOpen && (

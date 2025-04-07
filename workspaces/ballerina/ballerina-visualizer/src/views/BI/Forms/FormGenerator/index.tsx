@@ -23,7 +23,8 @@ import {
     LinePosition,
     ExpressionProperty,
     Type,
-    RecordTypeField
+    RecordTypeField,
+    Imports
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormField,
@@ -32,7 +33,7 @@ import {
     ExpressionFormField,
     FormExpressionEditorProps,
     PanelContainer,
-    FormFieldImport,
+    FormImports,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
@@ -85,7 +86,7 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     isGraphql?: boolean;
-    onSubmit: (node?: FlowNode, isDataMapper?: boolean, fieldImports?: Record<string, FormFieldImport>) => void;
+    onSubmit: (node?: FlowNode, isDataMapper?: boolean, formImports?: FormImports) => void;
     subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -144,7 +145,7 @@ export function FormGenerator(props: FormProps) {
     const { rpcClient } = useRpcContext();
 
     const [fields, setFields] = useState<FormField[]>([]);
-    const [fieldImports, setFieldImports] = useState<Record<string, FormFieldImport>>({});
+    const [formImports, setFormImports] = useState<FormImports>({});
     const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false, newTypeValue: "" });
     const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
@@ -250,7 +251,7 @@ export function FormGenerator(props: FormProps) {
             console.log(">>> Updated node", updatedNode);
 
             const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
-            onSubmit(updatedNode, isDataMapperFormUpdate, fieldImports);
+            onSubmit(updatedNode, isDataMapperFormUpdate, formImports);
         }
     };
 
@@ -291,16 +292,16 @@ export function FormGenerator(props: FormProps) {
         setTypeEditorState({ isOpen, fieldKey: editingField?.key, newTypeValue: f[editingField?.key] });
     };
 
-    const handleUpdateImports = (key: string, imports: FormFieldImport) => {
+    const handleUpdateImports = (key: string, imports: Imports) => {
         const importKey = Object.keys(imports)?.[0];
-        if (Object.keys(fieldImports).includes(key)) {
-            if (importKey && !Object.keys(fieldImports[key]).includes(importKey)) {
-                const updatedImports = { ...fieldImports, [key]: { ...fieldImports[key], ...imports } };
-                setFieldImports(updatedImports);
+        if (Object.keys(formImports).includes(key)) {
+            if (importKey && !Object.keys(formImports[key]).includes(importKey)) {
+                const updatedImports = { ...formImports, [key]: { ...formImports[key], ...imports } };
+                setFormImports(updatedImports);
             }
         } else {
-            const updatedImports = { ...fieldImports, [key]: imports };
-            setFieldImports(updatedImports);
+            const updatedImports = { ...formImports, [key]: imports };
+            setFormImports(updatedImports);
         }
     }
 
@@ -716,7 +717,7 @@ export function FormGenerator(props: FormProps) {
                     actionButton={actionButton}
                     recordTypeFields={recordTypeFields}
                     isInferredReturnType={!!node.codedata?.inferredReturnType}
-                    fieldImports={fieldImports}
+                    formImports={formImports}
                 />
             )}
             {typeEditorState.isOpen && (
