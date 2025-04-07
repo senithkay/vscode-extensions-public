@@ -172,7 +172,7 @@ const handleComponentDeletion = async (componentType: string, itemLabel: string,
                 startColumn: component.position.startColumn,
                 endLine: component.position.endLine,
                 endColumn: component.position.endColumn,
-                resources: component.resources
+                resources: component?.resources
             };
 
             deleteComponent(componentInfo, rpcClient, filePath);
