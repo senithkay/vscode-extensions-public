@@ -33,8 +33,13 @@ import { BACKEND_URL } from '../ai/utils';
 
 let controller = new AbortController();
 
-export async function getLLMDiagnostics(projectUri: string, diagnosticCollection: vscode.DiagnosticCollection): Promise<number | null> {
-    const sources = await getBallerinaSourceFiles(projectUri);
+export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
+                                                  : vscode.DiagnosticCollection): Promise<number | null> {
+    const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
+    const nonDefaultModuleSourcesIfReadmeNotExists: BallerinaSource[] 
+                    = getNonDefaultModuleSourcesIfReadmeNotExists(path.join(projectUri, "modules"));
+
+    const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeNotExists];
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
 
@@ -237,7 +242,11 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
 }
 
 export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise<string | number> {
-    const sources = await getBallerinaSourceFiles(projectUri);
+    const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
+    const nonDefaultModuleSourcesIfReadmeNotExists: BallerinaSource[] 
+                    = getNonDefaultModuleSourcesIfReadmeNotExists(path.join(projectUri, "modules"));
+
+    const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeNotExists];
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
 
@@ -339,7 +348,7 @@ function formatWithLineNumbers(content: string): string {
         .join("\n");
 }
 
-function getBalFiles(dir: string): string {
+function getBalFiles(dir: string, relativePath: string = ""): string {
     let balFiles = "";
     if (!fs.existsSync(dir)) { return; }
     const files = fs.readdirSync(dir);
@@ -348,48 +357,30 @@ function getBalFiles(dir: string): string {
         if (fs.statSync(fullPath).isFile() && file.endsWith(".bal")) {
             const content = fs.readFileSync(fullPath, "utf8");
             const formattedContent = formatWithLineNumbers(content);
-            balFiles += `  <file filename=\"${file}\">\n    ${formattedContent}\n  </file>\n`;
+            balFiles += `  <file filename=\"${relativePath}${file}\">\n    ${formattedContent}\n  </file>\n`;
         }
     }
     return balFiles;
 }
 
-function getModuleBalSources(modulesDir: string): { completeBalFiles: string, NonDefaultModulesWithReadMe: 
-                            { [key: string]: { readmeContent: string, moduleBalFiles: string } } } {
-    let completeBalFiles = "";
-    let NonDefaultModulesWithReadMe = {};
+function getNonDefaultModuleBalSources(modulesDir: string): string {
+    let moduleBalFiles = "";
 
-    if (!fs.existsSync(modulesDir)) { return; }
+    if (!fs.existsSync(modulesDir)) { return ""; }
     const moduleDirs = fs.readdirSync(modulesDir).filter(dir =>
         fs.statSync(path.join(modulesDir, dir)).isDirectory()
     );
 
     if (moduleDirs.length == 0) {
-        return null;
+        return "";
     }
 
     for (const moduleName of moduleDirs) {
         const relativeModulePath = `modules/${moduleName}/`;
-        let moduleBalFiles = "";
         const modulePath = path.join(modulesDir, moduleName);
-        const files = fs.readdirSync(modulePath);
-        const readmeContent = getReadmeContent(modulePath, relativeModulePath);
-
-        for (const file of files) {
-            const fullPath = path.join(modulePath, file);
-            if (fs.statSync(fullPath).isFile() && file.endsWith(".bal")) {
-                const content = fs.readFileSync(fullPath, "utf8");
-                const formattedContent = formatWithLineNumbers(content);
-                moduleBalFiles += `  <program filename=\"${relativeModulePath}${file}\">\n    ${formattedContent}\n  </program>\n`;
-            }
-        }
-
-        if (readmeContent.length > 0) {
-            NonDefaultModulesWithReadMe[moduleName] = { readmeContent, moduleBalFiles: "<project>\n" + moduleBalFiles + "</project>" };
-        }
-        completeBalFiles += moduleBalFiles;
+        moduleBalFiles += getBalFiles(modulePath, relativeModulePath);
     }
-    return { completeBalFiles, NonDefaultModulesWithReadMe };
+    return moduleBalFiles;
 }
 
 async function getRequirementAndDeveloperOverviewFiles(naturalLangDir: string): Promise<[string, string]> {
@@ -436,48 +427,55 @@ function getReadmeContent(folderPath: string, relativePath: string = ""): string
     const readmePath = path.join(folderPath, readmeFile);
     const content = fs.readFileSync(readmePath, "utf8");
 
-    return `<readme filename="${relativePath + readmeFile}">\n${content}\n</readme>\n`;
+    return `<readme filename="${relativePath}${readmeFile}">\n${content}\n</readme>\n`;
 }
 
-export async function getBallerinaSourceFiles(folderPath: string):
-    Promise<BallerinaSource[]> {
-    let sources: BallerinaSource[] = [];
-    const moduleSources = getModuleBalSources(path.join(folderPath, "modules"));
+export async function getBallerinaProjectSourceFiles(folderPath: string): Promise<BallerinaSource> {
+    const moduleSources = getNonDefaultModuleBalSources(path.join(folderPath, "modules"));
     const nlContent = await getRequirementAndDeveloperOverviewFiles(path.join(folderPath, NATURAL_PROGRAMMING_PATH));
-    const readmeContent = getReadmeContent(folderPath);
+    const readmeContentOfDefaultModule = getReadmeContent(folderPath);
 
     let balFiles = "<project>\n";
     balFiles += getBalFiles(folderPath);
-
-    if (moduleSources != null) {
-        balFiles += moduleSources.completeBalFiles;
-    }
-
+    balFiles += moduleSources;
     balFiles += "</project>";
 
-    sources.push({
+    return {
         balFiles,
-        readme: readmeContent.trim(),
+        readme: readmeContentOfDefaultModule.trim(),
         requirements: nlContent[0].trim(),
         developerOverview: nlContent[1].trim(),
         moduleName: DEFAULT_MODULE
-    });
+    };
+}
 
-    if (moduleSources != null) {
-        Object.entries(moduleSources.NonDefaultModulesWithReadMe).map(([moduleName, module]) => {
-            const moduleBalFiles = module.moduleBalFiles;
-            const readmeContent = module.readmeContent;
+function getNonDefaultModuleSourcesIfReadmeNotExists(modulesDir: string): BallerinaSource[] {
+    if (!fs.existsSync(modulesDir)) { return; }
 
+    const moduleDirs = fs.readdirSync(modulesDir).filter(dir =>
+        fs.statSync(path.join(modulesDir, dir)).isDirectory()
+    );
+
+    if (moduleDirs.length == 0) {
+        return [];
+    }
+
+    const sources: BallerinaSource[] = [];
+    for (const moduleName of moduleDirs) {
+        const relativeModulePath = `modules/${moduleName}/`;
+        const modulePath = path.join(modulesDir, moduleName);
+        const readmeContent = getReadmeContent(modulePath, relativeModulePath);
+        if (readmeContent.length > 0) {
+            const moduleBalFiles = getBalFiles(modulePath, relativeModulePath);
             sources.push({
                 balFiles: moduleBalFiles,
                 readme: readmeContent.trim(),
                 requirements: "",
-                developerOverview: nlContent[1].trim(),
-                moduleName
+                developerOverview: "",
+                moduleName: moduleName
             });
-        });
+        }
     }
-
     return sources;
 }
 
