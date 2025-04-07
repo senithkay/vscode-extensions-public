@@ -123,10 +123,22 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
                     entryValue.icon = getCustomEntryNodeIcon(serviceModel?.listenerProtocol);
                 }
 
-                // Get the children of the service
-                const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
-                const remoteFunctions = await getComponents(artifact.children, DIRECTORY_MAP.REMOTE, icon, artifact.module);
-                entryValue.resources = [...resourceFunctions, ...remoteFunctions];
+                if (serviceModel?.listenerProtocol === "ai") {
+                    entryValue.resources = [];
+                    entryValue.name = entryValue.name.replace(/\//g, '');
+                    const aiResourceLocation = Object.values(artifact.children)[0]?.location;
+                    entryValue.position = {
+                        endColumn: aiResourceLocation.endLine.offset,
+                        endLine: aiResourceLocation.endLine.line,
+                        startColumn: aiResourceLocation.startLine.offset,
+                        startLine: aiResourceLocation.startLine.line
+                    }
+                } else {
+                    // Get the children of the service
+                    const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
+                    const remoteFunctions = await getComponents(artifact.children, DIRECTORY_MAP.REMOTE, icon, artifact.module);
+                    entryValue.resources = [...resourceFunctions, ...remoteFunctions];
+                }
             }
             break;
         case DIRECTORY_MAP.LISTENER:
@@ -369,7 +381,7 @@ function getCustomEntryNodeIcon(type: string) {
     switch (type) {
         case "tcp":
             return "bi-tcp";
-        case "agent":
+        case "ai":
             return "bi-ai-agent";
         case "kafka":
             return "bi-kafka";
