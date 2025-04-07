@@ -200,30 +200,12 @@ export default function createTests() {
         const dmWebView = dm.getWebView();
 
         // primitive direct array mapping
-        // await dmWebView.locator('[id="recordfield-input\\.d1I"]').click();
-        // await dmWebView.getByTestId('array-type-editable-record-field-objectOutput.d1O.IN').locator('i').click();
-        // await dmWebView.locator('#menu-item-a2a-direct').click();
-
         await dm.mapFields('input.d1I', 'objectOutput.d1O','menu-item-a2a-direct');
-
         await dm.waitForProgressEnd();
         await dmWebView.getByTestId('link-from-input.d1I.OUT-to-objectOutput.d1O.IN').waitFor({ state: 'attached' });
 
         // primitive array mapping with mapping function
-        // await dmWebView.locator('[id="recordfield-input\\.m1I"]').click();
-        // await dmWebView.getByTestId('array-type-editable-record-field-objectOutput.m1O.IN').locator('i').click();
-        // await dmWebView.locator('#menu-item-a2a-inner').click();
-
         await dm.mapFields('input.m1I', 'objectOutput.m1O','menu-item-a2a-inner');
-
-        // await dm.waitForProgressEnd();
-        // await dmWebView.getByTestId('link-from-input.m1I.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
-        // await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.m1O.IN').waitFor({ state: 'attached' });
-
-        // await dmWebView.getByTitle('Map array elements').locator('i').click();
-        // await dmWebView.getByTestId('focusedInput.m1IItem-node').locator('i').click();
-        // await dmWebView.getByTestId('primitiveOutput-node').locator('i').nth(1).click();
-        // await dm.waitForProgressEnd();
 
         await dm.mapFields('focusedInput.m1IItem', 'primitiveOutput.number');
         await dmWebView.getByTestId('link-from-focusedInput.m1IItem.OUT-to-primitiveOutput.number.IN').waitFor({ state: 'attached' });
@@ -232,39 +214,13 @@ export default function createTests() {
         await clearNotificationsByCloseButton(page);
 
         // object array mapping with mapping function
-        // await dmWebView.locator('[id="recordfield-input\\.m1objI"]').click();
-        // await dmWebView.getByTestId('array-type-editable-record-field-objectOutput.m1objO.IN').locator('i').click();
-        // await dmWebView.locator('#menu-item-a2a-inner').click();
-
         await dm.mapFields('input.m1objI', 'objectOutput.m1objO','menu-item-a2a-inner');
 
-        // await dm.waitForProgressEnd();
-        // await dmWebView.getByTestId('link-from-input.m1objI.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
-        // await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.m1objO.IN').waitFor({ state: 'attached' });
-
-        // await dmWebView.getByTestId('array-connector-node-objectOutput.m1objO.IN').getByTitle('Map array elements').locator('i').click();
-        // await dmWebView.locator('[id="recordfield-focusedInput\\.m1objIItem\\.p1"]').click();
-        // await dmWebView.locator('[id="recordfield-objectOutput\\.q1"]').first().click();
-        // await dm.waitForProgressEnd();
-
-        // await page.page.waitForTimeout(1000);
-     
         await dm.mapFields('focusedInput.m1objIItem.p1', 'objectOutput.q1');
         await dmWebView.getByTestId('link-from-focusedInput.m1objIItem.p1.OUT-to-objectOutput.q1.IN').waitFor({ state: 'attached' });
 
-        // await dmWebView.locator('[id="recordfield-focusedInput\\.m1objIItem\\.p2"]').click();
-        // await dmWebView.getByTestId('array-type-editable-record-field-objectOutput.q2.IN').locator('i').click();
-        // await dmWebView.locator('#menu-item-a2a-inner').click();
-
         await dm.mapFields('focusedInput.m1objIItem.p2', 'objectOutput.q2','menu-item-a2a-inner');
-        // await dm.waitForProgressEnd();
-        // await dmWebView.getByTestId('link-from-focusedInput.m1objIItem.p2.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
-        // await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.q2.IN').waitFor({ state: 'attached' });
-
-        // await dmWebView.getByTitle('Map array elements').locator('i').click();
-        // await dmWebView.getByTestId('focusedInput.p2Item-node').locator('i').click();
-        // await dmWebView.getByTestId('primitiveOutput-node').locator('i').nth(1).click();
-        // await dm.waitForProgressEnd();
+  
         await dm.mapFields('focusedInput.p2Item', 'primitiveOutput.string');
         await dmWebView.getByTestId('link-from-focusedInput.p2Item.OUT-to-primitiveOutput.string.IN').waitFor({ state: 'attached' });
 
