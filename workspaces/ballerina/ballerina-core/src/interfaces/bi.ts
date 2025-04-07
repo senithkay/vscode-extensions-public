@@ -284,7 +284,7 @@ export type NodePropertyKey =
     | "systemPrompt"
     | "prompt"
     | "enableModelContext"
-    | "memoryManager"
+    | "memory"
     | "sessionId";
 
 export type BranchKind = "block" | "worker";

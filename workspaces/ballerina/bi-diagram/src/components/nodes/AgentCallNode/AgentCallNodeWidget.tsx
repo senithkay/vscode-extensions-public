@@ -554,7 +554,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                                             <NodeStyles.MemoryTitle>Memory</NodeStyles.MemoryTitle>
                                             <NodeStyles.MemoryMeta>
                                                 {(model.node.metadata.data as any).memoryManager?.type ||
-                                                    "DefaultMemoryManager"}
+                                                    "MessageWindowChatMemory"}
                                             </NodeStyles.MemoryMeta>
                                         </div>
                                         {!readOnly && (
