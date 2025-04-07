@@ -87,23 +87,10 @@ export function activate(context: BallerinaExtension) {
 
         if (item.contextValue === DIRECTORY_MAP.CONNECTION) {
             await handleConnectionDeletion(item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_MAP.FUNCTION
-            || item.contextValue === DIRECTORY_MAP.DATA_MAPPER) {
-            await handleComponentDeletion('functions', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_MAP.TYPE) {
-            await handleComponentDeletion('records', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_MAP.SERVICE) {
-            await handleComponentDeletion('services', item.tooltip, item.info);
-        } else if (item.contextValue === DIRECTORY_MAP.LISTENER) {
-            await handleComponentDeletion('listeners', item.tooltip, item.info);
-        } else if (item.contextValue === DIRECTORY_MAP.AUTOMATION) {
-            await handleComponentDeletion('automations', item.tooltip, item.info);
-        } else if (item.contextValue === DIRECTORY_MAP.CONFIGURABLE) {
-            await handleComponentDeletion('configurableVariables', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_MAP.NP_FUNCTION) {
-            await handleComponentDeletion('naturalFunctions', item.label, item.info);
         } else if (item.contextValue === DIRECTORY_MAP.LOCAL_CONNECTORS) {
             await handleLocalModuleDeletion(item.label, item.info);
+        } else {
+            await handleComponentDeletion(item.contextValue, item.label, item.info);
         }
     });
 
@@ -169,18 +156,27 @@ const findBallerinaFiles = (dir: string, fileList: string[] = []): string[] => {
 
 const handleComponentDeletion = async (componentType: string, itemLabel: string, filePath: string) => {
     const rpcClient = new BiDiagramRpcManager();
+    const componentCategory = StateMachine.context().projectStructure.directoryMap[componentType];
 
-    rpcClient.getProjectComponents().then((response) => {
-        console.log("====>>> projectComponents", { projectComponents: response });
-        response.components.packages.forEach((pkg) => {
-            pkg.modules.forEach((module) => {
-                module[componentType].forEach((component) => {
-                    if (component.name === itemLabel) {
-                        deleteComponent(component, rpcClient, filePath);
-                    }
-                });
-            });
-        });
+    if (!componentCategory) {
+        console.error(`Component type ${componentType} not found in project structure`);
+        return;
+    }
+
+    componentCategory.forEach((component) => {
+        if (component.name === itemLabel) {
+            const componentInfo: ComponentInfo = {
+                name: component.name,
+                filePath: component.path,
+                startLine: component.position.startLine,
+                startColumn: component.position.startColumn,
+                endLine: component.position.endLine,
+                endColumn: component.position.endColumn,
+                resources: component?.resources
+            };
+
+            deleteComponent(componentInfo, rpcClient, filePath);
+        }
     });
 };
 
