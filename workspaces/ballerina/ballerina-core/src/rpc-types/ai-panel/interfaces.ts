@@ -29,11 +29,13 @@ export interface ProjectSource {
     projectModules?: ProjectModule[];
     projectTests?: SourceFile[];
     sourceFiles: SourceFile[];
+    projectName: string;
 }
 
 export interface ProjectModule {
     moduleName: string;
     sourceFiles: SourceFile[];
+    isGenerated: boolean;
 }
 
 export interface SourceFile {
