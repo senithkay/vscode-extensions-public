@@ -52,6 +52,8 @@ export function FunctionForm(props: FunctionFormProps) {
     const [titleSubtitle, setTitleSubtitle] = useState<string>("");
     const [formSubtitle, setFormSubtitle] = useState<string>("");
 
+    const [isSaving, setIsSaving] = useState(false);
+
     const fileName = filePath.split(/[\\/]/).pop();
     const formType = useRef("Function");
 
@@ -67,12 +69,12 @@ export function FunctionForm(props: FunctionFormProps) {
             formType.current = 'Data Mapper';
             setTitleSubtitle('Transform data between different data types');
             setFormSubtitle('Create mappings on how to convert the inputs into a single output');
-        // TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314
-        // } else if (isNpFunction) {
-        //     nodeKind = 'NP_FUNCTION_DEFINITION';
-        //     formType.current = 'Natural Function';
-        //     setTitleSubtitle('Build a flow using a natural language description');
-        //     setFormSubtitle('Describe what you need in a prompt and let AI handle the implementation');
+            // TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314
+            // } else if (isNpFunction) {
+            //     nodeKind = 'NP_FUNCTION_DEFINITION';
+            //     formType.current = 'Natural Function';
+            //     setTitleSubtitle('Build a flow using a natural language description');
+            //     setFormSubtitle('Describe what you need in a prompt and let AI handle the implementation');
         } else {
             nodeKind = 'FUNCTION_DEFINITION';
             formType.current = 'Function';
@@ -89,7 +91,7 @@ export function FunctionForm(props: FunctionFormProps) {
 
     useEffect(() => {
         let fields = functionNode ? convertConfig(functionNode.properties) : [];
-        
+
         // TODO: Remove this once the hidden flag is implemented 
         if (isAutomation || functionName === "main") {
             formType.current = "Automation";
@@ -125,7 +127,7 @@ export function FunctionForm(props: FunctionFormProps) {
             /* 
             * TODO: Remove this once the LS is updated
             * HACK: Add the advanced fields under parameters.advanceProperties
-            */ 
+            */
             // Get all the advanced fields
             let properties = flowNode.properties as NodeProperties;
             const advancedProperties = Object.fromEntries(
@@ -161,7 +163,7 @@ export function FunctionForm(props: FunctionFormProps) {
             /* 
             * TODO: Remove this once the LS is updated
             * HACK: Add the advanced fields under parameters.advanceProperties
-            */ 
+            */
             // Get all the advanced fields
             let properties = flowNode.properties as NodeProperties;
             const advancedProperties = Object.fromEntries(
@@ -186,7 +188,7 @@ export function FunctionForm(props: FunctionFormProps) {
 
     const handleSubmit = async (data: FormValues, fieldImports?: Record<string, FormFieldImport>) => {
         console.log("Function Form Data: ", data);
-    
+        setIsSaving(true);
         const functionNodeCopy = { ...functionNode };
 
         /**
@@ -252,8 +254,9 @@ export function FunctionForm(props: FunctionFormProps) {
         const sourceCode = await rpcClient
             .getBIDiagramRpcClient()
             .getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
-        
+
         if (!sourceCode.textEdits) {
+            setIsSaving(false);
             const functionType = getFunctionType();
             await rpcClient
                 .getCommonRpcClient()
@@ -291,15 +294,15 @@ export function FunctionForm(props: FunctionFormProps) {
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar 
-                title={formType.current} 
-                subtitle={titleSubtitle} 
+            <TitleBar
+                title={formType.current}
+                subtitle={titleSubtitle}
             />
             <ViewContent padding>
                 <Container>
-                    <FormHeader 
+                    <FormHeader
                         title={`${functionName ? 'Edit' : 'Create New'} ${formType.current}`}
-                        subtitle={formSubtitle} 
+                        subtitle={formSubtitle}
                     />
                     <FormContainer>
                         {filePath && targetLineRange && functionFields.length > 0 &&
@@ -307,8 +310,9 @@ export function FunctionForm(props: FunctionFormProps) {
                                 fileName={filePath}
                                 targetLineRange={targetLineRange}
                                 fields={functionFields}
+                                isSaving={isSaving}
                                 onSubmit={handleSubmit}
-                                submitText={functionName ? "Save" : "Create"}
+                                submitText={isSaving ? (functionName ? "Saving" : "Creating") : (functionName ? "Save" : "Create")}
                                 selectedNode={functionNode?.codedata?.node}
                             />
                         }

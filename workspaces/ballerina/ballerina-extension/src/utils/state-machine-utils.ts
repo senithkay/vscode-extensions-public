@@ -21,10 +21,7 @@ import { DATA_MAPPING_FILE, FUNCTIONS_FILE } from "./config";
 
 export async function getView(documentUri: string, position: NodePosition, projectUri?: string): Promise<HistoryEntry> {
     const haveTreeData = !!StateMachine.context().projectStructure;
-    const isDataMapper = documentUri.endsWith(DATA_MAPPING_FILE);
-    const isFunction = documentUri.endsWith(FUNCTIONS_FILE);
-    // Workaround for opening the data mapper view and function diagram on creation
-    if (haveTreeData && !isDataMapper && !isFunction) {
+    if (haveTreeData) {
         return getViewByArtifacts(documentUri, position, projectUri);
     } else {
         return await getViewBySTRange(documentUri, position, projectUri);
