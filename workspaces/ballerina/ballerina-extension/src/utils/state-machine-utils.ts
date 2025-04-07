@@ -256,6 +256,16 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
                             projectUri: projectUri
                         }
                     };
+                } else if (dir.serviceModel.moduleName === "ai") {
+                    return {
+                        location: {
+                            view: MACHINE_VIEW.BIDiagram,
+                            identifier: dir.name,
+                            documentUri: documentUri,
+                            position: position,
+                            projectUri: projectUri
+                        }
+                    };
                 } else {
                     return {
                         location: {
