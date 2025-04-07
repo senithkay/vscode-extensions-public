@@ -222,6 +222,9 @@ const stateMachine = createMachine<MachineContext>(
                 try {
                     // If the project uri is not set, we don't need to build the project structure
                     if (context.projectUri) {
+
+                        // Add a 2 second delay before registering artifacts
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                         // Register the event driven listener to get the artifact changes
                         context.langClient.registerPublishArtifacts();
                         // Initial Project Structure
@@ -231,7 +234,7 @@ const stateMachine = createMachine<MachineContext>(
                         resolve({ projectStructure: undefined });
                     }
                 } catch (error) {
-                    throw new Error("Project Structure Build failed", error);
+                    resolve({ projectStructure: undefined });
                 }
             });
         },
