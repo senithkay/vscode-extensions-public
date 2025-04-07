@@ -245,7 +245,11 @@ export function getDataMappingFunctions(functions: Category[]): Category[] {
         .filter((category) => category.items.length > 0);
 }
 
-export function updateNodeProperties(values: FormValues, nodeProperties: NodeProperties): NodeProperties {
+export function updateNodeProperties(
+    values: FormValues,
+    nodeProperties: NodeProperties,
+    formImports: FormImports
+): NodeProperties {
     const updatedNodeProperties: NodeProperties = { ...nodeProperties };
 
     for (const key in values) {
@@ -253,6 +257,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
             const expression = updatedNodeProperties[key as NodePropertyKey];
             if (expression) {
                 expression.value = values[key];
+                expression.imports = formImports[key];
             }
         }
     }
