@@ -450,7 +450,7 @@ export async function getBallerinaProjectSourceFiles(folderPath: string): Promis
 }
 
 function getNonDefaultModuleSourcesIfReadmeNotExists(modulesDir: string): BallerinaSource[] {
-    if (!fs.existsSync(modulesDir)) { return; }
+    if (!fs.existsSync(modulesDir)) { return []; }
 
     const moduleDirs = fs.readdirSync(modulesDir).filter(dir =>
         fs.statSync(path.join(modulesDir, dir)).isDirectory()
