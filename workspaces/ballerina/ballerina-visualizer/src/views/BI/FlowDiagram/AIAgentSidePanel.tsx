@@ -135,16 +135,22 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             setCategories(initialCategoriesRef.current); // Reset the categories list when the search input is empty
             return;
         }
+
+        // HACK: filter response until library functions are supported from LS
+        const filteredResponse = response.categories.filter((category) => {
+            return category.metadata.label === "Current Integration";
+        });
+
         if (isSearching && searchText) {
             setCategories(
-                convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
+                convertFunctionCategoriesToSidePanelCategories(filteredResponse, functionType)
             );
             return;
         }
-        if (!response || !response.categories) {
+        if (!response || !filteredResponse) {
             return [];
         }
-        return convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType);
+        return convertFunctionCategoriesToSidePanelCategories(filteredResponse, functionType);
     };
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
