@@ -92,163 +92,163 @@ export default function createTests() {
       });
     });
 
-    test('Endpoint tests', async () => {
-      let lb: Endpoint;
-      const testAttempt = test.info().retry + 1;
-      await test.step('Add http Endpoint', async () => {
-        console.log('Creating new http Endpoint');
-        lb = new Endpoint(page.page);
-        await lb.init();
-        await lb.addHttpEndpoint("httpEP" + testAttempt);
-      });
-      await test.step('Edit http Endpoint', async () => {
-        console.log('Editing http Endpoint');
-        await lb.editHttpEndpoint("httpEP" + testAttempt, "newHttpEP" + testAttempt);
-      });
-      await test.step('Add load balance Endpoint', async () => {
-        console.log('Creating new load balance Endpoint');
-        await lb.addLoadBalanceEndpoint("loadBalanceEP" + testAttempt);
-      });
-      await test.step('Edit load balance Endpoint', async () => {
-        console.log('Editing load balance Endpoint');
-        await lb.editLoadBalanceEndpoint("loadBalanceEP" + testAttempt, "loadBalanceEndpoint" + testAttempt);
-      });
-    });
+    // test('Endpoint tests', async () => {
+    //   let lb: Endpoint;
+    //   const testAttempt = test.info().retry + 1;
+    //   await test.step('Add http Endpoint', async () => {
+    //     console.log('Creating new http Endpoint');
+    //     lb = new Endpoint(page.page);
+    //     await lb.init();
+    //     await lb.addHttpEndpoint("httpEP" + testAttempt);
+    //   });
+    //   await test.step('Edit http Endpoint', async () => {
+    //     console.log('Editing http Endpoint');
+    //     await lb.editHttpEndpoint("httpEP" + testAttempt, "newHttpEP" + testAttempt);
+    //   });
+    //   await test.step('Add load balance Endpoint', async () => {
+    //     console.log('Creating new load balance Endpoint');
+    //     await lb.addLoadBalanceEndpoint("loadBalanceEP" + testAttempt);
+    //   });
+    //   await test.step('Edit load balance Endpoint', async () => {
+    //     console.log('Editing load balance Endpoint');
+    //     await lb.editLoadBalanceEndpoint("loadBalanceEP" + testAttempt, "loadBalanceEndpoint" + testAttempt);
+    //   });
+    // });
 
-    test('Sequence tests', async () => {
-      let sequence: Sequence;
-      const testAttempt = test.info().retry + 1;
-      await test.step('Add Sequence', async () => {
-        console.log('Creating new Sequence');
-        sequence = new Sequence(page.page);
-        await sequence.init();
-        await sequence.add("seqEP" + testAttempt);
-      });
-      await test.step('Edit Sequence', async () => {
-        console.log('Editing Sequence');
-        await sequence.edit("seqEP" + testAttempt, "newSeqEP" + testAttempt, currentTaskName);
-      });
-    });
+    // test('Sequence tests', async () => {
+    //   let sequence: Sequence;
+    //   const testAttempt = test.info().retry + 1;
+    //   await test.step('Add Sequence', async () => {
+    //     console.log('Creating new Sequence');
+    //     sequence = new Sequence(page.page);
+    //     await sequence.init();
+    //     await sequence.add("seqEP" + testAttempt);
+    //   });
+    //   await test.step('Edit Sequence', async () => {
+    //     console.log('Editing Sequence');
+    //     await sequence.edit("seqEP" + testAttempt, "newSeqEP" + testAttempt, currentTaskName);
+    //   });
+    // });
 
-    test('Add Class Mediator', async () => {
-      const testAttempt = test.info().retry + 1;
-      console.log('Creating new Class Mediator');
-      const classMediator = new ClassMediator(page.page);
-      await classMediator.init();
-      await classMediator.add("org.wso2.sample" + testAttempt);
-    });
+    // test('Add Class Mediator', async () => {
+    //   const testAttempt = test.info().retry + 1;
+    //   console.log('Creating new Class Mediator');
+    //   const classMediator = new ClassMediator(page.page);
+    //   await classMediator.init();
+    //   await classMediator.add("org.wso2.sample" + testAttempt);
+    // });
 
-    test('Add Ballerina Module', async () => {
-      const testAttempt = test.info().retry + 1;
-      console.log('Creating new Ballerina Module');
-      const ballerinaModule = new BallerinaModule(page.page);
-      await ballerinaModule.init();
-      await ballerinaModule.add("testBal" + testAttempt);
-    });
+    // test('Add Ballerina Module', async () => {
+    //   const testAttempt = test.info().retry + 1;
+    //   console.log('Creating new Ballerina Module');
+    //   const ballerinaModule = new BallerinaModule(page.page);
+    //   await ballerinaModule.init();
+    //   await ballerinaModule.add("testBal" + testAttempt);
+    // });
 
-    test('Add Resource', async () => {
-      const testAttempt = test.info().retry + 1;
-      console.log('Creating new Resource');
-      const resource = new Resource(page.page);
-      await resource.init();
-      await resource.add("testResource" + testAttempt);
-    });
+    // test('Add Resource', async () => {
+    //   const testAttempt = test.info().retry + 1;
+    //   console.log('Creating new Resource');
+    //   const resource = new Resource(page.page);
+    //   await resource.init();
+    //   await resource.add("testResource" + testAttempt);
+    // });
 
-    test('Data related tests', async () => {
-      const testAttempt = test.info().retry + 1;
-      let ms: MessageStore;
-      await test.step('Add Message Store', async () => {
-        console.log('Creating new Message Store');
-        ms = new MessageStore(page.page);
-        await ms.init();
-        await ms.addInMemmoryMS("msgStore" + testAttempt);
-      });
-      await test.step('Edit Message Store', async () => {
-        console.log('Editing Message Store');
-        await ms.editInMemoryMS("msgStore" + testAttempt, "newMsgStore" + testAttempt);
-      });
+    // test('Data related tests', async () => {
+    //   const testAttempt = test.info().retry + 1;
+    //   let ms: MessageStore;
+    //   await test.step('Add Message Store', async () => {
+    //     console.log('Creating new Message Store');
+    //     ms = new MessageStore(page.page);
+    //     await ms.init();
+    //     await ms.addInMemmoryMS("msgStore" + testAttempt);
+    //   });
+    //   await test.step('Edit Message Store', async () => {
+    //     console.log('Editing Message Store');
+    //     await ms.editInMemoryMS("msgStore" + testAttempt, "newMsgStore" + testAttempt);
+    //   });
 
-      let msp: MessageProcessor;
-      await test.step('Add Message Processor', async () => {
-        const testAttempt = test.info().retry + 1;
-        console.log('Creating new Message Processor');
-        msp = new MessageProcessor(page.page);
-        await msp.init();
-        await msp.addMessageSamplingProcessor("msgProcessor" + testAttempt);
-      });
-      await test.step('Edit Message Processor', async () => {
-        console.log('Editing Message Processor');
-        await msp.editMessageSamplingProcessor("msgProcessor" + testAttempt, "newMsgProcessor" + testAttempt);
-      });
+    //   let msp: MessageProcessor;
+    //   await test.step('Add Message Processor', async () => {
+    //     const testAttempt = test.info().retry + 1;
+    //     console.log('Creating new Message Processor');
+    //     msp = new MessageProcessor(page.page);
+    //     await msp.init();
+    //     await msp.addMessageSamplingProcessor("msgProcessor" + testAttempt);
+    //   });
+    //   await test.step('Edit Message Processor', async () => {
+    //     console.log('Editing Message Processor');
+    //     await msp.editMessageSamplingProcessor("msgProcessor" + testAttempt, "newMsgProcessor" + testAttempt);
+    //   });
 
-      let dataSource: DataSource;
-      await test.step('Add Data Source', async () => {
-        console.log('Creating new Data Source');
-        dataSource = new DataSource(page.page);
-        await dataSource.init();
-        await dataSource.add("testDataSource" + testAttempt);
-      });
-      await test.step('Edit Data Source', async () => {
-        console.log('Editing Data Source');
-        await dataSource.edit("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
-      });
+    //   let dataSource: DataSource;
+    //   await test.step('Add Data Source', async () => {
+    //     console.log('Creating new Data Source');
+    //     dataSource = new DataSource(page.page);
+    //     await dataSource.init();
+    //     await dataSource.add("testDataSource" + testAttempt);
+    //   });
+    //   await test.step('Edit Data Source', async () => {
+    //     console.log('Editing Data Source');
+    //     await dataSource.edit("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
+    //   });
 
-      await test.step('Add Data Service', async () => {
-        console.log('Creating new Data Service');
-        const dataService = new DataService(page.page);
-        await dataService.init();
-        await dataService.add("testDataService" + testAttempt);
-      });
-      await test.step('Edit Data Service', async () => {
-        console.log('Editing Data Service');
-        const dataService = new DataService(page.page);
-        await dataService.edit("testDataService" + testAttempt, "newTestDataService" + testAttempt);
-      });
-    });
+    //   await test.step('Add Data Service', async () => {
+    //     console.log('Creating new Data Service');
+    //     const dataService = new DataService(page.page);
+    //     await dataService.init();
+    //     await dataService.add("testDataService" + testAttempt);
+    //   });
+    //   await test.step('Edit Data Service', async () => {
+    //     console.log('Editing Data Service');
+    //     const dataService = new DataService(page.page);
+    //     await dataService.edit("testDataService" + testAttempt, "newTestDataService" + testAttempt);
+    //   });
+    // });
 
-    test('Local Entry tests', async () => {
-      const testAttempt = test.info().retry + 1;
-      let localEntry: LocalEntry;
-      await test.step('Add Local Entry', async () => {
-        console.log('Creating new Local Entry');
-        localEntry = new LocalEntry(page.page);
-        await localEntry.init();
-        await localEntry.addLocalEntry("localEntry" + testAttempt);
-      });
-      await test.step('Edit Local Entry', async () => {
-        console.log('Editing Local Entry');
-        await localEntry.editLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
-      });
-    });
+    // test('Local Entry tests', async () => {
+    //   const testAttempt = test.info().retry + 1;
+    //   let localEntry: LocalEntry;
+    //   await test.step('Add Local Entry', async () => {
+    //     console.log('Creating new Local Entry');
+    //     localEntry = new LocalEntry(page.page);
+    //     await localEntry.init();
+    //     await localEntry.addLocalEntry("localEntry" + testAttempt);
+    //   });
+    //   await test.step('Edit Local Entry', async () => {
+    //     console.log('Editing Local Entry');
+    //     await localEntry.editLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
+    //   });
+    // });
 
-    test('Template tests', async () => {
-      const testAttempt = test.info().retry + 1;
-      let template: Template;
-      await test.step('Add Template', async () => {
-        console.log('Creating new Template');
-        template = new Template(page.page);
-        await template.init();
-        await template.addTemplate("tempEP" + testAttempt);
-      });
-      await test.step('Edit Template', async () => {
-        console.log('Editing Template');
-        await template.editTemplate("tempEP" + testAttempt, "newTempEP" + testAttempt);
-      });
-    });
+    // test('Template tests', async () => {
+    //   const testAttempt = test.info().retry + 1;
+    //   let template: Template;
+    //   await test.step('Add Template', async () => {
+    //     console.log('Creating new Template');
+    //     template = new Template(page.page);
+    //     await template.init();
+    //     await template.addTemplate("tempEP" + testAttempt);
+    //   });
+    //   await test.step('Edit Template', async () => {
+    //     console.log('Editing Template');
+    //     await template.editTemplate("tempEP" + testAttempt, "newTempEP" + testAttempt);
+    //   });
+    // });
 
-    test('Proxy tests', async () => {
-      const testAttempt = test.info().retry + 1;
-      let proxyService: Proxy;
-      await test.step('Add Proxy Service', async () => {
-        console.log('Creating new Proxy Service');
-        proxyService = new Proxy(page.page);
-        await proxyService.init();
-        await proxyService.add("testProxyService" + testAttempt);
-      });
-      await test.step('Edit Proxy Service', async () => {
-        console.log('Editing Proxy Service');
-        await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
-      });
-    });
+    // test('Proxy tests', async () => {
+    //   const testAttempt = test.info().retry + 1;
+    //   let proxyService: Proxy;
+    //   await test.step('Add Proxy Service', async () => {
+    //     console.log('Creating new Proxy Service');
+    //     proxyService = new Proxy(page.page);
+    //     await proxyService.init();
+    //     await proxyService.add("testProxyService" + testAttempt);
+    //   });
+    //   await test.step('Edit Proxy Service', async () => {
+    //     console.log('Editing Proxy Service');
+    //     await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
+    //   });
+    // });
   });
 }

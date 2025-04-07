@@ -54,7 +54,6 @@ export class Sequence {
         await frame.getByRole('textbox', { name: 'Name' }).click();
         await frame.getByRole('textbox', { name: 'Name' }).fill(newName);
         await frame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
-        await this._page.pause();
         await frame.getByText(taskName).click();
         await frame.getByTestId('update-button').click();
         await this._page.waitForSelector('[data-testid="update-button"]', { state: 'detached' });
