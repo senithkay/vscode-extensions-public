@@ -53,11 +53,11 @@ export default function createTests() {
         console.log('Creating new API');
         api = new API(page.page);
         await api.init();
-        await api.addAPI("TestAPI" + testAttempt);
+        await api.addAPI("TestAPI" + testAttempt, "/testAdd" + testAttempt);
       });
       await test.step('Edit API', async () => {
         console.log('Editing API');
-        await api.editAPI("NewTestAPI" + testAttempt);
+        await api.editAPI("NewTestAPI" + testAttempt, "/newtest" + testAttempt);
       });
 
       await test.step('Add Resource', async () => {
@@ -75,15 +75,15 @@ export default function createTests() {
 
       await test.step('Create WSDL from URL', async () => {
         console.log('Creating new API from WSDL URL');
-        await api.createWSDLFromSidePanel("NewUrlWSDLAPI" + testAttempt);
+        await api.createWSDLFromSidePanel("NewUrlWSDLAPI" + testAttempt, "/wsdlAPI" + testAttempt);
       });
       await test.step('Create WSDL from file', async () => {
         console.log('Creating new API from WSDL file');
-        await api.createWSDLFromFile("NewFileWSDLAPI" + testAttempt);
+        await api.createWSDLFromFile("NewFileWSDLAPI" + testAttempt, "/wsdlAPIFile" + testAttempt);
       });
       await test.step('Create Open API from OpenAPI file', async () => {
         console.log('Creating new API from OpenAPI file');
-        await api.createOpenApi("NewOpenAPI" + testAttempt);
+        await api.createOpenApi("NewOpenAPI" + testAttempt, "/openAPI" + testAttempt);
       });
 
       await test.step('Delete API', async () => {

@@ -47,11 +47,11 @@ export class API {
         this.webView = apiWebView;
     }
 
-    public async addAPI(name: string) {
+    public async addAPI(name: string, context: string) {
         const frame = this.webView.locator('div#root');
         await frame.waitFor();
         await frame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await frame.getByRole('textbox', { name: 'Context*' }).fill('/test');
+        await frame.getByRole('textbox', { name: 'Context*' }).fill(context);
         await frame.locator('#version-type div').nth(1).click();
         await frame.getByLabel('Context', { exact: true }).click();
         const version = frame.getByRole('textbox', { name: 'Version' });
@@ -63,7 +63,7 @@ export class API {
         await submitBtn.click();
     }
 
-    public async editAPI(name: string) {
+    public async editAPI(name: string, context: string) {
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -78,7 +78,7 @@ export class API {
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
         await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/newtest');
+        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         await apiFormFrame.getByRole('textbox', { name: 'Version' }).fill('1.0.2');
         await apiFormFrame.getByLabel('Trace Enabled').click();
         await apiFormFrame.getByLabel('Statistics Enabled').click();
@@ -139,7 +139,7 @@ export class API {
         await desWebView.getByRole('gridcell', { name: 'Delete' }).click();
     }
 
-    public async createWSDLFromSidePanel(name: string) {
+    public async createWSDLFromSidePanel(name: string, context: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'APIs'], true);
@@ -150,14 +150,14 @@ export class API {
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
         await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/wsdlAPI');
+        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         await apiFormFrame.getByLabel('From WSDL file').click();
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
         await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('http://www.dneonline.com/calculator.asmx?wsdl');
         await apiFormFrame.getByRole('button', { name: 'Create' }).click();
     }
 
-    public async createWSDLFromFile(name: string) {
+    public async createWSDLFromFile(name: string, context: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'APIs'], true);
@@ -168,7 +168,7 @@ export class API {
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
         await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/wsdlAPI');
+        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         await apiFormFrame.getByLabel('From WSDL file').click();
         const wsdlFile = path.join(__dirname, 'data', 'wsdl.xml');
         // Get the users home directory
@@ -185,7 +185,7 @@ export class API {
         }
     }
 
-    public async createOpenApi(name: string) {
+    public async createOpenApi(name: string, context: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         
@@ -208,7 +208,7 @@ export class API {
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
         await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/openAPI');
+        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         await apiFormFrame.locator('#version-type div').nth(1).click();
         await apiFormFrame.getByLabel('Context', { exact: true }).click();
         await apiFormFrame.getByRole('textbox', { name: 'Version' }).fill('1.0.0');
