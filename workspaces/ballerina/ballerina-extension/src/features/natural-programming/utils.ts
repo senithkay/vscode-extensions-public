@@ -24,7 +24,7 @@ import {
     LACK_OF_API_DOCUMENTATION_WARNING, LACK_OF_API_DOCUMENTATION_WARNING_2,
     NO_DOCUMENTATION_WARNING, CONFIG_FILE_NAME,
     MISSING_README_FILE_WARNING, MISSING_README_FILE_WARNING_2,
-    MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, MISSING_API_DOCS_2,
+    MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, API_DOCUMENTATION_IS_MISSING,
     PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
     NO_BALLERINA_SOURCES_ERROR
 } from "./constants";
@@ -569,7 +569,7 @@ export function getTokenForNaturalFunction() {
 
 function isSkippedDiagnostic(result: ResultItem) {
     const cause = result.cause.toLowerCase();
-    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) || cause.includes(MISSING_API_DOCS_2)
+    if (cause.includes(LACK_OF_API_DOCUMENTATION_WARNING) || cause.includes(LACK_OF_API_DOCUMENTATION_WARNING_2) || cause.includes(API_DOCUMENTATION_IS_MISSING)
         || cause.includes(MISSING_API_DOCS) || cause.includes(NO_DOCUMENTATION_WARNING) || cause.includes(MISSING_README_FILE_WARNING)
         || cause.includes(MISSING_REQUIREMENT_FILE) || cause.includes(MISSING_README_FILE_WARNING_2)) {
         return true;
