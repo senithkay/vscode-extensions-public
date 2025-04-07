@@ -15,7 +15,7 @@ import { addConfigFile, getConfigFilePath, getLLMDiagnostics} from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
 import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, 
-    MONITERED_EXTENSIONS, WARNING_MESSAGE_FOR_NO_ACTIVE_PROJECT
+    MONITERED_EXTENSIONS
  } from './constants';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
