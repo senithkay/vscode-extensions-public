@@ -60,7 +60,7 @@ async function traverseComponents(artifacts: Artifacts, response: ProjectStructu
     response.directoryMap[DIRECTORY_MAP.NP_FUNCTION].push(...await getComponents(artifacts[ARTIFACT_TYPE.NaturalFunctions], DIRECTORY_MAP.NP_FUNCTION, "function"));
 }
 
-async function getComponents(artifacts: Record<string, BaseArtifact>, artifactType: DIRECTORY_MAP, icon: string): Promise<ProjectStructureArtifactResponse[]> {
+async function getComponents(artifacts: Record<string, BaseArtifact>, artifactType: DIRECTORY_MAP, icon: string, moduleName?: string): Promise<ProjectStructureArtifactResponse[]> {
     const entries: ProjectStructureArtifactResponse[] = [];
     if (!artifacts) {
         return entries;
@@ -71,13 +71,13 @@ async function getComponents(artifacts: Record<string, BaseArtifact>, artifactTy
         if (artifact.type !== artifactType) {
             continue;
         }
-        const entryValue = await getEntryValue(artifact, icon);
+        const entryValue = await getEntryValue(artifact, icon, moduleName);
         entries.push(entryValue);
     }
     return entries;
 }
 
-async function getEntryValue(artifact: BaseArtifact, icon: string) {
+async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: string) {
     const targetFile = Utils.joinPath(URI.parse(StateMachine.context().projectUri), artifact.location.fileName).fsPath;
     const entryValue: ProjectStructureArtifactResponse = {
         id: artifact.id,
@@ -116,7 +116,7 @@ async function getEntryValue(artifact: BaseArtifact, icon: string) {
                 const displayName = serviceModel.name;
                 const labelName = serviceModel.properties['name']?.value || serviceModel.properties['basePath']?.value;
                 // entryValue.type = serviceModel.moduleName; // graphql, http, etc
-                entryValue.name = `${displayName} - ${labelName}`; // GraphQL Service - /foo
+                entryValue.name = labelName ? `${displayName} - ${labelName}` : displayName; // GraphQL Service - /foo
                 entryValue.icon = `bi-${serviceModel.moduleName}`;
 
                 if (serviceModel?.listenerProtocol) {
@@ -124,32 +124,32 @@ async function getEntryValue(artifact: BaseArtifact, icon: string) {
                 }
 
                 // Get the children of the service
-                const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon);
-                const remoteFunctions = await getComponents(artifact.children, DIRECTORY_MAP.REMOTE, icon);
+                const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
+                const remoteFunctions = await getComponents(artifact.children, DIRECTORY_MAP.REMOTE, icon, artifact.module);
                 entryValue.resources = [...resourceFunctions, ...remoteFunctions];
             }
             break;
         case DIRECTORY_MAP.LISTENER:
             // Do things related to listener
-            const listenerResponse = await StateMachine.langClient().getListenerFromSourceCode({
-                filePath: targetFile,
-                codedata: {
-                    lineRange: {
-                        startLine: artifact.location.startLine,
-                        endLine: artifact.location.endLine
-                    }
-                }
-            });
-            entryValue.icon = getCustomEntryNodeIcon(getTypePrefix(artifact.type));
+            entryValue.icon = getCustomEntryNodeIcon(getTypePrefix(artifact.module));
             break;
         case DIRECTORY_MAP.CONNECTION:
             entryValue.icon = icon;
             break;
         case DIRECTORY_MAP.RESOURCE:
             // Do things related to resource
-            const resourceName = `${artifact.accessor}-${artifact.name}`;
+            let resourceName = `${artifact.accessor}-${artifact.name}`;
+            let resourceIcon = `${artifact.accessor}-api`;
+            if (moduleName && moduleName === "graphql") {
+                resourceName = `${artifact.name}`;
+                resourceIcon = ``;
+            }
             entryValue.name = resourceName;
-            entryValue.icon = `${artifact.accessor}-api`;
+            entryValue.icon = resourceIcon;
+            break;
+        case DIRECTORY_MAP.REMOTE:
+            // Do things related to remote
+            entryValue.icon = ``;
             break;
     }
     return entryValue;
