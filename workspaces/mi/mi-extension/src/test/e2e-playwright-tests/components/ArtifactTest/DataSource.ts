@@ -31,13 +31,13 @@ export class DataSource {
         await addArtifactPage.add('Data Source');
     }
 
-    public async add() {
+    public async add(name: string) {
         const dsWebView = await switchToIFrame('Data Source Creation Form', this._page);
         if (!dsWebView) {
             throw new Error("Failed to switch to Data Source Creation Form iframe");
         }
         const dsFrame = dsWebView.locator('div#root');
-        await dsFrame.getByRole('textbox', { name: 'Datasource Name*' }).fill('testDataSource');
+        await dsFrame.getByRole('textbox', { name: 'Datasource Name*' }).fill(name);
         await dsFrame.locator('#dbEngine div').nth(1).click();
         await dsFrame.getByRole('textbox', { name: 'Description' }).fill('Test Ds');
         await dsFrame.getByRole('textbox', { name: 'Database Name*' }).fill('TestDB');
@@ -49,17 +49,17 @@ export class DataSource {
         await dsFrame.getByRole('button', { name: 'Create' }).click();
     }
 
-    public async edit() {
+    public async edit(prevName: string, newName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Sources', 'testDataSource'], true);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Sources', prevName], true);
 
         const webView = await switchToIFrame('Data Source Creation Form', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Data Source Creation Form iframe");
         }
         const frame = webView.locator('div#root');
-        await frame.getByRole('textbox', { name: 'Datasource Name*' }).fill('newTestDataSource');
+        await frame.getByRole('textbox', { name: 'Datasource Name*' }).fill(newName);
         await frame.locator('#dbEngine div').nth(2).click();
         await frame.getByRole('textbox', { name: 'Description' }).fill('New Test Ds');
         await frame.getByRole('textbox', { name: 'Database Name*' }).fill('NewTestDB');

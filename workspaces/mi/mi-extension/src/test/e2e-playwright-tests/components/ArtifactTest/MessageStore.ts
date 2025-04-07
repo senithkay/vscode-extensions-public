@@ -31,7 +31,7 @@ export class MessageStore {
         await addArtifactPage.add('Message Store');
     }
 
-    public async addInMemmoryMS() {
+    public async addInMemmoryMS(name: string) {
         const msWebView = await switchToIFrame('Message Store Form', this._page);
         if (!msWebView) {
             throw new Error("Failed to switch to Message Store Form iframe");
@@ -44,7 +44,7 @@ export class MessageStore {
         }
         const msInFrame = mspWebview.locator('div#root');
         await msInFrame.getByRole('textbox', { name: 'Message Store Name*' }).click();
-        await msInFrame.getByRole('textbox', { name: 'Message Store Name*' }).fill('msgStore');
+        await msInFrame.getByRole('textbox', { name: 'Message Store Name*' }).fill(name);
         await msInFrame.getByRole('button', { name: 'Create' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
@@ -52,17 +52,17 @@ export class MessageStore {
         }
     }
 
-    public async editInMemoryMS() {
+    public async editInMemoryMS(prevName: string, newName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Message Stores', 'msgStore'], true);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Message Stores', prevName], true);
         const msWebview = await switchToIFrame('Message Store Form', this._page);
         if (!msWebview) {
             throw new Error("Failed to switch to Message Store Form iframe");
         }
         const msInFrame = msWebview.locator('div#root');
         await msInFrame.getByRole('textbox', { name: 'Message Store Name*' }).click();
-        await msInFrame.getByRole('textbox', { name: 'Message Store Name*' }).fill('newMsgStore');
+        await msInFrame.getByRole('textbox', { name: 'Message Store Name*' }).fill(newName);
         await msInFrame.getByRole('button', { name: 'Update' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {

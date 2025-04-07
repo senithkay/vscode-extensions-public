@@ -47,10 +47,10 @@ export class API {
         this.webView = apiWebView;
     }
 
-    public async addAPI() {
+    public async addAPI(name: string) {
         const frame = this.webView.locator('div#root');
         await frame.waitFor();
-        await frame.getByRole('textbox', { name: 'Name*' }).fill('TestAPI');
+        await frame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await frame.getByRole('textbox', { name: 'Context*' }).fill('/test');
         await frame.locator('#version-type div').nth(1).click();
         await frame.getByLabel('Context', { exact: true }).click();
@@ -63,7 +63,7 @@ export class API {
         await submitBtn.click();
     }
 
-    public async editAPI() {
+    public async editAPI(name: string) {
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -77,7 +77,7 @@ export class API {
             throw new Error("Failed to switch to API Form iframe");
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill('NewTestAPI');
+        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/newtest');
         await apiFormFrame.getByRole('textbox', { name: 'Version' }).fill('1.0.2');
         await apiFormFrame.getByLabel('Trace Enabled').click();
@@ -94,14 +94,14 @@ export class API {
         await submitBtn.click();
     }
 
-    public async addResource() {
+    public async addResource(path: string) {
         const desWebView = await switchToIFrame('Service Designer', this._page);
         if (!desWebView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }
         const frame = desWebView.locator('div#root');
         await frame.getByRole('button', { name: ' Resource' }).click();
-        await frame.getByRole('textbox', { name: 'Resource Path' }).fill('/testResource');
+        await frame.getByRole('textbox', { name: 'Resource Path' }).fill(path);
         await frame.getByText('Add Path Param').click();
         await frame.getByRole('textbox', { name: 'Path Parameter*' }).fill('p1');
         await frame.getByRole('button', { name: 'Add' }).click();
@@ -139,7 +139,7 @@ export class API {
         await desWebView.getByRole('gridcell', { name: 'Delete' }).click();
     }
 
-    public async createWSDLFromSidePanel() {
+    public async createWSDLFromSidePanel(name: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'APIs'], true);
@@ -149,7 +149,7 @@ export class API {
             throw new Error("Failed to switch to API Form iframe");
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill('NewUrlWSDLAPI');
+        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/wsdlAPI');
         await apiFormFrame.getByLabel('From WSDL file').click();
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
@@ -157,7 +157,7 @@ export class API {
         await apiFormFrame.getByRole('button', { name: 'Create' }).click();
     }
 
-    public async createWSDLFromFile() {
+    public async createWSDLFromFile(name: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'APIs'], true);
@@ -167,7 +167,7 @@ export class API {
             throw new Error("Failed to switch to API Form iframe");
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill('NewFileWSDLAPI');
+        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/wsdlAPI');
         await apiFormFrame.getByLabel('From WSDL file').click();
         const wsdlFile = path.join(__dirname, 'data', 'wsdl.xml');
@@ -185,7 +185,7 @@ export class API {
         }
     }
 
-    public async createOpenApi() {
+    public async createOpenApi(name: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         
@@ -207,7 +207,7 @@ export class API {
             throw new Error("Failed to switch to API Form iframe");
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill('NewOpenAPI');
+        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill('/openAPI');
         await apiFormFrame.locator('#version-type div').nth(1).click();
         await apiFormFrame.getByLabel('Context', { exact: true }).click();

@@ -31,20 +31,20 @@ export class Sequence {
         await addArtifactPage.add('Sequence');
     }
 
-    public async add() {
+    public async add(name: string) {
         const seqWebView = await switchToIFrame('Sequence Form', this._page);
         if (!seqWebView) {
             throw new Error("Failed to switch to Sequence Form iframe");
         }
         const seqFrame = seqWebView.locator('div#root');
-        await seqFrame.getByRole('textbox', { name: 'Name*' }).fill('seqEP');
+        await seqFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await seqFrame.getByTestId('create-button').click();
     }
 
-    public async edit() {
+    public async edit(prevName: string, newName: string, taskName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Sequences', 'seqEP'], true);
+        await projectExplorer.findItem(['Project testProject', 'Sequences', prevName], true);
         const webView = await switchToIFrame('Sequence View', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Sequence View iframe");
@@ -52,9 +52,10 @@ export class Sequence {
         const frame = webView.locator('div#root');
         await frame.getByTestId('edit-button').click();
         await frame.getByRole('textbox', { name: 'Name' }).click();
-        await frame.getByRole('textbox', { name: 'Name' }).fill('newSeqEP');
+        await frame.getByRole('textbox', { name: 'Name' }).fill(newName);
         await frame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
-        await frame.getByText('TestTaskSequence').click();
+        await this._page.pause();
+        await frame.getByText(taskName).click();
         await frame.getByTestId('update-button').click();
         await this._page.waitForSelector('[data-testid="update-button"]', { state: 'detached' });
     }
