@@ -69,10 +69,6 @@ export default function createTests() {
         await api.deleteResource();
       });
       
-      await test.step('Create Open API from OpenAPI file', async () => {
-        console.log('Creating new API from OpenAPI file');
-        await api.createOpenApiFromSidePanel();
-      });
       await test.step('Create WSDL from URL', async () => {
         console.log('Creating new API from WSDL URL');
         await api.createWSDLFromSidePanel();
@@ -80,6 +76,10 @@ export default function createTests() {
       await test.step('Create WSDL from file', async () => {
         console.log('Creating new API from WSDL file');
         await api.createWSDLFromFile();
+      });
+      await test.step('Create Open API from OpenAPI file', async () => {
+        console.log('Creating new API from OpenAPI file');
+        await api.createOpenApi();
       });
 
       await test.step('Delete API', async () => {
