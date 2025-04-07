@@ -20,7 +20,8 @@ import {
     TextEdit,
     NodeKind,
     ExpressionProperty,
-    RecordTypeField
+    RecordTypeField,
+    FormDiagnostics
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormField,
@@ -38,6 +39,7 @@ import {
     convertBalCompletion,
     convertToVisibleTypes,
     getInfoFromExpressionValue,
+    removeDuplicateDiagnostics,
     updateLineRange
 } from "../../../../utils/bi";
 import { debounce, set } from "lodash";
@@ -308,6 +310,52 @@ export function FormGeneratorNew(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
+    const handleExpressionFormDiagnostics = useCallback(
+        debounce(
+            async (
+                showDiagnostics: boolean,
+                expression: string,
+                key: string,
+                property: ExpressionProperty,
+                setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
+                shouldUpdateNode?: boolean,
+                variableType?: string
+            ) => {
+                if (!showDiagnostics) {
+                    setDiagnosticsInfo({ key, diagnostics: [] });
+                    return;
+                }
+
+                try {
+                    const field = fields.find(f => f.key === key);
+                    if (field) {
+                        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+                            filePath: fileName,
+                            context: {
+                                expression: expression,
+                                startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                                lineOffset: 0,
+                                offset: 0,
+                                codedata: field.codedata,
+                                property: property,
+                            },
+                        });
+
+                        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                        setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
+                    }
+                } catch (error) {
+                    // Remove diagnostics if LS crashes
+                    console.error(">>> Error getting expression diagnostics", error);
+                    setDiagnosticsInfo({ key, diagnostics: [] });
+                }
+
+            },
+            250
+        ),
+        [rpcClient, fileName, targetLineRange]
+    );
+
     const handleGetHelperPane = (
         fieldKey: string,
         exprRef: RefObject<FormExpressionEditorRef>,
@@ -472,6 +520,7 @@ export function FormGeneratorNew(props: FormProps) {
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
             getTypeHelper: handleGetTypeHelper,
+            getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
