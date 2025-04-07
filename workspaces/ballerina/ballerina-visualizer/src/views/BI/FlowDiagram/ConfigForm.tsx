@@ -8,8 +8,9 @@
  */
 
 import styled from "@emotion/styled";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { FormGeneratorNew } from "../Forms/FormGeneratorNew";
+import { getImportsForProperty } from "../../../utils/bi";
 
 const Container = styled.div`
     max-width: 600px;
@@ -39,7 +40,7 @@ export function ConfigForm(props: ConfigProps) {
     const { formFields, filePath, disableSaveButton, onSubmit, onBack } = props;
     console.log(">>> ConfigForm props", props);
 
-    const handleSubmit = async (data: FormValues) => {
+    const handleSubmit = async (data: FormValues, formImports: FormImports) => {
         formFields.forEach((val) => {
             if (val.type === "DROPDOWN_CHOICE") {
                 val.dynamicFormFields[data[val.key]].forEach((dynamicField) => {
@@ -51,6 +52,7 @@ export function ConfigForm(props: ConfigProps) {
             } else if (data[val.key]) {
                 val.value = data[val.key];
             }
+            val.imports = getImportsForProperty(val.key, formImports);
         });
         onSubmit(formFields, data);
     };
