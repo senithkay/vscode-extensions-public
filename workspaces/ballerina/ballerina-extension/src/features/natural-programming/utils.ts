@@ -632,8 +632,7 @@ export async function getConfigFilePath(ballerinaExtInstance: BallerinaExtension
 }
 
 async function showNoBallerinaSourceWarningMessage() {
-    await vscode.window.showWarningMessage(ERROR_NO_BALLERINA_SOURCES);
-    return null;
+    return await vscode.window.showWarningMessage(ERROR_NO_BALLERINA_SOURCES);
 }
 
 export async function addConfigFile(configPath: string) {
