@@ -7,17 +7,53 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Category, AvailableNode, FlowNode, ProjectComponentsResponse, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+import { Category, AvailableNode, FlowNode, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { cloneDeep } from "lodash";
 import { URI, Utils } from "vscode-uri";
 
+// Filter out connections where name starts with _ and module is "ai" or "ai.agent"
+export const filterConnections = (categories: Category[]): Category[] => {
+    return categories.map((category) => {
+        if (category.metadata.label === "Connections") {
+            const filteredItems = category.items.filter((item) => {
+                if ("metadata" in item && "items" in item && item.items.length > 0 && "codedata" in item.items.at(0)) {
+                    const name = item.metadata.label || "";
+                    const module = (item.items.at(0) as AvailableNode)?.codedata.module || "";
+
+                    // Filter out items where name starts with _ and module is "ai" or "ai.agent"
+                    return !(name.startsWith("_") && (module === "ai" || module === "ai.agent"));
+                }
+                return true;
+            });
+
+            return {
+                ...category,
+                items: filteredItems,
+            };
+        }
+        return category;
+    });
+};
+
 export const transformCategories = (categories: Category[]): Category[] => {
+    // First filter connections
+    let filteredCategories = filterConnections(categories);
+
     // filter out some categories that are not supported in the diagram
     // TODO: these categories should be supported in the future
-    const notSupportedCategories = ["PARALLEL_FLOW", "LOCK", "START", "TRANSACTION", "COMMIT", "ROLLBACK", "RETRY"];
+    const notSupportedCategories = [
+        "PARALLEL_FLOW",
+        "LOCK",
+        "START",
+        "TRANSACTION",
+        "COMMIT",
+        "ROLLBACK",
+        "RETRY",
+        "NP_FUNCTION",
+    ];
 
-    let filteredCategories = categories.map((category) => ({
+    filteredCategories = filteredCategories.map((category) => ({
         ...category,
         items: category?.items?.filter(
             (item) => !("codedata" in item) || !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
@@ -89,20 +125,39 @@ export const getAgentFilePath = async (rpcClient: BallerinaRpcClient) => {
     return agentFilePath;
 };
 
+export const findFlowNodeByModuleVarName = async (variableName: string, rpcClient: BallerinaRpcClient) => {
+    try {
+        // Get all module nodes
+        const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
+        // Find the node with matching variable name
+        const flowNode = moduleNodes.flowModel.connections.find((node) => {
+            const value = node.properties?.variable?.value;
+            const sanitizedVarName = variableName.trim().replace(/\n/g, "");
+            return typeof value === "string" && value === sanitizedVarName;
+        });
+        if (!flowNode) {
+            console.error(`Flow node with variable name '${variableName}' not found`);
+            return null;
+        }
+        return flowNode;
+    } catch (error) {
+        console.error("Error finding flow node by variable name:", error);
+        return null;
+    }
+};
+
 export const findAgentNodeFromAgentCallNode = async (agentCallNode: FlowNode, rpcClient: BallerinaRpcClient) => {
     if (!agentCallNode || agentCallNode.codedata?.node !== "AGENT_CALL") return null;
-    // get all module nodes
-    const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
-    console.log(">>> module nodes", moduleNodes);
+
     // get agent name
-    const agentName = agentCallNode.properties.connection.value;
-    // get agent node
-    const agentNode = moduleNodes.flowModel.connections.find((node) => node.properties.variable.value === agentName);
-    if (!agentNode) {
-        console.error("Agent node not found");
-        return;
+    const connectionValue = agentCallNode.properties?.connection?.value;
+    if (typeof connectionValue !== "string") {
+        console.error("Agent connection value is not a string");
+        return null;
     }
-    return agentNode;
+
+    // use the new function to find the node
+    return await findFlowNodeByModuleVarName(connectionValue, rpcClient);
 };
 
 export const removeToolFromAgentNode = async (agentNode: FlowNode, toolName: string) => {
@@ -167,15 +222,54 @@ export const addToolToAgentNode = async (agentNode: FlowNode, toolName: string) 
     return updatedAgentNode;
 };
 
+// remove agent node, model node when removing ag
+export const removeAgentNode = async (agentCallNode: FlowNode, rpcClient: BallerinaRpcClient): Promise<boolean> => {
+    if (!agentCallNode || agentCallNode.codedata?.node !== "AGENT_CALL") return false;
+    // get module nodes
+    const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
+    // get agent name
+    const agentName = agentCallNode.properties.connection.value;
+    // get agent node
+    const agentNode = moduleNodes.flowModel.connections.find((node) => node.properties.variable.value === agentName);
+    console.log(">>> agent node", agentNode);
+    if (!agentNode) {
+        console.error("Agent node not found", agentCallNode);
+        return false;
+    }
+    // get model name
+    const modelName = agentNode?.properties.model.value;
+    console.log(">>> model name", modelName);
+    // get model node
+    const modelNode = moduleNodes.flowModel.connections.find((node) => node.properties.variable.value === modelName);
+    console.log(">>> model node", modelNode);
+    if (!modelNode) {
+        console.error("Model node not found", agentCallNode);
+        return false;
+    }
+    // get file path
+    const projectPath = await rpcClient.getVisualizerLocation();
+    const agentFileName = agentNode.codedata.lineRange.fileName;
+    const filePath = Utils.joinPath(URI.file(projectPath.projectUri), agentFileName).fsPath;
+    // delete the agent node
+    await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
+        filePath: filePath,
+        flowNode: agentNode,
+    });
+    // delete the model node
+    await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
+        filePath: filePath,
+        flowNode: modelNode,
+    });
+    return true;
+};
+
 export const findFunctionByName = (components: BallerinaProjectComponents, functionName: string) => {
     // Iterate through packages
     for (const pkg of components.packages) {
         // Iterate through modules in each package
         for (const module of pkg.modules) {
             // Search through functions
-            const foundFunction = module.functions.find(
-                (func: any) => func.name === functionName
-            );
+            const foundFunction = module.functions.find((func: any) => func.name === functionName);
             if (foundFunction) {
                 // update file path to include package path
                 foundFunction.filePath = Utils.joinPath(URI.file(pkg.filePath), foundFunction.filePath).fsPath;
@@ -184,4 +278,4 @@ export const findFunctionByName = (components: BallerinaProjectComponents, funct
         }
     }
     return null;
-}
+};

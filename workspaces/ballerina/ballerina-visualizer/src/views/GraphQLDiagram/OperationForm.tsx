@@ -10,7 +10,8 @@
 import React, { useState, useEffect } from 'react';
 import { FunctionModel, LineRange, ParameterModel, ConfigProperties, Type } from '@wso2-enterprise/ballerina-core';
 import { FormGeneratorNew } from '../BI/Forms/FormGeneratorNew';
-import { FormField, FormValues, Parameter } from '@wso2-enterprise/ballerina-side-panel';
+import { FormField, FormImports, FormValues, Parameter } from '@wso2-enterprise/ballerina-side-panel';
+import { getImportsForProperty } from '../../utils/bi';
 
 interface OperationFormProps {
     model: FunctionModel;
@@ -145,7 +146,7 @@ export function OperationForm(props: OperationFormProps) {
         setFields(initialFields);
     }, [model]);
 
-    const handleFunctionCreate = (data: FormValues) => {
+    const handleFunctionCreate = (data: FormValues, formImports: FormImports) => {
         console.log("Function create with data:", data);
         const { name, returnType, parameters: params } = data;
         const paramList = params ? getFunctionParametersList(params) : [];
@@ -153,6 +154,7 @@ export function OperationForm(props: OperationFormProps) {
         newFunctionModel.name.value = name;
         newFunctionModel.returnType.value = returnType;
         newFunctionModel.parameters = paramList;
+        newFunctionModel.returnType.imports = getImportsForProperty('returnType', formImports);
         onSave(newFunctionModel);
     };
 

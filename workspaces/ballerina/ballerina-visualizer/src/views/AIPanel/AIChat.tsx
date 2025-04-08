@@ -51,7 +51,7 @@ import ReferenceDropdown from "./Components/ReferenceDropdown";
 import AccordionItem from "./Components/TestScenarioSegment";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TestGeneratorIntermediaryState } from "./features/testGenerator";
-import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
+import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, hasCodeBlocks, parseCopilotSSEEvent } from "./utils/sse_utils";
 import MarkdownRenderer from "./Components/MarkdownRenderer";
 import { CodeSection } from "./Components/CodeSection";
 import { CodeSegment } from "./Components/CodeSegment";
@@ -132,7 +132,7 @@ const TEMPLATE_TESTS = [
     "generate tests for resource <method(space)path> function",
 ];
 export const TEMPLATE_DATAMAP = [
-    "generate mappings using input as <recordname(s)> and output as <recordname> using the <functionname> function",
+    "generate mappings using input as <recordname(s)> and output as <recordname> using the {functionname} function",
     "generate mappings for the <functionname> function",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
@@ -495,8 +495,8 @@ export function AIChat() {
             { role: "User", content: uerMessage, type: "user_message" },
             { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
         ]);
-
         await handleSendQuery(content);
+        setUserInput("/generate ");
     }
 
     function getUserMessage(content: [string, AttachmentResult[]]): string {
@@ -724,6 +724,7 @@ export function AIChat() {
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
                 .replace(/<requirements>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(.+?)")
+                .replace(/\{functionname\}/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");
 
@@ -863,8 +864,9 @@ export function AIChat() {
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
-            sourceFiles: project.sourceFiles,
+            sourceFiles: transformProjectSource(project),
             operationType,
+            packageName: project.projectName,
         };
 
         const fileAttatchments = attachments.map((file) => ({
@@ -950,6 +952,7 @@ export function AIChat() {
                     const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
                         assistant_response: assistant_response,
                     });
+                    console.log("Raw resp Before repair:", assistant_response);
                     assistant_response = postProcessResp.assistant_response;
                     diagnostics = postProcessResp.diagnostics.diagnostics;
                     console.log("Initial Diagnostics : ", diagnostics);
@@ -963,7 +966,7 @@ export function AIChat() {
                 const MAX_REPAIR_ATTEMPTS = 3;
                 let repair_attempt = 0;
                 let diagnosticFixResp = assistant_response;
-                while (diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
+                while (hasCodeBlocks(assistant_response) && diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
                     console.log("Repair iteration: ", repair_attempt);
                     console.log("Diagnotsics trynna fix: ", diagnostics);
                     const diagReq = {
@@ -974,10 +977,11 @@ export function AIChat() {
                     let newReqBody : any= {
                         usecase: useCase,
                         chatHistory: chatArray,
-                        sourceFiles: project.sourceFiles,
+                        sourceFiles: transformProjectSource(project),
                         diagnosticRequest: diagReq,
                         functions: functionsRef.current,
                         operationType,
+                        packageName: project.projectName,
                     };
                     if (attachments.length > 0) {
                         newReqBody.fileAttachmentContents = fileAttatchments;
@@ -1002,6 +1006,7 @@ export function AIChat() {
                     } else {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
+                        console.log("Resposne of attempt" + repair_attempt + " : ", repairResponse);
                         // replace original response with new code blocks
                         diagnosticFixResp = replaceCodeBlocks(diagnosticFixResp, repairResponse);
                         const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
@@ -1240,7 +1245,6 @@ export function AIChat() {
                 }
 
                 segmentText = updatedContent.trim();
-                await rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: segmentText });
             } else if (command === "test") {
                 segmentText = `${originalContent}\n\n${segmentText}`;
             } else {
@@ -1334,7 +1338,6 @@ export function AIChat() {
                     isTestCode = true;
                 }
                 const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
-                rpcClient.getAiPanelRpcClient().refreshFile({ filePath: filePath, content: revertContent });
                 await rpcClient
                     .getAiPanelRpcClient()
                     .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
@@ -2065,7 +2068,8 @@ export function AIChat() {
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
-            sourceFiles: project.sourceFiles,
+            sourceFiles: transformProjectSource(project),
+            packageName: project.projectName,
         };
 
         const response = await fetchWithToken(
@@ -2505,10 +2509,11 @@ export function AIChat() {
             const reqBody : any = {
                 usecase: usecase,
                 chatHistory: chatArray.slice(0, chatArray.length - 2),
-                sourceFiles: project.sourceFiles,
+                sourceFiles: transformProjectSource(project),
                 diagnosticRequest: diagReq,
                 functions: functionsRef.current,
                 operationType: CodeGenerationType.CODE_GENERATION,
+                packageName: project.projectName,
             };
 
             const attatchments = lastAttatchmentsRef.current;
@@ -3034,7 +3039,7 @@ export function getProjectFromResponse(req: string): ProjectSource {
         sourceFiles.push({ filePath, content: fileContent });
     }
 
-    return { sourceFiles };
+    return { sourceFiles, projectName: "" };
 }
 
 export enum SegmentType {
@@ -3250,4 +3255,38 @@ function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
                 !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) &&
                 !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
         );
+}
+
+interface SourceFiles {
+    filePath:string;
+    content:string;
+};
+
+function transformProjectSource(project: ProjectSource): SourceFiles[] {
+    const sourceFiles: SourceFiles[] = [];
+    project.sourceFiles.forEach((file) => {
+        sourceFiles.push({
+            filePath: file.filePath,
+            content: file.content,
+        });
+    });
+    project.projectModules?.forEach((module) => {
+        let basePath = "";
+        if (!module.isGenerated) {
+            basePath += "modules/";
+        } else {
+            basePath += "generated/";
+        }
+
+        basePath += module.moduleName + "/";
+        // const path = 
+        module.sourceFiles.forEach((file) => {
+            sourceFiles.push({
+                filePath: basePath + file.filePath,
+                content: file.content,
+            });
+        }
+        );
+    });
+    return sourceFiles;
 }

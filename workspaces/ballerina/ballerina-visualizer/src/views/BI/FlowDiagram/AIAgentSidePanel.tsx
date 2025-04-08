@@ -60,17 +60,13 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
 
     const targetRef = useRef<LineRange>({ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } });
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
-
+    const selectedNodeRef = useRef<AvailableNode>(undefined);
     useEffect(() => {
         fetchNodes();
     }, []);
 
     // Use effects to refresh the panel
     useEffect(() => {
-        rpcClient.onProjectContentUpdated((state: boolean) => {
-            console.log(">>> on project content updated", state);
-            fetchNodes();
-        });
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
             console.log(">>> on parent popup submitted", parent);
             fetchNodes();
@@ -106,7 +102,6 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                 setCategories(filteredCategories);
                 console.log("filteredCategories", filteredCategories);
                 initialCategoriesRef.current = filteredCategories; // Store initial categories
-                setSidePanelView(SidePanelView.NODE_LIST);
                 setLoading(false);
             })
             .finally(() => {
@@ -127,11 +122,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             filePath: projectPath,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true",
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -140,22 +135,29 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             setCategories(initialCategoriesRef.current); // Reset the categories list when the search input is empty
             return;
         }
+
+        // HACK: filter response until library functions are supported from LS
+        const filteredResponse = response.categories.filter((category) => {
+            return category.metadata.label === "Current Integration";
+        });
+
         if (isSearching && searchText) {
             setCategories(
-                convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
+                convertFunctionCategoriesToSidePanelCategories(filteredResponse, functionType)
             );
             return;
         }
-        if (!response || !response.categories) {
+        if (!response || !filteredResponse) {
             return [];
         }
-        return convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType);
+        return convertFunctionCategoriesToSidePanelCategories(filteredResponse, functionType);
     };
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node } = metadata as { node: AvailableNode };
         // default node
         console.log(">>> on select node", { nodeId, metadata });
+        selectedNodeRef.current = node;
         setSelectedNodeCodeData(node.codedata);
         setSidePanelView(SidePanelView.TOOL_FORM);
     };
@@ -166,16 +168,6 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             location: {
                 view: MACHINE_VIEW.AddConnectionWizard,
                 documentUri: projectPath,
-            },
-            isPopup: true,
-        });
-    };
-
-    const handleOnAddFunction = () => {
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.BIFunctionForm,
             },
             isPopup: true,
         });
@@ -221,9 +213,20 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         },
     ];
 
-    const handleOnCancel = () => {
-        setSidePanelView(SidePanelView.NODE_LIST);
-    };
+    // add concert message to the fields if the tool is a function call
+    let concertMessage = "";
+    let concertRequired = false;
+    let description = "";
+    if (
+        selectedNodeRef.current &&
+        selectedNodeRef.current.codedata.node === "FUNCTION_CALL" &&
+        !selectedNodeRef.current.codedata.org
+    ) {
+        concertMessage = `Convert ${selectedNodeRef.current.metadata.label} function to an isolated function`;
+        concertRequired = true;
+        description =
+            "Only isolated functions can be used as tools. Isolated functions ensure predictable behavior by avoiding shared state.";
+    }
 
     return (
         <>
@@ -246,9 +249,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     fileName={projectPath}
                     targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                     fields={fields}
-                    onBack={handleOnCancel}
                     onSubmit={handleToolSubmit}
                     submitText={"Save Tool"}
+                    concertMessage={concertMessage}
+                    concertRequired={concertRequired}
+                    description={description}
                 />
             )}
         </>

@@ -20,6 +20,7 @@ import {
     ValueTextWrapper,
     IconWrapper,
     IconTextWrapper,
+    TypeWrapper,
     Key
 } from "./styles";
 import { Parameter } from "./ParamManager";
@@ -57,14 +58,14 @@ export function ParamItem(props: ParamItemProps) {
                 {icon ? (
                     <IconTextWrapper>
                         <IconWrapper> {icon} </IconWrapper>
-                        {type}
+                        <TypeWrapper title={type}> {type} </TypeWrapper>
                     </IconTextWrapper>
                 ) : (
                     <KeyTextWrapper>
-                        <Key> {type} </Key>
+                        <Key title={type}> {type} </Key>
                     </KeyTextWrapper>
                 )}
-                <ValueTextWrapper> {identifier} </ValueTextWrapper>
+                <ValueTextWrapper title={identifier}> {identifier} </ValueTextWrapper>
             </ContentWrapper>
             <ActionWrapper>
                 {!readonly && (

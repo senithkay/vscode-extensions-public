@@ -13,6 +13,7 @@ import { Codicon, Button, TextField, LinkButton } from '@wso2-enterprise/ui-tool
 import styled from '@emotion/styled';
 import { TypeField } from './TypeField';
 import { isValidBallerinaIdentifier } from './TypeUtil';
+import { IdentifierField } from './IdentifierField';
 
 namespace S {
     export const Container = styled.div`
@@ -46,7 +47,7 @@ namespace S {
     export const FunctionRow = styled.div`
         display: flex;
         gap: 8px;
-        align-items: center;
+        align-items: start;
     `;
 
     export const ExpandIconButton = styled(Button)`
@@ -130,6 +131,7 @@ interface ClassEditorProps {
     type: Type;
     isGraphql: boolean;
     onChange: (type: Type) => void;
+    onValidationError: (isError: boolean) => void;
 }
 
 interface ParameterFormData {
@@ -138,8 +140,13 @@ interface ParameterFormData {
     defaultValue: string;
 }
 
-export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
-    const nameInputRefs = useRef<HTMLInputElement[]>([]);
+interface FunctionValidationError {
+    identifier: boolean;
+    type: boolean;
+}
+
+
+export function ClassEditor({ type, onChange, isGraphql, onValidationError }: ClassEditorProps) {
     const [showParameterForm, setShowParameterForm] = useState<number | null>(null);
     const [expandedFunctions, setExpandedFunctions] = useState<number[]>([]);
     const [parameterForm, setParameterForm] = useState<ParameterFormData>({
@@ -148,8 +155,29 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
         defaultValue: ''
     });
     const [editingParamIndex, setEditingParamIndex] = useState<number | null>(null);
-    const [nameErrors, setNameErrors] = useState<Record<number, string>>({});
     const [paramNameError, setParamNameError] = useState<string>('');
+
+    const [validationErrors, setValidationErrors] = useState<FunctionValidationError[]>([{ identifier: false, type: false }]);
+
+    const handleValidationError = (functionIndex: number, isIdentifier: boolean, hasError: boolean) => {
+        setValidationErrors(prev => {
+            const newErrors = [...prev];
+            // Ensure the field exists
+            if (!newErrors[functionIndex]) {
+                newErrors[functionIndex] = { identifier: false, type: false };
+            }
+            if (isIdentifier) {
+                newErrors[functionIndex] = { ...newErrors[functionIndex], identifier: hasError };
+            } else {
+                newErrors[functionIndex] = { ...newErrors[functionIndex], type: hasError };
+            }
+
+            // Check if any function has either type or identifier errors
+            const hasAnyError = newErrors.some(error => error.identifier || error.type);
+            onValidationError?.(hasAnyError);
+            return newErrors;
+        });
+    };
 
     const toggleFunctionExpand = (index: number) => {
         setExpandedFunctions(prev =>
@@ -217,9 +245,6 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
     };
 
     const handleParameterSave = (functionIndex: number) => {
-        if (!validateParameterName(parameterForm.name)) {
-            return;
-        }
 
         const updatedFunctions = [...(type.functions || [])];
         const currentFunction = updatedFunctions[functionIndex];
@@ -281,55 +306,6 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
         });
     };
 
-    // Add function to validate name
-    const validateFunctionName = (index: number, name: string) => {
-        if (!isValidBallerinaIdentifier(name)) {
-            setNameErrors(prev => ({
-                ...prev,
-                [index]: 'Invalid Identifier.'
-            }));
-            return false;
-        } else {
-            setNameErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[index];
-                return newErrors;
-            });
-            return true;
-        }
-    };
-
-    const handleNameChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-        const newName = e.target.value;
-        updateFunction(index, { name: newName });
-    };
-
-    // Add handler for blur event to validate
-    const handleNameBlur = (index: number, e: React.FocusEvent<HTMLInputElement>) => {
-        validateFunctionName(index, e.target.value);
-    };
-
-    // Add function to validate parameter name
-    const validateParameterName = (name: string): boolean => {
-        if (!isValidBallerinaIdentifier(name)) {
-            setParamNameError('Invalid Identifier.');
-            return false;
-        } else {
-            setParamNameError('');
-            return true;
-        }
-    };
-
-    const handleParameterNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newName = e.target.value;
-        setParameterForm(prev => ({ ...prev, name: newName }));
-    };
-
-    // Add handler for parameter name blur
-    const handleParameterNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        validateParameterName(e.target.value);
-    };
-
     return (
         <S.Container>
             <S.Header>
@@ -348,12 +324,11 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
                         >
                             <Codicon name={expandedFunctions.includes(index) ? "chevron-down" : "chevron-right"} />
                         </S.ExpandIconButton>
-                        <TextField
+                        <IdentifierField
                             value={func.name}
-                            ref={(el) => nameInputRefs.current[index] = el}
-                            onChange={(e) => handleNameChange(index, e)}
-                            onBlur={(e) => handleNameBlur(index, e)}
-                            errorMsg={nameErrors[index]}
+                            onChange={(newName) => updateFunction(index, { name: newName })}
+                            rootType={type}
+                            onValidationError={(hasError) => handleValidationError(index, true, hasError)}
                             placeholder="Name"
                         />
                         <TypeField
@@ -361,6 +336,8 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
                             memberName={typeof func.returnType === 'string' ? func.returnType : func.returnType?.name}
                             onChange={(newType) => updateFunction(index, { returnType: newType })}
                             placeholder="Type"
+                            rootType={type}
+                            onValidationError={(hasError) => handleValidationError(index, false, hasError)}
                         />
                         <Button appearance="icon" onClick={() => deleteFunction(index)}><Codicon name="trash" /></Button>
                     </S.FunctionRow>
@@ -404,18 +381,20 @@ export function ClassEditor({ type, onChange, isGraphql }: ClassEditorProps) {
 
                             {showParameterForm === index && (
                                 <S.ParameterForm>
-                                    <TextField
-                                        placeholder={isGraphql ? "Argument Name" : "Parameter Name"}
+                                    <IdentifierField
                                         value={parameterForm.name}
-                                        onChange={handleParameterNameChange}
-                                        onBlur={handleParameterNameBlur}
-                                        errorMsg={paramNameError}
+                                        onChange={(newName) => setParameterForm(prev => ({ ...prev, name: newName }))}
+                                        rootType={type}
+                                        onValidationError={onValidationError}
+                                        placeholder={isGraphql ? "Argument Name" : "Parameter Name"}
                                     />
                                     <TypeField
                                         type={parameterForm.type}
                                         memberName={parameterForm.type}
                                         onChange={(newType) => setParameterForm(prev => ({ ...prev, type: newType }))}
                                         placeholder={isGraphql ? "Argument Type" : "Parameter Type"}
+                                        rootType={type}
+                                        onValidationError={onValidationError}
                                     />
                                     <TextField
                                         placeholder="Default Value"

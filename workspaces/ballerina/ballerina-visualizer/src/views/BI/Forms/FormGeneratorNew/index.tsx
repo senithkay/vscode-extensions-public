@@ -20,7 +20,9 @@ import {
     TextEdit,
     NodeKind,
     ExpressionProperty,
-    RecordTypeField
+    RecordTypeField,
+    FormDiagnostics,
+    Imports
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormField,
@@ -28,9 +30,9 @@ import {
     Form,
     ExpressionFormField,
     FormExpressionEditorProps,
-    PanelContainer
+    PanelContainer,
+    FormImports
 } from "@wso2-enterprise/ballerina-side-panel";
-import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
@@ -38,6 +40,7 @@ import {
     convertBalCompletion,
     convertToVisibleTypes,
     getInfoFromExpressionValue,
+    removeDuplicateDiagnostics,
     updateLineRange
 } from "../../../../utils/bi";
 import { debounce, set } from "lodash";
@@ -49,6 +52,7 @@ import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
 interface TypeEditorState {
     isOpen: boolean;
     field?: FormField; // Optional, to store the field being edited
+    newTypeValue?: string;
 }
 
 interface FormProps {
@@ -61,7 +65,8 @@ interface FormProps {
     onBack?: () => void;
     editForm?: boolean;
     isGraphqlEditor?: boolean;
-    onSubmit: (data: FormValues) => void;
+    onSubmit: (data: FormValues, formImports?: FormImports) => void;
+    isSaving?: boolean;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -72,6 +77,9 @@ interface FormProps {
     helperPaneSide?: 'right' | 'left';
     recordTypeFields?: RecordTypeField[];
     disableSaveButton?: boolean;
+    concertMessage?: string;
+    concertRequired?: boolean;
+    description?: string;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -84,6 +92,7 @@ export function FormGeneratorNew(props: FormProps) {
         cancelText,
         onBack,
         onSubmit,
+        isSaving,
         isGraphqlEditor,
         openSubPanel,
         updatedExpressionField,
@@ -93,13 +102,15 @@ export function FormGeneratorNew(props: FormProps) {
         compact = false,
         helperPaneSide,
         recordTypeFields,
-        disableSaveButton = false
+        disableSaveButton = false,
+        concertMessage,
+        concertRequired,
+        description
     } = props;
 
     const { rpcClient } = useRpcContext();
-    // console.log("======FormGeneratorNew======,", fields)
 
-    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
+    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false, newTypeValue: "" });
 
     /* Expression editor related state and ref variables */
     const prevCompletionFetchText = useRef<string>("");
@@ -110,6 +121,7 @@ export function FormGeneratorNew(props: FormProps) {
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
+    const [formImports, setFormImports] = useState<FormImports>({});
 
     useEffect(() => {
         if (fields) {
@@ -273,13 +285,24 @@ export function FormGeneratorNew(props: FormProps) {
         [debouncedGetVisibleTypes]
     );
 
-    const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
+    const handleCompletionItemSelect = async (
+        value: string,
+        fieldKey: string,
+        additionalTextEdits?: TextEdit[]
+    ) => {
         if (additionalTextEdits?.[0].newText) {
             const response = await rpcClient.getBIDiagramRpcClient().updateImports({
                 filePath: fileName,
                 importStatement: additionalTextEdits[0].newText
             });
             expressionOffsetRef.current += response.importStatementOffset;
+
+            if (response.prefix && response.moduleId) {
+                const importStatement = {
+                    [response.prefix]: response.moduleId
+                }
+                handleUpdateImports(fieldKey, importStatement);
+            }
         }
         debouncedRetrieveCompletions.cancel();
         debouncedGetVisibleTypes.cancel();
@@ -290,7 +313,54 @@ export function FormGeneratorNew(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
+    const handleExpressionFormDiagnostics = useCallback(
+        debounce(
+            async (
+                showDiagnostics: boolean,
+                expression: string,
+                key: string,
+                property: ExpressionProperty,
+                setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
+                shouldUpdateNode?: boolean,
+                variableType?: string
+            ) => {
+                if (!showDiagnostics) {
+                    setDiagnosticsInfo({ key, diagnostics: [] });
+                    return;
+                }
+
+                try {
+                    const field = fields.find(f => f.key === key);
+                    if (field) {
+                        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+                            filePath: fileName,
+                            context: {
+                                expression: expression,
+                                startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                                lineOffset: 0,
+                                offset: 0,
+                                codedata: field.codedata,
+                                property: property,
+                            },
+                        });
+
+                        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                        setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
+                    }
+                } catch (error) {
+                    // Remove diagnostics if LS crashes
+                    console.error(">>> Error getting expression diagnostics", error);
+                    setDiagnosticsInfo({ key, diagnostics: [] });
+                }
+
+            },
+            250
+        ),
+        [rpcClient, fileName, targetLineRange]
+    );
+
     const handleGetHelperPane = (
+        fieldKey: string,
         exprRef: RefObject<FormExpressionEditorRef>,
         anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
@@ -306,6 +376,7 @@ export function FormGeneratorNew(props: FormProps) {
         }
 
         return getHelperPane({
+            fieldKey: fieldKey,
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
@@ -315,11 +386,13 @@ export function FormGeneratorNew(props: FormProps) {
             currentValue: value,
             onChange: onChange,
             helperPaneHeight: helperPaneHeight,
-            recordTypeField: recordTypeField
+            recordTypeField: recordTypeField,
+            updateImports: handleUpdateImports
         });
     };
 
     const handleGetTypeHelper = (
+        fieldKey: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
@@ -329,6 +402,7 @@ export function FormGeneratorNew(props: FormProps) {
         typeHelperHeight: HelperPaneHeight
     ) => {
         return getTypeHelper({
+            fieldKey: fieldKey,
             typeBrowserRef: typeBrowserRef,
             filePath: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
@@ -337,7 +411,8 @@ export function FormGeneratorNew(props: FormProps) {
             helperPaneHeight: typeHelperHeight,
             typeHelperState: typeHelperState,
             onChange: onChange,
-            changeTypeHelperState: changeHelperPaneState
+            changeTypeHelperState: changeHelperPaneState,
+            updateImports: handleUpdateImports
         });
     }
 
@@ -384,13 +459,26 @@ export function FormGeneratorNew(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setTypeEditorState({ isOpen, field: editingField });
+        setTypeEditorState({ isOpen, field: editingField, newTypeValue: f[editingField?.key] });
     };
+
+    const handleUpdateImports = (key: string, imports: Imports) => {
+        const importKey = Object.keys(imports)?.[0];
+        if (Object.keys(formImports).includes(key)) {
+            if (importKey && !Object.keys(formImports[key]).includes(importKey)) {
+                const updatedImports = { ...formImports, [key]: { ...formImports[key], ...imports } };
+                setFormImports(updatedImports);
+            }
+        } else {
+            const updatedImports = { ...formImports, [key]: imports };
+            setFormImports(updatedImports);
+        }
+    }
 
     const defaultType = (): Type => {
         if (typeEditorState.field.type === 'PARAM_MANAGER') {
             return {
-                name: "MyType",
+                name: typeEditorState.newTypeValue || "MyType",
                 editable: true,
                 metadata: {
                     label: "",
@@ -406,7 +494,7 @@ export function FormGeneratorNew(props: FormProps) {
             };
         }
         return {
-            name: "MyType",
+            name: typeEditorState.newTypeValue || "MyType",
             editable: true,
             metadata: {
                 label: "",
@@ -435,6 +523,7 @@ export function FormGeneratorNew(props: FormProps) {
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
             getTypeHelper: handleGetTypeHelper,
+            getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
@@ -453,7 +542,7 @@ export function FormGeneratorNew(props: FormProps) {
     ]);
 
     const handleSubmit = (values: FormValues) => {
-        onSubmit(values);
+        onSubmit(values, formImports);
     };
 
     const renderTypeEditor = (isGraphql: boolean) => (
@@ -464,8 +553,11 @@ export function FormGeneratorNew(props: FormProps) {
                 onClose={onCloseTypeEditor}
             >
                 <FormTypeEditor
+                    fieldKey={typeEditorState.field?.key}
                     newType={true}
                     onTypeChange={handleTypeChange}
+                    newTypeValue={typeEditorState.newTypeValue}
+                    updateImports={handleUpdateImports}
                     {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>
@@ -486,6 +578,7 @@ export function FormGeneratorNew(props: FormProps) {
                     submitText={submitText}
                     cancelText={cancelText}
                     onSubmit={handleSubmit}
+                    isSaving={isSaving}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
                     expressionEditor={expressionEditor}
@@ -497,6 +590,10 @@ export function FormGeneratorNew(props: FormProps) {
                     compact={compact}
                     recordTypeFields={recordTypeFields}
                     disableSaveButton={disableSaveButton}
+                    concertMessage={concertMessage}
+                    concertRequired={concertRequired}
+                    infoLabel={description}
+                    formImports={formImports}
                 />
             )}
             {typeEditorState.isOpen && (

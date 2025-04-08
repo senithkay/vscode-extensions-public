@@ -18,6 +18,8 @@ import { clientManager, findRunningBallerinaProcesses, handleError, HTTPYAC_CONF
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 import { startDebugging } from "../editor-support/codelens-provider";
 import { v4 as uuidv4 } from "uuid";
+import { StateMachine } from "../../stateMachine";
+import { createGraphqlView } from "../../views/graphql";
 
 // File constants
 const FILE_NAMES = {
@@ -135,6 +137,12 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
 
             const tryitFileUri = await generateTryItFileContent(targetDir, openapiSpec, selectedService, resourceMetadata);
             await openInSplitView(tryitFileUri, 'http');
+        } else if (selectedService.type === ServiceType.GRAPHQL) {
+            const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
+            const port = selectedPort;
+            const path = serviceMetadata.basePath;
+            const service = `http://localhost:${port}${path}`;
+            await createGraphqlView(service);
         } else {
             const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
             selectedService.port = selectedPort;
@@ -239,12 +247,12 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         const services = response.designModel.services
             .filter(({ type }) => {
                 const lowerType = type.toLowerCase();
-                return lowerType.includes('http') || lowerType.includes('ai');
+                return lowerType.includes('http') || lowerType.includes('ai') || lowerType.includes('graphql');
             })
             .map(({ displayName, absolutePath, location, attachedListeners, type }) => {
                 const trimmedPath = absolutePath.trim();
                 const name = displayName || (trimmedPath.startsWith('/') ? trimmedPath.substring(1) : trimmedPath);
-                const serviceType = type.toLowerCase().includes('http') ? ServiceType.HTTP : ServiceType.AGENT;
+                const serviceType = type.toLowerCase().includes('http') ? ServiceType.HTTP : type.toLowerCase().includes('graphql') ? ServiceType.GRAPHQL : ServiceType.AGENT;
                 const listener = {
                     name: attachedListeners
                         .map(listenerId => response.designModel.listeners.find(l => l.uuid === listenerId)?.symbol)
@@ -859,7 +867,8 @@ function disposeErrorWatcher() {
 // Service information interface
 enum ServiceType {
     HTTP = 'http',
-    AGENT = 'ai'
+    AGENT = 'ai',
+    GRAPHQL = 'graphql'
 }
 
 interface ServiceInfo {

@@ -11,13 +11,14 @@ import { useEffect, useState } from "react";
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { FormField, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormImports, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { LineRange, FunctionParameter, TestFunction, ValueProperty, Annotation } from "@wso2-enterprise/ballerina-core";
 import { EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { TitleBar } from "../../../components/TitleBar";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { FormHeader } from "../../../components/FormHeader";
 import FormGeneratorNew from "../Forms/FormGeneratorNew";
+import { getImportsForProperty } from "../../../utils/bi";
 
 const FormContainer = styled.div`
     display: flex;
@@ -87,9 +88,9 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
         setFormFields(formFields);
     }
 
-    const onFormSubmit = async (data: FormValues) => {
+    const onFormSubmit = async (data: FormValues, formImports: FormImports) => {
         console.log("Test Function Form Data: ", data);
-        const updatedTestFunction = fillFunctionModel(data);
+        const updatedTestFunction = fillFunctionModel(data, formImports);
         console.log("Test Function: ", updatedTestFunction);
         if (serviceType === 'UPDATE_TEST') {
             await rpcClient.getTestManagerRpcClient().updateTestFunction({ function: updatedTestFunction, filePath });
@@ -214,7 +215,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
         }
     }
 
-    const fillFunctionModel = (formValues: FormValues): TestFunction => {
+    const fillFunctionModel = (formValues: FormValues, formImports: FormImports): TestFunction => {
         let tmpTestFunction = testFunction;
         if (!tmpTestFunction) {
             tmpTestFunction = {};
@@ -226,6 +227,7 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
 
         if (formValues['returnType']) {
             tmpTestFunction.returnType.value = formValues['returnType'];
+            tmpTestFunction.returnType.imports = getImportsForProperty('returnType', formImports);
         }
 
         if (formValues['params']) {
@@ -235,10 +237,12 @@ export function TestFunctionForm(props: TestFunctionDefProps) {
                 const paramFormValues = param.formValues;
                 const variable = paramFormValues['variable'];
                 const type = paramFormValues['type'];
+                const typeImports = getImportsForProperty('params', formImports);
                 const defaultValue = paramFormValues['defaultable'];
                 let emptyParam = getEmptyParamModel();
                 emptyParam.variable.value = variable;
                 emptyParam.type.value = type;
+                emptyParam.type.imports = typeImports;
                 emptyParam.defaultValue.value = defaultValue;
                 paramList.push(emptyParam);
             }

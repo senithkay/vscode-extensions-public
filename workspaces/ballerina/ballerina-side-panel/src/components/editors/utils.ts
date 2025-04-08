@@ -54,6 +54,7 @@ export function getPropertyFromFormField(field: FormField): ExpressionProperty {
         placeholder: field.placeholder,
         valueTypeConstraint: field.valueTypeConstraint,
         codedata: field.codedata,
+        imports: field.imports
     }
 }
 

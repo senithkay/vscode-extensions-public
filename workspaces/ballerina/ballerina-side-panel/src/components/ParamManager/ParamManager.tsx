@@ -39,6 +39,7 @@ export interface ParamConfig {
 }
 
 export interface ParamManagerProps {
+    propertyKey: string;
     paramConfigs: ParamConfig;
     onChange?: (parameters: ParamConfig) => void,
     openRecordEditor?: (open: boolean) => void;
@@ -139,6 +140,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
                 render={({ field: { onChange }, fieldState: { error } }) => (
                     <>
                         <ParamManager
+                            propertyKey={field.key}
                             paramConfigs={field.paramManagerProps}
                             openRecordEditor={openRecordEditor}
                             onChange={async (config: ParamConfig) => {
@@ -192,7 +194,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, onChange, openRecordEditor, selectedNode } = props;
+    const { propertyKey, paramConfigs, readonly, onChange, openRecordEditor, selectedNode } = props;
     const { rpcClient } = useRpcContext();
 
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
@@ -297,6 +299,7 @@ export function ParamManager(props: ParamManagerProps) {
                     })
                     render.push(
                         <ParamEditor
+                            propertyKey={propertyKey}
                             parameter={param}
                             paramFields={newParamConfig.formFields}
                             onSave={onSaveParam}

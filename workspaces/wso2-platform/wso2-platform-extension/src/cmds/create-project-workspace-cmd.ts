@@ -10,16 +10,25 @@
 import { writeFileSync } from "fs";
 import * as os from "os";
 import * as path from "path";
-import { CommandIds, type ComponentKind, type Organization, type Project, type WorkspaceConfig } from "@wso2-enterprise/wso2-platform-core";
+import {
+	CommandIds,
+	type ComponentKind,
+	type ICmdParamsBase,
+	type Organization,
+	type Project,
+	type WorkspaceConfig,
+} from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
-import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
+import { getUserInfoForCmd, isRpcActive, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
 export function createProjectWorkspaceCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.CreateProjectWorkspace, async () => {
+		commands.registerCommand(CommandIds.CreateProjectWorkspace, async (params: ICmdParamsBase) => {
+			setExtensionName(params?.extName);
 			try {
+				isRpcActive(ext);
 				const userInfo = await getUserInfoForCmd("create a project workspace");
 				if (userInfo) {
 					let selectedOrg: Organization;

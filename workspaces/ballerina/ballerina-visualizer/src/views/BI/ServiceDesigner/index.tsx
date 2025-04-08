@@ -107,7 +107,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             .getBIDiagramRpcClient()
             .getProjectStructure()
             .then((res) => {
-                const listeners = res.directoryMap[DIRECTORY_MAP.LISTENERS];
+                const listeners = res.directoryMap[DIRECTORY_MAP.LISTENER];
                 if (listeners.length > 0) {
                     setProjectListeners(listeners);
                 }

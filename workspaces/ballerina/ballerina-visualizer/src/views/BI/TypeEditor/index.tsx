@@ -14,16 +14,33 @@ import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { TypeEditor, TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
 import { TYPE_HELPER_OPERATORS } from './constants';
 import { filterOperators, filterTypes, getImportedTypes, getTypeBrowserTypes, getTypes } from './utils';
+import { useMutation } from '@tanstack/react-query';
+import { Overlay, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { createPortal } from 'react-dom';
+import { LoadingRing } from '../../../components/Loader';
+import styled from '@emotion/styled';
+
+const LoadingContainer = styled.div`
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 5000;
+`;
 
 type FormTypeEditorProps = {
+    fieldKey?: string;
     type?: Type;
     onTypeChange: (type: Type) => void;
     newType: boolean;
+    newTypeValue?: string;
     isGraphql?: boolean;
+    updateImports?: (key: string, imports: {[key: string]: string}) => void;
 };
 
 export const FormTypeEditor = (props: FormTypeEditorProps) => {
-    const { type, onTypeChange, newType, isGraphql } = props;
+    const { fieldKey, type, onTypeChange, newType, newTypeValue, isGraphql, updateImports } = props;
     const { rpcClient } = useRpcContext();
 
     const [filePath, setFilePath] = useState<string | undefined>(undefined);
@@ -172,15 +189,28 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
         [debouncedSearchTypeBrowser]
     );
 
-    const handleTypeItemClick = async (item: TypeHelperItem) => {
-        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
-            filePath: filePath,
-            codedata: item.codedata,
-            kind: item.kind,
-            searchKind: 'TYPE'
-        });
+    const { mutateAsync: addFunction, isLoading: isAddingType  } = useMutation(
+        (item: TypeHelperItem) => 
+            rpcClient.getBIDiagramRpcClient().addFunction({
+                filePath: filePath,
+                codedata: item.codedata,
+                kind: item.kind,
+                searchKind: 'TYPE'
+            })
+    );
 
-        return response.template ?? '';
+    const handleTypeItemClick = async (item: TypeHelperItem) => {
+        const response = await addFunction(item);
+
+        if (response) {
+            const importStatement = {
+                [response.prefix]: response.moduleId
+            };
+            updateImports(fieldKey, importStatement);
+            return response.template;
+        }
+
+        return '';
     };
 
     return (
@@ -191,6 +221,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                     rpcClient={rpcClient}
                     onTypeChange={onTypeChange}
                     newType={newType}
+                    newTypeValue={newTypeValue}
                     isGraphql={isGraphql}
                     typeHelper={{
                         loading,
@@ -204,6 +235,13 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                         onTypeItemClick: handleTypeItemClick
                     }}
                 />
+            )}
+            {isAddingType && createPortal(
+                <>
+                    <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.7`, zIndex: 5000 }} />
+                    <LoadingContainer> <LoadingRing /> </LoadingContainer>
+                </>
+                , document.body
             )}
         </>
     );

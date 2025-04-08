@@ -74,13 +74,18 @@
                     "group": "inline"
                 },
                 {
+                    "command": "ballerina.force.update.artifacts",
+                    "when": "view == BI.project-explorer && viewItem == bi-project",
+                    "group": "inline"
+                },
+                {
                     "command": "BI.project-explorer.add-connection",
                     "when": "view == BI.project-explorer && viewItem == connections",
                     "group": "inline"
                 },
                 {
                     "command": "BI.project-explorer.delete",
-                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == listener || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration || viewItem == dataMapper || viewItem == naturalFunction || viewItem == localConnector",
+                    "when": "view == BI.project-explorer && viewItem == CONNECTION || viewItem == LISTENER || viewItem == SERVICE || viewItem == FUNCTION || viewItem == AUTOMATION || viewItem == TYPE || viewItem == CONFIGURABLE || viewItem == DATA_MAPPER || viewItem == NP_FUNCTION || viewItem == localConnector",
                     "group": "inline"
                 },
                 {
@@ -147,7 +152,7 @@
         "lint": "eslint src --ext ts",
         "test": "node ./out/test/runTest.js",
         "build": "pnpm run compile && pnpm run lint && pnpm run postbuild",
-        "package": "vsce package --no-dependencies",
+        "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
         "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
         "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
         "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX",

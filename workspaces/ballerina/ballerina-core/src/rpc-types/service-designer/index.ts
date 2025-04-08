@@ -11,13 +11,10 @@ import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, Servi
 import {
     ExportOASRequest,
     ExportOASResponse,
-    RecordSTRequest,
-    RecordSTResponse,
     SourceUpdateResponse,
 } from "./interfaces";
 
 export interface ServiceDesignerAPI {
-    getRecordST: (params: RecordSTRequest) => Promise<RecordSTResponse>;
     exportOASFile: (params: ExportOASRequest) => Promise<ExportOASResponse>;
     getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
     getListeners: (params: ListenersRequest) => Promise<ListenersResponse>;

@@ -155,7 +155,7 @@ export class SizingVisitor implements Visitor {
                 subSequenceHeight += type === NodeTypes.GROUP_NODE ? NODE_DIMENSIONS.END.HEIGHT : NODE_GAP.Y;
                 subSequencesHeight = Math.max(subSequencesHeight, subSequenceHeight);
                 subSequencesWidth = Math.max(subSequencesWidth, subSequenceWidth);
-                subSequence.viewState = { x: 0, y: 0, w: subSequenceWidth, h: subSequenceHeight, l: subSequenceL, r: subSequenceR, isBrokenLines: sequenceKey !== "default" };
+                subSequence.viewState = { x: 0, y: 0, w: subSequenceWidth, h: subSequenceHeight, l: subSequenceL, r: subSequenceR, isBrokenLines: sequenceKey !== "default" && !subSequence.sequenceAttribute };
                 this.addDiagnostics(subSequence);
             }
         }
@@ -489,6 +489,13 @@ export class SizingVisitor implements Visitor {
 
     endVisitThrottle = (node: Throttle): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
+
+        if (node.onAcceptAttribute) {
+            node.onAccept = { sequenceAttribute: node.onAcceptAttribute, key: "onAccept", tag: "sequence" } as any;
+        }
+        if (node.onRejectAttribute) {
+            node.onReject = { sequenceAttribute: node.onRejectAttribute, key: "onReject", tag: "sequence" } as any;
+        }
         this.calculateAdvancedMediator(node, {
             OnAccept: node.onAccept,
             OnReject: node.onReject

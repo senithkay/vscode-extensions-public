@@ -235,7 +235,8 @@ import {
     LocalInboundConnectorsResponse,
     BuildProjectRequest,
     DeployProjectRequest,
-    DeployProjectResponse
+    DeployProjectResponse,
+    DevantMetadata
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -356,6 +357,7 @@ export interface MiDiagramAPI {
     getAllAPIcontexts: () => Promise<APIContextsResponse>;
     buildProject: (params: BuildProjectRequest) => void;
     deployProject: (params: DeployProjectRequest) => Promise<DeployProjectResponse>;
+    getDevantMetadata: () => Promise<DevantMetadata>;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;

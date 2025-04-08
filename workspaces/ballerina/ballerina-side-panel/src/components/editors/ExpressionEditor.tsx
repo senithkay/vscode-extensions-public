@@ -275,7 +275,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const handleCompletionSelect = async (value: string, item: CompletionItem) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(value, item.additionalTextEdits);
+        await onCompletionItemSelect?.(value, field.key, item.additionalTextEdits);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -328,6 +328,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         helperPaneHeight: HelperPaneHeight
     ) => {
         return getHelperPane?.(
+            field.key,
             exprRef,
             anchorRef,
             field.placeholder,
@@ -406,8 +407,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             value={sanitizedExpression ? sanitizedExpression(value) : value}
                             autoFocus={autoFocus}
                             startAdornment={<EditorRibbon onClick={toggleHelperPaneState} />}
-                            onChange={async (newValue: string, updatedCursorPosition: number) => {
-                                const rawValue = rawExpression ? rawExpression(newValue) : newValue;
+                            onChange={async (updatedValue: string, updatedCursorPosition: number) => {
+                                if (updatedValue === value) {
+                                    return;
+                                }
+
+                                const rawValue = rawExpression ? rawExpression(updatedValue) : updatedValue;
                                 onChange(rawValue);
                                 debouncedUpdateSubPanelData(rawValue);
                                 cursorPositionRef.current = updatedCursorPosition;
