@@ -10,9 +10,9 @@
 import React, { useState } from "react";
 import { Collapse } from "react-collapse";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
-import { duotoneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { duotoneDark, duotoneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { identifyLanguage, handleAddSelectiveCodetoWorkspace, identifyArtifactTypeAndPath } from "../utils";
+import { identifyLanguage, handleAddSelectiveCodetoWorkspace, identifyArtifactTypeAndPath, isDarkMode } from "../utils";
 import { EntryContainer, StyledTransParentButton, StyledContrastButton } from "../styles";
 import { useMICopilotContext } from "./MICopilotContext";
 
@@ -41,7 +41,10 @@ const getFileName = (language: string, segmentText: string, loading: boolean): s
 export const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, index }) => {
     const { rpcClient, FileHistory, setFileHistory } = useMICopilotContext();
 
-    const isDarkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const darkModeEnabled = React.useMemo(() => {
+        return isDarkMode();
+    }, []);  
+
     const [isOpen, setIsOpen] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
     const language = identifyLanguage(segmentText);
@@ -211,7 +214,7 @@ export const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, 
                         <StyledTransParentButton
                             onClick={handleCopy}
                             style={{
-                                color: isDarkMode
+                                color: darkModeEnabled
                                     ? "var(--vscode-input-foreground)"
                                     : "var(--vscode-editor-foreground)",
                             }}
@@ -225,10 +228,7 @@ export const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, 
             <Collapse isOpened={isOpen}>
                 <SyntaxHighlighter
                     language={language}
-                    style={{
-                        ...duotoneLight,
-                        'pre[class*="language-"]': { ...duotoneLight['pre[class*="language-"]'], marginTop: 0 },
-                    }}
+                    style={darkModeEnabled ? duotoneDark : duotoneLight} 
                 >
                     {segmentText.trim()}
                 </SyntaxHighlighter>

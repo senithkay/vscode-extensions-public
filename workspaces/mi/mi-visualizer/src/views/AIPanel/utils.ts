@@ -9,14 +9,15 @@
 
 import { CopilotChatEntry, RpcClientType, Role, MessageType, ChatMessage } from "./types";
 
-import { GetWorkspaceContextResponse, MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { GetWorkspaceContextResponse, MACHINE_VIEW, EVENT_TYPE, FileObject, ImageObject} from "@wso2-enterprise/mi-core";
 import {
     MI_ARTIFACT_EDIT_BACKEND_URL,
     MI_ARTIFACT_GENERATION_BACKEND_URL,
     MI_SUGGESTIVE_QUESTIONS_BACKEND_URL,
     COPILOT_ERROR_MESSAGES,
+    MAX_FILE_SIZE, VALID_FILE_TYPES
 } from "./constants";
-import { ApiResponse, FileInfo, ImageInfo, BackendRequestType } from './types';
+import { ApiResponse, BackendRequestType } from './types';
 import path from "path";
 
 
@@ -198,18 +199,13 @@ export async function identifyArtifactTypeAndPath(name: string, segmentText: str
     }
     if (fileType) {
         const directoryPath = (await getContext(rpcClient))[0].rootPath;
-        const basePath = directoryPath
-            .split(path.sep)
-            .slice(0, directoryPath.split(path.sep).indexOf("src"))
-            .join(path.sep);
-        console.log("Base Path - ", basePath);
         
         var fullPath = "";
         if (fileType === "apis") {
             const version = segmentText.match(/<api [^>]*version="([^"]+)"/);
             if (version) {
                 fullPath = path.join(
-                    basePath ?? "",
+                    directoryPath ?? "",
                     "src",
                     "main",
                     "wso2mi",
@@ -220,7 +216,7 @@ export async function identifyArtifactTypeAndPath(name: string, segmentText: str
                 );
             } else {
                 fullPath = path.join(
-                    basePath ?? "",
+                    directoryPath ?? "",
                     "src",
                     "main",
                     "wso2mi",
@@ -231,10 +227,10 @@ export async function identifyArtifactTypeAndPath(name: string, segmentText: str
                 );
             }
         } else if (fileType === "unit-test") {
-            fullPath = path.join(basePath ?? "", "src", "main", "test", path.sep, `${name}.xml`);
+            fullPath = path.join(directoryPath ?? "", "src", "main", "test", path.sep, `${name}.xml`);
         } else {
             fullPath = path.join(
-                basePath ?? "",
+                directoryPath ?? "",
                 "src",
                 "main",
                 "wso2mi",
@@ -396,22 +392,20 @@ export function convertChat(entry: CopilotChatEntry): ChatMessage {
 export async function fetchCodeGenerationsWithRetry(
     url: string,
     chatHistory: CopilotChatEntry[],
-    files: FileInfo[],
-    images: ImageInfo[],
+    files: FileObject[],
+    images: ImageObject[],
     rpcClient: RpcClientType,
     controller: AbortController,
     view?: string
 ): Promise<Response> {
 
     const context = await getContext(rpcClient, view);
-    const payloads = await rpcClient.getMiDiagramRpcClient().getInputPayloads({documentUri: ""});
     const stringifiedUploadedFiles = files.map((file) => JSON.stringify(file));
     const imageBase64Array = images.map((image) => image.imageBase64);
 
     return fetchWithRetry(BackendRequestType.UserPrompt, url, {
         messages: chatHistory,
         context: context[0].context,
-        payloads: payloads,
         files: stringifiedUploadedFiles,
         images: imageBase64Array,
     }, rpcClient, controller, chatHistory);
@@ -494,4 +488,117 @@ export async function fetchWithRetry(
     } else {
         return response;
     }
+}
+
+// Utilities for file handling
+export const handleFileAttach = (e: any, existingFiles: FileObject[], setFiles: Function, existingImages: ImageObject[], setImages: Function, setFileUploadStatus: Function) => {
+    const files = e.target.files;
+    const validFileTypes = VALID_FILE_TYPES.files;
+    const validImageTypes = VALID_FILE_TYPES.images;
+
+    for (const file of files) {
+
+        if (file.size > MAX_FILE_SIZE) {
+            setFileUploadStatus({ type: "error", text: `File '${file.name}' exceeds the size limit of 5 MB.` });
+            continue;
+        }
+        
+        if (existingFiles.some(existingFile => existingFile.name === file.name)) {
+            setFileUploadStatus({ type: "error", text: `File '${file.name}' already added.` });
+            continue;
+        } else if (existingImages.some(existingImage => existingImage.imageName === file.name)) {
+            setFileUploadStatus({ type: "error", text: `Image '${file.name}' already added.` });
+            continue;
+        }
+
+        if (validFileTypes.includes(file.type)) {
+            const reader = new FileReader();
+            reader.onload = (event: any) => {
+                let fileContents = event.target.result;
+                if (file.type === "application/pdf" && fileContents.startsWith("data:application/pdf;base64,")) {
+                    fileContents = fileContents.replace("data:application/pdf;base64,", "");
+                }
+                setFiles((prevFiles: any) => [
+                    ...prevFiles,
+                    { name: file.name, mimetype: file.type, content: fileContents },
+                ]);
+                setFileUploadStatus({ type: "success", text: `File uploaded successfully.` });
+            };
+            if (file.type === "application/pdf") {
+                reader.readAsDataURL(file); // Convert PDF to base64
+            } else {
+                reader.readAsText(file);
+            }
+        } else if (validImageTypes.includes(file.type)) {
+            const reader = new FileReader();
+            reader.onload = (event: any) => {
+                const imageBase64 = event.target.result;
+                setImages((prevImages: any) => [...prevImages, { imageName: file.name, imageBase64: imageBase64 }]);
+                setFileUploadStatus({ type: "success", text: `File uploaded successfully.` });
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setFileUploadStatus({ type: "error", text: `File format not supported for '${file.name}'` });
+        }
+    }
+    e.target.value = "";
+};
+
+export const getFileIcon = (fileName: string): string => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+        case 'js':
+        case 'ts':
+        case 'jsx':
+        case 'tsx':
+        case 'json':
+        case 'yaml':
+        case 'yml':
+            return "file-code"; 
+        case 'md':
+        case 'markdown':
+            return 'book';
+        case 'png':
+        case 'jpg':
+        case 'jpeg':
+        case 'gif':
+        case 'svg':
+            return 'file-media';
+        case 'pdf':
+            return 'file-pdf';
+        case 'zip':
+        case 'rar':
+        case '7z':
+            return 'file-zip';
+        default:
+            return 'file';
+    }
+};
+
+export const isDarkMode = (): boolean => {
+    if (document.body) {
+        const bodyClasses = document.body.className;
+        if (bodyClasses.includes('vscode-dark')) {
+            return true;
+        } else if (bodyClasses.includes('vscode-light')) {
+            return false;
+        }
+                
+        // Fallback: check the computed background color
+        const backgroundColor = getComputedStyle(document.body).backgroundColor;
+        const rgb = backgroundColor.match(/\d+/g);
+        if (rgb && rgb.length >= 3) {
+            const [r, g, b] = rgb.map(Number);
+            // Calculate brightness - lower values mean darker colors
+            const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+            return brightness < 128;
+        }
+    }
+    
+    // Ultimate fallback to system preference
+    if (typeof window !== "undefined" && window.matchMedia) {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+            
+    return false;                         
 }

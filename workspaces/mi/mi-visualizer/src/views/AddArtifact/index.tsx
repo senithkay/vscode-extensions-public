@@ -16,10 +16,12 @@ import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from "path";
-import { handleFileAttach } from "../../utils/fileAttach";
+import { handleFileAttach } from "../AIPanel/utils";
 import { RUNTIME_VERSION_440 } from "../../constants";
 import { compareVersions } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
 import { VALID_FILE_TYPES } from "../AIPanel/constants";
+import { FileObject, ImageObject } from "@wso2-enterprise/mi-core";
+import Attachments from "../AIPanel/component/Attachments";
 
 const Container = styled.div({
     display: "flex",
@@ -128,8 +130,8 @@ export function AddArtifactView() {
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [inputAiPrompt, setInputAiPrompt] = React.useState<string>("");
     const [viewMore, setViewMore] = React.useState<boolean>(false);
-    const [files, setFiles] = useState([]);
-    const [images, setImages] = useState([]);
+    const [files, setFiles] = useState<FileObject[]>([]);
+    const [images, setImages] = useState<ImageObject[]>([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
     const [isResourceContentVisible, setIsResourceContentVisible] = useState(false);
     const [runtimeVersion, setRuntimeVersion] = useState("");
@@ -234,19 +236,6 @@ export function AddArtifactView() {
         setInputAiPrompt(value);
     };
 
-    const handleRemoveFile = (index: number) => {
-        setFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
-    };
-
-    const handleRemoveImage = (index: number) => {
-        setImages(prevImages => prevImages.filter((image, i) => i !== index));
-    };
-
-    const combinedItems = [
-        ...images.map((image, index) => ({ type: 'image', index, name: image.imageName })),
-        ...files.map((file, index) => ({ type: 'file', index, name: file.fileName }))
-    ];
-
     return (
         <View>
             <ViewHeader title={"Add artifact"} icon="project" iconSx={{ fontSize: "15px" }}>
@@ -276,25 +265,14 @@ export function AddArtifactView() {
                                 cols={1000}
                                 placeholder="ie. I want to create an API that will route my request based on a header value."
                             ></TextArea>
-                            <ItemRow>
-                                {combinedItems.map((item, index) => (
-                                    <FlexRow key={index} style={{ alignItems: 'center' }}>
-                                        <span>{item.name}</span>
-                                        <Button
-                                            appearance="icon"
-                                            onClick={() => {
-                                                if (item.type === 'file') {
-                                                    handleRemoveFile(item.index);
-                                                } else {
-                                                    handleRemoveImage(item.index);
-                                                }
-                                            }}
-                                        >
-                                            <Codicon name="close"/>
-                                        </Button>
-                                    </FlexRow>
-                                ))}
-                            </ItemRow>
+                            <FlexRow style={{ flexWrap: "wrap", gap: "2px", alignItems: "center", marginTop: "10px" }}>
+                                {files.length > 0 ? (
+                                    <Attachments attachments={files} nameAttribute="name" addControls={true} setAttachments={setFiles}/>
+                                ) : null}
+                                {images.length > 0 ? (
+                                    <Attachments attachments={images} nameAttribute="imageName" addControls={true} setAttachments={setImages}/>
+                                ) : null}
+                            </FlexRow>
                             {fileUploadStatus.type === 'error' && (
                                 <div style={{ color: 'red' }}>
                                     {fileUploadStatus.text}
@@ -313,7 +291,7 @@ export function AddArtifactView() {
                                     style={{ display: "none" }}
                                     multiple
                                     accept={[...VALID_FILE_TYPES.files, ...VALID_FILE_TYPES.images].join(",")}
-                                    onChange={(e: any) => handleFileAttach(e, setFiles, setImages, setFileUploadStatus)}
+                                    onChange={(e: any) => handleFileAttach(e, files, setFiles, images, setImages, setFileUploadStatus)}
                                 />
                                 <Button 
                                     appearance="primary" 

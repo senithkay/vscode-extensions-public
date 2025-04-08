@@ -12,7 +12,7 @@ import { FlexRow, Footer, StyledTransParentButton, RippleLoader, FlexColumn } fr
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import SuggestionsList from "./SuggestionsList";
 import { useMICopilotContext } from "./MICopilotContext";
-import { handleFileAttach } from "../../../utils/fileAttach";
+import { handleFileAttach } from "../utils";
 import { USER_INPUT_PLACEHOLDER_MESSAGE, VALID_FILE_TYPES } from "../constants";
 import { generateSuggestions, generateId, getBackendUrlAndView, fetchCodeGenerationsWithRetry } from "../utils";
 import { Role, MessageType, CopilotChatEntry, BackendRequestType } from "../types";
@@ -48,6 +48,7 @@ const AIChatFooter: React.FC = () => {
 
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: "", text: "" });
     const isStopButtonClicked = useRef(false);
+    const isResponseReceived = useRef(false);
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const [isFocused, setIsFocused] = useState(false);
     const isDarkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -123,6 +124,7 @@ const AIChatFooter: React.FC = () => {
                 )
             );
             setBackendRequestTriggered(true);
+            isResponseReceived.current = false;
         }
 
         // Variable to hold Assistant response
@@ -266,6 +268,7 @@ const AIChatFooter: React.FC = () => {
                 }
 
                 result = lines[lines.length - 1];
+                isResponseReceived.current = true;
             }
 
             if (result) {
@@ -365,7 +368,9 @@ const AIChatFooter: React.FC = () => {
             >
                 {backendRequestTriggered ? (
                     <FlexRow style={{ alignItems: "center", justifyContent: "center", width: "100%", padding: "10px" }}>
-                        <span style={{ marginLeft: "10px" }}>MI Copilot Thinking </span>
+                        <span style={{ marginLeft: "10px" }}>
+                            {isResponseReceived.current ? "Generating ": "Thinking "}
+                        </span>
                         <RippleLoader>
                             <div className="ldio">
                                 <div></div>
@@ -375,6 +380,16 @@ const AIChatFooter: React.FC = () => {
                     </FlexRow>
                 ) : (
                     <>
+                        {currentUserPrompt.trim() === "" && (
+                            <FlexRow style={{ flexWrap: "wrap", gap: "5px", marginBottom: "5px" }}>
+                            <SuggestionsList
+                                questionMessages={questions}
+                                handleQuestionClick={(content: string) =>
+                                    handleSend(BackendRequestType.QuestionClick, content)
+                                }
+                            />
+                        </FlexRow>
+                        ) }
                         <FlexRow style={{ alignItems: "center", width: "100%", position: "relative" }}>
                             <textarea
                                 ref={textAreaRef}
@@ -395,28 +410,28 @@ const AIChatFooter: React.FC = () => {
                                 placeholder={placeholder}
                                 style={{
                                     flex: 1,
-                                    overflowY: "hidden",
-                                    padding: "10px",
+                                    overflowY: "auto", 
+                                    padding: "5px 15px 5px 10px",
                                     borderRadius: "4px",
                                     border: "none",
                                     resize: "none",
                                     outline: "none",
+                                    maxHeight: "100px", // Limit height to approximately 5 lines
                                     backgroundColor: isDarkMode
                                         ? "var(--vscode-list-hoverBackground)"
                                         : "var(--vscode-editorHoverWidget-background)",
                                     color: "var(--vscode-input-foreground)",
                                     position: "relative",
                                 }}
-                                rows={1}
+                                rows={2}
                             />
-                            {currentUserPrompt.trim() !== "" && (
-                                <StyledTransParentButton
+                            {currentUserPrompt.trim() !== "" && (<StyledTransParentButton
                                     onClick={() => setCurrentUserprompt("")}
                                     style={{
                                         width: "20px",
                                         position: "absolute",
                                         right: "2px",
-                                        top: "5px",
+                                        top: "2px",
                                         color: isDarkMode
                                             ? "var(--vscode-input-foreground)"
                                             : "var(--vscode-editor-foreground)",
@@ -424,22 +439,24 @@ const AIChatFooter: React.FC = () => {
                                 >
                                     <Codicon name="clear-all" />
                                 </StyledTransParentButton>
-                            )}
+                        )}
                         </FlexRow>
-                        <FlexRow style={{ flexWrap: "wrap", gap: "5px", marginBottom: "5px" }}>
-                            <SuggestionsList
-                                questionMessages={questions}
-                                handleQuestionClick={(content: string) =>
-                                    handleSend(BackendRequestType.QuestionClick, content)
-                                }
-                            />
-                        </FlexRow>
-                        <FlexRow>
+                        <FlexRow style={{ flexWrap: "wrap", gap: "2px", alignItems: "center", marginTop: "10px" }}>
                             {files.length > 0 && !isInitialPromptLoaded ? (
-                                <Attachments attachments={files} nameAttribute="fileName" addControls={true} />
+                                <Attachments
+                                    attachments={files}
+                                    nameAttribute="name"
+                                    addControls={true}
+                                    setAttachments={setFiles}
+                                />
                             ) : null}
                             {images.length > 0 && !isInitialPromptLoaded ? (
-                                <Attachments attachments={images} nameAttribute="imageName" addControls={true} />
+                                <Attachments
+                                    attachments={images}
+                                    nameAttribute="imageName"
+                                    addControls={true}
+                                    setAttachments={setImages}
+                                />
                             ) : null}
                         </FlexRow>
                     </>
@@ -475,8 +492,9 @@ const AIChatFooter: React.FC = () => {
                         multiple
                         accept={[...VALID_FILE_TYPES.files, ...VALID_FILE_TYPES.images].join(",")}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleFileAttach(e, setFiles, setImages, setFileUploadStatus)
+                            handleFileAttach(e, files, setFiles, images, setImages, setFileUploadStatus)
                         }
+                        disabled={backendRequestTriggered}
                     />
                     <StyledTransParentButton
                         onClick={() => (backendRequestTriggered ? handleStop() : handleSend())}

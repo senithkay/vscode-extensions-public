@@ -147,7 +147,7 @@ const AIChatMessage: React.FC<ChatMessageProps> = ({ message, index }) => {
                 <>
                     <FlexRow>
                         {message.files && message.files.length > 0 && (
-                            <Attachments attachments={message.files} nameAttribute="fileName" addControls={false} />
+                            <Attachments attachments={message.files} nameAttribute="name" addControls={false} />
                         )}
                         {message.images && message.images.length > 0 && (
                             <Attachments attachments={message.images} nameAttribute="imageName" addControls={false} />

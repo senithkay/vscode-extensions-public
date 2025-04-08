@@ -1,31 +1,28 @@
 import React from "react";
 
-import { FlexRow, FlexColumn } from "../styles";
-import { FileInfo, ImageInfo } from "../types";
-import { getFileIcon } from "../../../utils/fileIcons";
+import { FlexRow } from "../styles";
+import { FileObject, ImageObject } from '@wso2-enterprise/mi-core';import { getFileIcon } from "../utils";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { useMICopilotContext } from "./MICopilotContext";
 
 interface AttachmentProps {
-    attachments: FileInfo[] | ImageInfo[];
+    attachments: FileObject[] | ImageObject[];
+    setAttachments?: Function;
     nameAttribute: string;
     addControls?: boolean;
 }
 
-const Attachments: React.FC<AttachmentProps> = ({ attachments, nameAttribute, addControls }) => {
-    const { setFiles, setImages } = useMICopilotContext();
-
+const Attachments: React.FC<AttachmentProps> = ({ attachments, nameAttribute, addControls, setAttachments}) => {
     const handleRemove = (index: number) => {
-        if (nameAttribute === "fileName") {
-            setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+        if (nameAttribute === "name") {
+            setAttachments((prevFiles: FileObject[]) => prevFiles.filter((_: FileObject, i: number) => i !== index));
         } else if (nameAttribute === "imageName") {
-            setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+            setAttachments((prevImages: ImageObject[]) => prevImages.filter((_: ImageObject, i: number) => i !== index));
         }
     };
 
     const getAttachmentName = (attachment: any): string => {
-        if (nameAttribute === "fileName") {
-            return attachment.fileName;
+        if (nameAttribute === "name") {
+            return attachment.name;
         } else if (nameAttribute === "imageName") {
             return attachment.imageName;
         }
@@ -33,7 +30,7 @@ const Attachments: React.FC<AttachmentProps> = ({ attachments, nameAttribute, ad
     };
 
     return (
-        <FlexRow style={{ flexWrap: "wrap", gap: "10px", marginBottom: "10px" }}>
+        <FlexRow style={{ flexWrap: "wrap", gap: "2px", marginBottom: "2px"}}>
             {attachments.map((attachment, index) => (
                 <FlexRow
                     key={index}

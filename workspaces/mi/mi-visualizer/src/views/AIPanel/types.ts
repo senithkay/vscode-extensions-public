@@ -7,9 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-
-// Define state for communication with backend
-export type ResponseState = 'idle' | 'loading-suggestions' | 'generating-code';
+import { FileObject, ImageObject } from "@wso2-enterprise/mi-core";
 
 export type RpcClientType = ReturnType<typeof useVisualizerContext>["rpcClient"];
 export interface MarkdownRendererProps {
@@ -33,19 +31,6 @@ export interface FileHistoryEntry {
     currentAddedfFromChatIndex: number; 
     maxAddedFromChatIndex: number;
 }
-
-// FileInfo interface
-export interface FileInfo {
-    fileName: string;    
-    fileType: string;
-    fileContent: string;
-  }
-  
-  // ImageInfo interface
-  export interface ImageInfo {
-    imageName: string;   
-    imageBase64: string; 
-  }
 
 // Define enums for role and type
 export enum Role {
@@ -74,8 +59,8 @@ export type ChatMessage = {
     role: Role.MICopilot | Role.MIUser | Role.default; 
     content: string;
     type: MessageType; 
-    files?: FileInfo[];
-    images?: ImageInfo[];
+    files?: FileObject[];
+    images?: ImageObject[];
 };
 
 // Type of messeges send to MI Copilot backend 

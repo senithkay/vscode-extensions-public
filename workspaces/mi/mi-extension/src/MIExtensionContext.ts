@@ -9,24 +9,7 @@
  */
 
 import { ExtensionContext } from "vscode";
-
-interface FileObject {
-    fileName: string;
-    fileType: string;
-    fileContent: string;
-}
-
-interface ImageObject {
-    imageName: string;
-    imageBase64: string;
-}
-
-interface PromptObject {
-    aiPrompt: string;
-    files: FileObject[];
-    images: ImageObject[];
-}
-
+import { PromptObject } from '@wso2-enterprise/mi-core';
 export class MIExtensionContext {
     public context!: ExtensionContext;
     public webviewReveal!: boolean;

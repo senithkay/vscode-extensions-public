@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { FileObject, ImageObject } from "@wso2-enterprise/mi-core";
 import { PROJECT_RUNTIME_VERSION_THRESHOLD } from "../constants";
 import { LoaderWrapper, ProgressRing } from "../styles";
 import {
     ChatMessage,
     CopilotChatEntry,
-    FileInfo,
-    ImageInfo,
     MessageType,
     Role,
     RpcClientType,
@@ -43,10 +42,10 @@ interface MICopilotContextType {
     setCodeBlocks: React.Dispatch<React.SetStateAction<string[]>>;
 
     // State for file and image uploads to define context
-    files: FileInfo[];
-    setFiles: React.Dispatch<React.SetStateAction<FileInfo[]>>;
-    images: ImageInfo[];
-    setImages: React.Dispatch<React.SetStateAction<ImageInfo[]>>;
+    files: FileObject[];
+    setFiles: React.Dispatch<React.SetStateAction<FileObject[]>>;
+    images: ImageObject[];
+    setImages: React.Dispatch<React.SetStateAction<ImageObject[]>>;
 
     // State to handle file history
     FileHistory: FileHistoryEntry[];
@@ -107,8 +106,8 @@ export function MICopilotContextProvider({ children }: MICopilotProviderProps) {
     // Backend related Data
     const [copilotChat, setCopilotChat] = useState<CopilotChatEntry[]>([]);
     const [codeBlocks, setCodeBlocks] = useState<string[]>([]);
-    const [files, setFiles] = useState<FileInfo[]>([]);
-    const [images, setImages] = useState<ImageInfo[]>([]);
+    const [files, setFiles] = useState<FileObject[]>([]);
+    const [images, setImages] = useState<ImageObject[]>([]);
     const [currentUserPrompt, setCurrentUserprompt] = useState("");
     // Event related Data
     const [chatClearEventTriggered, setChatClearEventTriggered] = useState(false);
@@ -160,7 +159,7 @@ export function MICopilotContextProvider({ children }: MICopilotProviderProps) {
                     const initialPrompt = machineView.initialPrompt.aiPrompt;
                     const initialFiles = machineView.initialPrompt.files || [];
                     const initialImages = machineView.initialPrompt.images || [];
-                    
+
                     setFiles(initialFiles);
                     setImages(initialImages);
                     setCurrentUserprompt(initialPrompt);
