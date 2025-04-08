@@ -2,7 +2,7 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, TempData } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
@@ -44,13 +44,22 @@ const stateMachine = createMachine<MachineContext>(
             UPDATE_PROJECT_STRUCTURE: {
                 actions: [
                     assign({
-                        projectStructure: (context, event) => event.payload
+                        projectStructure: (context, event) => event.payload,
+                        tempData: undefined
                     }),
                     (context, event) => {
+                        if (event.location) {
+                            openView(EVENT_TYPE.OPEN_VIEW, event.location);
+                        }
                         notifyCurrentWebview();
                         commands.executeCommand("BI.project-explorer.refresh");
                     }
                 ]
+            },
+            SET_TEMP_DATA: {
+                actions: assign({
+                    tempData: (context, event) => event.payload
+                })
             }
         },
         states: {
@@ -425,7 +434,8 @@ export const StateMachine = {
     setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
     setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
-    updateProjectStructure: (payload: ProjectStructureResponse) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload }); },
+    updateProjectStructure: (payload: ProjectStructureResponse, location?: VisualizerLocation) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, location }); },
+    setTempData: (payload: TempData) => { stateService.send({ type: "SET_TEMP_DATA", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
     },

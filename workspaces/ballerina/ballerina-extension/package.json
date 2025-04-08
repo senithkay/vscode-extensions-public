@@ -410,6 +410,12 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.force.update.artifacts",
+                "title": "Refresh",
+                "icon": "$(distro-refresh)",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.test.edit.case",
                 "title": "Edit test case",
                 "icon": "$(distro-design-view)",

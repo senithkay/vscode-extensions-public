@@ -65,6 +65,7 @@ interface FormProps {
     editForm?: boolean;
     isGraphqlEditor?: boolean;
     onSubmit: (data: FormValues, imports?: Record<string, FormFieldImport>) => void;
+    isSaving?: boolean;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -90,6 +91,7 @@ export function FormGeneratorNew(props: FormProps) {
         cancelText,
         onBack,
         onSubmit,
+        isSaving,
         isGraphqlEditor,
         openSubPanel,
         updatedExpressionField,
@@ -575,6 +577,7 @@ export function FormGeneratorNew(props: FormProps) {
                     submitText={submitText}
                     cancelText={cancelText}
                     onSubmit={handleSubmit}
+                    isSaving={isSaving}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
                     expressionEditor={expressionEditor}
