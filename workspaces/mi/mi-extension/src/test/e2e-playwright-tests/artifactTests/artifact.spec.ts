@@ -72,6 +72,10 @@ export default function createTests() {
         console.log('Deleting Resource');
         await api.deleteResource();
       });
+      await test.step('Delete API', async () => {
+        console.log('Deleting API');
+        await api.deleteAPI();
+      });
 
       await test.step('Create WSDL from file', async () => {
         console.log('Creating new API from WSDL file');
@@ -84,11 +88,6 @@ export default function createTests() {
       await test.step('Create Open API from OpenAPI file', async () => {
         console.log('Creating new API from OpenAPI file');
         await api.createOpenApi("NewOpenAPI" + testAttempt, "/openAPI" + testAttempt);
-      });
-
-      await test.step('Delete API', async () => {
-        console.log('Deleting API');
-        await api.deleteAPI();
       });
     });
 

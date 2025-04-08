@@ -141,6 +141,23 @@ export class API {
         await desWebView.getByRole('gridcell', { name: 'Delete' }).click();
     }
 
+    public async deleteAPI() {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+        
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        const webview = await overviewPage.getWebView();
+        console.log("Found project testProject");
+        await this._page.getByLabel('Open Project Overview').click();
+        console.log("Clicked on open project overview");
+        await webview.locator('vscode-button > svg').first().click();
+        console.log("Clicked on delete API");
+        await webview.getByText('Delete').click();
+        console.log("Clicked on delete");
+    }
+
     public async createWSDLFromFile(name: string, context: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
@@ -254,22 +271,5 @@ export class API {
             throw new Error("Failed to switch to Service Designer iframe");
         }
         console.log("Switched to Service Designer iframe");
-    }
-
-    public async deleteAPI() {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        console.log("Navigated to project overview");
-        
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        const webview = await overviewPage.getWebView();
-        console.log("Found project testProject");
-        await this._page.getByLabel('Open Project Overview').click();
-        console.log("Clicked on open project overview");
-        await webview.locator('div:nth-child(7) > .css-ta44yg > .css-t6i1up > .css-ij0d9h > vscode-button > svg > path').click();
-        console.log("Clicked on delete API");
-        await webview.getByText('Delete').click();
-        console.log("Clicked on delete");
     }
 }
