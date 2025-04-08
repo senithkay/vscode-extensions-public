@@ -177,6 +177,7 @@ export class API {
         }
         console.log("Switched to API Form iframe");
         const apiFormFrame = apiFormWebView.locator('div#root');
+        await apiFormFrame.waitFor();
         await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         console.log("Filled name and context");
