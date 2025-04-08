@@ -51,7 +51,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import path from "path";
 import { Uri, commands, window, workspace } from 'vscode';
-import {parse} from 'toml'
+import {parse} from 'toml';
 
 import { writeFileSync } from "fs";
 import { isNumber } from "lodash";
@@ -996,7 +996,7 @@ async function getCurrentProjectSource(requestType: string): Promise<BallerinaPr
         const tomlContent = await fs.promises.readFile(ballerinaTomlPath, 'utf-8');
         // Simple parsing to extract the package.name field
         try {
-            const tomlObj = parse(tomlContent)
+            const tomlObj = parse(tomlContent);
             packageName = tomlObj.package.name;
         } catch (error) {
             packageName = '';
