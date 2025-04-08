@@ -235,7 +235,7 @@ export const FunctionsPage = ({
             )}
             {isAddingFunction && createPortal(
                 <>
-                    <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.7`, zIndex: 5000 }} />
+                    <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 5000 }} />
                     <LoadingContainer> <LoadingRing /> </LoadingContainer>
                 </>
                 , document.body
