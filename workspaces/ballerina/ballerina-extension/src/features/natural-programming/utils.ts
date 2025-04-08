@@ -41,10 +41,10 @@ let controller = new AbortController();
 export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
                                                   : vscode.DiagnosticCollection): Promise<number | null> {
     const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
-    const nonDefaultModuleSourcesIfReadmeNotExists: BallerinaSource[] 
+    const nonDefaultModuleSourcesIfReadmeExists: BallerinaSource[] 
                     = getSourcesOfNonDefaultModulesWithReadme(path.join(projectUri, "modules"));
 
-    const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeNotExists];
+    const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeExists];
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
 
@@ -248,10 +248,10 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
 
 export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise<string | number> {
     const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
-    const nonDefaultModuleSourcesIfReadmeNotExists: BallerinaSource[] 
+    const nonDefaultModuleSourcesIfReadmeExists: BallerinaSource[] 
                     = getSourcesOfNonDefaultModulesWithReadme(path.join(projectUri, "modules"));
 
-    const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeNotExists];
+    const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeExists];
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
 
@@ -388,15 +388,15 @@ function getNonDefaultModuleBalSources(modulesDir: string): string {
     return moduleBalFiles;
 }
 
-async function getRequirementAndDeveloperOverviewFiles(naturalLangDir: string): Promise<[string, string]> {
-    if (!fs.existsSync(naturalLangDir)) { return ["", ""]; }
+async function getRequirementAndDeveloperOverviewFiles(naturalProgrammingDir: string): Promise<[string, string]> {
+    if (!fs.existsSync(naturalProgrammingDir)) { return ["", ""]; }
 
-    const files = fs.readdirSync(naturalLangDir);
+    const files = fs.readdirSync(naturalProgrammingDir);
     let requirementsContent = "";
     let developerContent = "";
 
     for (const file of files) {
-        const fullPath = path.join(naturalLangDir, file);
+        const fullPath = path.join(naturalProgrammingDir, file);
         const filenameLowercase = file.toLowerCase();
 
         if (filenameLowercase.startsWith(DEVELOPER_OVERVIEW_FILENAME)) {
@@ -411,8 +411,6 @@ async function getRequirementAndDeveloperOverviewFiles(naturalLangDir: string): 
                 const requirementContent = await requirementsSpecification(fullPath);
                 if (!isErrorCode(requirementContent)) {
                     content = requirementContent.toString();
-                } else {
-                    content = "";
                 }
             }
             requirementsContent += `<requirement_specification filename=\"${NATURAL_PROGRAMMING_PATH}/${file}\">\n${content}\n</requirement_specification>\n`;
