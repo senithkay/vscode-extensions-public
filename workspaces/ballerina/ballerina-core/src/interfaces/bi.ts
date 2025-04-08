@@ -94,6 +94,11 @@ export type MemoryManagerData = {
     name: string;
     type: string;
 }
+
+export type Imports = {
+    [prefix: string]: string;
+}
+
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
@@ -108,7 +113,7 @@ export type Property = {
     valueTypeConstraint?: string | string[];
     codedata?: CodeData;
     typeMembers?: PropertyTypeMemberInfo[];
-    imports?: {[key: string]: string};
+    imports?: Imports;
 };
 
 export type PropertyTypeMemberInfo = {

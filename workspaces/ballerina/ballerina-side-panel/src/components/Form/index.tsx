@@ -23,7 +23,7 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { ExpressionFormField, FormExpressionEditorProps, FormField, FormFieldImport, FormValues } from "./types";
+import { ExpressionFormField, FormExpressionEditorProps, FormField, FormImports, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import {
@@ -325,7 +325,7 @@ export interface FormProps {
     compact?: boolean;
     concertRequired?: boolean;
     concertMessage?: string;
-    fieldImports?: Record<string, FormFieldImport>;
+    formImports?: FormImports;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -359,7 +359,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         isInferredReturnType,
         concertRequired = true,
         concertMessage,
-        fieldImports
+        formImports
     } = props;
 
     const {
@@ -720,7 +720,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             ) {
                                 return;
                             }
-                            const updatedField = updateFormFieldWithImports(field, fieldImports);
+                            const updatedField = updateFormFieldWithImports(field, formImports);
                             return (
                                 <S.Row key={updatedField.key}>
                                     <EditorFactory
@@ -769,7 +769,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         showAdvancedOptions &&
                         formFields.map((field) => {
                             if (field.advanced) {
-                                const updatedField = updateFormFieldWithImports(field, fieldImports);
+                                const updatedField = updateFormFieldWithImports(field, formImports);
                                 return (
                                     <S.Row key={updatedField.key}>
                                         <EditorFactory

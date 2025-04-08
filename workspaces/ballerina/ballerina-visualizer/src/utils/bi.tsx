@@ -14,7 +14,7 @@ import {
     FormValues,
     ParameterValue,
     Parameter,
-    FormFieldImport,
+    FormImports,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow, ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import {
@@ -43,6 +43,7 @@ import {
     FunctionNode,
     FocusFlowDiagramView,
     FOCUS_FLOW_DIAGRAM_VIEW,
+    Imports,
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -244,7 +245,11 @@ export function getDataMappingFunctions(functions: Category[]): Category[] {
         .filter((category) => category.items.length > 0);
 }
 
-export function updateNodeProperties(values: FormValues, nodeProperties: NodeProperties): NodeProperties {
+export function updateNodeProperties(
+    values: FormValues,
+    nodeProperties: NodeProperties,
+    formImports: FormImports
+): NodeProperties {
     const updatedNodeProperties: NodeProperties = { ...nodeProperties };
 
     for (const key in values) {
@@ -252,6 +257,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
             const expression = updatedNodeProperties[key as NodePropertyKey];
             if (expression) {
                 expression.value = values[key];
+                expression.imports = formImports[key];
             }
         }
     }
@@ -831,10 +837,7 @@ export function getInfoFromExpressionValue(
     };
 }
 
-export const getImportsForProperty = (
-    key: string,
-    imports: Record<string, FormFieldImport>
-): FormFieldImport | undefined => {
+export const getImportsForProperty = (key: string, imports: FormImports): Imports | undefined => {
     if (!imports) {
         return undefined;
     }
