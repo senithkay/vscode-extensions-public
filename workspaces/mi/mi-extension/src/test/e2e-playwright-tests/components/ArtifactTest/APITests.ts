@@ -139,31 +139,6 @@ export class API {
         await desWebView.getByRole('gridcell', { name: 'Delete' }).click();
     }
 
-    public async createWSDLFromSidePanel(name: string, context: string) {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        console.log("Navigated to project overview");
-        await projectExplorer.findItem(['Project testProject', 'APIs'], true);
-        await this._page.getByLabel('Add API').click();
-        console.log("Clicked on add API");
-        const apiFormWebView = await switchToIFrame('API Form', this._page);
-        if (!apiFormWebView) {
-            throw new Error("Failed to switch to API Form iframe");
-        }
-        console.log("Switched to API Form iframe");
-        const apiFormFrame = apiFormWebView.locator('div#root');
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
-        console.log("Filled name and context");
-        await apiFormFrame.getByLabel('From WSDL file').click();
-        console.log("Clicked on from WSDL file");
-        await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
-        await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
-        await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('http://www.dneonline.com/calculator.asmx?wsdl');
-        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
-        console.log("Clicked on create");
-    }
-
     public async createWSDLFromFile(name: string, context: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
@@ -200,6 +175,31 @@ export class API {
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }
+    }
+
+    public async createWSDLFromSidePanel(name: string, context: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+        await projectExplorer.findItem(['Project testProject', 'APIs'], true);
+        await this._page.getByLabel('Add API').click();
+        console.log("Clicked on add API");
+        const apiFormWebView = await switchToIFrame('API Form', this._page);
+        if (!apiFormWebView) {
+            throw new Error("Failed to switch to API Form iframe");
+        }
+        console.log("Switched to API Form iframe");
+        const apiFormFrame = apiFormWebView.locator('div#root');
+        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
+        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
+        console.log("Filled name and context");
+        await apiFormFrame.getByLabel('From WSDL file').click();
+        console.log("Clicked on from WSDL file");
+        await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
+        await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
+        await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('http://www.dneonline.com/calculator.asmx?wsdl');
+        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
+        console.log("Clicked on create");
     }
 
     public async createOpenApi(name: string, context: string) {

@@ -73,13 +73,13 @@ export default function createTests() {
         await api.deleteResource();
       });
 
-      await test.step('Create WSDL from URL', async () => {
-        console.log('Creating new API from WSDL URL');
-        await api.createWSDLFromSidePanel("NewUrlWSDLAPI" + testAttempt, "/wsdlAPI" + testAttempt);
-      });
       await test.step('Create WSDL from file', async () => {
         console.log('Creating new API from WSDL file');
         await api.createWSDLFromFile("NewFileWSDLAPI" + testAttempt, "/wsdlAPIFile" + testAttempt);
+      });
+      await test.step('Create WSDL from URL', async () => {
+        console.log('Creating new API from WSDL URL');
+        await api.createWSDLFromSidePanel("NewUrlWSDLAPI" + testAttempt, "/wsdlAPI" + testAttempt);
       });
       await test.step('Create Open API from OpenAPI file', async () => {
         console.log('Creating new API from OpenAPI file');
