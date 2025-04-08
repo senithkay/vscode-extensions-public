@@ -93,21 +93,26 @@ export class DataMapper {
 
     }
 
-    public async mapFields(sourceFieldFQN: string, targetFieldFQN: string) {
+    public async mapFields(sourceFieldFQN: string, targetFieldFQN: string, menuOptionId?: string) {
 
-        const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
+        const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"] .port`);
         await sourceField.waitFor();
-        await sourceField.click();
+        await sourceField.click({force: true});
 
-        const targetField = this.webView.locator(`div[id="recordfield-${targetFieldFQN}"]`);
+
+        const targetField = this.webView.locator(`div[id="recordfield-${targetFieldFQN}"] .port`);
         await targetField.waitFor();
-        await targetField.click();
+        await targetField.click({force: true});
 
-
-        await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
-
-        await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
-
+        if (menuOptionId) {
+            const menuItem = this.webView.locator(`#${menuOptionId}`);
+            await menuItem.click();
+            await menuItem.waitFor({ state: 'detached' });
+        } else {
+            await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
+            await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
+        }
+        
     }
 
     public async mapArrayDirect(sourceFieldFQN: string, targetFieldFQN: string) {
@@ -153,6 +158,19 @@ export class DataMapper {
         const fieldName = sourceFieldFQN.split('.').pop();
         await this.webView.waitForSelector(`div[id^="recordfield-focusedInput."]`);
 
+    }
+
+    public async selectConfigMenuItem(fieldFQN: string, menuOptionText: string){
+        
+        const configMenu = this.webView.locator(`[id="recordfield-${fieldFQN}"] #component-list-menu-btn`);
+        await configMenu.waitFor();
+        await configMenu.click();
+        
+        const menuOption = this.webView.getByTestId(`context-menu-${menuOptionText}`);
+        await menuOption.waitFor();
+        await menuOption.click();
+
+        await menuOption.waitFor({ state: 'detached' });
     }
 
     public async gotoPreviousView() {

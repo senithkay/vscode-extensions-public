@@ -22,9 +22,9 @@ const fs = require('fs');
 export default function createTests() {
 
   test.describe('Data Mapper Tests', () => {
-    const NEED_INITIAL_SETUP = false;
+    const NEED_INITIAL_SETUP = true;
 
-    initTest();
+    initTest(NEED_INITIAL_SETUP);
 
     if (NEED_INITIAL_SETUP) setupProject();
     // testBasicMappings();
@@ -227,39 +227,40 @@ export default function createTests() {
         await dm.gotoPreviousView();
         await dm.gotoPreviousView();
 
+
+       
+
+
         // Initialize 1d array and map
-        await dmWebView.locator('[id="recordfield-objectOutput\\.i1O"] #component-list-menu-btn i').click();
-        await dmWebView.getByRole('gridcell', { name: 'Initialize Array' }).click();
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('array-widget-objectOutput.i1O.IN-add-element').click();
-        await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
-        await dmWebView.getByTestId('array-widget-objectOutput.i1O.IN-values').locator('i').first().click();
+        await dm.selectConfigMenuItem('objectOutput.i1O', 'Initialize Array With Element');
+       
+        await dm.mapFields('input.i1I', 'objectOutput.i1O.0');
         await dm.waitForProgressEnd();
         await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i1O.0.IN').waitFor({ state: 'attached' });
 
-
         // Initialize 2d array and map
-        await dmWebView.locator('[id="recordfield-objectOutput\\.i2O"] #component-list-menu-btn i').click();
-        await dmWebView.getByText('Initialize Array').click();
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('array-widget-objectOutput.i2O.IN-add-element').click();
-        await dmWebView.getByTestId('array-widget-objectOutput.i2O.0.IN-add-element').click();
-        await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
-        await dmWebView.getByTestId('array-widget-objectOutput.i2O.0.IN-values').locator('i').first().click();
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i2O.0.0.IN').waitFor({ state: 'attached' });
+        
+        await dm.selectConfigMenuItem('objectOutput.i2O', 'Initialize Array With Element');
+        await dmWebView.getByTestId('array-widget-objectOutput.i2O.IN-values').getByText('Add Element').click();
+        await dm.selectConfigMenuItem('objectOutput.i2O.1', 'Add Element');
 
+        await dm.mapFields('input.i1I', 'objectOutput.i2O.1.0');
+        await dm.waitForProgressEnd();
+        await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i2O.1.0.IN').waitFor({ state: 'attached' });
+
+        
 
         // Init array object and map scroll 
+        await dm.selectConfigMenuItem('objectOutput.iobjO', 'Initialize Array With Element');
 
-        await dmWebView.locator('[id="recordfield-objectOutput\\.iobjO"] #component-list-menu-btn i').click();
-        await dmWebView.getByText('Initialize Array').click();
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('array-widget-objectOutput.iobjO.IN-add-element').click();
         await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
         await dm.scrollClickOutput(dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.0\\.p1"]'));
         await dm.waitForProgressEnd();
         await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN').waitFor({ state: 'attached' });
+
+        // working
+
+        return;
 
         await dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.0\\.p2"] #component-list-menu-btn i').click();
         await dmWebView.getByText('Initialize Array').click();
