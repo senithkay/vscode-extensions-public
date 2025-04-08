@@ -7,13 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtendedPage, startVSCode } from "@wso2-enterprise/playwright-vscode-tester";
+import { ExtendedPage, startVSCode, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { Form } from "./components/Form";
 import { Welcome } from "./components/Welcome";
 import path from "path";
-import { ElectronApplication, Page } from "@playwright/test";
+import { ElectronApplication, expect } from "@playwright/test";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
+import { promises as fsp } from 'fs';
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -23,7 +24,7 @@ export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject'
 export let vscode: ElectronApplication | undefined;
 export let page: ExtendedPage;
 
-async function initVSCode() {
+export async function initVSCode() {
     if (vscode && page) {
         await page.executePaletteCommand('Reload Window');
     } else {
@@ -32,27 +33,36 @@ async function initVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
-async function createProject(page: ExtendedPage) {
+export async function createProject(page: ExtendedPage, projectName: string, projectpath: string, addAdvancedConfig: boolean) {
     console.log('Creating new project');
     await page.selectSidebarItem('Micro Integrator');
     const welcomePage = new Welcome(page);
     await welcomePage.init();
     await welcomePage.createNewProject();
-
     const createNewProjectForm = new Form(page.page, 'Project Creation Form');
     await createNewProjectForm.switchToFormView();
     await createNewProjectForm.fill({
         values: {
             'Project Name*': {
                 type: 'input',
-                value: 'testProject'
+                value: projectName
             },
             'Select Location': {
                 type: 'file',
-                value: newProjectPath
+                value: projectpath
             }
         }
     });
+    if (addAdvancedConfig) {
+        const webView = await switchToIFrame('Project Creation Form', page.page);
+        if (!webView) {
+            throw new Error("Failed to switch to Project Creation Form iframe");
+        }
+        await webView.locator('vscode-button[title="Expand"]').click();
+        await webView.getByRole('textbox', { name: 'Artifact Id*' }).click();
+        await webView.getByRole('textbox', { name: 'Artifact Id*' }).fill('');
+        await webView.getByRole('textbox', { name: 'Artifact Id*' }).fill('test');
+    }
     await createNewProjectForm.submit();
     await welcomePage.waitUntilDeattached();
     console.log('Project created');
@@ -101,7 +111,7 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
             console.log('Starting VSCode');
             await initVSCode();
             await toggleNotifications(true);
-            await createProject(page);
+            await createProject(page, 'testProject', newProjectPath, false);
         } else {
             console.log('Resuming VSCode');
             await resumeVSCode();
@@ -113,9 +123,35 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
 
     test.afterAll(async ({ }, testInfo) => {
         if (cleanupAfter && fs.existsSync(newProjectPath)) {
-            fs.rmSync(newProjectPath, { recursive: true });
+            deleteProjectFolderRecursive(newProjectPath);
         }
         console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}`);
     });
 }
 
+export const deleteProjectFolderRecursive = (dataFolder) => {
+    if (fs.existsSync(dataFolder)) {
+        fs.readdirSync(dataFolder).forEach((file) => {
+            const curPath = path.join(dataFolder, file);
+            if (fs.lstatSync(curPath).isDirectory()) {
+                deleteProjectFolderRecursive(curPath);
+            } else {
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(dataFolder);
+    } else {
+        console.log(`Folder does not exist: ${dataFolder}`);
+    }
+};
+
+export async function assertFileContent(filePath: string, expectedValue: string) {
+    try {
+        await page.page.waitForTimeout(5000);
+        let fileContent = await fsp.readFile(filePath, 'utf8');
+        expect(fileContent).toContain(expectedValue);
+    } catch (error) {
+        console.error('Error reading the file:', error);
+        throw error;
+    }
+}
