@@ -202,6 +202,11 @@ export class API {
         await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('http://www.dneonline.com/calculator.asmx?wsdl');
         await apiFormFrame.getByRole('button', { name: 'Create' }).click();
         console.log("Clicked on create");
+        const webView = await switchToIFrame('Service Designer', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Service Designer iframe");
+        }
+        console.log("Switched to Service Designer iframe");
     }
 
     public async createOpenApi(name: string, context: string) {
