@@ -15,7 +15,7 @@ import { ReadableStream } from 'stream/web';
 import { CustomDiagnostic } from './custom-diagnostics';
 import { requirementsSpecification, refreshAccessToken, isErrorCode } from "../../rpc-managers/ai-panel/utils";
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
-import { BallerinaPluginConfig, ResultItem, DriftResponseData, DriftResponse } from "./interfaces";
+import { BallerinaPluginConfig, ResultItem, DriftResponseData, DriftResponse, BallerinaSource } from "./interfaces";
 import {
     PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT, API_DOCS_DRIFT_CHECK_ENDPOINT,
     DEVELOPER_OVERVIEW_FILENAME, NATURAL_PROGRAMMING_PATH, DEVELOPER_OVERVIEW_RELATIVE_PATH,
@@ -23,7 +23,7 @@ import {
     README_FILE_NAME_LOWERCASE, DRIFT_DIAGNOSTIC_ID,
     LACK_OF_API_DOCUMENTATION_WARNING, DOES_NOT_HAVE_ANY_API_DOCUMENTATION,
     NO_DOCUMENTATION_WARNING, CONFIG_FILE_NAME,
-    MISSING_README_FILE_WARNING, README_DOCUMENTATION_IS_MISSING,
+    DEFAULT_MODULE, MISSING_README_FILE_WARNING, README_DOCUMENTATION_IS_MISSING,
     MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, API_DOCUMENTATION_IS_MISSING,
     PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
     ERROR_NO_BALLERINA_SOURCES
@@ -38,8 +38,13 @@ import { BallerinaExtension } from 'src/core';
 
 let controller = new AbortController();
 
-export async function getLLMDiagnostics(projectUri: string, diagnosticCollection: vscode.DiagnosticCollection): Promise<number | null> {
-    const sources = await getBallerinaSourceFiles(projectUri);
+export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
+                                                  : vscode.DiagnosticCollection): Promise<number | null> {
+    const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
+    const sourcesOfNonDefaultModulesWithReadme: BallerinaSource[] 
+                    = getSourcesOfNonDefaultModulesWithReadme(path.join(projectUri, "modules"));
+
+    const sources: BallerinaSource[] = [ballerinaProjectSource, ...sourcesOfNonDefaultModulesWithReadme];
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
 
@@ -56,7 +61,12 @@ export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
     await createDiagnosticCollection(responses, projectUri, diagnosticCollection);
 }
 
-async function getLLMResponses(sources: { balFiles: string; readme: string; requirements: string; developerOverview: string; }, token: string, backendurl: string): Promise<any[] | number> {
+async function getLLMResponses(sources: BallerinaSource[], token: string, backendurl: string)
+                                                                    : Promise<any[] | number> {
+    let promises: Promise<Response | Error>[] = [];
+    const nonDefaultModulesWithReadmeFiles: string[] 
+        = sources.map(source => source.moduleName).filter(name => name != DEFAULT_MODULE);
+
     const commentResponsePromise = fetchWithToken(
         backendurl + API_DOCS_DRIFT_CHECK_ENDPOINT,
         {
@@ -65,52 +75,65 @@ async function getLLMResponses(sources: { balFiles: string; readme: string; requ
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify([sources.balFiles]),
+            body: JSON.stringify([sources[0].balFiles]),
             signal: controller.signal,
         },
     );
+    promises.push(commentResponsePromise);
 
-    const documentationSourceResponsePromise = fetchWithToken(
-        backendurl + PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+    sources.forEach(source => {
+        let body: string[] = [source.balFiles, source.requirements, source.readme, source.developerOverview];
+
+        if (source.moduleName == DEFAULT_MODULE) {
+            body.push(nonDefaultModulesWithReadmeFiles.join(", "));
+        }
+
+        const documentationSourceResponsePromise = fetchWithToken(
+            backendurl + PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(body),
+                signal: controller.signal,
             },
-            body: JSON.stringify([sources.balFiles, sources.requirements, sources.readme, sources.developerOverview]),
-            signal: controller.signal,
-        },
-    );
+        );
+        promises.push(documentationSourceResponsePromise);
+    });
 
-    const [commentResponse, documentationSourceResponse] = await Promise.all([commentResponsePromise, documentationSourceResponsePromise]);
+    let responses: (Response | Error)[] = await Promise.all(promises);
+    const firstResponse = responses[0];
 
-    if (isError(commentResponse) || isError(documentationSourceResponse)) {
-        return HttpStatusCode.InternalServerError;
+    const filteredResponses: Response[] 
+            = responses.filter(response => !isError(response) && response.ok) as Response[];
+
+    if (filteredResponses.length === 0) {
+        if (isError(firstResponse)) {
+            return HttpStatusCode.InternalServerError;
+        }
+        return firstResponse.status;
     }
 
-    if (!commentResponse.ok) {
-        return commentResponse.status;
+    let extractedResponses: any[] = [];
+
+    for (const response of filteredResponses) {
+        const extractedResponse = await extractResponseAsJsonFromString(await streamToString(response.body));
+        if (extractedResponse != null) {
+            extractedResponses.push(extractedResponse);
+        }
     }
 
-    if (!documentationSourceResponse.ok) {
-        return documentationSourceResponse.status;
-    }
-
-    const extractedcommentResponse = extractResponseAsJsonFromString(await streamToString(commentResponse.body));
-    const extracteddocumentationSourceResponse = extractResponseAsJsonFromString(await streamToString(documentationSourceResponse.body));
-    return [extractedcommentResponse, extracteddocumentationSourceResponse];
+    return extractedResponses;
 }
 
-async function createDiagnosticCollection(responses: any[], projectUri: string, diagnosticCollection: vscode.DiagnosticCollection) {
+async function createDiagnosticCollection(responses: any[], projectUri: string, 
+                                                        diagnosticCollection: vscode.DiagnosticCollection) {
     let diagnosticsMap = new Map<string, vscode.Diagnostic[]>();
 
-    if (responses[0] != null) {
-        diagnosticsMap = await createDiagnosticsResponse(responses[0], projectUri, diagnosticsMap);
-    }
-
-    if (responses[1] != null) {
-        diagnosticsMap = await createDiagnosticsResponse(responses[1], projectUri, diagnosticsMap);
+    for (const response of responses) {
+        diagnosticsMap = await createDiagnosticsResponse(response, projectUri, diagnosticsMap);
     }
 
     // Set diagnostics in VS Code
@@ -224,7 +247,11 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
 }
 
 export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise<string | number> {
-    const sources = await getBallerinaSourceFiles(projectUri);
+    const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
+    const sourcesOfNonDefaultModulesWithReadme: BallerinaSource[] 
+                    = getSourcesOfNonDefaultModulesWithReadme(path.join(projectUri, "modules"));
+
+    const sources: BallerinaSource[] = [ballerinaProjectSource, ...sourcesOfNonDefaultModulesWithReadme];
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
 
@@ -249,12 +276,8 @@ export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise
 async function createDiagnosticArray(responses: any[], projectUri: string): Promise<Diagnostic[]> {
     const diagnostics = [];
 
-    if (responses[0] != null) {
-        await createDiagnosticList(responses[0], projectUri, diagnostics);
-    }
-
-    if (responses[1] != null) {
-        await createDiagnosticList(responses[1], projectUri, diagnostics);
+    for (const response of responses) {
+        await createDiagnosticList(response, projectUri, diagnostics);
     }
 
     function filterUniqueDiagnostics(diagnostics: vscode.Diagnostic[]): vscode.Diagnostic[] {
@@ -323,109 +346,140 @@ export async function createDiagnosticList(data: DriftResponseData, projectPath:
     return diagnostics;
 }
 
-export async function getBallerinaSourceFiles(folderPath: string): Promise<{ balFiles: string; readme: string; requirements: string; developerOverview: string; }> {
-    let balFiles = "<project>\n";
-    let readmeContent = "";
+function formatWithLineNumbers(content: string): string {
+    return content
+        .split("\n")
+        .map((line, index) => `${index + 1}|${line}`)
+        .join("\n");
+}
 
-    function formatWithLineNumbers(content: string): string {
-        return content
-            .split("\n")
-            .map((line, index) => `${index + 1}|${line}`)
-            .join("\n");
-    }
-
-    function getBalFiles(dir: string) {
-        if (!fs.existsSync(dir)) { return; }
-        const files = fs.readdirSync(dir);
-        for (const file of files) {
-            const fullPath = path.join(dir, file);
-            if (fs.statSync(fullPath).isFile() && file.endsWith(".bal")) {
-                const content = fs.readFileSync(fullPath, "utf8");
-                const formattedContent = formatWithLineNumbers(content);
-                balFiles += `  <file filename=\"${file}\">\n    ${formattedContent}\n  </file>\n`;
-            }
+function getBalFiles(dir: string, relativePath: string = ""): string {
+    let balFiles = "";
+    if (!fs.existsSync(dir)) { return; }
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+        const fullPath = path.join(dir, file);
+        if (fs.statSync(fullPath).isFile() && file.endsWith(".bal")) {
+            const content = fs.readFileSync(fullPath, "utf8");
+            const formattedContent = formatWithLineNumbers(content);
+            balFiles += `  <file filename=\"${relativePath}${file}\">\n    ${formattedContent}\n  </file>\n`;
         }
     }
+    return balFiles;
+}
 
-    function getModuleBalFiles(modulesDir: string) {
-        if (!fs.existsSync(modulesDir)) { return; }
-        const moduleDirs = fs.readdirSync(modulesDir).filter(dir =>
-            fs.statSync(path.join(modulesDir, dir)).isDirectory()
-        );
+function getNonDefaultModuleBalSources(modulesDir: string): string {
+    let moduleBalFiles = "";
 
-        for (const moduleName of moduleDirs) {
-            const modulePath = path.join(modulesDir, moduleName);
-            const files = fs.readdirSync(modulePath);
-            for (const file of files) {
-                const fullPath = path.join(modulePath, file);
-                if (fs.statSync(fullPath).isFile() && file.endsWith(".bal")) {
-                    const content = fs.readFileSync(fullPath, "utf8");
-                    const formattedContent = formatWithLineNumbers(content);
-                    balFiles += `  <program filename=\"modules/${moduleName}/${file}\">\n    ${formattedContent}\n  </program>\n`;
+    if (!fs.existsSync(modulesDir)) { return ""; }
+    const moduleDirs = fs.readdirSync(modulesDir).filter(dir =>
+        fs.statSync(path.join(modulesDir, dir)).isDirectory()
+    );
+
+    if (moduleDirs.length == 0) {
+        return "";
+    }
+
+    for (const moduleName of moduleDirs) {
+        const relativeModulePath = `modules/${moduleName}/`;
+        const modulePath = path.join(modulesDir, moduleName);
+        moduleBalFiles += getBalFiles(modulePath, relativeModulePath);
+    }
+    return moduleBalFiles;
+}
+
+async function getRequirementAndDeveloperOverviewFiles(naturalProgrammingDir: string): Promise<[string, string]> {
+    if (!fs.existsSync(naturalProgrammingDir)) { return ["", ""]; }
+
+    const files = fs.readdirSync(naturalProgrammingDir);
+    let requirementsContent = "";
+    let developerContent = "";
+
+    for (const file of files) {
+        const fullPath = path.join(naturalProgrammingDir, file);
+        const filenameLowercase = file.toLowerCase();
+
+        if (filenameLowercase.startsWith(DEVELOPER_OVERVIEW_FILENAME)) {
+            developerContent = `<developer_documentation filename=\"${DEVELOPER_OVERVIEW_RELATIVE_PATH}\">\n${fs.readFileSync(fullPath, "utf8")}\n</developer_documentation>\n`;
+        }
+
+        if (filenameLowercase.startsWith(REQUIREMENT_DOC_PREFIX)) {
+            let content = "";
+            if (filenameLowercase.startsWith(REQUIREMENT_TEXT_DOCUMENT) || filenameLowercase.startsWith(REQUIREMENT_MD_DOCUMENT)) {
+                content = fs.readFileSync(fullPath, "utf8");
+            } else {
+                const requirementContent = await requirementsSpecification(fullPath);
+                if (!isErrorCode(requirementContent)) {
+                    content = requirementContent.toString();
                 }
             }
+            requirementsContent += `<requirement_specification filename=\"${NATURAL_PROGRAMMING_PATH}/${file}\">\n${content}\n</requirement_specification>\n`;
         }
     }
+    return [requirementsContent, developerContent];
+}
 
-    async function getRequirementAndDeveloperOverviewFiles(naturalLangDir: string): Promise<[string, string]> {
-        if (!fs.existsSync(naturalLangDir)) { return ["", ""]; }
+function getReadmeContent(folderPath: string, relativePath: string = ""): string {
+    if (!fs.existsSync(folderPath)) { return ""; }
 
-        const files = fs.readdirSync(naturalLangDir);
-        let requirementsContent = "";
-        let developerContent = "";
+    const files = fs.readdirSync(folderPath);
+    const readmeFile = files.find(file => file.toLowerCase() === README_FILE_NAME_LOWERCASE);
 
-        for (const file of files) {
-            const fullPath = path.join(naturalLangDir, file);
+    if (!readmeFile) { return ""; }
 
-            if (file.toLowerCase().startsWith(DEVELOPER_OVERVIEW_FILENAME)) {
-                developerContent = `<developer_documentation filename=\"${DEVELOPER_OVERVIEW_RELATIVE_PATH}\">\n${fs.readFileSync(fullPath, "utf8")}\n</developer_documentation>\n`;
-            }
+    const readmePath = path.join(folderPath, readmeFile);
+    const content = fs.readFileSync(readmePath, "utf8");
 
-            if (file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)) {
-                let content = "";
-                if (file.toLowerCase().startsWith(REQUIREMENT_TEXT_DOCUMENT) || file.toLowerCase().startsWith(REQUIREMENT_MD_DOCUMENT)) {
-                    content = fs.readFileSync(fullPath, "utf8");
-                } else {
-                    const requirementContent = await requirementsSpecification(fullPath);
-                    if (!isErrorCode(requirementContent)) {
-                        content = requirementContent.toString();
-                    } else {
-                        content = "";
-                    }
-                }
-                requirementsContent += `<requirement_specification filename=\"${NATURAL_PROGRAMMING_PATH}/${file}\">\n${content}\n</requirement_specification>\n`;
-            }
-        }
-        return [requirementsContent, developerContent];
-    }
+    return `<readme filename="${relativePath}${readmeFile}">\n${content}\n</readme>\n`;
+}
 
-    function getReadmeContent(folderPath: string): string {
-        if (!fs.existsSync(folderPath)) { return ""; }
-
-        const files = fs.readdirSync(folderPath);
-        const readmeFile = files.find(file => file.toLowerCase() === README_FILE_NAME_LOWERCASE);
-
-        if (!readmeFile) { return ""; }
-
-        const readmePath = path.join(folderPath, readmeFile);
-        const content = fs.readFileSync(readmePath, "utf8");
-
-        return `<readme filename="${readmeFile}">\n${content}\n</readme>\n`;
-    }
-
-    getBalFiles(folderPath);
-    getModuleBalFiles(path.join(folderPath, "modules"));
+export async function getBallerinaProjectSourceFiles(folderPath: string): Promise<BallerinaSource> {
+    const moduleSources = getNonDefaultModuleBalSources(path.join(folderPath, "modules"));
     const nlContent = await getRequirementAndDeveloperOverviewFiles(path.join(folderPath, NATURAL_PROGRAMMING_PATH));
-    readmeContent = getReadmeContent(folderPath);
+    const readmeContentOfDefaultModule = getReadmeContent(folderPath);
 
+    let balFiles = "<project>\n";
+    balFiles += getBalFiles(folderPath);
+    balFiles += moduleSources;
     balFiles += "</project>";
 
     return {
         balFiles,
-        readme: readmeContent.trim(),
+        readme: readmeContentOfDefaultModule.trim(),
         requirements: nlContent[0].trim(),
-        developerOverview: nlContent[1].trim()
+        developerOverview: nlContent[1].trim(),
+        moduleName: DEFAULT_MODULE
     };
+}
+
+function getSourcesOfNonDefaultModulesWithReadme(modulesDir: string): BallerinaSource[] {
+    if (!fs.existsSync(modulesDir)) { return []; }
+
+    const moduleDirs = fs.readdirSync(modulesDir).filter(dir =>
+        fs.statSync(path.join(modulesDir, dir)).isDirectory()
+    );
+
+    if (moduleDirs.length == 0) {
+        return [];
+    }
+
+    const sources: BallerinaSource[] = [];
+    for (const moduleName of moduleDirs) {
+        const relativeModulePath = `modules/${moduleName}/`;
+        const modulePath = path.join(modulesDir, moduleName);
+        const readmeContent = getReadmeContent(modulePath, relativeModulePath);
+        if (readmeContent.length > 0) {
+            const moduleBalFiles = getBalFiles(modulePath, relativeModulePath);
+            sources.push({
+                balFiles: moduleBalFiles,
+                readme: readmeContent.trim(),
+                requirements: "",
+                developerOverview: "",
+                moduleName: moduleName
+            });
+        }
+    }
+    return sources;
 }
 
 export async function fetchWithToken(url: string, options: RequestInit) {
@@ -491,7 +545,7 @@ export function handleChatSummaryFailure(message: string) {
 function findFileCaseInsensitive(directory, fileName) {
     const files = fs.readdirSync(directory);
     const targetFile = files.find(file => file.toLowerCase() === fileName.toLowerCase());
-    const file = targetFile ? targetFile: fileName;
+    const file = targetFile ? targetFile : fileName;
     return path.join(directory, file);
 }
 
@@ -517,7 +571,7 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
         fileContent += `\n${targetTable}\n${urlLine}\n${accessTokenLine}\n`;
         fs.writeFileSync(configFilePath, fileContent);
         return;
-    } 
+    }
 
     // Table exists, update it
     const tableEndIndex = fileContent.indexOf('\n', tableStartIndex);
@@ -545,14 +599,14 @@ export function addDefaultModelConfigForNaturalFunctions(projectPath: string, to
     // If url or accessToken line does not exist, just replace the entire table
     let nextTableStartIndex = fileContent.indexOf('[', tableEndIndex + 1);
     if (nextTableStartIndex === -1) {
-        fileContent = fileContent.substring(0, tableStartIndex) 
-                + updatedTableContent + fileContent.substring(tableEndIndex + 1);
+        fileContent = fileContent.substring(0, tableStartIndex)
+            + updatedTableContent + fileContent.substring(tableEndIndex + 1);
     } else {
         let nextLineBreakIndex = fileContent.substring(tableEndIndex + 1).indexOf('\n');
         if (nextLineBreakIndex === -1) {
             fileContent = fileContent.substring(0, tableStartIndex) + updatedTableContent;
         } else {
-            fileContent = fileContent.substring(0, tableStartIndex) 
+            fileContent = fileContent.substring(0, tableStartIndex)
                 + updatedTableContent + fileContent.substring(tableEndIndex + 1);
         }
     }
