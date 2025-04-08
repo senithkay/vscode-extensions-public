@@ -52,7 +52,6 @@ export default function createTests() {
                 const welcomePage = new Welcome(page);
                 await welcomePage.init();
                 await welcomePage.createNewProjectFromSample('Hello World ServiceA simple', newProjectPath);
-                await page.page.waitForTimeout(5000);
                 const projectExplorer = new ProjectExplorer(page.page);
                 await projectExplorer.goToOverview("HelloWorldService");
                 const overview = new Overview(page.page);
