@@ -439,7 +439,7 @@ jobs:
           export $(dbus-launch)
           export DISPLAY=:98.0
           cd workspaces/mi/mi-extension
-          xvfb-run --server-num 98.0 -s "-ac -screen 0 1920x1080x24" ffmpeg -f x11grab -r 30 -s 1920x1080 -i :98.0 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -movflags +faststart -hide_banner -loglevel error record.mp4 & npx playwright test
+          xvfb-run --server-num 98.0 -s "-ac -screen 0 1920x1080x24" bash -c "ffmpeg -f x11grab -r 30 -s 1920x1080 -i :98.0 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -movflags +faststart -hide_banner -loglevel error record.mp4 & npx playwright test"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
