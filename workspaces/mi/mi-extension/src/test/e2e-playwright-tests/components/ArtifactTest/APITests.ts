@@ -205,25 +205,32 @@ export class API {
     public async createOpenApi(name: string, context: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
         
         const overviewPage = new Overview(this._page);
         await overviewPage.init();
         await overviewPage.goToAddArtifact();
+        console.log("Navigated to add artifact");
 
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
         await addArtifactPage.add('API');
+        console.log("Clicked on API");
 
         const openAPIFile = path.join(__dirname, 'data', 'openapi.yaml');
         // Get the users home directory
         const homeDir = os.homedir();
         const desination = path.join(homeDir, 'openapi.yaml');
+        console.log("Copying OpenAPI file to ", desination, " from ", openAPIFile);
         await copyFile(openAPIFile, desination);
+        console.log("Copied OpenAPI file to ", desination);
         const apiFormWebView = await switchToIFrame('API Form', this._page);
         if (!apiFormWebView) {
             throw new Error("Failed to switch to API Form iframe");
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
+        await apiFormFrame.waitFor();
+        console.log("Switched to API Form iframe");
         await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         await apiFormFrame.locator('#version-type div').nth(1).click();
@@ -234,22 +241,29 @@ export class API {
         await this._page.getByLabel('input').fill(desination);
         await this._page.getByRole('button', { name: 'OK' }).click();
         await apiFormFrame.getByRole('button', { name: 'Create' }).click();
+        console.log("Clicked on create");
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }
+        console.log("Switched to Service Designer iframe");
     }
 
     public async deleteAPI() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.findItem(['Project testProject'], true);
+        console.log("Found project testProject");
         await this._page.getByLabel('Open Project Overview').click();
         const webview = await switchToIFrame("Project Overview", this._page);
+        console.log("Switched to project overview iframe");
         if (!webview) {
             throw new Error("Failed to switch to Overview iframe");
         }
         await this._page.getByLabel('Open Project Overview').click();
+        console.log("Clicked on open project overview");
         await webview.locator('div:nth-child(7) > .css-ta44yg > .css-t6i1up > .css-ij0d9h > vscode-button > svg > path').click();
+        console.log("Clicked on delete API");
         await webview.getByText('Delete').click();
+        console.log("Clicked on delete");
     }
 }

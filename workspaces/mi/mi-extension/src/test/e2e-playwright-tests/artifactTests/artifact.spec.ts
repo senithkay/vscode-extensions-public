@@ -28,7 +28,7 @@ export default function createTests() {
   test.describe('Artifact Tests', async () => {
     initTest();
 
-    let currentTaskName: string;
+    let currentTaskName: string = "TestTask";
     let automation: Automation;
     test('Automation tests', async ({ }, testInfo) => {
       const testAttempt = testInfo.retry + 1;
