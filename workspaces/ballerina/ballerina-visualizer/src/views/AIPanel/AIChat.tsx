@@ -148,7 +148,7 @@ const DEFAULT_MENU_COMMANDS = [
 const GENERATE_TEST_AGAINST_THE_REQUIREMENT = "Generate tests against the requirements";
 const GENERATE_CODE_AGAINST_THE_REQUIREMENT = "Generate code based on the requirements";
 const CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION = "Check drift between code and documentation";
-const GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE = `${GENERATE_CODE_AGAINST_THE_REQUIREMENT}: <requirements>`;
+const GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE = `${GENERATE_CODE_AGAINST_THE_REQUIREMENT}:{requirements}`;
 
 const TEMPLATE_NATURAL_PROGRAMMING: string[] = [];
 
@@ -549,12 +549,12 @@ export function AIChat() {
 
                                 function removePrefixSymbols(text: string) {
                                     // Check if the text starts with ':' or '<'
-                                    if (text.startsWith(":") || text.startsWith("<")) {
+                                    if (text.startsWith(":") || text.startsWith("{")) {
                                         // Remove the first character
-                                        return text.slice(1);
+                                        return removePrefixSymbols(text.trim().slice(1).trim());
                                     }
                                     // Return the original text if it doesn't start with ':' or '<'
-                                    return text;
+                                    return text.trim();
                                 }
                                 const requirements = handleExtractRequirements();
                                 await rpcClient.getAiPanelRpcClient().updateRequirementSpecification({
@@ -722,7 +722,7 @@ export function AIChat() {
                     "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)"
                 )
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
-                .replace(/<requirements>/g, "([\\s\\S]+?)")
+                .replace(/\{requirements\}/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(.+?)")
                 .replace(/\{functionname\}/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
