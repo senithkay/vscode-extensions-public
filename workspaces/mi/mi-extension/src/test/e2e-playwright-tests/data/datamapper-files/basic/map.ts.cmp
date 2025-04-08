@@ -19,6 +19,11 @@ interface Root {
         op1: string
         op2: string
     }
+    cfnI: {
+        k1: string
+        k2: number
+    }
+    expI: string
 }
 
 /*
@@ -42,6 +47,11 @@ interface OutputRoot {
         p1: string
         p2: number
     }
+    cfnO: {
+        k1: string
+        k3: number
+    }
+    expO: string
 }
 
 
@@ -61,7 +71,11 @@ export function mapFunction(input: Root): OutputRoot {
         ompO: {
             p1: input.odmI.dm1,
             p2: input.opmI.op2
-        }
+        },
+        cfnO: mapObjectToObject(input.cfnI)
     }
 }
 
+function mapObjectToObject(cfnI: Root["cfnI"]): OutputRoot["cfnO"] {
+    return {};
+}

@@ -22,13 +22,13 @@ const fs = require('fs');
 export default function createTests() {
 
   test.describe('Data Mapper Tests', () => {
-    const NEED_INITIAL_SETUP = true;
+    const NEED_INITIAL_SETUP = false;
 
     initTest(NEED_INITIAL_SETUP);
 
     if (NEED_INITIAL_SETUP) setupProject();
-    // testBasicMappings();
-    testArrayMappings();
+    testBasicMappings();
+    // testArrayMappings();
     
    
     function setupProject() {
@@ -82,17 +82,17 @@ export default function createTests() {
 
         await clearNotificationsByCloseButton(page);
 
-        const diagram = new Diagram(page.page, 'Resource');
-        await diagram.init();
-
         if (NEED_INITIAL_SETUP) {
+          const diagram = new Diagram(page.page, 'Resource');
+          await diagram.init();
           await diagram.addDataMapper(DM_NAME);
           dm = new DataMapper(page.page, DM_NAME);
           await dm.init();
           await dm.loadJsonFromCompFolder();
           expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
         } else {
-          await diagram.openDataMapperFromTreeView(DM_NAME);
+          const projectExplorer = new ProjectExplorer(page.page);
+          await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
           dm = new DataMapper(page.page, DM_NAME);
           await dm.init();
         }
@@ -162,6 +162,13 @@ export default function createTests() {
         await dm.mapFields('input.opmI.op2', 'objectOutput.ompO.p2');
         await dmWebView.getByTestId('link-from-input.opmI.op2.OUT-to-objectOutput.ompO.p2.IN').waitFor({ state: 'attached' });
 
+
+        // custom function mapping
+        // objectOutput.cfnO = input.cfnI;
+        await dm.mapFields('input.cfnI', 'objectOutput.cfnO','menu-item-o2o-func');
+        await dmWebView.getByTestId('link-from-input.cfnI.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
+        await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.cfnO.IN').waitFor({ state: 'attached' });
+        await dmWebView.getByTestId('link-connector-node-objectOutput.cfnO.IN').waitFor();
 
         expect(dm.verifyTsFileContent('map.ts.cmp')).toBeTruthy();
 
@@ -332,6 +339,10 @@ export default function createTests() {
         }
 
       });
+    }
+
+    function testCustomFunctions(){
+
     }
 
   }

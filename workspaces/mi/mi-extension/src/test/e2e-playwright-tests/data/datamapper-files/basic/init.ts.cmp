@@ -19,6 +19,11 @@ opmI: {
 op1: string
 op2: string
 }
+cfnI: {
+k1: string
+k2: number
+}
+expI: string
 }
 
 /*
@@ -42,6 +47,11 @@ ompO: {
 p1: string
 p2: number
 }
+cfnO: {
+k1: string
+k3: number
+}
+expO: string
 }
 
 

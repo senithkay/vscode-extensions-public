@@ -12,5 +12,10 @@
   "opmI": {
     "op1": "value1",
     "op2": "value2"
-  }
+  },
+  "cfnI": {
+    "k1": "cfn1",
+    "k2": 100
+  },
+  "expI": "abc123"
 }
