@@ -28,10 +28,10 @@ test.beforeAll(async () => {
 });
 
 test.describe(artifactTests);
-// test.describe(connectionTests);
-// test.describe(connectorTests);
-// test.describe(inboundEpTests);
-// test.describe(logMediatorTests);
+test.describe(connectionTests);
+test.describe(connectorTests);
+test.describe(inboundEpTests);
+test.describe(logMediatorTests);
 
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);
