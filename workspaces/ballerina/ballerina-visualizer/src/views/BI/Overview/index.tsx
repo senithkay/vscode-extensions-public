@@ -601,9 +601,7 @@ export function Overview(props: ComponentDiagramProps) {
         return scopes;
     }, [projectStructure]);
 
-    function isEmptyProject(): boolean {
-        console.log(">>> project structure", projectStructure);
-        
+    function isEmptyProject(): boolean {        
         // Filter out connections that start with underscore
         const validConnections = projectStructure.directoryMap[DIRECTORY_MAP.CONNECTION]?.filter(
             conn => !conn.name.startsWith('_')

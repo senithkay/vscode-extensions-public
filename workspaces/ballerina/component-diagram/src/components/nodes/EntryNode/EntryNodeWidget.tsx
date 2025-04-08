@@ -406,6 +406,8 @@ export function getCustomEntryNodeIcon(type: string) {
             return <Icon name="bi-java" />;
         case "trigger.github":
             return <Icon name="bi-github" />;
+        case "http":
+            return <Icon name="bi-globe" />;
         default:
             return null;
     }
