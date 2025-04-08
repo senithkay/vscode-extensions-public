@@ -89,6 +89,7 @@ export class ConnectorStore {
 
     async fillLocationPath(path: string) {
         const keyboard = this._page.keyboard;
+        // Waiting for the command palette input
         await new Promise(resolve => setTimeout(resolve, 500));
         await keyboard.press(os.platform() === 'darwin' ? 'Meta+A' : 'Control+A');
         await keyboard.press('Backspace');
