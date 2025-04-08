@@ -363,6 +363,7 @@ export function TypeEditor(props: TypeEditorProps) {
                     <EnumEditor
                         type={type}
                         onChange={setType}
+                        onValidationError={handleValidationError}
                     />
                 );
             case TypeKind.UNION:
