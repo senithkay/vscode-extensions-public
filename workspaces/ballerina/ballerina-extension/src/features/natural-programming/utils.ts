@@ -37,7 +37,7 @@ export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
                                                   : vscode.DiagnosticCollection): Promise<number | null> {
     const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
     const nonDefaultModuleSourcesIfReadmeNotExists: BallerinaSource[] 
-                    = getNonDefaultModuleSourcesIfReadmeNotExists(path.join(projectUri, "modules"));
+                    = getSourcesOfNonDefaultModulesWithReadme(path.join(projectUri, "modules"));
 
     const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeNotExists];
     const backendurl = await getBackendURL();
@@ -59,7 +59,7 @@ export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
 async function getLLMResponses(sources: BallerinaSource[], token: string, backendurl: string)
                                                                     : Promise<any[] | number> {
     let promises: Promise<Response | Error>[] = [];
-    const NonDefaultModulesWithReadmeFiles: string[] 
+    const nonDefaultModulesWithReadmeFiles: string[] 
         = sources.map(source => source.moduleName).filter(name => name != DEFAULT_MODULE);
 
     const commentResponsePromise = fetchWithToken(
@@ -80,7 +80,7 @@ async function getLLMResponses(sources: BallerinaSource[], token: string, backen
         let body: string[] = [source.balFiles, source.requirements, source.readme, source.developerOverview];
 
         if (source.moduleName == DEFAULT_MODULE) {
-            body.push(NonDefaultModulesWithReadmeFiles.join(", "));
+            body.push(nonDefaultModulesWithReadmeFiles.join(", "));
         }
 
         const documentationSourceResponsePromise = fetchWithToken(
@@ -244,7 +244,7 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
 export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise<string | number> {
     const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
     const nonDefaultModuleSourcesIfReadmeNotExists: BallerinaSource[] 
-                    = getNonDefaultModuleSourcesIfReadmeNotExists(path.join(projectUri, "modules"));
+                    = getSourcesOfNonDefaultModulesWithReadme(path.join(projectUri, "modules"));
 
     const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeNotExists];
     const backendurl = await getBackendURL();
@@ -449,7 +449,7 @@ export async function getBallerinaProjectSourceFiles(folderPath: string): Promis
     };
 }
 
-function getNonDefaultModuleSourcesIfReadmeNotExists(modulesDir: string): BallerinaSource[] {
+function getSourcesOfNonDefaultModulesWithReadme(modulesDir: string): BallerinaSource[] {
     if (!fs.existsSync(modulesDir)) { return []; }
 
     const moduleDirs = fs.readdirSync(modulesDir).filter(dir =>
