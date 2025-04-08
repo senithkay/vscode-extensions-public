@@ -11,6 +11,7 @@ import { test } from '@playwright/test';
 import { Welcome } from "./../components/Welcome";
 import { Api } from "./../components/ArtifactTest/Api";
 import { ProjectExplorer } from "./../components/ProjectExplorer";
+import { Overview } from "./../components/Overview";
 import { assertFileContent } from '../Utils';
 
 import fs from 'fs';
@@ -51,9 +52,12 @@ export default function createTests() {
                 const welcomePage = new Welcome(page);
                 await welcomePage.init();
                 await welcomePage.createNewProjectFromSample('Hello World ServiceA simple', newProjectPath);
+                await page.page.waitForTimeout(5000);
                 const projectExplorer = new ProjectExplorer(page.page);
                 await projectExplorer.goToOverview("HelloWorldService");
-                await page.page.getByText('HelloWorld', { exact: true }).click();
+                const overview = new Overview(page.page);
+                await overview.init();
+                await overview.diagramRenderingForApi('HelloWorld');
             });
 
             await test.step("Open Existing Project Tests", async () => {
@@ -63,12 +67,17 @@ export default function createTests() {
                 await page.page.getByLabel('input').fill('');
                 await page.page.getByLabel('input').fill(newProjectPath + '/newProject/');
                 await page.page.getByRole('button', { name: 'Open MI Project' }).click();
+                const addArtifactSelector = '.tab-label:has-text("Add Artifact")';
+                await page.page.waitForSelector(addArtifactSelector, { state: 'visible' });
+                await page.page.waitForSelector(addArtifactSelector, { state: 'attached' });
                 const api = new Api(page.page);
                 await api.init();
                 await api.add('helloWorld');
                 const projectExplorer = new ProjectExplorer(page.page);
                 await projectExplorer.goToOverview("newProject");
-                await page.page.getByText('helloWorld', { exact: true }).click();
+                const overview = new Overview(page.page);
+                await overview.init();
+                await overview.diagramRenderingForApi('helloWorld');
             });
         });
     });
