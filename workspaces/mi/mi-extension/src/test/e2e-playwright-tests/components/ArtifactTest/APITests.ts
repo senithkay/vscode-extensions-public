@@ -258,14 +258,13 @@ export class API {
 
     public async deleteAPI() {
         const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.findItem(['Project testProject'], true);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+        
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        const webview = await overviewPage.getWebView();
         console.log("Found project testProject");
-        await this._page.getByLabel('Open Project Overview').click();
-        const webview = await switchToIFrame("Project Overview", this._page);
-        console.log("Switched to project overview iframe");
-        if (!webview) {
-            throw new Error("Failed to switch to Overview iframe");
-        }
         await this._page.getByLabel('Open Project Overview').click();
         console.log("Clicked on open project overview");
         await webview.locator('div:nth-child(7) > .css-ta44yg > .css-t6i1up > .css-ij0d9h > vscode-button > svg > path').click();
