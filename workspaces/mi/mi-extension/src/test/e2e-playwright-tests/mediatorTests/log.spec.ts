@@ -20,7 +20,8 @@ export default function createTests() {
   test.describe(async () => {
     initTest();
 
-    test("Log Mediator Tests", async () => {
+    test("Log Mediator Tests", async ({}, testInfo) => {
+      const testAttempt = testInfo.retry + 1;
       await test.step('Create new API', async () => {
         // wait until window reload
         const { title: iframeTitle } = await page.getCurrentWebview();
@@ -41,11 +42,11 @@ export default function createTests() {
           values: {
             'Name*': {
               type: 'input',
-              value: 'logMediatorAPI',
+              value: 'logMediatorAPI' + testAttempt,
             },
             'Context*': {
               type: 'input',
-              value: '/logMediatorAPI',
+              value: '/logMediatorAPI' + testAttempt,
             },
           }
         });
