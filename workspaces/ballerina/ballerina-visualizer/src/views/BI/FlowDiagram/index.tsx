@@ -782,15 +782,17 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             const agentFilePath = await getAgentFilePath(rpcClient);
 
             // remove memory manager statement if any
-            if (agentNode.properties.memoryManager && agentNode.properties.memoryManager?.value !== "()") {
-                const memoryManagerVar = agentNode.properties.memoryManager.value as string;
-                const memoryManagerNode = await findFlowNodeByModuleVarName(memoryManagerVar, rpcClient);
-                if (memoryManagerNode) {
-                    await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
-                        filePath: agentFilePath,
-                        flowNode: memoryManagerNode,
-                    });
-                    console.log(">>> deleted memory manager node", memoryManagerNode);
+            if (agentNode.properties.memory && agentNode.properties.memory?.value !== "()") {
+                const memoryVar = agentNode.properties.memory.value as string;
+                if (memoryVar) {
+                    const memoryNode = await findFlowNodeByModuleVarName(memoryVar, rpcClient);
+                    if (memoryNode) {
+                        await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
+                            filePath: agentFilePath,
+                            flowNode: memoryNode,
+                        });
+                        console.log(">>> deleted memory manager node", memoryNode);
+                    }
                 }
             }
 
@@ -798,8 +800,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             const updatedAgentNode = cloneDeep(agentNode);
 
             // Remove memory manager from agent node
-            if (!updatedAgentNode.properties.memoryManager) {
-                updatedAgentNode.properties.memoryManager = {
+            if (!updatedAgentNode.properties.memory) {
+                updatedAgentNode.properties.memory = {
                     value: "",
                     advanced: true,
                     optional: true,
@@ -813,7 +815,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     placeholder: "object {}",
                 };
             } else {
-                agentNode.properties.memoryManager.value = "()";
+                agentNode.properties.memory.value = "()";
             }
             // Generate the source code
             const agentResponse = await rpcClient

@@ -72,7 +72,7 @@ export type Metadata = {
         isIsolatedFunction?: boolean;
         tools?: ToolData[];
         model?: ToolData;
-        memoryManager?: MemoryManagerData;
+        memory?: MemoryData;
         agent?: AgentData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
@@ -90,7 +90,7 @@ export type AgentData = {
     instructions?: string;
 }
 
-export type MemoryManagerData = {
+export type MemoryData = {
     name: string;
     type: string;
 }
@@ -290,7 +290,8 @@ export type NodePropertyKey =
     | "prompt"
     | "enableModelContext"
     | "memory"
-    | "sessionId";
+    | "sessionId"
+    | "size";
 
 export type BranchKind = "block" | "worker";
 
