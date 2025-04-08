@@ -114,7 +114,7 @@ const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
 export const COMMAND_SCAFFOLD = "/scaffold";
-export const COMMAND_NATURAL_PROGRAMMING = "/natural-programming";
+export const COMMAND_NATURAL_PROGRAMMING = "/natural-programming (experimental)";
 export const COMMAND_TESTS = "/tests";
 export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
