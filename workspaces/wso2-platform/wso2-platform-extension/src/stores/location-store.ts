@@ -16,7 +16,14 @@ import { getGlobalStateStore } from "./store-utils";
 interface LocationStore {
 	state: LocationStoreState;
 	setLocation: (selectedContextItem: ContextItemEnriched, componentItems: ContextStoreComponentState[]) => void;
-	getLocations: (projectHandle: string, orgHandle: string) => { fsPath: string; componentItems: ContextStoreComponentState[] }[];
+	getLocations: (
+		projectHandle: string,
+		orgHandle: string,
+	) => {
+		fsPath: string;
+		componentItems: ContextStoreComponentState[];
+		context?: ContextItemEnriched;
+	}[];
 }
 
 const initialState: LocationStoreState = { projectLocations: {} };
@@ -35,7 +42,10 @@ export const locationStore = createStore(
 								...state.projectLocations,
 								[projectKey]: {
 									...state.projectLocations?.[projectKey],
-									[contextDirItem.projectRootFsPath]: componentItems,
+									[contextDirItem.projectRootFsPath]: {
+										components: componentItems || [],
+										contextItem: selectedContextItem,
+									},
 								},
 							},
 						},
@@ -45,10 +55,14 @@ export const locationStore = createStore(
 			getLocations: (projectHandle, orgHandle) => {
 				const projectKey = `${orgHandle}-${projectHandle}`;
 				return Object.keys(get().state.projectLocations?.[projectKey] ?? {})
-					.map((fsPath) => ({ fsPath, componentItems: get().state.projectLocations?.[projectKey]?.[fsPath] }))
+					.map((fsPath) => ({
+						fsPath,
+						componentItems: get().state.projectLocations?.[projectKey]?.[fsPath]?.components ?? [],
+						context: get().state.projectLocations?.[projectKey]?.[fsPath]?.contextItem,
+					}))
 					.filter((item) => existsSync(item.fsPath));
 			},
 		}),
-		getGlobalStateStore("location-zustand-storage"),
+		getGlobalStateStore("location-zustand-storage-v2"),
 	),
 );

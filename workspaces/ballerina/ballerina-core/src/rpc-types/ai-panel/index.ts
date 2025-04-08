@@ -7,7 +7,7 @@
 * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
-import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics, SourceFile } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics } from "./interfaces";
 
 export interface AIPanelAPI {
     getBackendURL: () => Promise<string>;
@@ -34,7 +34,6 @@ export interface AIPanelAPI {
     checkSyntaxError: (project: ProjectSource) => Promise<boolean>;
     getInitialPrompt: () => Promise<InitialPrompt>;
     clearInitialPrompt: () => void;
-    refreshFile:(params: SourceFile) => void;
     // Test-generator related functions
     getGeneratedTests: (params: TestGenerationRequest) => Promise<TestGenerationResponse>;
     getTestDiagnostics: (params: TestGenerationResponse) => Promise<ProjectDiagnostics>;
@@ -59,7 +58,9 @@ export interface AIPanelAPI {
     getFromDocumentation: (content: string) => Promise<string>;
     isRequirementsSpecificationFileExist:(filePath: string) => Promise<boolean>;
     getDriftDiagnosticContents:(projectPath: string) => Promise<LLMDiagnostics>;
-    addChatSummary:(filepathAndSummary: AIChatSummary) => void;
+    addChatSummary:(filepathAndSummary: AIChatSummary) => Promise<boolean>;
+    handleChatSummaryError:(message: string) => void;
+    isNaturalProgrammingDirectoryExists:(projectPath: string) => Promise<boolean>;
     readDeveloperMdFile:(directoryPath: string) => Promise<string>;
     updateDevelopmentDocument:(developerDocument: DeveloperDocument) => void;
     updateRequirementSpecification:(requirementsSpecification: RequirementSpecification) => void;

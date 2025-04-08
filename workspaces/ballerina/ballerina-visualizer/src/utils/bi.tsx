@@ -14,6 +14,7 @@ import {
     FormValues,
     ParameterValue,
     Parameter,
+    FormFieldImport,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow, ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import {
@@ -161,6 +162,7 @@ export function convertNodePropertyToFormField(
         optional: property.optional,
         advanced: property.advanced,
         placeholder: property.placeholder,
+        defaultValue: property.defaultValue as string,
         editable: isFieldEditable(property, connections, clientName),
         enabled: true,
         hidden: property.hidden,
@@ -265,6 +267,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
             return "AI Agent";
         case SidePanelView.AGENT_MODEL:
             return "Configure LLM Model";
+        case SidePanelView.AGENT_MEMORY_MANAGER:
+            return "Configure Memory";
         case SidePanelView.AGENT_TOOL:
             return "Configure Tool";
         case SidePanelView.ADD_TOOL:
@@ -826,3 +830,14 @@ export function getInfoFromExpressionValue(
         charOffset: charOffset
     };
 }
+
+export const getImportsForProperty = (
+    key: string,
+    imports: Record<string, FormFieldImport>
+): FormFieldImport | undefined => {
+    if (!imports) {
+        return undefined;
+    }
+
+    return imports[key];
+};

@@ -112,9 +112,9 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 	const onSubmitForm: SubmitHandler<ComponentFormBuildDetailsType> = () => onNextClick();
 
 	const buildConfigs: ReactNode[] = [];
-	if ([ ChoreoBuildPackNames.StaticFiles, ChoreoBuildPackNames.Prism].includes(selectedLang as ChoreoBuildPackNames)) {
+	if ([ChoreoBuildPackNames.StaticFiles, ChoreoBuildPackNames.Prism].includes(selectedLang as ChoreoBuildPackNames)) {
 		// do nothing
-	} else if ([ChoreoBuildPackNames.MicroIntegrator,ChoreoBuildPackNames.Ballerina].includes(selectedLang as ChoreoBuildPackNames)) {
+	} else if ([ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.Ballerina].includes(selectedLang as ChoreoBuildPackNames)) {
 		if (selectedType === ChoreoComponentType.Service) {
 			buildConfigs.push(
 				<CheckBox
@@ -215,7 +215,9 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 				<Button appearance="secondary" onClick={() => onBackClick()}>
 					Back
 				</Button>
-				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={isLoadingBuildPacks}>Next</Button>
+				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={isLoadingBuildPacks}>
+					Next
+				</Button>
 			</div>
 		</>
 	);

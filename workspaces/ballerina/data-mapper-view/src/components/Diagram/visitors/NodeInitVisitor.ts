@@ -27,7 +27,7 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
-import { isPositionsEquals } from "../../../utils/st-utils";
+import { hasErrorDiagnosis, isPositionsEquals } from "../../../utils/st-utils";
 import { SelectionState } from "../../DataMapper/DataMapper";
 import {
     MappingConstructorNode,
@@ -223,8 +223,8 @@ export class NodeInitVisitor implements Visitor {
 
                         const letClauses = intermediateClauses?.filter((item) => {
                             return (
-                                (STKindChecker.isLetClause(item) && item.typeData?.diagnostics?.length === 0) ||
-                                (STKindChecker.isJoinClause(item) && item.typeData?.diagnostics?.length === 0)
+                                (STKindChecker.isLetClause(item) && !hasErrorDiagnosis(item)) ||
+                                (STKindChecker.isJoinClause(item) && !hasErrorDiagnosis(item))
                             );
                         });
 
@@ -648,8 +648,8 @@ export class NodeInitVisitor implements Visitor {
 
                 const letClauses = intermediateClauses?.filter((item) => {
                     return (
-                        (STKindChecker.isLetClause(item) && item.typeData?.diagnostics?.length === 0) ||
-                        (STKindChecker.isJoinClause(item) && item.typeData?.diagnostics?.length === 0)
+                        (STKindChecker.isLetClause(item) && !hasErrorDiagnosis(item)) ||
+                        (STKindChecker.isJoinClause(item) && !hasErrorDiagnosis(item))
                     );
                 });
 

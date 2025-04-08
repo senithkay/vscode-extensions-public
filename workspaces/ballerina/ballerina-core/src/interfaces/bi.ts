@@ -72,6 +72,7 @@ export type Metadata = {
         isIsolatedFunction?: boolean;
         tools?: ToolData[];
         model?: ToolData;
+        memoryManager?: MemoryManagerData;
         agent?: AgentData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
     }
@@ -89,6 +90,10 @@ export type AgentData = {
     instructions?: string;
 }
 
+export type MemoryManagerData = {
+    name: string;
+    type: string;
+}
 export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
@@ -103,6 +108,7 @@ export type Property = {
     valueTypeConstraint?: string | string[];
     codedata?: CodeData;
     typeMembers?: PropertyTypeMemberInfo[];
+    imports?: {[key: string]: string};
 };
 
 export type PropertyTypeMemberInfo = {
@@ -186,36 +192,21 @@ export type TargetMetadata = {
 };
 
 export enum DIRECTORY_MAP {
-    SERVICES = "services",
-    LISTENERS = "listeners",
-    AUTOMATION = "automation",
-    FUNCTIONS = "functions",
-    TRIGGERS = "triggers",
-    CONNECTIONS = "connections",
-    TYPES = "types",
-    RECORDS = "records",
-    CONFIGURATIONS = "configurations",
-    DATA_MAPPERS = "dataMappers",
-    ENUMS = "enums",
-    CLASSES = "classes",
-    NATURAL_FUNCTIONS = "naturalFunctions",
+    SERVICE = "SERVICE",
+    AUTOMATION = "AUTOMATION",
+    RESOURCE = "RESOURCE",
+    REMOTE = "REMOTE",
+    FUNCTION = "FUNCTION",
+    NP_FUNCTION = "NP_FUNCTION",
+    DATA_MAPPER = "DATA_MAPPER",
+    LISTENER = "LISTENER",
+    CONFIGURABLE = "CONFIGURABLE",
+    TYPE = "TYPE",
+    CONNECTION = "CONNECTION",
+    VARIABLE = "VARIABLE",
+    CONNECTOR = "CONNECTOR",
     AGENTS = "agents",
     LOCAL_CONNECTORS = "localConnectors",
-}
-
-export enum DIRECTORY_SUB_TYPE {
-    FUNCTION = "function",
-    CONNECTION = "connection",
-    TYPE = "type",
-    CONFIGURATION = "configuration",
-    SERVICE = "service",
-    AUTOMATION = "automation",
-    TRIGGER = "trigger",
-    LISTENER = "listener",
-    DATA_MAPPER = "dataMapper",
-    NATURAL_FUNCTION = "naturalFunction",
-    AGENTS = "agents",
-    LOCAL_CONNECTORS = "localConnector",
 }
 
 export enum FUNCTION_TYPE {
@@ -227,24 +218,22 @@ export enum FUNCTION_TYPE {
 export interface ProjectStructureResponse {
     projectName: string;
     directoryMap: {
-        [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.SERVICE]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.LISTENERS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.FUNCTIONS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.TYPES]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.ENUMS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.CLASSES]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.NATURAL_FUNCTIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.LISTENER]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.FUNCTION]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CONNECTION]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.TYPE]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CONFIGURABLE]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.DATA_MAPPER]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.NP_FUNCTION]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.AGENTS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.LOCAL_CONNECTORS]: ProjectStructureArtifactResponse[];
     };
 }
 
 export interface ProjectStructureArtifactResponse {
+    id: string;
     name: string;
     path: string;
     type: string;
@@ -294,7 +283,9 @@ export type NodePropertyKey =
     | "functionName"
     | "systemPrompt"
     | "prompt"
-    | "enableModelContext";
+    | "enableModelContext"
+    | "memory"
+    | "sessionId";
 
 export type BranchKind = "block" | "worker";
 
@@ -353,7 +344,8 @@ export type NodeKind =
     | "AGENT_CALL"
     | "FUNCTION_DEFINITION"
     | "AUTOMATION"
-    | "CONFIG_VARIABLE";
+    | "CONFIG_VARIABLE"
+    | "CLASS_INIT";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];

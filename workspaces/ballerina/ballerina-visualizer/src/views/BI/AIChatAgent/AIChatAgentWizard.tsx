@@ -52,8 +52,8 @@ export interface AIChatAgentWizardProps {
 }
 
 export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
-    // module name for ai.agent
-    const type = "ai.agent";
+    // module name for ai agent
+    const type = "ai";
     const { rpcClient } = useRpcContext();
     const [agentName, setAgentName] = useState<string>("");
     const [nameError, setNameError] = useState<string>("");
@@ -69,7 +69,7 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
     ];
 
     useEffect(() => {
-        rpcClient.getServiceDesignerRpcClient().getListenerModel({ moduleName: type }).then(res => {
+        rpcClient.getServiceDesignerRpcClient().getListenerModel({ moduleName: type}).then(res => {
             setListenerModel(res.listener);
         });
     }, []);
@@ -188,7 +188,6 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                                         >
                                             {isCreating ? 'Creating...' : 'Create'}
                                         </Button>
-                                        <Button appearance="secondary">Cancel</Button>
                                     </ButtonContainer>
                                 </FormFields>
                             </FormContainer>

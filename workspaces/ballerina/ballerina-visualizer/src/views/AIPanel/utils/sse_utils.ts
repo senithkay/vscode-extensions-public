@@ -71,3 +71,8 @@ export function parseCopilotSSEEvent(chunk: string): CopilotSSEEvent {
             return { event: CopilotEvent.MESSAGE_STOP, body: body as CopilotMessageStopContent };
     }
 }
+
+export function hasCodeBlocks(text: string) {
+    const codeBlockRegex = /<code[^>]*>[\s\S]*?<\/code>/i;
+    return codeBlockRegex.test(text);
+}

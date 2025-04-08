@@ -21,6 +21,7 @@ import { AddTool } from "./AddTool";
 import { useEffect, useState } from "react";
 import { NewTool } from "./NewTool";
 import styled from "@emotion/styled";
+import { MemoryManagerConfig } from "./MemoryManagerConfig";
 
 const Container = styled.div`
     display: flex;
@@ -39,6 +40,7 @@ export enum SidePanelView {
     NEW_TOOL = "NEW_TOOL",
     AGENT_TOOL = "AGENT_TOOL",
     AGENT_MODEL = "AGENT_MODEL",
+    AGENT_MEMORY_MANAGER = "AGENT_MEMORY_MANAGER",
     AGENT_CONFIG = "AGENT_CONFIG",
 }
 
@@ -192,6 +194,9 @@ export function PanelManager(props: PanelManagerProps) {
             case SidePanelView.AGENT_CONFIG:
                 return <AgentConfig agentCallNode={selectedNode} fileName={fileName} onSave={onClose} />;
 
+            case SidePanelView.AGENT_MEMORY_MANAGER:
+                return <MemoryManagerConfig agentCallNode={selectedNode} onSave={onClose} />;
+
             case SidePanelView.FUNCTION_LIST:
                 return (
                     <NodeList
@@ -205,18 +210,19 @@ export function PanelManager(props: PanelManagerProps) {
                     />
                 );
 
-            case SidePanelView.NP_FUNCTION_LIST:
-                return (
-                    <NodeList
-                        categories={categories}
-                        onSelect={onSelectNode}
-                        onSearchTextChange={(searchText) => onSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
-                        onAddFunction={onAddNPFunction}
-                        onClose={onClose}
-                        title={"Natural Functions"}
-                        onBack={onBack}
-                    />
-                );
+            // TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314
+            // case SidePanelView.NP_FUNCTION_LIST:
+            //     return (
+            //         <NodeList
+            //             categories={categories}
+            //             onSelect={onSelectNode}
+            //             onSearchTextChange={(searchText) => onSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
+            //             onAddFunction={onAddNPFunction}
+            //             onClose={onClose}
+            //             title={"Natural Functions"}
+            //             onBack={onBack}
+            //         />
+            //     );
 
             case SidePanelView.DATA_MAPPER_LIST:
                 return (

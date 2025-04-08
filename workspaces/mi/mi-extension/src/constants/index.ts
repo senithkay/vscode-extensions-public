@@ -105,9 +105,6 @@ export const COMMANDS = {
     OPEN_RUNTIME_VIEW: 'MI.Open-runtime-service-view',
     REVEAL_TEST_PANE: 'MI.mock-services.focus',
 
-    DEVAN_DEPLOY: 'wso2.wso2-platform.create.component',
-    DEVAN_OPEN_COMPONENT: 'wso2.wso2-platform.open.component.src',
-
     BI_EXTENSION: 'WSO2.ballerina-integrator',
     BI_OPEN_COMMAND: 'ballerina.open.bi.welcome',
     INSTALL_EXTENSION_COMMAND: 'workbench.extensions.installExtension'

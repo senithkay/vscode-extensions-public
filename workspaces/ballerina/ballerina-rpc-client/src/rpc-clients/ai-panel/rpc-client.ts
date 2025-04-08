@@ -32,7 +32,6 @@ import {
     ProjectDiagnostics,
     ProjectSource,
     RequirementSpecification,
-    SourceFile,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
@@ -68,7 +67,9 @@ import {
     getTestDiagnostics,
     getThemeKind,
     getTypesFromRecord,
+    handleChatSummaryError,
     isCopilotSignedIn,
+    isNaturalProgrammingDirectoryExists,
     isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
@@ -83,7 +84,6 @@ import {
     promptWSO2AILogout,
     readDeveloperMdFile,
     refreshAccessToken,
-    refreshFile,
     showSignInAlert,
     stopAIMappings,
     updateDevelopmentDocument,
@@ -196,10 +196,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
     }
 
-    refreshFile(params: SourceFile): void {
-        return this._messenger.sendNotification(refreshFile, HOST_EXTENSION, params);
-    }
-
     getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {
         return this._messenger.sendRequest(getGeneratedTests, HOST_EXTENSION, params);
     }
@@ -292,8 +288,16 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
     }
 
-    addChatSummary(filepathAndSummary: AIChatSummary): void {
-        return this._messenger.sendNotification(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    addChatSummary(filepathAndSummary: AIChatSummary): Promise<boolean> {
+        return this._messenger.sendRequest(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    }
+
+    handleChatSummaryError(message: string): void {
+        return this._messenger.sendNotification(handleChatSummaryError, HOST_EXTENSION, message);
+    }
+
+    isNaturalProgrammingDirectoryExists(projectPath: string): Promise<boolean> {
+        return this._messenger.sendRequest(isNaturalProgrammingDirectoryExists, HOST_EXTENSION, projectPath);
     }
 
     readDeveloperMdFile(directoryPath: string): Promise<string> {

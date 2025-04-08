@@ -72,7 +72,6 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
 
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getEntryNodeIcon(item: ServiceModel) {
-    console.log(">>> item", item);
     return getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "38px" }} />;
 }
 

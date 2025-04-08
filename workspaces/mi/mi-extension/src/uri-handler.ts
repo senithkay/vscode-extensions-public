@@ -11,6 +11,7 @@ import { window, Uri, ProviderResult, commands } from "vscode";
 import { exchangeAuthCode } from "./ai-panel/auth";
 import { COMMANDS } from "./constants";
 import { checkForDevantExt } from "./extension";
+import { IOpenCompSrcCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export function activateUriHandlers() {
     window.registerUriHandler({
@@ -40,9 +41,9 @@ export function activateUriHandlers() {
                     const integrationDisplayType = urlParams.get("integrationDisplayType");
                     window.showInformationMessage('Opening component');
                     if (org && project && component && technology && integrationType) {
-                        commands.executeCommand(COMMANDS.DEVAN_OPEN_COMPONENT, {
-                            org, project, component, technology, integrationType, integrationDisplayType
-                        });
+                        commands.executeCommand(PlatformExtCommandIds.OpenCompSrcDir, {
+                            org, project, component, technology, integrationType, integrationDisplayType, extName: "Devant"
+                        } as IOpenCompSrcCmdParams);
                     } else {
                         window.showErrorMessage('Invalid component URL parameters');
                     }

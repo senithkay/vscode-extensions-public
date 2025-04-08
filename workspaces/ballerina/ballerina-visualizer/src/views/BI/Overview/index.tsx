@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
     ProjectDiagnostics,
     ProjectSource,
@@ -17,6 +17,9 @@ import {
     BuildMode,
     BI_COMMANDS,
     DevantMetadata,
+    SHARED_COMMANDS,
+    DIRECTORY_MAP,
+    SCOPE
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox, ProgressIndicator, Overlay } from "@wso2-enterprise/ui-toolkit";
@@ -27,7 +30,9 @@ import ComponentDiagram from "../ComponentDiagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from "react-markdown";
 import { useQuery } from '@tanstack/react-query'
-import { CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { IOpenInConsoleCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { AlertBoxWithClose } from "../../AIPanel/AlertBoxWithClose";
+import { findScopeByModule } from "./utils";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -175,9 +180,15 @@ const DeployButtonContainer = styled.div`
 
 const ReadmeHeaderContainer = styled.div`
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    justify-content: space-between;
+    gap: 8px;
+`;
+
+const ReadmeButtonContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 2px;
 `;
 
 const ReadmeContent = styled.div`
@@ -271,6 +282,12 @@ interface DeploymentOptionProps {
     onToggle: () => void;
     onDeploy: () => void;
     learnMoreLink?: string;
+    hasDeployableIntegration?: boolean;
+    secondaryAction?: {
+        description: string;
+        buttonText: string;
+        onClick: () => void;
+    };
 }
 
 function DeploymentOption({
@@ -281,6 +298,8 @@ function DeploymentOption({
     onToggle,
     onDeploy,
     learnMoreLink,
+    secondaryAction,
+    hasDeployableIntegration
 }: DeploymentOptionProps) {
     const { rpcClient } = useRpcContext();
 
@@ -309,12 +328,28 @@ function DeploymentOption({
                         <VSCodeLink onClick={openLearnMoreURL} style={{ marginLeft: '4px' }}>Learn more</VSCodeLink>
                     )}
                 </p>
-                <Button appearance="secondary" onClick={(e) => {
-                    e.stopPropagation();
-                    onDeploy();
-                }}>
+                <Button
+                    appearance="secondary"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDeploy();
+                    }}
+                    disabled={!hasDeployableIntegration}
+                    tooltip={hasDeployableIntegration ? "" : "No deployable integration found"}
+                >
                     {buttonText}
                 </Button>
+                {secondaryAction && (
+                    <>
+                        <p>{secondaryAction.description}</p>
+                        <Button appearance="primary" onClick={(e) => {
+                            e.stopPropagation();
+                            secondaryAction.onClick()
+                        }}>
+                            {secondaryAction.buttonText}
+                        </Button>
+                    </>
+                )}
             </DeploymentBody>
         </DeploymentOptionContainer>
     );
@@ -326,10 +361,19 @@ interface DeploymentOptionsProps {
     handleDeploy: () => Promise<void>;
     goToDevant: () => void;
     devantMetadata: DevantMetadata | undefined;
+    hasDeployableIntegration: boolean;
 }
 
-function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, goToDevant, devantMetadata }: DeploymentOptionsProps) {
+function DeploymentOptions({
+    handleDockerBuild,
+    handleJarBuild, 
+    handleDeploy, 
+    goToDevant, 
+    devantMetadata, 
+    hasDeployableIntegration
+}: DeploymentOptionsProps) {
     const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
+    const { rpcClient } = useRpcContext();
 
     const toggleOption = (option: string) => {
         setExpandedOptions(prev => {
@@ -349,27 +393,33 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
             <div>
                 <Title variant="h3">Deployment Options</Title>
 
-                {devantMetadata?.hasComponent ? (
-                    <DeploymentOption
-                        title="Deployed in Devant"
-                        description="This integration is already deployed in Devant."
-                        buttonText="View in Devant"
-                        isExpanded={expandedOptions.has("devant")}
-                        onToggle={() => toggleOption("devant")}
-                        onDeploy={() => goToDevant()}
-                        learnMoreLink={"https://wso2.com/devant/docs"}
-                    />
-                ) : (
-                    <DeploymentOption
-                        title="Deploy to Devant"
-                        description="Deploy your integration to the cloud using Devant by WSO2."
-                        buttonText="Deploy"
-                        isExpanded={expandedOptions.has("cloud")}
-                        onToggle={() => toggleOption("cloud")}
-                        onDeploy={handleDeploy}
-                        learnMoreLink={"https://wso2.com/devant/docs"}
-                    />
-                )}
+                <DeploymentOption
+                    title={devantMetadata?.hasComponent ? "Deployed in Devant" : "Deploy to Devant"}
+                    description={
+                        devantMetadata?.hasComponent
+                            ? "This integration is already deployed in Devant."
+                            : "Deploy your integration to the cloud using Devant by WSO2."
+                    }
+                    buttonText={devantMetadata?.hasComponent ? "View in Devant" : "Deploy"}
+                    isExpanded={expandedOptions.has("devant")}
+                    onToggle={() => toggleOption("devant")}
+                    onDeploy={devantMetadata?.hasComponent ? () => goToDevant() : handleDeploy}
+                    learnMoreLink={"https://wso2.com/devant/docs"}
+                    hasDeployableIntegration={hasDeployableIntegration}
+                    secondaryAction={
+                        devantMetadata?.hasComponent && devantMetadata?.hasLocalChanges
+                            ? {
+                                  description: "To redeploy in Devant, please commit and push your changes.",
+                                  buttonText: "Open Source Control",
+                                  onClick: () =>
+                                      rpcClient
+                                          .getCommonRpcClient()
+                                          .executeCommand({ commands: ["workbench.scm.focus"] }),
+                              }
+                            : undefined
+                    }
+                />
+           
 
                 <DeploymentOption
                     title="Deploy with Docker"
@@ -378,6 +428,7 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                     isExpanded={expandedOptions.has('docker')}
                     onToggle={() => toggleOption('docker')}
                     onDeploy={handleDockerBuild}
+                    hasDeployableIntegration={hasDeployableIntegration}
                 />
 
                 <DeploymentOption
@@ -387,6 +438,7 @@ function DeploymentOptions({ handleDockerBuild, handleJarBuild, handleDeploy, go
                     isExpanded={expandedOptions.has('vm')}
                     onToggle={() => toggleOption('vm')}
                     onDeploy={handleJarBuild}
+                    hasDeployableIntegration={hasDeployableIntegration}
                 />
             </div>
         </>
@@ -441,10 +493,12 @@ export function Overview(props: ComponentDiagramProps) {
     const backendRootUri = useRef("");
     const [enabled, setEnableICP] = useState(false);
     const { data: devantMetadata } = useQuery({
-        queryKey:["devant-metadata",props.projectPath],
-        queryFn: ()=>rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
-        refetchInterval: 2000
+        queryKey: ["devant-metadata", props.projectPath],
+        queryFn: () => rpcClient.getBIDiagramRpcClient().getDevantMetadata(),
+        refetchInterval: 5000
     })
+    const [showAlert, setShowAlert] = React.useState(false);
+
 
     const fetchContext = () => {
         rpcClient
@@ -503,6 +557,9 @@ export function Overview(props: ComponentDiagramProps) {
 
     useEffect(() => {
         fetchContext();
+        showLoginAlert().then((status) => {
+            setShowAlert(status);
+        });
     }, []);
 
     useEffect(() => {
@@ -522,6 +579,27 @@ export function Overview(props: ComponentDiagramProps) {
         });
     }, [responseText]);
 
+    const deployableIntegrationTypes = useMemo(() => {
+        if (!projectStructure) {
+            return [];
+        }
+
+        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
+        const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
+    
+        let scopes: SCOPE[] = [];
+        if (services) {
+            const svcScopes = services
+                .map(svc => findScopeByModule(svc?.serviceModel.moduleName))
+                .filter(svc => svc !== undefined);
+            scopes = Array.from(new Set(svcScopes));
+        }
+        if (automation?.length > 0) {
+            scopes.push(SCOPE.AUTOMATION);
+        }
+    
+        return scopes;
+    }, [projectStructure]);
 
     function isEmptyProject(): boolean {
         return Object.values(projectStructure.directoryMap || {}).every((array) => array.length === 0);
@@ -657,7 +735,9 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     const handleDeploy = async () => {
-        await rpcClient.getBIDiagramRpcClient().deployProject();
+        await rpcClient.getBIDiagramRpcClient().deployProject({
+            integrationTypes: deployableIntegrationTypes
+        });
     };
 
     const handleICP = (icpEnabled: boolean) => {
@@ -683,6 +763,13 @@ export function Overview(props: ComponentDiagramProps) {
         });
     };
 
+    const handleGenerateWithReadme = () => {
+        rpcClient.getBIDiagramRpcClient().openAIChat({
+            scafold: true,
+            readme: true,
+        });
+    };
+
     const handleEditReadme = () => {
         rpcClient.getBIDiagramRpcClient().openReadme();
     };
@@ -705,9 +792,31 @@ export function Overview(props: ComponentDiagramProps) {
 
     const goToDevant = () => {
         rpcClient.getCommonRpcClient().executeCommand({
-            commands:[PlatformExtCommandIds.OpenInConsole,{extensionName:"Devant",componentFsPath: projectPath}]
+            commands:[
+                PlatformExtCommandIds.OpenInConsole,
+                {
+                    extName:"Devant",
+                    componentFsPath: projectPath, 
+                    newComponentParams:{ buildPackLang: "ballerina" }
+                } as IOpenInConsoleCmdParams]
         })
     };
+
+    async function handleSettings() {
+        await rpcClient.getAiPanelRpcClient().openSettings();
+        rpcClient.getCommonRpcClient().executeCommand({ commands: [SHARED_COMMANDS.OPEN_AI_PANEL] });
+    }
+
+    async function handleClose() {
+        await rpcClient.getAiPanelRpcClient().markAlertShown();
+        setShowAlert(false);
+    }
+
+    async function showLoginAlert() {
+        const resp = await rpcClient.getAiPanelRpcClient().showSignInAlert();
+        setShowAlert(resp);
+        return resp;
+    }
 
     return (
         <PageLayout>
@@ -728,6 +837,24 @@ export function Overview(props: ComponentDiagramProps) {
 
             <MainContent>
                 <MainPanel noPadding={true}>
+                {showAlert && (
+                <AlertBoxWithClose
+                    subTitle={
+                    "Please log in to WSO2 AI Platform to access AI features. You won't be able to use AI features until you log in."
+                    }
+                    title={"Login to WSO2 AI Platform"}
+
+                    btn1Title="Manage Accounts"
+                    btn1IconName="settings-gear"
+                    btn1OnClick={() => handleSettings()}
+                    btn1Id="settings"
+
+                    btn2Title="Close"
+                    btn2IconName="close"
+                    btn2OnClick={() =>handleClose()}
+                    btn2Id="Close"
+                />
+                )}
                     <DiagramHeaderContainer withPadding={true}>
                         <Title variant="h2">Design</Title>
                         {!isEmptyProject() && (<ActionContainer>
@@ -773,6 +900,7 @@ export function Overview(props: ComponentDiagramProps) {
                         handleDeploy={handleDeploy}
                         goToDevant={goToDevant}
                         devantMetadata={devantMetadata}
+                        hasDeployableIntegration={deployableIntegrationTypes.length > 0}
                     />
                     <Divider sx={{ margin: "16px 0" }} />
                     <IntegrationControlPlane enabled={enabled} handleICP={handleICP} />
@@ -782,9 +910,16 @@ export function Overview(props: ComponentDiagramProps) {
             <FooterPanel>
                 <ReadmeHeaderContainer>
                     <Title variant="h2">README</Title>
-                    <Button appearance="icon" onClick={handleEditReadme} buttonSx={{ padding: "4px 8px" }}>
-                        <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
-                    </Button>
+                    <ReadmeButtonContainer>
+                        {readmeContent && isEmptyProject() && (
+                            <Button appearance="icon" onClick={handleGenerateWithReadme} buttonSx={{ padding: "4px 8px" }}>
+                                <Codicon name="wand" sx={{ marginRight: 4, fontSize: 16 }} /> Generate with Readme
+                            </Button>
+                        )}
+                        <Button appearance="icon" onClick={handleEditReadme} buttonSx={{ padding: "4px 8px" }}>
+                            <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
+                        </Button>
+                    </ReadmeButtonContainer>
                 </ReadmeHeaderContainer>
                 <ReadmeContent>
                     {readmeContent ? (
