@@ -41,10 +41,10 @@ let controller = new AbortController();
 export async function getLLMDiagnostics(projectUri: string, diagnosticCollection
                                                   : vscode.DiagnosticCollection): Promise<number | null> {
     const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
-    const nonDefaultModuleSourcesIfReadmeExists: BallerinaSource[] 
+    const sourcesOfNonDefaultModulesWithReadme: BallerinaSource[] 
                     = getSourcesOfNonDefaultModulesWithReadme(path.join(projectUri, "modules"));
 
-    const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeExists];
+    const sources: BallerinaSource[] = [ballerinaProjectSource, ...sourcesOfNonDefaultModulesWithReadme];
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
 
@@ -248,10 +248,10 @@ async function createDiagnostic(result: ResultItem, uri: Uri): Promise<CustomDia
 
 export async function getLLMDiagnosticArrayAsString(projectUri: string): Promise<string | number> {
     const ballerinaProjectSource: BallerinaSource = await getBallerinaProjectSourceFiles(projectUri);
-    const nonDefaultModuleSourcesIfReadmeExists: BallerinaSource[] 
+    const sourcesOfNonDefaultModulesWithReadme: BallerinaSource[] 
                     = getSourcesOfNonDefaultModulesWithReadme(path.join(projectUri, "modules"));
 
-    const sources: BallerinaSource[] = [ballerinaProjectSource, ...nonDefaultModuleSourcesIfReadmeExists];
+    const sources: BallerinaSource[] = [ballerinaProjectSource, ...sourcesOfNonDefaultModulesWithReadme];
     const backendurl = await getBackendURL();
     const token = await getAccessToken();
 
