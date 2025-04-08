@@ -23,6 +23,7 @@ import overviewPageTests from './overviewPageTests/projectSettingPage.spec';
 import openEntryPointArtifact from './overviewPageTests/openEntryPointArtifact.spec';
 import validateMediatorTests from './mediatorTests/validate.spec';
 import multiWorkspaceTests from './multiWorkspaceTests/multiWorkspace.spec';
+import unitTestSuitTests from './unitTestSuite.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
@@ -51,6 +52,7 @@ test.describe(cacheMediatorTests);
 test.describe(throttleMediatorTests);
 test.describe(callSequenceMediatorTests);
 test.describe(validateMediatorTests);
+test.describe(unitTestSuitTests);
 test.describe(artifact430Tests);
 
 test.afterAll(async () => {
