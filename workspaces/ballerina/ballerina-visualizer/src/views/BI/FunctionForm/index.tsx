@@ -19,6 +19,8 @@ import { TitleBar } from "../../../components/TitleBar";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { FormHeader } from "../../../components/FormHeader";
 import { convertConfig, getImportsForProperty } from "../../../utils/bi";
+import { LoadingContainer } from "../../styles";
+import { LoadingRing } from "../../../components/Loader";
 
 const FormContainer = styled.div`
     display: flex;
@@ -51,6 +53,7 @@ export function FunctionForm(props: FunctionFormProps) {
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
     const [titleSubtitle, setTitleSubtitle] = useState<string>("");
     const [formSubtitle, setFormSubtitle] = useState<string>("");
+    const [saving, setSaving] = useState<boolean>(false);
 
     const fileName = filePath.split(/[\\/]/).pop();
     const formType = useRef("Function");
@@ -184,7 +187,7 @@ export function FunctionForm(props: FunctionFormProps) {
         console.log("Existing Function Node: ", flowNode);
     }
 
-    const handleSubmit = async (data: FormValues, formImports?: FormImports) => {
+    const onSubmit = async (data: FormValues, formImports?: FormImports) => {
         console.log("Function Form Data: ", data);
     
         const functionNodeCopy = { ...functionNode };
@@ -254,14 +257,28 @@ export function FunctionForm(props: FunctionFormProps) {
             .getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
         
         if (!sourceCode.textEdits) {
-            const functionType = getFunctionType();
-            await rpcClient
-                .getCommonRpcClient()
-                .showErrorMessage({
-                    message: `${functionName ? `Failed to update the ${functionType}` : `Failed to create the ${functionType}`}. `
-                });
+            showErrorNotification();
         }
     };
+
+    const handleFormSubmit = async (data: FormValues, formImports?: FormImports) => {
+        setSaving(true);
+        try {
+            await onSubmit(data, formImports);
+        } catch (error) {
+            console.error("Error submitting form: ", error);
+            showErrorNotification();
+        }
+    };
+
+    const showErrorNotification = async () => {
+        const functionType = getFunctionType();
+        await rpcClient
+            .getCommonRpcClient()
+            .showErrorMessage({
+                message: `${functionName ? `Failed to update the ${functionType}` : `Failed to create the ${functionType}`}. `
+            });
+    }
 
     const getFunctionType = () => {
         if (isDataMapper) {
@@ -297,22 +314,31 @@ export function FunctionForm(props: FunctionFormProps) {
             />
             <ViewContent padding>
                 <Container>
-                    <FormHeader 
-                        title={`${functionName ? 'Edit' : 'Create New'} ${formType.current}`}
-                        subtitle={formSubtitle} 
-                    />
-                    <FormContainer>
-                        {filePath && targetLineRange && functionFields.length > 0 &&
-                            <FormGeneratorNew
-                                fileName={filePath}
-                                targetLineRange={targetLineRange}
-                                fields={functionFields}
-                                onSubmit={handleSubmit}
-                                submitText={functionName ? "Save" : "Create"}
-                                selectedNode={functionNode?.codedata?.node}
+                    {!saving && (
+                        <>
+                            <FormHeader 
+                                title={`${functionName ? 'Edit' : 'Create New'} ${formType.current}`}
+                                subtitle={formSubtitle} 
                             />
-                        }
-                    </FormContainer>
+                            <FormContainer>
+                                {filePath && targetLineRange && functionFields.length > 0 &&
+                                    <FormGeneratorNew
+                                        fileName={filePath}
+                                        targetLineRange={targetLineRange}
+                                        fields={functionFields}
+                                        onSubmit={handleFormSubmit}
+                                        submitText={functionName ? "Save" : "Create"}
+                                        selectedNode={functionNode?.codedata?.node}
+                                    />
+                                }
+                            </FormContainer>
+                        </>
+                    )}
+                    {saving && (
+                        <LoadingContainer>
+                            <LoadingRing message={`${functionName ? 'Saving' : 'Creating'} ${formType.current}...`} />
+                        </LoadingContainer>
+                    )}
                 </Container>
             </ViewContent>
         </View>
