@@ -69,6 +69,7 @@ export class API {
             throw new Error("Failed to switch to Service Designer iframe");
         }
         const frame = webView.locator('div#root');
+        await frame.waitFor();
         const editBtn = frame.getByTestId('edit-button').getByLabel('Icon Button');
         await editBtn.waitFor();
         await editBtn.click();
@@ -92,6 +93,7 @@ export class API {
         const submitBtn = await getVsCodeButton(frame, 'Save changes', 'primary');
         expect(await submitBtn.isEnabled()).toBeTruthy();
         await submitBtn.click();
+        await submitBtn.waitFor({ state: 'detached' });
     }
 
     public async addResource(path: string) {

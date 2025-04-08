@@ -56,6 +56,7 @@ export class Sequence {
         await frame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
         await frame.getByText(taskName).click();
         await frame.getByTestId('update-button').click();
+        console.log("Waiting for update button to be detached");
         await this._page.waitForSelector('[data-testid="update-button"]', { state: 'detached' });
     }
 }
