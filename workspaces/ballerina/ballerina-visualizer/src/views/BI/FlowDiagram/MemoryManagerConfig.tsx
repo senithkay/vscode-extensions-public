@@ -123,7 +123,7 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
         }
         agentNodeRef.current = agentNode;
         // get memory manager name
-        const memoryManagerName = (agentNode?.properties?.memoryManager?.value as string) || "";
+        const memoryManagerName = (agentNode?.properties?.memory?.value as string) || "";
         console.log(">>> memory manager name", memoryManagerName);
         // get memory manager node
         const memoryManagerNode = moduleConnectionNodes.current.find(
@@ -158,6 +158,9 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
             console.error("Already assigned memory manager node variable not found", selectedMemoryManager);
         }
 
+        // hide variable field
+        nodeProperties.variable.hidden = true;
+
         const memoryManagerFields = convertConfig(nodeProperties);
         setSelectedMemoryManagerFields(memoryManagerFields);
         setLoading(false);
@@ -176,26 +179,52 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
     const handleOnSave = async (data: FormField[], rawData: FormValues) => {
         console.log(">>> save value", { data, rawData });
         setSavingForm(true);
-        // create new memory manager
-        const nodeTemplate = selectedMemoryManagerFlowNode.current;
-        data.forEach((field) => {
-            if (field.editable) {
-                nodeTemplate.properties[field.key as keyof typeof nodeTemplate.properties].value = field.value;
-            }
-        });
-        nodeTemplate.codedata.isNew = true;
-        console.log(">>> request getSourceCode with template ", { nodeTemplate });
-        const response = await rpcClient
-            .getBIDiagramRpcClient()
-            .getSourceCode({ filePath: agentFilePath.current, flowNode: nodeTemplate });
-        console.log(">>> response getSourceCode with template ", { response });
         // update agent node memory manager
         if (!agentNodeRef.current) {
             console.error("Agent node not found", { agentCallNode, agentNodeRef });
             return;
         }
         const updatedAgentNode = cloneDeep(agentNodeRef.current);
-        updatedAgentNode.properties.memoryManager.value = nodeTemplate.properties.variable.value;
+        // HACK: This is a hack to add the memory manager field to the agent node
+        // TODO: Remove this once the new apis are available
+        if (!updatedAgentNode.properties.memory) {
+            updatedAgentNode.properties.memory = {
+                metadata: {
+                    label: "Memory Manager",
+                    description: "",
+                },
+                valueType: "EXPRESSION",
+                valueTypeConstraint: "ai:MemoryManager|()",
+                value: "",
+                placeholder: "()",
+                optional: true,
+                editable: true,
+                advanced: true,
+                hidden: false,
+                codedata: {
+                    kind: "INCLUDED_FIELD",
+                    originalName: "memory",
+                },
+                typeMembers: [
+                    {
+                        type: "MemoryManager",
+                        packageInfo: "ballerinax:ai:1.0.1",
+                        kind: "OBJECT_TYPE",
+                        selected: false,
+                    },
+                    {
+                        type: "()",
+                        packageInfo: "",
+                        kind: "BASIC_TYPE",
+                        selected: false,
+                    },
+                ],
+            };
+        }
+
+        const type = rawData.type || "ai:MessageWindowChatMemory";
+        const size = rawData.size || 10;
+        updatedAgentNode.properties.memory.value = `new ${type}(${size})`;
         console.log(">>> updated agent node", updatedAgentNode);
         const updatedAgentNodeResponse = await rpcClient.getBIDiagramRpcClient().getSourceCode({
             filePath: agentFilePath.current,

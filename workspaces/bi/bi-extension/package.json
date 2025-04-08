@@ -74,6 +74,11 @@
                     "group": "inline"
                 },
                 {
+                    "command": "ballerina.force.update.artifacts",
+                    "when": "view == BI.project-explorer && viewItem == bi-project",
+                    "group": "inline"
+                },
+                {
                     "command": "BI.project-explorer.add-connection",
                     "when": "view == BI.project-explorer && viewItem == connections",
                     "group": "inline"

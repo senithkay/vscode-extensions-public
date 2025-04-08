@@ -437,8 +437,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     registerPublishArtifacts(): void {
         this.onNotification(EXTENDED_APIS.PUBLISH_ARTIFACTS, (res: Artifacts) => {
-            console.log("Publish Artifacts", res);
-            updateProjectArtifacts(res);
+            console.log("Publish Artifacts", { res });
+            if (res && Object.keys(res).length > 0) {
+                updateProjectArtifacts(res);
+            }
         });
     }
 

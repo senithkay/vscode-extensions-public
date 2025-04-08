@@ -8,7 +8,7 @@
  */
 
 import { URI, Utils } from "vscode-uri";
-import { ARTIFACT_TYPE, Artifacts, BaseArtifact, DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
+import { ARTIFACT_TYPE, Artifacts, BaseArtifact, DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { StateMachine } from "../stateMachine";
 import { ExtendedLangClient } from "../core/extended-language-client";
 
@@ -38,13 +38,47 @@ export async function buildProjectArtifactsStructure(projectDir: string, langCli
     return result;
 }
 
+export async function forceUpdateProjectArtifacts() {
+    const result: ProjectStructureResponse = {
+        projectName: "",
+        directoryMap: {
+            [DIRECTORY_MAP.AUTOMATION]: [],
+            [DIRECTORY_MAP.SERVICE]: [],
+            [DIRECTORY_MAP.LISTENER]: [],
+            [DIRECTORY_MAP.FUNCTION]: [],
+            [DIRECTORY_MAP.CONNECTION]: [],
+            [DIRECTORY_MAP.TYPE]: [],
+            [DIRECTORY_MAP.CONFIGURABLE]: [],
+            [DIRECTORY_MAP.DATA_MAPPER]: [],
+            [DIRECTORY_MAP.NP_FUNCTION]: [],
+            [DIRECTORY_MAP.AGENTS]: [],
+            [DIRECTORY_MAP.LOCAL_CONNECTORS]: [],
+        }
+    };
+    const langClient = StateMachine.context().langClient;
+    const projectDir = StateMachine.context().projectUri;
+    const designArtifacts = await langClient.getProjectArtifacts({ projectPath: projectDir });
+    if (designArtifacts?.artifacts) {
+        await traverseComponents(designArtifacts.artifacts, result);
+        await populateLocalConnectors(projectDir, result);
+    }
+    StateMachine.updateProjectStructure({ ...result });
+}
+
 export async function updateProjectArtifacts(publishedArtifacts: Artifacts) {
     // Current project structure
     const currentProjectStructure: ProjectStructureResponse = StateMachine.context().projectStructure;
     if (publishedArtifacts && currentProjectStructure) {
-        await traverseUpdatedComponents(publishedArtifacts, currentProjectStructure);
-        //Update the state machine context
-        StateMachine.updateProjectStructure({ ...currentProjectStructure });
+        const entryLocation = await traverseUpdatedComponents(publishedArtifacts, currentProjectStructure);
+        if (entryLocation) {
+            const location: VisualizerLocation = {
+                documentUri: entryLocation?.path,
+                position: entryLocation?.position
+            };
+            StateMachine.updateProjectStructure({ ...currentProjectStructure }, location);
+        } else {
+            StateMachine.updateProjectStructure({ ...currentProjectStructure });
+        }
     }
 }
 
@@ -132,7 +166,7 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
                         endLine: aiResourceLocation.endLine.line,
                         startColumn: aiResourceLocation.startLine.offset,
                         startLine: aiResourceLocation.startLine.line
-                    }
+                    };
                 } else {
                     // Get the children of the service
                     const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
@@ -167,24 +201,35 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
     return entryValue;
 }
 
-async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentProjectStructure: ProjectStructureResponse) {
-    for (const [key, artifact] of Object.entries(publishedArtifacts)) { // key will be Entry Points, Listeners, Functions, etc
-        for (const [actionKey, actionArtifact] of Object.entries(artifact)) { // actionKey will be deletions, creations, updates
-            switch (actionKey) {
-                case "deletions":
-                    handleDeletions(Object.values(actionArtifact).at(0), key, currentProjectStructure);
-                    break;
-                case "additions":
-                    handleCreations(Object.values(actionArtifact).at(0), key, currentProjectStructure);
-                    break;
-                case "updates":
-                    handleUpdates(Object.values(actionArtifact).at(0), key, currentProjectStructure);
-                    break;
+async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentProjectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse> {
+    let entryLocation: ProjectStructureArtifactResponse | undefined;
+    for (const [key, directoryMaps] of Object.entries(publishedArtifacts)) { // key will be Entry Points, Listeners, Functions, etc as Directory Map
+        for (const [actionKey, actionArtifacts] of Object.entries(directoryMaps)) { // actionKey will be deletions, creations, updates and actionsArtifacts will be the list of artifacts
+            for (const [index, baseArtifact] of Object.entries(actionArtifacts)) { // baseArtifact will be a single artifact
+                switch (actionKey) {
+                    case "deletions":
+                        handleDeletions(baseArtifact, key, currentProjectStructure);
+                        break;
+                    case "additions":
+                        entryLocation = await handleCreations(baseArtifact, key, currentProjectStructure);
+                        break;
+                    case "updates":
+                        const updatedLocation = await handleUpdates(baseArtifact, key, currentProjectStructure);
+                        if (updatedLocation) {
+                            entryLocation = updatedLocation;
+                        }
+                        break;
+                }
             }
+        }
+        if (directoryMaps["deletions"]) {
+            entryLocation = undefined;
+        }
+        if (entryLocation) {
+            return entryLocation;
         }
     }
 }
-
 // Handle deletions
 function handleDeletions(artifact: BaseArtifact, key: string, currentProjectStructure: ProjectStructureResponse) {
     switch (key) {
@@ -223,14 +268,17 @@ function handleDeletions(artifact: BaseArtifact, key: string, currentProjectStru
 }
 //Handle creations
 async function handleCreations(artifact: BaseArtifact, key: string, currentProjectStructure: ProjectStructureResponse) {
+    let visualizeEntry: ProjectStructureArtifactResponse;
     switch (key) {
         case ARTIFACT_TYPE.EntryPoints:
             if (artifact.id === "automation") {
                 const entryValue = await getEntryValue(artifact, "task");
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].push(entryValue);
+                visualizeEntry = entryValue;
             } else {
                 const entryValue = await getEntryValue(artifact, "http-service");
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].push(entryValue);
+                visualizeEntry = entryValue;
             }
             break;
         case ARTIFACT_TYPE.Listeners:
@@ -240,10 +288,12 @@ async function handleCreations(artifact: BaseArtifact, key: string, currentProje
         case ARTIFACT_TYPE.Functions:
             const functionValue = await getEntryValue(artifact, "function");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION].push(functionValue);
+            visualizeEntry = functionValue;
             break;
         case ARTIFACT_TYPE.DataMappers:
             const dataMapperValue = await getEntryValue(artifact, "dataMapper");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER].push(dataMapperValue);
+            visualizeEntry = dataMapperValue;
             break;
         case ARTIFACT_TYPE.Connections:
             const connectionValue = await getEntryValue(artifact, "connection");
@@ -260,13 +310,17 @@ async function handleCreations(artifact: BaseArtifact, key: string, currentProje
         case ARTIFACT_TYPE.NaturalFunctions:
             const npFunctionValue = await getEntryValue(artifact, "function");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION].push(npFunctionValue);
+            visualizeEntry = npFunctionValue;
             break;
         default:
             break;
     }
+    return visualizeEntry;
 }
+
 //Handle updates
 async function handleUpdates(artifact: BaseArtifact, key: string, currentProjectStructure: ProjectStructureResponse) {
+    let visualizeEntry: ProjectStructureArtifactResponse;
     switch (key) {
         case ARTIFACT_TYPE.EntryPoints:
             if (artifact.id === "automation") {
@@ -303,6 +357,15 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION][functionValueIndex] = functionValue;
             } else {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION].push(functionValue);
+            }
+            const tempNode = StateMachine.context().tempData?.flowNode;
+            if (tempNode) {
+                const functionName = tempNode.properties.hasOwnProperty("functionName")
+                    ? tempNode.properties["functionName"].value as string
+                    : "";
+                if (functionName === functionValue.name) {
+                    visualizeEntry = functionValue;
+                }
             }
             break;
         case ARTIFACT_TYPE.DataMappers:
@@ -353,6 +416,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
         default:
             break;
     }
+    return visualizeEntry;
 }
 
 async function populateLocalConnectors(projectDir: string, response: ProjectStructureResponse) {

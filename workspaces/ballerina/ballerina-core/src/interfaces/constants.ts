@@ -8,6 +8,7 @@
  */
 
 export enum SHARED_COMMANDS {
+    FORCE_UPDATE_PROJECT_ARTIFACTS = 'ballerina.force.update.artifacts',
     SHOW_VISUALIZER = 'ballerina.show.visualizer',
     GET_STATE_CONTEXT = 'ballerina.get.stateContext',
     OPEN_BI_WELCOME = 'ballerina.open.bi.welcome',
