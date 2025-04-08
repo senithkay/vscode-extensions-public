@@ -159,18 +159,22 @@ export class API {
     }
 
     public async createWSDLFromFile(name: string, context: string) {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        console.log("Navigated to project overview");
-        await projectExplorer.findItem(['Project testProject', 'APIs'], true);
-        await this._page.getByLabel('Add API').click();
-        console.log("Clicked on add API");
-        const apiFormWebView = await switchToIFrame('API Form', this._page);
-        if (!apiFormWebView) {
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        console.log("Initialized overview page");
+        await overviewPage.goToAddArtifact();
+        const addArtifactPage = new AddArtifact(this._page);
+        await addArtifactPage.init();
+        console.log("Initialized add artifact page");
+        await addArtifactPage.add('API');
+        console.log("Clicked on API");
+        const apiWebView = await switchToIFrame('API Form', this._page);
+        if (!apiWebView) {
             throw new Error("Failed to switch to API Form iframe");
         }
         console.log("Switched to API Form iframe");
-        const apiFormFrame = apiFormWebView.locator('div#root');
+
+        const apiFormFrame = apiWebView.locator('div#root');
         await apiFormFrame.waitFor();
         await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
