@@ -26,7 +26,7 @@ import {
     MISSING_README_FILE_WARNING, README_DOCUMENTATION_IS_MISSING,
     MISSING_REQUIREMENT_FILE, MISSING_API_DOCS, API_DOCUMENTATION_IS_MISSING,
     PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
-    NO_BALLERINA_SOURCES_ERROR
+    ERROR_NO_BALLERINA_SOURCES
 } from "./constants";
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
@@ -632,7 +632,7 @@ export async function getConfigFilePath(ballerinaExtInstance: BallerinaExtension
 }
 
 async function showNoBallerinaSourceWarningMessage() {
-    await vscode.window.showWarningMessage(NO_BALLERINA_SOURCES_ERROR);
+    await vscode.window.showWarningMessage(ERROR_NO_BALLERINA_SOURCES);
     return null;
 }
 
