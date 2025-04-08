@@ -7,9 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Locator, Page } from "@playwright/test";
+import { Frame, Keyboard, Locator, Page } from "@playwright/test";
 import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import path from "path";
+import * as os from 'os';
 
+const dataFolder = __dirname.replace('components', 'data');
 export class ConnectorStore {
     private webView!: Frame;
     private container!: Locator;
@@ -57,6 +60,41 @@ export class ConnectorStore {
             }
             console.log("Dependency download confirmation not found");
         }
+    }
+
+    public async importConnector(fileName: string, isZip: boolean ) {
+        const importBtn = await this.webView.waitForSelector(`div:text("Import Connector") >> ../..`);
+        await importBtn.click();
+
+        if (isZip) {
+            const zipRadioInput = await this.webView.locator('input[type="radio"][value="zip"]');
+            await zipRadioInput.click();
+        }
+
+        const locationBtn = await this.webView.waitForSelector(`vscode-button:text("Select Location")`);
+        await locationBtn.click();
+
+        const filePath = path.join(dataFolder, fileName);
+        await this.fillLocationPath(filePath);
+
+        const submitBtn = await this.webView.waitForSelector(`vscode-button:text("Import")`);
+        await submitBtn.click();
+
+        const loader = this.webView.locator(`div:text("Importing Connector...")`);
+        await loader.waitFor();
+
+        const addNewConnection = this.webView.locator(`h2:text("Add New Connection")`);
+        await addNewConnection.waitFor();
+    }
+
+    async fillLocationPath(path: string) {
+        const keyboard = this._page.keyboard;
+        // Waiting for the command palette input
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await keyboard.press(os.platform() === 'darwin' ? 'Meta+A' : 'Control+A');
+        await keyboard.press('Backspace');
+        await keyboard.type(path);
+        await keyboard.press('Enter');
     }
 
 }
