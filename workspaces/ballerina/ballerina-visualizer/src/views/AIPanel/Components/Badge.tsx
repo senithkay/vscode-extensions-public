@@ -9,11 +9,17 @@
 
 import React from "react";
 
-interface BadgeProps {
-    children: React.ReactNode;
+export enum BadgeType {
+    Command = "command",
+    Tag = "tag",
 }
 
-const Badge: React.FC<BadgeProps> = ({ children }) => {
+interface BadgeProps {
+    children: React.ReactNode;
+    badgeType?: BadgeType;
+}
+
+const Badge: React.FC<BadgeProps> = ({ children, badgeType }) => {
     return (
         <div
             contentEditable={false}
@@ -28,6 +34,7 @@ const Badge: React.FC<BadgeProps> = ({ children }) => {
                 fontFamily: "'Source Code Pro', monospace",
                 marginRight: "2px",
             }}
+            data-badge-type={badgeType}
         >
             {children}
         </div>

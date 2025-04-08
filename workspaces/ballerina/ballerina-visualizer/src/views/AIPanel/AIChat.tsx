@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
     VisualizerLocation,
     GetWorkspaceContextResponse,
@@ -25,37 +25,40 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { TextArea, Button, Switch, Icon, ProgressRing, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import styled from "@emotion/styled";
-import AIChatInput from "./Components/AIChatInputComponents/AIChatInput";
-import ProgressTextSegment, { Spinner } from "./Components/ProgressTextSegment";
-import RoleContainer, { PreviewContainer, PreviewContainerDefault } from "./Components/RoleContainter";
+import AIChatInput from "./Components/AIChatInput/AIChatInput";
+import ProgressTextSegment from "./Components/ProgressTextSegment";
+import RoleContainer, { PreviewContainerDefault } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { findRegexMatches } from "../../utils/utils";
 
-import {
-    Footer,
-    FlexRow,
-    AIChatView,
-    Header,
-    HeaderButtons,
-    Main,
-    ChatMessage,
-    Welcome,
-    Badge,
-    ResetsInBadge,
-} from "./styles";
+import { Footer, FlexRow, AIChatView, Header, HeaderButtons, ChatMessage, Welcome, Badge } from "./styles";
 import ReferenceDropdown from "./Components/ReferenceDropdown";
 import AccordionItem from "./Components/TestScenarioSegment";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TestGeneratorIntermediaryState } from "./features/testGenerator";
-import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, hasCodeBlocks, parseCopilotSSEEvent } from "./utils/sse_utils";
+import {
+    CopilotContentBlockContent,
+    CopilotErrorContent,
+    CopilotEvent,
+    hasCodeBlocks,
+    parseCopilotSSEEvent,
+} from "./utils/sse_utils";
 import MarkdownRenderer from "./Components/MarkdownRenderer";
 import { CodeSection } from "./Components/CodeSection";
 import { CodeSegment } from "./Components/CodeSegment";
 import ErrorBox from "./Components/ErrorBox";
+import { DataMapperAttachment } from "../../utils/datamapperAttachment";
+import { GenerateAttachment } from "../../utils/generateAttachment";
+import { TestAttachment } from "../../utils/testAttachment";
+import { Input } from "./Components/AIChatInput/utils/input";
+import { commandTemplates } from "./commandTemplates/data/commandTemplates.const";
+import { Tag } from "./commandTemplates/models/tag.model";
+import { placeholderTags } from "./commandTemplates/data/placeholderTags.const";
+import { injectTags } from "./commandTemplates/utils/utils";
+import { Command } from "./commandTemplates/models/command.enum";
 
 interface CodeBlock {
     filePath: string;
@@ -109,7 +112,7 @@ const INVALID_RECORD_REFERENCE: Error = new Error(
 const NO_DRIFT_FOUND = "No drift identified between the code and the documentation.";
 const DRIFT_CHECK_ERROR = "Failed to check drift between the code and the documentation. Please try again.";
 const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This should reset in the beggining of the next month.`;
-const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`
+const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`;
 
 // Define constants for command keys
 export const COMMAND_CODE = "/code";
@@ -345,6 +348,10 @@ export function AIChat() {
             });
     }, []);
 
+    const getInitialInput = (): { command: Command; templateId?: string } | string => {
+        return "";
+    };
+
     function generateNaturalProgrammingTemplate(isReqFileExists: boolean) {
         TEMPLATE_NATURAL_PROGRAMMING.splice(0, TEMPLATE_NATURAL_PROGRAMMING.length);
         if (isReqFileExists) {
@@ -362,11 +369,11 @@ export function AIChat() {
         }
     }
 
-    function addChatEntry(role: string, content: string, isCodeGeneration: boolean = false ): void {
+    function addChatEntry(role: string, content: string, isCodeGeneration: boolean = false): void {
         chatArray.push({
             actor: role,
             message: content,
-            isCodeGeneration
+            isCodeGeneration,
         });
 
         localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
@@ -471,33 +478,34 @@ export function AIChat() {
         }
     }
 
-    async function handleSend(content: [string, AttachmentResult[]]) {
-        setCurrentGeneratingPromptIndex(otherMessages.length);
-        setIsPromptExecutedInCurrentWindow(true);
-        // Step 1: Add the user input to the chat array
+    async function handleSend(content: [Input[], AttachmentResult[]]) {
+        console.log(content);
+        // setCurrentGeneratingPromptIndex(otherMessages.length);
+        // setIsPromptExecutedInCurrentWindow(true);
+        // // Step 1: Add the user input to the chat array
 
-        const [message, attachments] = content;
+        // const [message, attachments] = content;
 
-        if (message === "") {
-            return;
-        }
-        rpcClient.getAiPanelRpcClient().clearInitialPrompt();
-        var context: GetWorkspaceContextResponse[] = [];
-        setMessages((prevMessages) => prevMessages.filter((message, index) => message.type !== "label"));
-        setMessages((prevMessages) => prevMessages.filter((message, index) => message.type !== "question"));
-        setIsLoading(true);
-        setMessages((prevMessages) =>
-            prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== "question")
-        );
+        // if (message === "") {
+        //     return;
+        // }
+        // rpcClient.getAiPanelRpcClient().clearInitialPrompt();
+        // var context: GetWorkspaceContextResponse[] = [];
+        // setMessages((prevMessages) => prevMessages.filter((message, index) => message.type !== "label"));
+        // setMessages((prevMessages) => prevMessages.filter((message, index) => message.type !== "question"));
+        // setIsLoading(true);
+        // setMessages((prevMessages) =>
+        //     prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== "question")
+        // );
 
-        const uerMessage = getUserMessage(content);
-        setMessages((prevMessages) => [
-            ...prevMessages,
-            { role: "User", content: uerMessage, type: "user_message" },
-            { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
-        ]);
-        await handleSendQuery(content);
-        setUserInput(COMMAND_CODE + " ");
+        // const uerMessage = getUserMessage(content);
+        // setMessages((prevMessages) => [
+        //     ...prevMessages,
+        //     { role: "User", content: uerMessage, type: "user_message" },
+        //     { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
+        // ]);
+        // await handleSendQuery(content);
+        // setUserInput("/generate ");
     }
 
     function getUserMessage(content: [string, AttachmentResult[]]): string {
@@ -869,9 +877,9 @@ export function AIChat() {
 
         const fileAttatchments = attachments.map((file) => ({
             fileName: file.name,
-            content: file.content
-        }))
-        
+            content: file.content,
+        }));
+
         requestBody.fileAttachmentContents = fileAttatchments;
         lastAttatchmentsRef.current = fileAttatchments;
 
@@ -964,7 +972,11 @@ export function AIChat() {
                 const MAX_REPAIR_ATTEMPTS = 3;
                 let repair_attempt = 0;
                 let diagnosticFixResp = assistant_response;
-                while (hasCodeBlocks(assistant_response) && diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
+                while (
+                    hasCodeBlocks(assistant_response) &&
+                    diagnostics.length > 0 &&
+                    repair_attempt < MAX_REPAIR_ATTEMPTS
+                ) {
                     console.log("Repair iteration: ", repair_attempt);
                     console.log("Diagnotsics trynna fix: ", diagnostics);
                     const diagReq = {
@@ -972,7 +984,7 @@ export function AIChat() {
                         diagnostics: diagnostics,
                     };
                     const startTime = performance.now();
-                    let newReqBody : any= {
+                    let newReqBody: any = {
                         usecase: useCase,
                         chatHistory: chatArray,
                         sourceFiles: transformProjectSource(project),
@@ -1277,24 +1289,28 @@ export function AIChat() {
                     signal: signal,
                 },
                 rpcClient
-            ).then(async (response) => {
-                const chatSummaryResponseStr = await streamToString(response.body);
-                await rpcClient
-                    .getAiPanelRpcClient()
-                    .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation }).then(() => {
-                        previouslyIntegratedChatIndex = integratedChatIndex;
-                        integratedChatIndex = chatArray.length;
-                        localStorage.setItem(
-                            `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
-                            JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
-                        );
-                        previousDevelopmentDocumentContent = developerMdContent;
-                    }).catch((error: any) => {
-                        rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
-                    });
-            }).catch((error: any) => {
-                rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
-            });;
+            )
+                .then(async (response) => {
+                    const chatSummaryResponseStr = await streamToString(response.body);
+                    await rpcClient
+                        .getAiPanelRpcClient()
+                        .addChatSummary({ summary: chatSummaryResponseStr, filepath: chatLocation })
+                        .then(() => {
+                            previouslyIntegratedChatIndex = integratedChatIndex;
+                            integratedChatIndex = chatArray.length;
+                            localStorage.setItem(
+                                `chatArray-AIGenerationChat-${projectUuid}-developer-index`,
+                                JSON.stringify({ integratedChatIndex, previouslyIntegratedChatIndex })
+                            );
+                            previousDevelopmentDocumentContent = developerMdContent;
+                        })
+                        .catch((error: any) => {
+                            rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+                        });
+                })
+                .catch((error: any) => {
+                    rpcClient.getAiPanelRpcClient().handleChatSummaryError(UPDATE_CHAT_SUMMARY_FAILED);
+                });
         }
     };
 
@@ -2507,8 +2523,8 @@ export function AIChat() {
                 response: latestMessage,
                 diagnostics: currentDiagnostics,
             };
-            
-            const reqBody : any = {
+
+            const reqBody: any = {
                 usecase: usecase,
                 chatHistory: chatArray.slice(0, chatArray.length - 2),
                 sourceFiles: transformProjectSource(project),
@@ -2572,6 +2588,68 @@ export function AIChat() {
         } finally {
             setIsCodeLoading(false);
             setIsLoading(false);
+        }
+    };
+
+    // TODO: Move to a separate file (Attachment Selection Logic)
+    const acceptResolver = (command: string | null): string => {
+        if (command) {
+            return getFileTypesForCommand(command).join(",");
+        } else {
+            return getFileTypesForCommand("").join(",");
+        }
+    };
+
+    const handleAttachmentSelection = async (e: ChangeEvent<HTMLInputElement>, command: string) => {
+        let attachmentHandler;
+        switch (command) {
+            case COMMAND_DATAMAP:
+            case COMMAND_TYPECREATOR:
+                attachmentHandler = new DataMapperAttachment(command);
+                break;
+            case COMMAND_GENERATE:
+            case COMMAND_NATURAL_PROGRAMMING:
+                attachmentHandler = new GenerateAttachment(command);
+                break;
+            case COMMAND_TESTS:
+                attachmentHandler = new TestAttachment(command);
+                break;
+            default:
+                attachmentHandler = new GenerateAttachment(command);
+        }
+        const results = await attachmentHandler.handleFileAttach(e);
+        return results;
+    };
+
+    const loadGeneralTags = async (): Promise<Tag[]> => {
+        return [
+            {
+                display: "@test",
+                value: "test",
+                kind: "general",
+            },
+            {
+                display: "@second",
+                value: "second",
+                kind: "general",
+            },
+        ];
+    };
+
+    const injectPlaceholderTags = async (command: Command, templateId: string): Promise<void> => {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        switch (command) {
+            case Command.Tests:
+                switch (templateId) {
+                    case "tests-for-service":
+                        injectTags(command, templateId, "servicename", [
+                            {
+                                display: "@Tag",
+                                value: "Tag",
+                                kind: "placeholder-specific",
+                            },
+                        ]);
+                }
         }
     };
 
@@ -2886,12 +2964,22 @@ export function AIChat() {
                 )}
                 <FlexRow>
                     <AIChatInput
-                        value={userInput}
-                        baseCommands={commandToTemplate}
+                        // value={userInput}
+                        initialCommandTemplate={commandTemplates}
+                        getInitialInput={getInitialInput}
+                        tagOptions={{
+                            placeholderTags: placeholderTags,
+                            loadGeneralTags: loadGeneralTags,
+                            injectPlaceholderTags: injectPlaceholderTags,
+                        }}
                         onSend={handleSend}
                         onStop={handleStop}
+                        attachmentOptions={{
+                            multiple: true,
+                            acceptResolver: acceptResolver,
+                            handleAttachmentSelection: handleAttachmentSelection,
+                        }}
                         isLoading={isLoading}
-                        loadMentions={loadMentions}
                     />
                 </FlexRow>
             </Footer>
