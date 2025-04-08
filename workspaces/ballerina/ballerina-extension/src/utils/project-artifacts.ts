@@ -166,7 +166,7 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
                         endLine: aiResourceLocation.endLine.line,
                         startColumn: aiResourceLocation.startLine.offset,
                         startLine: aiResourceLocation.startLine.line
-                    }
+                    };
                 } else {
                     // Get the children of the service
                     const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);

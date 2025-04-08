@@ -554,7 +554,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                                             <NodeStyles.MemoryTitle>Memory</NodeStyles.MemoryTitle>
                                             <NodeStyles.MemoryMeta>
                                                 {(model.node.metadata.data as any).memoryManager?.type ||
-                                                    "DefaultMemoryManager"}
+                                                    "MessageWindowChatMemory"}
                                             </NodeStyles.MemoryMeta>
                                         </div>
                                         {!readOnly && (
@@ -596,7 +596,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         </NodeStyles.Row>
                     ) : (
                         <NodeStyles.Row onClick={handleOnClick}>
-                            <NodeStyles.RolePlaceholder>Define agent's purpose...</NodeStyles.RolePlaceholder>
+                            <NodeStyles.RolePlaceholder>Define agent's role</NodeStyles.RolePlaceholder>
                         </NodeStyles.Row>
                     )}
 
@@ -609,7 +609,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                     ) : (
                         <NodeStyles.InstructionsRow onClick={handleOnClick}>
                             <NodeStyles.InstructionsPlaceholder>
-                                Provide specific instructions on how the agent should behave...
+                                Provide specific instructions on how the agent should behave.
                             </NodeStyles.InstructionsPlaceholder>
                         </NodeStyles.InstructionsRow>
                     )}
