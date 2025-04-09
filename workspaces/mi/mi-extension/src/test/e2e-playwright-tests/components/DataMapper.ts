@@ -15,9 +15,14 @@ import path from "path";
 import { DM_OPERATORS_FILE_NAME } from "../../../constants";
 import { IOType } from "@wso2-enterprise/mi-core";
 
-
-type SchemaTypeLabel = "JSON" | "JSON Schema" | "XML" | "CSV";
-
+export { IOType };
+export enum SchemaType {
+    Json = "JSON",
+    JsonSchema = "JSON Schema",
+    Xml = "XML",
+    Csv = "CSV",
+    Xsd = "XSD"
+}
 
 const dmDataFolder = path.join(dataFolder, 'datamapper-files');
 
@@ -72,7 +77,7 @@ export class DataMapper {
         await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
     }
 
-    public async importSchema(ioType: IOType, schemaType: SchemaTypeLabel, schemaFile: string) {
+    public async importSchema(ioType: IOType, schemaType: SchemaType, schemaFile: string) {
         const importNode = this.webView.getByTestId(`${ioType}-data-import-node`);
         // const importNode = this.webView.getByText(`Import ${ioType} schema`);
 
@@ -86,12 +91,10 @@ export class DataMapper {
     }
 
     public async loadJsonFromCompFolder(category: string) {
-
         const inputJsonFile = path.join(category, 'inp.json');
         const outputJsonFile = path.join(category, 'out.json');
-        await this.importSchema(IOType.Input, 'JSON', inputJsonFile);
-        await this.importSchema(IOType.Output, 'JSON', outputJsonFile);
-
+        await this.importSchema(IOType.Input, SchemaType.Json, inputJsonFile);
+        await this.importSchema(IOType.Output, SchemaType.Json, outputJsonFile);
     }
 
     public async mapFields(sourceFieldFQN: string, targetFieldFQN: string, menuOptionId?: string) {
@@ -219,7 +222,7 @@ export class DataMapper {
     }
 
     public resetTsFile() {
-        this.overwriteTsFile(path.join(dataFolder, 'datamapper-files', 'reset.ts.cmp'));
+        this.overwriteTsFile(path.join(dmDataFolder, 'reset.ts.cmp'));
     }
 
 }
@@ -235,7 +238,7 @@ class ImportForm {
         await this.sidePanel.waitFor();
     }
 
-    public async importData(importTypeLabel: SchemaTypeLabel, content: string) {
+    public async importData(importTypeLabel: SchemaType, content: string) {
         const typeButton = this.sidePanel.getByText(`Import from ${importTypeLabel}`, { exact: true });
         await typeButton.waitFor();
         await typeButton.click();

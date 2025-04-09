@@ -14,7 +14,7 @@ import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
 import { clearNotificationAlerts, clearNotificationsByCloseButton, initTest, newProjectPath, page, resourcesFolder, vscode } from './Utils';
-import { DataMapper } from './components/DataMapper';
+import { DataMapper, IOType, SchemaType } from './components/DataMapper';
 import { ProjectExplorer } from './components/ProjectExplorer';
 
 const fs = require('fs');
@@ -22,13 +22,13 @@ const fs = require('fs');
 export default function createTests() {
 
   test.describe('Data Mapper Tests', () => {
-    const NEED_INITIAL_SETUP = false;
+    const NEED_INITIAL_SETUP = true;
 
     initTest(NEED_INITIAL_SETUP);
 
     if (NEED_INITIAL_SETUP) setupProject();
     testBasicMappings();
-    // testArrayMappings();
+    testArrayMappings();
     
    
     function setupProject() {
@@ -215,6 +215,10 @@ export default function createTests() {
 
         expect(dm.verifyTsFileContent('basic/map.ts.cmp')).toBeTruthy();
         
+        // await dmWebView.locator('#nav-bar-main').locator('vscode-button[title="Go Back"]').click();
+        // await page.page.getByRole('tab', { name: 'Resource View' }).waitFor();
+        dm.resetTsFile();
+
 
         // if (NEED_INITIAL_SETUP) {
         //   await dmWebView.locator('vscode-button[title="Go Back"]').click();
@@ -229,14 +233,14 @@ export default function createTests() {
         console.log('Testing Array Mappings');
 
         let dm: DataMapper;
-        const DM_NAME = 'array';
+        const DM_NAME = 'dm';
 
        
 
-        if (NEED_INITIAL_SETUP) {
+        if (NEED_INITIAL_SETUP && false) {
           const diagram = new Diagram(page.page, 'Resource');
           await diagram.init();
-          await diagram.addDataMapper(DM_NAME);
+          await diagram.openDataMapperFromTreeView(DM_NAME);
           dm = new DataMapper(page.page, DM_NAME);
           await dm.init();
           await dm.loadJsonFromCompFolder('array');
@@ -246,9 +250,19 @@ export default function createTests() {
           await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
           dm = new DataMapper(page.page, DM_NAME);
           await dm.init();
+          await dm.loadJsonFromCompFolder('array');
+          expect(dm.verifyTsFileContent('array/init.ts.cmp')).toBeTruthy();
         }
 
+       
+
+
+
         const dmWebView = dm.getWebView();
+
+        // await dmWebView.getByTestId('change-input-schema-btn').click();
+        // dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
+
 
         // primitive direct array mapping
         await dm.mapFields('input.d1I', 'objectOutput.d1O','menu-item-a2a-direct');
