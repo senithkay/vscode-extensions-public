@@ -47,4 +47,27 @@ export class ProjectExplorer {
         await locator.click();
     }
 
+    public async addArtifact(path: string[]) {
+        let currentItem;
+        for (let i = 0; i < path.length; i++) {
+
+            currentItem = this.explorer.locator(`div[role="treeitem"][aria-label="${path[i]}"]`);
+            await currentItem.waitFor();
+
+            const isExpanded = await currentItem.getAttribute('aria-expanded');
+            if (isExpanded === 'false') {
+                await currentItem.click();
+            }
+
+            if (i === path.length - 1) {
+                await currentItem.click();
+                
+                const plusBtn = currentItem.locator('div.actions');
+                await plusBtn.waitFor();
+                await plusBtn.click();
+            }
+        }
+        return currentItem;
+    }
+
 }
