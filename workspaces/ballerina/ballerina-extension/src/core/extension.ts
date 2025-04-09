@@ -230,6 +230,8 @@ export class BallerinaExtension {
         });
 
         commands.registerCommand('ballerina.setup-ballerina', () => { // Install ballerina from central for new users. This should set the ballerina to system path
+            // Disable persistent sessions for the terminal
+            workspace.getConfiguration().update('terminal.integrated.enablePersistentSessions', false, ConfigurationTarget.Global);
             this.installBallerina();
         });
 
