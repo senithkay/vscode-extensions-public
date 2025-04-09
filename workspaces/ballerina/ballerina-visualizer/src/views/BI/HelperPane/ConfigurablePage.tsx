@@ -32,7 +32,7 @@ namespace S {
         flex-direction: column;
         gap: 8px;
     `
-    
+
     export const FormBody = styled.div`
         display: flex;
         flex-direction: column;
@@ -173,7 +173,7 @@ export const ConfigurablePage = ({
 
         variable.properties.variable.value = values.confName;
         variable.properties.defaultable.value =
-            values.confValue === "" || values.confValue === null ? "?" : '"' + values.confValue + '"';
+            values.confValue === "" || values.confValue === null ? "?" : values.confValue;
         variable.properties.defaultable.optional = true;
         variable.properties.type.value = values.confType;
 
@@ -307,8 +307,8 @@ export const ConfigurablePage = ({
                             />
                             <TextField
                                 id="confValue"
-                                label="Value"
-                                placeholder="Enter a value for the variable"
+                                label="Default Value"
+                                placeholder="Enter default value for the variable"
                                 {...register("confValue")}
                             />
                         </S.FormBody>

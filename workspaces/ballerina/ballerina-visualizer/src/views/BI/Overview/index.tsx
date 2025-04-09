@@ -121,7 +121,6 @@ const LeftContent = styled.div`
 
 const SidePanel = styled.div`
     padding: 0px 10px 10px 10px;
-    overflow: auto;
 `;
 
 const FooterPanel = styled.div`
@@ -138,7 +137,7 @@ const ActionContainer = styled.div`
 
 const EmptyReadmeContainer = styled.div`
     display: flex;
-    margin-top: 50px;
+    margin: 50px 0px;
     flex-direction: column;
     align-items: center;
     gap: 8px;
@@ -198,6 +197,7 @@ const ReadmeButtonContainer = styled.div`
 
 const ReadmeContent = styled.div`
     margin-top: 16px;
+    text-wrap: pretty;
 `;
 
 const TitleContainer = styled.div`
