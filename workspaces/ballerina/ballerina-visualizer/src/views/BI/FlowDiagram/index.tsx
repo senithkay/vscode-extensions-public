@@ -139,7 +139,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     useEffect(() => {
-        if (model && selectedNodeRef.current?.codedata?.lineRange?.startLine) {
+        if (model && selectedNodeRef.current?.codedata?.lineRange?.startLine && sidePanelView === SidePanelView.FORM) {
             const matchingNode = findNodeByStartLine(model, selectedNodeRef.current.codedata.lineRange.startLine);
             console.log(">>> Matching node", matchingNode);
 

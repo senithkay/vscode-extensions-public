@@ -549,7 +549,8 @@ export function FormGenerator(props: FormProps) {
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         helperPaneHeight: HelperPaneHeight,
-        recordTypeField?: RecordTypeField
+        recordTypeField?: RecordTypeField,
+        isAssignIdentifier?: boolean
     ) => {
         const handleHelperPaneClose = () => {
             debouncedRetrieveCompletions.cancel();
@@ -569,6 +570,7 @@ export function FormGenerator(props: FormProps) {
             onChange: onChange,
             helperPaneHeight: helperPaneHeight,
             recordTypeField: recordTypeField,
+            isAssignIdentifier: isAssignIdentifier,
             updateImports: handleUpdateImports
         });
     };
