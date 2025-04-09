@@ -230,7 +230,6 @@ export async function createBIAutomation(params: ComponentRequest): Promise<Crea
         }
         openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position });
         history.clear();
-        commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
     });
 }
@@ -255,7 +254,6 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
         });
         openView(EVENT_TYPE.OPEN_VIEW, { documentUri: targetFile, position: targetPosition });
         history.clear();
-        commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
     });
 }

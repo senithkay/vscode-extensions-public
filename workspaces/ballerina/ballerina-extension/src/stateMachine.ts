@@ -14,7 +14,7 @@ import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
 import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
-import { buildProjectArtifactsStructure } from './utils/project-artifacts';
+import { buildProjectArtifactsStructure, forceUpdateProjectArtifacts } from './utils/project-artifacts';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -463,7 +463,7 @@ export function updateView(refreshTreeView?: boolean) {
     }
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
     if (refreshTreeView) {
-        commands.executeCommand("BI.project-explorer.refresh");
+        forceUpdateProjectArtifacts();
     }
     notifyCurrentWebview();
 }

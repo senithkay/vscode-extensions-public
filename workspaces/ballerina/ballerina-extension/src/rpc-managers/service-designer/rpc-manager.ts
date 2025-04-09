@@ -124,7 +124,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -146,7 +145,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -208,7 +206,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -241,7 +238,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -294,7 +290,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -319,7 +314,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: params.filePath,
                     position: position
                 };
-                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -432,7 +426,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: params.filePath,
                     position: position
                 };
-                commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
