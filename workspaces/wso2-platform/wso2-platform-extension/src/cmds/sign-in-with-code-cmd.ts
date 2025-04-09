@@ -42,7 +42,7 @@ export function signInWithAuthCodeCommand(context: ExtensionContext) {
 					window.showErrorMessage("Auth Code is required to login");
 				}
 			} catch (error: any) {
-				if (!(error instanceof ResponseError) || error.code !== ErrorCode.NoOrgsAvailable) {
+				if (!(error instanceof ResponseError) || ![ErrorCode.NoOrgsAvailable,ErrorCode.NoAccountAvailable].includes(error.code)) {
 					window.showErrorMessage("Sign in failed. Please check the logs for more details.");
 				}
 				getLogger().error(`WSO2 Platform sign in Failed: ${error.message}`);

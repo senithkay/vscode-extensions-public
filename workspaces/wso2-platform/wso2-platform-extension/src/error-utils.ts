@@ -14,6 +14,7 @@ import { choreoEnvConfig } from "./config";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
 import { webviewStateStore } from "./stores/webview-state-store";
+import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export function handlerError(err: any) {
 	const extensionName = webviewStateStore.getState().state.extensionName;
@@ -102,6 +103,16 @@ export function handlerError(err: any) {
 				w.showErrorMessage(
 					"Failed to create component. Please try again after synching your local repo directory changes with your remote directory.",
 				);
+				break;
+			case ErrorCode.NoAccountAvailable:
+				w.showErrorMessage(
+					`It looks like you don't have an account yet. Please sign up before logging in.`,
+					`Sign Up`,
+				).then((res) => {
+					if (res === "Sign Up") {
+						commands.executeCommand(CommandIds.SignUp)
+					}
+				});
 				break;
 			case ErrorCode.NoOrgsAvailable:
 				w.showErrorMessage(

@@ -290,6 +290,7 @@ export async function quickPickWithLoader<T>(params: {
 		quickPick.items = params.cacheQuickPicks;
 	}
 	quickPick.show();
+	let parentErr: Error | undefined;
 
 	params
 		.loadQuickPicks()
@@ -300,15 +301,20 @@ export async function quickPickWithLoader<T>(params: {
 		})
 		.catch((err) => {
 			quickPick.dispose();
+			parentErr = err
 			throw err;
 		});
-
 	const selectedQuickPick = await new Promise((resolve) => {
 		quickPick.onDidAccept(() => resolve(quickPick.selectedItems[0]));
 		quickPick.onDidHide(() => resolve(null));
 	});
+
 	quickPick.dispose();
 	const selectedT = (selectedQuickPick as QuickPickItem & { item?: T })?.item;
+
+	if(parentErr){
+		throw parentErr;
+	}
 
 	return selectedT;
 }
@@ -319,11 +325,16 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 	if (!userInfo) {
 		const loginSelection = await window.showInformationMessage(
 			`You are not logged into ${extensionName}.`,
-			{ modal: true, detail: `Please login to continue and ${message}` },
-			"Login",
+			{ modal: true, detail: `Please sign in or sign up to continue and ${message}. ` },
+			"Sign In",
+			"Sign Up"
 		);
-		if (loginSelection === "Login") {
-			await commands.executeCommand(CommandIds.SignIn);
+		if (loginSelection === "Sign In" || loginSelection === "Sign Up") {
+			if(loginSelection === "Sign In"){
+				await commands.executeCommand(CommandIds.SignIn);
+			}else if(loginSelection === "Sign Up"){
+				await commands.executeCommand(CommandIds.SignUp);
+			}
 			userInfo = await waitForLogin();
 
 			const response = await window.showInformationMessage(

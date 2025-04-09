@@ -11,6 +11,7 @@ import { ChoreoBuildPackNames } from "./types/common.types";
 
 export const CommandIds = {
 	SignIn: "wso2.wso2-platform.sign.in",
+	SignUp: "wso2.wso2-platform.sign.up",
 	SignInWithAuthCode: "wso2.wso2-platform.sign.in.with.authCode",
 	SignOut: "wso2.wso2-platform.sign.out",
 	AddComponent: "wso2.wso2-platform.add.component",
