@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from 'react';
-import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core';
 
@@ -59,6 +59,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         onClick={() => handleClick("graphql")}
                         disabled={isDisabled}
                         tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
+                        isBeta
                     />
                     <ButtonCard
                         icon={<Icon name="bi-tcp" />}
@@ -67,6 +68,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         onClick={() => handleClick("tcp")}
                         disabled={isDisabled}
                         tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
+                        isBeta
                     />
                     {/* TODO: Add this when GRPC is working */}
                     {/* <ButtonCard
