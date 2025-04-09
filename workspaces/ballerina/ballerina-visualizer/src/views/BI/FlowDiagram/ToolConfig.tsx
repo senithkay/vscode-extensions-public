@@ -109,10 +109,10 @@ export function ToolConfig(props: ToolConfigProps): JSX.Element {
                     <RelativeLoader />
                 </LoaderContainer>
             )}
-            {!loading && (
+            {!loading && agentCallNode?.codedata?.lineRange && (
                 <ConfigForm
                     formFields={formFields}
-                    filePath={agentFilePath.current}
+                    targetLineRange={agentCallNode.codedata.lineRange}
                     onSubmit={handleOnSave}
                     disableSaveButton={savingForm}
                 />
