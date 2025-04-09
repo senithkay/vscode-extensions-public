@@ -344,10 +344,10 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     isType: param.name.isType !== undefined ? param.name.isType : false,
                 },
                 defaultValue: {
-                    ...param.defaultValue,
-                    value: param.defaultValue?.value || "",
-                    valueType: param.defaultValue?.valueType || "EXPRESSION",
-                    isType: param.defaultValue?.isType !== undefined ? param.defaultValue.isType : false,
+                    ...(param.defaultValue as PropertyModel),
+                    value: (param.defaultValue as PropertyModel)?.value || "",
+                    valueType: (param.defaultValue as PropertyModel)?.valueType || "EXPRESSION",
+                    isType: (param.defaultValue as PropertyModel)?.isType !== undefined ? (param.defaultValue as PropertyModel).isType : false,
                 },
             })),
         };
