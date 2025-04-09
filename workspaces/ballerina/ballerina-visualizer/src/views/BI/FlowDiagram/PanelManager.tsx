@@ -206,6 +206,7 @@ export function PanelManager(props: PanelManagerProps) {
                         onAddFunction={onAddFunction}
                         onClose={onClose}
                         title={"Functions"}
+                        searchPlaceholder={"Search library functions"}
                         onBack={onBack}
                     />
                 );
