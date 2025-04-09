@@ -172,7 +172,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Entry Points ----------
     const entryPoints = new ProjectExplorerEntry(
         "Entry Points",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'start',
         false
@@ -191,7 +191,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Listeners ----------
     const listeners = new ProjectExplorerEntry(
         "Listeners",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'radio',
         false
@@ -206,7 +206,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Connections ----------
     const connections = new ProjectExplorerEntry(
         "Connections",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'connection',
         false
@@ -221,7 +221,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Types ----------
     const types = new ProjectExplorerEntry(
         "Types",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'type',
         false
@@ -238,7 +238,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Functions ----------
     const functions = new ProjectExplorerEntry(
         "Functions",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'function',
         false
@@ -253,7 +253,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Data Mappers ----------
     const dataMappers = new ProjectExplorerEntry(
         "Data Mappers",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'dataMapper',
         false
@@ -268,7 +268,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Configurations ----------
     const configs = new ProjectExplorerEntry(
         "Configurations",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'config',
         false
@@ -284,7 +284,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Natural Functions ----------
     // const naturalFunctions = new ProjectExplorerEntry(
     //     "Natural Functions",
-    //     vscode.TreeItemCollapsibleState.Collapsed,
+    //     vscode.TreeItemCollapsibleState.Expanded,
     //     null,
     //     'function',
     //     false
@@ -299,7 +299,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Local Connectors ----------
     const localConnectors = new ProjectExplorerEntry(
         "Local Connectors",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'connection',
         false
@@ -343,7 +343,7 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType: DIRE
             const remoteFunctions = getComponents(comp.resources, DIRECTORY_MAP.REMOTE);
             fileEntry.children = [...resourceFunctions, ...remoteFunctions];
             if (fileEntry.children.length > 0) {
-                fileEntry.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+                fileEntry.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
             }
         }
         entries.push(fileEntry);

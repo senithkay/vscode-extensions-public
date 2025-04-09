@@ -192,7 +192,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     if (params?.isConnector) {
                         await this.updateSource(model, flowNode, true, isFunctionNodeUpdate);
                         resolve(model);
-                        commands.executeCommand("BI.project-explorer.refresh");
                     } else {
                         await this.updateSource(model, flowNode, false, isFunctionNodeUpdate);
                         resolve(model);
