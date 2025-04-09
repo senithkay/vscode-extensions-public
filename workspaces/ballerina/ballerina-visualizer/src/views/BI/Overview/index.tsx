@@ -601,8 +601,19 @@ export function Overview(props: ComponentDiagramProps) {
         return scopes;
     }, [projectStructure]);
 
-    function isEmptyProject(): boolean {
-        return Object.values(projectStructure.directoryMap || {}).every((array) => array.length === 0);
+    function isEmptyProject(): boolean {        
+        // Filter out connections that start with underscore
+        const validConnections = projectStructure.directoryMap[DIRECTORY_MAP.CONNECTION]?.filter(
+            conn => !conn.name.startsWith('_')
+        ) || [];
+        
+        return (
+            (!projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION] || projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].length === 0) &&
+            (validConnections.length === 0) &&
+            (!projectStructure.directoryMap[DIRECTORY_MAP.LISTENER] || projectStructure.directoryMap[DIRECTORY_MAP.LISTENER].length === 0) &&
+            (!projectStructure.directoryMap[DIRECTORY_MAP.SERVICE] || projectStructure.directoryMap[DIRECTORY_MAP.SERVICE].length === 0) &&
+            (!projectStructure.directoryMap.agents || projectStructure.directoryMap.agents.length === 0)
+        );
     }
 
     async function fetchAiResponse(isQuestion: boolean = false) {

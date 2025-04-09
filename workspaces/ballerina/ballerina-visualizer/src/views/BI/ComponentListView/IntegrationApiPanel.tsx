@@ -45,7 +45,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                 </TitleWrapper>
                 <CardGrid>
                     <ButtonCard
-                        icon={<Icon name="bi-http-service" />}
+                        icon={<Icon name="bi-globe" />}
                         title="HTTP Service"
                         // description="Handle web requests and responses."
                         onClick={() => handleClick("http")}

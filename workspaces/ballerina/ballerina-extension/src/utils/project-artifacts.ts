@@ -84,8 +84,8 @@ export async function updateProjectArtifacts(publishedArtifacts: Artifacts) {
 
 async function traverseComponents(artifacts: Artifacts, response: ProjectStructureResponse) {
     response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(artifacts[ARTIFACT_TYPE.EntryPoints], DIRECTORY_MAP.AUTOMATION, "task"));
-    response.directoryMap[DIRECTORY_MAP.SERVICE].push(...await getComponents(artifacts[ARTIFACT_TYPE.EntryPoints], DIRECTORY_MAP.SERVICE, "http-service"));
-    response.directoryMap[DIRECTORY_MAP.LISTENER].push(...await getComponents(artifacts[ARTIFACT_TYPE.Listeners], DIRECTORY_MAP.LISTENER, "http-service"));
+    response.directoryMap[DIRECTORY_MAP.SERVICE].push(...await getComponents(artifacts[ARTIFACT_TYPE.EntryPoints], DIRECTORY_MAP.SERVICE, "globe"));
+    response.directoryMap[DIRECTORY_MAP.LISTENER].push(...await getComponents(artifacts[ARTIFACT_TYPE.Listeners], DIRECTORY_MAP.LISTENER, "globe"));
     response.directoryMap[DIRECTORY_MAP.FUNCTION].push(...await getComponents(artifacts[ARTIFACT_TYPE.Functions], DIRECTORY_MAP.FUNCTION, "function"));
     response.directoryMap[DIRECTORY_MAP.DATA_MAPPER].push(...await getComponents(artifacts[ARTIFACT_TYPE.DataMappers], DIRECTORY_MAP.DATA_MAPPER, "dataMapper"));
     response.directoryMap[DIRECTORY_MAP.CONNECTION].push(...await getComponents(artifacts[ARTIFACT_TYPE.Connections], DIRECTORY_MAP.CONNECTION, "connection"));
@@ -276,13 +276,13 @@ async function handleCreations(artifact: BaseArtifact, key: string, currentProje
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].push(entryValue);
                 visualizeEntry = entryValue;
             } else {
-                const entryValue = await getEntryValue(artifact, "http-service");
+                const entryValue = await getEntryValue(artifact, "globe");
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].push(entryValue);
                 visualizeEntry = entryValue;
             }
             break;
         case ARTIFACT_TYPE.Listeners:
-            const listenerValue = await getEntryValue(artifact, "http-service");
+            const listenerValue = await getEntryValue(artifact, "globe");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].push(listenerValue);
             break;
         case ARTIFACT_TYPE.Functions:
@@ -332,7 +332,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
                     currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].push(entryValue);
                 }
             } else {
-                const entryValue = await getEntryValue(artifact, "http-service");
+                const entryValue = await getEntryValue(artifact, "globe");
                 const index = currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].findIndex(value => value.id === artifact.id);
                 if (index !== -1) {
                     currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE][index] = entryValue;
@@ -342,7 +342,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             }
             break;
         case ARTIFACT_TYPE.Listeners:
-            const listenerValue = await getEntryValue(artifact, "http-service");
+            const listenerValue = await getEntryValue(artifact, "globe");
             const listenerValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].findIndex(value => value.id === artifact.id);
             if (listenerValueIndex !== -1) {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER][listenerValueIndex] = listenerValue;
@@ -472,7 +472,7 @@ function getCustomEntryNodeIcon(type: string) {
         case "file":
             return "bi-file";
         default:
-            return "bi-http-service";
+            return "bi-globe";
     }
 }
 
