@@ -7,22 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Codicon, COMPLETION_ITEM_KIND, Dropdown, getIcon, HelperPane, OptionProps, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
-import { LineRange, ConfigVariable } from "@wso2-enterprise/ballerina-core";
+import { LineRange, ConfigVariable, NodeProperties } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertToHelperPaneConfigurableVariable, filterHelperPaneVariables } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
 import { debounce } from "lodash";
 
 type ConfigurablePageProps = {
-    fileName: string;
-    targetLineRange: LineRange;
     onChange: (value: string) => void;
 };
 
@@ -47,11 +43,64 @@ namespace S {
     `;
 }
 
-export const ConfigurablePage = ({
-    fileName,
-    targetLineRange,
-    onChange,
-}: ConfigurablePageProps) => {
+const getConfigVariable = (fileName: string, lineRange: LineRange, values: FieldValues): ConfigVariable => {
+    return {
+        id: '',
+        metadata: {
+            label: 'Config',
+            description: 'Create a configurable variable'
+        },
+        codedata: {
+            node: 'CONFIG_VARIABLE',
+            lineRange: {
+                fileName: fileName,
+                startLine: lineRange.startLine,
+                endLine: lineRange.endLine
+            }
+        },
+        returning: false,
+        properties: {
+            type: {
+                metadata: {
+                    label: 'Type',
+                    description: 'Type of the variable'
+                },
+                valueType: 'TYPE',
+                value: values.type,
+                valueTypeConstraint: 'Global',
+                optional: false,
+                advanced: false,
+                editable: true
+            },
+            variable: {
+                metadata: {
+                    label: 'Variable',
+                    description: 'Name of the variable'
+                },
+                valueType: 'IDENTIFIER',
+                value: values.variable,
+                valueTypeConstraint: 'Global',
+                optional: false,
+                advanced: false,
+                editable: true
+            },
+            defaultable: {
+                metadata: {
+                    label: 'Default value',
+                    description: 'Default value for the config, if empty your need to provide a value at runtime'
+                },
+                valueType: 'EXPRESSION',
+                value: values.defaultable,
+                optional: true,
+                advanced: true,
+                editable: true
+            }
+        },
+        branches: []
+    };
+};
+
+export const ConfigurablePage = ({ onChange }: ConfigurablePageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>("");
@@ -62,133 +111,81 @@ export const ConfigurablePage = ({
         undefined
     );
     const [confTypes, setConfTypes] = useState<OptionProps[]>([]);
-
-    const scehma = yup.object({
-        confName: yup
-            .string()
-            .required('Name is required')
-            .test('existance', 'The name already exists', (value) => {
-                return !configurableInfo?.category.some((category) =>
-                    category.items.some((item) => item.label === value)
-                );
-            }),
-        confType: yup.string().required('Type is required'),
-        confValue: yup.string().optional()
-    });
-
-    type ConfigData = yup.InferType<typeof scehma>;
+    const [endLineRange, setEndLineRange] = useState<LineRange | undefined>();
+    const [isValid, setIsValid] = useState<boolean>(false);
+    const [configFilePath, setConfigFilePath] = useState<string>();
 
     const {
         register,
         handleSubmit,
         reset,
-        formState: { errors, isValid }
-    } = useForm<ConfigData>({
-        mode: "onChange",
-        resolver: yupResolver(scehma)
+        getValues,
+        setError,
+        setValue,
+        formState: { errors }
+    } = useForm({
+        mode: "onChange"
     });
 
     const getConfigurableVariableInfo = useCallback(() => {
         setIsLoading(true);
         setTimeout(() => {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getVisibleVariableTypes({
-                    filePath: fileName,
-                    position: {
-                        line: targetLineRange.startLine.line,
-                        offset: targetLineRange.startLine.offset
-                    }
-                })
-                .then((response) => {
-                    if (response.categories?.length) {
-                        const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(response.categories);
-                        setConfigurableInfo(convertedConfigurableInfo);
-                        setFilteredConfigurableInfo(convertedConfigurableInfo);
-                    }
-                })
-                .then(() => setIsLoading(false));
+            // Get project path
+            rpcClient.getVisualizerLocation().then((location) => {
+                const configFilePath = Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath;
+                setConfigFilePath(configFilePath);
+
+                // Get end line range
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .getEndOfFile({
+                        filePath: configFilePath
+                    })
+                    .then((linePosition) => {
+                        setEndLineRange({
+                            startLine: linePosition,
+                            endLine: linePosition
+                        });
+
+                        // Get visible variable types
+                        rpcClient
+                            .getBIDiagramRpcClient()
+                            .getVisibleVariableTypes({
+                                filePath: configFilePath,
+                                position: linePosition
+                            })
+                            .then((response) => {
+                                if (response.categories?.length) {
+                                    const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(
+                                        response.categories
+                                    );
+                                    setConfigurableInfo(convertedConfigurableInfo);
+                                    setFilteredConfigurableInfo(convertedConfigurableInfo);
+                                }
+                                setIsLoading(false);
+                            });
+                    });
+            });
         }, 150);
-    }, [rpcClient, fileName, targetLineRange]);
+    }, [rpcClient]);
 
-    const handleSaveConfigurables = async (values: ConfigData) => {
-        const variable: ConfigVariable = {
-            id: "",
-            metadata: {
-                label: "Config",
-                description: "Create a configurable variable",
-            },
-            codedata: {
-                node: "CONFIG_VARIABLE",
-                lineRange: {
-                    fileName: "config.bal",
-                    startLine: {
-                        line: 0,
-                        offset: 0,
-                    },
-                    endLine: {
-                        line: 0,
-                        offset: 0,
-                    },
-                },
-            },
-            returning: false,
-            properties: {
-                type: {
-                    metadata: {
-                        label: "Type",
-                        description: "Type of the variable",
-                    },
-                    valueType: "TYPE",
-                    value: "",
-                    optional: false,
-                    advanced: false,
-                    editable: true,
-                },
-                variable: {
-                    metadata: {
-                        label: "Variable",
-                        description: "Name of the variable",
-                    },
-                    valueType: "IDENTIFIER",
-                    value: "",
-                    optional: false,
-                    advanced: false,
-                    editable: true,
-                },
-                defaultable: {
-                    metadata: {
-                        label: "Default value",
-                        description: "Default value for the config, if empty your need to provide a value at runtime",
-                    },
-                    valueType: "EXPRESSION",
-                    value: "",
-                    optional: true,
-                    advanced: true,
-                    editable: true,
-                },
-            },
-            branches: [],
-        };
+    const handleSaveConfigurables = async (values: FieldValues) => {
+        const variable: ConfigVariable = getConfigVariable('config.bal', endLineRange, values);
 
-        variable.properties.variable.value = values.confName;
         variable.properties.defaultable.value =
-            values.confValue === "" || values.confValue === null ? "?" : values.confValue;
+            values.defaultable === "" || values.defaultable === null ? "?" : values.defaultable;
         variable.properties.defaultable.optional = true;
-        variable.properties.type.value = values.confType;
 
-        rpcClient.getVisualizerLocation().then((location) => {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .updateConfigVariables({
-                    configVariable: variable,
-                    configFilePath: Utils.joinPath(URI.file(location.projectUri), "config.bal").fsPath,
-                })
-                .then((response: any) => {
-                    console.log(">>> Config variables------", response);
-                    getConfigurableVariableInfo();
-                });
-        });
+        rpcClient
+            .getBIDiagramRpcClient()
+            .updateConfigVariables({
+                configVariable: variable,
+                configFilePath: configFilePath,
+            })
+            .then((response: any) => {
+                console.log(">>> Config variables------", response);
+                getConfigurableVariableInfo();
+            });
     };
 
     useEffect(() => {
@@ -217,7 +214,7 @@ export const ConfigurablePage = ({
         reset();
     };
 
-    const handleSave = (values: ConfigData) => {
+    const handleSave = (values: FieldValues) => {
         handleSaveConfigurables(values)
             .then(() => {
                 setIsFormVisible(false);
@@ -233,24 +230,60 @@ export const ConfigurablePage = ({
             rpcClient
                 .getBIDiagramRpcClient()
                 .getVisibleTypes({
-                    filePath: fileName,
-                    position: {
-                        line: targetLineRange.startLine.line,
-                        offset: targetLineRange.startLine.offset
-                    },
+                    filePath: configFilePath,
+                    position: endLineRange?.startLine,
                     typeConstraint: "anydata"
                 })
                 .then((types) => {
+                    const typesWithoutDuplicates = types?.filter(type => !type.labelDetails.detail.includes("Used"))
                     setConfTypes(
-                        types.map((type) => ({
+                        typesWithoutDuplicates.map((type) => ({
                             id: type.label,
                             content: type.label,
                             value: type.insertText
                         }))
                     );
+                    setValue('type', typesWithoutDuplicates?.[0]?.label);
                 });
         }
     }, [isFormVisible]);
+
+    const fetchDiagnostics = useCallback(
+        debounce(async () => {
+            const formValues = getValues();
+            const configVariable = getConfigVariable(
+                'config.bal',
+                endLineRange,
+                formValues
+            );
+            let isValid = true;
+            for (const [key, value] of Object.entries(formValues)) {
+                const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+                    filePath: configFilePath,
+                    context: {
+                        expression: value,
+                        startLine: endLineRange?.startLine,
+                        offset: 0,
+                        lineOffset: 0,
+                        codedata: configVariable.codedata,
+                        property: configVariable.properties[key as keyof NodeProperties]
+                    }
+                });
+
+                if (response.diagnostics.length > 0) {
+                    const diagnosticsMessage = response.diagnostics.map((d) => d.message).join('\n');
+                    setError(key, { type: 'validate', message: diagnosticsMessage });
+                    isValid = false;
+                }
+            }
+            setIsValid(isValid);
+        }, 150),
+        [rpcClient, endLineRange, getValues, setError]
+    );
+
+    const validateInput = useCallback(() => {
+        fetchDiagnostics();
+    }, [fetchDiagnostics]);
 
     return (
         <>
@@ -284,32 +317,38 @@ export const ConfigurablePage = ({
                             </HelperPane.Section>
                         );
                     })
-                ) : (
+                ) : endLineRange && (
                     <S.Form>
                         <Typography variant="body2" sx={{ fontFamily: 'GilmerMedium' }}>
                             Create New Configurable Variable
                         </Typography>
                         <S.FormBody>
                             <TextField
-                                id="confName"
+                                id="variable"
                                 label="Name"
                                 placeholder="Enter a name for the variable"
                                 required
-                                {...register("confName")}
-                                errorMsg={errors.confName?.message}
+                                {...register('variable', {
+                                    onChange: validateInput
+                                })}
+                                errorMsg={errors.variable?.message?.toString()}
                             />
                             <Dropdown
-                                id="confType"
+                                id="type"
                                 label="Type"
                                 items={confTypes}
-                                {...register("confType")}
-                                errorMsg={errors.confType?.message}
+                                {...register('type', {
+                                    onChange: validateInput
+                                })}
                             />
                             <TextField
-                                id="confValue"
+                                id="defaultable"
                                 label="Default Value"
                                 placeholder="Enter default value for the variable"
-                                {...register("confValue")}
+                                {...register('defaultable', {
+                                    onChange: validateInput
+                                })}
+                                errorMsg={errors.defaultable?.message?.toString()}
                             />
                         </S.FormBody>
                         <S.ButtonPanel>

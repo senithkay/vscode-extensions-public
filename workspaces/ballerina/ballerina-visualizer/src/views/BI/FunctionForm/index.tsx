@@ -238,7 +238,7 @@ export function FunctionForm(props: FunctionFormProps) {
                             const valueConstraint = JSON.parse(JSON.stringify(baseConstraint));
                             // Fill the values of the parameter constraint
                             for (const [paramKey, param] of Object.entries((valueConstraint as any).value as NodeProperties)) {
-                                param.value = (repeatValue as any).formValues[paramKey];
+                                param.value = (repeatValue as any).formValues[paramKey] || "";
                             }
                             (property.value as any)[(repeatValue as any).key] = valueConstraint;
                         }

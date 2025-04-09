@@ -52,6 +52,7 @@ export type ParameterValue = {
     value: {
         variable: { value: string };
         type: { value: string };
+        parameterDescription: { value: string };
     };
 };
 

@@ -434,6 +434,7 @@ function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValue
                     sectionObject[prop.name] = getDefaultValueForConfig(prop.property);
                 }
             }
+            configObject[sectionKey] = sectionObject;
         }
     }
 
@@ -468,9 +469,9 @@ function getDefaultValueForConfig(property: Property): any {
         case ConfigTypes.BOOLEAN:
             return false;
         case ConfigTypes.INTEGER:
-            return 0;
+            return { type: ConfigTypes.INTEGER, value: 0 };
         case ConfigTypes.NUMBER:
-            return 0.0;
+            return { type: ConfigTypes.NUMBER, value: 0.0 };
         case ConfigTypes.STRING:
             return "";
         case ConfigTypes.ARRAY:
@@ -624,6 +625,12 @@ function convertConfigToToml(config: any, groupedValues: Map<string, Map<string,
 function formatTomlValue(value: any): string {
     if (value === null || value === undefined) {
         return '""';
+    } else if (typeof value === 'object' && 'type' in value && 'value' in value) {
+        if (value.type === ConfigTypes.NUMBER) {
+            return value.value.toFixed(1); // Ensure it has a decimal point
+        } else if (value.type === ConfigTypes.INTEGER) {
+            return String(value.value);
+        }
     } else if (typeof value === 'string') {
         return `"${value.replace(/"/g, '\\"')}"`;
     } else if (typeof value === 'number' || typeof value === 'boolean') {

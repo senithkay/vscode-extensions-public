@@ -263,18 +263,25 @@ export const removeAgentNode = async (agentCallNode: FlowNode, rpcClient: Baller
 };
 
 export const findFunctionByName = (components: BallerinaProjectComponents, functionName: string) => {
-    // Iterate through packages
     for (const pkg of components.packages) {
-        // Iterate through modules in each package
         for (const module of pkg.modules) {
-            // Search through functions
             const foundFunction = module.functions.find((func: any) => func.name === functionName);
             if (foundFunction) {
-                // update file path to include package path
-                foundFunction.filePath = Utils.joinPath(URI.file(pkg.filePath), foundFunction.filePath).fsPath;
+                const pkgUri = URI.parse(pkg.filePath);
+                const joinedUri = Utils.joinPath(pkgUri, foundFunction.filePath);
+                foundFunction.filePath = joinedUri.fsPath;
                 return foundFunction;
             }
         }
     }
     return null;
 };
+
+export const updateFlowNodePropertyValuesWithKeys = (flowNode: FlowNode) => {
+    const excludedKeys = ["variable", "type", "checkError", "targetType"];
+    for (const key in flowNode.properties) {
+        if (!excludedKeys.includes(key)) {
+            (flowNode.properties as Record<string, { value: string }>)[key].value = key;
+        }
+    }
+}
