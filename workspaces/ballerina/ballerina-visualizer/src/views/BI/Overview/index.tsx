@@ -589,7 +589,7 @@ export function Overview(props: ComponentDiagramProps) {
             return [];
         }
 
-        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICES];
+        const services = projectStructure.directoryMap[DIRECTORY_MAP.SERVICE];
         const automation = projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION];
 
         let scopes: SCOPE[] = [];
