@@ -163,14 +163,41 @@ export default function createTests() {
         await dmWebView.getByTestId('link-from-input.opmI.op2.OUT-to-objectOutput.ompO.p2.IN').waitFor({ state: 'attached' });
 
 
+        // expression editor - use function
+        await dmWebView.locator('[id="recordfield-objectOutput\\.expO"]').click();
+        const expressionBar = dmWebView.locator('#expression-bar').getByRole('textbox', { name: 'Text field' });
+        await expect(expressionBar).toBeFocused();
+        await expressionBar.fill('toupper');
+        await dmWebView.getByText('dmUtils toUppercaseConverts a').click();
+        await expect(expressionBar).toHaveValue('dmUtils.toUppercase()');
+        await expect(expressionBar).toBeFocused();
+
+        await dmWebView.locator('[id="recordfield-input\\.expI"]').click();
+        await expressionBar.press('Enter');
+        await dmWebView.getByTestId('link-from-input.expI.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
+        await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.expO.IN').waitFor({ state: 'attached' });
+        await dmWebView.getByTestId('link-connector-node-objectOutput.expO.IN').click();
+
+        await expressionBar.press('Enter');
+        await expect(expressionBar).not.toBeFocused();
+
+        // expression editor - edit existing
+        await dmWebView.locator('[id="recordfield-objectOutput\\.expO"]').click();
+        await expect(expressionBar).toBeFocused();
+        await expressionBar.fill('dmUtils.toUppercase(input.expI) + "HI"');
+        await dmWebView.locator('#data-mapper-canvas-container').click();
+        await expect(expressionBar).not.toBeFocused();
+
         // custom function mapping
         // objectOutput.cfnO = input.cfnI;
         await dm.mapFields('input.cfnI', 'objectOutput.cfnO','menu-item-o2o-func');
         await dmWebView.getByTestId('link-from-input.cfnI.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.cfnO.IN').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-connector-node-objectOutput.cfnO.IN').waitFor();
+        await page.page.getByRole('tab', { name: `${DM_NAME}.ts, Editor Group` }).waitFor();
 
         expect(dm.verifyTsFileContent('map.ts.cmp')).toBeTruthy();
+        
 
         if (NEED_INITIAL_SETUP) {
           await dmWebView.locator('vscode-button[title="Go Back"]').click();
