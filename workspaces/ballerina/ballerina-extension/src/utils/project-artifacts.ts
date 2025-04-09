@@ -167,7 +167,7 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
                 // Hack to handle AI services --------------------------------->
                 // Inject the AI agent code into the service when new service is created
                 const isNewService = StateMachine.context().tempData?.isNewService;
-                const agentName = artifact.name.split('-')[1].trim().replace(/\//g, '')
+                const agentName = artifact.name.split('-')[1].trim().replace(/\//g, '');
                 const tempServiceAgentName = StateMachine.context().tempData?.serviceModel?.properties["basePath"]?.value.trim().replace(/\//g, '');
                 if (isNewService && artifact.module === "ai" && agentName === tempServiceAgentName) {
                     const injectedResult = await injectAIAgent(artifact);
@@ -214,7 +214,7 @@ async function injectAIAgent(serviceArtifact: BaseArtifact) {
     await injectImportIfMissing(importStatement, path.join(StateMachine.context().projectUri, `agents.bal`));
 
     //get AgentName
-    const agentName = serviceArtifact.name.split('-')[1].trim().replace(/\//g, '')
+    const agentName = serviceArtifact.name.split('-')[1].trim().replace(/\//g, '');
 
     // Inject the agent code
     await injectAgent(agentName, StateMachine.context().projectUri);

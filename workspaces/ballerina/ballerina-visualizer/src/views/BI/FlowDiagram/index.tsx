@@ -929,7 +929,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         showEditForm.current = true;
 
         setShowProgressIndicator(true);
-        const agentFilePath = await getAgentFilePath(rpcClient);
         // get project components to find the function
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
         if (!projectComponents || !projectComponents.components) {
@@ -938,7 +937,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
         // find function from project components
         const functionInfo = findFunctionByName(projectComponents.components, tool.name);
-        console.log(">>> functionInfo", functionInfo);
         if (!functionInfo) {
             console.error("Function not found");
             return;
