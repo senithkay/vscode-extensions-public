@@ -110,17 +110,42 @@ export default function createTests() {
         console.log('Editing Message Store');
         await ms.editInMemoryMS();
       });
+    });
 
+    test('Message Processor Tests', async () => {
       let msp: MessageProcessor;
-      await test.step('Add Message Processor', async () => {
-        console.log('Creating new Message Processor');
+      await test.step('Message Sampling Processor Tests', async () => {
         msp = new MessageProcessor(page.page);
-        await msp.init();
-        await msp.addMessageSamplingProcessor();
-      });
-      await test.step('Edit Message Processor', async () => {
-        console.log('Editing Message Processor');
+        console.log('Create Message Sampling Processor');
+        await msp.createMessageSamplingProcessor();
+        console.log('Edit Message Sampling Processor');
         await msp.editMessageSamplingProcessor();
+      });
+      await test.step('Scheduled Message Forwarding Processor Tests', async () => {
+        msp = new MessageProcessor(page.page);
+        console.log('Create Message Forwarding Processor');
+        await msp.createScheduledMessageForwardingProcessor();
+        console.log('Edit Message Forwarding Processor');
+        await msp.editScheduledMessageForwardingProcessor();
+      });
+      await test.step('Scheduled Failover Message Forwarding Processor Tests', async () => {
+        msp = new MessageProcessor(page.page);
+        console.log('Create Scheduled Failover Message Forwarding Processor');
+        await msp.createScheduledFailoverMessageForwardingProcessor();
+        console.log('Edit Failover Message Forwarding Processor');
+        await msp.editScheduledFailoverMessageForwardingProcessor();
+      });
+      await test.step('Custom Message Processor Tests', async () => {
+        msp = new MessageProcessor(page.page);
+        console.log('Create Custom Message Processor');
+        await msp.createCustomMessageProcessor();
+        console.log('Edit Custom Message Processor');
+        await msp.editCustomMessageProcessor();
+      });
+      await test.step('Create Message Processor from Project Explorer', async () => {
+        console.log('Create Message Processor from Project Explorer');
+        msp = new MessageProcessor(page.page);
+        await msp.createMessageProcessorFromProjectExplorer();
       });
 
       let dataSource: DataSource;
