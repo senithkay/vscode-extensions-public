@@ -56,7 +56,7 @@ export function activateSubscriptions() {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.FORCE_UPDATE_PROJECT_ARTIFACTS, () => {
-            forceUpdateProjectArtifacts();
+            return forceUpdateProjectArtifacts();
         })
     );
 

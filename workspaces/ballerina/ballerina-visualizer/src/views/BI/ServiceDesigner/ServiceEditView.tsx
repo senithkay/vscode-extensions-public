@@ -108,17 +108,7 @@ export function ServiceEditView(props: ServiceEditViewProps) {
                 }
                 {serviceModel &&
                     <Container>
-                        {!saving &&
-                            <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} openListenerForm={undefined} formSubmitText={saving ? "Saving" : "Save"} isSaving={saving} />
-                            </>
-                        }
-                        {saving &&
-                            <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Saving... Please wait</Typography>
-                            </LoadingContainer>
-                        }
+                        <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} openListenerForm={undefined} formSubmitText={saving ? "Saving" : "Save"} isSaving={saving} />
                     </Container>
                 }
             </ViewContent>
