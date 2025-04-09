@@ -69,10 +69,10 @@ export function mapFunction(input: Root): OutputRoot {
         odmO: input.odmI,
         odmeO: input.odmI,
         ompO: {
-            p1: input.odmI.dm1,
+            p1: input.odmI.dm1 + "HI",
             p2: input.opmI.op2
         },
-        expO: dmUtils.toUppercase(input.expI) + "HI",
+        expO: dmUtils.toUppercase(input.expI),
         cfnO: mapObjectToObject(input.cfnI)
     }
 }

@@ -17,12 +17,14 @@ import { IOType } from "@wso2-enterprise/mi-core";
 
 
 type SchemaTypeLabel = "JSON" | "JSON Schema" | "XML" | "CSV";
+
+
+const dmDataFolder = path.join(dataFolder, 'datamapper-files');
+
 export class DataMapper {
 
     public webView!: Frame;
-    // configFolder!: string;
     tsFile!: string;
-    comparingFolder!: string;
 
     constructor(private _page: Page, private _name: string) {
     }
@@ -34,7 +36,6 @@ export class DataMapper {
         }
         this.webView = webview;
         this.tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'datamapper', this._name, `${this._name}.ts`);
-        this.comparingFolder = path.join(dataFolder, 'datamapper-files', this._name);
     }
 
     public getWebView() {
@@ -80,14 +81,14 @@ export class DataMapper {
 
         const importForm = new ImportForm(this.webView);
         await importForm.init();
-        await importForm.importData(schemaType, fs.readFileSync(schemaFile, 'utf8'));
+        await importForm.importData(schemaType, fs.readFileSync(path.join(dmDataFolder, schemaFile), 'utf8'));
         await importNode.waitFor({ state: 'detached' });
     }
 
-    public async loadJsonFromCompFolder() {
+    public async loadJsonFromCompFolder(category: string) {
 
-        const inputJsonFile = path.join(this.comparingFolder, 'inp.json');
-        const outputJsonFile = path.join(this.comparingFolder, 'out.json');
+        const inputJsonFile = path.join(category, 'inp.json');
+        const outputJsonFile = path.join(category, 'out.json');
         await this.importSchema(IOType.Input, 'JSON', inputJsonFile);
         await this.importSchema(IOType.Output, 'JSON', outputJsonFile);
 
@@ -194,7 +195,7 @@ export class DataMapper {
     }
 
     public verifyTsFileContent(comparingFile: string) {
-        return this.compareFiles(this.tsFile, path.join(this.comparingFolder, comparingFile));
+        return this.compareFiles(this.tsFile, path.join(dmDataFolder, comparingFile));
     }
 
     public compareFiles(file1: string, file2: string) {

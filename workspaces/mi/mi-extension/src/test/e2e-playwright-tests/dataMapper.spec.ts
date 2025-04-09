@@ -78,7 +78,7 @@ export default function createTests() {
         console.log('Testing Basic Mappings');
 
         let dm: DataMapper;
-        const DM_NAME = 'basic';
+        const DM_NAME = 'dm';
 
         await clearNotificationsByCloseButton(page);
 
@@ -88,8 +88,8 @@ export default function createTests() {
           await diagram.addDataMapper(DM_NAME);
           dm = new DataMapper(page.page, DM_NAME);
           await dm.init();
-          await dm.loadJsonFromCompFolder();
-          expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
+          await dm.loadJsonFromCompFolder('basic');
+          expect(dm.verifyTsFileContent('basic/init.ts.cmp')).toBeTruthy();
         } else {
           const projectExplorer = new ProjectExplorer(page.page);
           await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
@@ -176,32 +176,49 @@ export default function createTests() {
         await expressionBar.press('Enter');
         await dmWebView.getByTestId('link-from-input.expI.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.expO.IN').waitFor({ state: 'attached' });
-        await dmWebView.getByTestId('link-connector-node-objectOutput.expO.IN').click();
+        await dmWebView.getByTestId('link-connector-node-objectOutput.expO.IN').waitFor();
 
-        await expressionBar.press('Enter');
+        // await expressionBar.press('Enter');
+        await dmWebView.locator('#data-mapper-canvas-container').click();
+
         await expect(expressionBar).not.toBeFocused();
+
+        // await page.page.pause();
 
         // expression editor - edit existing
-        await dmWebView.locator('[id="recordfield-objectOutput\\.expO"]').click();
+        await dmWebView.locator('[id="recordfield-objectOutput\\.ompO\\.p1"]').click();
         await expect(expressionBar).toBeFocused();
-        await expressionBar.fill('dmUtils.toUppercase(input.expI) + "HI"');
+        await expressionBar.fill('input.odmI.dm1 + "HI"');
         await dmWebView.locator('#data-mapper-canvas-container').click();
         await expect(expressionBar).not.toBeFocused();
+
+        // await page.page.pause();
+
+        await dmWebView.getByTestId('link-from-input.odmI.dm1.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
+        await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.ompO.p1.IN').waitFor({ state: 'attached' });
+        await dmWebView.getByTestId('link-connector-node-objectOutput.ompO.p1.IN').waitFor();
+
 
         // custom function mapping
         // objectOutput.cfnO = input.cfnI;
         await dm.mapFields('input.cfnI', 'objectOutput.cfnO','menu-item-o2o-func');
+        
         await dmWebView.getByTestId('link-from-input.cfnI.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.cfnO.IN').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-connector-node-objectOutput.cfnO.IN').waitFor();
-        await page.page.getByRole('tab', { name: `${DM_NAME}.ts, Editor Group` }).waitFor();
 
-        expect(dm.verifyTsFileContent('map.ts.cmp')).toBeTruthy();
+        const editorTab = page.page.getByRole('tab', { name: `${DM_NAME}.ts, Editor Group` });
+        await editorTab.waitFor({ state: 'attached' });
+
+        await editorTab.locator('.codicon-close').click();
+        await editorTab.waitFor({ state: 'detached' });
+
+        expect(dm.verifyTsFileContent('basic/map.ts.cmp')).toBeTruthy();
         
 
-        if (NEED_INITIAL_SETUP) {
-          await dmWebView.locator('vscode-button[title="Go Back"]').click();
-        }
+        // if (NEED_INITIAL_SETUP) {
+        //   await dmWebView.locator('vscode-button[title="Go Back"]').click();
+        // }
 
       });
     }
@@ -222,8 +239,8 @@ export default function createTests() {
           await diagram.addDataMapper(DM_NAME);
           dm = new DataMapper(page.page, DM_NAME);
           await dm.init();
-          await dm.loadJsonFromCompFolder();
-          expect(dm.verifyTsFileContent('init.ts.cmp')).toBeTruthy();
+          await dm.loadJsonFromCompFolder('array');
+          expect(dm.verifyTsFileContent('array/init.ts.cmp')).toBeTruthy();
         } else {
           const projectExplorer = new ProjectExplorer(page.page);
           await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
@@ -359,7 +376,7 @@ export default function createTests() {
         await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
         await dmWebView.getByTestId('dm-header-breadcrumb-0').waitFor({ state: 'detached' });
 
-        expect(dm.verifyTsFileContent('map.ts.cmp')).toBeTruthy();
+        expect(dm.verifyTsFileContent('array/map.ts.cmp')).toBeTruthy();
 
         if (NEED_INITIAL_SETUP) {
           await dmWebView.locator('vscode-button[title="Go Back"]').click();
