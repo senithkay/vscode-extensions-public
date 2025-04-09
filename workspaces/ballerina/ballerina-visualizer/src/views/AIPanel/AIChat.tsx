@@ -148,7 +148,8 @@ const DEFAULT_MENU_COMMANDS = [
 const GENERATE_TEST_AGAINST_THE_REQUIREMENT = "Generate tests against the requirements";
 const GENERATE_CODE_AGAINST_THE_REQUIREMENT = "Generate code based on the requirements";
 const CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION = "Check drift between code and documentation";
-const GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE = `${GENERATE_CODE_AGAINST_THE_REQUIREMENT}:{requirements}`;
+const GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS = "Generate code based on the following requirements: ";
+const GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED = GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS.trim();
 
 const TEMPLATE_NATURAL_PROGRAMMING: string[] = [];
 
@@ -354,7 +355,7 @@ export function AIChat() {
             );
         } else {
             TEMPLATE_NATURAL_PROGRAMMING.push(
-                GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE,
+                GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS,
                 CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
                 GENERATE_TEST_AGAINST_THE_REQUIREMENT
             );
@@ -535,27 +536,17 @@ export function AIChat() {
                         } else {
                             const isRequirementsTemplateExists = isContentIncludedInMessageBody(
                                 messageBody,
-                                GENERATE_CODE_AGAINST_THE_REQUIREMENT
+                                GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED
                             );
                             if (isRequirementsTemplateExists && !isReqFileExists) {
                                 const handleExtractRequirements = () => {
-                                    const prefix = GENERATE_CODE_AGAINST_THE_REQUIREMENT;
+                                    const prefix = GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED;
                                     if (messageBody.includes(prefix)) {
-                                        return removePrefixSymbols(messageBody.split(prefix)[1].trim());
+                                        return messageBody.split(prefix)[1].trim();
                                     } else {
                                         return "";
                                     }
                                 };
-
-                                function removePrefixSymbols(text: string) {
-                                    // Check if the text starts with ':' or '<'
-                                    if (text.startsWith(":") || text.startsWith("{")) {
-                                        // Remove the first character
-                                        return removePrefixSymbols(text.trim().slice(1).trim());
-                                    }
-                                    // Return the original text if it doesn't start with ':' or '<'
-                                    return text.trim();
-                                }
                                 const requirements = handleExtractRequirements();
                                 await rpcClient.getAiPanelRpcClient().updateRequirementSpecification({
                                     filepath: chatLocation,
@@ -579,7 +570,8 @@ export function AIChat() {
                                         ? parameters.inputRecord[0]
                                         : messageBody,
                                     attachments,
-                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)
+                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
+                                            || isRequirementsTemplateExists
                                         ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT
                                         : isTestGenerationTemplateExists
                                         ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
@@ -671,7 +663,9 @@ export function AIChat() {
                     );
                     return;
                 } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
-                    if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)) {
+                    if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
+                            || isContentIncludedInMessageBody(
+                                    messageBody, GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED)) {
                         await processCodeGeneration(
                             token,
                             [messageBody, attachments, CodeGenerationType.CODE_FOR_USER_REQUIREMENT],
@@ -3253,7 +3247,8 @@ function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
                 chatEntry.actor.toLowerCase() == "user" &&
                 chatEntry.isCodeGeneration &&
                 !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) &&
-                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
+                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT) &&
+                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED)
         );
 }
 
