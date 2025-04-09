@@ -238,8 +238,8 @@ import {
     DeployProjectResponse,
     CreateBallerinaModuleResponse,
     CreateBallerinaModuleRequest,
-    handleFileRequest,
-    handleFileResponse,
+    HandleFileRequest,
+    HandleFileResponse,
     DevantMetadata
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -311,7 +311,7 @@ export const importProject: RequestType<ImportProjectRequest, ImportProjectRespo
 export const migrateProject: RequestType<MigrateProjectRequest, MigrateProjectResponse> = { method: `${_preFix}/migrateProject` };
 export const getAIResponse: RequestType<AIUserInput, string> = { method: `${_preFix}/getAIResponse` };
 export const writeContentToFile: RequestType<WriteContentToFileRequest, WriteContentToFileResponse> = { method: `${_preFix}/writeContentToFile` };
-export const handleFileWithFS: RequestType<handleFileRequest, handleFileResponse> = { method: `${_preFix}/handleFileWithFS` };
+export const handleFileWithFS: RequestType<HandleFileRequest, HandleFileResponse> = { method: `${_preFix}/handleFileWithFS` };
 export const highlightCode: NotificationType<HighlightCodeRequest> = { method: `${_preFix}/highlightCode` };
 export const getWorkspaceContext: RequestType<void, GetWorkspaceContextResponse> = { method: `${_preFix}/getWorkspaceContext` };
 export const getProjectUuid: RequestType<void, GetProjectUuidResponse> = { method: `${_preFix}/getProjectUuid` };

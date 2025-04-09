@@ -186,8 +186,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    handleFileRequest,
-    handleFileResponse,
+    HandleFileRequest,
+    HandleFileResponse,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -677,7 +677,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(writeContentToFile, HOST_EXTENSION, params);
     }
 
-    handleFileWithFS(params: handleFileRequest): Promise<handleFileResponse> {
+    handleFileWithFS(params: HandleFileRequest): Promise<HandleFileResponse> {
         return this._messenger.sendRequest(handleFileWithFS, HOST_EXTENSION, params);
     }
 

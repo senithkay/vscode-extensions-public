@@ -1246,14 +1246,14 @@ export interface WriteContentToFileResponse {
     status: boolean;
 }
 
-export interface handleFileRequest {
+export interface HandleFileRequest {
     operation : "read" | "write" | "delete";
     fileName : string;
     filePath : string;
     content?: string;
 }
 
-export interface handleFileResponse {
+export interface HandleFileResponse {
     status: boolean;
     content?: string;
 }

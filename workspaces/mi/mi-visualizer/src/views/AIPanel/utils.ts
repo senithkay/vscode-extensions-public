@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CopilotChatEntry, RpcClientType, Role, MessageType, ChatMessage } from "./types";
+import { CopilotChatEntry, RpcClientType, Role, MessageType, ChatMessage, ApiResponse, BackendRequestType } from "./types";
 
 import { GetWorkspaceContextResponse, MACHINE_VIEW, EVENT_TYPE, FileObject, ImageObject} from "@wso2-enterprise/mi-core";
 import {
@@ -17,7 +17,6 @@ import {
     COPILOT_ERROR_MESSAGES,
     MAX_FILE_SIZE, VALID_FILE_TYPES
 } from "./constants";
-import { ApiResponse, BackendRequestType } from './types';
 import path from "path";
 
 
@@ -33,7 +32,6 @@ export async function getProjectRuntimeVersion(rpcClient: RpcClientType): Promis
 export async function fetchBackendUrl(rpcClient:RpcClientType): Promise<string | undefined> {
         try {
             return (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
-            // Do something with backendRootUri
         } catch (error) {
             console.error('Failed to fetch backend URL:', error);
             return undefined;
@@ -48,7 +46,6 @@ export async function getProjectUUID(rpcClient: RpcClientType): Promise<string |
             return undefined;
         }
     }
-
 
 export async function handleAddtoWorkspace(rpcClient: RpcClientType, codeBlocks: string[]) {
     await rpcClient
@@ -400,13 +397,12 @@ export async function fetchCodeGenerationsWithRetry(
 ): Promise<Response> {
 
     const context = await getContext(rpcClient, view);
-    const stringifiedUploadedFiles = files.map((file) => JSON.stringify(file));
     const imageBase64Array = images.map((image) => image.imageBase64);
 
     return fetchWithRetry(BackendRequestType.UserPrompt, url, {
         messages: chatHistory,
         context: context[0].context,
-        files: stringifiedUploadedFiles,
+        files: files,
         images: imageBase64Array,
     }, rpcClient, controller, chatHistory);
 }
@@ -422,7 +418,6 @@ export async function fetchWithRetry(
     let retryCount = 0;
     const maxRetries = 2;
     const token = await rpcClient?.getMiDiagramRpcClient().getUserAccessToken();
-    console.log("Body", JSON.stringify(body));
 
     let response = await fetch(url, {
         method: "POST",

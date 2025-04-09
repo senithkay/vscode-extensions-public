@@ -221,8 +221,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    handleFileRequest,
-    handleFileResponse,
+    HandleFileRequest,
+    HandleFileResponse,
     getAllDependenciesRequest,
     getSTRequest,
     getSTResponse,
@@ -3266,7 +3266,7 @@ ${endpointAttributes}
 
     }
 
-    async handleFileWithFS(params: handleFileRequest): Promise<handleFileResponse> {
+    async handleFileWithFS(params: HandleFileRequest): Promise<HandleFileResponse> {
         const { fileName, filePath, operation, content } = params;
 
         if (!filePath) {
