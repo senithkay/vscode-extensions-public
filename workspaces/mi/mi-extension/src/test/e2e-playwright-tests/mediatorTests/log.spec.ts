@@ -97,10 +97,6 @@ export default function createTests() {
             'Message': {
               type: 'inlineExpression',
               value: 'test message: ${payload.message}',
-            },
-            'Description': {
-              type: 'input',
-              value: 'log mediator',
             }
           }
         });
