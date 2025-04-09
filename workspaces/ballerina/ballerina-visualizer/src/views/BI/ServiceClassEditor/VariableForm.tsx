@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { FieldType, LineRange, Type } from '@wso2-enterprise/ballerina-core';
+import { FieldType, LineRange, PropertyModel, Type } from '@wso2-enterprise/ballerina-core';
 import { FormGeneratorNew } from '../Forms/FormGeneratorNew';
 import { FormField, FormImports, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import { getImportsForProperty } from '../../../utils/bi';
@@ -39,6 +39,7 @@ export function VariableForm(props: VariableFormProps) {
                 enabled: model.name.enabled,
                 documentation: model.name.metadata?.description,
                 value: model?.name.value || '',
+                valueType: model.name?.valueType,
                 valueTypeConstraint: model.name?.valueTypeConstraint || '',
                 lineRange: model?.name?.codedata?.lineRange
             },
@@ -52,6 +53,7 @@ export function VariableForm(props: VariableFormProps) {
                 enabled: model.type.enabled,
                 documentation: model.type.metadata?.description,
                 value: model?.type.value || '',
+                valueType: model.type?.valueType,
                 valueTypeConstraint: model.type?.valueTypeConstraint || ''
             },
             {
@@ -59,12 +61,13 @@ export function VariableForm(props: VariableFormProps) {
                 label: 'Default Value',
                 type: 'EXPRESSION',
                 optional: true, // TODO: need to fix for LS
-                editable: model.defaultValue?.editable || false,
-                advanced: model.defaultValue?.advanced || false,
-                enabled: model.defaultValue?.enabled ?? true,
-                documentation: model.defaultValue?.metadata?.description,
-                value: model?.defaultValue?.value || '',
-                valueTypeConstraint: model.defaultValue?.valueTypeConstraint || ''
+                editable: (model.defaultValue as PropertyModel)?.editable || false,
+                advanced: (model.defaultValue as PropertyModel)?.advanced || false,
+                enabled: (model.defaultValue as PropertyModel)?.enabled ?? true,
+                documentation: (model.defaultValue as PropertyModel)?.metadata?.description,
+                value: (model.defaultValue as PropertyModel)?.value || '',
+                valueType: (model.defaultValue as PropertyModel)?.valueType,
+                valueTypeConstraint: (model.defaultValue as PropertyModel)?.valueTypeConstraint || ''
             }
         ];
         setFields(initialFields);
@@ -80,7 +83,7 @@ export function VariableForm(props: VariableFormProps) {
                 imports: getImportsForProperty('returnType', formImports)
             },
             defaultValue: {
-                ...model.defaultValue,
+                ...(model.defaultValue as PropertyModel),
                 value: data.expression,
                 imports: getImportsForProperty('expression', formImports)
             }

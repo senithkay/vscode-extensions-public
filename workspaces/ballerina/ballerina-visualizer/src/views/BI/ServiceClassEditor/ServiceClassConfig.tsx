@@ -94,6 +94,7 @@ export function ServiceClassConfig(props: ServiceClassConfigProps) {
                 enabled: property.enabled,
                 documentation: property.metadata?.description,
                 value: property.value || '',
+                valueType: property?.valueType,
                 valueTypeConstraint: property.valueTypeConstraint || '',
                 lineRange: property.codedata?.lineRange
             }];
