@@ -259,38 +259,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 setShowProgressIndicator(false);
             });
 
-        // if (!model && !parent && targetRef.current) {
-        //     console.log ("====INSIDE FETHCH NODES AND AI SUGGESTIONS");
-        //     setShowProgressIndicator(true);
-        //     onUpdate();
-        //     rpcClient
-        //         .getBIDiagramRpcClient()
-        //         .getBreakpointInfo()
-        //         .then((response) => {
-        //             setBreakpointInfo(response);
-        //             rpcClient
-        //                 .getBIDiagramRpcClient()
-        //                 .getFlowModel()
-        //                 .then((model) => {
-        //                     if (model?.flowModel) {
-        //                         console.log(">>>NEW Flow model", model, selectedNodeRef, targetRef, topNodeRef);
-        //                         setModel(model.flowModel);
-        //                         const matchingNode = findNodeByPosition(model.flowModel, targetRef.current);
-        //                             selectedNodeRef.current = matchingNode;
-        //                             targetRef.current = matchingNode?.codedata.lineRange;
-
-        //                         onReady(model.flowModel.fileName);
-        //                     }
-        //                 })
-        //                 .finally(() => {
-        //                     setShowProgressIndicator(false);
-        //                     onReady(undefined);
-        //                 });
-        //         });
-        //     // getFlowModel();
-        //     // setSidePanelView(SidePanelView.FORM);
-        //     // setShowSidePanel(true);
-        // }
 
         if (!fetchAiSuggestions) {
             return;
