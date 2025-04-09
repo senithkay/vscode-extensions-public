@@ -26,7 +26,7 @@
             "activitybar": [
                 {
                     "id": "ballerina-integrator",
-                    "title": "Ballerina Integrator - Beta",
+                    "title": "Ballerina Integrator",
                     "icon": "assets/icon.svg"
                 }
             ]
