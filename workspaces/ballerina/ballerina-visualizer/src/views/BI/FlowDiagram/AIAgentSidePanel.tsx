@@ -196,11 +196,12 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             key: `name`,
             label: "Tool Name",
             type: "IDENTIFIER",
+            valueType: "IDENTIFIER",
             optional: false,
             editable: true,
             documentation: "Enter the name of the tool.",
             value: "",
-            valueTypeConstraint: "",
+            valueTypeConstraint: "Global",
             enabled: true,
         },
         {
@@ -258,6 +259,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     concertMessage={concertMessage}
                     concertRequired={concertRequired}
                     description={description}
+                    helperPaneSide="left"
                 />
             )}
         </>
