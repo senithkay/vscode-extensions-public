@@ -37,8 +37,11 @@ export class ComponentFormView {
 			retainContextWhenHidden: true,
 		});
 
-		panel.iconPath = vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons",extName === "Devant" ? "devant-2.svg" : "choreo-2.svg");
-
+		panel.iconPath = {
+			light: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons",extName  === "Devant" ? "devant-2-black.svg" : "choreo-2-black.svg"),
+			dark: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons",extName  === "Devant" ? "devant-2-white.svg" : "choreo-2-white.svg"),
+		};
+		
 		return panel;
 	}
 
