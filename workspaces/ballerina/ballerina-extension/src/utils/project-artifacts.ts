@@ -492,7 +492,14 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
             const tempServiceModel = StateMachine.context().tempData?.serviceModel;
             if (tempServiceModel) { // This is used to check if the created entry is a service model
                 if (entryValue.moduleName === tempServiceModel.moduleName) {
-                    selectedEntry = entryValue;
+                    if (entryValue.name.includes("-")) {
+                        const servicePath = entryValue.name.split('-')[1].trim();
+                        if (JSON.stringify(tempServiceModel.properties).includes(servicePath)) {
+                            selectedEntry = entryValue;
+                        }
+                    } else {
+                        selectedEntry = entryValue;
+                    }
                 }
             }
             break;
