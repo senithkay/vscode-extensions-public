@@ -103,6 +103,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     useEffect(() => {
         rpcClient.onProjectContentUpdated((state: boolean) => {
             console.log(">>> on project content updated", state);
+            if (!topNodeRef.current || !targetRef.current) {
+                console.error(">>> No parent or target found");
+                return;
+            }
             setShowProgressIndicator(true);
             setTimeout(() => {
                 fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, true);
@@ -110,6 +114,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
             console.log(">>> on parent popup submitted", parent);
+            if (!topNodeRef.current || !targetRef.current) {
+                console.error(">>> No parent or target found");
+                return;
+            }
             setShowProgressIndicator(true);
             setTimeout(() => {
                 fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, false);
@@ -225,6 +233,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         fetchAiSuggestions = true,
         updateFlowModel = true
     ) => {
+        if (!parent || !target) {
+            console.error(">>> No parent or target found");
+            return;
+        }
         const getNodeRequest: BIAvailableNodesRequest = {
             position: target.startLine,
             filePath: model?.fileName || parent?.codedata?.lineRange.fileName,
