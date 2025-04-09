@@ -45,13 +45,13 @@ const stateMachine = createMachine<MachineContext>(
                 actions: [
                     assign({
                         projectStructure: (context, event) => event.payload,
-                        tempData: (context, event) => event.location ? undefined : context.tempData // Remove temp data if the location is set
+                        tempData: (context, event) => event.isOpenView ? undefined : context.tempData // Remove temp data if the location is set
                     }),
                     (context, event) => {
-                        if (event.location) {
+                        if (event.isOpenView) {
                             openView(EVENT_TYPE.OPEN_VIEW, event.location);
                         } else {
-                            notifyCurrentWebview();
+                            updateView();
                         }
                         commands.executeCommand("BI.project-explorer.refresh");
                     }
@@ -435,7 +435,7 @@ export const StateMachine = {
     setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
     setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
-    updateProjectStructure: (payload: ProjectStructureResponse, location?: VisualizerLocation) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, location }); },
+    updateProjectStructure: (payload: ProjectStructureResponse, location: VisualizerLocation, isOpenView: boolean) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, location, isOpenView }); },
     setTempData: (payload: TempData) => { stateService.send({ type: "SET_TEMP_DATA", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
@@ -443,6 +443,7 @@ export const StateMachine = {
 };
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
+    StateMachine.setReadyMode();
     if (resetHistory) {
         history?.clear();
     }

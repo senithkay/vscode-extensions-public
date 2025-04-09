@@ -97,6 +97,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 .getServiceModelFromCode({ filePath, codedata: { lineRange } })
                 .then((res) => {
                     console.log("Service Model: ", res.service);
+                    setShowForm(false);
                     setServiceModel(res.service);
                     setIsSaving(false);
                 });
@@ -217,7 +218,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
         }
         setIsNew(false);
-        handleNewFunctionClose();
     };
 
     const handleFunctionSubmit = async (value: FunctionModel) => {
@@ -339,11 +339,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         <LoadingRing message="Loading Service..." />
                     </LoadingContainer>
                 )}
-                {isSaving && (
-                    <LoadingContainer>
-                        <LoadingRing message="Saving..." />
-                    </LoadingContainer>
-                )}
                 {serviceModel && (
                     <>
                         <InfoContainer>
@@ -424,6 +419,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     >
                         <ResourceForm
                             model={functionModel}
+                            isSaving={isSaving}
                             onSave={handleResourceSubmit}
                             onClose={handleNewFunctionClose}
                         />

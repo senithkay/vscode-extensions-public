@@ -1473,6 +1473,11 @@ export interface Artifacts {
     [ARTIFACT_TYPE.Configurations]: Record<string, BaseArtifact>;
 }
 
+export interface ArtifactsNotification {
+    uri: string;
+    artifacts: Artifacts;
+}
+
 export interface ProjectArtifactsRequest {
     projectPath: string;
 }

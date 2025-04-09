@@ -8,7 +8,7 @@
  */
 
 import { URI, Utils } from "vscode-uri";
-import { ARTIFACT_TYPE, Artifacts, BaseArtifact, DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { ARTIFACT_TYPE, Artifacts, ArtifactsNotification, BaseArtifact, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, ProjectStructureResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { StateMachine } from "../stateMachine";
 import { ExtendedLangClient } from "../core/extended-language-client";
 
@@ -39,46 +39,54 @@ export async function buildProjectArtifactsStructure(projectDir: string, langCli
 }
 
 export async function forceUpdateProjectArtifacts() {
-    const result: ProjectStructureResponse = {
-        projectName: "",
-        directoryMap: {
-            [DIRECTORY_MAP.AUTOMATION]: [],
-            [DIRECTORY_MAP.SERVICE]: [],
-            [DIRECTORY_MAP.LISTENER]: [],
-            [DIRECTORY_MAP.FUNCTION]: [],
-            [DIRECTORY_MAP.CONNECTION]: [],
-            [DIRECTORY_MAP.TYPE]: [],
-            [DIRECTORY_MAP.CONFIGURABLE]: [],
-            [DIRECTORY_MAP.DATA_MAPPER]: [],
-            [DIRECTORY_MAP.NP_FUNCTION]: [],
-            [DIRECTORY_MAP.AGENTS]: [],
-            [DIRECTORY_MAP.LOCAL_CONNECTORS]: [],
+    return new Promise(async (resolve) => {
+        const result: ProjectStructureResponse = {
+            projectName: "",
+            directoryMap: {
+                [DIRECTORY_MAP.AUTOMATION]: [],
+                [DIRECTORY_MAP.SERVICE]: [],
+                [DIRECTORY_MAP.LISTENER]: [],
+                [DIRECTORY_MAP.FUNCTION]: [],
+                [DIRECTORY_MAP.CONNECTION]: [],
+                [DIRECTORY_MAP.TYPE]: [],
+                [DIRECTORY_MAP.CONFIGURABLE]: [],
+                [DIRECTORY_MAP.DATA_MAPPER]: [],
+                [DIRECTORY_MAP.NP_FUNCTION]: [],
+                [DIRECTORY_MAP.AGENTS]: [],
+                [DIRECTORY_MAP.LOCAL_CONNECTORS]: [],
+            }
+        };
+        const langClient = StateMachine.context().langClient;
+        const projectDir = StateMachine.context().projectUri;
+        const designArtifacts = await langClient.getProjectArtifacts({ projectPath: projectDir });
+        if (designArtifacts?.artifacts) {
+            traverseComponents(designArtifacts.artifacts, result);
+            await populateLocalConnectors(projectDir, result);
         }
-    };
-    const langClient = StateMachine.context().langClient;
-    const projectDir = StateMachine.context().projectUri;
-    const designArtifacts = await langClient.getProjectArtifacts({ projectPath: projectDir });
-    if (designArtifacts?.artifacts) {
-        traverseComponents(designArtifacts.artifacts, result);
-        await populateLocalConnectors(projectDir, result);
-    }
-    StateMachine.updateProjectStructure({ ...result });
+        StateMachine.updateProjectStructure({ ...result }, { view: MACHINE_VIEW.Overview }, true);
+        resolve(true);
+    });
 }
 
-export function updateProjectArtifacts(publishedArtifacts: Artifacts) {
+export function updateProjectArtifacts(publishedArtifacts: ArtifactsNotification) {
     // Current project structure
     const currentProjectStructure: ProjectStructureResponse = StateMachine.context().projectStructure;
     if (publishedArtifacts && currentProjectStructure) {
-        const entryLocation = traverseUpdatedComponents(publishedArtifacts, currentProjectStructure);
+        const entryLocation = traverseUpdatedComponents(publishedArtifacts.artifacts, currentProjectStructure);
         StateMachine.setReadyMode();
+        // Skip if the user is in diagram view
+        const currentView = StateMachine.context().view;
+        const skipOpeningViews = [MACHINE_VIEW.BIDiagram, MACHINE_VIEW.ServiceDesigner];
         if (entryLocation) {
             const location: VisualizerLocation = {
                 documentUri: entryLocation?.path,
                 position: entryLocation?.position
             };
-            StateMachine.updateProjectStructure({ ...currentProjectStructure }, location);
-        } else {
-            StateMachine.updateProjectStructure({ ...currentProjectStructure });
+            if (!skipOpeningViews.includes(currentView)) { // Check if the user is in a view that should not be opened
+                StateMachine.updateProjectStructure({ ...currentProjectStructure }, location, true);
+            } else {
+                StateMachine.updateProjectStructure({ ...currentProjectStructure }, location, false);
+            }
         }
     }
 }
@@ -121,7 +129,7 @@ function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: string
         moduleName: artifact.module,
         type: artifact.type,
         icon: artifact.module ? `bi-${artifact.module}` : icon,
-        context: artifact.name,
+        context: artifact.name === "automation" ? "main" : artifact.name,
         resources: [],
         position: {
             endColumn: artifact.location.endLine.offset,
@@ -412,9 +420,6 @@ function handleUpdates(artifact: BaseArtifact, key: string, currentProjectStruct
 function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStructureArtifactResponse) {
     let selectedEntry: ProjectStructureArtifactResponse;
     switch (mapType) {
-        case DIRECTORY_MAP.AUTOMATION:
-            // Do nothing
-            break;
         case DIRECTORY_MAP.SERVICE:
             // Check if the created entry matched the properties of the temp service model
             const tempServiceModel = StateMachine.context().tempData?.serviceModel;
@@ -424,12 +429,13 @@ function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStructureA
                 }
             }
             break;
+        case DIRECTORY_MAP.AUTOMATION:
         case DIRECTORY_MAP.FUNCTION:
         case DIRECTORY_MAP.DATA_MAPPER:
             // Check if the created entry matched the properties of the temp function
             const tempFunction = StateMachine.context().tempData?.flowNode;
-            if (tempFunction) { // This is used to check if the created entry is a function
-                if (entryValue.name === tempFunction.properties.functionName.value) {
+            if (tempFunction) {
+                if (tempFunction.properties.functionName && entryValue.context === tempFunction.properties.functionName.value) {
                     selectedEntry = entryValue;
                 }
             }
