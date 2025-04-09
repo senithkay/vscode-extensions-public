@@ -1129,6 +1129,7 @@ export interface TypeFunctionModel {
     restParameter?: Member;
     returnType?: Type | string;
     refs: string[];
+    imports?: Imports;
 }
 
 export interface TypeMetadata {
@@ -1161,6 +1162,7 @@ export interface Member {
     docs?: string;
     defaultValue?: string;
     optional?: boolean;
+    imports?: Imports;
 }
 
 export interface GetGraphqlTypeRequest {

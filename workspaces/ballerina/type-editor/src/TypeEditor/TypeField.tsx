@@ -9,17 +9,19 @@
 
 import React, { forwardRef, useRef, useState, useEffect, useCallback } from 'react';
 import { TextField, Position } from '@wso2-enterprise/ui-toolkit';
-import { Type } from '@wso2-enterprise/ballerina-core';
+import { AddImportItemResponse, Imports, Type } from '@wso2-enterprise/ballerina-core';
 import { typeToSource } from './TypeUtil';
-import { TypeHelper } from '../TypeHelper';
+import { TypeHelper, TypeHelperItem } from '../TypeHelper';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI, Utils } from 'vscode-uri';
 import { debounce } from 'lodash';
+import { useTypeHelperContext } from '../Context';
 
 interface TypeFieldProps {
     type: string | Type;
     memberName: string;
     onChange: (value: string) => void;
+    onUpdateImports: (imports: Imports) => void;
     placeholder?: string;
     sx?: React.CSSProperties;
     onValidationError?: (isError: boolean) => void;
@@ -31,7 +33,21 @@ interface TypeFieldProps {
 }
 
 export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, ref) => {
-    const { type, onChange, placeholder, sx, memberName, rootType, onValidationError, isAnonymousRecord, label, required, autoFocus } = props;
+    const {
+        type,
+        onChange,
+        onUpdateImports,
+        placeholder,
+        sx,
+        memberName,
+        rootType,
+        onValidationError,
+        isAnonymousRecord,
+        label,
+        required,
+        autoFocus
+    } = props;
+    const { onTypeItemClick, ...rest } = useTypeHelperContext();
 
     const typeFieldRef = useRef<HTMLInputElement>(null);
     const typeHelperRef = useRef<HTMLDivElement>(null);
@@ -166,6 +182,17 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
         }
     };
 
+    const handleTypeItemClick = async (item: TypeHelperItem): Promise<string> => {
+        const response = await onTypeItemClick(item) as AddImportItemResponse;
+        if (response.prefix && response.moduleId) {
+            const importStatement = {
+                [response.prefix]: response.moduleId
+            }
+            onUpdateImports(importStatement);
+        }
+        return response.template;
+    };
+
     /* Track cursor position */
     useEffect(() => {
         const typeField = typeFieldRef.current;
@@ -204,6 +231,8 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                 positionOffset={helperPaneOffset}
                 open={helperPaneOpened}
                 onClose={() => setHelperPaneOpened(false)}
+                onTypeItemClick={handleTypeItemClick}
+                {...rest}
             />
         </>
     );

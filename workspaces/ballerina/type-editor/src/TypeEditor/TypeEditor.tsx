@@ -11,7 +11,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { TextField, Dropdown, Button, SidePanelBody, ProgressRing, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Member, Type, UndoRedoManager, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
+import { Member, Type, UndoRedoManager, TypeNodeKind, Imports, AddImportItemResponse } from "@wso2-enterprise/ballerina-core";
 import { RecordFromJson } from "../RecordFromJson/RecordFromJson";
 import { RecordFromXml } from "../RecordFromXml/RecordFromXml";
 import { RecordEditor } from "./RecordEditor";
@@ -105,6 +105,7 @@ const EditableRow = styled.div`
 
 interface TypeEditorProps {
     type?: Type;
+    imports?: Imports;
     rpcClient: BallerinaRpcClient;
     onTypeChange: (type: Type) => void;
     newType: boolean;
@@ -119,7 +120,7 @@ interface TypeEditorProps {
         typeBrowserTypes: TypeHelperCategory[];
         onSearchTypeHelper: (searchText: string, isType?: boolean) => void;
         onSearchTypeBrowser: (searchText: string) => void;
-        onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
+        onTypeItemClick: (item: TypeHelperItem) => Promise<AddImportItemResponse>;
     }
 }
 
