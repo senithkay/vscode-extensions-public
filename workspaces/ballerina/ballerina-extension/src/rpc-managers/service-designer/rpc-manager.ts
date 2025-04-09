@@ -331,11 +331,21 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         StateMachine.setEditMode();
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
         let position: NodePosition;
-        for (const [key, value] of Object.entries(params.textEdits)) {
+        const sortedTextEdits = Object.entries(params.textEdits).sort((a, b) => b[0].length - a[0].length);
+        for (const [key, value] of sortedTextEdits) {
             const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
             if (!existsSync(fileUri.fsPath)) {
                 writeFileSync(fileUri.fsPath, '');
+                await new Promise(resolve => setTimeout(resolve, 500)); // Add small delay to ensure file is created
+                await StateMachine.langClient().didOpen({
+                    textDocument: {
+                        uri: fileUriString,
+                        text: '',
+                        languageId: 'ballerina',
+                        version: 1
+                    }
+                });
             }
             const edits = value;
 
