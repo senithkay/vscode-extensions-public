@@ -61,9 +61,9 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     if (!field.enabled || field.hidden) {
         return <></>;
     } else if (field.type === "MULTIPLE_SELECT") {
-        return <MultiSelectEditor field={field} label={"Add Another"} openSubPanel={openSubPanel} />;
+        return <MultiSelectEditor field={field} label={"Attach Another"} openSubPanel={openSubPanel} />;
     } else if (field.type === "CHOICE") {
-        return <ChoiceForm field={field} recordTypeFields={recordTypeFields}/>;
+        return <ChoiceForm field={field} recordTypeFields={recordTypeFields} />;
     } else if (field.type === "DROPDOWN_CHOICE") {
         return <DropdownChoiceForm field={field} />;
     } else if (field.type === "TEXTAREA") {
