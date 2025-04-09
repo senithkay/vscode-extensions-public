@@ -716,13 +716,17 @@ export function AIChat() {
                     "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)"
                 )
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
-                .replace(/\{requirements\}/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(.+?)")
                 .replace(/\{functionname\}/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");
+            
+            let regexpattern = `^${pattern}$`;
+            if (template == GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS) {
+                regexpattern = `^${pattern}`;
+            }
 
-            const regex = new RegExp(`^${pattern}$`, "i");
+            const regex = new RegExp(regexpattern, "i");
             const match = messageBody.match(regex);
             if (match) {
                 if (command === COMMAND_DATAMAP && template.includes("<recordname(s)>")) {
