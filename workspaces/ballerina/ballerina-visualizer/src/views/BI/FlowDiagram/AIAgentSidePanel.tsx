@@ -91,7 +91,13 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                 const connectionsCategory = response.categories.filter(
                     (item) => item.metadata.label === "Connections"
                 ) as Category[];
-                console.log("connectionsCategory", connectionsCategory);
+                // remove connections which names start with _ underscore
+                if (connectionsCategory.at(0)?.items) {
+                    const filteredConnectionsCategory = connectionsCategory
+                        .at(0)
+                        ?.items.filter((item) => !item.metadata.label.startsWith("_"));
+                    connectionsCategory.at(0).items = filteredConnectionsCategory;
+                }
                 const convertedCategories = convertBICategoriesToSidePanelCategories(connectionsCategory);
                 console.log("convertedCategories", convertedCategories);
 
@@ -142,9 +148,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         });
 
         if (isSearching && searchText) {
-            setCategories(
-                convertFunctionCategoriesToSidePanelCategories(filteredResponse, functionType)
-            );
+            setCategories(convertFunctionCategoriesToSidePanelCategories(filteredResponse, functionType));
             return;
         }
         if (!response || !filteredResponse) {

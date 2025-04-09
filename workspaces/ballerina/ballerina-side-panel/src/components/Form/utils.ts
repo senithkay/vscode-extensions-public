@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FormField, FormFieldImport } from "../..";
+import { FormField, FormImports } from "../..";
 
 // This function allows us to format strings by adding indentation as tabs to the lines
 export function formatJSONLikeString(input: string): string {
@@ -33,7 +33,7 @@ export function stripHtmlTags(content: string): string {
     return content?.replace(/<[^>]*>/g, "") || "";
 }
 
-export function updateFormFieldWithImports(formField: FormField, fieldImports: Record<string, FormFieldImport>) {
+export function updateFormFieldWithImports(formField: FormField, fieldImports: FormImports) {
     if (fieldImports?.[formField.key]) {
         formField.imports = fieldImports[formField.key];
     }
