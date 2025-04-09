@@ -12,7 +12,7 @@ import {
     AIChatRequest,
     AddFieldRequest,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -1140,7 +1140,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+    async addFunction(params: AddFunctionRequest): Promise<AddImportItemResponse> {
         return new Promise((resolve) => {
             StateMachine.langClient().addFunction(params)
                 .then((response) => {

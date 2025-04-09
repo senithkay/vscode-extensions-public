@@ -963,10 +963,8 @@ export interface AddFunctionRequest {
     searchKind: SearchKind;
 }
 
-export interface AddFunctionResponse {
+export interface AddImportItemResponse extends ImportsInfoResponse {
     template: string;
-    moduleId: string;
-    prefix: string;
 }
 
 export interface RenameIdentifierRequest {
@@ -1131,6 +1129,7 @@ export interface TypeFunctionModel {
     restParameter?: Member;
     returnType?: Type | string;
     refs: string[];
+    imports?: Imports;
 }
 
 export interface TypeMetadata {
@@ -1163,6 +1162,7 @@ export interface Member {
     docs?: string;
     defaultValue?: string;
     optional?: boolean;
+    imports?: Imports;
 }
 
 export interface GetGraphqlTypeRequest {
@@ -1534,7 +1534,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
     updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<ImportsInfoResponse>;
-    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddImportItemResponse>;
     convertJsonToRecordType: (params: JsonToRecordParams) => Promise<TypeDataWithReferences>;
     convertXmlToRecordType: (params: XMLToRecordParams) => Promise<TypeDataWithReferences>;
 

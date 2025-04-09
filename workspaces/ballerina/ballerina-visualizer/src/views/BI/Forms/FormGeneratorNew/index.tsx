@@ -555,11 +555,9 @@ export function FormGeneratorNew(props: FormProps) {
                 onClose={onCloseTypeEditor}
             >
                 <FormTypeEditor
-                    fieldKey={typeEditorState.field?.key}
                     newType={true}
                     onTypeChange={handleTypeChange}
                     newTypeValue={typeEditorState.newTypeValue}
-                    updateImports={handleUpdateImports}
                     {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>

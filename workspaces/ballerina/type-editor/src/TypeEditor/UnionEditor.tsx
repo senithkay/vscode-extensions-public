@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { Type, Member } from "@wso2-enterprise/ballerina-core";
+import { Type, Member, Imports } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeField } from "./TypeField";
 
@@ -73,6 +73,7 @@ export function UnionEditor({ type, onChange, rpcClient, onValidationError }: Un
     // Add state to track validation errors for each field
     const [validationErrors, setValidationErrors] = useState<boolean[]>([]);
     const [notEnoughMembers, setNotEnoughMembers] = useState<boolean>(false);
+    const currentImports = useRef<Imports | undefined>();
 
     // Initialize with two default members if none exist
     useEffect(() => {
@@ -166,14 +167,26 @@ export function UnionEditor({ type, onChange, rpcClient, onValidationError }: Un
             ...updatedMembers[index],
             type: name,
             name: name,
-            refs: []
+            refs: [],
+            imports: currentImports.current
         };
 
         onChange({
             ...type,
             members: updatedMembers
         });
+        currentImports.current = undefined;
     };
+
+    const handleUpdateImports = (index: number, imports: Imports) => {
+        const newImportKey = Object.keys(imports)[0];
+        const currentMember = type.members[index];
+        if (!currentMember.imports || !Object.keys(currentMember.imports)?.includes(newImportKey)) {
+            // Updated the existing imports with the new imports
+            const updatedImports = { ...currentMember.imports, ...imports };
+            currentImports.current = updatedImports;
+        }
+    }
 
     const deleteMember = (index: number) => {
         const updatedMembers = type.members.filter((_, i) => i !== index);
@@ -200,6 +213,7 @@ export function UnionEditor({ type, onChange, rpcClient, onValidationError }: Un
                         type={member.type}
                         memberName={typeof member.type === 'string' ? member.type : member.name}
                         onChange={(newType) => updateMember(index, newType)}
+                        onUpdateImports={(imports) => handleUpdateImports(index, imports)}
                         placeholder="Enter type"
                         sx={{ flexGrow: 1 }}
                         rootType={type}
