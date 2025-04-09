@@ -276,3 +276,12 @@ export const findFunctionByName = (components: BallerinaProjectComponents, funct
     }
     return null;
 };
+
+export const updateFlowNodePropertyValuesWithKeys = (flowNode: FlowNode) => {
+    const excludedKeys = ["variable", "type", "checkError", "targetType"];
+    for (const key in flowNode.properties) {
+        if (!excludedKeys.includes(key)) {
+            (flowNode.properties as Record<string, { value: string }>)[key].value = key;
+        }
+    }
+}

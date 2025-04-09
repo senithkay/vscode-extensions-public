@@ -14,7 +14,7 @@ import { URI, Utils } from "vscode-uri";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { AIAgentSidePanel } from "./AIAgentSidePanel";
 import { RelativeLoader } from "../../../components/RelativeLoader";
-import { addToolToAgentNode, findAgentNodeFromAgentCallNode } from "./utils";
+import { addToolToAgentNode, findAgentNodeFromAgentCallNode, updateFlowNodePropertyValuesWithKeys } from "./utils";
 
 const LoaderContainer = styled.div`
     display: flex;
@@ -156,6 +156,7 @@ export function NewTool(props: NewToolProps): JSX.Element {
                         endLine: agentNode.codedata.lineRange.startLine,
                     };
                 }
+                updateFlowNodePropertyValuesWithKeys(nodeTemplate.flowNode);
                 // save tool
                 const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
                     toolName: data.toolName,
