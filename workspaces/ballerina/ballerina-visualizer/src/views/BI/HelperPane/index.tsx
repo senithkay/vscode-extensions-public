@@ -122,8 +122,6 @@ const HelperPaneEl = ({
                     {!isAssignIdentifier && (
                         <HelperPane.PanelView id={recordTypeField ? 3 : 2}>
                             <ConfigurablePage
-                                fileName={fileName}
-                                targetLineRange={targetLineRange}
                                 onChange={handleChange}
                             />
                         </HelperPane.PanelView>
