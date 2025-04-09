@@ -49,7 +49,7 @@ import {
     UpdateImportsRequest,
     UpdateImportsResponse,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     FunctionNodeRequest,
     FunctionNodeResponse,
     ServiceClassModelResponse,
@@ -152,7 +152,7 @@ export interface BIDiagramAPI {
     getRecordModelFromSource: (params: GetRecordModelFromSourceRequest) => Promise<GetRecordModelFromSourceResponse>;
     getRecordSource: (params: RecordSourceGenRequest) => Promise<RecordSourceGenResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
-    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddImportItemResponse>;
     getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
     getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
     search: (params: BISearchRequest) => Promise<BISearchResponse>;

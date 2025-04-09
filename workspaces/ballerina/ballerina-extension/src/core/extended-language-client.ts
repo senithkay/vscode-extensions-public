@@ -149,7 +149,7 @@ import {
     ListenerModelFromCodeRequest,
     ListenerModelFromCodeResponse,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     UpdateImportsRequest,
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
@@ -1036,8 +1036,8 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ImportsInfoResponse>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
     }
 
-    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
-        return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
+    async addFunction(params: AddFunctionRequest): Promise<AddImportItemResponse> {
+        return this.sendRequest<AddImportItemResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
     }
 
     async getAllAgents(params: AINodesRequest): Promise<AINodesResponse> {
