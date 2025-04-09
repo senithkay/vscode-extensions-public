@@ -400,7 +400,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
             {enableSequenceDiagram && !isAgent && (
                 <Switch
                     leftLabel="Flow"
-                    rightLabel="Sequence (Beta)"
+                    rightLabel="Sequence"
                     checked={showSequenceDiagram}
                     checkedColor="var(--vscode-button-background)"
                     enableTransition={true}
