@@ -33,8 +33,18 @@ const getFileName = (language: string, segmentText: string, loading: boolean): s
             return xmlMatch ? xmlMatch[2] : "XML File";
         case "toml":
             return "deployment.toml";
+        case "bash":
+            return "script.sh";
+        case "json":
+            return "data.json";
+        case "javascript":
+            return "script.js";
+        case "java":
+            return "Main.java";
+        case "python":
+            return "script.py";
         default:
-            return `${language} file`;
+            return `Code | Script`;
     }
 };
 
@@ -60,9 +70,9 @@ export const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, 
     // Dynamically determine if the segment is revertable
     const isRevertable = currentAddedfFromChatIndex !== -1 && currentAddedfFromChatIndex === index;
 
+    // Get file path depending on the artifact type
     const fetchFileInfo = async () => {
         const fileInfo = await identifyArtifactTypeAndPath(name, segmentText, rpcClient);
-        console.log("File Info:", fileInfo);
         if (fileInfo) {
             filePath = fileInfo.path;
         }
@@ -82,7 +92,7 @@ export const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, 
     };
 
     const handleAddToWorkspace = async (e: React.MouseEvent) => {
-        console.log("Adding to workspace");
+        console.log(name, " - Adding to workspace : ", name);
         e.stopPropagation();
         await fetchFileInfo();
 
@@ -135,7 +145,7 @@ export const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, 
     };
 
     const handleRevertToLastCheckpoint = async (e: React.MouseEvent) => {
-        console.log("Reverting to last checkpoint");
+        console.log(name, " - Reverting to last checkpoint");
         e.stopPropagation();
         await fetchFileInfo();
 

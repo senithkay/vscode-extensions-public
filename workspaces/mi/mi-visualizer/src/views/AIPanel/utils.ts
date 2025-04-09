@@ -16,7 +16,6 @@ import {
     MI_SUGGESTIVE_QUESTIONS_BACKEND_URL,
     COPILOT_ERROR_MESSAGES,
     MAX_FILE_SIZE, VALID_FILE_TYPES,
-    PROJECT_RUNTIME_VERSION_THRESHOLD
 } from "./constants";
 import path from "path";
 
@@ -48,28 +47,20 @@ export async function getProjectUUID(rpcClient: RpcClientType): Promise<string |
         }
     }
 
+// Add set of code blocks to the workspace
 export async function handleAddtoWorkspace(rpcClient: RpcClientType, codeBlocks: string[]) {
-    await rpcClient
-        .getMiDiagramRpcClient()
-        .writeContentToFile({ content: codeBlocks })
-        .then((response) => {
-            console.log(response);
-        });
+    await rpcClient.getMiDiagramRpcClient().writeContentToFile({ content: codeBlocks })
 
     rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
     rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.open-project-overview"] });
 };    
 
-// Add selected code to the workspace
+// Add a selected code to the workspace
 export async function handleAddSelectiveCodetoWorkspace(rpcClient: RpcClientType, codeSegment: string) {
         var selectiveCodeBlocks: string[] = [];
         selectiveCodeBlocks.push(codeSegment);
-        await rpcClient
-            .getMiDiagramRpcClient()
-            .writeContentToFile({ content: selectiveCodeBlocks })
-            .then((response) => {
-                console.log(response);
-            });
+        await rpcClient.getMiDiagramRpcClient().writeContentToFile({ content: selectiveCodeBlocks })
+
         rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });   
         rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.open-project-overview"] }); 
     };
@@ -108,26 +99,26 @@ export function splitHalfGeneratedCode(content: string) {
     }
 
 export function splitContent(content: string) {
-        if (!content) {
-            return [];
-        }
-        const segments = [];
-        let match;
-        const regex = /```xml([\s\S]*?)```/g;
-        let start = 0;
+    if (!content) {
+        return [];
+    }
+    const segments = [];
+    let match;
+    const regex = /```(xml|bash|json|javascript|java|python)([\s\S]*?)```/g;
+    let start = 0;
 
-        while ((match = regex.exec(content)) !== null) {
-            if (match.index > start) {
-                const segment = content.slice(start, match.index);
-                segments.push(...splitHalfGeneratedCode(segment));
-            }
-            segments.push({ isCode: true, loading: false, text: match[1] });
-            start = regex.lastIndex;
+    while ((match = regex.exec(content)) !== null) {
+        if (match.index > start) {
+        const segment = content.slice(start, match.index);
+        segments.push(...splitHalfGeneratedCode(segment));
         }
-        if (start < content.length) {
-            segments.push(...splitHalfGeneratedCode(content.slice(start)));
-        }
-        return segments;
+        segments.push({ isCode: true, loading: false, language: match[1], text: match[2] });
+        start = regex.lastIndex;
+    }
+    if (start < content.length) {
+        segments.push(...splitHalfGeneratedCode(content.slice(start)));
+    }
+    return segments;
     }
 
 export function identifyLanguage(segmentText: string): string {
@@ -150,7 +141,6 @@ export async function identifyArtifactTypeAndPath(name: string, segmentText: str
     let fileType = "";
     if (tagMatch) {
         const tag = tagMatch[1];
-        console.log("Tag - ", tag);
         switch (tag) {
             case "api":
                 fileType = "apis";
@@ -288,7 +278,6 @@ export async function generateSuggestions(
         const data = (await response.json()) as ApiResponse;
 
         if (data.event === "suggestion_generation_success") {
-            console.log ("Suggestions: ", data.questions);
             return data.questions.map((question) => ({
                 id: generateId(),
                 role: Role.default,
@@ -420,8 +409,6 @@ export async function fetchWithRetry(
     let retryCount = 0;
     const maxRetries = 2;
     const token = await rpcClient?.getMiDiagramRpcClient().getUserAccessToken();
-    console.log("body", body);
-    console.log("requestbody",JSON.stringify(body));
 
     let response = await fetch(url, {
         method: "POST",
