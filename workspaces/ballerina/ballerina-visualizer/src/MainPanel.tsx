@@ -107,10 +107,6 @@ const MainPanel = () => {
         setPopupState(newState);
     });
 
-    rpcClient?.onProjectContentUpdated((newState: boolean) => {
-        fetchContext();
-    });
-
     rpcClient?.onBreakpointChanges((state: boolean) => {
         fetchContext();
         console.log("Breakpoint changes");
