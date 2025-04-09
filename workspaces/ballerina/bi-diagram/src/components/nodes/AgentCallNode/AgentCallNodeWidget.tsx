@@ -547,13 +547,13 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
 
                     <NodeStyles.MemoryContainer>
                         <NodeStyles.Row>
-                            {(model.node.metadata?.data as any)?.memoryManager ? (
+                            {model.node.metadata?.data.memory ? (
                                 <NodeStyles.MemoryCard onClick={onMemoryManagerClick}>
                                     <NodeStyles.Row>
                                         <div style={{ flex: 1 }}>
                                             <NodeStyles.MemoryTitle>Memory</NodeStyles.MemoryTitle>
                                             <NodeStyles.MemoryMeta>
-                                                {(model.node.metadata.data as any).memoryManager?.type ||
+                                                {model.node.metadata.data.memory?.type ||
                                                     "MessageWindowChatMemory"}
                                             </NodeStyles.MemoryMeta>
                                         </div>

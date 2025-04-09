@@ -10,7 +10,8 @@
 import React, { useState, useEffect } from 'react';
 import { FieldType, LineRange, Type } from '@wso2-enterprise/ballerina-core';
 import { FormGeneratorNew } from '../Forms/FormGeneratorNew';
-import { FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { FormField, FormImports, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { getImportsForProperty } from '../../../utils/bi';
 
 interface VariableFormProps {
     model: FieldType;
@@ -69,12 +70,20 @@ export function VariableForm(props: VariableFormProps) {
         setFields(initialFields);
     }, [model]);
 
-    const handleVariableSave = (data: FormValues) => {
+    const handleVariableSave = (data: FormValues, formImports: FormImports) => {
         const updatedVariable: FieldType = {
             ...model,
             name: { ...model.name, value: data.name },
-            type: { ...model.type, value: data.returnType },
-            defaultValue: { ...model.defaultValue, value: data.expression }
+            type: {
+                ...model.type,
+                value: data.returnType,
+                imports: getImportsForProperty('returnType', formImports)
+            },
+            defaultValue: {
+                ...model.defaultValue,
+                value: data.expression,
+                imports: getImportsForProperty('expression', formImports)
+            }
         };
         onSave(updatedVariable);
     };
@@ -90,6 +99,7 @@ export function VariableForm(props: VariableFormProps) {
                     onBack={onClose}
                     submitText="Save"
                     isGraphqlEditor={isGraphqlEditor}
+                    helperPaneSide="left"
                 />
             )}
         </>

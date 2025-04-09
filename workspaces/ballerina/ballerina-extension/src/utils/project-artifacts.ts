@@ -506,7 +506,7 @@ function getCustomEntryNodeIcon(type: string) {
         case "file":
             return "bi-file";
         default:
-            return "bi-http-service";
+            return "bi-globe";
     }
 }
 

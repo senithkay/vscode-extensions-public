@@ -1126,6 +1126,7 @@ export function getDefaultValue(typeName: string): string {
 			break;
 		case PrimitiveBalType.Enum:
 		case PrimitiveBalType.Union:
+			draftParameter = `()`;
 			break;
 		default:
 			draftParameter = `""`;
@@ -2035,7 +2036,7 @@ export const getOptionalArrayField = (field: TypeField): TypeField | undefined =
 }
 
 /** Filter out error and nill types and return only the types that can be displayed as mapping as target nodes */
-export const getFilteredUnionOutputTypes = (type: TypeField) => type.members?.filter(member => member && !["error", "()"].includes(member.typeName));
+export const getFilteredUnionOutputTypes = (type: TypeField) => type.members?.filter(member => member && !["error"].includes(member.typeName));
 
 
 export const getNewFieldAdditionModification = (node: STNode, fieldName: string, fieldValue = '') => {

@@ -138,6 +138,64 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
+    useEffect(() => {
+        if (model && selectedNodeRef.current?.codedata?.lineRange?.startLine) {
+            const matchingNode = findNodeByStartLine(model, selectedNodeRef.current.codedata.lineRange.startLine);
+            console.log(">>> Matching node", matchingNode);
+
+            // Only update refs if we found a matching node and it's different from the current one
+            if (matchingNode && matchingNode.id !== selectedNodeRef.current.id) {
+                selectedNodeRef.current = matchingNode;
+                targetRef.current = matchingNode.codedata.lineRange;
+            }
+        }
+    }, [model]);
+
+    const findNodeByStartLine = (flowModel: Flow, startLine: any): FlowNode | undefined => {
+        if (!flowModel || !flowModel.nodes || !startLine) {
+            return undefined;
+        }
+
+        // Helper function to check if a node matches the target startLine
+        const isNodeAtStartLine = (node: FlowNode): boolean => {
+            if (!node.codedata || !node.codedata.lineRange || !node.codedata.lineRange.startLine) {
+                return false;
+            }
+
+            const nodeStartLine = node.codedata.lineRange.startLine;
+
+            // Check if the node's startLine matches the target startLine
+            return (
+                nodeStartLine.line === startLine.line &&
+                nodeStartLine.offset === startLine.offset
+            );
+        };
+
+        // Recursive function to search through nodes and their branches
+        const searchNodes = (nodes: FlowNode[]): FlowNode | undefined => {
+            for (const node of nodes) {
+                if (isNodeAtStartLine(node)) {
+                    return node;
+                }
+
+                if (node.branches && node.branches.length > 0) {
+                    for (const branch of node.branches) {
+                        if (branch.children && branch.children.length > 0) {
+                            const foundNode = searchNodes(branch.children);
+                            if (foundNode) {
+                                return foundNode;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return undefined;
+        };
+
+        return searchNodes(flowModel.nodes);
+    };
+
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
@@ -200,6 +258,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .finally(() => {
                 setShowProgressIndicator(false);
             });
+
 
         if (!fetchAiSuggestions) {
             return;
@@ -275,11 +334,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "NP_FUNCTION",
         };
@@ -310,11 +369,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -782,15 +841,17 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             const agentFilePath = await getAgentFilePath(rpcClient);
 
             // remove memory manager statement if any
-            if (agentNode.properties.memoryManager && agentNode.properties.memoryManager?.value !== "()") {
-                const memoryManagerVar = agentNode.properties.memoryManager.value as string;
-                const memoryManagerNode = await findFlowNodeByModuleVarName(memoryManagerVar, rpcClient);
-                if (memoryManagerNode) {
-                    await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
-                        filePath: agentFilePath,
-                        flowNode: memoryManagerNode,
-                    });
-                    console.log(">>> deleted memory manager node", memoryManagerNode);
+            if (agentNode.properties.memory && agentNode.properties.memory?.value !== "()") {
+                const memoryVar = agentNode.properties.memory.value as string;
+                if (memoryVar) {
+                    const memoryNode = await findFlowNodeByModuleVarName(memoryVar, rpcClient);
+                    if (memoryNode) {
+                        await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
+                            filePath: agentFilePath,
+                            flowNode: memoryNode,
+                        });
+                        console.log(">>> deleted memory manager node", memoryNode);
+                    }
                 }
             }
 
@@ -798,8 +859,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             const updatedAgentNode = cloneDeep(agentNode);
 
             // Remove memory manager from agent node
-            if (!updatedAgentNode.properties.memoryManager) {
-                updatedAgentNode.properties.memoryManager = {
+            if (!updatedAgentNode.properties.memory) {
+                updatedAgentNode.properties.memory = {
                     value: "",
                     advanced: true,
                     optional: true,
@@ -813,7 +874,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     placeholder: "object {}",
                 };
             } else {
-                agentNode.properties.memoryManager.value = "()";
+                agentNode.properties.memory.value = "()";
             }
             // Generate the source code
             const agentResponse = await rpcClient

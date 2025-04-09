@@ -9,12 +9,13 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { LineRange, Property, PropertyTypeMemberInfo, RecordTypeField, ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { LineRange, Property, RecordTypeField, ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
 import { FormGeneratorNew } from "../../Forms/FormGeneratorNew";
 import { FormHeader } from "../../../../components/FormHeader";
+import { getImportsForProperty } from "../../../../utils/bi";
 
 const Container = styled.div`
     /* padding: 0 20px 20px; */
@@ -135,7 +136,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [serviceModel]);
 
-    const handleListenerSubmit = async (data: FormValues) => {
+    const handleListenerSubmit = async (data: FormValues, formImports: FormImports) => {
         serviceFields.forEach(val => {
             if (val.type === "CHOICE") {
                 val.choices.forEach((choice, index) => {
@@ -150,6 +151,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
             } else if (data[val.key]) {
                 val.value = data[val.key];
             }
+            val.imports = getImportsForProperty(val.key, formImports);
         })
         const response = updateConfig(serviceFields, serviceModel);
         onSubmit(response);

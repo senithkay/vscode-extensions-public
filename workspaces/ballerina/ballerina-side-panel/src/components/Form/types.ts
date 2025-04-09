@@ -8,7 +8,7 @@
  */
 
 import { RefObject } from "react";
-import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange, ExpressionProperty, Metadata, RecordTypeField  } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange, ExpressionProperty, Metadata, RecordTypeField, Imports  } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, HelperPaneOrigin, OptionProps } from "@wso2-enterprise/ui-toolkit";
 
@@ -197,6 +197,6 @@ export type FormExpressionEditorProps =
     FormExpressionEditorBaseProps &
     SanitizedExpressionEditorProps;
 
-export type FormFieldImport = {
-    [prefix: string]: string;
-};
+export type FormImports = {
+    [fieldKey: string]: Imports;
+}
