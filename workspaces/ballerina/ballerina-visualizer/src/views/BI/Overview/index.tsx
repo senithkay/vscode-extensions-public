@@ -595,7 +595,7 @@ export function Overview(props: ComponentDiagramProps) {
         let scopes: SCOPE[] = [];
         if (services) {
             const svcScopes = services
-                .map(svc => findScopeByModule(svc?.serviceModel.moduleName))
+                .map(svc => findScopeByModule(svc?.moduleName))
                 .filter(svc => svc !== undefined);
             scopes = Array.from(new Set(svcScopes));
         }
@@ -606,12 +606,12 @@ export function Overview(props: ComponentDiagramProps) {
         return scopes;
     }, [projectStructure]);
 
-    function isEmptyProject(): boolean {        
+    function isEmptyProject(): boolean {
         // Filter out connections that start with underscore
         const validConnections = projectStructure.directoryMap[DIRECTORY_MAP.CONNECTION]?.filter(
             conn => !conn.name.startsWith('_')
         ) || [];
-        
+
         return (
             (!projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION] || projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].length === 0) &&
             (validConnections.length === 0) &&
