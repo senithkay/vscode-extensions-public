@@ -120,6 +120,7 @@ export interface VisualizerLocation {
 export interface TempData {
     flowNode?: FlowNode;
     serviceModel?: ServiceModel;
+    isNewService?: boolean;
     identifier?: string;
 }
 
