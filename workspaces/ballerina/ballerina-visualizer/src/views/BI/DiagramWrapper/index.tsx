@@ -400,12 +400,13 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
             {enableSequenceDiagram && !isAgent && (
                 <Switch
                     leftLabel="Flow"
-                    rightLabel="Sequence"
+                    rightLabel="Sequence (Beta)"
                     checked={showSequenceDiagram}
                     checkedColor="var(--vscode-button-background)"
                     enableTransition={true}
                     onChange={handleToggleDiagram}
                     sx={{
+                        width: "250px",
                         margin: "auto",
                         position: "fixed",
                         top: "120px",
