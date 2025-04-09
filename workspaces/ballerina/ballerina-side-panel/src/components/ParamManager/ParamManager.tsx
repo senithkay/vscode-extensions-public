@@ -299,6 +299,7 @@ export function ParamManager(props: ParamManagerProps) {
                     })
                     render.push(
                         <ParamEditor
+                            key={param.id}
                             propertyKey={propertyKey}
                             parameter={param}
                             paramFields={newParamConfig.formFields}
@@ -310,6 +311,7 @@ export function ParamManager(props: ParamManagerProps) {
                 } else if ((editingSegmentId !== index)) {
                     render.push(
                         <ParamItem
+                            key={param.id}
                             param={param}
                             readonly={editingSegmentId !== -1 || readonly}
                             onDelete={onDelete}

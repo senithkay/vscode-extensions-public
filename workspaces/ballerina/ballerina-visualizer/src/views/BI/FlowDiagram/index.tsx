@@ -85,7 +85,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [updatedExpressionField, setUpdatedExpressionField] = useState<any>(undefined);
     const [breakpointInfo, setBreakpointInfo] = useState<BreakpointInfo>();
-    const [agentToolData, setAgentToolData] = useState<ToolData[]>([]);
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -104,13 +103,25 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     useEffect(() => {
         rpcClient.onProjectContentUpdated((state: boolean) => {
             console.log(">>> on project content updated", state);
-            fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, true);
+            if (!topNodeRef.current || !targetRef.current) {
+                console.error(">>> No parent or target found");
+                return;
+            }
+            setShowProgressIndicator(true);
+            setTimeout(() => {
+                fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, true);
+            }, 3000); // HACK: 3 seconds delay
         });
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
             console.log(">>> on parent popup submitted", parent);
-            const toNode = topNodeRef.current;
-            const target = targetRef.current;
-            fetchNodesAndAISuggestions(toNode, target, false, false);
+            if (!topNodeRef.current || !targetRef.current) {
+                console.error(">>> No parent or target found");
+                return;
+            }
+            setShowProgressIndicator(true);
+            setTimeout(() => {
+                fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, false);
+            }, 3000); // HACK: 3 seconds delay
         });
     }, [rpcClient]);
 
@@ -222,6 +233,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         fetchAiSuggestions = true,
         updateFlowModel = true
     ) => {
+        if (!parent || !target) {
+            console.error(">>> No parent or target found");
+            return;
+        }
         const getNodeRequest: BIAvailableNodesRequest = {
             position: target.startLine,
             filePath: model?.fileName || parent?.codedata?.lineRange.fileName,
@@ -929,7 +944,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         showEditForm.current = true;
 
         setShowProgressIndicator(true);
-        const agentFilePath = await getAgentFilePath(rpcClient);
         // get project components to find the function
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
         if (!projectComponents || !projectComponents.components) {
@@ -938,7 +952,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
         // find function from project components
         const functionInfo = findFunctionByName(projectComponents.components, tool.name);
-        console.log(">>> functionInfo", functionInfo);
         if (!functionInfo) {
             console.error("Function not found");
             return;

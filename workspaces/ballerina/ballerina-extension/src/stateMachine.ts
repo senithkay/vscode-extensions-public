@@ -50,7 +50,7 @@ const stateMachine = createMachine<MachineContext>(
                     (context, event) => {
                         if (event.stateMachineNavigate) {
                             if (event.location) {
-                                openView(EVENT_TYPE.OPEN_VIEW, event.location)
+                                openView(EVENT_TYPE.OPEN_VIEW, event.location);
                             } else {
                                 updateView();
                             }

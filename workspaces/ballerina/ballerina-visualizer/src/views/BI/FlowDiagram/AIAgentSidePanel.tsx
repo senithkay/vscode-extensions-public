@@ -69,7 +69,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     useEffect(() => {
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
             console.log(">>> on parent popup submitted", parent);
-            fetchNodes();
+            setLoading(true);
+            //HACK: 3 seconds delay
+            setTimeout(() => {
+                fetchNodes();
+            }, 3000);
         });
     }, [rpcClient]);
 
