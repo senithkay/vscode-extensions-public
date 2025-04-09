@@ -723,7 +723,7 @@ export function AIChat() {
             
             let regexpattern = `^${pattern}$`;
             if (template == GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS) {
-                regexpattern = `^${pattern}`;
+                regexpattern = `^${pattern.trim()}`;
             }
 
             const regex = new RegExp(regexpattern, "i");
