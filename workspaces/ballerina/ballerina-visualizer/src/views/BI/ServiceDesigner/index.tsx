@@ -297,6 +297,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         }
     };
 
+    const haveServiceTypeName = serviceModel?.properties["serviceTypeName"]?.value;
+
     return (
         <View>
             <TopNavigationBar />
@@ -325,7 +327,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     <Codicon name="add" sx={{ marginRight: 8 }} /> Function
                                 </VSCodeButton>
                             )}
-                        {serviceModel && serviceModel.moduleName === "http" && (
+                        {serviceModel && serviceModel.moduleName === "http" && !haveServiceTypeName && (
                             <VSCodeButton appearance="primary" title="Add Resource" onClick={handleNewResourceFunction}>
                                 <Codicon name="add" sx={{ marginRight: 8 }} /> Resource
                             </VSCodeButton>
