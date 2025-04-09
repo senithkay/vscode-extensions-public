@@ -269,10 +269,8 @@ export const GridButton: React.FC<GridButtonProps> = ({ title, description, icon
                 <IconContainer>
                     {icon}
                 </IconContainer>
-                <div style={{ width: '120px' }}>
-                    <IconLabel style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {FirstCharToUpperCase(title)}
-                    </IconLabel>
+                <div style={{ width: '120px', whiteSpace: 'nowrap' }}>
+                    <IconLabel style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{FirstCharToUpperCase(title)}</IconLabel>
                 </div>
             </ComponentCard>
         </Tooltip>
