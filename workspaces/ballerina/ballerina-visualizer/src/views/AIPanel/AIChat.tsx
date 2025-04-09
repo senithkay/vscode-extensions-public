@@ -2617,7 +2617,6 @@ export function AIChat() {
 
                             <div style={{ display: "inline-flex" }}>
                                 <h2>WSO2 Copilot</h2>
-                                <PreviewContainerDefault>Preview</PreviewContainerDefault>
                             </div>
                             <Typography
                                 variant="body1"
@@ -2675,7 +2674,7 @@ export function AIChat() {
                                 <RoleContainer
                                     icon={message.role === "User" ? "account" : "hubot"}
                                     title={message.role}
-                                    showPreview={message.role !== "User"}
+                                    showPreview={false}
                                     isLoading={isLoading && !isSuggestionLoading && index === otherMessages.length - 1}
                                 />
                             )}
