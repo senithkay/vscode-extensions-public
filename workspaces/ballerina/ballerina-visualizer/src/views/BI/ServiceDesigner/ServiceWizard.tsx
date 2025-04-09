@@ -18,6 +18,7 @@ import { LoadingContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
 import { TopNavigationBar } from '../../../components/TopNavigationBar';
 import { LoadingRing } from '../../../components/Loader';
+import { isBetaModule } from '../ComponentListView/componentListUtils';
 
 const Container = styled.div`
     display: "flex";
@@ -32,6 +33,11 @@ const StepperContainer = styled.div`
     margin-bottom: 20px;
 `;
 
+interface WizardHeaderInfo {
+    title: string;
+    moduleName: string;
+}
+
 export interface ServiceWizardProps {
     type: string;
 }
@@ -42,7 +48,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     const [step, setStep] = useState<number>(0);
 
-    const [title, setTitle] = useState(undefined);
+    const [headerInfo, setHeaderInfo] = useState<WizardHeaderInfo>(undefined);
     const [listenerModel, setListenerModel] = useState<ListenerModel>(undefined);
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [listeners, setListeners] = useState<ListenersResponse>(undefined);
@@ -57,7 +63,10 @@ export function ServiceWizard(props: ServiceWizardProps) {
         rpcClient.getServiceDesignerRpcClient()
             .getServiceModel({ filePath: "", moduleName: type, listenerName: "" })
             .then(res => {
-                setTitle(res.service.displayName || res.service.name);
+                setHeaderInfo({
+                    title: res.service.displayName || res.service.name,
+                    moduleName: res.service.moduleName
+                });
             });
         rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
             console.log("Existing Listeners: ", res);
@@ -124,7 +133,12 @@ export function ServiceWizard(props: ServiceWizardProps) {
     return (
         <View>
             <TopNavigationBar />
-            {title && <TitleBar title={title} />}
+            {headerInfo && (
+                <TitleBar
+                    title={headerInfo.title}
+                    isBetaFeature={isBetaModule(headerInfo.moduleName)}
+                />
+            )}
             <ViewContent>
                 {!listenerModel && !listeners &&
                     <LoadingContainer>

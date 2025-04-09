@@ -246,6 +246,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     onAddConnection={handleOnAddConnection}
                     onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR, true)}
                     title={"Functions"}
+                    searchPlaceholder={"Search library functions"}
                 />
             )}
             {sidePanelView === SidePanelView.TOOL_FORM && (
