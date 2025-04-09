@@ -15,7 +15,8 @@ import {
     MI_ARTIFACT_GENERATION_BACKEND_URL,
     MI_SUGGESTIVE_QUESTIONS_BACKEND_URL,
     COPILOT_ERROR_MESSAGES,
-    MAX_FILE_SIZE, VALID_FILE_TYPES
+    MAX_FILE_SIZE, VALID_FILE_TYPES,
+    PROJECT_RUNTIME_VERSION_THRESHOLD
 } from "./constants";
 import path from "path";
 
@@ -146,8 +147,6 @@ export function identifyLanguage(segmentText: string): string {
 
 export async function identifyArtifactTypeAndPath(name: string, segmentText: string, rpcClient: RpcClientType): Promise<{type: string, path: string}> {
     const tagMatch = segmentText.match(/<(\w+)[^>]*>/);
-    console.log("Tag match - ", tagMatch);
-    console.log("Segment text - ", segmentText);
     let fileType = "";
     if (tagMatch) {
         const tag = tagMatch[1];
@@ -192,7 +191,6 @@ export async function identifyArtifactTypeAndPath(name: string, segmentText: str
             default:
                 fileType = "";
         }
-        console.log("File type - ", fileType);
     }
     if (fileType) {
         const directoryPath = (await getContext(rpcClient))[0].rootPath;
@@ -388,6 +386,7 @@ export function convertChat(entry: CopilotChatEntry): ChatMessage {
 
 export async function fetchCodeGenerationsWithRetry(
     url: string,
+    isRutimeVersionThresholdReached: boolean,
     chatHistory: CopilotChatEntry[],
     files: FileObject[],
     images: ImageObject[],
@@ -397,13 +396,16 @@ export async function fetchCodeGenerationsWithRetry(
 ): Promise<Response> {
 
     const context = await getContext(rpcClient, view);
-    const imageBase64Array = images.map((image) => image.imageBase64);
+    const imageList = images.map((image) => image.imageBase64);
+    const defaultPayloads = await rpcClient.getMiDiagramRpcClient().getAllInputDefaultPayloads();
+    const fileList = isRutimeVersionThresholdReached ? files : files.map((file) => JSON.stringify(file));
 
     return fetchWithRetry(BackendRequestType.UserPrompt, url, {
         messages: chatHistory,
         context: context[0].context,
-        files: files,
-        images: imageBase64Array,
+        files: fileList,
+        images: imageList,
+        payloads: defaultPayloads,
     }, rpcClient, controller, chatHistory);
 }
 
@@ -418,6 +420,8 @@ export async function fetchWithRetry(
     let retryCount = 0;
     const maxRetries = 2;
     const token = await rpcClient?.getMiDiagramRpcClient().getUserAccessToken();
+    console.log("body", body);
+    console.log("requestbody",JSON.stringify(body));
 
     let response = await fetch(url, {
         method: "POST",

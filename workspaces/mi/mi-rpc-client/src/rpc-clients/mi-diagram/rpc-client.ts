@@ -351,6 +351,7 @@ import {
     MediatorTryOutRequest,
     tryOutMediator,
     getInputPayloads,
+    getAllInputDefaultPayloads,
     saveInputPayload,
     MediatorTryOutResponse,
     SavePayloadRequest,
@@ -1012,8 +1013,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
         return this._messenger.sendRequest(saveInputPayload, HOST_EXTENSION, params);
     }
+
     getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return this._messenger.sendRequest(getInputPayloads, HOST_EXTENSION, params);
+    }
+
+    getAllInputDefaultPayloads(): Promise<Record<string, unknown>> {
+        return this._messenger.sendRequest(getAllInputDefaultPayloads, HOST_EXTENSION);
     }
 
     getMediators(params: GetMediatorsRequest): Promise<GetMediatorsResponse> {

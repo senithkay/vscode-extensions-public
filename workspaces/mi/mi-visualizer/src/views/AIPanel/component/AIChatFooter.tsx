@@ -36,6 +36,7 @@ const AIChatFooter: React.FC = () => {
         setBackendRequestTriggered,
         isInitialPromptLoaded,
         setIsInitialPromptLoaded,
+        isRuntimeVersionThresholdReached,
         questions,
         files,
         setFiles,
@@ -175,6 +176,7 @@ const AIChatFooter: React.FC = () => {
         try {
             const response = await fetchCodeGenerationsWithRetry(
                 url,
+                isRuntimeVersionThresholdReached,
                 currentCopilotChat,
                 files,
                 images,

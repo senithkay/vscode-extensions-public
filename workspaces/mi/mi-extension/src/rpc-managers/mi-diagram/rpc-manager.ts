@@ -394,6 +394,42 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async getAllInputDefaultPayloads(): Promise<Record<string, any>> {
+        const projectUri = StateMachine.context().projectUri!;
+        const tryoutFolderPath = path.join(projectUri, ".tryout");
+        const payloadMapByArtifact: Record<string, any> = {};
+
+        if (fs.existsSync(tryoutFolderPath)) {
+            const files = fs.readdirSync(tryoutFolderPath);
+
+            files.forEach((file) => {
+                const filePath = path.join(tryoutFolderPath, file);
+                if (fs.statSync(filePath).isFile()) {
+                    const fileContent = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+                    const fileNameWithoutExtension = path.basename(file, ".json");
+                    
+                    if (fileContent.type === "API") {
+                        const payloadMapByResource: Record<string, object> = {};
+                        Object.keys(fileContent).forEach((key) => {
+                            if (key.startsWith("/")) { // Select only API resources
+                                const defaultRequestName = fileContent[key].defaultRequest;
+                                const defaultRequest = fileContent[key].requests.find((request: any) => request.name === defaultRequestName);
+                                payloadMapByResource[key] = defaultRequest ? defaultRequest : null;
+                            }
+                        });
+                        payloadMapByArtifact[fileNameWithoutExtension] = payloadMapByResource;
+                    } else {
+                        const defaultRequestName = fileContent.defaultRequest;
+                        const defaultRequest = fileContent.requests.find((request: any) => request.name === defaultRequestName);
+                        payloadMapByArtifact[fileNameWithoutExtension] = defaultRequest ? defaultRequest : null;
+                    }
+                }
+            });
+        }
+
+        return payloadMapByArtifact;
+    }
+
     readInputPayloadFile(name: string) {
         const projectUri = StateMachine.context().projectUri!;
         const tryout = path.join(projectUri, ".tryout", name + ".json");
@@ -3289,7 +3325,7 @@ ${endpointAttributes}
                 case 'write':
                     if (content !== undefined) {
                         await replaceFullContentToFile(filePath, content);
-                        window.showInformationMessage(`Reverted ${fileName} to last checkpoint.`);
+                        window.showInformationMessage(`Written content to ${fileName} successfully.`);
                         return { status: true, content : content };
                     } else {
                         console.error("File content is undefined");

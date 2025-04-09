@@ -64,6 +64,7 @@ const AIChatMessage: React.FC<ChatMessageProps> = ({ message, index }) => {
         setCurrentUserprompt,
         copilotChat,
         setCopilotChat,
+        backendRequestTriggered
     } = useMICopilotContext();
 
     // Chat Message Controls : Edit and Delete
@@ -153,7 +154,8 @@ const AIChatMessage: React.FC<ChatMessageProps> = ({ message, index }) => {
                             <Attachments attachments={message.images} nameAttribute="imageName" addControls={false} />
                         )}
                     </FlexRow>
-                    <EditDeleteButtons className="edit-delete-buttons">
+                    {!backendRequestTriggered && (
+                        <EditDeleteButtons className="edit-delete-buttons">
                         <Button appearance="icon" onClick={() => handleEditMessage(index)} tooltip="Edit">
                             <Codicon name="edit" />
                         </Button>
@@ -161,6 +163,7 @@ const AIChatMessage: React.FC<ChatMessageProps> = ({ message, index }) => {
                             <Codicon name="trash" />
                         </Button>
                     </EditDeleteButtons>
+                    )}
                 </>
             )}
         </StyledChatMessage>

@@ -255,6 +255,7 @@ import {
     MediatorTryOutRequest,
     saveInputPayload,
     getInputPayloads,
+    getAllInputDefaultPayloads,
     SavePayloadRequest,
     GetPayloadsRequest,
     getMediatorInputOutputSchema,
@@ -438,6 +439,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getMediatorInputOutputSchema, (args:MediatorTryOutRequest) => rpcManger.getMediatorInputOutputSchema(args));
     messenger.onRequest(saveInputPayload, (args:SavePayloadRequest) => rpcManger.saveInputPayload(args));
     messenger.onRequest(getInputPayloads, (args:GetPayloadsRequest) => rpcManger.getInputPayloads(args));
+    messenger.onRequest(getAllInputDefaultPayloads, () => rpcManger.getAllInputDefaultPayloads());
     messenger.onRequest(getMediators, (args: GetMediatorsRequest) => rpcManger.getMediators(args));
     messenger.onRequest(getMediator, (args: GetMediatorRequest) => rpcManger.getMediator(args));
     messenger.onRequest(getLocalInboundConnectors, () => rpcManger.getLocalInboundConnectors());

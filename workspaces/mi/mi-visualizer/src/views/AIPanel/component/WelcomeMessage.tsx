@@ -30,7 +30,7 @@ export const WelcomeMessage: React.FC = () => {
                     ) : null}
                 </div>
                 <Typography variant="body1" sx={WelcomeStyles.description}>
-                    AI-powered assistance at your service!
+                    AI assistant at your service!
                     <br />
                     Please review generated code before adding to your integration.
                 </Typography>

@@ -396,6 +396,7 @@ export const getMIVersionFromPom: RequestType<void, MiVersionResponse> = { metho
 export const getMediatorInputOutputSchema: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/getMediatorInputOutputSchema` };
 export const saveInputPayload: RequestType<SavePayloadRequest, boolean> = { method: `${_preFix}/saveInputPayload` };
 export const getInputPayloads: RequestType<GetPayloadsRequest, GetPayloadsResponse> = { method: `${_preFix}/getInputPayloads` };
+export const getAllInputDefaultPayloads: RequestType<void, Record<string, unknown>> = { method: `${_preFix}/getOutputPayloads` };
 export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
 export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
 export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };
