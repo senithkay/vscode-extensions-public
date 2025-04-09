@@ -55,10 +55,10 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     useEffect(() => {
         rpcClient.getServiceDesignerRpcClient()
-        .getServiceModel({ filePath: "", moduleName: type, listenerName: "" })
-        .then(res => {
-            setTitle(res.service.displayName || res.service.name);
-        });
+            .getServiceModel({ filePath: "", moduleName: type, listenerName: "" })
+            .then(res => {
+                setTitle(res.service.displayName || res.service.name);
+            });
         rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
             console.log("Existing Listeners: ", res);
             setExisting(res.hasListeners);
@@ -104,13 +104,6 @@ export function ServiceWizard(props: ServiceWizardProps) {
     const handleServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position
-            },
-        });
     }
 
     const onBack = () => {
@@ -131,7 +124,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
     return (
         <View>
             <TopNavigationBar />
-            {title && <TitleBar title={title}/>}
+            {title && <TitleBar title={title} />}
             <ViewContent>
                 {!listenerModel && !listeners &&
                     <LoadingContainer>
@@ -145,25 +138,15 @@ export function ServiceWizard(props: ServiceWizardProps) {
                                 <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />
                             </StepperContainer>
                         }
-                        {step === 0 && !saving &&
+                        {step === 0 &&
                             <>
-                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
+                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={saving ? "Creating" : (listeners?.hasListeners ? "Create" : undefined)} isSaving={saving} />
                             </>
                         }
-                        {step === 0 && saving &&
-                            <LoadingContainer>
-                                <LoadingRing message="Saving listener..." />
-                            </LoadingContainer>
-                        }
-                        {step === 1 && !saving &&
+                        {step === 1 &&
                             <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={"Create"} />
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={saving ? "Creating" : "Create"} isSaving={saving} />
                             </>
-                        }
-                        {step === 1 && saving &&
-                            <LoadingContainer>
-                                <LoadingRing message="Saving service..." />
-                            </LoadingContainer>
                         }
                     </Container>
                 }

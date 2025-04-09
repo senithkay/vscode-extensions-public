@@ -1307,6 +1307,7 @@ export interface FunctionSourceCodeRequest {
     codedata: {
         lineRange: LineRange; // For the entire service
     };
+    service?: ServiceModel;
 }
 export interface ResourceSourceCodeResponse {
     textEdits: {

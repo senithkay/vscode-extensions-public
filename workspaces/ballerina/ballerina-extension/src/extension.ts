@@ -154,6 +154,11 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
                 window.showTextDocument(Uri.parse(location.uri.toString()), { selection: location.range });
             }
         });
+        // TODO: Get the node pulling notification and show a message.
+        // Register progress notification handler
+        langClient.onNotification('$/progress', (params: any) => {
+            console.log('Progress notification:', params);
+        });
         isPluginStartup = false;
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));

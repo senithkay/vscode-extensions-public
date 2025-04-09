@@ -12,6 +12,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
 import { FlowNode, ProjectStructureResponse } from "./interfaces/bi";
+import { ServiceModel } from "./interfaces/service";
 
 export type MachineStateValue =
     | 'initialize'
@@ -118,6 +119,8 @@ export interface VisualizerLocation {
 
 export interface TempData {
     flowNode?: FlowNode;
+    serviceModel?: ServiceModel;
+    identifier?: string;
 }
 
 export interface VisualizerMetadata {

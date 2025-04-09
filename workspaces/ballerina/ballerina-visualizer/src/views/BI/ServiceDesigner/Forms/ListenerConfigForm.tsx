@@ -44,6 +44,7 @@ const LoadingContainer = styled.div`
 interface ListenerConfigFormProps {
     listenerModel: ListenerModel;
     onSubmit?: (data: ListenerModel) => void;
+    isSaving?: boolean;
     onBack?: () => void;
     formSubmitText?: string;
 }
@@ -52,7 +53,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [listenerFields, setListenerFields] = useState<FormField[]>([]);
-    const { listenerModel, onSubmit, onBack, formSubmitText = "Next" } = props;
+    const { listenerModel, onSubmit, onBack, formSubmitText = "Next", isSaving } = props;
     const [filePath, setFilePath] = useState<string>('');
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
@@ -73,7 +74,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     },
                     valueType: property?.valueType || 'string',
                     diagnostics: {
-                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0, 
+                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0,
                         diagnostics: property.diagnostics
                     }
                 } as Property,
@@ -139,6 +140,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                                     fields={listenerFields}
                                     onSubmit={handleListenerSubmit}
                                     onBack={onBack}
+                                    isSaving={isSaving}
                                     submitText={formSubmitText}
                                     recordTypeFields={recordTypeFields}
                                 />

@@ -91,14 +91,18 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             startLine: { line: position.startLine, offset: position.startColumn },
             endLine: { line: position.endLine, offset: position.endColumn },
         };
-        rpcClient
-            .getServiceDesignerRpcClient()
-            .getServiceModelFromCode({ filePath, codedata: { lineRange } })
-            .then((res) => {
-                console.log("Service Model: ", res.service);
-                setServiceModel(res.service);
-                setIsSaving(false);
-            });
+        try {
+            rpcClient
+                .getServiceDesignerRpcClient()
+                .getServiceModelFromCode({ filePath, codedata: { lineRange } })
+                .then((res) => {
+                    console.log("Service Model: ", res.service);
+                    setServiceModel(res.service);
+                    setIsSaving(false);
+                });
+        } catch (error) {
+            console.log("Error fetching service model: ", error);
+        }
         getProjectListeners();
     };
 
@@ -206,21 +210,14 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         if (isNew) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
-                .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+                .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
         } else {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
-                .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+                .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
         }
         setIsNew(false);
         handleNewFunctionClose();
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position,
-            },
-        });
     };
 
     const handleFunctionSubmit = async (value: FunctionModel) => {
@@ -242,13 +239,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         setIsNew(false);
         handleNewFunctionClose();
         handleFunctionConfigClose();
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position,
-            },
-        });
     };
 
     const handleFunctionConfigClose = () => {
@@ -416,7 +406,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     <ResourceAccordion
                                         key={`${index}-${functionModel.name.value}`}
                                         functionModel={functionModel}
-                                        goToSource={() => {}}
+                                        goToSource={() => { }}
                                         onEditResource={handleFunctionEdit}
                                         onDeleteResource={handleFunctionDelete}
                                         onResourceImplement={handleOpenDiagram}

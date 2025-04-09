@@ -45,13 +45,14 @@ const stateMachine = createMachine<MachineContext>(
                 actions: [
                     assign({
                         projectStructure: (context, event) => event.payload,
-                        tempData: undefined
+                        tempData: (context, event) => event.location ? undefined : context.tempData // Remove temp data if the location is set
                     }),
                     (context, event) => {
                         if (event.location) {
                             openView(EVENT_TYPE.OPEN_VIEW, event.location);
+                        } else {
+                            notifyCurrentWebview();
                         }
-                        notifyCurrentWebview();
                         commands.executeCommand("BI.project-explorer.refresh");
                     }
                 ]

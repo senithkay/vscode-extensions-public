@@ -44,6 +44,7 @@ import * as fs from 'fs';
 import { existsSync, writeFileSync } from "fs";
 import * as yaml from 'js-yaml';
 import * as path from 'path';
+import * as vscode from "vscode";
 import { Uri, commands, window, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
 import { injectAgent, injectAgentCode, injectImportIfMissing } from "../../utils";
@@ -111,7 +112,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
-            StateMachine.setEditMode();
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
@@ -125,10 +125,8 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     position: position
                 };
                 commands.executeCommand("BI.project-explorer.refresh");
-                StateMachine.setReadyMode();
                 resolve(result);
             } catch (error) {
-                StateMachine.setReadyMode();
                 console.log(error);
             }
         });
@@ -174,7 +172,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
-            StateMachine.setEditMode();
+            // Update the state tempData with the service model. This is used to navigate after the source code is updated
+            StateMachine.setTempData({
+                serviceModel: params.service
+            });
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
@@ -208,10 +209,8 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 };
                 result = await this.injectAIAgent(params.service, result);
                 commands.executeCommand("BI.project-explorer.refresh");
-                StateMachine.setReadyMode();
                 resolve(result);
             } catch (error) {
-                StateMachine.setReadyMode();
                 console.log(error);
             }
         });
@@ -266,6 +265,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
+            // Update the state tempData with the service model. This is used to navigate after the source code is updated
+            StateMachine.setTempData({
+                serviceModel: params.service
+            });
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
@@ -319,6 +322,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
+            StateMachine.setTempData({
+                serviceModel: params.service
+            });
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
@@ -345,6 +351,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
+            StateMachine.setTempData({
+                serviceModel: params.service
+            });
             try {
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
@@ -365,6 +374,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     }
 
     private async updateSource(params: ListenerSourceCodeResponse, identifiers?: string[], targetPosition?: NodePosition): Promise<NodePosition> {
+        StateMachine.setEditMode();
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
         let position: NodePosition;
         for (const [key, value] of Object.entries(params.textEdits)) {
@@ -410,35 +420,20 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 })) as SyntaxTree;
 
                 if (parseSuccess) {
-                    (identifiers || targetPosition) && (syntaxTree as ModulePart).members.forEach(member => {
-                        if (STKindChecker.isServiceDeclaration(member)) {
-                            if (identifiers && identifiers.filter(id => id && member.source.includes(id)).length >= identifiers.length * 0.5) {
-                                position = member.position;
-                            }
-                            if (targetPosition && member.position.startLine === targetPosition.startLine && member.position.startColumn === targetPosition.startColumn) {
-                                position = member.position;
-                            }
-                        }
+                    const fileUri = Uri.file(request.filePath);
+                    const workspaceEdit = new vscode.WorkspaceEdit();
+                    workspaceEdit.replace(
+                        fileUri,
+                        new vscode.Range(
+                            new vscode.Position(0, 0),
+                            new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                        ),
+                        source
+                    );
+                    await workspace.applyEdit(workspaceEdit);
+                    await StateMachine.langClient().resolveMissingDependencies({
+                        documentIdentifier: { uri: fileUriString },
                     });
-                    fs.writeFileSync(request.filePath, source);
-                    await StateMachine.langClient().didChange({
-                        textDocument: { uri: fileUriString, version: 1 },
-                        contentChanges: [
-                            {
-                                text: source,
-                            },
-                        ],
-                    });
-
-                    if (!targetPosition) {
-                        await StateMachine.langClient().resolveMissingDependencies({
-                            documentIdentifier: { uri: fileUriString },
-                        });
-                        // Temp fix: ResolveMissingDependencies does not work unless we call didOpen, This needs to be fixed in the LS
-                        await StateMachine.langClient().didOpen({
-                            textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                        });
-                    }
                 }
             }
         } catch (error) {

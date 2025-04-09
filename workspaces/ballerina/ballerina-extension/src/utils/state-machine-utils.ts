@@ -243,7 +243,7 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
     if (dir.path === documentUri && isPositionWithinRange(position, dir.position)) {
         switch (dir.type) {
             case DIRECTORY_MAP.SERVICE:
-                if (dir.serviceModel.moduleName === "graphql") {
+                if (dir.moduleName === "graphql") {
                     return {
                         location: {
                             view: MACHINE_VIEW.GraphQLDiagram,
@@ -253,7 +253,7 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
                             projectUri: projectUri
                         }
                     };
-                } else if (dir.serviceModel.moduleName === "ai") {
+                } else if (dir.moduleName === "ai") {
                     return {
                         location: {
                             view: MACHINE_VIEW.BIDiagram,

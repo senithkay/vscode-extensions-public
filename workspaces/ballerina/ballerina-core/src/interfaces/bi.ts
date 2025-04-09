@@ -239,6 +239,7 @@ export interface ProjectStructureArtifactResponse {
     type: string;
     icon?: string;
     context?: string;
+    moduleName?: string;
     position?: NodePosition;
     serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
