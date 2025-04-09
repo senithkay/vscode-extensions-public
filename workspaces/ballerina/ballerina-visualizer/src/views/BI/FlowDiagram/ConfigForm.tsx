@@ -11,6 +11,7 @@ import styled from "@emotion/styled";
 import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { FormGeneratorNew } from "../Forms/FormGeneratorNew";
 import { getImportsForProperty } from "../../../utils/bi";
+import { LineRange } from "@wso2-enterprise/ballerina-core";
 
 const Container = styled.div`
     max-width: 600px;
@@ -30,14 +31,14 @@ const FormContainer = styled.div`
 
 interface ConfigProps {
     formFields: FormField[];
-    filePath: string;
+    targetLineRange: LineRange;
     disableSaveButton?: boolean;
     onSubmit: (data: FormField[], rawData: FormValues) => void;
     onBack?: () => void;
 }
 
 export function ConfigForm(props: ConfigProps) {
-    const { formFields, filePath, disableSaveButton, onSubmit, onBack } = props;
+    const { formFields, targetLineRange, disableSaveButton, onSubmit, onBack } = props;
     console.log(">>> ConfigForm props", props);
 
     const handleSubmit = async (data: FormValues, formImports: FormImports) => {
@@ -67,15 +68,16 @@ export function ConfigForm(props: ConfigProps) {
         <Container>
             {formFields && formFields.length > 0 && (
                 <FormContainer>
-                    {filePath && (
+                    {targetLineRange && (
                         <FormGeneratorNew
-                            fileName={filePath}
-                            targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                            fileName={targetLineRange.fileName}
+                            targetLineRange={targetLineRange}
                             fields={formFields}
                             onBack={onBack}
                             onSubmit={handleSubmit}
                             compact={true}
                             disableSaveButton={disableSaveButton}
+                            helperPaneSide="left"
                         />
                     )}
                 </FormContainer>
