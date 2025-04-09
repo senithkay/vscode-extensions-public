@@ -263,7 +263,7 @@ export class BallerinaExtension {
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion.split('-')[0];
-                this.biSupported = isSupportedSLVersion(this, 2201122);
+                this.biSupported = isSupportedSLVersion(this, 2201123); // Minimum supported version for BI
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);

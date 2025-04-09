@@ -164,7 +164,7 @@ export function WelcomeView(props: WelcomeViewProps) {
                         </StyledButton>
                         {!props.isBISupported &&
                             <StepDescription>
-                                Your current ballerina distribution is not supported. Please update to version 2201.12.2 or above. <VSCodeLink onClick={updateBallerina}>Update Now</VSCodeLink>
+                                Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above. <VSCodeLink onClick={updateBallerina}>Update Now</VSCodeLink>
                             </StepDescription>
                         }
                     </Column>
