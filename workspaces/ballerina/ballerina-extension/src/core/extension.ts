@@ -392,7 +392,7 @@ export class BallerinaExtension {
             console.log('Current Ballerina version:', currentBallerinaVersion);
             const terminal = window.createTerminal('Update Ballerina');
             terminal.show();
-            terminal.sendText('sudo bal dist update');
+            terminal.sendText('bal dist update');
             window.showInformationMessage('Ballerina update started. Please wait...');
         }, (reason) => {
             console.error('Error getting the ballerina version:', reason.message);
@@ -1332,7 +1332,7 @@ export class BallerinaExtension {
             if (selection === update) {
                 const terminal = window.createTerminal('Update Ballerina');
                 terminal.show();
-                terminal.sendText('sudo bal dist update');
+                terminal.sendText('bal dist update');
                 window.showInformationMessage('Ballerina update started. Please wait...');
             }
         });
