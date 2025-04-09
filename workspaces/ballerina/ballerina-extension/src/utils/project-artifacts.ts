@@ -174,7 +174,7 @@ function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: string
             break;
         case DIRECTORY_MAP.RESOURCE:
             // Do things related to resource
-            let resourceName = `${artifact.accessor}-${artifact.name}`;
+            let resourceName = `${artifact.name}`;
             let resourceIcon = `${artifact.accessor}-api`;
             if (moduleName && moduleName === "graphql") {
                 resourceName = `${artifact.name}`;

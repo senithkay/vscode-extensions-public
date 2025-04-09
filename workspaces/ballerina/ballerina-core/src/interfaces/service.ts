@@ -73,6 +73,8 @@ export interface FunctionModel {
     editable: boolean;
     codedata?: CodeData;
 
+    canAddParameters?: boolean;
+
     // accessor will be used by resource functions
     accessor?: PropertyModel;
 
