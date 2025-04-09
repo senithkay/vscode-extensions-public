@@ -8,8 +8,19 @@
  */
 
 import React, { RefObject, useEffect, useRef, useState } from 'react';
-import { getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
+
 import { TypeHelperCategory, TypeHelperItem } from '.';
+import { EMPTY_SEARCH_RESULT_MSG, EMPTY_SEARCH_TEXT_MSG } from './constant';
+
+const SearchMsg = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--vscode-descriptionForeground)
+`;
 
 type TypeBrowserProps = {
     typeBrowserRef: RefObject<HTMLDivElement>;
@@ -62,7 +73,7 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
             title="Type Browser"
             titleSx={{ fontFamily: 'GilmerRegular' }}
         >
-            {typeBrowserTypes?.length > 0 &&
+            {typeBrowserTypes?.length > 0 ? (
                 typeBrowserTypes.map((category) => (
                     <HelperPane.Section
                         key={category.category}
@@ -98,7 +109,15 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
                             </HelperPane.LibraryBrowserSubSection>
                         ))}
                     </HelperPane.Section>
-                ))}
+                ))
+            ) : (
+                <SearchMsg>
+                    <Codicon name='search' sx={{ marginRight: '10px' }} />
+                    <p>
+                        {searchValue !== "" ? EMPTY_SEARCH_RESULT_MSG : EMPTY_SEARCH_TEXT_MSG}
+                    </p>
+                </SearchMsg>
+            )}
         </HelperPane.LibraryBrowser>
     );
 };

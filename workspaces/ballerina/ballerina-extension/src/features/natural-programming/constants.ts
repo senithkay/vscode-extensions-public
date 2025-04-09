@@ -36,4 +36,5 @@ export const MONITERED_EXTENSIONS = [
     ".bal", ".md", ".txt", ".pdf", ".docx"
 ];
 export const CONFIG_FILE_NAME = "Config.toml";
+export const DEFAULT_MODULE = "DEFAULT_MODULE";
 export const ERROR_NO_BALLERINA_SOURCES = "No Ballerina sources";

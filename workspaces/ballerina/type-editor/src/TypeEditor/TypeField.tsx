@@ -27,10 +27,11 @@ interface TypeFieldProps {
     isAnonymousRecord?: boolean;
     label?: string;
     required?: boolean;
+    autoFocus?: boolean;
 }
 
 export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, ref) => {
-    const { type, onChange, placeholder, sx, memberName, rootType, onValidationError, isAnonymousRecord, label, required } = props;
+    const { type, onChange, placeholder, sx, memberName, rootType, onValidationError, isAnonymousRecord, label, required, autoFocus } = props;
 
     const typeFieldRef = useRef<HTMLInputElement>(null);
     const typeHelperRef = useRef<HTMLDivElement>(null);
@@ -191,6 +192,7 @@ export const TypeField = forwardRef<HTMLInputElement, TypeFieldProps>((props, re
                 onBlur={handleTypeFieldBlur}
                 label={label}
                 required={required}
+                autoFocus={autoFocus}
             />
             <TypeHelper
                 ref={typeHelperRef}

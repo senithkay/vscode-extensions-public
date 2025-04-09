@@ -114,7 +114,7 @@ const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
 export const COMMAND_SCAFFOLD = "/scaffold";
-export const COMMAND_NATURAL_PROGRAMMING = "/natural-programming";
+export const COMMAND_NATURAL_PROGRAMMING = "/natural-programming (experimental)";
 export const COMMAND_TESTS = "/tests";
 export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
@@ -161,8 +161,8 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
     [COMMAND_HEALTHCARE, TEMPLATE_HEALTHCARE],
     [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION],
-    [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING],
     [COMMAND_OPENAPI, TEMPLATE_OPENAPI],
+    [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING],
 ]);
 
 //TODO: Add the files relevant to the commands
@@ -2611,7 +2611,6 @@ export function AIChat() {
 
                             <div style={{ display: "inline-flex" }}>
                                 <h2>WSO2 Copilot</h2>
-                                <PreviewContainerDefault>Preview</PreviewContainerDefault>
                             </div>
                             <Typography
                                 variant="body1"
@@ -2669,7 +2668,7 @@ export function AIChat() {
                                 <RoleContainer
                                     icon={message.role === "User" ? "account" : "hubot"}
                                     title={message.role}
-                                    showPreview={message.role !== "User"}
+                                    showPreview={false}
                                     isLoading={isLoading && !isSuggestionLoading && index === otherMessages.length - 1}
                                 />
                             )}
