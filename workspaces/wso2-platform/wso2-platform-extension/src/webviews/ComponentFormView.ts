@@ -13,6 +13,7 @@ import { ext } from "../extensionVariables";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 export type IComponentCreateFormParams = Omit<NewComponentWebviewProps, "type" | "existingComponents">;
 
@@ -30,12 +31,13 @@ export class ComponentFormView {
 	}
 
 	private static createWebview(): vscode.WebviewPanel {
-		const panel = vscode.window.createWebviewPanel("create-new-component", "Create Component", vscode.ViewColumn.One, {
+		const extName = webviewStateStore.getState().state?.extensionName
+		const panel = vscode.window.createWebviewPanel("create-new-component", extName === "Devant" ? "Create Integration" : "Create Component", vscode.ViewColumn.One, {
 			enableScripts: true,
 			retainContextWhenHidden: true,
 		});
 
-		panel.iconPath = vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons", "choreo-2.svg");
+		panel.iconPath = vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons",extName === "Devant" ? "devant-2.svg" : "choreo-2.svg");
 
 		return panel;
 	}
