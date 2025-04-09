@@ -84,10 +84,11 @@ export function updateProjectArtifacts(publishedArtifacts: ArtifactsNotification
             };
             if (!skipOpeningViews.includes(currentView)) { // Check if the user is in a view that should not be opened
                 StateMachine.updateProjectStructure({ ...currentProjectStructure }, location, true);
-            } else {
-                StateMachine.updateProjectStructure({ ...currentProjectStructure }, location, false);
+                return;
             }
         }
+        StateMachine.updateProjectStructure({ ...currentProjectStructure }, undefined, false);
+        return;
     }
 }
 
