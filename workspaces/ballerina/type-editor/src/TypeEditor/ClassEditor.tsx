@@ -8,11 +8,10 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { Type, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
+import { Imports, Type, TypeFunctionModel } from '@wso2-enterprise/ballerina-core';
 import { Codicon, Button, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { TypeField } from './TypeField';
-import { isValidBallerinaIdentifier } from './TypeUtil';
 import { IdentifierField } from './IdentifierField';
 
 namespace S {
@@ -138,6 +137,7 @@ interface ParameterFormData {
     name: string;
     type: string;
     defaultValue: string;
+    imports: Imports;
 }
 
 interface FunctionValidationError {
@@ -152,12 +152,15 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
     const [parameterForm, setParameterForm] = useState<ParameterFormData>({
         name: '',
         type: '',
-        defaultValue: ''
+        defaultValue: '',
+        imports: {}
     });
     const [editingParamIndex, setEditingParamIndex] = useState<number | null>(null);
     const [paramNameError, setParamNameError] = useState<string>('');
 
     const [validationErrors, setValidationErrors] = useState<FunctionValidationError[]>([{ identifier: false, type: false }]);
+
+    const currentImports = useRef<Imports | undefined>();
 
     const handleValidationError = (functionIndex: number, isIdentifier: boolean, hasError: boolean) => {
         setValidationErrors(prev => {
@@ -209,14 +212,41 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
         const updatedFunctions = [...(type.functions || [])];
         updatedFunctions[index] = {
             ...updatedFunctions[index],
-            ...updates
+            ...updates,
+            imports: currentImports.current
         };
 
         onChange({
             ...type,
             functions: updatedFunctions
         });
+
+        currentImports.current = undefined;
     };
+
+    const handleUpdateFunctionImports = (index: number, imports: Imports) => {
+        const updatedFunctions = [...(type.functions || [])];
+        const updatedFunction = updatedFunctions[index];
+        const newImportKey = Object.keys(imports)[0];
+        if (!updatedFunction.imports || !Object.keys(updatedFunction.imports).includes(newImportKey)) {
+            // Updated the existing imports with the new imports
+            const updatedImports = { ...updatedFunction.imports, ...imports };
+
+            // Update the imports
+            currentImports.current = updatedImports;
+        }
+    }
+
+    const handleUpdateParameterImports = (imports: Imports) => {
+        const newImportKey = Object.keys(imports)[0];
+        if (!parameterForm.imports || !Object.keys(parameterForm.imports)?.includes(newImportKey)) {
+            const updatedImports = { ...parameterForm.imports, ...imports };
+            setParameterForm({
+                ...parameterForm,
+                imports: updatedImports
+            });
+        }
+    }
 
     const deleteFunction = (index: number) => {
         const updatedFunctions = (type.functions || []).filter((_, i) => i !== index);
@@ -233,12 +263,13 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
             setParameterForm({
                 name: String(param.name),
                 type: String(param.type),
-                defaultValue: param.defaultValue ? String(param.defaultValue) : ''
+                defaultValue: param.defaultValue ? String(param.defaultValue) : '',
+                imports: param.imports
             });
             setEditingParamIndex(paramIndex);
         } else {
             // Adding new parameter
-            setParameterForm({ name: '', type: '', defaultValue: '' });
+            setParameterForm({ name: '', type: '', defaultValue: '', imports: {} });
             setEditingParamIndex(null);
         }
         setShowParameterForm(functionIndex);
@@ -258,7 +289,8 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
             enabled: true,
             editable: true,
             optional: false,
-            advanced: false
+            advanced: false,
+            imports: parameterForm.imports
         };
 
         if (editingParamIndex !== null) {
@@ -283,7 +315,7 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
         });
 
         // Reset form and hide it
-        setParameterForm({ name: '', type: '', defaultValue: '' });
+        setParameterForm({ name: '', type: '', defaultValue: '', imports: {} });
         setShowParameterForm(null);
         setEditingParamIndex(null);
         setParamNameError(''); // Clear any error message
@@ -335,6 +367,7 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
                             type={func.returnType}
                             memberName={typeof func.returnType === 'string' ? func.returnType : func.returnType?.name}
                             onChange={(newType) => updateFunction(index, { returnType: newType })}
+                            onUpdateImports={(imports) => handleUpdateFunctionImports(index, imports)}
                             placeholder="Type"
                             rootType={type}
                             onValidationError={(hasError) => handleValidationError(index, false, hasError)}
@@ -392,6 +425,7 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
                                         type={parameterForm.type}
                                         memberName={parameterForm.type}
                                         onChange={(newType) => setParameterForm(prev => ({ ...prev, type: newType }))}
+                                        onUpdateImports={(imports) => handleUpdateParameterImports(imports)}
                                         placeholder={isGraphql ? "Argument Type" : "Parameter Type"}
                                         rootType={type}
                                         onValidationError={onValidationError}
@@ -404,7 +438,7 @@ export function ClassEditor({ type, onChange, isGraphql, onValidationError }: Cl
                                     <S.ButtonGroup>
                                         <Button onClick={() => {
                                             setShowParameterForm(null);
-                                            setParameterForm({ name: '', type: '', defaultValue: '' });
+                                            setParameterForm({ name: '', type: '', defaultValue: '', imports: {} });
                                             setParamNameError('');
                                         }}>
                                             Cancel

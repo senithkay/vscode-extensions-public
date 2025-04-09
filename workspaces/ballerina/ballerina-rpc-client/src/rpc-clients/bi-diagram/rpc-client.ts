@@ -12,7 +12,7 @@ import {
     AIChatRequest,
     AddFieldRequest,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -366,7 +366,7 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
     }
 
-    addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+    addFunction(params: AddFunctionRequest): Promise<AddImportItemResponse> {
         return this._messenger.sendRequest(addFunction, HOST_EXTENSION, params);
     }
 
