@@ -55,6 +55,7 @@ interface ServiceConfigFormProps {
     serviceModel: ServiceModel;
     onSubmit: (data: ServiceModel) => void;
     openListenerForm?: () => void;
+    isSaving?: boolean;
     onBack?: () => void;
     formSubmitText?: string;
 }
@@ -63,7 +64,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [serviceFields, setServiceFields] = useState<FormField[]>([]);
-    const { serviceModel, onSubmit, onBack, openListenerForm, formSubmitText = "Next" } = props;
+    const { serviceModel, onSubmit, onBack, openListenerForm, formSubmitText = "Next", isSaving } = props;
     const [filePath, setFilePath] = useState<string>('');
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
@@ -182,10 +183,6 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 <>
                     {serviceFields.length > 0 &&
                         <FormContainer>
-                            {/* <Typography variant="h2" sx={{ marginTop: '16px' }}>{serviceModel.displayAnnotation.label} Configuration</Typography>
-                            <BodyText>
-                                {formSubmitText === "Save" ? editTitle : createTitle}
-                            </BodyText> */}
                             <FormHeader title={`${serviceModel.displayAnnotation.label} Configuration`} />
                             {filePath && targetLineRange &&
                                 <FormGeneratorNew
@@ -193,6 +190,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                                     targetLineRange={targetLineRange}
                                     fields={serviceFields}
                                     onBack={onBack}
+                                    isSaving={isSaving}
                                     openSubPanel={handleListenerForm}
                                     onSubmit={handleListenerSubmit}
                                     submitText={formSubmitText}

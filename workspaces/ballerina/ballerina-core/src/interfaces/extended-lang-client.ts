@@ -1308,6 +1308,7 @@ export interface FunctionSourceCodeRequest {
     codedata: {
         lineRange: LineRange; // For the entire service
     };
+    service?: ServiceModel;
 }
 export interface ResourceSourceCodeResponse {
     textEdits: {
@@ -1470,6 +1471,11 @@ export interface Artifacts {
     [ARTIFACT_TYPE.NaturalFunctions]: Record<string, BaseArtifact>;
     [ARTIFACT_TYPE.DataMappers]: Record<string, BaseArtifact>;
     [ARTIFACT_TYPE.Configurations]: Record<string, BaseArtifact>;
+}
+
+export interface ArtifactsNotification {
+    uri: string;
+    artifacts: Artifacts;
 }
 
 export interface ProjectArtifactsRequest {

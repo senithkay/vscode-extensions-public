@@ -93,14 +93,6 @@ export function ServiceEditView(props: ServiceEditViewProps) {
     const onSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().updateServiceSourceCode({ filePath, service: value });
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position
-            },
-        });
-        setSaving(false);
     }
 
     return (
@@ -116,17 +108,7 @@ export function ServiceEditView(props: ServiceEditViewProps) {
                 }
                 {serviceModel &&
                     <Container>
-                        {!saving &&
-                            <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} openListenerForm={undefined} formSubmitText={"Save"} />
-                            </>
-                        }
-                        {saving &&
-                            <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Saving... Please wait</Typography>
-                            </LoadingContainer>
-                        }
+                        <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} openListenerForm={undefined} formSubmitText={saving ? "Saving" : "Save"} isSaving={saving} />
                     </Container>
                 }
             </ViewContent>

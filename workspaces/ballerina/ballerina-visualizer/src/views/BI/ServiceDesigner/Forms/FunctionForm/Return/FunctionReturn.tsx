@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { PropertyModel } from '@wso2-enterprise/ballerina-core';
+import { ReadonlyField } from '../../../components/ReadonlyField';
 
 const NameContainer = styled.div`
     display: flex;
@@ -33,19 +34,22 @@ export function FunctionReturn(props: FunctionReturnProps) {
     return (
         <>
             <NameContainer>
-                <TextField
-                    sx={{ marginLeft: 15, flexGrow: 1 }}
-                    disabled={readonly}
-                    errorMsg={""}
-                    label="Return Type"
-                    size={70}
-                    onTextChange={(input) => {
-                        const trimmedInput = input.trim();
-                        handleNameChange(trimmedInput);
-                    }}
-                    placeholder={returnType.valueTypeConstraint}
-                    value={returnType.value}
-                />
+                {readonly && <ReadonlyField label="Return Type" name={returnType.value} />}
+                {!readonly &&
+                    <TextField
+                        sx={{ flexGrow: 1 }}
+                        disabled={readonly}
+                        errorMsg={""}
+                        label="Return Type"
+                        size={70}
+                        onChange={(e) => {
+                            const trimmedInput = e.target.value.trim();
+                            handleNameChange(trimmedInput);
+                        }}
+                        placeholder={returnType.valueTypeConstraint}
+                        value={returnType.value}
+                    />
+                }
             </NameContainer>
         </>
     );
