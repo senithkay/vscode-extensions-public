@@ -3827,6 +3827,8 @@ ${endpointAttributes}
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
             await replaceFullContentToFile(filePath, content);
+            const classMediator = await vscode.workspace.openTextDocument(filePath);
+            await classMediator.save();
 
             await changeRootPomForClassMediator();
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
