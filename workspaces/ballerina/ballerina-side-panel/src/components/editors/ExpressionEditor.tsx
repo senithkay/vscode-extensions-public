@@ -336,7 +336,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             onChange,
             handleChangeHelperPaneState,
             helperPaneHeight,
-            recordTypeField
+            recordTypeField,
+            field.type === "LV_EXPRESSION"
         );
     };
 
