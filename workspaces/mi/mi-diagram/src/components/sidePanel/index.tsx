@@ -207,7 +207,12 @@ const SidePanelList = (props: SidePanelListProps) => {
     const Title = () => {
         if (sidePanelContext.pageStack.length > 0) {
             const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
-            return lastPage.title !== undefined && <Typography variant='h3' sx={{ textAlign: "center", width: "fit-content" }}>{lastPage.title}</Typography>;
+            return lastPage.title !== undefined && 
+            <Typography variant='h3' sx={{ textAlign: "center", width: "fit-content" }}>
+                <div style={{ maxWidth: '320px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} >
+                    {lastPage.title}
+                </div>
+            </Typography>;
         }
     }
 
