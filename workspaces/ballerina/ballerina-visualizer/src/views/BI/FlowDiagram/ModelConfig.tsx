@@ -215,10 +215,10 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
                     <RelativeLoader />
                 </LoaderContainer>
             )}
-            {!loading && selectedModelFields?.length > 0 && (
+            {!loading && selectedModelFields?.length > 0 && selectedModel?.codedata?.lineRange && (
                 <ConfigForm
                     formFields={selectedModelFields}
-                    filePath={agentFilePath.current}
+                    targetLineRange={selectedModel?.codedata.lineRange}
                     onSubmit={handleOnSave}
                     disableSaveButton={savingForm}
                 />

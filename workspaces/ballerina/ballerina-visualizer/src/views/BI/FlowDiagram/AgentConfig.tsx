@@ -184,12 +184,14 @@ export function AgentConfig(props: AgentConfigProps): JSX.Element {
 
     return (
         <Container>
-            <ConfigForm
-                formFields={formFields}
-                filePath={agentFilePath.current}
-                onSubmit={handleOnSave}
-                disableSaveButton={savingForm}
-            />
+            {agentCallNode?.codedata?.lineRange && (
+                <ConfigForm
+                    formFields={formFields}
+                    targetLineRange={agentCallNode.codedata.lineRange}
+                    onSubmit={handleOnSave}
+                    disableSaveButton={savingForm}
+                />
+            )}
         </Container>
     );
 }

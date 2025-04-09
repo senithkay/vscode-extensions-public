@@ -309,10 +309,10 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
                     <RelativeLoader />
                 </LoaderContainer>
             )}
-            {!loading && selectedMemoryManagerFields?.length > 0 && (
+            {!loading && selectedMemoryManagerFields?.length > 0 && agentNodeRef.current?.codedata?.lineRange && (
                 <ConfigForm
                     formFields={selectedMemoryManagerFields}
-                    filePath={agentFilePath.current}
+                    targetLineRange={agentNodeRef.current.codedata.lineRange}
                     onSubmit={handleOnSave}
                     disableSaveButton={savingForm}
                 />
