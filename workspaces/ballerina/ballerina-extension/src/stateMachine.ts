@@ -45,13 +45,17 @@ const stateMachine = createMachine<MachineContext>(
                 actions: [
                     assign({
                         projectStructure: (context, event) => event.payload,
-                        tempData: (context, event) => event.isOpenView ? undefined : context.tempData // Remove temp data if the location is set
+                        tempData: (context, event) => event.stateMachineNavigate ? undefined : context.tempData // Remove temp data if the location is set
                     }),
                     (context, event) => {
-                        if (event.isOpenView) {
-                            openView(EVENT_TYPE.OPEN_VIEW, event.location);
+                        if (event.stateMachineNavigate) {
+                            if (event.location) {
+                                openView(EVENT_TYPE.OPEN_VIEW, event.location)
+                            } else {
+                                updateView();
+                            }
                         } else {
-                            updateView();
+                            notifyCurrentWebview();
                         }
                         commands.executeCommand("BI.project-explorer.refresh");
                     }
@@ -435,7 +439,7 @@ export const StateMachine = {
     setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
     setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
-    updateProjectStructure: (payload: ProjectStructureResponse, location: VisualizerLocation, isOpenView: boolean) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, location, isOpenView }); },
+    updateProjectStructure: (payload: ProjectStructureResponse, stateMachineNavigate: boolean, location?: VisualizerLocation) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, stateMachineNavigate, location }); },
     setTempData: (payload: TempData) => { stateService.send({ type: "SET_TEMP_DATA", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
@@ -466,7 +470,7 @@ export function updateView(refreshTreeView?: boolean) {
 
 function getLastHistory() {
     const historyStack = history?.get();
-    return historyStack[historyStack.length - 1];
+    return historyStack?.[historyStack?.length - 1];
 }
 
 async function checkForProjects(): Promise<{ isBI: boolean, projectPath: string, scope?: SCOPE }> {

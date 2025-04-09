@@ -174,7 +174,8 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         return new Promise(async (resolve) => {
             // Update the state tempData with the service model. This is used to navigate after the source code is updated
             StateMachine.setTempData({
-                serviceModel: params.service
+                serviceModel: params.service,
+                isNewService: true
             });
             const context = StateMachine.context();
             try {
@@ -207,59 +208,12 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                result = await this.injectAIAgent(params.service, result);
                 commands.executeCommand("BI.project-explorer.refresh");
                 resolve(result);
             } catch (error) {
                 console.log(error);
             }
         });
-    }
-
-    // This is a hack to inject the AI agent code into the chat service function
-    // This has to be replaced once we have a proper design for AI Agent Chat Service
-    async injectAIAgent(service: ServiceModel, result: SourceUpdateResponse): Promise<SourceUpdateResponse> {
-        // We will only inject if the type is `ai` and serviceType is `ChatService`
-        if (service.type === "ai") {
-            // Inject the import if missing
-            const importStatement = `import ballerinax/ai`;
-            await injectImportIfMissing(importStatement, path.join(StateMachine.context().projectUri, `agents.bal`));
-
-            //get AgentName
-            const agentName = service.properties.basePath.value.replace("/", "");
-
-            // Inject the agent code
-            await injectAgent(agentName, StateMachine.context().projectUri);
-            // retrive the service model
-            const updatedService = await this.getServiceModelFromCode({
-                filePath: result.filePath,
-                codedata: {
-                    lineRange: {
-                        startLine: { line: result.position.startLine, offset: result.position.startColumn },
-                        endLine: { line: result.position.endLine, offset: result.position.endColumn }
-                    }
-                }
-            });
-            if (!updatedService?.service?.functions?.[0]?.codedata?.lineRange?.endLine) {
-                console.error('Unable to determine injection position: Invalid service structure');
-                return;
-            }
-            const injectionPosition = updatedService.service.functions[0].codedata.lineRange.endLine;
-            const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
-            this.ensureFileExists(serviceFile);
-            await injectAgentCode(agentName, serviceFile, injectionPosition);
-            const functionPosition: NodePosition = {
-                startLine: updatedService.service.functions[0].codedata.lineRange.startLine.line,
-                startColumn: updatedService.service.functions[0].codedata.lineRange.startLine.offset,
-                endLine: updatedService.service.functions[0].codedata.lineRange.endLine.line + 3,
-                endColumn: updatedService.service.functions[0].codedata.lineRange.endLine.offset
-            };
-            return {
-                filePath: result.filePath,
-                position: functionPosition
-            };
-        }
-        return result;
     }
 
     async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {

@@ -69,7 +69,7 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
     ];
 
     useEffect(() => {
-        rpcClient.getServiceDesignerRpcClient().getListenerModel({ moduleName: type}).then(res => {
+        rpcClient.getServiceDesignerRpcClient().getListenerModel({ moduleName: type }).then(res => {
             setListenerModel(res.listener);
         });
     }, []);
@@ -124,17 +124,7 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                     filePath: "",
                     service: res.service
                 }).then((res) => {
-                    setTimeout(() => {
-                        rpcClient.getVisualizerRpcClient().openView({
-                            type: EVENT_TYPE.OPEN_VIEW,
-                            location: {
-                                documentUri: res.filePath,
-                                position: res.position
-                            },
-                        });
-                    }, 1000);
                     setCurrentStep(3);
-                    setIsCreating(false);
                 });
             });
 
