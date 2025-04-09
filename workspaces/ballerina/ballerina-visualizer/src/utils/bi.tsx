@@ -724,6 +724,7 @@ function createParameterValue(index: number, paramValueKey: string, paramValue: 
     const type = paramValue.value.type.value;
     const variableLineRange = (paramValue.value.variable as any).codedata?.lineRange;
     const variableEditable = (paramValue.value.variable as any).editable;
+    const parameterDescription = paramValue.value.parameterDescription?.value;
 
     return {
         id: index,
@@ -735,6 +736,7 @@ function createParameterValue(index: number, paramValueKey: string, paramValue: 
         formValues: {
             variable: name,
             type: type,
+            parameterDescription: parameterDescription,
         },
     };
 }
