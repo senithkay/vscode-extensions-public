@@ -153,21 +153,114 @@ export default function createTests() {
       await resource.add("testResource" + testAttempt);
     });
 
-    test('Data related tests', async () => {
-      const testAttempt = test.info().retry + 1;
+    test('Message Store Tests', async () => {
       let ms: MessageStore;
-      await test.step('Add Message Store', async () => {
-        console.log('Creating new Message Store');
+      const testAttempt = test.info().retry + 1;
+      await test.step('InMemory Message Store Tests', async () => {
+        const msName = "TestInMemoryMessageStore" + testAttempt;
+        const msUpdatedName = "TestInMemoryMessageStoreEdited" + testAttempt;
         ms = new MessageStore(page.page);
-        await ms.init();
-        await ms.addInMemmoryMS("msgStore" + testAttempt);
+        console.log('Create InMemory Message Store');
+        await ms.createInMemoryMessageStore(msName);
+        console.log('Edit InMemory Message Store');
+        await ms.editInMemoryMessageStore(msName, msUpdatedName);
       });
-      await test.step('Edit Message Store', async () => {
-        console.log('Editing Message Store');
-        await ms.editInMemoryMS("msgStore" + testAttempt, "newMsgStore" + testAttempt);
+      await test.step('RabbitMQ Message Store Tests', async () => {
+        const msName = "TestRabbitMQMessageStore" + testAttempt;
+        const msUpdatedName = "TestRabbitMQMessageStoreEdited" + testAttempt;
+        ms = new MessageStore(page.page);
+        console.log('Create RabbitMQ Message Store');
+        await ms.createRabbitMQMessageStore(msName);
+        console.log('Edit RabbitMQ Message Store');
+        await ms.editRabbitMQMessageStore(msName, msUpdatedName);
       });
+      await test.step('JMS Message Store Tests', async () => {
+        const msName = "TestJMSMessageStore" + testAttempt;
+        const msUpdatedName = "TestJMSMessageStoreEdited" + testAttempt;
+        ms = new MessageStore(page.page);
+        console.log('Create JMS Message Store');
+        await ms.createJMSMessageStore(msName);
+        console.log('Edit JMS Message Store');
+        await ms.editJMSMessageStore(msName, msUpdatedName);
+      });
+      await test.step('JDBC Message Store Tests', async () => {
+        const msName = "TestJDBCMessageStore" + testAttempt;
+        const msUpdatedName = "TestJDBCMessageStoreEdited" + testAttempt;
+        ms = new MessageStore(page.page);
+        console.log('Create JDBC Message Store');
+        await ms.createJDBCMessageStore(msName);
+        console.log('Edit JDBC Message Store');
+        await ms.editJDBCMessageStore(msName, msUpdatedName);
+      });
+      await test.step('Custom Message Store Tests', async () => {
+        const msName = "TestCustomMessageStore" + testAttempt;
+        const msUpdatedName = "TestCustomMessageStoreEdited" + testAttempt;
+        ms = new MessageStore(page.page);
+        console.log('Create Custom Message Store');
+        await ms.createCustomMessageStore(msName);
+        console.log('Edit Custom Message Store');
+        await ms.editCustomMessageStore(msName, msUpdatedName);
+      });
+      await test.step('Create Message Store from Project Explorer', async () => {
+        const testAttempt = test.info().retry + 1;
+        const msName = "TestMessageStore" + testAttempt;
+        console.log('Create Message Store from Project Explorer');
+        ms = new MessageStore(page.page);
+        await ms.createMessageStoreFromProjectExplorer(msName);
+      });
+    });
 
+    test('Message Processor Tests', async () => {
+      let mp: MessageProcessor;
+      const testAttempt = test.info().retry + 1;
+      await test.step('Message Sampling Processor Tests', async () => {
+        const mpName = "TestMessageSamplingProcessor" + testAttempt;
+        const mpUpdatedName = "TestMessageSamplingProcessorEdited" + testAttempt;
+        mp = new MessageProcessor(page.page);
+        console.log('Create Message Sampling Processor');
+        await mp.createMessageSamplingProcessor(mpName);
+        console.log('Edit Message Sampling Processor');
+        await mp.editMessageSamplingProcessor(mpName, mpUpdatedName);
+      });
+      await test.step('Scheduled Message Forwarding Processor Tests', async () => {
+        const mpName = "TestScheduledMessageForwardingProcessor" + testAttempt;
+        const mpUpdatedName = "TestScheduledMessageForwardingProcessorEdited" + testAttempt;
+        mp = new MessageProcessor(page.page);
+        console.log('Create Scheduled Message Forwarding Processor');
+        await mp.createScheduledMessageForwardingProcessor(mpName);
+        console.log('Edit Scheduled Message Forwarding Processor');
+        await mp.editScheduledMessageForwardingProcessor(mpName, mpUpdatedName);
+      });
+      await test.step('Scheduled Failover Message Forwarding Processor Tests', async () => {
+        const mpName = "TestScheduledFailoverMessageForwardingProcessor" + testAttempt;
+        const mpUpdatedName = "TestScheduledFailoverMessageForwardingProcessorEdited" + testAttempt;
+        mp = new MessageProcessor(page.page);
+        console.log('Create Scheduled Failover Message Forwarding Processor');
+        await mp.createScheduledFailoverMessageForwardingProcessor(mpName);
+        console.log('Edit Scheduled Failover Message Forwarding Processor');
+        await mp.editScheduledFailoverMessageForwardingProcessor(mpName, mpUpdatedName);
+      });
+      await test.step('Custom Message Processor Tests', async () => {
+        const mpName = "TestCustomMessageProcessor" + testAttempt;
+        const mpUpdatedName = "TestCustomMessageProcessorEdited" + testAttempt;
+        mp = new MessageProcessor(page.page);
+        console.log('Create Custom Message Processor');
+        await mp.createCustomMessageProcessor(mpName);
+        console.log('Edit Custom Message Processor');
+        await mp.editCustomMessageProcessor(mpName, mpUpdatedName);
+      });
+      await test.step('Create Message Processor from Project Explorer', async () => {
+        const testAttempt = test.info().retry + 1;
+        const mpName = "TestMessageProcessor" + testAttempt;
+        console.log('Create Message Processor from Project Explorer');
+        mp = new MessageProcessor(page.page);
+        await mp.createMessageProcessorFromProjectExplorer(mpName);
+      });
+    });
+
+    test('Data Service Tests', async () => {
       let dataSource: DataSource;
+      const testAttempt = test.info().retry + 1;
       await test.step('Add Data Source', async () => {
         console.log('Creating new Data Source');
         dataSource = new DataSource(page.page);
@@ -189,54 +282,6 @@ export default function createTests() {
         console.log('Editing Data Service');
         const dataService = new DataService(page.page);
         await dataService.edit("testDataService" + testAttempt, "newTestDataService" + testAttempt);
-      });
-    });
-
-    test('Message Processor Tests', async () => {
-      let msp: MessageProcessor;
-      const testAttempt = test.info().retry + 1;
-      await test.step('Message Sampling Processor Tests', async () => {
-        const mpName = "TestMessageSamplingProcessor" + testAttempt;
-        const mpUpdatedName = "TestMessageSamplingProcessor" + testAttempt + "Edited";
-        msp = new MessageProcessor(page.page);
-        console.log('Create Message Sampling Processor');
-        await msp.createMessageSamplingProcessor(mpName);
-        console.log('Edit Message Sampling Processor');
-        await msp.editMessageSamplingProcessor(mpName, mpUpdatedName);
-      });
-      await test.step('Scheduled Message Forwarding Processor Tests', async () => {
-        const mpName = "TestScheduledMessageForwardingProcessor" + testAttempt;
-        const mpUpdatedName = "TestScheduledMessageForwardingProcessor" + testAttempt + "Edited";
-        msp = new MessageProcessor(page.page);
-        console.log('Create Message Forwarding Processor');
-        await msp.createScheduledMessageForwardingProcessor(mpName);
-        console.log('Edit Message Forwarding Processor');
-        await msp.editScheduledMessageForwardingProcessor(mpName, mpUpdatedName);
-      });
-      await test.step('Scheduled Failover Message Forwarding Processor Tests', async () => {
-        const mpName = "TestScheduledFailoverMessageForwardingProcessor" + testAttempt;
-        const mpUpdatedName = "TestScheduledFailoverMessageForwardingProcessor" + testAttempt + "Edited";
-        msp = new MessageProcessor(page.page);
-        console.log('Create Scheduled Failover Message Forwarding Processor');
-        await msp.createScheduledFailoverMessageForwardingProcessor(mpName);
-        console.log('Edit Failover Message Forwarding Processor');
-        await msp.editScheduledFailoverMessageForwardingProcessor(mpName, mpUpdatedName);
-      });
-      await test.step('Custom Message Processor Tests', async () => {
-        const mpName = "TestCustomMessageProcessor" + testAttempt;
-        const mpUpdatedName = "TestCustomMessageProcessor" + testAttempt + "Edited";
-        msp = new MessageProcessor(page.page);
-        console.log('Create Custom Message Processor');
-        await msp.createCustomMessageProcessor(mpName);
-        console.log('Edit Custom Message Processor');
-        await msp.editCustomMessageProcessor(mpName, mpUpdatedName);
-      });
-      await test.step('Create Message Processor from Project Explorer', async () => {
-        const testAttempt = test.info().retry + 1;
-        const mpName = "TestMessageProcessor" + testAttempt;
-        console.log('Create Message Processor from Project Explorer');
-        msp = new MessageProcessor(page.page);
-        await msp.createMessageProcessorFromProjectExplorer(mpName);
       });
     });
 
