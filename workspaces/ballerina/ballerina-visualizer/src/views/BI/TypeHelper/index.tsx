@@ -13,7 +13,7 @@ import { RefObject } from 'react';
 
 import { debounce } from 'lodash';
 import { useCallback, useState } from 'react';
-import { FunctionKind, LineRange } from '@wso2-enterprise/ballerina-core';
+import { LineRange } from '@wso2-enterprise/ballerina-core';
 import {
     TypeHelperCategory,
     TypeHelperComponent,
@@ -49,6 +49,7 @@ type TypeHelperProps = {
     onChange: (newType: string, newCursorPosition: number) => void;
     changeTypeHelperState: (isOpen: boolean) => void;
     updateImports: (key: string, imports: {[key: string]: string}) => void;
+    onTypeCreate: (typeName: string) => void;
 };
 
 const TypeHelperEl = (props: TypeHelperProps) => {
@@ -63,7 +64,8 @@ const TypeHelperEl = (props: TypeHelperProps) => {
         onChange,
         changeTypeHelperState,
         typeBrowserRef,
-        updateImports
+        updateImports,
+        onTypeCreate
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -221,6 +223,11 @@ const TypeHelperEl = (props: TypeHelperProps) => {
         changeTypeHelperState(false);
     };
 
+    const handleTypeCreate = (typeName?: string) => {
+        changeTypeHelperState(false);
+        onTypeCreate(typeName || 'MyType');
+    };
+
     return (
         <>
             <TypeHelperComponent
@@ -240,6 +247,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                 onSearchTypeBrowser={handleSearchTypeBrowser}
                 onTypeItemClick={handleTypeItemClick}
                 onClose={handleTypeHelperClose}
+                onTypeCreate={handleTypeCreate}
             />
             {isAddingType && createPortal(
                 <>

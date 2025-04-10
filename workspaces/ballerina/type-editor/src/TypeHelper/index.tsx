@@ -21,7 +21,6 @@ import {
 
 import { ANIMATION } from './constant';
 import { getArrowPosition, getHelperPanePosition } from '../utils';
-import { useTypeHelperContext } from '../Context';
 import { TypeHelperComponent } from './TypeHelper';
 import { CodeData, FunctionKind } from '@wso2-enterprise/ballerina-core';
 
@@ -86,6 +85,7 @@ type TypeHelperProps = {
     onSearchTypeHelper: (searchText: string, isType: boolean) => void;
     onSearchTypeBrowser: (searchText: string) => void;
     onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
+    onTypeCreate?: (typeName?: string) => void;
 };
 
 type StyleBase = {

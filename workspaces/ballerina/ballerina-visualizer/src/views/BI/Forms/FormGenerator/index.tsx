@@ -583,8 +583,14 @@ export function FormGenerator(props: FormProps) {
         typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
-        typeHelperHeight: HelperPaneHeight
+        typeHelperHeight: HelperPaneHeight,
+        closeCompletions: () => void
     ) => {
+        const handleCreateNewType = (typeName: string) => {
+            closeCompletions();
+            setTypeEditorState({ isOpen: true, newTypeValue: typeName });
+        }
+
         return getTypeHelper({
             fieldKey: fieldKey,
             typeBrowserRef: typeBrowserRef,
@@ -596,7 +602,8 @@ export function FormGenerator(props: FormProps) {
             typeHelperState: typeHelperState,
             onChange: onChange,
             changeTypeHelperState: changeHelperPaneState,
-            updateImports: handleUpdateImports
+            updateImports: handleUpdateImports,
+            onTypeCreate: handleCreateNewType
         });
     }
 
