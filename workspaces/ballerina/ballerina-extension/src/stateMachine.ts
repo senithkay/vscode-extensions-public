@@ -451,6 +451,8 @@ export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, res
     if (resetHistory) {
         history?.clear();
     }
+    extension.hasPullModuleResolved = false;
+    extension.hasPullModuleNotification = false;
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 

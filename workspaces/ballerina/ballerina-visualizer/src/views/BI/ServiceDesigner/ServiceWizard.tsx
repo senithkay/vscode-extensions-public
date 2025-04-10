@@ -14,7 +14,7 @@ import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import ListenerConfigForm from './Forms/ListenerConfigForm';
 import ServiceConfigForm from './Forms/ServiceConfigForm';
-import { LoadingContainer } from '../../styles';
+import { LoadingContainer, LoadingOverlayContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
 import { TopNavigationBar } from '../../../components/TopNavigationBar';
 import { LoadingRing } from '../../../components/Loader';
@@ -58,6 +58,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     const [saving, setSaving] = useState<boolean>(false);
     const [existingListener, setExistingListener] = useState<string>(undefined);
+    const [pullingModules, setPullingModules] = useState<boolean>(false);
 
     useEffect(() => {
         rpcClient.getServiceDesignerRpcClient()
@@ -91,7 +92,14 @@ export function ServiceWizard(props: ServiceWizardProps) {
         setSaving(true);
         let listenerName;
         if (value) {
+            // Set a timeout to show step 2 after 3 seconds
+            const timeoutId = setTimeout(() => {
+                setPullingModules(true);
+            }, 3000);
             await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener: value });
+            // Clear the timeout if the operation completed before 3 seconds
+            clearTimeout(timeoutId);
+            setPullingModules(false);
             if (value.properties['name'].value) {
                 listenerName = value.properties['name'].value;
             }
@@ -161,6 +169,11 @@ export function ServiceWizard(props: ServiceWizardProps) {
                             <>
                                 <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={saving ? "Creating" : "Create"} isSaving={saving} />
                             </>
+                        }
+                        {pullingModules &&
+                            <LoadingOverlayContainer>
+                                <LoadingRing message="Pulling the required modules..." />
+                            </LoadingOverlayContainer>
                         }
                     </Container>
                 }
