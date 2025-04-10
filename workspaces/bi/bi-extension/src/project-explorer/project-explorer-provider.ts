@@ -333,7 +333,7 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType: DIRE
         fileEntry.command = {
             "title": "Visualize",
             "command": SHARED_COMMANDS.SHOW_VISUALIZER,
-            "arguments": [vscode.Uri.parse(comp.path), comp.position, resetHistory]
+            "arguments": [comp.path, comp.position, resetHistory]
         };
         fileEntry.contextValue = itemType;
         fileEntry.tooltip = comp.context;
