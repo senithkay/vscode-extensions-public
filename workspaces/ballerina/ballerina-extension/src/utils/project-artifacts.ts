@@ -15,6 +15,7 @@ import * as path from 'path';
 import { ExtendedLangClient } from "../core/extended-language-client";
 import { ServiceDesignerRpcManager } from "../rpc-managers/service-designer/rpc-manager";
 import { injectAgent, injectAgentCode, injectImportIfMissing } from "./source-utils";
+import { tmpdir } from "os";
 
 export async function buildProjectArtifactsStructure(projectDir: string, langClient: ExtendedLangClient): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
@@ -76,6 +77,11 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
     // Current project structure
     const currentProjectStructure: ProjectStructureResponse = StateMachine.context().projectStructure;
     if (publishedArtifacts && currentProjectStructure) {
+        const tmpUri = URI.file(tmpdir()).toString();
+        if (publishedArtifacts.uri.includes(tmpUri)) {
+            // Skip the temp dirs
+            return;
+        }
         const entryLocation = await traverseUpdatedComponents(publishedArtifacts.artifacts, currentProjectStructure);
         StateMachine.setReadyMode();
         // Skip if the user is in diagram view
