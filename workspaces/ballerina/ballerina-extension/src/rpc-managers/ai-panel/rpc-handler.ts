@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -18,6 +18,7 @@ import {
     GenerateMappingsRequest,
     GenerateTypesFromRecordRequest,
     GetFromFileRequest,
+    GetModuleDirParams,
     NotifyAIMappingsRequest,
     PostProcessRequest,
     ProjectSource,
@@ -38,6 +39,7 @@ import {
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getContentFromFile,
     getDriftDiagnosticContents,
     getFileExists,
     getFromDocumentation,
@@ -45,6 +47,7 @@ import {
     getGeneratedTests,
     getInitialPrompt,
     getMappingsFromRecord,
+    getModuleDirectory,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
@@ -138,4 +141,6 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(updateDevelopmentDocument, (args: DeveloperDocument) => rpcManger.updateDevelopmentDocument(args));
     messenger.onNotification(updateRequirementSpecification, (args: RequirementSpecification) => rpcManger.updateRequirementSpecification(args));
     messenger.onNotification(createTestDirecoryIfNotExists, (args: string) => rpcManger.createTestDirecoryIfNotExists(args));
+    messenger.onRequest(getModuleDirectory, (args: GetModuleDirParams) => rpcManger.getModuleDirectory(args));
+    messenger.onRequest(getContentFromFile, (args: GetFromFileRequest) => rpcManger.getContentFromFile(args));
 }

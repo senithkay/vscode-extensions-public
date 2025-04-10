@@ -29,6 +29,7 @@ import {
     GenerateTypesFromRecordRequest,
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
+    GetModuleDirParams,
     InitialPrompt,
     LLMDiagnostics,
     NotifyAIMappingsRequest,
@@ -50,12 +51,12 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import path from "path";
+import { parse } from 'toml';
 import { Uri, commands, window, workspace } from 'vscode';
-import {parse} from 'toml';
 
 import { writeFileSync } from "fs";
 import { isNumber } from "lodash";
-import { getPluginConfig } from "../../../src/utils";
+import { URI } from "vscode-uri";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
@@ -77,7 +78,6 @@ import {
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
 import { handleLogin, handleStop, isErrorCode, isLoggedin, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
-import { langClient } from "src/features/ai/activator";
 
 export let hasStopped: boolean = false;
 
@@ -861,6 +861,28 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return false; // Directory doesn't exist or isn't a folder
         }
         return true;
+    }
+
+    async getModuleDirectory(params: GetModuleDirParams): Promise<string> {
+        return new Promise((resolve) => {
+            const projectUri = params.filePath;
+            const projectFsPath = URI.parse(projectUri).fsPath;
+            const moduleName = params.moduleName;
+            const generatedPath = path.join(projectFsPath, "generated", moduleName);
+            if (fs.existsSync(generatedPath) && fs.statSync(generatedPath).isDirectory()) {
+                resolve("generated");
+            } else {
+                resolve("modules");
+            }
+        });
+    }
+
+    async getContentFromFile(content: GetFromFileRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const projectFsPath = URI.parse(content.filePath).fsPath;
+            const fileContent = fs.promises.readFile(projectFsPath, 'utf-8');
+            resolve(fileContent);
+        });
     }
 }
 
