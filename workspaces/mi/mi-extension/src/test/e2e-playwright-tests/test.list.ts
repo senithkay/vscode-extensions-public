@@ -18,7 +18,6 @@ import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
 const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
-const dataFolder = path.join( __dirname, 'data');
 
 test.describe.configure({ mode: 'default' });
 
@@ -38,7 +37,6 @@ test.describe(logMediatorTests);
 
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);
-    fs.rmSync(dataFolder, { recursive: true });
     const dateTime = new Date().toISOString().replace(/:/g, '-');
     page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.webm`));
     await page.page?.close();

@@ -21,8 +21,15 @@ export class AddArtifact {
     }
 
     public async init() {
-        const { title: iframeTitle } = await page.getCurrentWebview();
-                                        
+        let iframeTitle;
+
+        try {
+            const webview = await page.getCurrentWebview();
+            iframeTitle = webview.title;
+        } catch (error) {
+            console.error("Error retrieving iframe title:", error);
+            iframeTitle = null;
+        }                         
         if (iframeTitle != MACHINE_VIEW.ADD_ARTIFACT) {
             const projectExplorer = new ProjectExplorer(this._page);
             await projectExplorer.goToOverview("testProject");
