@@ -283,18 +283,28 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
                     location: {
                         view: MACHINE_VIEW.BIListenerConfigView,
                         documentUri: normalizedDocumentUri,
-                        position: dir.position
+                        position: dir.position,
+                        identifier: dir.name,
+                    }
+                };
+            case DIRECTORY_MAP.RESOURCE:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.BIDiagram,
+                        documentUri: normalizedDocumentUri,
+                        position: dir.position,
+                        identifier: dir.id,
                     }
                 };
             case DIRECTORY_MAP.NP_FUNCTION:
             case DIRECTORY_MAP.AUTOMATION:
             case DIRECTORY_MAP.FUNCTION:
-            case DIRECTORY_MAP.RESOURCE:
             case DIRECTORY_MAP.REMOTE:
                 return {
                     location: {
                         view: MACHINE_VIEW.BIDiagram,
                         documentUri: normalizedDocumentUri,
+                        identifier: dir.name,
                         position: dir.position,
                         metadata: {
                             enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
@@ -325,7 +335,8 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
                     location: {
                         view: MACHINE_VIEW.EditConfigVariables,
                         documentUri: normalizedDocumentUri,
-                        position: dir.position
+                        position: dir.position,
+                        identifier: dir.name,
                     },
                 };
             case DIRECTORY_MAP.DATA_MAPPER:
