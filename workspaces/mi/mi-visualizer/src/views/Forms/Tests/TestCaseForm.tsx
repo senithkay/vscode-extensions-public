@@ -271,7 +271,9 @@ export function TestCaseForm(props: TestCaseFormProps) {
             />
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Properties</Typography>
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                    <Typography variant="h3">Properties</Typography>
+                </div>
                 <Typography variant="body3">Editing of the properties of an input</Typography>
 
                 <Controller
