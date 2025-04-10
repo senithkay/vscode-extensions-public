@@ -1716,8 +1716,8 @@ export function AIChat() {
         matchingFunctionFile: string | null;
     }> {
         for (const func of existingFunctions) {
-            const functionContent = await rpcClient.getAiPanelRpcClient().getFromFile({
-                filePath: func.filePath.split("/").pop(),
+            const functionContent = await rpcClient.getAiPanelRpcClient().getContentFromFile({
+                filePath: func.filePath,
             });
 
             const fileName = func.filePath.split("/").pop();
@@ -1828,11 +1828,15 @@ export function AIChat() {
 
         const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number }[] = [];
 
-        projectComponents.components.packages?.forEach((pkg) => {
-            pkg.modules?.forEach((mod) => {
+        for (const pkg of projectComponents.components.packages || []) {
+            for (const mod of pkg.modules || []) {
                 let filepath = pkg.filePath;
                 if (mod.name !== undefined) {
-                    filepath += `modules/${mod.name}/`;
+                    const modDir = await rpcClient.getAiPanelRpcClient().getModuleDirectory({
+                        moduleName: mod.name,
+                        filePath: filepath,
+                    })
+                    filepath += `${modDir}/${mod.name}/`;
                 }
                 mod.records.forEach((rec) => {
                     const recFilePath = filepath + rec.filePath;
@@ -1848,8 +1852,8 @@ export function AIChat() {
                         endLine: func.endLine,
                     });
                 });
-            });
-        });
+            }
+        }
 
         if (parameters.inputRecord.length > 0 || parameters.outputRecord !== "") {
             result = await processExistingFunctions(existingFunctions, functionName);
