@@ -8,7 +8,7 @@
  */
 
 import { Frame, Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
 export class InboundEPForm {
     private webView!: Frame;
@@ -30,6 +30,26 @@ export class InboundEPForm {
         await inboundTypeBtn.click();
         await this.webView.waitForSelector(`span:text("Type:") >> ../../..`);
         await this.webView.waitForSelector(`div:text("${type}") >> ../../..`);
+    }
+
+    public async selectStoreType(type: string, typeChipName?: string) {
+        const inboundEPSection = await this.webView.waitForSelector(`h2:text("Create Event Integration") >> ../..`);
+        const inboundTypeBtn = await inboundEPSection.waitForSelector(`div:text("${type}") >> ../../../..`);
+        await inboundTypeBtn.click();
+
+        try {
+            console.log('Confirming download of dependencies');
+            const dependencyConfirmationLocator = this.webView.locator(`p:text("Dependencies will be added to the project. Do you want to continue?") >> ..`);
+            await dependencyConfirmationLocator.waitFor();
+            const confiramtionBtn = await getVsCodeButton(dependencyConfirmationLocator, "Yes", "primary");
+            await confiramtionBtn.click();
+            console.log('Download dependency confirmed');
+        } catch (error) {
+            console.log("Dependency download confirmation not found");
+        }
+
+        await this.webView.waitForSelector(`span:text("Type:") >> ../../..`);
+        await this.webView.waitForSelector(`div:text("${typeChipName ?? type}") >> ../../..`);
     }
 
 }
