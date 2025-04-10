@@ -173,7 +173,8 @@ export function TypeEditor(props: TypeEditorProps) {
             isTypeHelperOpen,
             onChange,
             handleChangeTypeHelperState,
-            helperPaneHeight
+            helperPaneHeight,
+            handleCancel
         );
     }
 

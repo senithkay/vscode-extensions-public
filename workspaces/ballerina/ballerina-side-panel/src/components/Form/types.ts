@@ -128,7 +128,8 @@ type FormTypeConditionalProps = {
         typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeTypeHelperState: (isOpen: boolean) => void,
-        helperPaneHeight: HelperPaneHeight
+        helperPaneHeight: HelperPaneHeight,
+        closeCompletions: () => void
     ) => JSX.Element;
     helperPaneOrigin?: HelperPaneOrigin;
     helperPaneHeight: HelperPaneHeight;
