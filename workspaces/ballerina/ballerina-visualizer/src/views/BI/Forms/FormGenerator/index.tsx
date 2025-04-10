@@ -292,6 +292,10 @@ export function FormGenerator(props: FormProps) {
         setTypeEditorState({ isOpen, fieldKey: editingField?.key, newTypeValue: f[editingField?.key] });
     };
 
+    const handleCreateNewType = (typeName: string) => {
+        setTypeEditorState({ isOpen: true, newTypeValue: typeName });
+    }
+
     const handleUpdateImports = (key: string, imports: Imports) => {
         const importKey = Object.keys(imports)?.[0];
         if (Object.keys(formImports).includes(key)) {
@@ -596,7 +600,8 @@ export function FormGenerator(props: FormProps) {
             typeHelperState: typeHelperState,
             onChange: onChange,
             changeTypeHelperState: changeHelperPaneState,
-            updateImports: handleUpdateImports
+            updateImports: handleUpdateImports,
+            onTypeCreate: handleCreateNewType
         });
     }
 
