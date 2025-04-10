@@ -31,7 +31,7 @@ export class Template {
         await addArtifactPage.add('Template');
     }
 
-    public async addTemplate() {
+    public async addTemplate(name: string) {
         const templEpWebView = await switchToIFrame('Template Form', this._page);
         if (!templEpWebView) {
             throw new Error("Failed to switch to Template Form iframe");
@@ -44,7 +44,7 @@ export class Template {
         }
         const tmplAddEPFrame = mspWebview.locator('div#root');
         await tmplAddEPFrame.getByRole('textbox', { name: 'Template Name*' }).click();
-        await tmplAddEPFrame.getByRole('textbox', { name: 'Template Name*' }).fill('tempEP');
+        await tmplAddEPFrame.getByRole('textbox', { name: 'Template Name*' }).fill(name);
         await tmplAddEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).click();
         await tmplAddEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).fill('templateEp');
         await tmplAddEPFrame.getByRole('textbox', { name: 'URI*' }).click();
@@ -60,10 +60,10 @@ export class Template {
         }
     }
 
-    public async editTemplate() {
+    public async editTemplate(prevName: string, newName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Templates', 'tempEP'], true);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Templates', prevName], true);
 
         const tmplAddWebview = await switchToIFrame('Address Endpoint Form', this._page);
         if (!tmplAddWebview) {
@@ -72,7 +72,7 @@ export class Template {
         const tmplAddEPFrame = tmplAddWebview.locator('div#root');
 
         await tmplAddEPFrame.getByRole('textbox', { name: 'Template Name*' }).click();
-        await tmplAddEPFrame.getByRole('textbox', { name: 'Template Name*' }).fill('newTempEP');
+        await tmplAddEPFrame.getByRole('textbox', { name: 'Template Name*' }).fill(newName);
         await tmplAddEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).click();
         await tmplAddEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).fill('newTemplateEp');
         await tmplAddEPFrame.getByRole('textbox', { name: 'URI*' }).click();

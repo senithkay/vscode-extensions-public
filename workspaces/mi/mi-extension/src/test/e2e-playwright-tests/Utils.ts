@@ -15,6 +15,7 @@ import { ElectronApplication, expect } from "@playwright/test";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
 import { promises as fsp } from 'fs';
+import os from 'os';
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -139,4 +140,13 @@ export async function assertFileContent(filePath: string, expectedValue: string)
         console.error('Error reading the file:', error);
         throw error;
     }
+}
+
+export async function copyFile(source: string, destination: string) {
+    console.log('Copying file from ' + source + ' to ' + destination);
+
+    if (existsSync(destination)) {
+        fs.rmSync(destination);
+    }
+    fs.copyFileSync(source, destination);
 }

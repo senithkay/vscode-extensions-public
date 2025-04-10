@@ -31,22 +31,22 @@ export class Proxy {
         await addArtifactPage.add('Proxy');
     }
 
-    public async add() {
+    public async add(name: string) {
         const proxyWebView = await switchToIFrame('Proxy Service Form', this._page);
         if (!proxyWebView) {
             throw new Error("Failed to switch to Proxy Service Form iframe");
         }
         const proxyFrame = proxyWebView.locator('div#root');
-        await proxyFrame.getByRole('textbox', { name: 'Proxy Service Name*' }).fill('testProxy');
+        await proxyFrame.getByRole('textbox', { name: 'Proxy Service Name*' }).fill(name);
         await proxyFrame.getByLabel('vfs').click();
         await proxyFrame.getByLabel('udp').click();
         await proxyFrame.getByRole('button', { name: 'Create' }).click();
     }
 
-    public async edit() {
+    public async edit(prevName: string, newName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', 'testProxy'], true);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', prevName], true);
 
         const webView = await switchToIFrame('Proxy View', this._page);
         if (!webView) {
@@ -55,7 +55,7 @@ export class Proxy {
         const frame = webView.locator('div#root');
         await frame.getByTestId('edit-button').click();
         await frame.getByRole('textbox', { name: 'Name' }).click();
-        await frame.getByRole('textbox', { name: 'Name' }).fill('newTestProxy');
+        await frame.getByRole('textbox', { name: 'Name' }).fill(newName);
         await frame.getByRole('textbox', { name: 'Pinned Servers' }).fill('newPinnedServers');
         await frame.getByRole('textbox', { name: 'Service Group' }).fill('newServiceGroup');
         await frame.getByLabel('vfs').click();

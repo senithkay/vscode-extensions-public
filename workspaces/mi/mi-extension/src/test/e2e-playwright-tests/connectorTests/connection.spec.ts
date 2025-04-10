@@ -18,7 +18,7 @@ import { Overview } from '../components/Overview';
 
 export default function createTests() {
     test.describe(async () => {
-        initTest(false);
+        initTest();
 
         test("Connection Tests", async ({ }, testInfo) => {
             const testAttempt = testInfo.retry + 1;
@@ -104,9 +104,80 @@ export default function createTests() {
                     }
                 });
                 await connectionForm.submit('Update');
+            });
+
+            await test.step('Create Connection from project explorer', async () => {
+                console.log('Creating Connection from project explorer: http_connection');
+                const projectExplorer = new ProjectExplorer(page.page);
+                console.log('Click connection + in Project Explorer');
+                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Connections"]);
+
+                const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
+                await connectorStore.init();
+                await connectorStore.search('HTTP');
+                await connectorStore.selectOperation('HTTP');
+
+                const connectionForm = new Form(page.page, 'Connector Store Form');
+                await connectionForm.switchToFormView();
+                console.log('Filling out connection form');
+                await connectionForm.fill({
+                    values: {
+                        'Connection Name*': {
+                            type: 'input',
+                            value: 'http_connection' + testAttempt,
+                        }
+                    }
+                });
+                await connectionForm.submit('Add');
+
+                console.log('Finding created connection in Project Explorer');
+                await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "http_connection" + testAttempt]);
+            });
+
+            await test.step('Import Connector', async () => {
+                console.log('Importing connector: bookservice');
+                const overviewPage = new Overview(page.page);
+                await overviewPage.init();
+                await overviewPage.goToAddArtifact();
+
+                const addArtifactPage = new AddArtifact(page.page);
+                await addArtifactPage.init();
+                await addArtifactPage.add('Connection');
+
+                const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
+                await connectorStore.init();
+
+                console.log('importing connector');
+                await connectorStore.importConnector('bookservice-1.0.0.zip', true);
+
+                await connectorStore.search('Bookservice');
+                await connectorStore.selectOperation('BOOKSERVICE');
+
+                const connectionForm = new Form(page.page, 'Connector Store Form');
+                await connectionForm.switchToFormView();
+                console.log('Filling out connection form');
+                await connectionForm.fill({
+                    values: {
+                        'Connection Name*': {
+                            type: 'input',
+                            value: 'bookservice_connection' + testAttempt,
+                        },
+                        'Server URL*': {
+                            type: 'expression',
+                            value: 'http://localhost'
+                        },
+                        'Port*': {
+                            type: 'expression',
+                            value: '80',
+                        }
+                    }
+                });
+                await connectionForm.submit('Add');
+                const projectExplorer = new ProjectExplorer(page.page);
+                await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "bookservice_connection" + testAttempt]);
 
                 console.log('Connection tests completed');
-            });
+                });
         });
     });
 }
