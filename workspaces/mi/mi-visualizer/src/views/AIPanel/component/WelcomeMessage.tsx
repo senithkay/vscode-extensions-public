@@ -34,11 +34,6 @@ export const WelcomeMessage: React.FC = () => {
                     <br />
                     Please review generated code before adding to your integration.
                 </Typography>
-                {/* {isVersionThresholdReached ?
-                <Typography variant="body1" sx={WelcomeStyles.command}>
-                Type / to use commands
-                </Typography> : null
-            } */}
                 <Typography variant="body1" sx={WelcomeStyles.attachContext}>
                     <Icon isCodicon={true} name="new-file" iconSx={{ cursor: "default" }} /> to attach context
                 </Typography>

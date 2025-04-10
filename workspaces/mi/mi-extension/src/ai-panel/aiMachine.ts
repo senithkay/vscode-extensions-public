@@ -18,6 +18,7 @@ import fetch from 'node-fetch';
 import { USER_CHECK_BACKEND_URL } from '../constants';
 import { log } from '../util/logger';
 import { PromptObject } from '@wso2-enterprise/mi-core';
+
 interface ChatEntry {
     role: string;
     content: string;

@@ -10,6 +10,7 @@
 
 import { ExtensionContext } from "vscode";
 import { PromptObject } from '@wso2-enterprise/mi-core';
+
 export class MIExtensionContext {
     public context!: ExtensionContext;
     public webviewReveal!: boolean;
