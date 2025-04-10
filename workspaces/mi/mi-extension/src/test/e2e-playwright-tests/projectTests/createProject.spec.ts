@@ -12,23 +12,17 @@ import { Welcome } from "./../components/Welcome";
 import { Api } from "./../components/ArtifactTest/Api";
 import { ProjectExplorer } from "./../components/ProjectExplorer";
 import { Overview } from "./../components/Overview";
-import { assertFileContent } from '../Utils';
-
-import fs from 'fs';
-import { initVSCode, toggleNotifications, createProject, page} from '../Utils';
+import { assertFileContent, initTest } from '../Utils';
+import { createProject, page} from '../Utils';
 import path from "path";
 const dataFolder = path.join( __dirname, '..', 'data');
 export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
 
 export default function createTests() {
     test.describe(async () => {
-        test("Create Project Tests", async () => {
-            
-            fs.mkdirSync(newProjectPath, { recursive: true });
-            console.log('Starting VSCode');
-            await initVSCode();
-            await toggleNotifications(true);
+        initTest(true, true, true);
 
+        test("Create Project Tests", async () => {
             await test.step('Create New Project Tests', async () => {
                 await createProject(page, 'newProject', newProjectPath, false);
                 assertFileContent(path.join(newProjectPath, 'newProject', 'pom.xml'), 
@@ -36,8 +30,6 @@ export default function createTests() {
             });
 
             await test.step("Create New Project with Advanced Config Tests", async () => {
-                const notificationStatus = page.page.locator('#status\\.notifications');
-                await notificationStatus.waitFor();
                 await page.executePaletteCommand("MI: Open MI Welcome");
                 await createProject(page, 'newProjectWithAdConfig', newProjectPath, true);
                 assertFileContent(path.join(newProjectPath, 'newProjectWithAdConfig', 'pom.xml'), 
@@ -45,8 +37,6 @@ export default function createTests() {
             });
 
             await test.step("Create New Project from Sample", async () => {
-                const notificationStatus = page.page.locator('#status\\.notifications');
-                await notificationStatus.waitFor();
                 await page.executePaletteCommand("MI: Open MI Welcome");
                 await page.selectSidebarItem('Micro Integrator');
                 const welcomePage = new Welcome(page);
@@ -60,8 +50,6 @@ export default function createTests() {
             });
 
             await test.step("Open Existing Project Tests", async () => {
-                const notificationStatus = page.page.locator('#status\\.notifications');
-                await notificationStatus.waitFor();
                 await page.executePaletteCommand("MI: Open Project");
                 await page.page.getByLabel('input').fill('');
                 await page.page.getByLabel('input').fill(newProjectPath + '/newProject/');

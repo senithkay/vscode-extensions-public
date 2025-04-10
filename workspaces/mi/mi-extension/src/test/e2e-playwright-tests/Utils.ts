@@ -100,7 +100,7 @@ export async function toggleNotifications(disable: boolean) {
 
 }
 
-export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
+export function initTest(newProject: boolean = false, skipProjectCreation: boolean = false, cleanupAfter?: boolean) {
     test.beforeAll(async ({ }, testInfo) => {
         console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);
         if (!existsSync(path.join(newProjectPath, 'testProject')) || newProject) {
@@ -111,7 +111,9 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
             console.log('Starting VSCode');
             await initVSCode();
             await toggleNotifications(true);
-            await createProject(page, 'testProject', newProjectPath, false);
+            if (!skipProjectCreation) {
+                await createProject(page, 'testProject', newProjectPath, false);
+            }
         } else {
             console.log('Resuming VSCode');
             await resumeVSCode();
@@ -123,31 +125,14 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
 
     test.afterAll(async ({ }, testInfo) => {
         if (cleanupAfter && fs.existsSync(newProjectPath)) {
-            deleteProjectFolderRecursive(newProjectPath);
+            fs.rmSync(newProjectPath, { recursive: true });
         }
         console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}`);
     });
 }
 
-export const deleteProjectFolderRecursive = (dataFolder) => {
-    if (fs.existsSync(dataFolder)) {
-        fs.readdirSync(dataFolder).forEach((file) => {
-            const curPath = path.join(dataFolder, file);
-            if (fs.lstatSync(curPath).isDirectory()) {
-                deleteProjectFolderRecursive(curPath);
-            } else {
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(dataFolder);
-    } else {
-        console.log(`Folder does not exist: ${dataFolder}`);
-    }
-};
-
 export async function assertFileContent(filePath: string, expectedValue: string) {
     try {
-        await page.page.waitForTimeout(5000);
         let fileContent = await fsp.readFile(filePath, 'utf8');
         expect(fileContent).toContain(expectedValue);
     } catch (error) {

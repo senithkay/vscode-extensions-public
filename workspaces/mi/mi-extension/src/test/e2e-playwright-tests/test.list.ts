@@ -14,10 +14,9 @@ import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 import artifactTests from './artifactTests/artifact.spec';
 import createProjectTests from './projectTests/createProject.spec';
 import logMediatorTests from './mediatorTests/log.spec';
-import { deleteProjectFolderRecursive, page } from './Utils';
+import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
-const dataFolder = path.join( __dirname, 'data');
 const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
 
 test.describe.configure({ mode: 'default' });
@@ -38,7 +37,6 @@ test.describe(logMediatorTests);
 
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);
-    deleteProjectFolderRecursive(dataFolder)
     const dateTime = new Date().toISOString().replace(/:/g, '-');
     page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.webm`));
     await page.page?.close();
