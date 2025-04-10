@@ -523,6 +523,15 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
             if (automationIdentifier && automationIdentifier === "Automation") {
                 selectedEntry = entryValue;
                 break;
+            } else {
+                // Check if the created entry is a functionNode and matched the properties
+                const tempFunction = StateMachine.context().tempData?.flowNode;
+                if (tempFunction) {
+                    if (tempFunction.properties?.functionName && entryValue.context === tempFunction.properties.functionName.value) {
+                        selectedEntry = entryValue;
+                        break;
+                    }
+                }
             }
             break;
         case DIRECTORY_MAP.FUNCTION:
