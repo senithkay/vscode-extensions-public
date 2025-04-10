@@ -31,13 +31,13 @@ export class ClassMediator {
         await addArtifactPage.add('Class Mediator');
     }
 
-    public async add() {
+    public async add(pName: string) {
         const seqWebView = await switchToIFrame('ClassMediator Creation Form', this._page);
         if (!seqWebView) {
             throw new Error("Failed to switch to Class Mediator Form iframe");
         }
         const seqFrame = seqWebView.locator('div#root');
-        await seqFrame.getByRole('textbox', { name: 'Package Name*' }).fill('org.wso2.sample');
+        await seqFrame.getByRole('textbox', { name: 'Package Name*' }).fill(pName);
         await seqFrame.getByRole('textbox', { name: 'Class Name*' }).fill('SampleClass');
         await seqFrame.getByRole('button', { name: 'Create' }).click();
     }

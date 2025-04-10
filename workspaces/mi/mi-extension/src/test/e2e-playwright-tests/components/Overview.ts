@@ -47,4 +47,8 @@ export class Overview {
         const addArtifactBtn = await this.webView.waitForSelector(`vscode-button:text("Add Artifact")`);
         await addArtifactBtn.click();
     }
+
+    public async getWebView() {
+        return this.webView;
+    }
 }
