@@ -45,7 +45,7 @@ const defaultTypeHelperContext: TypeHelperContext = {
     typeBrowserTypes: [],
     onSearchTypeHelper: () => {},
     onSearchTypeBrowser: () => {},
-    onTypeItemClick: () => Promise.resolve({} as AddImportItemResponse),
+    onTypeItemClick: () => Promise.resolve({} as AddImportItemResponse)
 };
 
 export const TypeHelperContext = createContext<TypeHelperContext>(defaultTypeHelperContext);

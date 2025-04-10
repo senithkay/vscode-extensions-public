@@ -68,7 +68,8 @@ export function ParamEditor(props: ParamProps) {
         typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeTypeHelperState: (isOpen: boolean) => void,
-        helperPaneHeight: HelperPaneHeight
+        helperPaneHeight: HelperPaneHeight,
+        closeCompletions: () => void
     ) => {
         return expressionEditor?.getTypeHelper(
             propertyKey,
@@ -78,7 +79,8 @@ export function ParamEditor(props: ParamProps) {
             typeHelperState,
             onChange,
             changeTypeHelperState,
-            helperPaneHeight
+            helperPaneHeight,
+            closeCompletions
         );
     };
 
