@@ -33,7 +33,7 @@ export class MessageProcessor {
         await addArtifactPage.add('Message Processor');
     }
 
-    public async createMessageProcessorFromProjectExplorer() {
+    public async createMessageProcessorFromProjectExplorer(mpName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'Message Processors'], true);
@@ -50,11 +50,12 @@ export class MessageProcessor {
             values: {
                 'Message Processor Name*': {
                     type: 'input',
-                    value: 'TestMessageProcessor',
+                    value: mpName,
                 },
                 'Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Message Processor Provider Class FQN*': {
                     type: 'input',
@@ -70,7 +71,7 @@ export class MessageProcessor {
         }
     }
 
-    public async createMessageSamplingProcessor() {
+    public async createMessageSamplingProcessor(mpName: string) {
         await this.init();
         const mpWebView = await switchToIFrame('Message Processor Form', this._page);
         if (!mpWebView) {
@@ -84,11 +85,12 @@ export class MessageProcessor {
             values: {
                 'Message Processor Name*': {
                     type: 'input',
-                    value: 'TestSampleMessageProcessor',
+                    value: mpName,
                 },
                 'Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Quartz configuration file path': {
                     type: 'input',
@@ -101,6 +103,7 @@ export class MessageProcessor {
                 'Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Sampling Interval (Millis)': {
                     type: 'input',
@@ -129,10 +132,10 @@ export class MessageProcessor {
         }
     }
 
-    public async editMessageSamplingProcessor() {
+    public async editMessageSamplingProcessor(mpName: string, mpUpdatedName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', 'TestSampleMessageProcessor'], true);
+        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', mpName], true);
 
         const mpWebView = await switchToIFrame('Message Processor Form', this._page);
         if (!mpWebView) {
@@ -145,11 +148,12 @@ export class MessageProcessor {
             values: {
                 'Message Processor Name*': {
                     type: 'input',
-                    value: 'TestSampleMessageProcessorEdited',
+                    value: mpUpdatedName,
                 },
                 'Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Quartz configuration file path': {
                     type: 'input',
@@ -162,6 +166,7 @@ export class MessageProcessor {
                 'Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Sampling Interval (Millis)': {
                     type: 'input',
@@ -184,7 +189,7 @@ export class MessageProcessor {
         }
     }
 
-    public async createScheduledMessageForwardingProcessor() {
+    public async createScheduledMessageForwardingProcessor(mpName: string) {
         await this.init();
         const mpWebView = await switchToIFrame('Message Processor Form', this._page);
         if (!mpWebView) {
@@ -198,12 +203,12 @@ export class MessageProcessor {
             values: {
                 'Message Processor Name*': {
                     type: 'input',
-                    value: 'TestScheduledMessageForwardingProcessor',
+                    value: mpName,
                 },
                 'Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
-                    additionalProps: { nthValue: 0 }
+                    additionalProps: { nthValue: 0, hasMultipleValue: true }
                 },
                 'Deactivate': {
                     type: 'radio',
@@ -244,10 +249,12 @@ export class MessageProcessor {
                 'Fault Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
                     type: 'input',
@@ -267,15 +274,18 @@ export class MessageProcessor {
                 },
                 'Endpoint Name': {
                     type: 'combo',
-                    value: 'httpEndpoint',
+                    value: 'newHttpEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Reply Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Fail Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Yes': {
                     type: 'radio',
@@ -296,10 +306,10 @@ export class MessageProcessor {
         }
     }
 
-    public async editScheduledMessageForwardingProcessor() {
+    public async editScheduledMessageForwardingProcessor(mpName: string, mpUpdatedName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', 'TestScheduledMessageForwardingProcessor'], true);
+        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', mpName], true);
 
         const mpWebView = await switchToIFrame('Message Processor Form', this._page);
         if (!mpWebView) {
@@ -312,12 +322,12 @@ export class MessageProcessor {
             values: {
                 'Message Processor Name*': {
                     type: 'input',
-                    value: 'TestScheduledMessageForwardingProcessorEdited',
+                    value: mpUpdatedName,
                 },
                 'Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
-                    additionalProps: { nthValue: 0 }
+                    additionalProps: { nthValue: 0, hasMultipleValue: true }
                 },
                 'Deactivate': {
                     type: 'radio',
@@ -358,10 +368,12 @@ export class MessageProcessor {
                 'Fault Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
                     type: 'input',
@@ -381,15 +393,18 @@ export class MessageProcessor {
                 },
                 'Endpoint Name': {
                     type: 'combo',
-                    value: 'httpEndpoint',
+                    value: 'newHttpEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Reply Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Fail Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'No': {
                     type: 'radio',
@@ -404,7 +419,7 @@ export class MessageProcessor {
         }
     }
 
-    public async createScheduledFailoverMessageForwardingProcessor() {
+    public async createScheduledFailoverMessageForwardingProcessor(mpName: string) {
         await this.init();
         const mpWebView = await switchToIFrame('Message Processor Form', this._page);
         if (!mpWebView) {
@@ -418,11 +433,12 @@ export class MessageProcessor {
             values: {
                 'Message Processor Name*': {
                     type: 'input',
-                    value: 'TestScheduledFailoverMessageForwardingProcessor',
+                    value: mpName,
                 },
                 'Source Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Target Message Store': {
                     type: 'combo',
@@ -467,10 +483,12 @@ export class MessageProcessor {
                 'Fault Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
                     type: 'input',
@@ -495,10 +513,10 @@ export class MessageProcessor {
         }
     }
 
-    public async editScheduledFailoverMessageForwardingProcessor() {
+    public async editScheduledFailoverMessageForwardingProcessor(mpName: string, mpUpdatedName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', 'TestScheduledFailoverMessageForwardingProcessor'], true);
+        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', mpName], true);
 
         const mpWebView = await switchToIFrame('Message Processor Form', this._page);
         if (!mpWebView) {
@@ -511,11 +529,12 @@ export class MessageProcessor {
             values: {
                 'Message Processor Name*': {
                     type: 'input',
-                    value: 'TestScheduledFailoverMessageForwardingProcessorEdited',
+                    value: mpUpdatedName,
                 },
                 'Source Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Target Message Store': {
                     type: 'combo',
@@ -560,10 +579,12 @@ export class MessageProcessor {
                 'Fault Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
                     value: 'newSeqEP',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
                     type: 'input',
@@ -582,7 +603,7 @@ export class MessageProcessor {
         }
     }
 
-    public async createCustomMessageProcessor() {
+    public async createCustomMessageProcessor(mpName: string) {
         await this.init();
         const mpWebView = await switchToIFrame('Message Processor Form', this._page);
         if (!mpWebView) {
@@ -596,11 +617,12 @@ export class MessageProcessor {
             values: {
                 'Message Processor Name*': {
                     type: 'input',
-                    value: 'TestCustomMessageProcessor',
+                    value: mpName,
                 },
                 'Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Message Processor Provider Class FQN*': {
                     type: 'input',
@@ -621,10 +643,10 @@ export class MessageProcessor {
         }
     }
 
-    public async editCustomMessageProcessor() {
+    public async editCustomMessageProcessor(mpName: string, mpUpdatedName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', 'TestCustomMessageProcessor'], true);
+        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', mpName], true);
 
         const mpWebView = await switchToIFrame('Message Processor Form', this._page);
         if (!mpWebView) {
@@ -637,11 +659,12 @@ export class MessageProcessor {
             values: {
                 'Message Processor Name*': {
                     type: 'input',
-                    value: 'TestCustomMessageProcessorEdited',
+                    value: mpUpdatedName,
                 },
                 'Message Store': {
                     type: 'combo',
                     value: 'newMsgStore',
+                    additionalProps: { hasMultipleValue: true }
                 },
                 'Message Processor Provider Class FQN*': {
                     type: 'input',

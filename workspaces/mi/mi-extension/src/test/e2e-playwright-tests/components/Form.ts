@@ -107,8 +107,14 @@ export class Form {
                         await parentDiv.waitFor();
                         const input = parentDiv.locator('input[role="combobox"]');
                         await input.click();
-                        const option = parentDiv.locator(`li:has-text("${data.value}")`);
-                        await option.click();
+                        let option;
+                        if (data.additionalProps?.hasMultipleValues) {
+                            const regex = new RegExp(`${data.value}1|${data.value}2|${data.value}3`);
+                            option = parentDiv.locator('li', { hasText: regex });
+                        } else {
+                            option = parentDiv.locator(`li:has-text("${data.value}")`);
+                        }
+                        await option.first().click();
                         break;
                     }
                     case 'expression': {
