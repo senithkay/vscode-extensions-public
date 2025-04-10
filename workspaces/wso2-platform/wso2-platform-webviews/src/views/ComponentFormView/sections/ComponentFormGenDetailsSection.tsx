@@ -104,30 +104,6 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 	}, [subPath]);
 
 	const {
-		isLoading: isLoadingBranches,
-		data: branches = [],
-		refetch: refetchBranches,
-		isFetching: isFetchingBranches,
-	} = useGetGitBranches(repoUrl, organization, provider !== GitProvider.GITHUB ? credential : "", {
-		enabled: !!repoUrl && !!provider && (provider !== GitProvider.GITHUB ? !!credential : true),
-		refetchOnWindowFocus: true,
-	});
-
-	useEffect(() => {
-		if (branches?.length > 0 && (!form.getValues("branch") || !branches.includes(form.getValues("branch")))) {
-			if (branches.includes(gitData.upstream?.name)) {
-				form.setValue("branch", gitData.upstream?.name, { shouldValidate: true });
-			} else if (branches.includes("main")) {
-				form.setValue("branch", "main", { shouldValidate: true });
-			} else if (branches.includes("master")) {
-				form.setValue("branch", "master", { shouldValidate: true });
-			} else {
-				form.setValue("branch", branches[0], { shouldValidate: true });
-			}
-		}
-	}, [branches, gitData]);
-
-	const {
 		isLoading: isLoadingRepoAccess,
 		isFetching: isFetchingRepoAccess,
 		data: isRepoAuthorizedResp,
@@ -146,6 +122,31 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		keepPreviousData: true,
 		refetchOnWindowFocus: true,
 	});
+
+
+	const {
+		isLoading: isLoadingBranches,
+		data: branches = [],
+		refetch: refetchBranches,
+		isFetching: isFetchingBranches,
+	} = useGetGitBranches(repoUrl, organization, provider === GitProvider.GITHUB ? "": credential, isRepoAuthorizedResp?.isAccessible, {
+		enabled: !!repoUrl && !!provider && (provider === GitProvider.GITHUB ? !!isRepoAuthorizedResp?.isAccessible  : !!credential),
+		refetchOnWindowFocus: true,
+	});
+
+	useEffect(() => {
+		if (branches?.length > 0 && (!form.getValues("branch") || !branches.includes(form.getValues("branch")))) {
+			if (branches.includes(gitData.upstream?.name)) {
+				form.setValue("branch", gitData.upstream?.name, { shouldValidate: true });
+			} else if (branches.includes("main")) {
+				form.setValue("branch", "main", { shouldValidate: true });
+			} else if (branches.includes("master")) {
+				form.setValue("branch", "master", { shouldValidate: true });
+			} else {
+				form.setValue("branch", branches[0], { shouldValidate: true });
+			}
+		}
+	}, [branches, gitData]);
 
 	const onSubmitForm: SubmitHandler<ComponentFormGenDetailsType> = () => onNextClick();
 
