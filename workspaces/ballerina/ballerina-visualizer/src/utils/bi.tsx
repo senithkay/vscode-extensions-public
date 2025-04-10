@@ -177,6 +177,7 @@ export function convertNodePropertyToFormField(
         lineRange: property?.codedata?.lineRange,
         metadata: property.metadata,
         codedata: property.codedata,
+        imports: property.imports
     };
     return formField;
 }
