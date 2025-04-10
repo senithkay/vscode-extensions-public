@@ -19,7 +19,7 @@ import { ProjectExplorer } from '../components/ProjectExplorer';
 
 export default function createTests() {
     test.describe(async () => {
-        initTest(true);
+        initTest();
 
         test("Inbuilt Inbound EP Tests", async ({ }, testInfo) => {
             const testAttempt = testInfo.retry + 1;
