@@ -135,6 +135,10 @@ export default function createTests() {
         await sequence.init();
         await sequence.add("seqEP" + testAttempt);
       });
+      await test.step('Open Diagram View of Proxy', async () => {
+        console.log('Opening Diagram View of Proxy');
+        await sequence.openDiagramView('seqEP', true);
+      });
       await test.step('Edit Sequence', async () => {
         console.log('Editing Sequence');
         await sequence.edit("seqEP" + testAttempt, "newSeqEP" + testAttempt, currentTaskName);
@@ -276,6 +280,10 @@ export default function createTests() {
         proxyService = new Proxy(page.page);
         await proxyService.init();
         await proxyService.add("testProxyService" + testAttempt);
+      });
+      await test.step('Open Diagram View of Proxy', async () => {
+        console.log('Opening Diagram View of Proxy');
+        await proxyService.openDiagramView('testProxyService', true);
       });
       await test.step('Edit Proxy Service', async () => {
         console.log('Editing Proxy Service');

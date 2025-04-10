@@ -11,6 +11,7 @@ import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
+import { page } from "./../../Utils";
 
 export class Proxy {
 
@@ -53,5 +54,17 @@ export class Proxy {
         await frame.getByLabel('vfs').click();
         await frame.getByLabel('udp').click();
         await frame.getByRole('button', { name: 'Update' }).click();
+    }
+
+    public async openDiagramView(name: string, click: boolean = false) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Proxy Services'], click);
+        await page.page.locator('a').filter({ hasText: name }).first().click();
+        const webView = await switchToIFrame('Proxy View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Proxy View iframe");
+        }
+        await webView.getByText('Start').click();
     }
 }

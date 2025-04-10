@@ -11,6 +11,7 @@ import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
+import { page } from "./../../Utils";
 
 export class Sequence {
 
@@ -50,5 +51,17 @@ export class Sequence {
         await frame.getByTestId('update-button').click();
         console.log("Waiting for update button to be detached");
         await this._page.waitForSelector('[data-testid="update-button"]', { state: 'detached' });
+    }
+
+    public async openDiagramView(name: string, click: boolean = false) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Sequences'], click);
+        await page.page.locator('a').filter({ hasText: name }).first().click();
+        const webView = await switchToIFrame('Sequence View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Sequence View iframe");
+        }
+        await webView.getByText('Start').click();
     }
 }
