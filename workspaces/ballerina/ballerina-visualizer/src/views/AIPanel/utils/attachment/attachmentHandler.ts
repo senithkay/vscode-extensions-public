@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -9,6 +9,11 @@
 
 import { AttachmentResult } from "@wso2-enterprise/ballerina-core";
 
+/**
+ * The AttachmentHandler interface defines the contract for handling
+ * file attachments of a given command/context. Implementations can
+ * override how the file content is read/processed.
+ */
 export interface AttachmentHandler {
     handleFileAttach(
         e: React.ChangeEvent<HTMLInputElement>

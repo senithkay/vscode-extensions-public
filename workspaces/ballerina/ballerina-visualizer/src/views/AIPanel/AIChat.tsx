@@ -50,15 +50,16 @@ import MarkdownRenderer from "./Components/MarkdownRenderer";
 import { CodeSection } from "./Components/CodeSection";
 import { CodeSegment } from "./Components/CodeSegment";
 import ErrorBox from "./Components/ErrorBox";
-import { DataMapperAttachment } from "../../utils/datamapperAttachment";
-import { GenerateAttachment } from "../../utils/generateAttachment";
-import { TestAttachment } from "../../utils/testAttachment";
 import { Input } from "./Components/AIChatInput/utils/input";
 import { commandTemplates } from "./commandTemplates/data/commandTemplates.const";
 import { Tag } from "./commandTemplates/models/tag.model";
 import { placeholderTags } from "./commandTemplates/data/placeholderTags.const";
 import { injectTags } from "./commandTemplates/utils/utils";
 import { Command } from "./commandTemplates/models/command.enum";
+import { acceptResolver, handleAttachmentSelection } from "./utils/attachment/attachmentManager";
+
+/* REFACTORED CODE START [1] */
+/* REFACTORED CODE END [1] */
 
 interface CodeBlock {
     filePath: string;
@@ -168,60 +169,6 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING],
 ]);
 
-//TODO: Add the files relevant to the commands
-//TODO: Need to see if mime checking is the way to go, .sql and .graphql returns empty here.
-export const getFileTypesForCommand = (command: string): string[] => {
-    switch (command) {
-        case COMMAND_CODE:
-        case COMMAND_TESTS:
-            return [
-                "text/plain",
-                "application/json",
-                "application/x-yaml",
-                "application/xml",
-                "text/xml",
-                ".sql",
-                ".graphql",
-                "",
-            ];
-        case COMMAND_NATURAL_PROGRAMMING:
-            return [
-                "text/plain",
-                "application/json",
-                "application/x-yaml",
-                "application/xml",
-                "text/xml",
-                ".sql",
-                ".graphql",
-                "",
-            ];
-        case COMMAND_DATAMAP:
-        case COMMAND_TYPECREATOR:
-            return [
-                "text/plain",
-                "image/jpeg",
-                "image/jpg",
-                "image/png",
-                "image/heic",
-                "image/heif",
-                "application/pdf",
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                "application/msword",
-            ];
-        default:
-            return [
-                "text/plain",
-                "application/json",
-                "application/x-yaml",
-                "application/xml",
-                "text/xml",
-                ".sql",
-                ".graphql",
-                "",
-            ];
-    }
-};
-
 //TOOD: Add the backend URL
 //TODO: Add better error handling from backend. stream error type and non 200 status codes
 
@@ -248,6 +195,9 @@ export function AIChat() {
     const lastAttatchmentsRef = useRef<any>([]);
 
     const messagesEndRef = React.createRef<HTMLDivElement>();
+
+    /* REFACTORED CODE START [2] */
+    /* REFACTORED CODE END [2] */
 
     let codeSegmentRendered = false;
     let tempStorage: { [filePath: string]: string } = {};
@@ -578,8 +528,10 @@ export function AIChat() {
                                         ? parameters.inputRecord[0]
                                         : messageBody,
                                     attachments,
-                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
-                                            || isRequirementsTemplateExists
+                                    isContentIncludedInMessageBody(
+                                        messageBody,
+                                        GENERATE_CODE_AGAINST_THE_REQUIREMENT
+                                    ) || isRequirementsTemplateExists
                                         ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT
                                         : isTestGenerationTemplateExists
                                         ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
@@ -671,9 +623,13 @@ export function AIChat() {
                     );
                     return;
                 } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
-                    if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
-                            || isContentIncludedInMessageBody(
-                                    messageBody, GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED)) {
+                    if (
+                        isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) ||
+                        isContentIncludedInMessageBody(
+                            messageBody,
+                            GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED
+                        )
+                    ) {
                         await processCodeGeneration(
                             token,
                             [messageBody, attachments, CodeGenerationType.CODE_FOR_USER_REQUIREMENT],
@@ -728,7 +684,7 @@ export function AIChat() {
                 .replace(/\{functionname\}/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");
-            
+
             let regexpattern = `^${pattern}$`;
             if (template == GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS) {
                 regexpattern = `^${pattern.trim()}`;
@@ -1851,7 +1807,7 @@ export function AIChat() {
                     const modDir = await rpcClient.getAiPanelRpcClient().getModuleDirectory({
                         moduleName: mod.name,
                         filePath: filepath,
-                    })
+                    });
                     filepath += `${modDir}/${mod.name}/`;
                 }
                 mod.records.forEach((rec) => {
@@ -2591,36 +2547,6 @@ export function AIChat() {
         }
     };
 
-    // TODO: Move to a separate file (Attachment Selection Logic)
-    const acceptResolver = (command: string | null): string => {
-        if (command) {
-            return getFileTypesForCommand(command).join(",");
-        } else {
-            return getFileTypesForCommand("").join(",");
-        }
-    };
-
-    const handleAttachmentSelection = async (e: ChangeEvent<HTMLInputElement>, command: string) => {
-        let attachmentHandler;
-        switch (command) {
-            case COMMAND_DATAMAP:
-            case COMMAND_TYPECREATOR:
-                attachmentHandler = new DataMapperAttachment(command);
-                break;
-            case COMMAND_GENERATE:
-            case COMMAND_NATURAL_PROGRAMMING:
-                attachmentHandler = new GenerateAttachment(command);
-                break;
-            case COMMAND_TESTS:
-                attachmentHandler = new TestAttachment(command);
-                break;
-            default:
-                attachmentHandler = new GenerateAttachment(command);
-        }
-        const results = await attachmentHandler.handleFileAttach(e);
-        return results;
-    };
-
     const loadGeneralTags = async (): Promise<Tag[]> => {
         return [
             {
@@ -3348,9 +3274,9 @@ function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
 }
 
 interface SourceFiles {
-    filePath:string;
-    content:string;
-};
+    filePath: string;
+    content: string;
+}
 
 function transformProjectSource(project: ProjectSource): SourceFiles[] {
     const sourceFiles: SourceFiles[] = [];
@@ -3369,14 +3295,13 @@ function transformProjectSource(project: ProjectSource): SourceFiles[] {
         }
 
         basePath += module.moduleName + "/";
-        // const path = 
+        // const path =
         module.sourceFiles.forEach((file) => {
             sourceFiles.push({
                 filePath: basePath + file.filePath,
                 content: file.content,
             });
-        }
-        );
+        });
     });
     return sourceFiles;
 }

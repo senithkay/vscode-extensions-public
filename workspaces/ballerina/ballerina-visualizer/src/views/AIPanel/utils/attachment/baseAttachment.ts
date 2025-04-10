@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -7,19 +7,22 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import { AttachmentHandler } from "./attachmentHandler";
-import { getFileTypesForCommand } from "../views/AIPanel/AIChat";
-import { validateFileSize, validateFileType, readFileAsText } from "./attachmentUtils";
+import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
+import { readFileAsText, validateFileSize, validateFileType } from "./attachmentUtils";
 
-export class GenerateAttachment implements AttachmentHandler {
-    private validFileTypes: string[];
+/**
+ * Abstract base class that provides common file-attachment handling logic.
+ * Concrete classes can override readFileContent if needed (e.g. for base64).
+ */
+export abstract class BaseAttachment implements AttachmentHandler {
+    constructor(protected validFileTypes: string[]) { }
 
-    constructor(private command: string) {
-        this.validFileTypes = getFileTypesForCommand(command);
-    }
-
-    async handleFileAttach(
+    /**
+     * Main method to handle the file input event. It iterates over
+     * all files, validates them, reads them, and returns the results.
+     */
+    public async handleFileAttach(
         e: React.ChangeEvent<HTMLInputElement>
     ): Promise<AttachmentResult[]> {
         const files = e.target.files;
@@ -29,9 +32,7 @@ export class GenerateAttachment implements AttachmentHandler {
             return results;
         }
 
-        const fileArray = Array.from(files);
-
-        for (const file of fileArray) {
+        for (const file of Array.from(files)) {
             if (!validateFileSize(file)) {
                 results.push({
                     name: file.name,
@@ -49,7 +50,7 @@ export class GenerateAttachment implements AttachmentHandler {
             }
 
             try {
-                const content = await readFileAsText(file);
+                const content = await this.readFileContent(file);
                 results.push({
                     name: file.name,
                     content,
@@ -62,7 +63,17 @@ export class GenerateAttachment implements AttachmentHandler {
                 });
             }
         }
+
+        // Clear the input
         e.target.value = "";
         return results;
+    }
+
+    /**
+     * Default method to read file content as text.
+     * Subclasses can override this to do something else (e.g., read as Base64).
+     */
+    protected readFileContent(file: File): Promise<string> {
+        return readFileAsText(file);
     }
 }

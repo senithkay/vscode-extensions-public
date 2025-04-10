@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -9,14 +9,23 @@
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
+/**
+ * Validate file size against the global MAX_FILE_SIZE.
+ */
 export const validateFileSize = (file: File): boolean => {
     return file.size <= MAX_FILE_SIZE;
 };
 
+/**
+ * Validate file type by checking against a list of valid MIME types/extensions.
+ */
 export const validateFileType = (file: File, validFileTypes: string[]): boolean => {
     return validFileTypes.includes(file.type);
 };
 
+/**
+ * Default way to read the file as text, returning a Promise<string>.
+ */
 export const readFileAsText = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();

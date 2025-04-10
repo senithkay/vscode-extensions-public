@@ -13,13 +13,13 @@ import { Command } from "../../../commandTemplates/models/command.enum";
 
 export interface AttachmentOptions {
     multiple: boolean;
-    acceptResolver: (command: Command) => string;
-    handleAttachmentSelection: (e: ChangeEvent<HTMLInputElement>, command: string | null) => Promise<AttachmentResult[]>;
+    acceptResolver: (command: Command | null) => string;
+    handleAttachmentSelection: (e: ChangeEvent<HTMLInputElement>, command: Command | null) => Promise<AttachmentResult[]>;
 }
 
 interface UseAttachmentsProps {
     attachmentOptions: AttachmentOptions;
-    activeCommand?: string | null;
+    activeCommand: Command | null;
 }
 
 export function useAttachments({ attachmentOptions, activeCommand }: UseAttachmentsProps) {
