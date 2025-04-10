@@ -43,7 +43,7 @@ namespace S {
     `;
 }
 
-const getConfigVariable = (fileName: string, lineRange: LineRange, values: FieldValues): ConfigVariable => {
+const getConfigVariable = (fileName: string, lineRange: LineRange, values?: FieldValues): ConfigVariable => {
     return {
         id: '',
         metadata: {
@@ -66,8 +66,7 @@ const getConfigVariable = (fileName: string, lineRange: LineRange, values: Field
                     description: 'Type of the variable'
                 },
                 valueType: 'TYPE',
-                value: values.type,
-                valueTypeConstraint: 'Global',
+                value: values?.type ?? '',
                 optional: false,
                 advanced: false,
                 editable: true
@@ -78,7 +77,7 @@ const getConfigVariable = (fileName: string, lineRange: LineRange, values: Field
                     description: 'Name of the variable'
                 },
                 valueType: 'IDENTIFIER',
-                value: values.variable,
+                value: values?.variable ?? '',
                 valueTypeConstraint: 'Global',
                 optional: false,
                 advanced: false,
@@ -90,7 +89,7 @@ const getConfigVariable = (fileName: string, lineRange: LineRange, values: Field
                     description: 'Default value for the config, if empty your need to provide a value at runtime'
                 },
                 valueType: 'EXPRESSION',
-                value: values.defaultable,
+                value: values?.defaultable ?? '',
                 optional: true,
                 advanced: true,
                 editable: true
@@ -250,14 +249,17 @@ export const ConfigurablePage = ({ onChange }: ConfigurablePageProps) => {
 
     const fetchDiagnostics = useCallback(
         debounce(async () => {
-            const formValues = getValues();
             const configVariable = getConfigVariable(
                 'config.bal',
-                endLineRange,
-                formValues
+                endLineRange
             );
             let isValid = true;
-            for (const [key, value] of Object.entries(formValues)) {
+            for (const [key, value] of Object.entries(getValues())) {
+                // HACK: skip diagnostics for defaultable property with an empty value
+                if (key === 'defaultable' && value === '') {
+                    continue;
+                }
+
                 const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
                     filePath: configFilePath,
                     context: {
