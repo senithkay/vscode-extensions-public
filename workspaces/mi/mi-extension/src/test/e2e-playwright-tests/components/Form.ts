@@ -14,7 +14,10 @@ export interface FormFillProps {
     values: {
         [key: string]: {
             value: string,
-            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression' | 'file' | 'inlineExpression'
+            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression' | 'file' | 'inlineExpression' | 'radio',
+            additionalProps?: {
+                [key: string]: any
+            }
         }
     }
 }
@@ -95,12 +98,23 @@ export class Form {
                         break;
                     }
                     case 'combo': {
-                        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../../..');
+                        let parentDiv;
+                        if (data.additionalProps?.nthValue !== undefined) {
+                            parentDiv = this.container.locator(`label:text("${key}")`).nth(data.additionalProps?.nthValue).locator('../../..');
+                        } else {
+                            parentDiv = this.container.locator(`label:text("${key}")`).locator('../../..');
+                        }
                         await parentDiv.waitFor();
                         const input = parentDiv.locator('input[role="combobox"]');
                         await input.click();
-                        const option = parentDiv.locator(`li:has-text("${data.value}")`);
-                        await option.click();
+                        let option;
+                        if (data.additionalProps?.hasMultipleValues) {
+                            const regex = new RegExp(`${data.value}1|${data.value}2|${data.value}3`);
+                            option = parentDiv.locator('li', { hasText: regex });
+                        } else {
+                            option = parentDiv.locator(`li:has-text("${data.value}")`);
+                        }
+                        await option.first().click();
                         break;
                     }
                     case 'expression': {
@@ -125,6 +139,17 @@ export class Form {
                         await textInput?.fill(data.value);
                         const okBtn = await fileInput?.waitForSelector('a.monaco-button:has-text("OK")');
                         await okBtn?.click();
+                        break;
+                    }
+                    case 'radio': {
+                        const checkbox = this.container.locator(`vscode-radio[aria-label="${key}"]`);
+                        await checkbox.waitFor();
+                        if (data.value === 'checked') {
+                            await checkbox.check();
+                        } else {
+                            await checkbox.uncheck();
+                        }
+                        break;
                     }
                 }
             }
