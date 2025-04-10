@@ -31,13 +31,12 @@ export const LoadingRing = ({ message }: LoadingRingProps) => {
 
     const LoadingText = styled(Typography)`
         margin-top: 16px;
-        color: var(--vscode-descriptionForeground);
         font-size: 14px;
     `;
 
     return (
         <ProgressContainer>
-            <ProgressRing color={ThemeColors.PRIMARY}/>
+            <ProgressRing color={ThemeColors.PRIMARY} />
             {message && (
                 <LoadingText variant="body2">
                     {message}

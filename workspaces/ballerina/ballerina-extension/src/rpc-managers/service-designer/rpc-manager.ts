@@ -28,7 +28,6 @@ import {
     ResourceSourceCodeResponse,
     STModification,
     ServiceDesignerAPI,
-    ServiceModel,
     ServiceModelFromCodeRequest,
     ServiceModelFromCodeResponse,
     ServiceModelRequest,
@@ -39,15 +38,16 @@ import {
     TriggerModelsRequest,
     TriggerModelsResponse
 } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import * as fs from 'fs';
 import { existsSync, writeFileSync } from "fs";
 import * as yaml from 'js-yaml';
 import * as path from 'path';
 import * as vscode from "vscode";
-import { Uri, commands, window, workspace } from "vscode";
+import { Uri, window, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
-import { injectAgent, injectAgentCode, injectImportIfMissing } from "../../utils";
+import { extension } from "../../BalExtensionContext";
+
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async exportOASFile(params: ExportOASRequest): Promise<ExportOASResponse> {
@@ -124,7 +124,24 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                resolve(result);
+                // Set timeout to resolve after 2 seconds if no notification received
+                setTimeout(() => {
+                    if (extension.hasPullModuleNotification) {
+                        const waitForModuleResolution = new Promise<void>((resolve) => {
+                            const checkInterval = setInterval(() => {
+                                if (extension.hasPullModuleResolved) {
+                                    clearInterval(checkInterval);
+                                    resolve();
+                                }
+                            }, 100);
+                        });
+                        waitForModuleResolution.then(() => {
+                            resolve(result);
+                        });
+                    } else {
+                        resolve(result);
+                    }
+                }, 1000);
             } catch (error) {
                 console.log(error);
             }

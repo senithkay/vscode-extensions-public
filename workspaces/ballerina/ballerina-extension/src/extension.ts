@@ -154,10 +154,14 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
                 window.showTextDocument(Uri.parse(location.uri.toString()), { selection: location.range });
             }
         });
-        // TODO: Get the node pulling notification and show a message.
-        // Register progress notification handler
+        // Handle pull module progress notifications
         langClient.onNotification('$/progress', (params: any) => {
-            console.log('Progress notification:', params);
+            if (params.token && params.token.includes('pull-module')) {
+                extension.hasPullModuleNotification = true;
+                if (params.value.kind === 'report') {
+                    extension.hasPullModuleResolved = true;
+                }
+            }
         });
         isPluginStartup = false;
     }).catch((e) => {
