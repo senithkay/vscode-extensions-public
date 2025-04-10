@@ -11,9 +11,6 @@ import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
-import { Overview } from "../Overview";
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { page } from '../../Utils';
 
 export class EventIntegration {
 

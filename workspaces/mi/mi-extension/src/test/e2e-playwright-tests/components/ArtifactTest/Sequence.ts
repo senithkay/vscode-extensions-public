@@ -10,7 +10,6 @@
 import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
-import { Overview } from "../Overview";
 import { AddArtifact } from "../AddArtifact";
 
 export class Sequence {

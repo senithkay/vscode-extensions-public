@@ -13,7 +13,6 @@ import { AddArtifact } from "../AddArtifact";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
 import { copyFile, page } from "../../Utils";
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import path from "path";
 import os from "os";
 
