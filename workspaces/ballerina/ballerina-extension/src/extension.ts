@@ -156,7 +156,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         });
         // Handle pull module progress notifications
         langClient.onNotification('$/progress', (params: any) => {
-            if (params.token && params.token.includes('pull-module')) {
+            if (params.token && params.token.startsWith('pull-module')) {
                 extension.hasPullModuleNotification = true;
                 if (params.value.kind === 'report') {
                     extension.hasPullModuleResolved = true;
