@@ -105,7 +105,7 @@ export const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, 
         if (fileContent.status) {
             originalContent = fileContent.content;
         } else {
-            originalContent = "null"; // File does not exist and will be created by MI Copilot
+            originalContent = "notExists"; // File does not exist and will be created by MI Copilot
         }
 
         // Find the last checkpoint for the file
@@ -153,7 +153,7 @@ export const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, 
         const lastCheckpoint = FileHistory.find((entry) => entry.filepath === name);
 
         if (lastCheckpoint) {
-            if (lastCheckpoint.content !== "null") {
+            if (lastCheckpoint.content !== "notExists") {
                 // Check if the file is already in the workspace
                 const { content } = lastCheckpoint;
 
