@@ -270,7 +270,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                         inputRef.current?.insertTextAtCursor({ text: template.text, templateInserted: true });
 
                         await tagOptions.injectPlaceholderTags(activeCommand, template.id);
-                        setPlaceholderTagsRefreshKey(prev => prev + 1)
+                        setPlaceholderTagsRefreshKey((prev) => prev + 1);
                     }
                 }
             }
@@ -325,7 +325,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
 
             // load placeholder tags
             await tagOptions.injectPlaceholderTags(activeCommand, suggestion.templateId);
-            setPlaceholderTagsRefreshKey(prev => prev + 1)
+            setPlaceholderTagsRefreshKey((prev) => prev + 1);
         }
 
         // insert the selected suggestion (Tag)
@@ -345,7 +345,10 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
      * - Sends message on Enter
      * - Stops on Escape
      */
-    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>, removedBadgeTypes?: string[]) => {
+        if (removedBadgeTypes?.includes(BadgeType.Command)) {
+            setActiveCommand(null);
+        }
         if (filteredSuggestions.length > 0) {
             if (event.key === "ArrowDown") {
                 event.preventDefault();

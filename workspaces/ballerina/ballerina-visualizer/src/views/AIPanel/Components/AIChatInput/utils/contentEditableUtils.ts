@@ -409,13 +409,20 @@ export const getContentAsInputList = (rootEl: HTMLDivElement): Input[] => {
     return results;
 }
 
+
+/**
+ * Handles the `keydown` event for a content-editable `div` with support for badge elements.
+ * This function ensures that when the `Backspace` or `Delete` key is pressed, any badge elements
+ * (identified by the `data-badge-type` attribute) that intersect with the current selection
+ * are removed. It also updates the content and triggers the `onChange` callback with the new value.
+ */
 export const handleKeyDownWithBadgeSupport = (
     e: React.KeyboardEvent<HTMLDivElement>,
     container: HTMLDivElement | null,
     onChange: (val: { text: string }) => void
-) => {
+): (string[] | null) => {
     const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0 || !container) return;
+    if (!selection || selection.rangeCount === 0 || !container) return null;
 
     const range = selection.getRangeAt(0);
     if (!range.collapsed && (e.key === "Backspace" || e.key === "Delete")) {
@@ -446,9 +453,15 @@ export const handleKeyDownWithBadgeSupport = (
         const newValue = container.innerHTML;
         onChange?.({ text: newValue });
 
-        return;
+        const removedBadgeTypes: string[] = badgesToRemove
+            .filter((badge): badge is HTMLElement =>
+                badge.nodeType === Node.ELEMENT_NODE && !!(badge as HTMLElement).dataset.badgeType
+            )
+            .map(badge => (badge as HTMLElement).dataset.badgeType as string);
+
+        return removedBadgeTypes;
     }
 
     // Fallback: Allow normal key handling
-    return;
+    return null;
 };

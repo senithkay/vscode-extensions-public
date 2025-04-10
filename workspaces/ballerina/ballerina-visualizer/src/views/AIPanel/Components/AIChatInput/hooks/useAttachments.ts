@@ -9,7 +9,7 @@
 
 import { useState, useRef, ChangeEvent } from "react";
 import { AttachmentResult } from "@wso2-enterprise/ballerina-core";
-import { Command } from "../../../constants/commands";
+import { Command } from "../../../commandTemplates/models/command.enum";
 
 export interface AttachmentOptions {
     multiple: boolean;

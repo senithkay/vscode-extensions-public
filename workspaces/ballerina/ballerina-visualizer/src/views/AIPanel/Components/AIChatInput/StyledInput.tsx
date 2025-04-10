@@ -97,7 +97,7 @@ interface StyledInputProps {
         [key: string]: any;
     };
     onChange: (value: { text: string; [key: string]: any }) => void;
-    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>, removedBadgeTypes?: string[]) => void;
     onBlur: (e: React.FocusEvent<HTMLDivElement>) => void;
     placeholder: string;
     onPostDOMUpdate?: () => void;
@@ -306,12 +306,12 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
                     !range.collapsed &&
                     (e.key === "Backspace" || e.key === "Delete")
                 ) {
-                    handleKeyDownWithBadgeSupport(e, container, (val) => {
+                    const removedBadgeTypes = handleKeyDownWithBadgeSupport(e, container, (val) => {
                         setInternalContent(val.text);
                         onChange?.(val);
                     });
 
-                    onKeyDown?.(e);
+                    onKeyDown?.(e, removedBadgeTypes);
                     return;
                 }
 
