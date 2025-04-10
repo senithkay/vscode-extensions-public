@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AttachmentResult } from "@wso2-enterprise/ballerina-core";
+import { Attachment } from "@wso2-enterprise/ballerina-core";
 
 /**
  * The AttachmentHandler interface defines the contract for handling
@@ -17,5 +17,5 @@ import { AttachmentResult } from "@wso2-enterprise/ballerina-core";
 export interface AttachmentHandler {
     handleFileAttach(
         e: React.ChangeEvent<HTMLInputElement>
-    ): Promise<AttachmentResult[]>;
+    ): Promise<Attachment[]>;
 }

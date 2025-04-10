@@ -8,13 +8,13 @@
  */
 
 import { useState, useRef, ChangeEvent } from "react";
-import { AttachmentResult } from "@wso2-enterprise/ballerina-core";
+import { Attachment } from "@wso2-enterprise/ballerina-core";
 import { Command } from "../../../commandTemplates/models/command.enum";
 
 export interface AttachmentOptions {
     multiple: boolean;
     acceptResolver: (command: Command | null) => string;
-    handleAttachmentSelection: (e: ChangeEvent<HTMLInputElement>, command: Command | null) => Promise<AttachmentResult[]>;
+    handleAttachmentSelection: (e: ChangeEvent<HTMLInputElement>, command: Command | null) => Promise<Attachment[]>;
 }
 
 interface UseAttachmentsProps {
@@ -23,7 +23,7 @@ interface UseAttachmentsProps {
 }
 
 export function useAttachments({ attachmentOptions, activeCommand }: UseAttachmentsProps) {
-    const [attachments, setAttachments] = useState<AttachmentResult[]>([]);
+    const [attachments, setAttachments] = useState<Attachment[]>([]);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     // open file input

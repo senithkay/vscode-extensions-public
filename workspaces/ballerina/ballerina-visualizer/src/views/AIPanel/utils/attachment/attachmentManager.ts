@@ -13,7 +13,7 @@
  */
 import { ChangeEvent } from "react";
 import { DataMapperAttachment } from "./dataMapperAttachment";
-import { AttachmentResult } from "@wso2-enterprise/ballerina-core";
+import { Attachment } from "@wso2-enterprise/ballerina-core";
 import { Command } from "../../commandTemplates/models/command.enum";
 import { GeneralAttachment } from "./generalAttachment";
 
@@ -77,7 +77,7 @@ export const acceptResolver = (command: Command | null): string => {
 export const handleAttachmentSelection = async (
     e: ChangeEvent<HTMLInputElement>,
     command: Command | null
-): Promise<AttachmentResult[]> => {
+): Promise<Attachment[]> => {
 
     let attachmentHandler;
 

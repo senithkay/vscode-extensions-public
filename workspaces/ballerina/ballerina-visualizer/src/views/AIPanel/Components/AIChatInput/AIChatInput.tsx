@@ -10,7 +10,7 @@
 import React, { useState, useRef, KeyboardEvent, useEffect, useLayoutEffect } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
+import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "../AttachmentBox";
 import { StyledInputComponent, StyledInputRef } from "./StyledInput";
 import { AttachmentOptions, useAttachments } from "./hooks/useAttachments";
@@ -110,7 +110,7 @@ interface AIChatInputProps {
     getInitialInput: () => { command: Command; templateId?: string } | string;
     tagOptions: TagOptions;
     attachmentOptions: AttachmentOptions;
-    onSend: (content: [Input[], AttachmentResult[]]) => void;
+    onSend: (content: [Input[], Attachment[]]) => void;
     onStop: () => void;
     isLoading: boolean;
 }

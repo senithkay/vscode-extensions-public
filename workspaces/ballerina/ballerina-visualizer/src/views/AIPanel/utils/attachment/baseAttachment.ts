@@ -8,7 +8,7 @@
  */
 
 import { AttachmentHandler } from "./attachmentHandler";
-import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
+import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import { readFileAsText, validateFileSize, validateFileType } from "./attachmentUtils";
 
 /**
@@ -24,9 +24,9 @@ export abstract class BaseAttachment implements AttachmentHandler {
      */
     public async handleFileAttach(
         e: React.ChangeEvent<HTMLInputElement>
-    ): Promise<AttachmentResult[]> {
+    ): Promise<Attachment[]> {
         const files = e.target.files;
-        const results: AttachmentResult[] = [];
+        const results: Attachment[] = [];
 
         if (!files) {
             return results;
@@ -36,7 +36,7 @@ export abstract class BaseAttachment implements AttachmentHandler {
             if (!validateFileSize(file)) {
                 results.push({
                     name: file.name,
-                    status: AttachmentStatus.FileSizeError,
+                    status: AttachmentStatus.FileSizeExceeded,
                 });
                 continue;
             }
@@ -44,7 +44,7 @@ export abstract class BaseAttachment implements AttachmentHandler {
             if (!validateFileType(file, this.validFileTypes)) {
                 results.push({
                     name: file.name,
-                    status: AttachmentStatus.FileFormatError,
+                    status: AttachmentStatus.UnsupportedFileFormat,
                 });
                 continue;
             }
@@ -59,7 +59,7 @@ export abstract class BaseAttachment implements AttachmentHandler {
             } catch {
                 results.push({
                     name: file.name,
-                    status: AttachmentStatus.Unknown,
+                    status: AttachmentStatus.UnknownError,
                 });
             }
         }

@@ -30,7 +30,7 @@ import { Button, Icon, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 import AIChatInput from "./Components/AIChatInput/AIChatInput";
 import ProgressTextSegment from "./Components/ProgressTextSegment";
 import RoleContainer, { PreviewContainerDefault } from "./Components/RoleContainter";
-import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
+import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { findRegexMatches } from "../../utils/utils";
 
@@ -387,7 +387,7 @@ export function AIChat() {
         }
     }
 
-    async function handleSendQuery(content: [string, AttachmentResult[]]) {
+    async function handleSendQuery(content: [string, Attachment[]]) {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
 
         // Clear previous generation refs
@@ -428,7 +428,7 @@ export function AIChat() {
         }
     }
 
-    async function handleSend(content: [Input[], AttachmentResult[]]) {
+    async function handleSend(content: [Input[], Attachment[]]) {
         console.log(content);
         // setCurrentGeneratingPromptIndex(otherMessages.length);
         // setIsPromptExecutedInCurrentWindow(true);
@@ -458,7 +458,7 @@ export function AIChat() {
         // setUserInput("/generate ");
     }
 
-    function getUserMessage(content: [string, AttachmentResult[]]): string {
+    function getUserMessage(content: [string, Attachment[]]): string {
         const [message, attachments] = content;
 
         return attachments.reduce((acc, attachment) => {
@@ -466,7 +466,7 @@ export function AIChat() {
         }, message);
     }
 
-    async function processContent(token: string, content: [string, AttachmentResult[]]) {
+    async function processContent(token: string, content: [string, Attachment[]]) {
         const [message, attachments] = content;
         const cleanedMessage = message.replace(/<\/?badge>/g, "").trim();
         const commandKey = findCommand(cleanedMessage);
@@ -734,7 +734,7 @@ export function AIChat() {
 
     async function processLLMDiagnostics(
         token: string,
-        content: [string, AttachmentResult[], string],
+        content: [string, Attachment[], string],
         message: string
     ) {
         const [useCase, attachments, operationType] = content;
@@ -809,7 +809,7 @@ export function AIChat() {
 
     async function processCodeGeneration(
         token: string,
-        content: [string, AttachmentResult[], string],
+        content: [string, Attachment[], string],
         message: string
     ) {
         const [useCase, attachments, operationType] = content;
@@ -1327,7 +1327,7 @@ export function AIChat() {
     };
 
     async function processTestGeneration(
-        content: [string, AttachmentResult[]],
+        content: [string, Attachment[]],
         token: string,
         targetType: string, // service or function
         target: string // <servicename> or <resourcemethod resourcepath>
@@ -1459,7 +1459,7 @@ export function AIChat() {
     }
 
     async function processServiceTestGeneration(
-        content: [string, AttachmentResult[]],
+        content: [string, Attachment[]],
         token: string,
         serviceName: string,
         testPlan: string
@@ -1536,7 +1536,7 @@ export function AIChat() {
     }
 
     async function processFunctionTestGeneration(
-        content: [string, AttachmentResult[]],
+        content: [string, Attachment[]],
         token: string,
         functionIdentifier: string,
         testPlan: string
@@ -1763,7 +1763,7 @@ export function AIChat() {
         message: string,
         token: string,
         parameters: MappingParameters,
-        attachments?: AttachmentResult[]
+        attachments?: Attachment[]
     ) {
         let assistant_response = "";
         let newImports;
@@ -1923,7 +1923,7 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    async function processContextTypeCreation(message: string, token: string, attachments: AttachmentResult[]) {
+    async function processContextTypeCreation(message: string, token: string, attachments: Attachment[]) {
         let assistant_response = "";
         const recordMap = new Map();
         setIsLoading(true);
