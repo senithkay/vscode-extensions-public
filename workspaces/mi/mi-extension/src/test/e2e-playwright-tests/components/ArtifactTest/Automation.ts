@@ -28,16 +28,16 @@ export class Automation {
         this.webView = webView;
     }
 
-    public async add() {
+    public async add(name: string) {
         const frame = this.webView.locator('div#root');
         await frame.getByRole('textbox', { name: 'Task Name*' }).click();
-        await frame.getByRole('textbox', { name: 'Task Name*' }).fill('TestTask');
+        await frame.getByRole('textbox', { name: 'Task Name*' }).fill(name);
         await frame.locator('#triggerInterval div').nth(2).click();
         await frame.getByRole('textbox', { name: 'Interval (in seconds)*' }).fill('10');
         await frame.getByTestId('create-task-button').click();
     }
 
-    public async edit() {
+    public async edit(name: string) {
         const webView = await switchToIFrame('Task View', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Task View iframe");
@@ -45,7 +45,7 @@ export class Automation {
         const frame = webView.locator('div#root');
         await frame.getByTestId('edit-button').click();
         await frame.getByRole('textbox', { name: 'Task Name*' }).click();
-        await frame.getByRole('textbox', { name: 'Task Name*' }).fill('NewTestTask');
+        await frame.getByRole('textbox', { name: 'Task Name*' }).fill(name);
         await frame.getByLabel('Cron').click();
         await frame.getByRole('textbox', { name: 'Cron*' }).click();
         await frame.getByRole('textbox', { name: 'Cron*' }).fill('* * * * * ? *');

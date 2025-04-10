@@ -14,6 +14,7 @@ import path from "path";
 import { ElectronApplication, Page } from "@playwright/test";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
+import os from 'os';
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -119,3 +120,11 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
     });
 }
 
+export async function copyFile(source: string, destination: string) {
+    console.log('Copying file from ' + source + ' to ' + destination);
+
+    if (existsSync(destination)) {
+        fs.rmSync(destination);
+    }
+    fs.copyFileSync(source, destination);
+}

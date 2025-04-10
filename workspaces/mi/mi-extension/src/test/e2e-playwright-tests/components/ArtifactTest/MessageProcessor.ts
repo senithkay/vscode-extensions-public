@@ -31,7 +31,7 @@ export class MessageProcessor {
         await addArtifactPage.add('Message Processor');
     }
 
-    public async addMessageSamplingProcessor() {
+    public async addMessageSamplingProcessor(name: string) {
         const mpWebView = await switchToIFrame('Message Processor Form', this._page);
         if (!mpWebView) {
             throw new Error("Failed to switch to Message Processor Form iframe");
@@ -44,7 +44,7 @@ export class MessageProcessor {
         }
         const mspFrame = mspWebview.locator('div#root');
         await mspFrame.getByRole('textbox', { name: 'Message Processor Name*' }).click();
-        await mspFrame.getByRole('textbox', { name: 'Message Processor Name*' }).fill('msgProcessor');
+        await mspFrame.getByRole('textbox', { name: 'Message Processor Name*' }).fill(name);
         await mspFrame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
         await mspFrame.getByText('msgStore').click();
         await mspFrame.getByRole('textbox', { name: 'Quartz configuration file path' }).click();
@@ -59,10 +59,10 @@ export class MessageProcessor {
         }
     }
 
-    public async editMessageSamplingProcessor() {
+    public async editMessageSamplingProcessor(prevName: string, newName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', 'msgProcessor'], true);
+        await projectExplorer.findItem(["Project testProject", 'Other Artifacts', 'Message Processors', prevName], true);
 
         const mspWebview = await switchToIFrame('Message Processor Form', this._page);
         if (!mspWebview) {
@@ -70,7 +70,7 @@ export class MessageProcessor {
         }
         const mspFrame = mspWebview.locator('div#root');
         await mspFrame.getByRole('textbox', { name: 'Message Processor Name*' }).click();
-        await mspFrame.getByRole('textbox', { name: 'Message Processor Name*' }).fill('newMsgProcessor');
+        await mspFrame.getByRole('textbox', { name: 'Message Processor Name*' }).fill(newName);
         await mspFrame.getByRole('textbox', { name: 'Quartz configuration file path' }).click();
         await mspFrame.getByRole('textbox', { name: 'Quartz configuration file path' }).fill('temp/new-test-file.txt');
         await mspFrame.getByRole('textbox', { name: 'Cron Expression' }).click();
