@@ -31,6 +31,7 @@ export const LoadingRing = ({ message }: LoadingRingProps) => {
 
     const LoadingText = styled(Typography)`
         margin-top: 16px;
+        color: var(--vscode-descriptionForeground);
         font-size: 14px;
     `;
 
