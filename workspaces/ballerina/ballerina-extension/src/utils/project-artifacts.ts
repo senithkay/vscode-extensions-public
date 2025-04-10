@@ -267,8 +267,7 @@ function ensureFileExists(targetFile: string) {
 async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentProjectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse | undefined> {
     let entryLocation: ProjectStructureArtifactResponse | undefined;
     for (const [key, directoryMaps] of Object.entries(publishedArtifacts)) { // key will be Entry Points, Listeners, Functions, etc as Directory Map
-        for (const [actionKey, actionArtifacts] of Object.entries(directoryMaps)) {
-            // actionKey will be deletions, creations, updates and actionsArtifacts will be the list of artifacts
+        for (const [actionKey, actionArtifacts] of Object.entries(directoryMaps)) { // actionKey will be deletions, creations, updates and actionsArtifacts will be the list of artifacts
             switch (actionKey) {
                 case "deletions":
                     for (const [index, baseArtifact] of Object.entries(actionArtifacts)) {
