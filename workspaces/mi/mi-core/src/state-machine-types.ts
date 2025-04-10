@@ -9,6 +9,7 @@
  */
 
 import { DiagramService, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { PromptObject } from "./interfaces/mi-copilot";
 import { Diagnostic } from "vscode-languageserver-types";
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
@@ -179,22 +180,6 @@ export interface VisualizerLocation {
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
     recentIdentifier?: string;
-}
-
-interface FileObject {
-    fileName: string;
-    fileContent: string;
-}
-
-interface ImageObject {
-    imageName: string;
-    imageBase64: string;
-}
-
-interface PromptObject {
-    aiPrompt: string;
-    files: FileObject[];
-    images: ImageObject[];
 }
 
 export interface AIVisualizerLocation {
