@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -14,7 +14,7 @@ import { page } from '../Utils';
 import { ProjectExplorer } from "../components/ProjectExplorer";
 import { Overview } from "../components/Overview";
 
-export class AddArtifact {
+export class ImportArtifact {
     private webView!: Frame;
 
     constructor(private _page: Page) {
@@ -22,7 +22,7 @@ export class AddArtifact {
 
     public async init() {
         const { title: iframeTitle } = await page.getCurrentWebview();
-                                        
+                                
         if (iframeTitle != MACHINE_VIEW.ADD_ARTIFACT) {
             const projectExplorer = new ProjectExplorer(this._page);
             await projectExplorer.goToOverview("testProject");
@@ -31,7 +31,7 @@ export class AddArtifact {
             await overviewPage.init();
             await overviewPage.goToAddArtifact();    
         } 
-
+        
         const webview = await switchToIFrame("Add Artifact", this._page)
         if (!webview) {
             throw new Error("Failed to switch to Add Artifact iframe");
@@ -39,11 +39,11 @@ export class AddArtifact {
         this.webView = webview;
     }
 
-    public async add(artifactType: string) {
-        const createIntegrationSection = await this.webView.waitForSelector(`h3:text("Create an Integration") >> ..`);
-        const viewMoreBtn = await createIntegrationSection.waitForSelector(`p:text("View More") >> ..`);
-        await viewMoreBtn.click();
-        const btn = await createIntegrationSection.waitForSelector(`div:text("${artifactType}") >> ../../../..`);
-        await btn.click();
+    public async import(path: string) {
+        await this.webView.getByText('Import Artifact').click();
+        await this.webView.getByRole('button', { name: 'Select Location' }).click();
+        await page.page.getByLabel('input', { exact: true }).fill(path);
+        await page.page.getByRole('button', { name: 'OK' }).click();
+        await this.webView.getByRole('button', { name: 'Import' }).click();
     }
 }

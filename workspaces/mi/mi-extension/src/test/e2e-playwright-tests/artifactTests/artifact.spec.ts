@@ -22,15 +22,19 @@ import { Template } from '../components/ArtifactTest/Template';
 import { Proxy } from '../components/ArtifactTest/Proxy';
 import { DataSource } from '../components/ArtifactTest/DataSource';
 import { DataService } from '../components/ArtifactTest/DataService';
-import { API } from '../components/ArtifactTest/APITests';
+import { API } from '../components/ArtifactTest/API';
+import { EventIntegration } from '../components/ArtifactTest/EventIntegration';
+import { ImportArtifact } from '../components/ImportArtifact';
+import path from "path";
+const filePath = path.join( __dirname, '..', 'components', 'ArtifactTest', 'data', 'importApi_v1.0.0.xml');
 
 export default function createTests() {
   test.describe('Artifact Tests', async () => {
     initTest();
-
     let currentTaskName: string = "TestTask";
-    let automation: Automation;
+
     test('Automation tests', async ({ }, testInfo) => {
+      let automation: Automation;
       const testAttempt = testInfo.retry + 1;
       await test.step('Add Automation', async () => {
         console.log('Creating new Automation');
@@ -43,6 +47,10 @@ export default function createTests() {
         console.log('Editing Automation');
         await automation.edit("NewTestTask" + testAttempt);
       });
+      await test.step('Open Diagram View of Automation', async () => {
+        console.log('Opening Diagram View of Automation');
+        await automation.openDiagramView("NewTestTask" + testAttempt);
+      });
     });
 
     test('API tests', async () => {
@@ -53,11 +61,15 @@ export default function createTests() {
         console.log('Creating new API');
         api = new API(page.page);
         await api.init();
-        await api.addAPI("TestAPI" + testAttempt, "/testAdd" + testAttempt);
+        await api.add("TestAPI" + testAttempt, "/testAdd" + testAttempt);
+      });
+      await test.step('Open Diagram View of API', async () => {
+        console.log('Opening Diagram View of API');
+        await api.openDiagramView('TestAPI');
       });
       await test.step('Edit API', async () => {
         console.log('Editing API');
-        await api.editAPI("NewTestAPI" + testAttempt, "/newtest" + testAttempt);
+        await api.edit("NewTestAPI" + testAttempt, "/newtest" + testAttempt);
       });
 
       await test.step('Add Resource', async () => {
@@ -74,7 +86,7 @@ export default function createTests() {
       });
       await test.step('Delete API', async () => {
         console.log('Deleting API');
-        await api.deleteAPI();
+        await api.delete();
       });
 
       await test.step('Create WSDL from file', async () => {
@@ -126,6 +138,27 @@ export default function createTests() {
       await test.step('Edit Sequence', async () => {
         console.log('Editing Sequence');
         await sequence.edit("seqEP" + testAttempt, "newSeqEP" + testAttempt, currentTaskName);
+      });
+    });
+
+    test('Event Integration tests ', async () => {
+      let eventIntegration: EventIntegration;
+      let name: string = "HttpEventIntegration";
+      await test.step('Add Event Integration', async () => {
+        console.log('Creating new Event Integration');
+        eventIntegration = new EventIntegration(page.page);
+        await eventIntegration.init();
+        await eventIntegration.add(name);
+      });
+
+      await test.step('Edit Event Integration', async () => {
+        console.log('Editing Event Integration');
+        await eventIntegration.edit(name);
+      });
+
+      await test.step('Open Diagram View of Event Integration', async () => {
+        console.log('Opening Diagram View');
+        await eventIntegration.openDiagramView(name);
       });
     });
 
@@ -247,6 +280,16 @@ export default function createTests() {
       await test.step('Edit Proxy Service', async () => {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
+      });
+    });
+      
+    test ('Import Artifact', async () => {
+      await test.step('Import API Artifact', async () => {
+        const importArtifact = new ImportArtifact(page.page);
+        await importArtifact.init();
+        await importArtifact.import(filePath);
+        const api = new API(page.page);
+        await api.openDiagramView('importApi', true);
       });
     });
   });

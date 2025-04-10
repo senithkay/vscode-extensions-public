@@ -10,6 +10,7 @@
 import { Frame, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { AddArtifact } from "../AddArtifact";
+import { ProjectExplorer } from "../ProjectExplorer";
 
 export class Automation {
     private webView!: Frame;
@@ -50,5 +51,16 @@ export class Automation {
         await frame.getByRole('textbox', { name: 'Cron*' }).click();
         await frame.getByRole('textbox', { name: 'Cron*' }).fill('* * * * * ? *');
         await frame.getByTestId('create-task-button').click();
+    }
+
+    public async openDiagramView(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Automations', name], true);
+        const webView = await switchToIFrame('Task View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Task View iframe");
+        }
+        await webView.getByText('Start').click();
     }
 }

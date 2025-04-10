@@ -12,7 +12,8 @@ import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vsc
 import { AddArtifact } from "../AddArtifact";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
-import { copyFile } from "../../Utils";
+import { copyFile, page } from "../../Utils";
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import path from "path";
 import os from "os";
 
@@ -24,16 +25,6 @@ export class API {
 
     public async init() {
         console.log("API init");
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        console.log("Navigated to project overview");
-
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        console.log("Initialized overview page");
-        await overviewPage.goToAddArtifact();
-        console.log("Navigated to add artifact");
-
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
         console.log("Initialized add artifact page");
@@ -47,7 +38,7 @@ export class API {
         this.webView = apiWebView;
     }
 
-    public async addAPI(name: string, context: string) {
+    public async add(name: string, context: string) {
         const frame = this.webView.locator('div#root');
         await frame.waitFor();
         await frame.getByRole('textbox', { name: 'Name*' }).fill(name);
@@ -63,7 +54,7 @@ export class API {
         await submitBtn.click();
     }
 
-    public async editAPI(name: string, context: string) {
+    public async edit(name: string, context: string) {
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -141,7 +132,7 @@ export class API {
         await desWebView.getByRole('gridcell', { name: 'Delete' }).click();
     }
 
-    public async deleteAPI() {
+    public async delete() {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         console.log("Navigated to project overview");
@@ -275,5 +266,18 @@ export class API {
             throw new Error("Failed to switch to Service Designer iframe");
         }
         console.log("Switched to Service Designer iframe");
+    }
+
+    public async openDiagramView(name: string, click: boolean = false) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'APIs'], click);
+        await page.page.locator('a').filter({ hasText: name }).first().click();
+        await this._page.getByRole('treeitem', { name: /^\// }).locator('a').first().click();
+        const webView = await switchToIFrame('Resource View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Resource View iframe");
+        }
+        await webView.getByText('Start').click();
     }
 }

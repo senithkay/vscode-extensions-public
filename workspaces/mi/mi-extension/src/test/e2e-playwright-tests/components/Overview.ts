@@ -51,4 +51,8 @@ export class Overview {
     public async getWebView() {
         return this.webView;
     }
+
+    public async clickOnDiagramView(api : string) {
+        await this.webView.getByText(api, { exact: true }).click();
+    }
 }
