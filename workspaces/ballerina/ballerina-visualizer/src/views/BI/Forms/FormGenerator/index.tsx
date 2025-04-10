@@ -52,6 +52,7 @@ import {
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
     getFormProperties,
+    getImportsForFormFields,
     getInfoFromExpressionValue,
     removeDuplicateDiagnostics,
     updateLineRange,
@@ -241,7 +242,9 @@ export function FormGenerator(props: FormProps) {
         console.log(">>> Fields with RECORD_TYPE:", recordTypeFields);
 
         // get node properties
-        setFields(convertNodePropertiesToFormFields(enrichedNodeProperties || formProperties, connections, clientName));
+        const fields = convertNodePropertiesToFormFields(enrichedNodeProperties || formProperties, connections, clientName);
+        setFields(fields);
+        setFormImports(getImportsForFormFields(fields));
     };
 
     const handleOnSubmit = (data: FormValues) => {

@@ -847,3 +847,13 @@ export const getImportsForProperty = (key: string, imports: FormImports): Import
 
     return imports[key];
 };
+
+export function getImportsForFormFields(formFields: FormField[]): FormImports {
+    const imports: FormImports = {};
+    for (const field of formFields) {
+        if (field.imports) {
+            imports[field.key] = field.imports;
+        }
+    }
+    return imports;
+}
