@@ -43,13 +43,13 @@ export default function createTests() {
         await automation.init();
         await automation.add("TestTask" + testAttempt);
       });
+      await test.step('Open Diagram View for Automation', async () => {
+        console.log('Opening Diagram View for Automation');
+        await automation.openDiagramView("TestTask" + testAttempt);
+      });
       await test.step('Edit Automation', async () => {
         console.log('Editing Automation');
-        await automation.edit("NewTestTask" + testAttempt);
-      });
-      await test.step('Open Diagram View of Automation', async () => {
-        console.log('Opening Diagram View of Automation');
-        await automation.openDiagramView("NewTestTask" + testAttempt);
+        await automation.edit("TestTask" + testAttempt, "NewTestTask" + testAttempt);
       });
     });
 
@@ -63,13 +63,13 @@ export default function createTests() {
         await api.init();
         await api.add("TestAPI" + testAttempt, "/testAdd" + testAttempt);
       });
-      await test.step('Open Diagram View of API', async () => {
-        console.log('Opening Diagram View of API');
-        await api.openDiagramView('TestAPI');
+      await test.step('Open Diagram View for API', async () => {
+        console.log('Opening Diagram View for API');
+        await api.openDiagramView('TestAPI', true);
       });
       await test.step('Edit API', async () => {
         console.log('Editing API');
-        await api.edit("NewTestAPI" + testAttempt, "/newtest" + testAttempt);
+        await api.edit("TestAPI" + testAttempt, "NewTestAPI" + testAttempt, "/newtest" + testAttempt);
       });
 
       await test.step('Add Resource', async () => {
@@ -135,9 +135,9 @@ export default function createTests() {
         await sequence.init();
         await sequence.add("seqEP" + testAttempt);
       });
-      await test.step('Open Diagram View of Proxy', async () => {
-        console.log('Opening Diagram View of Proxy');
-        await sequence.openDiagramView('seqEP', true);
+      await test.step('Open Diagram View for Proxy', async () => {
+        console.log('Opening Diagram View for Proxy');
+        await sequence.openDiagramView("seqEP" + testAttempt, true);
       });
       await test.step('Edit Sequence', async () => {
         console.log('Editing Sequence');
@@ -318,7 +318,7 @@ export default function createTests() {
       });
       await test.step('Open Diagram View of Proxy', async () => {
         console.log('Opening Diagram View of Proxy');
-        await proxyService.openDiagramView('testProxyService', true);
+        await proxyService.openDiagramView("testProxyService" + testAttempt, true);
       });
       await test.step('Edit Proxy Service', async () => {
         console.log('Editing Proxy Service');

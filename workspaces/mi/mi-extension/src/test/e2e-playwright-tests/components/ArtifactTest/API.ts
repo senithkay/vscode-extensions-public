@@ -53,7 +53,14 @@ export class API {
         await submitBtn.click();
     }
 
-    public async edit(name: string, context: string) {
+    public async edit(name: string, newName: string, context: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        const webview = await switchToIFrame("Project Overview", this._page)
+        if (!webview) {
+            throw new Error("Failed to switch to Overview iframe");
+        }
+        await this.webView.getByText(name, { exact: true }).click();
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -68,7 +75,7 @@ export class API {
             throw new Error("Failed to switch to API Form iframe");
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
+        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(newName);
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         await apiFormFrame.getByRole('textbox', { name: 'Version' }).fill('1.0.2');
         await apiFormFrame.getByLabel('Trace Enabled').click();

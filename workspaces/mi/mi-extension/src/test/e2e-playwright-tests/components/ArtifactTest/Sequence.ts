@@ -11,7 +11,6 @@ import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
-import { page } from "./../../Utils";
 
 export class Sequence {
 
@@ -56,8 +55,7 @@ export class Sequence {
     public async openDiagramView(name: string, click: boolean = false) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Sequences'], click);
-        await page.page.locator('a').filter({ hasText: name }).first().click();
+        await projectExplorer.findItem(['Project testProject', 'Sequences', name], click);
         const webView = await switchToIFrame('Sequence View', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Sequence View iframe");
