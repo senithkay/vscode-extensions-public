@@ -305,6 +305,13 @@ export function FunctionForm(props: FunctionFormProps) {
         }
     }, [filePath, rpcClient]);
 
+    //HACK: Hide is isolated field form function form
+    functionFields.forEach((field) => {
+        if (field.key === "isIsolated") {
+            field.hidden = true;
+        }
+    });
+
     return (
         <View>
             <TopNavigationBar />
