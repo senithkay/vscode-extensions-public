@@ -496,21 +496,52 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
                         const servicePath = entryValue.name.split('-')[1].trim();
                         if (JSON.stringify(tempServiceModel.properties).includes(servicePath)) {
                             selectedEntry = entryValue;
+                            break;
                         }
                     } else {
                         selectedEntry = entryValue;
+                        break;
+                    }
+                }
+            } else {
+                const resources = entryValue.resources;
+                // Check from current identifier
+                const identifier = StateMachine.context().identifier;
+                if (resources.length > 0) {
+                    for (const resource of resources) {
+                        if (resource.id === identifier) {
+                            selectedEntry = entryValue;
+                            break;
+                        }
                     }
                 }
             }
             break;
         case DIRECTORY_MAP.AUTOMATION:
+            // Check from current identifier
+            const automationIdentifier = StateMachine.context().identifier;
+            if (automationIdentifier && automationIdentifier === "Automation") {
+                selectedEntry = entryValue;
+                break;
+            }
+            break;
         case DIRECTORY_MAP.FUNCTION:
         case DIRECTORY_MAP.DATA_MAPPER:
-            // Check if the created entry matched the properties of the temp function
-            const tempFunction = StateMachine.context().tempData?.flowNode;
-            if (tempFunction) {
-                if (tempFunction.properties.functionName && entryValue.context === tempFunction.properties.functionName.value) {
+            // Check from current identifier
+            const identifier = StateMachine.context().identifier;
+            if (identifier) {
+                if (entryValue.context === identifier) {
                     selectedEntry = entryValue;
+                    break;
+                }
+            } else {
+                // Check if the created entry is a functionNode and matched the properties
+                const tempFunction = StateMachine.context().tempData?.flowNode;
+                if (tempFunction) {
+                    if (tempFunction.properties?.functionName && entryValue.context === tempFunction.properties.functionName.value) {
+                        selectedEntry = entryValue;
+                        break;
+                    }
                 }
             }
             break;
