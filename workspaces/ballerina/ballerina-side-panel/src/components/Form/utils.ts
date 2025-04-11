@@ -35,7 +35,7 @@ export function stripHtmlTags(content: string): string {
 
 export function updateFormFieldWithImports(formField: FormField, fieldImports: FormImports) {
     if (fieldImports?.[formField.key]) {
-        formField.imports = { ...fieldImports[formField.key], ...formField.imports };
+        formField.imports = fieldImports[formField.key];
     }
     return formField;
 }
