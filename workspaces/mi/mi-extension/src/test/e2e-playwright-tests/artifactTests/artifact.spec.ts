@@ -114,18 +114,23 @@ export default function createTests() {
       });
     });
 
-    test('Sequence tests', async () => {
+    test('Sequence Tests', async () => {
       let sequence: Sequence;
       const testAttempt = test.info().retry + 1;
-      await test.step('Add Sequence', async () => {
-        console.log('Creating new Sequence');
+      const sequenceName = "TestSequence" + testAttempt;
+      await test.step('Create Sequence', async () => {
+        console.log('Create Sequence');
         sequence = new Sequence(page.page);
         await sequence.init();
-        await sequence.add("seqEP" + testAttempt);
+        await sequence.createSequence(sequenceName);
       });
       await test.step('Edit Sequence', async () => {
-        console.log('Editing Sequence');
-        await sequence.edit("seqEP" + testAttempt, "newSeqEP" + testAttempt, currentTaskName);
+        console.log('Edit Sequence');
+        await sequence.editSequence(sequenceName, "TestSequenceEdited" + testAttempt);
+      });
+      await test.step('Create Sequence from Project Explorer', async () => {
+        console.log('Create Sequence from Project Explorer');
+        await sequence.createSequenceFromProjectExplorer("TestNewSequence" + testAttempt);
       });
     });
 
