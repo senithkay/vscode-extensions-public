@@ -49,7 +49,6 @@ import {
     DeploymentRequest,
     DeploymentResponse,
     DevantMetadata,
-    EVENT_TYPE,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -131,14 +130,14 @@ import { extension } from "../../BalExtensionContext";
 import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
-import { StateMachine, openView, updateView } from "../../stateMachine";
+import { StateMachine, updateView } from "../../stateMachine";
 import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { refreshAccessToken } from "../ai-panel/utils";
-import { getFunctionNodePosition } from "./utils";
 import { BACKEND_URL } from "../../features/ai/utils";
 import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { cleanAndValidateProject } from "../../features/config-generator/configGenerator";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -555,6 +554,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         console.log(">>> requesting bi delete node from ls", params);
+        // Clean project diagnostics before deleting flow node
+        await cleanAndValidateProject(StateMachine.langClient(), StateMachine.context().projectUri);
+        
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .deleteFlowNode(params)

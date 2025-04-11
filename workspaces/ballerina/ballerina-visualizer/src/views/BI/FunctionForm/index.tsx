@@ -263,6 +263,22 @@ export function FunctionForm(props: FunctionFormProps) {
 
     const handleFormSubmit = async (data: FormValues, formImports?: FormImports) => {
         setSaving(true);
+        // HACK: Remove new lines from function description fields
+        const descriptionFields = ["functionNameDescription", "typeDescription"];
+        for (const field of descriptionFields) {
+            if (data[field]) {
+                data[field] = data[field]?.replace(/\n/g, " ");
+            }
+        }
+        // HACK: Remove new lines from parameter description
+        if (data.parameters) {
+            for (const parameter of data.parameters) {
+                if (parameter && parameter.formValues?.parameterDescription) {
+                    parameter.formValues.parameterDescription = parameter.formValues.parameterDescription.replace(/\n/g, " ");
+                }
+            }
+        }
+
         try {
             await onSubmit(data, formImports);
         } catch (error) {

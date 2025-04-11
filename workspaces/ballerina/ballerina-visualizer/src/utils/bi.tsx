@@ -857,3 +857,14 @@ export function getImportsForFormFields(formFields: FormField[]): FormImports {
     }
     return imports;
 }
+
+/**
+ * Filters the unsupported diagnostics for local connections
+ * @param diagnostics - Diagnostics to filter
+ * @returns Filtered diagnostics
+ */
+export function filterUnsupportedDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
+    return diagnostics.filter((diagnostic) => {
+        return !diagnostic.message.startsWith('unknown type') && !diagnostic.message.startsWith('undefined module');
+    });
+}
