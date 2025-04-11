@@ -21,6 +21,7 @@ const TYPE_CATEGORY_ORDER = [
     { label: "Error Types", sortText: "4"},
     { label: "Behaviour Types", sortText: "5"},
     { label: "Other Types", sortText: "6"},
+    { label: "Used Variable Types", sortText: "7"},
 ] as const;
 
 /**
