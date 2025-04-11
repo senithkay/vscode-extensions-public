@@ -95,7 +95,7 @@ export class RPCLayer {
 
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
-    const realPath = fs.realpathSync(ballerinaExtInstance.ballerinaHome);
+    const realPath = fs.realpathSync.native(ballerinaExtInstance.ballerinaHome);
     return new Promise((resolve) => {
         resolve({
             documentUri: context.documentUri,
