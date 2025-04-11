@@ -100,7 +100,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: http_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -164,7 +164,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: jms_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -240,7 +240,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: file_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -308,7 +308,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: rabbitmq_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -376,7 +376,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: websocket_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -448,7 +448,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: secureWebsocket_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -540,7 +540,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: hl7_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -607,7 +607,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: amazonsqs_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -675,7 +675,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: cdc_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -759,7 +759,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: iso_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -823,7 +823,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: kafka_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -891,7 +891,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: salesforce_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
@@ -971,7 +971,7 @@ export default function createTests() {
                 console.log('Creating Connection from project explorer: smpp_connection');
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log('Click Event Integrations + in Project Explorer');
-                await projectExplorer.addArtifact(["Project testProject", "Other Artifacts", "Event Integrations"]);
+                await projectExplorer.addArtifact(["Project testProject", "Event Integrations"]);
 
                 const inboundEPSelector = new InboundEPForm(page.page);
                 await inboundEPSelector.init();
