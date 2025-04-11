@@ -11,6 +11,8 @@ import { Locator, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
+import { Form } from "../Form";
+import { page } from "../../Utils";
 
 export class Sequence {
 
@@ -23,43 +25,114 @@ export class Sequence {
         await addArtifactPage.add('Sequence');
     }
 
-    public async add(name: string, isPopUp?: boolean) {
-        let seqFrame: Locator;
-        if (isPopUp) {
-            const seqWebView = await switchToIFrame('Resource View', this._page);
-            if (!seqWebView) {
-                throw new Error("Failed to switch to Resource Form iframe");
-            }
-            seqFrame = seqWebView.locator('#popUpPanel');
-        } else {
-            const seqWebView = await switchToIFrame('Sequence Form', this._page);
-            if (!seqWebView) {
-                throw new Error("Failed to switch to Sequence Form iframe");
-            }
-            seqFrame = seqWebView.locator('div#root');
-        }
-        await seqFrame.waitFor();
-        await seqFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await seqFrame.getByTestId('create-button').click();
-    }
-
-    public async edit(prevName: string, newName: string, taskName: string) {
+    public async createSequenceFromProjectExplorer(sequenceName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Sequences', prevName], true);
-        const webView = await switchToIFrame('Sequence View', this._page);
-        if (!webView) {
+        await projectExplorer.findItem(['Project testProject', 'Sequences'], true);
+        await this._page.getByLabel('Add Sequence').click();
+        const seqWebview = await switchToIFrame('Sequence Form', this._page);
+        if (!seqWebview) {
+            throw new Error("Failed to switch to Sequence Form iframe");
+        }
+
+        await seqWebview.getByRole('heading', { name: 'Advanced Configuration' }).click();
+        const sequenceForm = new Form(page.page, 'Sequence Form');
+        await sequenceForm.switchToFormView();
+        await sequenceForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: sequenceName,
+                },
+                'Enable statistics': {
+                    type: 'checkbox',
+                    value: 'checked',
+                },
+                'Enable tracing': {
+                    type: 'checkbox',
+                    value: 'checked',
+                },
+                'On Error Sequence': {
+                    type: 'combo',
+                    value: 'TestSequenceEdited',
+                    additionalProps: { hasMultipleValue: true }
+                }
+            }
+        });
+        await sequenceForm.submit();
+
+        await projectExplorer.goToOverview("testProject");
+        const overview = await switchToIFrame('Project Overview', this._page);
+        if (!overview) {
+            throw new Error("Failed to switch to project overview iframe");
+        }
+    }
+
+    public async createSequence(sequenceName: string, isPopUp?: boolean) {
+        let sequenceFrame: Locator;
+        if (isPopUp) {
+            const seqWebview = await switchToIFrame('Resource View', this._page);
+            if (!seqWebview) {
+                throw new Error("Failed to switch to Resource Form iframe");
+            }
+            sequenceFrame = seqWebview.locator('#popUpPanel');
+        } else {
+            const seqWebview = await switchToIFrame('Sequence Form', this._page);
+            if (!seqWebview) {
+                throw new Error("Failed to switch to Sequence Form iframe");
+            }
+            sequenceFrame = seqWebview.locator('div#root');
+        }
+  
+        await sequenceFrame.waitFor();
+        await sequenceFrame.getByRole('textbox', { name: 'Name*' }).fill(sequenceName);
+        await sequenceFrame.getByTestId('create-button').click();
+
+        if (!isPopUp) {
+            const projectExplorer = new ProjectExplorer(this._page);
+            await projectExplorer.goToOverview("testProject");
+            const overview = await switchToIFrame('Project Overview', this._page);
+            if (!overview) {
+                throw new Error("Failed to switch to project overview iframe");
+            }
+        }
+    }
+
+    public async editSequence(sequenceName: string, sequenceUpdatedName: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Sequences', sequenceName], true);
+        const seqWebview = await switchToIFrame('Sequence View', this._page);
+        if (!seqWebview) {
             throw new Error("Failed to switch to Sequence View iframe");
         }
-        const frame = webView.locator('div#root');
+
+        const frame = seqWebview.locator('div#root');
         await frame.getByTestId('edit-button').click();
-        await frame.getByRole('textbox', { name: 'Name' }).click();
-        await frame.getByRole('textbox', { name: 'Name' }).fill(newName);
-        await frame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
-        await frame.getByText(taskName).click();
-        await frame.getByTestId('update-button').click();
-        console.log("Waiting for update button to be detached");
-        await this._page.waitForSelector('[data-testid="update-button"]', { state: 'detached' });
+        const sequenceForm = new Form(page.page, 'Sequence View');
+        await sequenceForm.switchToFormView();
+        await sequenceForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: sequenceUpdatedName,
+                },
+                'Enable statistics': {
+                    type: 'checkbox',
+                    value: 'checked',
+                },
+                'Enable tracing': {
+                    type: 'checkbox',
+                    value: 'checked',
+                }
+            }
+        });
+        await sequenceForm.submit("Update");
+
+        const overview = await switchToIFrame('Project Overview', this._page);
+        if (!overview) {
+            throw new Error("Failed to switch to project overview iframe");
+        }
     }
 
     public async openDiagramView(name: string) {

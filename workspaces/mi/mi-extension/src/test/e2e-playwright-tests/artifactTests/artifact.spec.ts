@@ -126,22 +126,27 @@ export default function createTests() {
       });
     });
 
-    test('Sequence tests', async () => {
+    test('Sequence Tests', async () => {
       let sequence: Sequence;
       const testAttempt = test.info().retry + 1;
-      await test.step('Add Sequence', async () => {
-        console.log('Creating new Sequence');
+      const sequenceName = "TestSequence" + testAttempt;
+      await test.step('Create Sequence', async () => {
+        console.log('Create Sequence');
         sequence = new Sequence(page.page);
         await sequence.init();
-        await sequence.add("seqEP" + testAttempt);
+        await sequence.createSequence(sequenceName);
       });
       await test.step('Open Diagram View for Proxy', async () => {
         console.log('Opening Diagram View for Proxy');
         await sequence.openDiagramView("seqEP" + testAttempt);
       });
       await test.step('Edit Sequence', async () => {
-        console.log('Editing Sequence');
-        await sequence.edit("seqEP" + testAttempt, "newSeqEP" + testAttempt, currentTaskName);
+        console.log('Edit Sequence');
+        await sequence.editSequence(sequenceName, "TestSequenceEdited" + testAttempt);
+      });
+      await test.step('Create Sequence from Project Explorer', async () => {
+        console.log('Create Sequence from Project Explorer');
+        await sequence.createSequenceFromProjectExplorer("TestNewSequence" + testAttempt);
       });
     });
 
@@ -166,12 +171,19 @@ export default function createTests() {
       });
     });
 
-    test('Add Class Mediator', async () => {
+    test('Class Mediator Tests', async () => {
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Class Mediator');
+      const className = "SampleClass" + testAttempt;
+      const classNameForExplorer = "SampleNewClass" + testAttempt;
       const classMediator = new ClassMediator(page.page);
       await classMediator.init();
-      await classMediator.add("org.wso2.sample" + testAttempt);
+      console.log('Create Class Mediator');
+      await classMediator.createClassMediator(className);
+      console.log('Open Class Mediator');
+      await classMediator.openClassMediator(className);
+      console.log('Create Class Mediator from Project Explorer');
+      await classMediator.createClassMediatorFromProjectExplorer(classNameForExplorer);
+      await classMediator.clear([className, classNameForExplorer]);
     });
 
     test('Add Ballerina Module', async () => {
