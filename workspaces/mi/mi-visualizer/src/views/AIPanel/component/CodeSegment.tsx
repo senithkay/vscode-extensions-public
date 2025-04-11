@@ -161,15 +161,17 @@ export const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, 
                 await rpcClient
                     .getMiDiagramRpcClient()
                     .handleFileWithFS({ fileName: name, operation: "write", filePath: filePath, content: content });
+                rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
+
             } else {
                 await rpcClient
                     .getMiDiagramRpcClient()
                     .handleFileWithFS({ fileName: name, operation: "delete", filePath: filePath });
-            }
-            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
-            rpcClient
-                .getMiDiagramRpcClient()
+                rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
+                rpcClient.getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.open-project-overview"] });
+            }
+            
             // Update FileHistory
             setFileHistory((prevHistory) =>
                 prevHistory.map(
