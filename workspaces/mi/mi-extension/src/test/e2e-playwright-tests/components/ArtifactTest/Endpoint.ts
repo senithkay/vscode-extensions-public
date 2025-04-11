@@ -31,7 +31,7 @@ export class Endpoint {
         await addArtifactPage.add('Endpoint');
     }
 
-    public async addHttpEndpoint() {
+    public async addHttpEndpoint(name: string) {
         const epWebView = await switchToIFrame('Endpoint Form', this._page);
         if (!epWebView) {
             throw new Error("Failed to switch to Endpoint Form iframe");
@@ -44,7 +44,7 @@ export class Endpoint {
         }
         const httpEPFrame = httpEPWebview.locator('div#root');
         await httpEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).click();
-        await httpEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).fill('httpEP');
+        await httpEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).fill(name);
         await httpEPFrame.getByRole('textbox', { name: 'URI Template*' }).click();
         await httpEPFrame.getByRole('textbox', { name: 'URI Template*' }).fill('https://fake-json-api.mock.beeceptor.com/users');
         await httpEPFrame.locator('svg').click();
@@ -56,10 +56,10 @@ export class Endpoint {
         }
     }
 
-    public async editHttpEndpoint() {
+    public async editHttpEndpoint(prevName: string, newName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints', 'httpEP'], true);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints', prevName], true);
 
         const httpEPWebview = await switchToIFrame('Http Endpoint Form', this._page);
         if (!httpEPWebview) {
@@ -67,7 +67,7 @@ export class Endpoint {
         }
         const httpEPFrame = httpEPWebview.locator('div#root');
         await httpEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).click();
-        await httpEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).fill('httpEndpoint');
+        await httpEPFrame.getByRole('textbox', { name: 'Endpoint Name*' }).fill(newName);
         await httpEPFrame.getByRole('textbox', { name: 'URI Template*' }).click();
         await httpEPFrame.getByRole('textbox', { name: 'URI Template*' }).fill('https://fake-json-api.mock.beeceptor.com');
         await httpEPFrame.locator('svg').click();
@@ -79,7 +79,7 @@ export class Endpoint {
         }
     }
 
-    public async addLoadBalanceEndpoint() {
+    public async addLoadBalanceEndpoint(name: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints'], true);
@@ -96,7 +96,7 @@ export class Endpoint {
         }
         const lbEPFrame = lbEPWebview.locator('div#root');
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).click();
-        await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill('loadBalanceEP');
+        await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await lbEPFrame.locator('#algorithm svg').click();
         await lbEPFrame.getByLabel('Weighted RRLC Algorithm').click();
         await lbEPFrame.getByRole('button', { name: 'Create' }).click();
@@ -106,10 +106,10 @@ export class Endpoint {
         }
     }
 
-    public async editLoadBalanceEndpoint() {
+    public async editLoadBalanceEndpoint(prevName: string, newName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints', 'loadBalanceEP'], true);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints', prevName], true);
         // await this._page.locator('#list_id_4_4').getByLabel('Endpoints').locator('div').filter({ hasText: 'Endpoints' }).click();
         // await this._page.getByRole('treeitem', { name: 'loadBalanceEP' }).locator('a').click();
         const lbEPWebview = await switchToIFrame('Load Balance Endpoint Form', this._page);
@@ -118,7 +118,7 @@ export class Endpoint {
         }
         const lbEPFrame = lbEPWebview.locator('div#root');
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).click();
-        await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill('loadBalanceEndpoint');
+        await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill(newName);
         await lbEPFrame.locator('#algorithm svg').click();
         await lbEPFrame.getByLabel('Weighted Round Robin').click();
         await lbEPFrame.getByRole('button', { name: 'Save Changes' }).click();

@@ -31,17 +31,17 @@ export class BallerinaModule {
         await addArtifactPage.add('Ballerina Module');
     }
 
-    public async add() {
+    public async add(name: string) {
         const seqWebView = await switchToIFrame('Ballerina Module Creation Form', this._page);
         if (!seqWebView) {
             throw new Error("Failed to switch to Ballerina Module Form iframe");
         }
         const seqFrame = seqWebView.locator('div#root');
-        await seqFrame.getByRole('textbox', { name: 'Module Name*' }).fill('testBal');
+        await seqFrame.getByRole('textbox', { name: 'Module Name*' }).fill(name);
         await seqFrame.getByRole('textbox', { name: 'Version*' }).fill('1.0.0');
         await seqFrame.getByRole('button', { name: 'Create' }).click();
         const page = await this._page;
-        await page.getByRole('tab', { name: 'testBal-module.bal' }).getByLabel('Close').click();
+        await page.getByRole('tab', { name: `${name}-module.bal` }).click();
         await page.getByLabel('Open Project Overview').click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {

@@ -31,13 +31,13 @@ export class DataService {
         await addArtifactPage.add('Data Service');
     }
 
-    public async add() {
+    public async add(name: string) {
         const dsWebView = await switchToIFrame('Data Service Form', this._page);
         if (!dsWebView) {
             throw new Error("Failed to switch to Data Service Form iframe");
         }
         const dsFrame = dsWebView.locator('div#root');
-        await dsFrame.getByRole('textbox', { name: 'Data Service Name*' }).fill('testDataService');
+        await dsFrame.getByRole('textbox', { name: 'Data Service Name*' }).fill(name);
         await dsFrame.getByRole('textbox', { name: 'Description' }).fill('Test Ds');
         await dsFrame.getByText('Add Datasource').click();
         await dsFrame.getByRole('textbox', { name: 'Datasource Identifier*' }).fill('dataID');
@@ -52,10 +52,10 @@ export class DataService {
         await dsFrame.getByRole('button', { name: 'Create' }).click();
     }
 
-    public async edit() {
+    public async edit(prevName: string, newName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Data Services', 'testDataService'], true);
+        await projectExplorer.findItem(['Project testProject', 'Data Services', prevName], true);
 
         const webView = await switchToIFrame('Data Service Designer', this._page);
         if (!webView) {
@@ -68,7 +68,7 @@ export class DataService {
         if (!dssWebView) {
             throw new Error("Failed to switch to Data Service Form iframe");
         }
-        await dssWebView.getByRole('textbox', { name: 'Data Service Name*' }).fill('newTestDataService');
+        await dssWebView.getByRole('textbox', { name: 'Data Service Name*' }).fill(newName);
         await dssWebView.getByRole('textbox', { name: 'Description' }).fill('New Test Ds');
         await frame.getByRole('button', { name: 'Save Changes' }).click();
     }

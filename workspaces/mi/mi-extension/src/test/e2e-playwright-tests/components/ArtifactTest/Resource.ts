@@ -31,13 +31,13 @@ export class Resource {
         await addArtifactPage.add('Resource');
     }
 
-    public async add() {
+    public async add(name: string) {
         const seqWebView = await switchToIFrame('Resource Creation Form', this._page);
         if (!seqWebView) {
             throw new Error("Failed to switch to Resource Form iframe");
         }
         const seqFrame = seqWebView.locator('div#root');
-        await seqFrame.getByRole('textbox', { name: 'Resource Name*' }).fill('testResource');
+        await seqFrame.getByRole('textbox', { name: 'Resource Name*' }).fill(name);
         await seqFrame.locator('#templateType div').nth(1).click();
         await seqFrame.getByLabel('JSON File').click();
         await seqFrame.getByRole('textbox', { name: 'Registry Path' }).click();
