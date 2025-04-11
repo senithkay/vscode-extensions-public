@@ -82,6 +82,8 @@ export default function createTests() {
 
         await clearNotificationsByCloseButton(page);
 
+        console.log('- Load schemas for Basic Mappings');
+
         if (NEED_INITIAL_SETUP) {
           const diagram = new Diagram(page.page, 'Resource');
           await diagram.init();
@@ -97,7 +99,11 @@ export default function createTests() {
           await dm.init();
         }
 
+        
+
         const dmWebView = dm.getWebView();
+
+        console.log('- Test direct mappings');
 
         // direct mapping
         // objectOutput.dmO = input.dmI;
@@ -162,8 +168,9 @@ export default function createTests() {
         await dm.mapFields('input.opmI.op2', 'objectOutput.ompO.p2');
         await dmWebView.getByTestId('link-from-input.opmI.op2.OUT-to-objectOutput.ompO.p2.IN').waitFor({ state: 'attached' });
 
+        console.log('- Test expression bar');
 
-        // expression editor - use function
+        // expression bar - use function
         await dmWebView.locator('[id="recordfield-objectOutput\\.expO"]').click();
         const expressionBar = dmWebView.locator('#expression-bar').getByRole('textbox', { name: 'Text field' });
         await expect(expressionBar).toBeFocused();
@@ -199,6 +206,7 @@ export default function createTests() {
         await dmWebView.getByTestId('link-connector-node-objectOutput.ompO.p1.IN').waitFor();
 
 
+        console.log('- Test custom function');
         // custom function mapping
         // objectOutput.cfnO = input.cfnI;
         await dm.mapFields('input.cfnI', 'objectOutput.cfnO','menu-item-o2o-func');
@@ -291,9 +299,6 @@ export default function createTests() {
 
         await dm.gotoPreviousView();
         await dm.gotoPreviousView();
-
-
-       
 
 
         // Initialize 1d array and map
