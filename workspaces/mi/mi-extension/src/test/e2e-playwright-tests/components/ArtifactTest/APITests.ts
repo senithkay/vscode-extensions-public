@@ -142,24 +142,34 @@ export class API {
         console.log("Clicked on OpenAPI Spec");
         const webviewFrame = this._page.locator('iframe.webview.ready').nth(1);
         await webviewFrame.waitFor();
+        console.log("Found webview frame");
         const frame = webviewFrame.contentFrame();
         if (!frame) {
             throw new Error(`IFrame of Swagger View not found`);
         }
         const targetFrame = frame.locator(`iframe[title="Swagger View"]`);
+        console.log("Waiting for target frame");
         await targetFrame.waitFor();
         const swaggerView = targetFrame.contentFrame();
         if (!swaggerView) {
             throw new Error(`IFrame of Swagger View not found`);
         }
+        console.log("Found swagger view frame");
         const swaggerFrame = swaggerView.locator('div#root');
+        console.log("Waiting for swagger frame");
         await swaggerFrame.waitFor();
         const getRes = swaggerFrame.getByRole('button', { name: 'GET /', exact: true });
+        console.log("Waiting for GET resource button");
         await getRes.waitFor();
+        console.log("GET resource button found");
         await getRes.click();
+        console.log("Clicked on GET resource button");
         await swaggerView.getByRole('button', { name: 'Try it out' }).click();
+        console.log("Clicked on try it out");
         await swaggerView.getByRole('button', { name: 'Execute' }).click();
+        console.log("Clicked on execute");
         await this._page.getByLabel('Swagger View, Editor Group').getByLabel('Close (⌘W)').click();
+        console.log("Closed swagger view");
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         console.log("Navigated to project overview");
