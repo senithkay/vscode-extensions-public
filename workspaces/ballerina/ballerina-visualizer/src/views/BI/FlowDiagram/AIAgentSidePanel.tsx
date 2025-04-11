@@ -151,6 +151,14 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             return category.metadata.label === "Current Integration";
         });
 
+        // Remove agent tool functions from integration category
+        const currentIntegrationCategory = filteredResponse.find((category) => category.metadata.label === "Current Integration");
+        if (currentIntegrationCategory && Array.isArray(currentIntegrationCategory.items)) {
+            currentIntegrationCategory.items = currentIntegrationCategory.items.filter((item) => {
+                return !item.metadata?.data?.isAgentTool;
+            });
+        }
+
         if (isSearching && searchText) {
             setCategories(convertFunctionCategoriesToSidePanelCategories(filteredResponse, functionType));
             return;
@@ -185,6 +193,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         // Safely convert name to camelCase, handling any input
         const name = data["name"] || "";
         const cleanName = name.trim().replace(/[^a-zA-Z0-9]/g, "") || "newTool";
+
+        // HACK: Remove new lines from description fields
+        if (data.description) {
+            data.description = data.description.replace(/\n/g, "");
+        }
 
         const toolModel: AgentToolRequest = {
             toolName: cleanName,
