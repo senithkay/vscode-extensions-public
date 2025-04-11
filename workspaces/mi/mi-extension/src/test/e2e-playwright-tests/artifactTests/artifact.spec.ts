@@ -73,7 +73,7 @@ export default function createTests() {
       });
       await test.step('Go to swagger view', async () => {
         console.log('Navigating to swagger view');
-        await api.goToSwaggerView(apiName);
+        await api.goToSwaggerView();
       });
       await test.step('Delete Resource', async () => {
         console.log('Deleting Resource');
