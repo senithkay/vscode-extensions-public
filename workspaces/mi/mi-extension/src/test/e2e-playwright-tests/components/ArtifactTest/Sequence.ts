@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
@@ -76,21 +76,33 @@ export class Sequence {
         }
     }
 
-    public async createSequence(sequenceName: string) {
-        const seqWebview = await switchToIFrame('Sequence Form', this._page);
-        if (!seqWebview) {
-            throw new Error("Failed to switch to Sequence Form iframe");
+    public async createSequence(sequenceName: string, isPopUp?: boolean) {
+        let sequenceFrame: Locator;
+        if (isPopUp) {
+            const seqWebview = await switchToIFrame('Resource View', this._page);
+            if (!seqWebview) {
+                throw new Error("Failed to switch to Resource Form iframe");
+            }
+            sequenceFrame = seqWebview.locator('#popUpPanel');
+        } else {
+            const seqWebview = await switchToIFrame('Sequence Form', this._page);
+            if (!seqWebview) {
+                throw new Error("Failed to switch to Sequence Form iframe");
+            }
+            sequenceFrame = seqWebview.locator('div#root');
         }
-
-        const sequenceFrame = seqWebview.locator('div#root');
+  
+        await seqFrame.waitFor();
         await sequenceFrame.getByRole('textbox', { name: 'Name*' }).fill(sequenceName);
         await sequenceFrame.getByTestId('create-button').click();
 
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        const overview = await switchToIFrame('Project Overview', this._page);
-        if (!overview) {
-            throw new Error("Failed to switch to project overview iframe");
+        if (!isPopUp) {
+            const projectExplorer = new ProjectExplorer(this._page);
+            await projectExplorer.goToOverview("testProject");
+            const overview = await switchToIFrame('Project Overview', this._page);
+            if (!overview) {
+                throw new Error("Failed to switch to project overview iframe");
+            }
         }
     }
 
