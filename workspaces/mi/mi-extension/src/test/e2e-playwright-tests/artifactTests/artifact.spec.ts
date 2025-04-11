@@ -129,12 +129,19 @@ export default function createTests() {
       });
     });
 
-    test('Add Class Mediator', async () => {
+    test('Class Mediator Tests', async () => {
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Class Mediator');
+      const className = "SampleClass" + testAttempt;
+      const classNameForExplorer = "SampleNewClass" + testAttempt;
       const classMediator = new ClassMediator(page.page);
       await classMediator.init();
-      await classMediator.add("org.wso2.sample" + testAttempt);
+      console.log('Create Class Mediator');
+      await classMediator.createClassMediator(className);
+      console.log('Open Class Mediator');
+      await classMediator.openClassMediator(className);
+      console.log('Create Class Mediator from Project Explorer');
+      await classMediator.createClassMediatorFromProjectExplorer(classNameForExplorer);
+      await classMediator.clear([className, classNameForExplorer]);
     });
 
     test('Add Ballerina Module', async () => {
