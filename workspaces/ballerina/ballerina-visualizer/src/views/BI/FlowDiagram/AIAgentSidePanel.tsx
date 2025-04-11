@@ -196,7 +196,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
 
         // HACK: Remove new lines from description fields
         if (data.description) {
-            data.description = data.description.replace(/\n/g, "");
+            data.description = data.description.replace(/\n/g, " ");
         }
 
         const toolModel: AgentToolRequest = {
