@@ -267,14 +267,14 @@ export function FunctionForm(props: FunctionFormProps) {
         const descriptionFields = ["functionNameDescription", "typeDescription"];
         for (const field of descriptionFields) {
             if (data[field]) {
-                data[field] = data[field]?.replace(/\n/g, "");
+                data[field] = data[field]?.replace(/\n/g, " ");
             }
         }
         // HACK: Remove new lines from parameter description
         if (data.parameters) {
             for (const parameter of data.parameters) {
                 if (parameter && parameter.formValues?.parameterDescription) {
-                    parameter.formValues.parameterDescription = parameter.formValues.parameterDescription.replace(/\n/g, "");
+                    parameter.formValues.parameterDescription = parameter.formValues.parameterDescription.replace(/\n/g, " ");
                 }
             }
         }
