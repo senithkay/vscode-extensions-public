@@ -131,7 +131,7 @@ export class API {
         await frame.getByRole('button', { name: 'Update' }).click();
     }
 
-    public async goToSwaggerView(apiName: string) {
+    public async goToSwaggerView() {
         const desWebView = await switchToIFrame('Service Designer', this._page);
         if (!desWebView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -140,25 +140,26 @@ export class API {
         const serviceDesignerFrame = desWebView.locator('div#root');
         await serviceDesignerFrame.getByRole('button', { name: ' OpenAPI Spec' }).click();
         console.log("Clicked on OpenAPI Spec");
-        const apiFileName = apiName + '.yaml';
-        await this._page.getByLabel(apiFileName, { exact: true }).getByText(apiFileName).click();
-        console.log("Clicked on API file");
-        await this._page.getByLabel('Service Designer, Editor Group').getByLabel('Close (⌘W)').click();
-        console.log("Closed Service Designer");
-        const swaggerView = await switchToIFrame('Swagger View', this._page);
-        if (!swaggerView) {
-            throw new Error("Failed to switch to Swagger View iframe");
+        const webviewFrame = this._page.locator('iframe.webview.ready').nth(1);
+        await webviewFrame.waitFor();
+        const frame = webviewFrame.contentFrame();
+        if (!frame) {
+            throw new Error(`IFrame of Swagger View not found`);
         }
-        console.log("Switched to Swagger View iframe");
+        const targetFrame = frame.locator(`iframe[title="Swagger View"]`);
+        await targetFrame.waitFor();
+        const swaggerView = targetFrame.contentFrame();
+        if (!swaggerView) {
+            throw new Error(`IFrame of Swagger View not found`);
+        }
         const swaggerFrame = swaggerView.locator('div#root');
-        await swaggerFrame.getByLabel('get /', { exact: true }).click();
-        console.log("Clicked on GET /");
-        await swaggerFrame.getByRole('button', { name: 'Try it out' }).click();
-        console.log("Clicked on Try it out");
-        await swaggerFrame.getByRole('button', { name: 'Execute' }).click();
-        console.log("Clicked on Execute");
+        await swaggerFrame.waitFor();
+        const getRes = swaggerFrame.getByRole('button', { name: 'GET /', exact: true });
+        await getRes.waitFor();
+        await getRes.click();
+        await swaggerView.getByRole('button', { name: 'Try it out' }).click();
+        await swaggerView.getByRole('button', { name: 'Execute' }).click();
         await this._page.getByLabel('Swagger View, Editor Group').getByLabel('Close (⌘W)').click();
-        console.log("Closed Swagger View");
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         console.log("Navigated to project overview");
