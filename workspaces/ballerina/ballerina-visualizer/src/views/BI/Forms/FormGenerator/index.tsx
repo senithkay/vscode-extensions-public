@@ -596,7 +596,7 @@ export function FormGenerator(props: FormProps) {
     ) => {
         const handleCreateNewType = (typeName: string) => {
             closeCompletions();
-            setTypeEditorState({ isOpen: true, newTypeValue: typeName });
+            setTypeEditorState({ isOpen: true, newTypeValue: typeName, fieldKey: fieldKey });
         }
 
         return getTypeHelper({
