@@ -78,7 +78,7 @@ export function NewTool(props: NewToolProps): JSX.Element {
             await new Promise((resolve) => setTimeout(resolve, 2000));
 
             // add tools
-            if (data.selectedCodeData.node === "FUNCTION_CALL" && !data.selectedCodeData.org) {
+            if (data.selectedCodeData.node === "FUNCTION_CALL") {
                 // create tool from existing function
                 // get function definition
                 const functionDefinition = await rpcClient.getBIDiagramRpcClient().getFunctionNode({
@@ -104,35 +104,6 @@ export function NewTool(props: NewToolProps): JSX.Element {
                     description: data.description,
                     filePath: agentFilePath.current,
                     flowNode: functionDefinition.functionDefinition as FlowNode,
-                    connection: "",
-                });
-                console.log(">>> response save tool", { toolResponse });
-            } else if (data.selectedCodeData.node === "FUNCTION_CALL" && data.selectedCodeData.org) {
-                // create tool from library function
-                // get function definition
-                const nodeTemplate = await rpcClient.getBIDiagramRpcClient().getNodeTemplate({
-                    position: { line: 0, offset: 0 },
-                    filePath: agentFilePath.current,
-                    id: data.selectedCodeData,
-                });
-                console.log(">>> node template", { nodeTemplate });
-                if (!nodeTemplate.flowNode) {
-                    console.error("Node template not found");
-                    return;
-                }
-                if (nodeTemplate.flowNode?.codedata) {
-                    nodeTemplate.flowNode.codedata.isNew = true;
-                    nodeTemplate.flowNode.codedata.lineRange = {
-                        ...agentNode.codedata.lineRange,
-                        endLine: agentNode.codedata.lineRange.startLine,
-                    };
-                }
-                // save tool
-                const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
-                    toolName: data.toolName,
-                    description: data.description,
-                    filePath: agentFilePath.current,
-                    flowNode: nodeTemplate.flowNode,
                     connection: "",
                 });
                 console.log(">>> response save tool", { toolResponse });

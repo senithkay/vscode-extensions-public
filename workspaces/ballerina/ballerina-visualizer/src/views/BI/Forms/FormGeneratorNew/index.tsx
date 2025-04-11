@@ -39,6 +39,7 @@ import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, The
 import {
     convertBalCompletion,
     convertToVisibleTypes,
+    getImportsForFormFields,
     getInfoFromExpressionValue,
     removeDuplicateDiagnostics,
     updateLineRange
@@ -126,6 +127,7 @@ export function FormGeneratorNew(props: FormProps) {
     useEffect(() => {
         if (fields) {
             setFields(fields);
+            setFormImports(getImportsForFormFields(fields));
         }
     }, [fields]);
 

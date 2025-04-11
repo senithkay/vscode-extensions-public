@@ -10,7 +10,7 @@ This document explains the behavior of file history handling in the `CodeSegment
   - **Behavior**:  
     - A new entry is added to `FileHistory` with:
       - `filepath`: The file's name.
-      - `content`: The original content of the file (or `"null"` if the file does not exist).
+      - `content`: The original content of the file (or `"notExists"` if the file does not exist).
       - `timestamp`: The current timestamp.
       - `currentAddedfFromChatIndex`: The index of the code segment being added.
       - `maxAddedFromChatIndex`: Initially the same as `currentAddedfFromChatIndex`.
@@ -33,8 +33,8 @@ This document explains the behavior of file history handling in the `CodeSegment
 - **File Found in History**:  
   Reverts the file to its last checkpoint.  
   - **Behavior**:  
-    - If `content` is not `"null"`, revert the file to the stored content.
-    - If `content` is `"null"`, delete the file from the workspace.
+    - If `content` is not `"notExists"`, revert the file to the stored content.
+    - If `content` is `"notExists"`, delete the file from the workspace.
     - Reset `currentAddedfFromChatIndex` to `-1` (indicating no association with the current code segment).
     - Update `maxAddedFromChatIndex` to the current index.
 
@@ -58,7 +58,7 @@ A file is **revertable** if:
   File content is fetched via `rpcClient` and stored in the `content` property of `FileHistory`.
 
 - **Writing or Deleting Files**:  
-  - On revert, write the file with `FileHistory` content or delete it if `content` is `"null"`.
+  - On revert, write the file with `FileHistory` content or delete it if `content` is `"notExists"`.
   - Refresh the project explorer and open the project overview after reverting.
 
 ---
@@ -76,7 +76,7 @@ A file is **revertable** if:
 
 ## Summary of Key Properties in `FileHistory`
 - **`filepath`**: The file's name.
-- **`content`**: The original content of the file (or `"null"` if the file does not exist).
+- **`content`**: The original content of the file (or `"notExists"` if the file does not exist).
 - **`timestamp`**: The time the file was added to `FileHistory`.
 - **`currentAddedfFromChatIndex`**: The index of the code segment that last added or updated the file.
 - **`maxAddedFromChatIndex`**: The highest index of any code segment that added or updated the file.
