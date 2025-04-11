@@ -77,8 +77,9 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
     // Current project structure
     const currentProjectStructure: ProjectStructureResponse = StateMachine.context().projectStructure;
     if (publishedArtifacts && currentProjectStructure) {
-        const tmpUri = URI.file(tmpdir()).toString();
-        if (publishedArtifacts.uri.includes(tmpUri)) {
+        const tmpUri = URI.file(tmpdir());
+        const publishedArtifactsUri = URI.parse(publishedArtifacts.uri);
+        if (publishedArtifactsUri.path.toLowerCase().includes(tmpUri.path.toLowerCase())) {
             // Skip the temp dirs
             return;
         }
