@@ -80,14 +80,27 @@ export class DataMapper {
     public async importSchema(ioType: IOType, schemaType: SchemaType, schemaFile: string) {
         const importNode = this.webView.getByTestId(`${ioType}-data-import-node`);
         // const importNode = this.webView.getByText(`Import ${ioType} schema`);
-
         await importNode.waitFor();
         await importNode.click();
 
+        await this.fillImportForm(schemaType, schemaFile);
+
+        await importNode.waitFor({ state: 'detached' });
+    }
+
+    public async editSchema(ioType: IOType, schemaType: SchemaType, schemaFile: string) {
+        const editButton = this.webView.getByTestId(`change-${ioType}-schema-btn`);
+        await editButton.click()
+        await this.fillImportForm(schemaType, schemaFile);
+        await page.page.getByRole('button', { name: 'Yes' }).click();
+        await editButton.waitFor({ state: 'detached' });
+        await editButton.waitFor({ state: 'attached' });
+    }
+
+    private async fillImportForm(schemaType: SchemaType, schemaFile: string) {
         const importForm = new ImportForm(this.webView);
         await importForm.init();
         await importForm.importData(schemaType, fs.readFileSync(path.join(dmDataFolder, schemaFile), 'utf8'));
-        await importNode.waitFor({ state: 'detached' });
     }
 
     public async loadJsonFromCompFolder(category: string) {
