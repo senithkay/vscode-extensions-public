@@ -86,7 +86,7 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
         StateMachine.setReadyMode();
         // Skip if the user is in diagram view
         const currentView = StateMachine.context().view;
-        const skipOpeningViews = [MACHINE_VIEW.BIDiagram, MACHINE_VIEW.ServiceDesigner, MACHINE_VIEW.GraphQLDiagram];
+        const skipOpeningViews = [MACHINE_VIEW.BIDiagram, MACHINE_VIEW.ServiceDesigner, MACHINE_VIEW.GraphQLDiagram, MACHINE_VIEW.DataMapper];
         if (entryLocation) {
             const location: VisualizerLocation = {
                 documentUri: entryLocation?.path,
