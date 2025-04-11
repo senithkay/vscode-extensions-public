@@ -138,12 +138,12 @@ export class API {
         }
         console.log("Switched to Service Designer iframe");
         const serviceDesignerFrame = desWebView.locator('div#root');
-        serviceDesignerFrame.getByRole('button', { name: ' OpenAPI Spec' }).click();
-        const xmlFile =this._page.getByLabel(`${apiName}.yaml`, { exact: true }).getByText(`${apiName}.yaml`);
-        await xmlFile.waitFor();
-        await xmlFile.click();
+        await serviceDesignerFrame.getByRole('button', { name: ' OpenAPI Spec' }).click();
+        const apiFileName = apiName + '.yaml';
+        await this._page.getByLabel(apiFileName, { exact: true }).getByText(apiFileName).click();
+        await this._page.getByRole('tab', { name: `${apiFileName}, Editor Group` }).getByLabel('Close (⌘W)').click();
+        await this._page.getByRole('button', { name: 'Save', exact: true }).click();
         await this._page.getByLabel('Service Designer, Editor Group').getByLabel('Close (⌘W)').click();
-        console.log("Clicked on OpenAPI Spec");
         const swaggerView = await switchToIFrame('Swagger View', this._page);
         if (!swaggerView) {
             throw new Error("Failed to switch to Swagger View iframe");
