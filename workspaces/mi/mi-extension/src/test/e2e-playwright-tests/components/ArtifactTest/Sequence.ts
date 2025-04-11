@@ -92,7 +92,7 @@ export class Sequence {
             sequenceFrame = seqWebview.locator('div#root');
         }
   
-        await seqFrame.waitFor();
+        await sequenceFrame.waitFor();
         await sequenceFrame.getByRole('textbox', { name: 'Name*' }).fill(sequenceName);
         await sequenceFrame.getByTestId('create-button').click();
 
