@@ -12,7 +12,7 @@ import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vsc
 import { AddArtifact } from "../AddArtifact";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
-import { copyFile } from "../../Utils";
+import { closeEditorGroup, copyFile } from "../../Utils";
 import path from "path";
 import os from "os";
 
@@ -168,6 +168,11 @@ export class API {
         console.log("Clicked on try it out");
         await swaggerView.getByRole('button', { name: 'Execute' }).click();
         console.log("Clicked on execute");
+        closeEditorGroup();
+        const saveBtn = this._page.getByRole('button', { name: 'Save', exact: true });
+        await saveBtn.waitFor();
+        console.log("Waiting for save button");
+        await saveBtn.click();
 
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
