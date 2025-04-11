@@ -224,6 +224,11 @@ const stateMachine = createMachine<MachineContext>(
                     commands.executeCommand('setContext', 'BI.status', 'loadingDone');
                     if (!ls.biSupported) {
                         commands.executeCommand('setContext', 'BI.status', 'updateNeed');
+                        if (ls.ballerinaHome.includes("ballerina-home")) {
+                            commands.executeCommand('setContext', 'BI.distribution', 'setByBI');
+                        } else {
+                            commands.executeCommand('setContext', 'BI.distribution', 'setByUser');
+                        }
                     }
                     resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
                 } catch (error) {

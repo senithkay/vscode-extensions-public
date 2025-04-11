@@ -130,6 +130,7 @@ export interface VisualizerMetadata {
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
     target?: LinePosition;
+    distributionSetBy?: "setByBI" | "setByUser";
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

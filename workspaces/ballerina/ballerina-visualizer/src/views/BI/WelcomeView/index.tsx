@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
@@ -17,6 +17,8 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 const Wrapper = styled.div`
     max-width: 660px;
     margin: 80px 120px;
+    height: calc(100vh - 160px);
+    overflow-y: auto;
 `;
 
 const Headline = styled.div`
@@ -119,6 +121,15 @@ type WelcomeViewProps = {
 
 export function WelcomeView(props: WelcomeViewProps) {
     const { rpcClient } = useRpcContext();
+    const [showUpdateButton, setShowUpdateButton] = useState(false);
+
+    useEffect(() => {
+        rpcClient.getVisualizerLocation().then((value) => {
+            if (value.metadata?.distributionSetBy === "setByBI") {
+                setShowUpdateButton(true);
+            }
+        });
+    }, []);
 
     const goToCreateProject = () => {
         rpcClient.getVisualizerRpcClient().openView({
@@ -184,13 +195,18 @@ export function WelcomeView(props: WelcomeViewProps) {
                             <Option>
                                 <OptionTitle>Update to Ballerina 2201.12.3</OptionTitle>
                                 <StepDescription>
-                                    Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.
+                                    Your current Ballerina distribution is not supported. Please update to version 2201.12.3 or above.
                                 </StepDescription>
-                                <StyledButton appearance="primary" onClick={updateBallerina}>
-                                    <ButtonContent>
-                                        Update Now
-                                    </ButtonContent>
-                                </StyledButton>
+                                {showUpdateButton &&
+                                    <StyledButton appearance="primary" onClick={updateBallerina}>
+                                        <ButtonContent>
+                                            Update Now
+                                        </ButtonContent>
+                                    </StyledButton>
+                                }
+                                <StepDescription style={{ marginTop: 10 }}>
+                                    <strong>Please restart VS Code after updating the Ballerina distribution.</strong>
+                                </StepDescription>
                             </Option>
                         }
                     </Column>
