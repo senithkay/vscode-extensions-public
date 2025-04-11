@@ -143,10 +143,6 @@ export class API {
         const apiFileName = apiName + '.yaml';
         await this._page.getByLabel(apiFileName, { exact: true }).getByText(apiFileName).click();
         console.log("Clicked on API file");
-        await this._page.getByRole('tab', { name: `${apiFileName}, Editor Group` }).getByLabel('Close (⌘W)').click();
-        console.log("Closed API file");
-        await this._page.getByRole('button', { name: 'Save', exact: true }).click();
-        console.log("Clicked on Save");
         await this._page.getByLabel('Service Designer, Editor Group').getByLabel('Close (⌘W)').click();
         console.log("Closed Service Designer");
         const swaggerView = await switchToIFrame('Swagger View', this._page);
