@@ -51,6 +51,7 @@ import {
     convertToFnSignature,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
+    filterUnsupportedDiagnostics,
     getFormProperties,
     getImportsForFormFields,
     getInfoFromExpressionValue,
@@ -486,7 +487,13 @@ export function FormGenerator(props: FormProps) {
                         },
                     });
     
-                    const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                    let uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+
+                    // HACK: filter unknown module and undefined type diagnostics for local connections
+                    if (node.codedata.isGenerated) {
+                        uniqueDiagnostics = filterUnsupportedDiagnostics(uniqueDiagnostics);
+                    }
+
                     setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
                 } catch (error) {
                     // Remove diagnostics if LS crashes
