@@ -19,7 +19,8 @@ export interface FormFillProps {
                 [key: string]: any
             }
         }
-    }
+    },
+    enabledFields?: string[];
 }
 
 export interface ParamManagerValues {
@@ -71,7 +72,7 @@ export class Form {
     }
 
     public async fill(props: FormFillProps) {
-        const { values } = props;
+        const { values, enabledFields } = props;
         if (values) {
             const keys = Object.keys(values);
             for (let i = 0; i < keys.length; i++) {
@@ -164,6 +165,20 @@ export class Form {
                 }
             }
         }
+        if (enabledFields) {
+            for (let i = 0; i < enabledFields.length; i++) {
+                const key = enabledFields[i];
+                const enabledField = this.container.locator(`label:text("${key}")`);
+                await enabledField.waitFor();
+            }
+        }
+    }
+
+    public async clickAddNewForField(key: string) {
+        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../..');
+        await parentDiv.waitFor();
+        const addNewBtn = parentDiv.locator('div:text("Add New")');
+        await addNewBtn.click();
     }
 
     public async getInputValue(key: string) {

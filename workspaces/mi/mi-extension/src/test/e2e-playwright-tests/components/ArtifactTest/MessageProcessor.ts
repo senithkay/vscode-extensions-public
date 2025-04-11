@@ -102,7 +102,7 @@ export class MessageProcessor {
                 },
                 'Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Sampling Interval (Millis)': {
@@ -165,7 +165,7 @@ export class MessageProcessor {
                 },
                 'Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Sampling Interval (Millis)': {
@@ -248,12 +248,12 @@ export class MessageProcessor {
                 },
                 'Fault Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
@@ -279,7 +279,7 @@ export class MessageProcessor {
                 },
                 'Reply Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Fail Message Store': {
@@ -367,12 +367,12 @@ export class MessageProcessor {
                 },
                 'Fault Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
@@ -398,7 +398,7 @@ export class MessageProcessor {
                 },
                 'Reply Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Fail Message Store': {
@@ -482,12 +482,12 @@ export class MessageProcessor {
                 },
                 'Fault Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
@@ -578,12 +578,12 @@ export class MessageProcessor {
                 },
                 'Fault Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
