@@ -25,6 +25,7 @@ import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler'
 import { AiPanelWebview } from './views/ai-panel/webview';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import path from 'path';
+import * as fs from 'fs';
 import { StateMachinePopup } from './stateMachinePopup';
 import { registerAiAgentRpcHandlers } from './rpc-managers/ai-agent/rpc-handler';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
@@ -94,6 +95,7 @@ export class RPCLayer {
 
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
+    const realPath = fs.realpathSync(ballerinaExtInstance.ballerinaHome);
     return new Promise((resolve) => {
         resolve({
             documentUri: context.documentUri,
@@ -113,7 +115,7 @@ async function getContext(): Promise<VisualizerLocation> {
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
                 target: context.metadata?.target,
-                distributionSetBy: ballerinaExtInstance.ballerinaHome.includes("ballerina-home") ? "setByBI" : "setByUser"
+                distributionSetBy: realPath.includes("ballerina-home") ? "setByBI" : "setByUser"
             },
             scope: context.scope,
         });

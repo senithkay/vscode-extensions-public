@@ -9,6 +9,7 @@ import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'v
 import { notifyCurrentWebview, RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 import * as path from 'path';
+import * as fs from 'fs';
 import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
@@ -224,7 +225,8 @@ const stateMachine = createMachine<MachineContext>(
                     commands.executeCommand('setContext', 'BI.status', 'loadingDone');
                     if (!ls.biSupported) {
                         commands.executeCommand('setContext', 'BI.status', 'updateNeed');
-                        if (ls.ballerinaHome.includes("ballerina-home")) {
+                        const realPath = fs.realpathSync(ls.ballerinaHome);
+                        if (realPath.includes("ballerina-home")) {
                             commands.executeCommand('setContext', 'BI.distribution', 'setByBI');
                         } else {
                             commands.executeCommand('setContext', 'BI.distribution', 'setByUser');
