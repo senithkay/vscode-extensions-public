@@ -23,7 +23,6 @@ s21I: string[][]
 }
 
 /*
-* title : "root",
 * outputType : "JSON",
 */
 interface OutputRoot {
@@ -48,7 +47,7 @@ s21O: string[]
 
 
 /**
- * functionName : map_S_root_S_root
+ * functionName : map_S_root_S_Root
  * inputVariable : inputroot
 */
 export function mapFunction(input: Root): OutputRoot {
