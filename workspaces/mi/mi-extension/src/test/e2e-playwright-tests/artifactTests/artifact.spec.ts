@@ -65,7 +65,7 @@ export default function createTests() {
       });
       await test.step('Open Diagram View for API', async () => {
         console.log('Opening Diagram View for API');
-        await api.openDiagramView('TestAPI', true);
+        await api.openDiagramView("TestAPI" + testAttempt);
       });
       await test.step('Edit API', async () => {
         console.log('Editing API');
@@ -137,7 +137,7 @@ export default function createTests() {
       });
       await test.step('Open Diagram View for Proxy', async () => {
         console.log('Opening Diagram View for Proxy');
-        await sequence.openDiagramView("seqEP" + testAttempt, true);
+        await sequence.openDiagramView("seqEP" + testAttempt);
       });
       await test.step('Edit Sequence', async () => {
         console.log('Editing Sequence');
@@ -363,7 +363,7 @@ export default function createTests() {
       });
       await test.step('Open Diagram View of Proxy', async () => {
         console.log('Opening Diagram View of Proxy');
-        await proxyService.openDiagramView("testProxyService" + testAttempt, true);
+        await proxyService.openDiagramView("testProxyService" + testAttempt);
       });
       await test.step('Edit Proxy Service', async () => {
         console.log('Editing Proxy Service');
@@ -377,7 +377,7 @@ export default function createTests() {
         await importArtifact.init();
         await importArtifact.import(filePath);
         const api = new API(page.page);
-        await api.openDiagramView('importApi', true);
+        await api.openDiagramView('importApi');
       });
     });
   });

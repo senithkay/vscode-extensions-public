@@ -274,10 +274,13 @@ export class API {
         console.log("Switched to Service Designer iframe");
     }
 
-    public async openDiagramView(name: string, click: boolean = false) {
+    public async openDiagramView(name: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'APIs'], click);
+        const isExpanded = await page.page.locator('a').filter({ hasText: name }).first().isVisible();
+        if (isExpanded === false) {
+            await projectExplorer.findItem(['Project testProject', 'APIs'], true);
+        }
         await page.page.locator('a').filter({ hasText: name }).first().click();
         await this._page.getByRole('treeitem', { name: /^\// }).locator('a').first().click();
         const webView = await switchToIFrame('Resource View', this._page);
