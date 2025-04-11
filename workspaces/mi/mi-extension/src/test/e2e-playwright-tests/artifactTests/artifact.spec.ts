@@ -30,6 +30,7 @@ export default function createTests() {
 
     let currentTaskName: string = "TestTask";
     let automation: Automation;
+    let apiName: string;
     test('Automation tests', async ({ }, testInfo) => {
       const testAttempt = testInfo.retry + 1;
       await test.step('Add Automation', async () => {
@@ -53,11 +54,13 @@ export default function createTests() {
         console.log('Creating new API');
         api = new API(page.page);
         await api.init();
-        await api.addAPI("TestAPI" + testAttempt, "/testAdd" + testAttempt);
+        apiName = "TestAPI" + testAttempt;
+        await api.addAPI(apiName, "/testAdd" + testAttempt);
       });
       await test.step('Edit API', async () => {
         console.log('Editing API');
-        await api.editAPI("NewTestAPI" + testAttempt, "/newtest" + testAttempt);
+        apiName = "NewTestAPI" + testAttempt;
+        await api.editAPI(apiName, "/newtest" + testAttempt);
       });
 
       await test.step('Add Resource', async () => {
@@ -67,6 +70,10 @@ export default function createTests() {
       await test.step('Edit Resource', async () => {
         console.log('Editing Resource');
         await api.editResource();
+      });
+      await test.step('Go to swagger view', async () => {
+        console.log('Navigating to swagger view');
+        await api.goToSwaggerView();
       });
       await test.step('Delete Resource', async () => {
         console.log('Deleting Resource');
@@ -111,6 +118,22 @@ export default function createTests() {
       await test.step('Edit load balance Endpoint', async () => {
         console.log('Editing load balance Endpoint');
         await lb.editLoadBalanceEndpoint("loadBalanceEP" + testAttempt, "loadBalanceEndpoint" + testAttempt);
+      });
+      await test.step('Add failover Endpoint', async () => {
+        console.log('Creating new failover Endpoint');
+        await lb.addFailoverEndpoint("failoverEP" + testAttempt);
+      });
+      await test.step('Edit failover Endpoint', async () => {
+        console.log('Editing failover Endpoint');
+        await lb.editFailoverEndpoint("failoverEP" + testAttempt, "newFailoverEP" + testAttempt);
+      });
+      await test.step('Add Recipient List Endpoint', async () => {
+        console.log('Creating new Recipient List Endpoint');
+        await lb.addRecipientListEndpoint("recipientListEP" + testAttempt);
+      });
+      await test.step('Edit Recipient List Endpoint', async () => {
+        console.log('Editing Recipient List Endpoint');
+        await lb.editRecipientListEndpoint("recipientListEP" + testAttempt, "newRecipientListEP" + testAttempt);
       });
     });
 
@@ -190,6 +213,14 @@ export default function createTests() {
       await test.step('Edit Data Source', async () => {
         console.log('Editing Data Source');
         await dataSource.edit("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
+      });
+      await test.step('Add Data source from side panel', async () => {
+        console.log('Creating new Data Source from side panel');
+        await dataSource.addCustomDataSourceFromSidepanel("testDataSource" + testAttempt);
+      });
+      await test.step('Edit Data source from side panel', async () => {
+        console.log('Editing Data Source from side panel');
+        await dataSource.editCustomDataSource("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
       });
 
       await test.step('Add Data Service', async () => {
