@@ -168,8 +168,7 @@ export class API {
         console.log("Clicked on try it out");
         await swaggerView.getByRole('button', { name: 'Execute' }).click();
         console.log("Clicked on execute");
-        await this._page.getByLabel('Swagger View, Editor Group').getByLabel('Close (⌘W)').click();
-        console.log("Closed swagger view");
+
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         console.log("Navigated to project overview");
