@@ -52,7 +52,6 @@ export async function handleAddtoWorkspace(rpcClient: RpcClientType, codeBlocks:
     await rpcClient.getMiDiagramRpcClient().writeContentToFile({ content: codeBlocks })
 
     rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
-    rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.open-project-overview"] });
 };    
 
 // Add a selected code to the workspace
@@ -62,7 +61,6 @@ export async function handleAddSelectiveCodetoWorkspace(rpcClient: RpcClientType
         await rpcClient.getMiDiagramRpcClient().writeContentToFile({ content: selectiveCodeBlocks })
 
         rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });   
-        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.open-project-overview"] }); 
     };
 
 export function getStatusText(status: number) {
