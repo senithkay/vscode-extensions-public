@@ -131,6 +131,41 @@ export class API {
         await frame.getByRole('button', { name: 'Update' }).click();
     }
 
+    public async goToSwaggerView() {
+        const desWebView = await switchToIFrame('Service Designer', this._page);
+        if (!desWebView) {
+            throw new Error("Failed to switch to Service Designer iframe");
+        }
+        console.log("Switched to Service Designer iframe");
+        const serviceDesignerFrame = desWebView.locator('div#root');
+        serviceDesignerFrame.getByRole('button', { name: ' OpenAPI Spec' }).click();
+        await this._page.getByLabel('NewTestAPI1.yaml', { exact: true }).getByLabel('Close (⌘W)').click();
+        await this._page.getByRole('button', { name: 'Save', exact: true }).click();
+        await this._page.getByLabel('Service Designer, Editor Group').getByLabel('Close (⌘W)').click();
+        console.log("Clicked on OpenAPI Spec");
+        const swaggerView = await switchToIFrame('Swagger View', this._page);
+        if (!swaggerView) {
+            throw new Error("Failed to switch to Swagger View iframe");
+        }
+        console.log("Switched to Swagger View iframe");
+        const swaggerFrame = swaggerView.locator('div#root');
+        await swaggerFrame.getByLabel('get /', { exact: true }).click();
+        console.log("Clicked on GET /");
+        await swaggerFrame.getByRole('button', { name: 'Try it out' }).click();
+        console.log("Clicked on Try it out");
+        await swaggerFrame.getByRole('button', { name: 'Execute' }).click();
+        console.log("Clicked on Execute");
+        await this._page.getByLabel('Swagger View, Editor Group').getByLabel('Close (⌘W)').click();
+        console.log("Closed Swagger View");
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        await this._page.getByLabel('Open Service Designer').click();
+    }
+
     public async deleteResource() {
         const desWebView = await switchToIFrame('Service Designer', this._page);
         if (!desWebView) {
@@ -153,8 +188,10 @@ export class API {
         await this._page.getByLabel('Open Project Overview').click();
         console.log("Clicked on open project overview");
         await webview.locator('vscode-button > svg').first().click();
+        const deleteBtn = webview.getByText('Delete');
         console.log("Clicked on delete API");
-        await webview.getByText('Delete').click();
+        await deleteBtn.waitFor();
+        await deleteBtn.click();
         console.log("Clicked on delete");
     }
 
