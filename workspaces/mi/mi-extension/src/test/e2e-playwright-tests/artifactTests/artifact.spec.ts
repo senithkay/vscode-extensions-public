@@ -73,7 +73,7 @@ export default function createTests() {
       });
       await test.step('Go to swagger view', async () => {
         console.log('Navigating to swagger view');
-        await api.goToSwaggerView();
+        await api.goToSwaggerView(apiName);
       });
       await test.step('Delete Resource', async () => {
         console.log('Deleting Resource');
@@ -323,11 +323,11 @@ export default function createTests() {
         console.log('Creating new Local Entry');
         localEntry = new LocalEntry(page.page);
         await localEntry.init();
-        await localEntry.addLocalEntry("localEntry" + testAttempt);
+        await localEntry.addInlineTextLocalEntry("localEntry" + testAttempt);
       });
       await test.step('Edit Local Entry', async () => {
         console.log('Editing Local Entry');
-        await localEntry.editLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
+        await localEntry.editInlineTextLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
       });
     });
 

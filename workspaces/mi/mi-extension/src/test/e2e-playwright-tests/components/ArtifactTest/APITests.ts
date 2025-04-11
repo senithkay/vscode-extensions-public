@@ -131,7 +131,7 @@ export class API {
         await frame.getByRole('button', { name: 'Update' }).click();
     }
 
-    public async goToSwaggerView() {
+    public async goToSwaggerView(apiName: string) {
         const desWebView = await switchToIFrame('Service Designer', this._page);
         if (!desWebView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -139,8 +139,9 @@ export class API {
         console.log("Switched to Service Designer iframe");
         const serviceDesignerFrame = desWebView.locator('div#root');
         serviceDesignerFrame.getByRole('button', { name: ' OpenAPI Spec' }).click();
-        await this._page.getByLabel('NewTestAPI1.yaml', { exact: true }).getByLabel('Close (⌘W)').click();
-        await this._page.getByRole('button', { name: 'Save', exact: true }).click();
+        const xmlFile =this._page.getByLabel(`${apiName}.yaml`, { exact: true }).getByText(`${apiName}.yaml`);
+        await xmlFile.waitFor();
+        await xmlFile.click();
         await this._page.getByLabel('Service Designer, Editor Group').getByLabel('Close (⌘W)').click();
         console.log("Clicked on OpenAPI Spec");
         const swaggerView = await switchToIFrame('Swagger View', this._page);
