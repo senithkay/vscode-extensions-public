@@ -235,7 +235,7 @@ export class DataMapper {
     }
 
     public resetTsFile() {
-        this.overwriteTsFile(path.join(dmDataFolder, 'reset.ts.cmp'));
+        this.overwriteTsFile(path.join(dmDataFolder, 'reset.ts'));
     }
 
 }

@@ -29,6 +29,7 @@ export default function createTests() {
     if (NEED_INITIAL_SETUP) setupProject();
     testBasicMappings();
     testArrayMappings();
+    testImportOptions();
     
    
     function setupProject() {
@@ -82,7 +83,7 @@ export default function createTests() {
 
         await clearNotificationsByCloseButton(page);
 
-        console.log('- Load schemas for Basic Mappings');
+        console.log('- Load schemas from JSON data');
 
         if (NEED_INITIAL_SETUP) {
           const diagram = new Diagram(page.page, 'Resource');
@@ -91,15 +92,13 @@ export default function createTests() {
           dm = new DataMapper(page.page, DM_NAME);
           await dm.init();
           await dm.loadJsonFromCompFolder('basic');
-          expect(dm.verifyTsFileContent('basic/init.ts.cmp')).toBeTruthy();
+          expect(dm.verifyTsFileContent('basic/init.ts')).toBeTruthy();
         } else {
           const projectExplorer = new ProjectExplorer(page.page);
           await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
           dm = new DataMapper(page.page, DM_NAME);
           await dm.init();
         }
-
-        
 
         const dmWebView = dm.getWebView();
 
@@ -221,7 +220,7 @@ export default function createTests() {
         await editorTab.locator('.codicon-close').click();
         await editorTab.waitFor({ state: 'detached' });
 
-        expect(dm.verifyTsFileContent('basic/map.ts.cmp')).toBeTruthy();
+        expect(dm.verifyTsFileContent('basic/map.ts')).toBeTruthy();
         
         // await dmWebView.locator('#nav-bar-main').locator('vscode-button[title="Go Back"]').click();
         // await page.page.getByRole('tab', { name: 'Resource View' }).waitFor();
@@ -238,45 +237,34 @@ export default function createTests() {
     function testArrayMappings() {
       test('Test Array Mappings', async () => {
 
+        // await page.page.getByRole('tab', { name: 'Project Overview' }).waitFor();
+
         console.log('Testing Array Mappings');
 
-        let dm: DataMapper;
         const DM_NAME = 'dm';
 
+        const projectExplorer = new ProjectExplorer(page.page);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
+        const dm = new DataMapper(page.page, DM_NAME);
+        await dm.init();
+
+        console.log('- Load input schemas from JSON data');
+        await dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
+
+        console.log('- Load output schemas from JSON schema');
+        await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out.schema.json');
+
+        expect(dm.verifyTsFileContent('array/init.ts')).toBeTruthy();
        
-
-        if (NEED_INITIAL_SETUP && false) {
-          const diagram = new Diagram(page.page, 'Resource');
-          await diagram.init();
-          await diagram.openDataMapperFromTreeView(DM_NAME);
-          dm = new DataMapper(page.page, DM_NAME);
-          await dm.init();
-          await dm.loadJsonFromCompFolder('array');
-          expect(dm.verifyTsFileContent('array/init.ts.cmp')).toBeTruthy();
-        } else {
-          const projectExplorer = new ProjectExplorer(page.page);
-          await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
-          dm = new DataMapper(page.page, DM_NAME);
-          await dm.init();
-          await dm.loadJsonFromCompFolder('array');
-          expect(dm.verifyTsFileContent('array/init.ts.cmp')).toBeTruthy();
-        }
-
-       
-
-
-
         const dmWebView = dm.getWebView();
 
-        // await dmWebView.getByTestId('change-input-schema-btn').click();
-        // dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
-
-
+        console.log('- Test direct');
         // primitive direct array mapping
         await dm.mapFields('input.d1I', 'objectOutput.d1O','menu-item-a2a-direct');
         await dm.waitForProgressEnd();
         await dmWebView.getByTestId('link-from-input.d1I.OUT-to-objectOutput.d1O.IN').waitFor({ state: 'attached' });
 
+        console.log('- Test mapping function');
         // primitive array mapping with mapping function
         await dm.mapFields('input.m1I', 'objectOutput.m1O','menu-item-a2a-inner');
 
@@ -301,6 +289,7 @@ export default function createTests() {
         await dm.gotoPreviousView();
 
 
+        console.log('- Test init');
         // Initialize 1d array and map
         await dm.selectConfigMenuItem('objectOutput.i1O', 'Initialize Array With Element');
        
@@ -329,6 +318,8 @@ export default function createTests() {
         await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN').waitFor({ state: 'attached' });
 
         // working
+
+        dm.resetTsFile();
 
         return;
 
@@ -395,7 +386,7 @@ export default function createTests() {
         await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
         await dmWebView.getByTestId('dm-header-breadcrumb-0').waitFor({ state: 'detached' });
 
-        expect(dm.verifyTsFileContent('array/map.ts.cmp')).toBeTruthy();
+        expect(dm.verifyTsFileContent('array/map.ts')).toBeTruthy();
 
         if (NEED_INITIAL_SETUP) {
           await dmWebView.locator('vscode-button[title="Go Back"]').click();
@@ -404,7 +395,35 @@ export default function createTests() {
       });
     }
 
-    function testCustomFunctions(){
+    function testImportOptions(){
+      test('Test Import Options', async () => {
+
+        // await page.page.getByRole('tab', { name: 'Project Overview' }).waitFor();
+
+        console.log('Testing Import Options');
+
+        const DM_NAME = 'dm';
+
+        const projectExplorer = new ProjectExplorer(page.page);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
+        const dm = new DataMapper(page.page, DM_NAME);
+        await dm.init();
+
+        console.log('- Load input schemas from XML');
+        await dm.importSchema(IOType.Input, SchemaType.Xml, 'schemas/data.xml');
+
+        console.log('- Load output schemas from CSV');
+        await dm.importSchema(IOType.Output, SchemaType.Csv, 'schemas/data.csv');
+
+        expect(dm.verifyTsFileContent('schemas/xml-csv.ts')).toBeTruthy();
+
+        console.log('- Load input schemas from XSD');
+        await dm.editSchema(IOType.Input, SchemaType.Xsd, 'schemas/schema.xsd');
+        
+        expect(dm.verifyTsFileContent('schemas/xsd-csv.ts')).toBeTruthy();
+
+      });
+      
 
     }
 
