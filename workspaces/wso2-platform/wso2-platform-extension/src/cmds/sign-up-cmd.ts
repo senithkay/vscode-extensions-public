@@ -24,7 +24,7 @@ export function signUpCommand(context: ExtensionContext) {
 				isRpcActive(ext);
 				getLogger().debug("Signing up to WSO2 Platform");
 				const callbackUrl = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.wso2-platform/signin`));
-				
+
 				let baseUrl: string | undefined;
 				if (webviewStateStore.getState().state?.extensionName === "Devant") {
 					baseUrl = `${choreoEnvConfig.getDevantUrl()}/signup`;

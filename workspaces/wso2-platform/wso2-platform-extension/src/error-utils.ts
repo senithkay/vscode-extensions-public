@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { commands, window as w } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
@@ -14,7 +15,6 @@ import { choreoEnvConfig } from "./config";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
 import { webviewStateStore } from "./stores/webview-state-store";
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export function handlerError(err: any) {
 	const extensionName = webviewStateStore.getState().state.extensionName;
@@ -63,7 +63,7 @@ export function handlerError(err: any) {
 				}
 				break;
 			case ErrorCode.ComponentNotFound:
-				w.showErrorMessage("Component not found");
+				w.showErrorMessage(`${extensionName === "Devant" ? "Integration" : "Component"} not found`);
 				break;
 			case ErrorCode.ProjectNotFound:
 				w.showErrorMessage("Project not found");
@@ -81,13 +81,14 @@ export function handlerError(err: any) {
 				);
 				break;
 			case ErrorCode.MaxComponentCountError:
-				w.showErrorMessage("Failed to create component due to reaching maximum number of components allowed within the free tier.", "Upgrade").then(
-					(res) => {
-						if (res === "Upgrade") {
-							commands.executeCommand("vscode.open", `${choreoEnvConfig.getBillingUrl()}/cloud/choreo/upgrade`);
-						}
-					},
-				);
+				w.showErrorMessage(
+					`Failed to create ${extensionName === "Devant" ? "integration" : "component"} due to reaching maximum number of ${extensionName === "Devant" ? "integrations" : "components"} allowed within the free tier.`,
+					"Upgrade",
+				).then((res) => {
+					if (res === "Upgrade") {
+						commands.executeCommand("vscode.open", `${choreoEnvConfig.getBillingUrl()}/cloud/choreo/upgrade`);
+					}
+				});
 				break;
 			case ErrorCode.EpYamlNotFound:
 				w.showErrorMessage(
@@ -101,16 +102,13 @@ export function handlerError(err: any) {
 				break;
 			case ErrorCode.InvalidSubPath:
 				w.showErrorMessage(
-					"Failed to create component. Please try again after synching your local repo directory changes with your remote directory.",
+					`Failed to create ${extensionName === "Devant" ? "integration" : "component"}. Please try again after synching your local repo directory changes with your remote directory.`,
 				);
 				break;
 			case ErrorCode.NoAccountAvailable:
-				w.showErrorMessage(
-					`It looks like you don't have an account yet. Please sign up before logging in.`,
-					`Sign Up`,
-				).then((res) => {
+				w.showErrorMessage(`It looks like you don't have an account yet. Please sign up before logging in.`, "Sign Up").then((res) => {
 					if (res === "Sign Up") {
-						commands.executeCommand(CommandIds.SignUp)
+						commands.executeCommand(CommandIds.SignUp);
 					}
 				});
 				break;

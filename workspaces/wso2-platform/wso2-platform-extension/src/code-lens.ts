@@ -23,11 +23,12 @@ class YAMLCodeLensProvider implements vscode.CodeLensProvider {
 	provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
 		const codeLenses: vscode.CodeLens[] = [];
 		const componentFsPath = path.dirname(path.dirname(document.uri.fsPath));
+		const extName = webviewStateStore.getState().state?.extensionName;
 
 		const addDependencyCmd: vscode.Command = {
 			title: "Add Connection",
 			command: CommandIds.CreateComponentDependency,
-			tooltip: `Add a new API connection to your ${webviewStateStore.getState().state.extensionName} component`,
+			tooltip: `Add a new API connection to your ${webviewStateStore.getState().state.extensionName} ${extName === "Devant" ? "integration" : "component"}`,
 			arguments: [{ componentFsPath, isCodeLens: true } as IViewDependencyCmdParams],
 		};
 

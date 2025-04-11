@@ -24,9 +24,10 @@ import { webviewStateStore } from "../stores/webview-state-store";
 export const selectComponent = async (
 	org: Organization,
 	project: Project,
-	loadingTitle = "Loading Components...",
-	selectTitle = "Select Component",
+	loadingTitle = "Loading Components/Integrations...",
+	selectTitle = "Select Component/Integrations",
 ): Promise<ComponentKind> => {
+	const extName = webviewStateStore.getState().state?.extensionName;
 	const selectedComponent = await quickPickWithLoader({
 		cacheQuickPicks: dataCacheStore
 			.getState()
@@ -42,24 +43,27 @@ export const selectComponent = async (
 			dataCacheStore.getState().setComponents(org.handle, project.handler, components);
 
 			if (!components || components.length === 0) {
-				throw new Error("You do not have any existing components in your project. Please retry after creating one.");
+				throw new Error(
+					`You do not have any existing ${extName === "Devant" ? "integrations" : "components"} in your project. Please retry after creating one.`,
+				);
 			}
 
 			return components.map((item) => ({ label: item.metadata.displayName, item }));
 		},
 		loadingTitle,
 		selectTitle,
-		placeholder: "Component Name",
+		placeholder: `${extName === "Devant" ? "Integration" : "Component"} Name`,
 	});
 
 	if (!selectedComponent) {
-		throw new Error("Failed to select component");
+		throw new Error(`Failed to select ${extName === "Devant" ? "integration" : "component"}`);
 	}
 
 	return selectedComponent;
 };
 
 export const selectProject = async (org: Organization, loadingTitle = "Loading projects...", selectTitle = "Select project"): Promise<Project> => {
+	const extName = webviewStateStore.getState().state?.extensionName;
 	const selectedProject = await quickPickWithLoader({
 		cacheQuickPicks: dataCacheStore
 			.getState()
@@ -70,7 +74,7 @@ export const selectProject = async (org: Organization, loadingTitle = "Loading p
 			dataCacheStore.getState().setProjects(org.handle, projects);
 
 			if (!projects || projects.length === 0) {
-				throw new Error("You do not have any existing components or projects. Please try creating one.");
+				throw new Error(`You do not have any existing ${extName === "Devant" ? "integrations" : "components"} or projects. Please try creating one.`);
 			}
 
 			return projects.map((item) => ({ label: item.name, detail: `Handle: ${item.handler}`, item }));
@@ -182,7 +186,7 @@ export const selectProjectWithCreateNew = async (
 		});
 
 		if (!newProjectName) {
-			throw new Error("New project name is required to create a component.");
+			throw new Error("New project name is required to proceed.");
 		}
 
 		const selectedProject = await window.withProgress(
@@ -301,7 +305,7 @@ export async function quickPickWithLoader<T>(params: {
 		})
 		.catch((err) => {
 			quickPick.dispose();
-			parentErr = err
+			parentErr = err;
 			throw err;
 		});
 	const selectedQuickPick = await new Promise((resolve) => {
@@ -312,7 +316,7 @@ export async function quickPickWithLoader<T>(params: {
 	quickPick.dispose();
 	const selectedT = (selectedQuickPick as QuickPickItem & { item?: T })?.item;
 
-	if(parentErr){
+	if (parentErr) {
 		throw parentErr;
 	}
 
@@ -327,12 +331,12 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 			`You are not logged into ${extensionName}.`,
 			{ modal: true, detail: `Please sign in or sign up to continue and ${message}. ` },
 			"Sign In",
-			"Sign Up"
+			"Sign Up",
 		);
 		if (loginSelection === "Sign In" || loginSelection === "Sign Up") {
-			if(loginSelection === "Sign In"){
+			if (loginSelection === "Sign In") {
 				await commands.executeCommand(CommandIds.SignIn);
-			}else if(loginSelection === "Sign Up"){
+			} else if (loginSelection === "Sign Up") {
 				await commands.executeCommand(CommandIds.SignUp);
 			}
 			userInfo = await waitForLogin();

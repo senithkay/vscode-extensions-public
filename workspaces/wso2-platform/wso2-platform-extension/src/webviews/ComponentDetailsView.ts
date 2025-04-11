@@ -31,7 +31,7 @@ class ComponentDetailsView {
 	}
 
 	private static createWebview(component: ComponentKind): vscode.WebviewPanel {
-		const extName = webviewStateStore.getState().state?.extensionName
+		const extName = webviewStateStore.getState().state?.extensionName;
 		const panel = vscode.window.createWebviewPanel(
 			`ComponentDetailsView-${component.metadata.name}`,
 			component.metadata.displayName,
@@ -40,8 +40,8 @@ class ComponentDetailsView {
 		);
 
 		panel.iconPath = {
-			light: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons",extName  === "Devant" ? "devant-2-black.svg" : "choreo-2-black.svg"),
-			dark: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons",extName  === "Devant" ? "devant-2-white.svg" : "choreo-2-white.svg"),
+			light: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons", extName === "Devant" ? "devant-2-black.svg" : "choreo-2-black.svg"),
+			dark: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons", extName === "Devant" ? "devant-2-white.svg" : "choreo-2-white.svg"),
 		};
 
 		return panel;

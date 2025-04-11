@@ -45,16 +45,10 @@ export function createNewComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentCmdParams) => {
 			setExtensionName(params?.extName);
+			const extName = webviewStateStore.getState().state.extensionName;
 			try {
 				isRpcActive(ext);
-				let isIntegration = false;
-				if (webviewStateStore.getState().state.extensionName === "Devant"){
-					isIntegration = true;
-				} else if (params?.buildPackLang === ChoreoBuildPackNames.Ballerina || params?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
-					isIntegration = true;
-					webviewStateStore.getState().setExtensionName("Devant");
-				}
-				const userInfo = await getUserInfoForCmd("create a component");
+				const userInfo = await getUserInfoForCmd(`create ${extName === "Devant" ? "an integration" : "a component"}`);
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;
 					let selectedProject = selected?.project;
@@ -66,7 +60,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						const createdProjectRes = await selectProjectWithCreateNew(
 							selectedOrg,
 							`Loading projects from '${selectedOrg.name}'`,
-							`Select the project from '${selectedOrg.name}', to create the component in`,
+							`Select the project from '${selectedOrg.name}', to create the ${extName === "Devant" ? "integration" : "component"} in`,
 						);
 						selectedProject = createdProjectRes.selectedProject;
 					}
@@ -76,7 +70,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					let selectedType: string | undefined = undefined;
 					let selectedSubType: string | undefined = undefined;
 
-					if (isIntegration) {
+					if (extName === "Devant") {
 						componentTypes.push(
 							DevantScopes.AUTOMATION,
 							DevantScopes.AI_AGENT,
@@ -105,15 +99,15 @@ export function createNewComponentCommand(context: ExtensionContext) {
 
 					if (!selectedType) {
 						const typeQuickPicks: (QuickPickItem & { value: string })[] = componentTypes.map((item) => ({
-							label: isIntegration ? getIntegrationScopeText(item) : getComponentTypeText(item),
+							label: extName === "Devant" ? getIntegrationScopeText(item) : getComponentTypeText(item),
 							value: item,
 						}));
 
 						const selectedTypePick = await window.showQuickPick(typeQuickPicks, {
-							title: `Select ${isIntegration ? "Integration" : "Component"} Type`,
+							title: `Select ${extName === "Devant" ? "Integration" : "Component"} Type`,
 						});
 						if (selectedTypePick?.value) {
-							if (isIntegration) {
+							if (extName === "Devant") {
 								const intType = getTypeOfIntegrationType(selectedTypePick?.value);
 								selectedType = intType.type;
 								selectedSubType = intType.subType;
@@ -124,7 +118,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					}
 
 					if (!selectedType) {
-						throw new Error("Component type is required");
+						throw new Error(`${extName === "Devant" ? "Integration" : "Component"} type is required`);
 					}
 
 					let selectedUri: Uri;
@@ -143,18 +137,21 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							canSelectFolders: true,
 							canSelectFiles: false,
 							canSelectMany: false,
-							title: "Select component directory",
+							title: `Select ${extName === "Devant" ? "integration" : "component"} directory`,
 							defaultUri: defaultUri,
 						});
 						if (!supPathUri || supPathUri.length === 0) {
-							throw new Error("Component directory selection is required");
+							throw new Error(`${extName === "Devant" ? "Integration" : "Component"} directory selection is required`);
 						}
 						selectedUri = supPathUri[0];
 					}
 					const dirName = path.basename(selectedUri.fsPath);
 
 					const components = await window.withProgress(
-						{ title: `Fetching components of ${selectedProject.name}...`, location: ProgressLocation.Notification },
+						{
+							title: `Fetching ${extName === "Devant" ? "integrations" : "components"} of project ${selectedProject.name}...`,
+							location: ProgressLocation.Notification,
+						},
 						() =>
 							ext.clients.rpcClient.getComponentList({
 								orgId: selectedOrg?.id?.toString()!,
@@ -202,7 +199,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 
 					if (componentAlreadyExists && gitRoot && selectedProject && selectedOrg) {
 						const resp = await window.showInformationMessage(
-							`A component for the selected directory already exists within you project(${selectedProject?.name}). Do you want to proceed and create another component?`,
+							`${extName === "Devant" ? "An integration" : "A component"} for the selected directory already exists within you project(${selectedProject?.name}). Do you want to proceed and create another ${extName === "Devant" ? "integration" : "component"}?`,
 							{ modal: true },
 							"Proceed",
 						);
@@ -242,7 +239,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					}
 				}
 			} catch (err: any) {
-				console.error("Failed to create component", err);
+				console.error(`Failed to create ${extName === "Devant" ? "integration" : "component"}`, err);
 				window.showErrorMessage(err?.message || "Failed to create component");
 			}
 		}),
@@ -267,7 +264,7 @@ export const submitCreateComponentHandler = async ({ createParams, org, project 
 	const extensionName = webviewStateStore.getState().state?.extensionName;
 	const createdComponent = await window.withProgress(
 		{
-			title: `Creating new component ${createParams.displayName}...`,
+			title: `Creating new ${extensionName === "Devant" ? "integration" : "component"} ${createParams.displayName}...`,
 			location: ProgressLocation.Notification,
 		},
 		() => ext.clients.rpcClient.createComponent(createParams),

@@ -123,14 +123,13 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		refetchOnWindowFocus: true,
 	});
 
-
 	const {
 		isLoading: isLoadingBranches,
 		data: branches = [],
 		refetch: refetchBranches,
 		isFetching: isFetchingBranches,
-	} = useGetGitBranches(repoUrl, organization, provider === GitProvider.GITHUB ? "": credential, isRepoAuthorizedResp?.isAccessible, {
-		enabled: !!repoUrl && !!provider && (provider === GitProvider.GITHUB ? !!isRepoAuthorizedResp?.isAccessible  : !!credential),
+	} = useGetGitBranches(repoUrl, organization, provider === GitProvider.GITHUB ? "" : credential, isRepoAuthorizedResp?.isAccessible, {
+		enabled: !!repoUrl && !!provider && (provider === GitProvider.GITHUB ? !!isRepoAuthorizedResp?.isAccessible : !!credential),
 		refetchOnWindowFocus: true,
 	});
 
@@ -234,7 +233,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 					key="gen-details-name"
 					required
 					name="name"
-					placeholder="component-name"
+					placeholder={extensionName === "Devant" ? "integration-name" : "component-name"}
 					control={form.control}
 					wrapClassName="col-span-full"
 				/>

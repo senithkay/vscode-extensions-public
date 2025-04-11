@@ -11,9 +11,9 @@ import type { NewComponentWebviewProps, Organization, Project } from "@wso2-ente
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
 import { dataCacheStore } from "../stores/data-cache-store";
+import { webviewStateStore } from "../stores/webview-state-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
-import { webviewStateStore } from "../stores/webview-state-store";
 
 export type IComponentCreateFormParams = Omit<NewComponentWebviewProps, "type" | "existingComponents">;
 
@@ -31,17 +31,22 @@ export class ComponentFormView {
 	}
 
 	private static createWebview(): vscode.WebviewPanel {
-		const extName = webviewStateStore.getState().state?.extensionName
-		const panel = vscode.window.createWebviewPanel("create-new-component", extName === "Devant" ? "Create Integration" : "Create Component", vscode.ViewColumn.One, {
-			enableScripts: true,
-			retainContextWhenHidden: true,
-		});
+		const extName = webviewStateStore.getState().state?.extensionName;
+		const panel = vscode.window.createWebviewPanel(
+			"create-new-component",
+			extName === "Devant" ? "Create Integration" : "Create Component",
+			vscode.ViewColumn.One,
+			{
+				enableScripts: true,
+				retainContextWhenHidden: true,
+			},
+		);
 
 		panel.iconPath = {
-			light: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons",extName  === "Devant" ? "devant-2-black.svg" : "choreo-2-black.svg"),
-			dark: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons",extName  === "Devant" ? "devant-2-white.svg" : "choreo-2-white.svg"),
+			light: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons", extName === "Devant" ? "devant-2-black.svg" : "choreo-2-black.svg"),
+			dark: vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons", extName === "Devant" ? "devant-2-white.svg" : "choreo-2-white.svg"),
 		};
-		
+
 		return panel;
 	}
 

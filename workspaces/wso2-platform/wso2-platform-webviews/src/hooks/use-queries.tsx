@@ -44,7 +44,10 @@ export const queryKeys = {
 	],
 	getSwaggerSpec: (apiRevisionId: string, org: Organization) => ["get-swagger-spec", { selectedEndpoint: apiRevisionId, org: org.handle }],
 	getBuildPacks: (selectedType: string, org: Organization) => ["build-packs", { selectedType, orgId: org?.id }],
-	getGitBranches: (repoUrl: string, org: Organization, credRef: string, isAccessible: boolean) => ["get-git-branches", { repo: repoUrl, orgId: org?.id, credRef, isAccessible }],
+	getGitBranches: (repoUrl: string, org: Organization, credRef: string, isAccessible: boolean) => [
+		"get-git-branches",
+		{ repo: repoUrl, orgId: org?.id, credRef, isAccessible },
+	],
 	getDeployedEndpoints: (deploymentTrack: DeploymentTrack, component: ComponentKind, org: Organization) => [
 		"get-deployed-endpoints",
 		{ organization: org.handle, component: component.metadata.id, deploymentTrackId: deploymentTrack?.id },

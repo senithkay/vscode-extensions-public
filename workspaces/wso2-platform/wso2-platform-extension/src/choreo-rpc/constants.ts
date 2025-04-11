@@ -27,5 +27,5 @@ export enum ErrorCode {
 	MaxComponentCountError = -32011,
 	InvalidSubPath = -32012,
 	NoOrgsAvailable = -32013,
-	NoAccountAvailable = -32014
+	NoAccountAvailable = -32014,
 }

@@ -251,7 +251,12 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		return response.userInfo;
 	}
 
-	async getSignInUrl({ baseUrl, callbackUrl, clientId,isSignUp}: { callbackUrl: string; baseUrl?: string; clientId?: string, isSignUp?: boolean }): Promise<string | undefined> {
+	async getSignInUrl({
+		baseUrl,
+		callbackUrl,
+		clientId,
+		isSignUp,
+	}: { callbackUrl: string; baseUrl?: string; clientId?: string; isSignUp?: boolean }): Promise<string | undefined> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}
