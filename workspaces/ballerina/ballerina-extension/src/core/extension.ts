@@ -393,7 +393,7 @@ export class BallerinaExtension {
             const terminal = window.createTerminal('Update Ballerina');
             terminal.show();
             terminal.sendText('bal dist update');
-            window.showInformationMessage('Please restart VS Code after updating the ballerina version.');
+            window.showInformationMessage('Ballerina update started. Please wait...');
         }, (reason) => {
             console.error('Error getting the ballerina version:', reason.message);
             this.showMessageSetupBallerina(restartWindow);
