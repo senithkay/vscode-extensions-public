@@ -490,9 +490,7 @@ export function FormGenerator(props: FormProps) {
                     let uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
 
                     // HACK: filter unknown module and undefined type diagnostics for local connections
-                    if (node.codedata.isGenerated) {
-                        uniqueDiagnostics = filterUnsupportedDiagnostics(uniqueDiagnostics);
-                    }
+                    uniqueDiagnostics = filterUnsupportedDiagnostics(uniqueDiagnostics);
 
                     setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
                 } catch (error) {
