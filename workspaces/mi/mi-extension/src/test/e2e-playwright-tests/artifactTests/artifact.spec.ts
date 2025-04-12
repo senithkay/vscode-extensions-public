@@ -23,6 +23,7 @@ import { Proxy } from '../components/ArtifactTest/Proxy';
 import { DataSource } from '../components/ArtifactTest/DataSource';
 import { DataService } from '../components/ArtifactTest/DataService';
 import { API } from '../components/ArtifactTest/APITests';
+import path from 'path';
 
 export default function createTests() {
   test.describe('Artifact Tests', async () => {
@@ -189,12 +190,40 @@ export default function createTests() {
       await toggleNotifications(true);
     });
 
-    test('Add Resource', async () => {
+    test('Registry Resource Tests', async () => {
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Resource');
-      const resource = new Resource(page.page);
-      await resource.init();
-      await resource.add("testResource" + testAttempt);
+      await test.step('Create new resource from artifacts', async () => {
+        console.log('Creating new resource from artifacts');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromArtifacts();
+        await resource.addFromTemplate({
+          name: 'testResource1' + testAttempt,
+          type: 'JSON File',
+          registryPath: 'json',
+        });
+      });
+
+      await test.step('Create new resource from side panel', async () => {
+        console.log('Creating new resource from side panel');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromSidePanel();
+        await resource.addFromTemplate({
+          name: 'testResource2' + testAttempt,
+          type: 'JSON File',
+          registryPath: 'json/testResource',
+        });
+      });
+
+      await test.step('Create new resource importing a file', async () => {
+        console.log('Creating new resource importing a file');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromArtifacts();
+        const filePath = path.join(__dirname, '..', 'data', 'new-project', 'testProject', 'testProject', 'src', 'main', 'wso2mi', 'resources', 'json', 'testResource1' + testAttempt + '.json');
+        await resource.addFromFileSystem({
+          filePath: filePath,
+          registryPath: 'newJson'
+        })
+      });
     });
 
     test('Message Store Tests', async () => {
