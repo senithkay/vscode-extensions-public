@@ -1,0 +1,78 @@
+import * as dmUtils from "./dm-utils";
+
+/*
+* title : "root",
+* inputType : "JSON",
+*/
+interface Root {
+    dmI: string
+    dmeI: string
+    mo1I: string
+    mo2I: string
+    mo3I: string
+    moeI: boolean
+    odmI: {
+        dm1: string
+        dm2: number
+    }
+    opmI: {
+        op1: string
+        op2: string
+    }
+    cfnI: {
+        k1: string
+        k2: number
+    }
+    expI: string
+}
+
+/*
+* title : "root",
+* outputType : "JSON",
+*/
+interface OutputRoot {
+    dmO: string
+    dmeO: number
+    moO: string
+    moeO: number
+    odmO: {
+        dm1: string
+        dm2: number
+    }
+    odmeO: {
+        dm1: string
+        dm2: string
+    }
+    ompO: {
+        p1: string
+        p2: number
+    }
+    cfnO: {
+        k1: string
+        k3: number
+    }
+    expO: string
+}
+
+
+
+/**
+ * functionName : map_S_root_S_root
+ * inputVariable : inputroot
+*/
+export function mapFunction(input: Root): OutputRoot {
+    return {
+        moeO: input.mo2I + input.moeI,
+        odmO: input.odmI,
+        odmeO: input.odmI,
+        ompO: {
+            p1: input.odmI.dm1 + "HI",
+            p2: input.opmI.op2
+        },
+        cfnO: mapObjectToObject(input.cfnI)
+    }
+}
+
+function mapObjectToObject(cfnI: Root["cfnI"]): OutputRoot["cfnO"] {
+    return {};
+}

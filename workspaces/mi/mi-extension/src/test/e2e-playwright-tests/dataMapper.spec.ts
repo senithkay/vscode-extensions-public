@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, Locator } from '@playwright/test';
 import * as path from 'path';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { clearNotificationAlerts, clearNotificationsByCloseButton, initTest, newProjectPath, page, resourcesFolder, vscode } from './Utils';
+import { clearNotificationAlerts, clearNotificationsByCloseButton, initTest, newProjectPath, dataFolder, page, resourcesFolder, vscode } from './Utils';
 import { DataMapper, IOType, SchemaType } from './components/DataMapper';
 import { ProjectExplorer } from './components/ProjectExplorer';
 
@@ -22,15 +22,20 @@ const fs = require('fs');
 export default function createTests() {
 
   test.describe('Data Mapper Tests', () => {
-    const NEED_INITIAL_SETUP = true;
+    const NEED_INITIAL_SETUP = false;
 
     initTest(NEED_INITIAL_SETUP);
 
     if (NEED_INITIAL_SETUP) setupProject();
     testBasicMappings();
-    testArrayMappings();
-    testImportOptions();
+    // testArrayMappings();
+    // testImportOptions();
     
+    function overwriteTsFile(newTsFile: string) {
+      const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'datamapper', 'dm', 'dm.ts');
+      const dmDataFolder = path.join(dataFolder, 'datamapper-files');
+      fs.writeFileSync(tsFile, fs.readFileSync(path.join(dmDataFolder, newTsFile),'utf8'));
+    }
    
     function setupProject() {
       test('Setup project for Data Mapper', async () => {
@@ -94,6 +99,7 @@ export default function createTests() {
           await dm.loadJsonFromCompFolder('basic');
           expect(dm.verifyTsFileContent('basic/init.ts')).toBeTruthy();
         } else {
+          overwriteTsFile('basic/init.ts');
           const projectExplorer = new ProjectExplorer(page.page);
           await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
           dm = new DataMapper(page.page, DM_NAME);
@@ -102,17 +108,19 @@ export default function createTests() {
 
         const dmWebView = dm.getWebView();
 
-        console.log('- Test direct mappings');
+        // console.log('- Test direct mappings');
 
         // direct mapping
         // objectOutput.dmO = input.dmI;
         await dm.mapFields('input.dmI', 'objectOutput.dmO');
-        await dmWebView.getByTestId('link-from-input.dmI.OUT-to-objectOutput.dmO.IN').waitFor({ state: 'attached' });
+        const loc0 = dmWebView.getByTestId('link-from-input.dmI.OUT-to-objectOutput.dmO.IN');
+        await loc0.waitFor({ state: 'attached' });
 
         // direct mapping with error
         // objectOutput.dmeO = input.dmeI;
         await dm.mapFields('input.dmeI', 'objectOutput.dmeO');
-        await dm.expectErrorLink(dmWebView.getByTestId('link-from-input.dmeI.OUT-to-objectOutput.dmeO.IN'));
+        const loc1=dmWebView.getByTestId('link-from-input.dmeI.OUT-to-objectOutput.dmeO.IN')
+        await dm.expectErrorLink(loc1);
 
         await clearNotificationsByCloseButton(page);
 
@@ -126,7 +134,8 @@ export default function createTests() {
         await dmWebView.getByTestId('link-from-input.mo2I.OUT-to-datamapper-intermediate-port').first().waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-from-input.mo3I.OUT-to-datamapper-intermediate-port').first().waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.moO.IN').waitFor({ state: 'attached' });
-        await dmWebView.getByTestId('link-connector-node-objectOutput.moO.IN').waitFor();
+        const loc2 = dmWebView.getByTestId('link-connector-node-objectOutput.moO.IN')
+        await loc2.waitFor();
 
         // many-one mapping with error
         // objectOutput.moeO = input.mo2I + input.moeI + input.mo3I
@@ -138,7 +147,8 @@ export default function createTests() {
         await dm.expectErrorLink(dmWebView.getByTestId('link-from-input.mo3I.OUT-to-datamapper-intermediate-port').nth(1));
         await dm.expectErrorLink(dmWebView.getByTestId('link-from-input.moeI.OUT-to-datamapper-intermediate-port'));
         await dm.expectErrorLink(dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.moeO.IN'));
-        await dmWebView.getByTestId('link-connector-node-objectOutput.moeO.IN').waitFor();
+        const loc3 = dmWebView.getByTestId('link-connector-node-objectOutput.moeO.IN');
+        await loc3.waitFor();
 
 
         // object direct mapping
@@ -182,12 +192,15 @@ export default function createTests() {
         await expressionBar.press('Enter');
         await dmWebView.getByTestId('link-from-input.expI.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.expO.IN').waitFor({ state: 'attached' });
-        await dmWebView.getByTestId('link-connector-node-objectOutput.expO.IN').waitFor();
+        const loc4 = dmWebView.getByTestId('link-connector-node-objectOutput.expO.IN');
+        await loc4.waitFor();
 
         // await expressionBar.press('Enter');
         await dmWebView.locator('#data-mapper-canvas-container').click();
 
         await expect(expressionBar).not.toBeFocused();
+
+        // need to test edit button
 
         // await page.page.pause();
 
@@ -221,10 +234,37 @@ export default function createTests() {
         await editorTab.waitFor({ state: 'detached' });
 
         expect(dm.verifyTsFileContent('basic/map.ts')).toBeTruthy();
-        
+
+
+        console.log('- Test basic mapping delete');
+
+        await loc0.click({ force: true });
+        await dmWebView.getByTestId('expression-label-for-input.dmI.OUT-to-objectOutput.dmO.IN')
+          .locator('.codicon-trash').click({ force: true });
+        await loc0.waitFor({ state: 'detached' });
+
+        await loc1.click({ force: true });
+        await dmWebView.getByTestId('expression-label-for-input.dmeI.OUT-to-objectOutput.dmeO.IN')
+          .locator('.codicon-trash').click({ force: true });
+        await loc1.waitFor({ state: 'detached' });
+
+        await loc2.locator('.codicon-trash').click({ force: true });
+        await loc2.waitFor({ state: 'detached' });
+
+        const loc3_ = dmWebView.getByTestId('link-from-input.mo3I.OUT-to-datamapper-intermediate-port');
+        await loc3_.click({ force: true });
+        await dmWebView.locator('div[data-testid^="sub-link-label-for-input.mo3I.OUT-to-"]')
+          .locator('.codicon-trash').click({ force: true });
+        await loc3_.waitFor({ state: 'detached' });
+
+        await loc4.locator('.codicon-trash').click({ force: true });
+        await loc4.waitFor({ state: 'detached' });
+
+        expect(dm.verifyTsFileContent('basic/del.ts')).toBeTruthy();
+     
         // await dmWebView.locator('#nav-bar-main').locator('vscode-button[title="Go Back"]').click();
         // await page.page.getByRole('tab', { name: 'Resource View' }).waitFor();
-        dm.resetTsFile();
+        // dm.resetTsFile();
 
 
         // if (NEED_INITIAL_SETUP) {
