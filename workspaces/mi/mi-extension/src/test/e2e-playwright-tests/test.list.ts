@@ -12,6 +12,7 @@ import connectionTests from './connectorTests/connection.spec';
 import connectorTests from './connectorTests/connector.spec';
 import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 import artifactTests from './artifactTests/artifact.spec';
+import artifact430Tests from './artifactTests/artifact430.spec';
 import logMediatorTests from './mediatorTests/log.spec';
 import cacheMediatorTests from './mediatorTests/cache.spec';
 import { page } from './Utils';
@@ -34,6 +35,7 @@ test.describe(connectorTests);
 test.describe(inboundEpTests);
 test.describe(logMediatorTests);
 test.describe(cacheMediatorTests);
+test.describe(artifact430Tests);
 
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);
