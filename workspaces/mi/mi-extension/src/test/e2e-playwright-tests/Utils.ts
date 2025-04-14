@@ -33,7 +33,7 @@ async function initVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
-async function createProject(page: ExtendedPage) {
+async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string) {
     console.log('Creating new project');
     await page.selectSidebarItem('Micro Integrator');
     const welcomePage = new Welcome(page);
@@ -46,7 +46,11 @@ async function createProject(page: ExtendedPage) {
         values: {
             'Project Name*': {
                 type: 'input',
-                value: 'testProject'
+                value: projectName || 'testProject',
+            },
+            'Micro Integrator runtime version*': {
+                type: 'dropdown',
+                value: runtimeVersino || '4.4.0'
             },
             'Select Location': {
                 type: 'file',
@@ -99,10 +103,10 @@ export async function closeEditorGroup() {
     await page.executePaletteCommand('Close Editor Group');
 }
 
-export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
+export function initTest(newProject: boolean = false, cleanupAfter?: boolean, projectName?: string, runtimeVersion?: string) {
     test.beforeAll(async ({ }, testInfo) => {
         console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);
-        if (!existsSync(path.join(newProjectPath, 'testProject')) || newProject) {
+        if (!existsSync(path.join(newProjectPath, projectName ?? 'testProject')) || newProject) {
             if (fs.existsSync(newProjectPath)) {
                 fs.rmSync(newProjectPath, { recursive: true });
             }
@@ -110,7 +114,7 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
             console.log('Starting VSCode');
             await initVSCode();
             await toggleNotifications(true);
-            await createProject(page);
+            await createProject(page, projectName, runtimeVersion);
         } else {
             console.log('Resuming VSCode');
             await resumeVSCode();
