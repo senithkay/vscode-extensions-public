@@ -7,7 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useRef, KeyboardEvent, useEffect, useLayoutEffect } from "react";
+import React, {
+    useState,
+    useRef,
+    KeyboardEvent,
+    useEffect,
+    useLayoutEffect,
+    useImperativeHandle,
+    forwardRef,
+} from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
@@ -16,10 +24,10 @@ import { StyledInputComponent, StyledInputRef } from "./StyledInput";
 import { AttachmentOptions, useAttachments } from "./hooks/useAttachments";
 import { Suggestion, SuggestionType, useCommands } from "./hooks/useCommands";
 import { BadgeType } from "../Badge";
-import { Input } from "./utils/input";
+import { Input, InputContent } from "./utils/inputUtils";
 import SuggestionsList from "./SuggestionsList";
 import { Command } from "../../commandTemplates/models/command.enum";
-import { CommandTemplates } from "../../commandTemplates/data/commandTemplates.const";
+import { CommandTemplates, WILDCARD_TEMPLATE_ID } from "../../commandTemplates/data/commandTemplates.const";
 import { Tag } from "../../commandTemplates/models/tag.model";
 import { getFirstOccurringPlaceholder, matchCommandTemplate } from "./utils/utils";
 import { getAllCommands, getTags, getTemplateDefinitionsByCommand } from "../../commandTemplates/utils/utils";
@@ -105,402 +113,418 @@ interface TagOptions {
     injectPlaceholderTags: (command: Command, templateId: string) => Promise<void>;
 }
 
+export type AIChatInputRef = {
+    setInputContent: (input: InputContent) => void;
+};
+
 interface AIChatInputProps {
     initialCommandTemplate: CommandTemplates;
-    getInitialInput: () => { command: Command; templateId?: string } | string;
     tagOptions: TagOptions;
     attachmentOptions: AttachmentOptions;
-    onSend: (content: [Input[], Attachment[]]) => void;
+    onSend: (content: { input: Input[]; attachments: Attachment[] }) => Promise<void>;
     onStop: () => void;
     isLoading: boolean;
 }
 
-const AIChatInput: React.FC<AIChatInputProps> = ({
-    initialCommandTemplate,
-    getInitialInput,
-    tagOptions,
-    attachmentOptions,
-    onSend,
-    onStop,
-    isLoading,
-}) => {
-    const [inputValue, setInputValue] = useState<{
-        text: string;
-        [key: string]: any;
-    }>({
-        text: "",
-    });
-    const [generalTags, setGeneralTags] = useState<Tag[]>([]);
-    const [placeholderTagsRefreshKey, setPlaceholderTagsRefreshKey] = useState<number>(0);
-
-    // Refs
-    const inputRef = useRef<StyledInputRef>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const activeSuggestionRef = useRef<HTMLLIElement | null>(null);
-
-    // custom hooks: commands + attachments
-    const {
-        filteredSuggestions,
-        activeSuggestionIndex,
-        activeCommand,
-        setActiveCommand,
-        handleSuggestionOnTextChange,
-        setActiveSuggestion,
-        completeSuggestionSelection,
-    } = useCommands({
-        commandTemplate: initialCommandTemplate,
-    });
-
-    const {
-        attachments,
-        fileInputRef,
-        handleAttachClick,
-        onAttachmentSelection,
-        removeAttachment,
-        removeAllAttachments,
-    } = useAttachments({
-        attachmentOptions: attachmentOptions,
-        activeCommand,
-    });
-
-    /**
-     * Effect: Initialize general tags on mount
-     */
-    useEffect(() => {
-        const fetchGeneralTags = async () => {
-            const generalTags = await tagOptions.loadGeneralTags();
-            setGeneralTags(generalTags);
-        };
-
-        fetchGeneralTags();
-    }, []);
-
-    /**
-     * Effect: On mount, check if there's an initial input (command or plain string).
-     */
-    useEffect(() => {
-        const initialInput = getInitialInput();
-
-        requestAnimationFrame(async () => {
-            if (!inputRef.current || !inputRef.current.ref?.current) return;
-
-            // If it's a string, just set it
-            if (typeof initialInput === "string") {
-                setInputValue({ text: initialInput });
-                inputRef.current.focus();
-                return;
-            }
-
-            // If it's an object { command, templateId? }, insert the command as a badge
-            inputRef.current.setCursorToPosition(inputRef.current.ref.current, 0);
-            insertCommand(initialInput.command, " ", { initialCommand: true });
-            setActiveCommand(initialInput.command);
+const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
+    ({ initialCommandTemplate, tagOptions, attachmentOptions, onSend, onStop, isLoading }, ref) => {
+        const [inputValue, setInputValue] = useState<{
+            text: string;
+            [key: string]: any;
+        }>({
+            text: "",
         });
-    }, []);
+        const [generalTags, setGeneralTags] = useState<Tag[]>([]);
+        const [placeholderTagsRefreshKey, setPlaceholderTagsRefreshKey] = useState<number>(0);
 
-    /**
-     * Effect: Auto-clean up input if it only has "<br>" or no text.
-     */
-    useEffect(
-        function removeInputValueOnBRTag() {
-            if (!inputValue.text || inputValue.text === "<br>") {
-                setInputValue((prev) => ({ ...prev, text: "" }));
-                setActiveCommand(null);
-            }
-        },
-        [inputValue.text]
-    );
+        // Refs
+        const inputRef = useRef<StyledInputRef>(null);
+        const containerRef = useRef<HTMLDivElement>(null);
+        const activeSuggestionRef = useRef<HTMLLIElement | null>(null);
 
-    /**
-     * Effect: Handles text changes in the input field and updates suggestions or placeholders accordingly.
-     * This effect is triggered whenever the input value changes.
-     */
-    useLayoutEffect(() => {
-        const id = requestAnimationFrame(async () => {
-            const text = inputRef.current.ref.current.innerText;
-            const html = inputRef.current.ref.current.innerHTML;
-            const templateInserted = inputValue.templateInserted || false;
-            const tagInserted = inputValue.tagInserted || false;
-            const isInitialCommand = inputValue.initialCommand || false;
-            const currentCursorPosition = inputRef.current.getCursorPosition();
-            const isCursorNextToDiv = inputRef.current.isCursorNextToDiv();
-            handleSuggestionOnTextChange(
-                initialCommandTemplate,
-                tagOptions.placeholderTags,
-                isCursorNextToDiv,
-                text,
-                html,
-                templateInserted,
-                currentCursorPosition,
-                generalTags
-            );
+        useImperativeHandle(ref, () => ({
+            setInputContent,
+        }));
 
-            if (activeCommand && (templateInserted || tagInserted)) {
-                const templateQuery = text.substring(activeCommand.length + 1);
-                const matchResult = matchCommandTemplate(
-                    templateQuery,
-                    getTemplateDefinitionsByCommand(initialCommandTemplate, activeCommand)
+        // custom hooks: commands + attachments
+        const {
+            filteredSuggestions,
+            activeSuggestionIndex,
+            activeCommand,
+            setActiveCommand,
+            handleSuggestionOnTextChange,
+            setActiveSuggestion,
+            completeSuggestionSelection,
+        } = useCommands({
+            commandTemplate: initialCommandTemplate,
+        });
+
+        const {
+            attachments,
+            fileInputRef,
+            handleAttachClick,
+            onAttachmentSelection,
+            removeAttachment,
+            removeAllAttachments,
+        } = useAttachments({
+            attachmentOptions: attachmentOptions,
+            activeCommand,
+        });
+
+        /**
+         * Effect: Initialize general tags on mount
+         */
+        useEffect(() => {
+            const fetchGeneralTags = async () => {
+                const generalTags = await tagOptions.loadGeneralTags();
+                setGeneralTags(generalTags);
+            };
+
+            fetchGeneralTags();
+        }, []);
+
+        /**
+         * Effect: Auto-clean up input if it only has "<br>" or no text.
+         */
+        useEffect(
+            function removeInputValueOnBRTag() {
+                if (!inputValue.text || inputValue.text === "<br>") {
+                    setInputValue((prev) => ({ ...prev, text: "" }));
+                    setActiveCommand(null);
+                }
+            },
+            [inputValue.text]
+        );
+
+        /**
+         * Effect: Handles text changes in the input field and updates suggestions or placeholders accordingly.
+         * This effect is triggered whenever the input value changes.
+         */
+        useLayoutEffect(() => {
+            const id = requestAnimationFrame(async () => {
+                const text = inputRef.current.ref.current.innerText;
+                const html = inputRef.current.ref.current.innerHTML;
+                const templateInserted = inputValue.templateInserted || false;
+                const tagInserted = inputValue.tagInserted || false;
+                const initialContent = (inputValue.initialContent as InputContent) || null;
+                const isUpdatedCommand = inputValue.updatedCommand || false;
+                const updatedTemplate = inputValue.updatedTemplate || null;
+                const currentCursorPosition = inputRef.current.getCursorPosition();
+                const isCursorNextToDiv = inputRef.current.isCursorNextToDiv();
+                handleSuggestionOnTextChange(
+                    initialCommandTemplate,
+                    tagOptions.placeholderTags,
+                    isCursorNextToDiv,
+                    text,
+                    html,
+                    templateInserted,
+                    currentCursorPosition,
+                    generalTags
                 );
-                if (matchResult) {
-                    const { match, template } = matchResult;
-                    const placeholderDefs = template.placeholders;
-                    const firstPlaceholderDef = getFirstOccurringPlaceholder(templateQuery, placeholderDefs);
-                    if (firstPlaceholderDef) {
-                        const tags = getTags(activeCommand, template.id, firstPlaceholderDef.id);
-                        if (tags && tags.length > 0) {
-                            inputRef.current.replaceTextWith(firstPlaceholderDef.text, "@");
-                        } else {
-                            inputRef.current.selectText(firstPlaceholderDef.text);
+
+                if (activeCommand && (templateInserted || tagInserted)) {
+                    const templateQuery = text.substring(activeCommand.length + 1);
+                    const matchResult = matchCommandTemplate(
+                        templateQuery,
+                        getTemplateDefinitionsByCommand(initialCommandTemplate, activeCommand)
+                    );
+                    if (matchResult) {
+                        const { match, template } = matchResult;
+                        const placeholderDefs = template.placeholders;
+                        const firstPlaceholderDef = getFirstOccurringPlaceholder(templateQuery, placeholderDefs);
+                        if (firstPlaceholderDef) {
+                            const tags = getTags(activeCommand, template.id, firstPlaceholderDef.id);
+                            if (tags && tags.length > 0) {
+                                inputRef.current.replaceTextWith(firstPlaceholderDef.text, "@");
+                            } else {
+                                inputRef.current.selectText(firstPlaceholderDef.text);
+                            }
                         }
                     }
                 }
-            }
 
-            if (isInitialCommand) {
-                const initialInput = getInitialInput();
-
-                if (typeof initialInput !== "string" && initialInput.templateId) {
-                    const { command, templateId } = initialInput;
-
-                    const template = getTemplateDefinitionsByCommand(initialCommandTemplate, activeCommand).find(
-                        (template) => template.id === templateId
-                    );
-
-                    if (template) {
-                        inputRef.current?.insertTextAtCursor({ text: template.text, templateInserted: true });
-
-                        await tagOptions.injectPlaceholderTags(activeCommand, template.id);
-                        setPlaceholderTagsRefreshKey((prev) => prev + 1);
+                if (initialContent) {
+                    switch (initialContent.type) {
+                        case "command-template":
+                            inputRef.current.setCursorToPosition(inputRef.current.ref.current, 0);
+                            insertCommand(initialContent.command, " ", {
+                                updatedCommand: true,
+                                updatedTemplate: { templateId: initialContent.templateId, text: initialContent.text },
+                            });
+                            setActiveCommand(initialContent.command);
+                            break;
+                        case "text":
+                            inputRef.current?.insertTextAtCursor({ text: initialContent.text });
+                            break;
+                        default:
+                            break;
                     }
                 }
+
+                if (isUpdatedCommand && updatedTemplate) {
+                    function isTemplateObj(obj: any): obj is { templateId: string; text: string } {
+                        return (
+                            typeof obj === "object" &&
+                            obj !== null &&
+                            typeof obj.templateId === "string" &&
+                            typeof obj.text === "string"
+                        );
+                    }
+                    if (isTemplateObj(updatedTemplate)) {
+                        const { templateId, text } = updatedTemplate;
+                        const template = getTemplateDefinitionsByCommand(initialCommandTemplate, activeCommand).find(
+                            (template) => template.id === templateId
+                        );
+
+                        if (template) {
+                            console.log(template);
+                            if (template.id === WILDCARD_TEMPLATE_ID) {
+                                inputRef.current?.insertTextAtCursor({ text: text || "" });
+                            } else {
+                                inputRef.current?.insertTextAtCursor({ text: template.text, templateInserted: true });
+                                await tagOptions.injectPlaceholderTags(activeCommand, template.id);
+                                setPlaceholderTagsRefreshKey((prev) => prev + 1);
+                            }
+                        }
+                    }
+                }
+            });
+
+            return () => cancelAnimationFrame(id);
+        }, [inputValue, placeholderTagsRefreshKey]);
+
+        /**
+         * Effect: If the user navigates suggestions with keyboard, keep the active suggestion visible.
+         */
+        useLayoutEffect(
+            function autoScrollForActiveSuggestionOnList() {
+                if (activeSuggestionRef.current) {
+                    activeSuggestionRef.current.scrollIntoView({
+                        block: "nearest",
+                        inline: "nearest",
+                    });
+                }
+            },
+            [activeSuggestionIndex]
+        );
+
+        const setInputContent = (input: InputContent) => {
+            requestAnimationFrame(async () => {
+                cleanChatInput(input);
+            });
+        };
+
+        /**
+         * Inserts a command badge at the current cursor position in the input field.
+         */
+        const insertCommand = (command: Command, suffix: string, additionalProps?: { [key: string]: any }) => {
+            inputRef.current?.insertBadgeAtCursor({
+                badgeText: command,
+                badgeType: BadgeType.Command,
+                suffixText: " ",
+                ...additionalProps,
+            });
+            setActiveCommand(command);
+            fileInputRef.current.accept = attachmentOptions.acceptResolver(command);
+        };
+
+        /**
+         * Called after we select a suggestion from the list (click or keyboard).
+         */
+        const selectSuggestion = async (suggestion: Suggestion) => {
+            // complete suggestion selection
+            completeSuggestionSelection();
+
+            if (suggestion.type === SuggestionType.Command) {
+                insertCommand(suggestion.command, " ");
             }
-        });
 
-        return () => cancelAnimationFrame(id);
-    }, [inputValue, placeholderTagsRefreshKey]);
+            // insert the selected suggestion (Template)
+            if (suggestion.type === SuggestionType.Template) {
+                inputRef.current?.insertTextAtCursor({ text: suggestion.text, templateInserted: true });
 
-    /**
-     * Effect: If the user navigates suggestions with keyboard, keep the active suggestion visible.
-     */
-    useLayoutEffect(
-        function autoScrollForActiveSuggestionOnList() {
-            if (activeSuggestionRef.current) {
-                activeSuggestionRef.current.scrollIntoView({
-                    block: "nearest",
-                    inline: "nearest",
+                // load placeholder tags
+                await tagOptions.injectPlaceholderTags(activeCommand, suggestion.templateId);
+                setPlaceholderTagsRefreshKey((prev) => prev + 1);
+            }
+
+            // insert the selected suggestion (Tag)
+            if (suggestion.type === SuggestionType.Tag) {
+                inputRef.current?.insertBadgeAtCursor({
+                    badgeText: suggestion.text,
+                    badgeType: BadgeType.Tag,
+                    suffixText: "",
+                    tagInserted: true,
                 });
             }
-        },
-        [activeSuggestionIndex]
-    );
+        };
 
-    /**
-     * Inserts a command badge at the current cursor position in the input field.
-     */
-    const insertCommand = (command: Command, suffix: string, additionalProps?: { [key: string]: any }) => {
-        inputRef.current?.insertBadgeAtCursor({
-            badgeText: command,
-            badgeType: BadgeType.Command,
-            suffixText: " ",
-            ...additionalProps,
-        });
-        setActiveCommand(command);
-        fileInputRef.current.accept = attachmentOptions.acceptResolver(command);
-    };
-
-    /**
-     * Called after we select a suggestion from the list (click or keyboard).
-     */
-    const selectSuggestion = async (suggestion: Suggestion) => {
-        // complete suggestion selection
-        completeSuggestionSelection();
-
-        if (suggestion.type === SuggestionType.Command) {
-            insertCommand(suggestion.command, " ");
-        }
-
-        // insert the selected suggestion (Template)
-        if (suggestion.type === SuggestionType.Template) {
-            inputRef.current?.insertTextAtCursor({ text: suggestion.text, templateInserted: true });
-
-            // load placeholder tags
-            await tagOptions.injectPlaceholderTags(activeCommand, suggestion.templateId);
-            setPlaceholderTagsRefreshKey((prev) => prev + 1);
-        }
-
-        // insert the selected suggestion (Tag)
-        if (suggestion.type === SuggestionType.Tag) {
-            inputRef.current?.insertBadgeAtCursor({
-                badgeText: suggestion.text,
-                badgeType: BadgeType.Tag,
-                suffixText: "",
-                tagInserted: true,
-            });
-        }
-    };
-
-    /**
-     * Handler for key down events in the contentEditable.
-     * - Navigates or selects suggestions
-     * - Sends message on Enter
-     * - Stops on Escape
-     */
-    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>, removedBadgeTypes?: string[]) => {
-        if (removedBadgeTypes?.includes(BadgeType.Command)) {
-            setActiveCommand(null);
-        }
-        if (filteredSuggestions.length > 0) {
-            if (event.key === "ArrowDown") {
-                event.preventDefault();
-                const newIndex = activeSuggestionIndex + 1 < filteredSuggestions.length ? activeSuggestionIndex + 1 : 0;
-                setActiveSuggestion(newIndex, filteredSuggestions);
-            } else if (event.key === "ArrowUp") {
-                event.preventDefault();
-                const newIndex =
-                    activeSuggestionIndex - 1 >= 0 ? activeSuggestionIndex - 1 : filteredSuggestions.length - 1;
-                setActiveSuggestion(newIndex, filteredSuggestions);
-            } else if (event.key === "Enter" || event.key === "Tab") {
-                event.preventDefault();
-                if (filteredSuggestions.length > 0) {
-                    selectSuggestion(filteredSuggestions[activeSuggestionIndex]);
-                }
-            } else if (event.key === "Escape") {
-                completeSuggestionSelection();
-            } else if (event.key === " ") {
-                const trimmedText = inputValue.text.trim();
-                if (trimmedText && getAllCommands(initialCommandTemplate).includes(trimmedText as Command)) {
+        /**
+         * Handler for key down events in the contentEditable.
+         * - Navigates or selects suggestions
+         * - Sends message on Enter
+         * - Stops on Escape
+         */
+        const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>, removedBadgeTypes?: string[]) => {
+            if (removedBadgeTypes?.includes(BadgeType.Command)) {
+                setActiveCommand(null);
+            }
+            if (filteredSuggestions.length > 0) {
+                if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    const newIndex =
+                        activeSuggestionIndex + 1 < filteredSuggestions.length ? activeSuggestionIndex + 1 : 0;
+                    setActiveSuggestion(newIndex, filteredSuggestions);
+                } else if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    const newIndex =
+                        activeSuggestionIndex - 1 >= 0 ? activeSuggestionIndex - 1 : filteredSuggestions.length - 1;
+                    setActiveSuggestion(newIndex, filteredSuggestions);
+                } else if (event.key === "Enter" || event.key === "Tab") {
                     event.preventDefault();
                     if (filteredSuggestions.length > 0) {
                         selectSuggestion(filteredSuggestions[activeSuggestionIndex]);
                     }
+                } else if (event.key === "Escape") {
+                    completeSuggestionSelection();
+                } else if (event.key === " ") {
+                    const trimmedText = inputValue.text.trim();
+                    if (trimmedText && getAllCommands(initialCommandTemplate).includes(trimmedText as Command)) {
+                        event.preventDefault();
+                        if (filteredSuggestions.length > 0) {
+                            selectSuggestion(filteredSuggestions[activeSuggestionIndex]);
+                        }
+                    }
                 }
+            } else if (event.key === "Enter" && !event.shiftKey && !isLoading) {
+                event.preventDefault();
+                if (inputValue.text.trim() !== "") {
+                    handleSend();
+                }
+            } else if (event.key === "Escape" && isLoading) {
+                event.preventDefault();
+                handleStop();
             }
-        } else if (event.key === "Enter" && !event.shiftKey && !isLoading) {
-            event.preventDefault();
-            if (inputValue.text.trim() !== "") {
-                handleSend();
-            }
-        } else if (event.key === "Escape" && isLoading) {
-            event.preventDefault();
-            handleStop();
-        }
-    };
+        };
 
-    /**
-     * Clears the chat input and attachments after sending
-     */
-    const cleanChatInput = () => {
-        setInputValue({ text: "" });
-        removeAllAttachments();
-    };
+        /**
+         * Clears the chat input and attachments after sending
+         */
+        const cleanChatInput = (initialContent?: InputContent) => {
+            setInputValue({ text: "", initialContent: initialContent });
+            removeAllAttachments();
+        };
 
-    /**
-     * Reusable logic for sending the user's current text+attachments.
-     */
-    const handleSend = () => {
-        const input = inputRef.current?.getContentAsInputList();
-        const filteredAttachments = attachments.filter((attachment) => attachment.status === AttachmentStatus.Success);
-        onSend([input, filteredAttachments]);
-        cleanChatInput();
-    };
+        /**
+         * Reusable logic for sending the user's current text+attachments.
+         */
+        const handleSend = () => {
+            const input = inputRef.current?.getContentAsInputList();
+            const filteredAttachments = attachments.filter(
+                (attachment) => attachment.status === AttachmentStatus.Success
+            );
+            onSend({ input: input, attachments: filteredAttachments });
+            cleanChatInput();
+        };
 
-    /**
-     * Reusable logic for stopping the ongoing process.
-     */
-    const handleStop = () => {
-        onStop();
-    };
+        /**
+         * Reusable logic for stopping the ongoing process.
+         */
+        const handleStop = () => {
+            onStop();
+        };
 
-    /**
-     * Called after DOM updates in the StyledInput
-     */
-    const executeOnPostDOMUpdate = () => {
-        // Any post-render logic you need, e.g. measuring DOM, etc.
-    };
+        /**
+         * Called after DOM updates in the StyledInput
+         */
+        const executeOnPostDOMUpdate = () => {
+            // Any post-render logic you need, e.g. measuring DOM, etc.
+        };
 
-    /**
-     * Called when user clicks on a suggestion item in the list.
-     */
-    const handleSuggestionClick = (suggestion: Suggestion) => {
-        selectSuggestion(suggestion);
-    };
+        /**
+         * Called when user clicks on a suggestion item in the list.
+         */
+        const handleSuggestionClick = (suggestion: Suggestion) => {
+            selectSuggestion(suggestion);
+        };
 
-    return (
-        <Container ref={containerRef}>
-            <FlexRow>
-                <InputArea>
-                    <StyledInputComponent
-                        ref={inputRef}
-                        value={inputValue}
-                        onChange={setInputValue}
-                        onKeyDown={handleKeyDown}
-                        onBlur={() => completeSuggestionSelection()}
-                        placeholder="Describe your integration..."
-                        onPostDOMUpdate={executeOnPostDOMUpdate}
-                    />
-                    {/* Attachments Display */}
-                    {attachments.length > 0 && (
-                        <AttachmentsContainer>
-                            {attachments.map((file, index) => (
-                                <AttachmentBox
-                                    key={index}
-                                    status={file.status}
-                                    fileName={file.name}
-                                    index={index}
-                                    removeAttachment={removeAttachment}
+        return (
+            <Container ref={containerRef}>
+                <FlexRow>
+                    <InputArea>
+                        <StyledInputComponent
+                            ref={inputRef}
+                            value={inputValue}
+                            onChange={setInputValue}
+                            onKeyDown={handleKeyDown}
+                            onBlur={() => completeSuggestionSelection()}
+                            placeholder="Describe your integration..."
+                            onPostDOMUpdate={executeOnPostDOMUpdate}
+                        />
+                        {/* Attachments Display */}
+                        {attachments.length > 0 && (
+                            <AttachmentsContainer>
+                                {attachments.map((file, index) => (
+                                    <AttachmentBox
+                                        key={index}
+                                        status={file.status}
+                                        fileName={file.name}
+                                        index={index}
+                                        removeAttachment={removeAttachment}
+                                    />
+                                ))}
+                            </AttachmentsContainer>
+                        )}
+
+                        <ActionRow>
+                            <div style={{ display: "flex" }}>
+                                <ActionButton
+                                    title="Chat with Command"
+                                    disabled={inputValue.text !== ""}
+                                    onClick={() => {
+                                        inputRef.current?.insertTextAtCursor({ text: "/" });
+                                    }}
+                                >
+                                    /
+                                </ActionButton>
+                                <input
+                                    type="file"
+                                    multiple={attachmentOptions.multiple}
+                                    accept={attachmentOptions.acceptResolver(activeCommand)}
+                                    style={{ display: "none" }}
+                                    ref={fileInputRef}
+                                    onChange={onAttachmentSelection}
                                 />
-                            ))}
-                        </AttachmentsContainer>
-                    )}
-
-                    <ActionRow>
-                        <div style={{ display: "flex" }}>
-                            <ActionButton
-                                title="Chat with Command"
-                                disabled={inputValue.text !== ""}
-                                onClick={() => {
-                                    inputRef.current?.insertTextAtCursor({ text: "/" });
-                                }}
-                            >
-                                /
-                            </ActionButton>
-                            <input
-                                type="file"
-                                multiple={attachmentOptions.multiple}
-                                accept={attachmentOptions.acceptResolver(activeCommand)}
-                                style={{ display: "none" }}
-                                ref={fileInputRef}
-                                onChange={onAttachmentSelection}
-                            />
-                            <ActionButton title="Attach Context" onClick={handleAttachClick}>
-                                <Codicon name="new-file" />
-                            </ActionButton>
-                        </div>
-                        <div>
-                            <ActionButton
-                                title={isLoading ? "Stop (Escape)" : "Send (Enter)"}
-                                disabled={inputValue.text.trim() === "" && !isLoading}
-                                onClick={isLoading ? handleStop : handleSend}
-                            >
-                                <span
-                                    className={`codicon ${isLoading ? "codicon-stop-circle" : "codicon-send"}`}
-                                ></span>
-                            </ActionButton>
-                        </div>
-                    </ActionRow>
-                </InputArea>
-            </FlexRow>
-            {filteredSuggestions.length > 0 && (
-                <SuggestionsList
-                    suggestions={filteredSuggestions}
-                    activeSuggestionIndex={activeSuggestionIndex}
-                    activeSuggestionRef={activeSuggestionRef}
-                    onSuggestionClick={handleSuggestionClick}
-                    onSuggestionMouseDown={(e) => e.preventDefault()}
-                />
-            )}
-        </Container>
-    );
-};
+                                <ActionButton title="Attach Context" onClick={handleAttachClick}>
+                                    <Codicon name="new-file" />
+                                </ActionButton>
+                            </div>
+                            <div>
+                                <ActionButton
+                                    title={isLoading ? "Stop (Escape)" : "Send (Enter)"}
+                                    disabled={inputValue.text.trim() === "" && !isLoading}
+                                    onClick={isLoading ? handleStop : handleSend}
+                                >
+                                    <span
+                                        className={`codicon ${isLoading ? "codicon-stop-circle" : "codicon-send"}`}
+                                    ></span>
+                                </ActionButton>
+                            </div>
+                        </ActionRow>
+                    </InputArea>
+                </FlexRow>
+                {filteredSuggestions.length > 0 && (
+                    <SuggestionsList
+                        suggestions={filteredSuggestions}
+                        activeSuggestionIndex={activeSuggestionIndex}
+                        activeSuggestionRef={activeSuggestionRef}
+                        onSuggestionClick={handleSuggestionClick}
+                        onSuggestionMouseDown={(e) => e.preventDefault()}
+                    />
+                )}
+            </Container>
+        );
+    }
+);
 
 export default AIChatInput;

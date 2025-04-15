@@ -16,6 +16,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import Badge from "./Badge";
 // @ts-ignore
 import ballerina from "../../../languages/ballerina.js";
+import { SYSTEM_BADGE_SECRET } from "./AIChatInput/constants";
 
 // Register custom languages with highlight.js
 hljs.registerLanguage("yaml", yaml);
@@ -117,10 +118,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
 
             // Inline code with word wrapping
             return (
-                <code
-                    className={className}
-                    style={markdownWrapperStyle}
-                >
+                <code className={className} style={markdownWrapperStyle}>
                     {children}
                 </code>
             );
@@ -128,9 +126,28 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
     };
 
     // Custom components for markdown elements
-    const CustomMarkdownComponents = {
-        badge: Badge,
-    };
+    const getMarkdownComponents = (markdownContent: string) => ({
+        badge: ({ node, children }: any) => {
+            const propsMap = node?.properties || {};
+            const isSystemBadge = propsMap.dataSystem === "true" && propsMap.dataAuth === SYSTEM_BADGE_SECRET;
+
+            if (isSystemBadge) {
+                return <Badge>{children}</Badge>;
+            }
+
+            const start = node?.position?.start?.offset;
+            const end = node?.position?.end?.offset;
+
+            if (typeof start === "number" && typeof end === "number") {
+                const rawTag = markdownContent.slice(start, end);
+
+                return rawTag;
+            }
+
+            // Fallback if position data is missing
+            return `<badge>${children}</badge>`;
+        },
+    });
 
     // Escape HTML except <badge> tags
     const safeContent = escapeHtmlExceptBadge(markdownContent);
@@ -141,7 +158,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
                 rehypePlugins={[rehypeRaw]}
                 components={{
                     ...MarkdownCodeRenderer,
-                    ...CustomMarkdownComponents,
+                    ...getMarkdownComponents(markdownContent),
                 }}
             >
                 {safeContent}

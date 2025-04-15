@@ -7,14 +7,30 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { InputContent } from "../../Components/AIChatInput/utils/inputUtils";
 import { Command } from "../models/command.enum";
+import { TemplateDefinition } from "../models/template.model";
 
+export const WILDCARD_TEMPLATE_ID = 'wildcard';
+
+// All command templates are defined here.
 export const commandTemplates = {
     [Command.Generate]: [
         {
-            id: 'generate-code',
-            text: 'generate code for the use-case: ',
+            id: WILDCARD_TEMPLATE_ID,
+            text: '',
             placeholders: [],
+        },
+        {
+            id: 'generate-code',
+            text: 'generate code for the use-case: <usecase>',
+            placeholders: [
+                {
+                    id: 'usecase',
+                    text: '<usecase>',
+                    multiline: true,
+                }
+            ],
         },
         {
             id: 'generate-from-readme',
@@ -30,6 +46,7 @@ export const commandTemplates = {
                 {
                     id: 'servicename',
                     text: '<servicename>',
+                    multiline: false,
                 }
             ],
         },
@@ -39,7 +56,8 @@ export const commandTemplates = {
             placeholders: [
                 {
                     id: 'methodPath',
-                    text: '<method(space)path>'
+                    text: '<method(space)path>',
+                    multiline: false,
                 }
             ],
         },
@@ -51,15 +69,18 @@ export const commandTemplates = {
             placeholders: [
                 {
                     id: 'inputRecords',
-                    text: '<recordname(s)>'
+                    text: '<recordname(s)>',
+                    multiline: false,
                 },
                 {
                     id: 'outputRecord',
-                    text: '<recordname>'
+                    text: '<recordname>',
+                    multiline: false,
                 },
                 {
                     id: 'functionName',
-                    text: '<functionname>'
+                    text: '<functionname>',
+                    multiline: false,
                 },
             ],
         },
@@ -69,7 +90,8 @@ export const commandTemplates = {
             placeholders: [
                 {
                     id: 'functionName',
-                    text: '<functionname>'
+                    text: '<functionname>',
+                    multiline: false,
                 }
             ],
         },
@@ -82,17 +104,75 @@ export const commandTemplates = {
         }
     ],
     [Command.Healthcare]: [
-
+        {
+            id: WILDCARD_TEMPLATE_ID,
+            text: '',
+            placeholders: [],
+        },
     ],
     [Command.Ask]: [
-
+        {
+            id: WILDCARD_TEMPLATE_ID,
+            text: '',
+            placeholders: [],
+        },
     ],
     [Command.NaturalProgramming]: [
 
     ],
     [Command.OpenAPI]: [
-
+        {
+            id: WILDCARD_TEMPLATE_ID,
+            text: '',
+            placeholders: [],
+        },
     ],
 } as const;
 
 export type CommandTemplates = typeof commandTemplates;
+
+// Natural Programming templates
+export const NATURAL_PROGRAMMING_TEMPLATES: TemplateDefinition[] = [
+    {
+        id: 'code-doc-drift-check',
+        text: 'Check drift between code and documentation',
+        placeholders: [],
+    },
+    {
+        id: 'generate-code-from-requirements',
+        text: 'Generate code based on the requirements',
+        placeholders: [],
+    },
+    {
+        id: 'generate-test-from-requirements',
+        text: 'Generate tests against the requirements',
+        placeholders: [],
+    },
+    {
+        id: 'generate-code-from-following-requirements',
+        text: 'Generate code based on the following requirements: <requirements>',
+        placeholders: [
+            {
+                id: 'requirements',
+                text: '<requirements>',
+                multiline: true,
+            }
+        ],
+    },
+];
+
+// Suggested command templates are defined here.
+export const suggestedCommandTemplates: InputContent[] = [
+    {
+        type: 'command-template',
+        command: Command.Generate,
+        templateId: WILDCARD_TEMPLATE_ID,
+        text: 'write a hello world http service',
+    },
+    {
+        type: 'command-template',
+        command: Command.Ask,
+        templateId: WILDCARD_TEMPLATE_ID,
+        text: 'how to write a concurrent application?',
+    },
+];

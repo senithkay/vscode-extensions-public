@@ -32,6 +32,34 @@ export const getTemplateDefinitionsByCommand = (
     return raw.filter(isValidTemplateDefinition);
 }
 
+export const getTemplateTextById = (
+    templates: CommandTemplates,
+    command: Command,
+    templateId: string
+): string | undefined => {
+    const defs = templates[command];
+    const found = defs.find((tpl) => tpl.id === templateId);
+    return found?.text;
+};
+
+export const getTemplateById = (
+    templateId: string,
+    templateDefs: TemplateDefinition[]
+): TemplateDefinition | undefined => {
+    return templateDefs.find(template => template.id === templateId);
+}
+
+export const upsertTemplate = (commandTemplates: CommandTemplates, command: Command, newTemplate: TemplateDefinition) => {
+    const templates = commandTemplates[command] as unknown as TemplateDefinition[];
+    const index = templates.findIndex(t => t.id === newTemplate.id);
+
+    if (index !== -1) {
+        templates[index] = newTemplate;
+    } else {
+        templates.push(newTemplate);
+    }
+}
+
 export const injectTags = (
     command: Command,
     templateId: string,

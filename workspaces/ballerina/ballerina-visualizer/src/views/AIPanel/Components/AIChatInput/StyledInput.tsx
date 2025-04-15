@@ -34,7 +34,7 @@ import {
     getContentAsInputList,
     handleKeyDownWithBadgeSupport,
 } from "./utils/contentEditableUtils";
-import { Input } from "./utils/input";
+import { Input } from "./utils/inputUtils";
 
 const StyledInput = styled.div`
     flex: 1;

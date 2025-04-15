@@ -10,7 +10,7 @@
 import { Command } from "../../../commandTemplates/models/command.enum";
 import { getCommand } from "../../../commandTemplates/utils/utils";
 import { BadgeType } from "../../Badge";
-import { Input } from "./input";
+import { Input } from "./inputUtils";
 
 /**
  * A collection of generic DOM-based utilities for a contentEditable field. 

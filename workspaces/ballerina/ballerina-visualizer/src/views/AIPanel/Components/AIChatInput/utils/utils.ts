@@ -27,9 +27,13 @@ export const generateRegexFromTemplateText = (
 ): RegExp => {
     let pattern = templateText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    for (const { id, text } of placeholders) {
+    for (const { id, text, multiline } of placeholders) {
         const escapedName = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const namedGroup = `(?<${id}>.+?)`;
+
+        const namedGroup = multiline
+            ? `(?<${id}>[\\s\\S]+)`
+            : `(?<${id}>[^\\n]+?)`;
+
         pattern = pattern.replace(escapedName, namedGroup);
     }
 
@@ -44,10 +48,10 @@ export const matchCommandTemplate = (
         const regex = generateRegexFromTemplateText(template.text, template.placeholders);
         const match = input.match(regex);
 
-        if (match?.groups) {
+        if (match) {
             return {
                 template,
-                match: match.groups
+                match: match.groups ?? {}
             };
         }
     }

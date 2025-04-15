@@ -14,6 +14,6 @@ export enum Command {
     TypeCreator = '/typecreator',
     Healthcare = '/healthcare',
     Ask = '/ask',
-    NaturalProgramming = '/natural-programming',
+    NaturalProgramming = '/natural-programming (experimental)',
     OpenAPI = '/openapi',
 }
