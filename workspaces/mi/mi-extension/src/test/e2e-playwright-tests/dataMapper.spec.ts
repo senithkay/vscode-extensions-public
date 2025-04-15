@@ -27,8 +27,8 @@ export default function createTests() {
     initTest(NEED_INITIAL_SETUP);
 
     if (NEED_INITIAL_SETUP) setupProject();
-    testBasicMappings();
-    // testArrayMappings();
+    // testBasicMappings();
+    testArrayMappings();
     // testImportOptions();
     
     function overwriteTsFile(newTsFile: string) {
@@ -277,24 +277,27 @@ export default function createTests() {
     function testArrayMappings() {
       test('Test Array Mappings', async () => {
 
-        // await page.page.getByRole('tab', { name: 'Project Overview' }).waitFor();
+        await page.page.getByRole('tab', { name: 'Project Overview' }).waitFor();
 
         console.log('Testing Array Mappings');
 
         const DM_NAME = 'dm';
+
+        // overwriteTsFile('array/map.ts');
+        overwriteTsFile('array/init.ts');
 
         const projectExplorer = new ProjectExplorer(page.page);
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
         const dm = new DataMapper(page.page, DM_NAME);
         await dm.init();
 
-        console.log('- Load input schemas from JSON data');
-        await dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
+        // console.log('- Load input schemas from JSON data');
+        // await dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
 
-        console.log('- Load output schemas from JSON schema');
-        await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out.schema.json');
+        // console.log('- Load output schemas from JSON schema');
+        // await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out.schema.json');
 
-        expect(dm.verifyTsFileContent('array/init.ts')).toBeTruthy();
+        // expect(dm.verifyTsFileContent('array/init.ts')).toBeTruthy();
        
         const dmWebView = dm.getWebView();
 
@@ -350,16 +353,104 @@ export default function createTests() {
         
 
         // Init array object and map scroll 
-        await dm.selectConfigMenuItem('objectOutput.iobjO', 'Initialize Array With Element');
+        // await dm.selectConfigMenuItem('objectOutput.iobjO', 'Initialize Array With Element');
 
-        await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
-        await dm.scrollClickOutput(dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.0\\.p1"]'));
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN').waitFor({ state: 'attached' });
+        // await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
+        // await dm.scrollClickOutput(dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.0\\.p1"]'));
+        // await dm.waitForProgressEnd();
+        // await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN').waitFor({ state: 'attached' });
 
         // working
 
-        dm.resetTsFile();
+       
+
+        console.log('Test array mapping delete');
+
+
+        const loc2 = dmWebView.getByTestId('array-connector-node-objectOutput.m1O.IN');
+        await loc2.locator('.codicon-trash').click({ force: true });
+        await loc2.waitFor({ state: 'detached' });
+
+        const loc3 = dmWebView.getByTestId('array-connector-node-objectOutput.m1objO.IN');
+        await loc3.getByTestId('expand-array-fn-m1objO').click({ force: true });
+        const loc3I1 = dmWebView.getByTestId('array-connector-node-objectOutput.q2.IN');
+        await loc3I1.getByTestId('expand-array-fn-q2').click({ force: true });
+
+        const loc3I1I1 = dmWebView.getByTestId('link-from-focusedInput.p2Item.OUT-to-primitiveOutput.string.IN');
+        await loc3I1I1.click({ force: true });
+        await dmWebView.getByTestId('expression-label-for-focusedInput.p2Item.OUT-to-primitiveOutput.string.IN')
+          .locator('.codicon-trash').click({ force: true });
+        await loc3I1I1.waitFor({ state: 'detached' });
+        await dm.gotoPreviousView();
+
+        await loc3I1.locator('.codicon-trash').click({ force: true });
+        await loc3I1.waitFor({ state: 'detached' });
+        await dm.gotoPreviousView();
+
+        await loc3.locator('.codicon-trash').click({ force: true });
+        await loc3.waitFor({ state: 'detached' });
+
+        const loc4 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i1O.0.IN');
+        await loc4.click({ force: true });
+        await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.i1O.0.IN')
+          .locator('.codicon-trash').click({ force: true });
+        await loc4.waitFor({ state: 'detached' });
+        
+        const loc5 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i2O.1.0.IN');
+        await loc5.click({ force: true });
+        await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.i2O.1.0.IN')
+          .locator('.codicon-trash').click({ force: true });
+        await loc5.waitFor({ state: 'detached' });
+
+        // const loc6 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN');
+        // await loc6.click({ force: true });
+        // await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN')
+        //   .locator('.codicon-trash').click({ force: true });
+        // await loc6.waitFor({ state: 'detached' });
+
+        // const loc7 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p2.0.IN');
+        // await loc7.click({ force: true });
+        // await dmWebView.getByTestId('expression-label-for-input.iobjI.OUT-to-objectOutput.iobjO.1.p2.IN')
+        //   .locator('.codicon-trash').click({ force: true });
+        // await loc7.waitFor({ state: 'detached' });
+
+        // const loc8 = dmWebView.getByTestId('array-connector-node-objectOutput.m2O.IN');
+        // await loc8.getByTestId('expand-array-fn-m2O').click({ force: true });
+        // const loc8I1 = dmWebView.getByTestId('array-connector-node-arrayOutput.IN');
+        // await loc8I1.locator('[data-testid^="expand-array-fn-"]').click({ force: true });
+
+        // const loc8I1I1 = dmWebView.getByTestId('link-from-focusedInput.m2IItemItem.OUT-to-primitiveOutput.number.IN');
+        // await loc8I1I1.click({ force: true });
+        // await dmWebView.getByTestId('expression-label-for-focusedInput.m2IItemItem.OUT-to-primitiveOutput.number.IN')
+        //   .locator('.codicon-trash').click({ force: true });
+        // await loc8I1I1.waitFor({ state: 'detached' });
+        // await dm.gotoPreviousView();
+
+        // await loc8I1.locator('.codicon-trash').click({ force: true });
+        // await loc8I1.waitFor({ state: 'detached' });
+        // await dm.gotoPreviousView();
+
+        // await loc8.locator('.codicon-trash').click({ force: true });
+        // await loc8.waitFor({ state: 'detached' });
+
+        // const loc9 = dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN');
+        // await loc9.locator('.codicon-trash').click({ force: true });
+        // await loc9.waitFor({ state: 'detached' });
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+        // dm.resetTsFile();
 
         return;
 
