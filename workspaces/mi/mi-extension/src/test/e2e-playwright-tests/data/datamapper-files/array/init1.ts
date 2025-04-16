@@ -32,7 +32,6 @@ p2: string[]
 }[]
 m2O: number[][]
 s10O: string
-s21O: string[]
 }
 
 

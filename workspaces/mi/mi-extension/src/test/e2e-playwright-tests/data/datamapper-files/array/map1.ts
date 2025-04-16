@@ -32,7 +32,6 @@ interface OutputRoot {
     }[]
     m2O: number[][]
     s10O: string
-    s21O: string[]
 }
 
 
@@ -54,7 +53,7 @@ export function mapFunction(input: Root): OutputRoot {
                 return m2IItem
                     .map((m2IItemItem) => { return m2IItemItem })
             }),
-        s10O: input.s10O[0]
+        s10O: input.s10O[1]
     }
 }
 
