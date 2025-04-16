@@ -69,7 +69,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     useEffect(() => {
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
             console.log(">>> on parent popup submitted", parent);
-            fetchNodes();
+            setLoading(true);
+            //HACK: 3 seconds delay
+            setTimeout(() => {
+                fetchNodes();
+            }, 3000);
         });
     }, [rpcClient]);
 
@@ -147,6 +151,14 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             return category.metadata.label === "Current Integration";
         });
 
+        // Remove agent tool functions from integration category
+        const currentIntegrationCategory = filteredResponse.find((category) => category.metadata.label === "Current Integration");
+        if (currentIntegrationCategory && Array.isArray(currentIntegrationCategory.items)) {
+            currentIntegrationCategory.items = currentIntegrationCategory.items.filter((item) => {
+                return !item.metadata?.data?.isAgentTool;
+            });
+        }
+
         if (isSearching && searchText) {
             setCategories(convertFunctionCategoriesToSidePanelCategories(filteredResponse, functionType));
             return;
@@ -182,6 +194,11 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
         const name = data["name"] || "";
         const cleanName = name.trim().replace(/[^a-zA-Z0-9]/g, "") || "newTool";
 
+        // HACK: Remove new lines from description fields
+        if (data.description) {
+            data.description = data.description.replace(/\n/g, " ");
+        }
+
         const toolModel: AgentToolRequest = {
             toolName: cleanName,
             description: data["description"],
@@ -196,11 +213,12 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
             key: `name`,
             label: "Tool Name",
             type: "IDENTIFIER",
+            valueType: "IDENTIFIER",
             optional: false,
             editable: true,
             documentation: "Enter the name of the tool.",
             value: "",
-            valueTypeConstraint: "",
+            valueTypeConstraint: "Global",
             enabled: true,
         },
         {
@@ -224,7 +242,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
     if (
         selectedNodeRef.current &&
         selectedNodeRef.current.codedata.node === "FUNCTION_CALL" &&
-        !selectedNodeRef.current.codedata.org
+        !selectedNodeRef.current.metadata?.data?.isIsolatedFunction
     ) {
         concertMessage = `Convert ${selectedNodeRef.current.metadata.label} function to an isolated function`;
         concertRequired = true;
@@ -259,6 +277,7 @@ export function AIAgentSidePanel(props: BIFlowDiagramProps) {
                     concertMessage={concertMessage}
                     concertRequired={concertRequired}
                     description={description}
+                    helperPaneSide="left"
                 />
             )}
         </>

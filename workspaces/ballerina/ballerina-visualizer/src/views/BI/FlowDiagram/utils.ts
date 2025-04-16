@@ -73,7 +73,6 @@ export const transformCategories = (categories: Category[]): Category[] => {
         // HACK: update agent call node until LS update with the new agent node
         agentCallNode.codedata.object = "Agent";
         agentCallNode.codedata.parentSymbol = "";
-        agentCallNode.codedata.version = agentCallNode.codedata.version || "0.7.16";
     } else {
         // TODO: this should remove once LS update with the new agent node
         // add new item
@@ -167,16 +166,18 @@ export const removeToolFromAgentNode = async (agentNode: FlowNode, toolName: str
     let toolsValue = updatedAgentNode.properties.tools.value;
     // remove new lines from the tools value
     toolsValue = toolsValue.toString().replace(/\n/g, "");
-    // Remove the tool from the tools array
+    // Remove the tools from the tools array
     if (typeof toolsValue === "string") {
-        if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-            // Parse the tools string
-            const toolsString = toolsValue.substring(1, toolsValue.length - 1);
-            let existingTools = toolsString.split(",").map((t) => t.trim());
+        const toolsArray = parseToolsString(toolsValue);
+        if (toolsArray.length > 0) {
             // Remove the tool
-            existingTools = existingTools.filter((t) => t !== toolName);
+            const existingTools = toolsArray.filter((t) => t !== toolName);
             // Update the tools value
-            toolsValue = `[${existingTools.join(", ")}]`;
+            toolsValue = existingTools.length === 1 ?
+                `[${existingTools[0]}]` :
+                `[${existingTools.join(", ")}]`;
+        } else {
+            toolsValue = `[]`;
         }
     } else {
         console.error("Tools value is not a string", toolsValue);
@@ -188,27 +189,25 @@ export const removeToolFromAgentNode = async (agentNode: FlowNode, toolName: str
     return updatedAgentNode;
 };
 
+
 export const addToolToAgentNode = async (agentNode: FlowNode, toolName: string) => {
     if (!agentNode || agentNode.codedata?.node !== "AGENT") return null;
     // clone the node to avoid modifying the original
     const updatedAgentNode = cloneDeep(agentNode);
     let toolsValue = updatedAgentNode.properties.tools.value;
-    // remove new lines from the tools value
-    toolsValue = toolsValue.toString().replace(/\n/g, "");
+    // remove new lines and normalize whitespace from the tools value
+    toolsValue = toolsValue.toString().replace(/\s+/g, "");
     if (typeof toolsValue === "string") {
-        if (toolsValue === "[]") {
-            toolsValue = `[${toolName}]`;
-        } else if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-            const toolsString = toolsValue.substring(1, toolsValue.length - 1);
-            const existingTools = toolsString.split(",").map((t) => t.trim());
-
-            if (!existingTools.includes(toolName)) {
-                toolsValue = toolsValue.substring(0, toolsValue.length - 1);
-                if (toolsValue.length > 1) {
-                    toolsValue += ", ";
-                }
-                toolsValue += toolName + "]";
+        const toolsArray = parseToolsString(toolsValue);
+        if (toolsArray.length > 0) {
+            // Add the tool if not exists
+            if (!toolsArray.includes(toolName)) {
+                toolsArray.push(toolName);
             }
+            // Update the tools value
+            toolsValue = toolsArray.length === 1 ?
+                `[${toolsArray[0]}]` :
+                `[${toolsArray.join(", ")}]`;
         } else {
             toolsValue = `[${toolName}]`;
         }
@@ -264,18 +263,40 @@ export const removeAgentNode = async (agentCallNode: FlowNode, rpcClient: Baller
 };
 
 export const findFunctionByName = (components: BallerinaProjectComponents, functionName: string) => {
-    // Iterate through packages
     for (const pkg of components.packages) {
-        // Iterate through modules in each package
         for (const module of pkg.modules) {
-            // Search through functions
             const foundFunction = module.functions.find((func: any) => func.name === functionName);
             if (foundFunction) {
-                // update file path to include package path
-                foundFunction.filePath = Utils.joinPath(URI.file(pkg.filePath), foundFunction.filePath).fsPath;
+                const pkgUri = URI.parse(pkg.filePath);
+                const joinedUri = Utils.joinPath(pkgUri, foundFunction.filePath);
+                foundFunction.filePath = joinedUri.fsPath;
                 return foundFunction;
             }
         }
     }
     return null;
+};
+
+export const updateFlowNodePropertyValuesWithKeys = (flowNode: FlowNode) => {
+    const excludedKeys = ["variable", "type", "checkError", "targetType"];
+    for (const key in flowNode.properties) {
+        if (!excludedKeys.includes(key)) {
+            (flowNode.properties as Record<string, { value: string }>)[key].value = key;
+        }
+    }
+}
+
+const parseToolsString = (toolsStr: string): string[] => {
+    // Remove brackets and split by comma
+    const trimmed = toolsStr.trim();
+    if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+        return [];
+    }
+    const inner = trimmed.substring(1, trimmed.length - 1);
+    // Handle empty array case
+    if (!inner.trim()) {
+        return [];
+    }
+    // Split by comma and trim each element
+    return inner.split(",").map(tool => tool.trim());
 };

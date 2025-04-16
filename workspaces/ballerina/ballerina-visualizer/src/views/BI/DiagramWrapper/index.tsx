@@ -406,6 +406,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     enableTransition={true}
                     onChange={handleToggleDiagram}
                     sx={{
+                        width: "250px",
                         margin: "auto",
                         position: "fixed",
                         top: "120px",

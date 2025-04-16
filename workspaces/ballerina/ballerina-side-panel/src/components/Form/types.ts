@@ -52,6 +52,7 @@ export type ParameterValue = {
     value: {
         variable: { value: string };
         type: { value: string };
+        parameterDescription: { value: string };
     };
 };
 
@@ -127,7 +128,8 @@ type FormTypeConditionalProps = {
         typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeTypeHelperState: (isOpen: boolean) => void,
-        helperPaneHeight: HelperPaneHeight
+        helperPaneHeight: HelperPaneHeight,
+        closeCompletions: () => void
     ) => JSX.Element;
     helperPaneOrigin?: HelperPaneOrigin;
     helperPaneHeight: HelperPaneHeight;

@@ -14,7 +14,7 @@ import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
 import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
-import { buildProjectArtifactsStructure } from './utils/project-artifacts';
+import { buildProjectArtifactsStructure, forceUpdateProjectArtifacts } from './utils/project-artifacts';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -45,13 +45,18 @@ const stateMachine = createMachine<MachineContext>(
                 actions: [
                     assign({
                         projectStructure: (context, event) => event.payload,
-                        tempData: undefined
+                        tempData: (context, event) => event.stateMachineNavigate ? undefined : context.tempData // Remove temp data if the location is set
                     }),
                     (context, event) => {
-                        if (event.location) {
-                            openView(EVENT_TYPE.OPEN_VIEW, event.location);
+                        if (event.stateMachineNavigate) {
+                            if (event.location) {
+                                openView(EVENT_TYPE.OPEN_VIEW, event.location);
+                            } else {
+                                updateView();
+                            }
+                        } else {
+                            notifyCurrentWebview();
                         }
-                        notifyCurrentWebview();
                         commands.executeCommand("BI.project-explorer.refresh");
                     }
                 ]
@@ -219,6 +224,11 @@ const stateMachine = createMachine<MachineContext>(
                     commands.executeCommand('setContext', 'BI.status', 'loadingDone');
                     if (!ls.biSupported) {
                         commands.executeCommand('setContext', 'BI.status', 'updateNeed');
+                        if (ls.ballerinaHome.includes("ballerina-home")) {
+                            commands.executeCommand('setContext', 'BI.distribution', 'setByBI');
+                        } else {
+                            commands.executeCommand('setContext', 'BI.distribution', 'setByUser');
+                        }
                     }
                     resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
                 } catch (error) {
@@ -434,7 +444,7 @@ export const StateMachine = {
     setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
     setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
-    updateProjectStructure: (payload: ProjectStructureResponse, location?: VisualizerLocation) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, location }); },
+    updateProjectStructure: (payload: ProjectStructureResponse, stateMachineNavigate: boolean, location?: VisualizerLocation) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, stateMachineNavigate, location }); },
     setTempData: (payload: TempData) => { stateService.send({ type: "SET_TEMP_DATA", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
@@ -442,9 +452,12 @@ export const StateMachine = {
 };
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
+    StateMachine.setReadyMode();
     if (resetHistory) {
         history?.clear();
     }
+    extension.hasPullModuleResolved = false;
+    extension.hasPullModuleNotification = false;
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
@@ -457,14 +470,14 @@ export function updateView(refreshTreeView?: boolean) {
     }
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
     if (refreshTreeView) {
-        commands.executeCommand("BI.project-explorer.refresh");
+        forceUpdateProjectArtifacts();
     }
     notifyCurrentWebview();
 }
 
 function getLastHistory() {
     const historyStack = history?.get();
-    return historyStack[historyStack.length - 1];
+    return historyStack?.[historyStack?.length - 1];
 }
 
 async function checkForProjects(): Promise<{ isBI: boolean, projectPath: string, scope?: SCOPE }> {

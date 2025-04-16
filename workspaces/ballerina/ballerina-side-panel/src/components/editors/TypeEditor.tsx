@@ -173,7 +173,8 @@ export function TypeEditor(props: TypeEditorProps) {
             isTypeHelperOpen,
             onChange,
             handleChangeTypeHelperState,
-            helperPaneHeight
+            helperPaneHeight,
+            handleCancel
         );
     }
 
@@ -248,7 +249,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Set show default completion
-                                const typeExists = types.find((type) => type.label.includes(updatedValue));
+                                const typeExists = types.find((type) => type.label === updatedValue);
                                 const validTypeForCreation = updatedValue.match(/^[a-zA-Z_'][a-zA-Z0-9_]*$/);
                                 if (updatedValue && !typeExists && validTypeForCreation) {
                                     setShowDefaultCompletion(true);

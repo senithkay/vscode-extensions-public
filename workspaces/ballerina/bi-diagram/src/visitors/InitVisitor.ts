@@ -331,6 +331,12 @@ export class InitVisitor implements BaseVisitor {
         this.visitForkNode(node, parent);
     }
 
+    beginVisitParallelFlow(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        node.branches = []; // HACK: Remove branches until parallel flow is implemented
+        this.beginVisitNode(node, parent);
+    }
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }

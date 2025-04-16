@@ -238,7 +238,7 @@ export function FunctionForm(props: FunctionFormProps) {
                             const valueConstraint = JSON.parse(JSON.stringify(baseConstraint));
                             // Fill the values of the parameter constraint
                             for (const [paramKey, param] of Object.entries((valueConstraint as any).value as NodeProperties)) {
-                                param.value = (repeatValue as any).formValues[paramKey];
+                                param.value = (repeatValue as any).formValues[paramKey] || "";
                             }
                             (property.value as any)[(repeatValue as any).key] = valueConstraint;
                         }
@@ -263,6 +263,22 @@ export function FunctionForm(props: FunctionFormProps) {
 
     const handleFormSubmit = async (data: FormValues, formImports?: FormImports) => {
         setSaving(true);
+        // HACK: Remove new lines from function description fields
+        const descriptionFields = ["functionNameDescription", "typeDescription"];
+        for (const field of descriptionFields) {
+            if (data[field]) {
+                data[field] = data[field]?.replace(/\n/g, " ");
+            }
+        }
+        // HACK: Remove new lines from parameter description
+        if (data.parameters) {
+            for (const parameter of data.parameters) {
+                if (parameter && parameter.formValues?.parameterDescription) {
+                    parameter.formValues.parameterDescription = parameter.formValues.parameterDescription.replace(/\n/g, " ");
+                }
+            }
+        }
+
         try {
             await onSubmit(data, formImports);
         } catch (error) {
@@ -304,6 +320,13 @@ export function FunctionForm(props: FunctionFormProps) {
                 });
         }
     }, [filePath, rpcClient]);
+
+    //HACK: Hide is isolated field form function form
+    functionFields.forEach((field) => {
+        if (field.key === "isIsolated") {
+            field.hidden = true;
+        }
+    });
 
     return (
         <View>

@@ -38,6 +38,11 @@ const verbs = [
 		content: 'PATCH',
 		id: 'PATCH',
 		value: 'PATCH'
+	},
+	{
+		content: 'DEFAULT',
+		id: 'DEFAULT',
+		value: 'DEFAULT'
 	}
 ];
 
@@ -112,7 +117,7 @@ export function ResourcePath(props: ResourcePathProps) {
 		onChange(method, { ...path, value });
 	};
 
-	
+
 	return (
 		<>
 			<PathContainer>

@@ -19,7 +19,7 @@ import {
 import { TypeHelperOperator } from '..';
 import { TypeHelperCategory, TypeHelperItem } from '.';
 import { TypeBrowser } from './TypeBrowser';
-import { isTypePanelOpen } from './utils';
+import { getTypeCreateText, isTypePanelOpen } from './utils';
 
 /* Constants */
 const PANEL_TABS = {
@@ -44,6 +44,7 @@ type TypeHelperComponentProps = {
     onSearchTypeHelper: (searchText: string, isType: boolean) => void;
     onSearchTypeBrowser: (searchText: string) => void;
     onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
+    onTypeCreate?: (typeName?: string) => void;
     onClose: () => void;
 };
 
@@ -108,6 +109,12 @@ namespace S {
         padding: 8px;
         border-radius: 4px;
     `;
+
+    export const FooterContainer = styled.div`
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    `;
 }
 
 export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
@@ -127,11 +134,13 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
         onSearchTypeHelper,
         onSearchTypeBrowser,
         onTypeItemClick,
+        onTypeCreate,
         onClose
     } = props;
     const [searchValue, setSearchValue] = useState<string>('');
     const [isTypeBrowserOpen, setIsTypeBrowserOpen] = useState<boolean>(false);
     const [activePanelIndex, setActivePanelIndex] = useState<number>(PANEL_TABS.TYPES);
+    const newTypeName = useRef<string>('');
 
     const handleOperatorClick = (operator: TypeHelperOperator) => {
         if (operator.insertType === 'global') {
@@ -307,11 +316,20 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                 </HelperPane.Panels>
             </HelperPane.Body>
             <HelperPane.Footer>
-                <HelperPane.IconButton
-                    title="Open type browser"
-                    getIcon={() => <Codicon name="library" />}
-                    onClick={() => setIsTypeBrowserOpen(true)}
-                />
+                <S.FooterContainer>
+                    {onTypeCreate && (
+                        <HelperPane.IconButton
+                            title={getTypeCreateText(currentType, basicTypes, newTypeName)}
+                            getIcon={() => <Codicon name="add" />}
+                            onClick={() => onTypeCreate(newTypeName.current)}
+                        />
+                    )}
+                    <HelperPane.IconButton
+                        title="Open type browser"
+                        getIcon={() => <Codicon name="library" />}
+                        onClick={() => setIsTypeBrowserOpen(true)}
+                    />
+                </S.FooterContainer>
             </HelperPane.Footer>
 
             {/* Type browser */}

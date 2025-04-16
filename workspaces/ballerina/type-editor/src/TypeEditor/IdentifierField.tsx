@@ -21,6 +21,7 @@ interface IdentifierFieldProps {
     rootType: Type;
     label?: string;
     onValidationError?: (isError: boolean) => void;
+    autoFocus?: boolean;
 }
 
 export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps>((props, ref) => {
@@ -30,7 +31,8 @@ export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps
         placeholder,
         rootType,
         label,
-        onValidationError
+        onValidationError,
+        autoFocus
     } = props;
 
     const [internalErrorMsg, setInternalErrorMsg] = useState<string>("");
@@ -114,6 +116,7 @@ export const IdentifierField = forwardRef<HTMLInputElement, IdentifierFieldProps
             placeholder={placeholder}
             errorMsg={internalErrorMsg}
             label={label}
+            autoFocus={autoFocus}
         />
     );
 });

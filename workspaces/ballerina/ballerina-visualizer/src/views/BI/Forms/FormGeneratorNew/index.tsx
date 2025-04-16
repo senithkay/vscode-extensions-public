@@ -39,6 +39,7 @@ import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, The
 import {
     convertBalCompletion,
     convertToVisibleTypes,
+    getImportsForFormFields,
     getInfoFromExpressionValue,
     removeDuplicateDiagnostics,
     updateLineRange
@@ -126,6 +127,7 @@ export function FormGeneratorNew(props: FormProps) {
     useEffect(() => {
         if (fields) {
             setFields(fields);
+            setFormImports(getImportsForFormFields(fields));
         }
     }, [fields]);
 
@@ -401,8 +403,15 @@ export function FormGeneratorNew(props: FormProps) {
         typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
-        typeHelperHeight: HelperPaneHeight
+        typeHelperHeight: HelperPaneHeight,
+        closeCompletions: () => void
     ) => {
+        const formField = fieldsValues.find(f => f.key === fieldKey);
+        const handleCreateNewType = (typeName: string) => {
+            closeCompletions();
+            setTypeEditorState({ isOpen: true, newTypeValue: typeName, field: formField });
+        }
+
         return getTypeHelper({
             fieldKey: fieldKey,
             typeBrowserRef: typeBrowserRef,
@@ -414,7 +423,8 @@ export function FormGeneratorNew(props: FormProps) {
             typeHelperState: typeHelperState,
             onChange: onChange,
             changeTypeHelperState: changeHelperPaneState,
-            updateImports: handleUpdateImports
+            updateImports: handleUpdateImports,
+            onTypeCreate: handleCreateNewType
         });
     }
 
@@ -555,11 +565,9 @@ export function FormGeneratorNew(props: FormProps) {
                 onClose={onCloseTypeEditor}
             >
                 <FormTypeEditor
-                    fieldKey={typeEditorState.field?.key}
                     newType={true}
                     onTypeChange={handleTypeChange}
                     newTypeValue={typeEditorState.newTypeValue}
-                    updateImports={handleUpdateImports}
                     {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>

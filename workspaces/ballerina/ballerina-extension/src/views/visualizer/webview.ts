@@ -43,7 +43,7 @@ export class VisualizerWebview {
             const state = StateMachine.state();
             const machineReady = typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
             if (this._panel?.active && machineReady && document && document.document.languageId === LANGUAGE.BALLERINA) {
-                sendUpdateNotificationToWebview(true);
+                sendUpdateNotificationToWebview();
             }
         }, extension.context);
 

@@ -186,6 +186,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    HandleFileRequest,
+    HandleFileResponse,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -309,6 +311,7 @@ import {
     updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile,
+    handleFileWithFS,
     StoreConnectorJsonResponse,
     getStoreConnectorJSON,
     TestDbConnectionRequest,
@@ -348,6 +351,7 @@ import {
     MediatorTryOutRequest,
     tryOutMediator,
     getInputPayloads,
+    getAllInputDefaultPayloads,
     saveInputPayload,
     MediatorTryOutResponse,
     SavePayloadRequest,
@@ -674,6 +678,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(writeContentToFile, HOST_EXTENSION, params);
     }
 
+    handleFileWithFS(params: HandleFileRequest): Promise<HandleFileResponse> {
+        return this._messenger.sendRequest(handleFileWithFS, HOST_EXTENSION, params);
+    }
+
     highlightCode(params: HighlightCodeRequest): void {
         return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
     }
@@ -771,7 +779,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     }
 
     copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
-        return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params)
+        return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params);
     }
 
     copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {
@@ -1005,8 +1013,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
         return this._messenger.sendRequest(saveInputPayload, HOST_EXTENSION, params);
     }
+
     getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return this._messenger.sendRequest(getInputPayloads, HOST_EXTENSION, params);
+    }
+
+    getAllInputDefaultPayloads(): Promise<Record<string, unknown>> {
+        return this._messenger.sendRequest(getAllInputDefaultPayloads, HOST_EXTENSION);
     }
 
     getMediators(params: GetMediatorsRequest): Promise<GetMediatorsResponse> {

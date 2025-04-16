@@ -326,6 +326,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
                 if (filteredSuggestions.length > 0) {
                     selectSuggestion(filteredSuggestions[activeSuggestionIndex]);
                     if (fileInputRef.current && baseCommands.has(selectedCommand)) {
+                        setActiveCommand(selectedCommand);
                         fileInputRef.current.accept = getFileTypesForCommand(selectedCommand).join(",");
                     }
                 }

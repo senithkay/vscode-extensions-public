@@ -8,7 +8,7 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { Member, Type } from '@wso2-enterprise/ballerina-core';
+import { Imports, Member, Type } from '@wso2-enterprise/ballerina-core';
 import { Button, CheckBox, Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { typeToSource, defaultAnonymousRecordType } from './TypeUtil';
@@ -60,6 +60,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     const { member, onChange, onDelete, type, onValidationError, onFieldValidation, onRecordValidation } = props;
     const [panelOpened, setPanelOpened] = useState<boolean>(false);
     const recordEditorRef = useRef<{ addMember: () => void }>(null);
+    const currentImports = useRef<Imports | undefined>();
 
     const toggleOptional = () => {
         onChange({
@@ -86,8 +87,18 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
     const handleTypeChange = (value: string) => {
         onChange({
             ...member,
-            type: value
+            type: value,
+            imports: currentImports.current
         });
+        currentImports.current = undefined;
+    }
+
+    const handleUpdateImports = (imports: Imports) => {
+        const newImportKey = Object.keys(imports)[0];
+        if (!member.imports || !Object.keys(member.imports)?.includes(newImportKey)) {
+            const updatedImports = { ...member.imports, ...imports };
+            currentImports.current = updatedImports;
+        }
     }
 
     const handleMemberDefaultValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,6 +150,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                     type={member.type}
                     memberName={typeToSource(member.type)}
                     onChange={handleTypeChange}
+                    onUpdateImports={handleUpdateImports}
                     onValidationError={(hasError) => onFieldValidation(false, hasError)}
                     rootType={type}
                     isAnonymousRecord={isRecord(member.type)}

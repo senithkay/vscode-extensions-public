@@ -177,6 +177,7 @@ export function convertNodePropertyToFormField(
         lineRange: property?.codedata?.lineRange,
         metadata: property.metadata,
         codedata: property.codedata,
+        imports: property.imports
     };
     return formField;
 }
@@ -724,6 +725,7 @@ function createParameterValue(index: number, paramValueKey: string, paramValue: 
     const type = paramValue.value.type.value;
     const variableLineRange = (paramValue.value.variable as any).codedata?.lineRange;
     const variableEditable = (paramValue.value.variable as any).editable;
+    const parameterDescription = paramValue.value.parameterDescription?.value;
 
     return {
         id: index,
@@ -735,6 +737,7 @@ function createParameterValue(index: number, paramValueKey: string, paramValue: 
         formValues: {
             variable: name,
             type: type,
+            parameterDescription: parameterDescription,
         },
     };
 }
@@ -844,3 +847,24 @@ export const getImportsForProperty = (key: string, imports: FormImports): Import
 
     return imports[key];
 };
+
+export function getImportsForFormFields(formFields: FormField[]): FormImports {
+    const imports: FormImports = {};
+    for (const field of formFields) {
+        if (field.imports) {
+            imports[field.key] = field.imports;
+        }
+    }
+    return imports;
+}
+
+/**
+ * Filters the unsupported diagnostics for local connections
+ * @param diagnostics - Diagnostics to filter
+ * @returns Filtered diagnostics
+ */
+export function filterUnsupportedDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
+    return diagnostics.filter((diagnostic) => {
+        return !diagnostic.message.startsWith('unknown type') && !diagnostic.message.startsWith('undefined module');
+    });
+}

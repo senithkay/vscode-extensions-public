@@ -14,7 +14,7 @@ import { URI, Utils } from "vscode-uri";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { AIAgentSidePanel } from "./AIAgentSidePanel";
 import { RelativeLoader } from "../../../components/RelativeLoader";
-import { addToolToAgentNode, findAgentNodeFromAgentCallNode } from "./utils";
+import { addToolToAgentNode, findAgentNodeFromAgentCallNode, updateFlowNodePropertyValuesWithKeys } from "./utils";
 
 const LoaderContainer = styled.div`
     display: flex;
@@ -78,7 +78,7 @@ export function NewTool(props: NewToolProps): JSX.Element {
             await new Promise((resolve) => setTimeout(resolve, 2000));
 
             // add tools
-            if (data.selectedCodeData.node === "FUNCTION_CALL" && !data.selectedCodeData.org) {
+            if (data.selectedCodeData.node === "FUNCTION_CALL") {
                 // create tool from existing function
                 // get function definition
                 const functionDefinition = await rpcClient.getBIDiagramRpcClient().getFunctionNode({
@@ -107,35 +107,6 @@ export function NewTool(props: NewToolProps): JSX.Element {
                     connection: "",
                 });
                 console.log(">>> response save tool", { toolResponse });
-            } else if (data.selectedCodeData.node === "FUNCTION_CALL" && data.selectedCodeData.org) {
-                // create tool from library function
-                // get function definition
-                const nodeTemplate = await rpcClient.getBIDiagramRpcClient().getNodeTemplate({
-                    position: { line: 0, offset: 0 },
-                    filePath: agentFilePath.current,
-                    id: data.selectedCodeData,
-                });
-                console.log(">>> node template", { nodeTemplate });
-                if (!nodeTemplate.flowNode) {
-                    console.error("Node template not found");
-                    return;
-                }
-                if (nodeTemplate.flowNode?.codedata) {
-                    nodeTemplate.flowNode.codedata.isNew = true;
-                    nodeTemplate.flowNode.codedata.lineRange = {
-                        ...agentNode.codedata.lineRange,
-                        endLine: agentNode.codedata.lineRange.startLine,
-                    };
-                }
-                // save tool
-                const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
-                    toolName: data.toolName,
-                    description: data.description,
-                    filePath: agentFilePath.current,
-                    flowNode: nodeTemplate.flowNode,
-                    connection: "",
-                });
-                console.log(">>> response save tool", { toolResponse });
             } else {
                 // create tool from existing connection
                 // get nodeTemplate
@@ -156,6 +127,7 @@ export function NewTool(props: NewToolProps): JSX.Element {
                         endLine: agentNode.codedata.lineRange.startLine,
                     };
                 }
+                updateFlowNodePropertyValuesWithKeys(nodeTemplate.flowNode);
                 // save tool
                 const toolResponse = await rpcClient.getAIAgentRpcClient().genTool({
                     toolName: data.toolName,

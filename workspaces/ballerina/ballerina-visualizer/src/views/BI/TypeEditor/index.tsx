@@ -30,17 +30,15 @@ const LoadingContainer = styled.div`
 `;
 
 type FormTypeEditorProps = {
-    fieldKey?: string;
     type?: Type;
     onTypeChange: (type: Type) => void;
     newType: boolean;
     newTypeValue?: string;
     isGraphql?: boolean;
-    updateImports?: (key: string, imports: {[key: string]: string}) => void;
 };
 
 export const FormTypeEditor = (props: FormTypeEditorProps) => {
-    const { fieldKey, type, onTypeChange, newType, newTypeValue, isGraphql, updateImports } = props;
+    const { type, onTypeChange, newType, newTypeValue, isGraphql } = props;
     const { rpcClient } = useRpcContext();
 
     const [filePath, setFilePath] = useState<string | undefined>(undefined);
@@ -189,7 +187,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
         [debouncedSearchTypeBrowser]
     );
 
-    const { mutateAsync: addFunction, isLoading: isAddingType  } = useMutation(
+    const { mutateAsync: addFunction, isLoading: isAddingType } = useMutation(
         (item: TypeHelperItem) => 
             rpcClient.getBIDiagramRpcClient().addFunction({
                 filePath: filePath,
@@ -200,17 +198,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
     );
 
     const handleTypeItemClick = async (item: TypeHelperItem) => {
-        const response = await addFunction(item);
-
-        if (response) {
-            const importStatement = {
-                [response.prefix]: response.moduleId
-            };
-            updateImports(fieldKey, importStatement);
-            return response.template;
-        }
-
-        return '';
+        return await addFunction(item);
     };
 
     return (

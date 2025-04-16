@@ -21,7 +21,6 @@ import {
 
 import { ANIMATION } from './constant';
 import { getArrowPosition, getHelperPanePosition } from '../utils';
-import { useTypeHelperContext } from '../Context';
 import { TypeHelperComponent } from './TypeHelper';
 import { CodeData, FunctionKind } from '@wso2-enterprise/ballerina-core';
 
@@ -76,6 +75,17 @@ type TypeHelperProps = {
     onChange: (newType: string, newCursorPosition: number) => void;
     // Callback function to close the helper pane
     onClose: () => void;
+    /* Context props */
+    loading?: boolean;
+    loadingTypeBrowser?: boolean;
+    basicTypes: TypeHelperCategory[];
+    importedTypes: TypeHelperCategory[];
+    operators: TypeHelperOperator[];
+    typeBrowserTypes: TypeHelperCategory[];
+    onSearchTypeHelper: (searchText: string, isType: boolean) => void;
+    onSearchTypeBrowser: (searchText: string) => void;
+    onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
+    onTypeCreate?: (typeName?: string) => void;
 };
 
 type StyleBase = {
@@ -161,20 +171,9 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
         currentType,
         currentCursorPosition,
         onChange,
-        onClose
+        onClose,
+        ...rest
     } = props;
-
-    const {
-        loading,
-        loadingTypeBrowser,
-        basicTypes,
-        importedTypes,
-        operators,
-        typeBrowserTypes,
-        onSearchTypeHelper,
-        onSearchTypeBrowser,
-        onTypeItemClick
-    } = useTypeHelperContext();
 
     const typeHelperRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState<Record<string, Position>>({
@@ -235,18 +234,10 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
                                 open={open}
                                 currentType={currentType}
                                 currentCursorPosition={currentCursorPosition}
-                                loading={loading}
-                                loadingTypeBrowser={loadingTypeBrowser}
-                                basicTypes={basicTypes}
-                                importedTypes={importedTypes}
-                                operators={operators}
-                                typeBrowserTypes={typeBrowserTypes}
                                 typeBrowserRef={typeBrowserRef}
                                 onChange={onChange}
-                                onSearchTypeHelper={onSearchTypeHelper}
-                                onSearchTypeBrowser={onSearchTypeBrowser}
-                                onTypeItemClick={onTypeItemClick}
                                 onClose={onClose}
+                                {...rest}
                             />
                             <S.Arrow sx={position.arrow} />
                         </Transition>

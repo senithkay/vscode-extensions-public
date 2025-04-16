@@ -51,7 +51,9 @@ import {
     convertToFnSignature,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
+    filterUnsupportedDiagnostics,
     getFormProperties,
+    getImportsForFormFields,
     getInfoFromExpressionValue,
     removeDuplicateDiagnostics,
     updateLineRange,
@@ -241,7 +243,9 @@ export function FormGenerator(props: FormProps) {
         console.log(">>> Fields with RECORD_TYPE:", recordTypeFields);
 
         // get node properties
-        setFields(convertNodePropertiesToFormFields(enrichedNodeProperties || formProperties, connections, clientName));
+        const fields = convertNodePropertiesToFormFields(enrichedNodeProperties || formProperties, connections, clientName);
+        setFields(fields);
+        setFormImports(getImportsForFormFields(fields));
     };
 
     const handleOnSubmit = (data: FormValues) => {
@@ -483,7 +487,11 @@ export function FormGenerator(props: FormProps) {
                         },
                     });
     
-                    const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                    let uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+
+                    // HACK: filter unknown module and undefined type diagnostics for local connections
+                    uniqueDiagnostics = filterUnsupportedDiagnostics(uniqueDiagnostics);
+
                     setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
                 } catch (error) {
                     // Remove diagnostics if LS crashes
@@ -583,8 +591,14 @@ export function FormGenerator(props: FormProps) {
         typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
-        typeHelperHeight: HelperPaneHeight
+        typeHelperHeight: HelperPaneHeight,
+        closeCompletions: () => void
     ) => {
+        const handleCreateNewType = (typeName: string) => {
+            closeCompletions();
+            setTypeEditorState({ isOpen: true, newTypeValue: typeName, fieldKey: fieldKey });
+        }
+
         return getTypeHelper({
             fieldKey: fieldKey,
             typeBrowserRef: typeBrowserRef,
@@ -596,7 +610,8 @@ export function FormGenerator(props: FormProps) {
             typeHelperState: typeHelperState,
             onChange: onChange,
             changeTypeHelperState: changeHelperPaneState,
-            updateImports: handleUpdateImports
+            updateImports: handleUpdateImports,
+            onTypeCreate: handleCreateNewType
         });
     }
 
@@ -725,12 +740,10 @@ export function FormGenerator(props: FormProps) {
             {typeEditorState.isOpen && (
                 <PanelContainer title={"New Type"} show={true} onClose={onTypeEditorClosed}>
                     <FormTypeEditor
-                        fieldKey={typeEditorState.fieldKey}
                         newType={true}
                         newTypeValue={typeEditorState.newTypeValue}
                         isGraphql={isGraphql}
                         onTypeChange={onTypeChange}
-                        updateImports={handleUpdateImports}
                     />
                 </PanelContainer>
             )}

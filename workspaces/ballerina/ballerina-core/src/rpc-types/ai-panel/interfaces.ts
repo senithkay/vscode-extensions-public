@@ -43,6 +43,11 @@ export interface SourceFile {
     content : string;
 }
 
+export interface GetModuleDirParams {
+    filePath: string;
+    moduleName: string;
+}
+
 export interface ProjectDiagnostics {
     diagnostics: DiagnosticEntry[];
 }

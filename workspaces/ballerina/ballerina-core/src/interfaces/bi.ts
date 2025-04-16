@@ -10,7 +10,6 @@
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
-import { ServiceModel } from "./service";
 
 export type { NodePosition };
 
@@ -244,8 +243,8 @@ export interface ProjectStructureArtifactResponse {
     type: string;
     icon?: string;
     context?: string;
+    moduleName?: string;
     position?: NodePosition;
-    serviceModel?: ServiceModel;
     resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;
@@ -351,7 +350,8 @@ export type NodeKind =
     | "FUNCTION_DEFINITION"
     | "AUTOMATION"
     | "CONFIG_VARIABLE"
-    | "CLASS_INIT";
+    | "CLASS_INIT"
+    | "PARALLEL_FLOW";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];

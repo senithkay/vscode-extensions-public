@@ -167,7 +167,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
             // Handle action when cmd key is pressed
-            if (model.node.codedata.node === "DATA_MAPPER_DEFINITION") {
+            if (model.node.codedata.node === "DATA_MAPPER_CALL") {
                 openDataMapper();
             } else if (model.node.codedata.node === "FUNCTION_CALL") {
                 viewFunction();
@@ -251,7 +251,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
-    if (model.node.codedata.node === "DATA_MAPPER_DEFINITION") {
+    if (model.node.codedata.node === "DATA_MAPPER_CALL") {
         menuItems.splice(1, 0, {
             id: "openDataMapper",
             label: "View",

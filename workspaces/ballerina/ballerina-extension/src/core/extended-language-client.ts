@@ -149,7 +149,7 @@ import {
     ListenerModelFromCodeRequest,
     ListenerModelFromCodeResponse,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     UpdateImportsRequest,
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
@@ -206,7 +206,8 @@ import {
     ProjectArtifacts,
     Artifacts,
     MemoryManagersRequest,
-    MemoryManagersResponse
+    MemoryManagersResponse,
+    ArtifactsNotification
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -436,10 +437,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     registerPublishArtifacts(): void {
-        this.onNotification(EXTENDED_APIS.PUBLISH_ARTIFACTS, (res: Artifacts) => {
-            console.log("Publish Artifacts", { res });
-            if (res && Object.keys(res).length > 0) {
-                updateProjectArtifacts(res);
+        this.onNotification(EXTENDED_APIS.PUBLISH_ARTIFACTS, (res: ArtifactsNotification) => {
+            try {
+                console.log("Publish Artifacts", { res });
+                if (res && Object.keys(res).length > 0) {
+                    updateProjectArtifacts(res);
+                }
+            } catch (error) {
+                console.error("Error in PUBLISH_ARTIFACTS handler:", error);
             }
         });
     }
@@ -1031,8 +1036,8 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ImportsInfoResponse>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
     }
 
-    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
-        return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
+    async addFunction(params: AddFunctionRequest): Promise<AddImportItemResponse> {
+        return this.sendRequest<AddImportItemResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
     }
 
     async getAllAgents(params: AINodesRequest): Promise<AINodesResponse> {

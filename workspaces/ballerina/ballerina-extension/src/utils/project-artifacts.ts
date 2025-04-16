@@ -8,9 +8,14 @@
  */
 
 import { URI, Utils } from "vscode-uri";
-import { ARTIFACT_TYPE, Artifacts, BaseArtifact, DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { ARTIFACT_TYPE, Artifacts, ArtifactsNotification, BaseArtifact, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, ProjectStructureArtifactResponse, ProjectStructureResponse, SourceUpdateResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { StateMachine } from "../stateMachine";
+import * as fs from 'fs';
+import * as path from 'path';
 import { ExtendedLangClient } from "../core/extended-language-client";
+import { ServiceDesignerRpcManager } from "../rpc-managers/service-designer/rpc-manager";
+import { injectAgent, injectAgentCode, injectImportIfMissing } from "./source-utils";
+import { tmpdir } from "os";
 
 export async function buildProjectArtifactsStructure(projectDir: string, langClient: ExtendedLangClient): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
@@ -32,60 +37,79 @@ export async function buildProjectArtifactsStructure(projectDir: string, langCli
     const designArtifacts = await langClient.getProjectArtifacts({ projectPath: projectDir });
     console.log("designArtifacts", designArtifacts);
     if (designArtifacts?.artifacts) {
-        await traverseComponents(designArtifacts.artifacts, result);
+        traverseComponents(designArtifacts.artifacts, result);
         await populateLocalConnectors(projectDir, result);
     }
     return result;
 }
 
 export async function forceUpdateProjectArtifacts() {
-    const result: ProjectStructureResponse = {
-        projectName: "",
-        directoryMap: {
-            [DIRECTORY_MAP.AUTOMATION]: [],
-            [DIRECTORY_MAP.SERVICE]: [],
-            [DIRECTORY_MAP.LISTENER]: [],
-            [DIRECTORY_MAP.FUNCTION]: [],
-            [DIRECTORY_MAP.CONNECTION]: [],
-            [DIRECTORY_MAP.TYPE]: [],
-            [DIRECTORY_MAP.CONFIGURABLE]: [],
-            [DIRECTORY_MAP.DATA_MAPPER]: [],
-            [DIRECTORY_MAP.NP_FUNCTION]: [],
-            [DIRECTORY_MAP.AGENTS]: [],
-            [DIRECTORY_MAP.LOCAL_CONNECTORS]: [],
+    return new Promise(async (resolve) => {
+        const result: ProjectStructureResponse = {
+            projectName: "",
+            directoryMap: {
+                [DIRECTORY_MAP.AUTOMATION]: [],
+                [DIRECTORY_MAP.SERVICE]: [],
+                [DIRECTORY_MAP.LISTENER]: [],
+                [DIRECTORY_MAP.FUNCTION]: [],
+                [DIRECTORY_MAP.CONNECTION]: [],
+                [DIRECTORY_MAP.TYPE]: [],
+                [DIRECTORY_MAP.CONFIGURABLE]: [],
+                [DIRECTORY_MAP.DATA_MAPPER]: [],
+                [DIRECTORY_MAP.NP_FUNCTION]: [],
+                [DIRECTORY_MAP.AGENTS]: [],
+                [DIRECTORY_MAP.LOCAL_CONNECTORS]: [],
+            }
+        };
+        const langClient = StateMachine.context().langClient;
+        const projectDir = StateMachine.context().projectUri;
+        const designArtifacts = await langClient.getProjectArtifacts({ projectPath: projectDir });
+        if (designArtifacts?.artifacts) {
+            traverseComponents(designArtifacts.artifacts, result);
+            await populateLocalConnectors(projectDir, result);
         }
-    };
-    const langClient = StateMachine.context().langClient;
-    const projectDir = StateMachine.context().projectUri;
-    const designArtifacts = await langClient.getProjectArtifacts({ projectPath: projectDir });
-    if (designArtifacts?.artifacts) {
-        await traverseComponents(designArtifacts.artifacts, result);
-        await populateLocalConnectors(projectDir, result);
-    }
-    StateMachine.updateProjectStructure({ ...result });
+        StateMachine.updateProjectStructure({ ...result }, true);
+        resolve(true);
+    });
 }
 
-export async function updateProjectArtifacts(publishedArtifacts: Artifacts) {
+export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotification) {
     // Current project structure
     const currentProjectStructure: ProjectStructureResponse = StateMachine.context().projectStructure;
     if (publishedArtifacts && currentProjectStructure) {
-        const entryLocation = await traverseUpdatedComponents(publishedArtifacts, currentProjectStructure);
+        const tmpUri = URI.file(tmpdir());
+        const publishedArtifactsUri = URI.parse(publishedArtifacts.uri);
+        if (publishedArtifactsUri.path.toLowerCase().includes(tmpUri.path.toLowerCase())) {
+            // Skip the temp dirs
+            return;
+        }
+        const entryLocation = await traverseUpdatedComponents(publishedArtifacts.artifacts, currentProjectStructure);
+        StateMachine.setReadyMode();
+        // Skip if the user is in diagram view
+        const currentView = StateMachine.context().view;
+        const skipOpeningViews = [MACHINE_VIEW.BIDiagram, MACHINE_VIEW.ServiceDesigner, MACHINE_VIEW.GraphQLDiagram, MACHINE_VIEW.DataMapper];
         if (entryLocation) {
             const location: VisualizerLocation = {
                 documentUri: entryLocation?.path,
                 position: entryLocation?.position
             };
-            StateMachine.updateProjectStructure({ ...currentProjectStructure }, location);
-        } else {
-            StateMachine.updateProjectStructure({ ...currentProjectStructure });
+            if (!skipOpeningViews.includes(currentView)) { // Check if the user is in a view that should not be opened
+                StateMachine.updateProjectStructure({ ...currentProjectStructure }, true, location); // Open new view
+                return;
+            } else {
+                StateMachine.updateProjectStructure({ ...currentProjectStructure }, true); // Refresh the current view
+                return;
+            }
         }
+        StateMachine.updateProjectStructure({ ...currentProjectStructure }, false); // Send notification to the current view
+        return;
     }
 }
 
 async function traverseComponents(artifacts: Artifacts, response: ProjectStructureResponse) {
     response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(artifacts[ARTIFACT_TYPE.EntryPoints], DIRECTORY_MAP.AUTOMATION, "task"));
-    response.directoryMap[DIRECTORY_MAP.SERVICE].push(...await getComponents(artifacts[ARTIFACT_TYPE.EntryPoints], DIRECTORY_MAP.SERVICE, "globe"));
-    response.directoryMap[DIRECTORY_MAP.LISTENER].push(...await getComponents(artifacts[ARTIFACT_TYPE.Listeners], DIRECTORY_MAP.LISTENER, "globe"));
+    response.directoryMap[DIRECTORY_MAP.SERVICE].push(...await getComponents(artifacts[ARTIFACT_TYPE.EntryPoints], DIRECTORY_MAP.SERVICE, "http-service"));
+    response.directoryMap[DIRECTORY_MAP.LISTENER].push(...await getComponents(artifacts[ARTIFACT_TYPE.Listeners], DIRECTORY_MAP.LISTENER, "http-service"));
     response.directoryMap[DIRECTORY_MAP.FUNCTION].push(...await getComponents(artifacts[ARTIFACT_TYPE.Functions], DIRECTORY_MAP.FUNCTION, "function"));
     response.directoryMap[DIRECTORY_MAP.DATA_MAPPER].push(...await getComponents(artifacts[ARTIFACT_TYPE.DataMappers], DIRECTORY_MAP.DATA_MAPPER, "dataMapper"));
     response.directoryMap[DIRECTORY_MAP.CONNECTION].push(...await getComponents(artifacts[ARTIFACT_TYPE.Connections], DIRECTORY_MAP.CONNECTION, "connection"));
@@ -117,9 +141,10 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
         id: artifact.id,
         name: artifact.name,
         path: targetFile,
+        moduleName: artifact.module,
         type: artifact.type,
         icon: artifact.module ? `bi-${artifact.module}` : icon,
-        context: artifact.name,
+        context: artifact.name === "automation" ? "main" : artifact.name,
         resources: [],
         position: {
             endColumn: artifact.location.endLine.offset,
@@ -135,44 +160,31 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
             break;
         case DIRECTORY_MAP.SERVICE:
             // Do things related to service
-            const serviceResponse = await StateMachine.langClient().getServiceModelFromCode({
-                filePath: targetFile,
-                codedata: {
-                    lineRange: {
-                        startLine: artifact.location.startLine,
-                        endLine: artifact.location.endLine
-                    }
+            entryValue.name = artifact.name; // GraphQL Service - /foo
+            entryValue.icon = getCustomEntryNodeIcon(artifact.module);
+            if (artifact.module === "ai") {
+                entryValue.resources = [];
+                const aiResourceLocation = Object.values(artifact.children)[0]?.location;
+                entryValue.position = {
+                    endColumn: aiResourceLocation.endLine.offset,
+                    endLine: aiResourceLocation.endLine.line,
+                    startColumn: aiResourceLocation.startLine.offset,
+                    startLine: aiResourceLocation.startLine.line
+                };
+                // Hack to handle AI services --------------------------------->
+                // Inject the AI agent code into the service when new service is created
+                const isNewService = StateMachine.context().tempData?.isNewService;
+                const agentName = artifact.name.split('-')[1].trim().replace(/\//g, '');
+                const tempServiceAgentName = StateMachine.context().tempData?.serviceModel?.properties["basePath"]?.value.trim().replace(/\//g, '');
+                if (isNewService && artifact.module === "ai" && agentName === tempServiceAgentName) {
+                    const injectedResult = await injectAIAgent(artifact);
+                    entryValue.position = injectedResult.position;
                 }
-            });
-            const serviceModel = serviceResponse.service;
-            if (serviceResponse?.service) {
-                entryValue.serviceModel = serviceModel;
-                const displayName = serviceModel.name;
-                const labelName = serviceModel.properties['name']?.value || serviceModel.properties['basePath']?.value;
-                // entryValue.type = serviceModel.moduleName; // graphql, http, etc
-                entryValue.name = labelName ? `${displayName} - ${labelName}` : displayName; // GraphQL Service - /foo
-                entryValue.icon = `bi-${serviceModel.moduleName}`;
-
-                if (serviceModel?.listenerProtocol) {
-                    entryValue.icon = getCustomEntryNodeIcon(serviceModel?.listenerProtocol);
-                }
-
-                if (serviceModel?.listenerProtocol === "ai") {
-                    entryValue.resources = [];
-                    entryValue.name = entryValue.name.replace(/\//g, '');
-                    const aiResourceLocation = Object.values(artifact.children)[0]?.location;
-                    entryValue.position = {
-                        endColumn: aiResourceLocation.endLine.offset,
-                        endLine: aiResourceLocation.endLine.line,
-                        startColumn: aiResourceLocation.startLine.offset,
-                        startLine: aiResourceLocation.startLine.line
-                    };
-                } else {
-                    // Get the children of the service
-                    const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
-                    const remoteFunctions = await getComponents(artifact.children, DIRECTORY_MAP.REMOTE, icon, artifact.module);
-                    entryValue.resources = [...resourceFunctions, ...remoteFunctions];
-                }
+            } else {
+                // Get the children of the service
+                const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
+                const remoteFunctions = await getComponents(artifact.children, DIRECTORY_MAP.REMOTE, icon, artifact.module);
+                entryValue.resources = [...resourceFunctions, ...remoteFunctions];
             }
             break;
         case DIRECTORY_MAP.LISTENER:
@@ -184,7 +196,7 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
             break;
         case DIRECTORY_MAP.RESOURCE:
             // Do things related to resource
-            let resourceName = `${artifact.accessor}-${artifact.name}`;
+            let resourceName = `${artifact.name}`;
             let resourceIcon = `${artifact.accessor}-api`;
             if (moduleName && moduleName === "graphql") {
                 resourceName = `${artifact.name}`;
@@ -201,35 +213,90 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
     return entryValue;
 }
 
-async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentProjectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse> {
+// This is a hack to inject the AI agent code into the chat service function
+// This has to be replaced once we have a proper design for AI Agent Chat Service
+async function injectAIAgent(serviceArtifact: BaseArtifact) {
+    // Inject the import if missing
+    const importStatement = `import ballerinax/ai`;
+    await injectImportIfMissing(importStatement, path.join(StateMachine.context().projectUri, `agents.bal`));
+
+    //get AgentName
+    const agentName = serviceArtifact.name.split('-')[1].trim().replace(/\//g, '');
+
+    // Inject the agent code
+    await injectAgent(agentName, StateMachine.context().projectUri);
+    // Retrieve the service model
+    const targetFile = Utils.joinPath(URI.parse(StateMachine.context().projectUri), serviceArtifact.location.fileName).fsPath;
+    const updatedService = await new ServiceDesignerRpcManager().getServiceModelFromCode({
+        filePath: targetFile,
+        codedata: {
+            lineRange: {
+                startLine: { line: serviceArtifact.location.startLine.line, offset: serviceArtifact.location.startLine.offset },
+                endLine: { line: serviceArtifact.location.endLine.line, offset: serviceArtifact.location.endLine.offset }
+            }
+        }
+    });
+    if (!updatedService?.service?.functions?.[0]?.codedata?.lineRange?.endLine) {
+        console.error('Unable to determine injection position: Invalid service structure');
+        return;
+    }
+    const injectionPosition = updatedService.service.functions[0].codedata.lineRange.endLine;
+    const serviceFile = path.join(StateMachine.context().projectUri, `main.bal`);
+    ensureFileExists(serviceFile);
+    await injectAgentCode(agentName, serviceFile, injectionPosition);
+    const functionPosition: NodePosition = {
+        startLine: updatedService.service.functions[0].codedata.lineRange.startLine.line,
+        startColumn: updatedService.service.functions[0].codedata.lineRange.startLine.offset,
+        endLine: updatedService.service.functions[0].codedata.lineRange.endLine.line + 3,
+        endColumn: updatedService.service.functions[0].codedata.lineRange.endLine.offset
+    };
+    return {
+        position: functionPosition
+    };
+}
+
+function ensureFileExists(targetFile: string) {
+    // Check if the file exists
+    if (!fs.existsSync(targetFile)) {
+        // Create the file if it does not exist
+        fs.writeFileSync(targetFile, "");
+        console.log(`>>> Created file at ${targetFile}`);
+    }
+}
+
+
+async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentProjectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse | undefined> {
     let entryLocation: ProjectStructureArtifactResponse | undefined;
     for (const [key, directoryMaps] of Object.entries(publishedArtifacts)) { // key will be Entry Points, Listeners, Functions, etc as Directory Map
         for (const [actionKey, actionArtifacts] of Object.entries(directoryMaps)) { // actionKey will be deletions, creations, updates and actionsArtifacts will be the list of artifacts
-            for (const [index, baseArtifact] of Object.entries(actionArtifacts)) { // baseArtifact will be a single artifact
-                switch (actionKey) {
-                    case "deletions":
+            switch (actionKey) {
+                case "deletions":
+                    for (const [index, baseArtifact] of Object.entries(actionArtifacts)) {
                         handleDeletions(baseArtifact, key, currentProjectStructure);
-                        break;
-                    case "additions":
-                        entryLocation = await handleCreations(baseArtifact, key, currentProjectStructure);
-                        break;
-                    case "updates":
+                    }
+                    break;
+                case "additions":
+                    for (const [index, baseArtifact] of Object.entries(actionArtifacts)) {
+                        const createdLocation = await handleCreations(baseArtifact, key, currentProjectStructure);
+                        if (createdLocation) {
+                            entryLocation = createdLocation;
+                        }
+                    }
+                    break;
+                case "updates":
+                    for (const [index, baseArtifact] of Object.entries(actionArtifacts)) {
                         const updatedLocation = await handleUpdates(baseArtifact, key, currentProjectStructure);
                         if (updatedLocation) {
                             entryLocation = updatedLocation;
                         }
-                        break;
-                }
+                    }
+                    break;
             }
         }
-        if (directoryMaps["deletions"]) {
-            entryLocation = undefined;
-        }
-        if (entryLocation) {
-            return entryLocation;
-        }
     }
+    return entryLocation;
 }
+
 // Handle deletions
 function handleDeletions(artifact: BaseArtifact, key: string, currentProjectStructure: ProjectStructureResponse) {
     switch (key) {
@@ -274,43 +341,47 @@ async function handleCreations(artifact: BaseArtifact, key: string, currentProje
             if (artifact.id === "automation") {
                 const entryValue = await getEntryValue(artifact, "task");
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].push(entryValue);
-                visualizeEntry = entryValue;
+                visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.AUTOMATION, entryValue);
             } else {
-                const entryValue = await getEntryValue(artifact, "globe");
+                const entryValue = await getEntryValue(artifact, "http-service");
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].push(entryValue);
-                visualizeEntry = entryValue;
+                visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.SERVICE, entryValue);
             }
             break;
         case ARTIFACT_TYPE.Listeners:
-            const listenerValue = await getEntryValue(artifact, "globe");
+            const listenerValue = await getEntryValue(artifact, "http-service");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].push(listenerValue);
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.LISTENER, listenerValue);
             break;
         case ARTIFACT_TYPE.Functions:
             const functionValue = await getEntryValue(artifact, "function");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION].push(functionValue);
-            visualizeEntry = functionValue;
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.FUNCTION, functionValue);
             break;
         case ARTIFACT_TYPE.DataMappers:
             const dataMapperValue = await getEntryValue(artifact, "dataMapper");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER].push(dataMapperValue);
-            visualizeEntry = dataMapperValue;
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.DATA_MAPPER, dataMapperValue);
             break;
         case ARTIFACT_TYPE.Connections:
             const connectionValue = await getEntryValue(artifact, "connection");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION].push(connectionValue);
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.CONNECTION, connectionValue);
             break;
         case ARTIFACT_TYPE.Types:
             const typeValue = await getEntryValue(artifact, "type");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE].push(typeValue);
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.TYPE, typeValue);
             break;
         case ARTIFACT_TYPE.Configurations:
             const configurableValue = await getEntryValue(artifact, "config");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE].push(configurableValue);
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.CONFIGURABLE, configurableValue);
             break;
         case ARTIFACT_TYPE.NaturalFunctions:
             const npFunctionValue = await getEntryValue(artifact, "function");
             currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION].push(npFunctionValue);
-            visualizeEntry = npFunctionValue;
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.NP_FUNCTION, npFunctionValue);
             break;
         default:
             break;
@@ -331,24 +402,27 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
                 } else {
                     currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].push(entryValue);
                 }
+                visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.AUTOMATION, entryValue);
             } else {
-                const entryValue = await getEntryValue(artifact, "globe");
+                const entryValue = await getEntryValue(artifact, "http-service");
                 const index = currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].findIndex(value => value.id === artifact.id);
                 if (index !== -1) {
                     currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE][index] = entryValue;
                 } else {
                     currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].push(entryValue);
                 }
+                visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.SERVICE, entryValue);
             }
             break;
         case ARTIFACT_TYPE.Listeners:
-            const listenerValue = await getEntryValue(artifact, "globe");
+            const listenerValue = await getEntryValue(artifact, "http-service");
             const listenerValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].findIndex(value => value.id === artifact.id);
             if (listenerValueIndex !== -1) {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER][listenerValueIndex] = listenerValue;
             } else {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].push(listenerValue);
             }
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.LISTENER, listenerValue);
             break;
         case ARTIFACT_TYPE.Functions:
             const functionValue = await getEntryValue(artifact, "function");
@@ -358,15 +432,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             } else {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION].push(functionValue);
             }
-            const tempNode = StateMachine.context().tempData?.flowNode;
-            if (tempNode) {
-                const functionName = tempNode.properties.hasOwnProperty("functionName")
-                    ? tempNode.properties["functionName"].value as string
-                    : "";
-                if (functionName === functionValue.name) {
-                    visualizeEntry = functionValue;
-                }
-            }
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.FUNCTION, functionValue);
             break;
         case ARTIFACT_TYPE.DataMappers:
             const dataMapperValue = await getEntryValue(artifact, "dataMapper");
@@ -376,6 +442,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             } else {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER].push(dataMapperValue);
             }
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.DATA_MAPPER, dataMapperValue);
             break;
         case ARTIFACT_TYPE.Connections:
             const connectionValue = await getEntryValue(artifact, "connection");
@@ -385,6 +452,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             } else {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION].push(connectionValue);
             }
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.CONNECTION, connectionValue);
             break;
         case ARTIFACT_TYPE.Types:
             const typeValue = await getEntryValue(artifact, "type");
@@ -394,6 +462,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             } else {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE].push(typeValue);
             }
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.TYPE, typeValue);
             break;
         case ARTIFACT_TYPE.Configurations:
             const configurableValue = await getEntryValue(artifact, "config");
@@ -403,6 +472,7 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             } else {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE].push(configurableValue);
             }
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.CONFIGURABLE, configurableValue);
             break;
         case ARTIFACT_TYPE.NaturalFunctions:
             const npFunctionValue = await getEntryValue(artifact, "function");
@@ -412,11 +482,102 @@ async function handleUpdates(artifact: BaseArtifact, key: string, currentProject
             } else {
                 currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION].push(npFunctionValue);
             }
+            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.NP_FUNCTION, npFunctionValue);
             break;
         default:
             break;
     }
     return visualizeEntry;
+}
+
+// Find the tempData Entry
+async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStructureArtifactResponse) {
+    let selectedEntry: ProjectStructureArtifactResponse;
+    switch (mapType) {
+        case DIRECTORY_MAP.SERVICE:
+            // Check if the created entry matched the properties of the temp service model
+            const tempServiceModel = StateMachine.context().tempData?.serviceModel;
+            if (tempServiceModel) { // This is used to check if the created entry is a service model
+                if (entryValue.moduleName === tempServiceModel.moduleName) {
+                    if (entryValue.name.includes("-")) {
+                        const servicePath = entryValue.name.split('-')[1].trim();
+                        if (JSON.stringify(tempServiceModel.properties).includes(servicePath)) {
+                            selectedEntry = entryValue;
+                            break;
+                        }
+                    } else {
+                        selectedEntry = entryValue;
+                        break;
+                    }
+                }
+            } else {
+                const resources = entryValue.resources;
+                // Check from current identifier
+                const identifier = StateMachine.context().identifier;
+                if (resources.length > 0) {
+                    for (const resource of resources) {
+                        if (resource.id === identifier) {
+                            selectedEntry = entryValue;
+                            break;
+                        }
+                    }
+                }
+            }
+            break;
+        case DIRECTORY_MAP.AUTOMATION:
+            // Check from current identifier
+            const automationIdentifier = StateMachine.context().identifier;
+            if (automationIdentifier && automationIdentifier === "Automation") {
+                selectedEntry = entryValue;
+                break;
+            } else {
+                // Check if the created entry is a functionNode and matched the properties
+                const tempFunction = StateMachine.context().tempData?.flowNode;
+                if (tempFunction) {
+                    if (tempFunction.properties?.functionName && entryValue.context === tempFunction.properties.functionName.value) {
+                        selectedEntry = entryValue;
+                        break;
+                    }
+                }
+            }
+            break;
+        case DIRECTORY_MAP.FUNCTION:
+        case DIRECTORY_MAP.DATA_MAPPER:
+            // Check from current identifier
+            const identifier = StateMachine.context().identifier;
+            if (identifier) {
+                if (entryValue.context === identifier) {
+                    selectedEntry = entryValue;
+                    break;
+                }
+            } else {
+                // Check if the created entry is a functionNode and matched the properties
+                const tempFunction = StateMachine.context().tempData?.flowNode;
+                if (tempFunction) {
+                    if (tempFunction.properties?.functionName && entryValue.context === tempFunction.properties.functionName.value) {
+                        selectedEntry = entryValue;
+                        break;
+                    }
+                }
+            }
+            break;
+        case DIRECTORY_MAP.CONNECTION:
+        case DIRECTORY_MAP.TYPE:
+        case DIRECTORY_MAP.CONFIGURABLE:
+        case DIRECTORY_MAP.LOCAL_CONNECTORS:
+        case DIRECTORY_MAP.LISTENER:
+            // Check if the created entry matched the properties of the temp identifier
+            const tempIdentifier = StateMachine.context().tempData?.identifier;
+            if (tempIdentifier) {
+                if (entryValue.name === tempIdentifier) {
+                    selectedEntry = entryValue;
+                }
+            }
+            break;
+        default:
+            break;
+    }
+    return selectedEntry;
 }
 
 async function populateLocalConnectors(projectDir: string, response: ProjectStructureResponse) {

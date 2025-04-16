@@ -26,7 +26,7 @@
             "activitybar": [
                 {
                     "id": "ballerina-integrator",
-                    "title": "Ballerina Integrator - Beta",
+                    "title": "Ballerina Integrator",
                     "icon": "assets/icon.svg"
                 }
             ]
@@ -39,8 +39,13 @@
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.2 or above.\n[Update Now](command:ballerina.update-ballerina)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
-                "when": "BI.status == 'updateNeed'"
+                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\n[Update Now](command:ballerina.update-ballerina)\nPlease restart VS Code after updating the ballerina distribution.\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "when": "BI.status == 'updateNeed' && BI.distribution == 'setByBI'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\nPlease restart VS Code after updating the ballerina distribution.\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "when": "BI.status == 'updateNeed' && BI.distribution == 'setByUser'"
             },
             {
                 "view": "BI.project-explorer",
@@ -85,7 +90,7 @@
                 },
                 {
                     "command": "BI.project-explorer.delete",
-                    "when": "view == BI.project-explorer && viewItem == CONNECTION || viewItem == LISTENER || viewItem == SERVICE || viewItem == FUNCTION || viewItem == AUTOMATION || viewItem == TYPE || viewItem == CONFIGURABLE || viewItem == DATA_MAPPER || viewItem == NP_FUNCTION || viewItem == localConnector",
+                    "when": "view == BI.project-explorer && viewItem == CONNECTION || viewItem == SERVICE || viewItem == FUNCTION || viewItem == AUTOMATION || viewItem == TYPE || viewItem == CONFIGURABLE || viewItem == DATA_MAPPER || viewItem == NP_FUNCTION || viewItem == localConnector",
                     "group": "inline"
                 },
                 {

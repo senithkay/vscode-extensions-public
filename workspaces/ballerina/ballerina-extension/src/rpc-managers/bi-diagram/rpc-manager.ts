@@ -12,7 +12,7 @@ import {
     AIChatRequest,
     AddFieldRequest,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -49,7 +49,6 @@ import {
     DeploymentRequest,
     DeploymentResponse,
     DevantMetadata,
-    EVENT_TYPE,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -131,14 +130,14 @@ import { extension } from "../../BalExtensionContext";
 import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
-import { StateMachine, openView, updateView } from "../../stateMachine";
+import { StateMachine, updateView } from "../../stateMachine";
 import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { refreshAccessToken } from "../ai-panel/utils";
-import { getFunctionNodePosition } from "./utils";
 import { BACKEND_URL } from "../../features/ai/utils";
 import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { cleanAndValidateProject } from "../../features/config-generator/configGenerator";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -190,11 +189,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
                     if (params?.isConnector) {
-                        StateMachine.setEditMode();
                         await this.updateSource(model, flowNode, true, isFunctionNodeUpdate);
-                        StateMachine.setReadyMode();
                         resolve(model);
-                        commands.executeCommand("BI.project-explorer.refresh");
                     } else {
                         await this.updateSource(model, flowNode, false, isFunctionNodeUpdate);
                         resolve(model);
@@ -203,7 +199,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .catch((error) => {
                     console.log(">>> error fetching source code from ls", error);
                     return new Promise((resolve) => {
-                        StateMachine.setReadyMode();
                         resolve(undefined);
                     });
                 });
@@ -217,6 +212,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         isFunctionNodeUpdate?: boolean
     ): Promise<void> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
+        StateMachine.setEditMode();
         StateMachine.setTempData({
             flowNode: flowNode as FlowNode
         });
@@ -558,6 +554,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         console.log(">>> requesting bi delete node from ls", params);
+        // Clean project diagnostics before deleting flow node
+        await cleanAndValidateProject(StateMachine.langClient(), StateMachine.context().projectUri);
+        
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .deleteFlowNode(params)
@@ -1096,18 +1095,15 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const projectUri = StateMachine.context().projectUri;
         const filePath = path.join(projectUri, params.filePath);
         return new Promise((resolve, reject) => {
-            StateMachine.setEditMode();
             console.log(">>> updating type request", params.type);
             StateMachine.langClient()
                 .updateType({ filePath, type: params.type, description: "" })
                 .then(async (updateTypeResponse: UpdateTypeResponse) => {
                     console.log(">>> update type response", updateTypeResponse);
                     await this.updateSource(updateTypeResponse);
-                    StateMachine.setReadyMode();
                     resolve(updateTypeResponse);
                 }).catch((error) => {
                     console.log(">>> error fetching types from ls", error);
-                    StateMachine.setReadyMode();
                     reject(error);
                 });
         });
@@ -1145,7 +1141,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+    async addFunction(params: AddFunctionRequest): Promise<AddImportItemResponse> {
         return new Promise((resolve) => {
             StateMachine.langClient().addFunction(params)
                 .then((response) => {
@@ -1275,7 +1271,10 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async renameIdentifier(params: RenameIdentifierRequest): Promise<void> {
         const projectUri = StateMachine.context().projectUri;
         const filePath = path.join(projectUri, params.fileName);
-
+        StateMachine.setEditMode();
+        StateMachine.setTempData({
+            identifier: params.newName
+        });
         const fileUri = Uri.file(filePath).toString();
         const request: RenameRequest = {
             textDocument: {
@@ -1343,12 +1342,12 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                             );
 
                             await workspace.applyEdit(workspaceEdit);
+                            await new Promise(resolve => setTimeout(resolve, 1000));
                         }
                     }
                 } catch (error) {
                     console.log(">>> error updating source", error);
                 }
-                updateView();
             }
         } catch (error) {
             console.error('Error in renameIdentifier:', error);

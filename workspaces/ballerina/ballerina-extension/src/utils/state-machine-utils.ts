@@ -17,7 +17,6 @@ import { FindConstructByNameVisitor } from "./history/find-construct-by-name-vis
 import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-visitor";
 import { getConstructBodyString } from "./history/util";
 import { ballerinaExtInstance } from "../core";
-import { DATA_MAPPING_FILE, FUNCTIONS_FILE } from "./config";
 
 export async function getView(documentUri: string, position: NodePosition, projectUri?: string): Promise<HistoryEntry> {
     const haveTreeData = !!StateMachine.context().projectStructure;
@@ -28,6 +27,7 @@ export async function getView(documentUri: string, position: NodePosition, proje
     }
 }
 
+// TODO: This is not used anymore. Remove it.
 async function getViewBySTRange(documentUri: string, position: NodePosition, projectUri?: string) {
     const req = getSTByRangeReq(documentUri, position);
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
@@ -240,27 +240,32 @@ function getViewByArtifacts(documentUri: string, position: NodePosition, project
 }
 
 function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: NodePosition, documentUri: string, projectUri?: string) {
-    if (dir.path === documentUri && isPositionWithinRange(position, dir.position)) {
+    // In windows the documentUri might contain drive letter
+    const driveLetterRegex = /^[a-zA-Z]:/;
+    const normalizedDocumentUri = documentUri.replace(driveLetterRegex, '');
+    const normalizedDirPath = dir.path.replace(driveLetterRegex, '');
+    const normalizedProjectUri = projectUri?.replace(driveLetterRegex, '');
+    if (normalizedDirPath === normalizedDocumentUri && isPositionWithinRange(position, dir.position)) {
         switch (dir.type) {
             case DIRECTORY_MAP.SERVICE:
-                if (dir.serviceModel.moduleName === "graphql") {
+                if (dir.moduleName === "graphql") {
                     return {
                         location: {
                             view: MACHINE_VIEW.GraphQLDiagram,
                             identifier: dir.name,
-                            documentUri: documentUri,
+                            documentUri: normalizedDocumentUri,
                             position: position,
-                            projectUri: projectUri
+                            projectUri: normalizedProjectUri
                         }
                     };
-                } else if (dir.serviceModel.moduleName === "ai") {
+                } else if (dir.moduleName === "ai") {
                     return {
                         location: {
                             view: MACHINE_VIEW.BIDiagram,
                             identifier: dir.name,
-                            documentUri: documentUri,
+                            documentUri: normalizedDocumentUri,
                             position: position,
-                            projectUri: projectUri
+                            projectUri: normalizedProjectUri
                         }
                     };
                 } else {
@@ -268,7 +273,7 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
                         location: {
                             view: MACHINE_VIEW.ServiceDesigner,
                             identifier: dir.name,
-                            documentUri: documentUri,
+                            documentUri: normalizedDocumentUri,
                             position: position
                         }
                     };
@@ -277,19 +282,29 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
                 return {
                     location: {
                         view: MACHINE_VIEW.BIListenerConfigView,
-                        documentUri: documentUri,
-                        position: dir.position
+                        documentUri: normalizedDocumentUri,
+                        position: dir.position,
+                        identifier: dir.name,
+                    }
+                };
+            case DIRECTORY_MAP.RESOURCE:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.BIDiagram,
+                        documentUri: normalizedDocumentUri,
+                        position: dir.position,
+                        identifier: dir.id,
                     }
                 };
             case DIRECTORY_MAP.NP_FUNCTION:
             case DIRECTORY_MAP.AUTOMATION:
             case DIRECTORY_MAP.FUNCTION:
-            case DIRECTORY_MAP.RESOURCE:
             case DIRECTORY_MAP.REMOTE:
                 return {
                     location: {
                         view: MACHINE_VIEW.BIDiagram,
-                        documentUri: documentUri,
+                        documentUri: normalizedDocumentUri,
+                        identifier: dir.name,
                         position: dir.position,
                         metadata: {
                             enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
@@ -309,18 +324,19 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
                 return {
                     location: {
                         view: MACHINE_VIEW.TypeDiagram,
-                        documentUri: documentUri,
+                        documentUri: normalizedDocumentUri,
                         position: position,
                         identifier: dir.name,
-                        projectUri: projectUri
+                        projectUri: normalizedProjectUri
                     }
                 };
             case DIRECTORY_MAP.CONFIGURABLE:
                 return {
                     location: {
                         view: MACHINE_VIEW.EditConfigVariables,
-                        documentUri: documentUri,
-                        position: dir.position
+                        documentUri: normalizedDocumentUri,
+                        position: dir.position,
+                        identifier: dir.name,
                     },
                 };
             case DIRECTORY_MAP.DATA_MAPPER:
@@ -328,7 +344,7 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
                     location: {
                         view: MACHINE_VIEW.DataMapper,
                         identifier: dir.name,
-                        documentUri: documentUri,
+                        documentUri: normalizedDocumentUri,
                         position: position
                     },
                     dataMapperDepth: 0

@@ -10,7 +10,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { Button, Codicon, Confirm, ContextMenu, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { FunctionModel } from '@wso2-enterprise/ballerina-core';
 
 type MethodProp = {
@@ -169,7 +168,7 @@ export function ResourceAccordion(params: ResourceAccordionProps) {
         goToSource(functionModel);
     };
 
-    const handleEditResource = (e: Event) => {
+    const handleEditResource = (e: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         e.stopPropagation(); // Stop the event propagation
         onEditResource(functionModel);
     };
@@ -205,20 +204,22 @@ export function ResourceAccordion(params: ResourceAccordionProps) {
                     </MethodBox>
                     <MethodPath>{functionModel.name.value}</MethodPath>
                 </MethodSection>
-                <ButtonSection>
-                    <>
-                        {onEditResource! && (
-                            <VSCodeButton appearance="icon" title="Edit FunctionModel" onClick={handleEditResource}>
-                                <Icon name="editIcon" sx={{ marginTop: 3.5 }} />
-                            </VSCodeButton>
-                        )}
-                        {onDeleteResource! && (
-                            <VSCodeButton appearance="icon" title="Delete FunctionModel" onClick={handleDeleteResource}>
-                                <Codicon name="trash" />
-                            </VSCodeButton>
-                        )}
-                    </>
-                </ButtonSection>
+                {functionModel.editable &&
+                    <ButtonSection>
+                        <>
+                            {onEditResource! && (
+                                <Button appearance="icon" tooltip="Edit FunctionModel" onClick={handleEditResource} disabled={!functionModel.editable}>
+                                    <Icon name="editIcon" sx={{ marginTop: 3.5 }} />
+                                </Button>
+                            )}
+                            {onDeleteResource! && (
+                                <Button appearance="icon" tooltip="Delete FunctionModel" onClick={handleDeleteResource} disabled={!functionModel.editable}>
+                                    <Codicon name="trash" />
+                                </Button>
+                            )}
+                        </>
+                    </ButtonSection>
+                }
             </AccordionHeader>
             <Confirm
                 isOpen={isConfirmOpen}
