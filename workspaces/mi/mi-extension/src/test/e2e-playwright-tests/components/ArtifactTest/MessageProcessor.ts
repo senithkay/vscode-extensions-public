@@ -54,7 +54,7 @@ export class MessageProcessor {
                 },
                 'Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Message Processor Provider Class FQN*': {
@@ -89,7 +89,7 @@ export class MessageProcessor {
                 },
                 'Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Quartz configuration file path': {
@@ -102,7 +102,7 @@ export class MessageProcessor {
                 },
                 'Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Sampling Interval (Millis)': {
@@ -152,7 +152,7 @@ export class MessageProcessor {
                 },
                 'Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Quartz configuration file path': {
@@ -165,7 +165,7 @@ export class MessageProcessor {
                 },
                 'Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Sampling Interval (Millis)': {
@@ -207,7 +207,7 @@ export class MessageProcessor {
                 },
                 'Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { nthValue: 0, hasMultipleValue: true }
                 },
                 'Deactivate': {
@@ -248,12 +248,12 @@ export class MessageProcessor {
                 },
                 'Fault Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
@@ -279,12 +279,12 @@ export class MessageProcessor {
                 },
                 'Reply Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Fail Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Yes': {
@@ -326,7 +326,7 @@ export class MessageProcessor {
                 },
                 'Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { nthValue: 0, hasMultipleValue: true }
                 },
                 'Deactivate': {
@@ -367,12 +367,12 @@ export class MessageProcessor {
                 },
                 'Fault Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
@@ -398,12 +398,12 @@ export class MessageProcessor {
                 },
                 'Reply Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Fail Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'No': {
@@ -437,12 +437,12 @@ export class MessageProcessor {
                 },
                 'Source Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Target Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                 },
                 'Deactivate': {
                     type: 'radio',
@@ -482,12 +482,12 @@ export class MessageProcessor {
                 },
                 'Fault Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
@@ -533,12 +533,12 @@ export class MessageProcessor {
                 },
                 'Source Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Target Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                 },
                 'Deactivate': {
                     type: 'radio',
@@ -578,12 +578,12 @@ export class MessageProcessor {
                 },
                 'Fault Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Deactivate Sequence Name': {
                     type: 'combo',
-                    value: 'newSeqEP',
+                    value: 'TestNewSequence',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Task Count (Cluster Mode)': {
@@ -621,7 +621,7 @@ export class MessageProcessor {
                 },
                 'Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Message Processor Provider Class FQN*': {
@@ -663,7 +663,7 @@ export class MessageProcessor {
                 },
                 'Message Store': {
                     type: 'combo',
-                    value: 'newMsgStore',
+                    value: 'TestMessageStore',
                     additionalProps: { hasMultipleValue: true }
                 },
                 'Message Processor Provider Class FQN*': {

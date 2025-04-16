@@ -91,6 +91,14 @@ export async function toggleNotifications(disable: boolean) {
 
 }
 
+export async function showNotifications() {
+    await page.executePaletteCommand("Notifications: Show Notifications");
+}
+
+export async function closeEditorGroup() {
+    await page.executePaletteCommand('Close Editor Group');
+}
+
 export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
     test.beforeAll(async ({ }, testInfo) => {
         console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);

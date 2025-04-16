@@ -299,7 +299,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
         if (prevDbType !== watch('dbEngine')) {
             setPrevDbType(watch('dbEngine'));
             setValue('hostname', "localhost");
-            setValue('port', driverUrl.port);
+            setValue('port', driverUrl?.port);
         }
     }, [watch("dbEngine"), watch("hostname"), watch("port"), watch("databaseName")]);
 
