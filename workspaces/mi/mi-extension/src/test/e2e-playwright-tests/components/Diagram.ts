@@ -25,7 +25,7 @@ export class Diagram {
         this.diagramWebView = webview;
     }
 
-    public async getDiagramWebView() : Promise<Frame> {
+    public getDiagramWebView() : Frame {
         return this.diagramWebView;
     }
 
@@ -40,13 +40,13 @@ export class Diagram {
         return title;
     }
 
-    public async getMediatorsCount(mediatorName: string) {
+    public async getMediatorsCount(mediatorName: string, type = 'mediator') {
         const container = await this.getDiagramContainer();
-        return await container.locator(`[data-testid^="mediatorNode-${mediatorName}-"]`).count();
+        return await container.locator(`[data-testid^="${type}Node-${mediatorName}-"]`).count();
     }
 
-    public async getMediator(mediatorName: string, index: number = 0) {
-        const mediatorNode = (await this.getDiagramContainer()).locator(`[data-testid^="mediatorNode-${mediatorName}-"]`).nth(index).locator('div').first();
+    public async getMediator(mediatorName: string, index: number = 0, type = 'mediator') {
+        const mediatorNode = (await this.getDiagramContainer()).locator(`[data-testid^="${type}Node-${mediatorName}-"]`).nth(index).locator('div').first();
         await mediatorNode.waitFor();
         await mediatorNode.hover();
         return new Mediator(this.diagramWebView, mediatorNode);
@@ -61,11 +61,15 @@ export class Diagram {
 
     public async addMediator(mediatorName: string, data?: FormFillProps, index: number = 0) {
         await this.clickPlusButtonByIndex(index);
-
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
         await sidePanel.search(mediatorName);
-        await sidePanel.addMediator(mediatorName, data);
+        await sidePanel.selectMediator(mediatorName);
+        const form = await sidePanel.getForm();
+        if (data) {
+            await form.fill(data);
+        }
+        await form.submit("Add");
     }
 
     public async downloadConnectorThroughModulesList(name: string, index: number = 0, version?: string) {
@@ -161,7 +165,7 @@ export class Diagram {
         await link.getByTestId("add-mediator-button").click();
     }
 
-    private async clickPlusButtonByIndex(index: number) {
+    public async clickPlusButtonByIndex(index: number) {
         const plusBtns = (await this.getDiagramContainer()).getByTestId("add-mediator-button");
         if (await plusBtns.count() > 1) {
             await plusBtns.nth(index).hover();
@@ -185,6 +189,16 @@ class Mediator {
     constructor(private container: Frame, private mediatotNode: Locator) {
     }
 
+    public async click() {
+        await this.mediatotNode.click();
+    }
+
+    public async getEditForm() : Promise<Form> {
+        const sidePanel = new SidePanel(this.container);
+        await sidePanel.init();
+        return new Form(undefined, undefined, sidePanel.getLocator());
+    }
+
     public async edit(props: FormFillProps) {
         await this.mediatotNode.click();
         const form = new SidePanel(this.container);
@@ -205,10 +219,14 @@ class Mediator {
     }
 }
 
-class SidePanel {
+export class SidePanel {
     private sidePanel!: Locator;
 
     constructor(private container: Frame) {
+    }
+
+    public getLocator() : Locator {
+        return this.container.getByTestId("sidepanel");
     }
 
     public async init() {
@@ -223,21 +241,18 @@ class SidePanel {
         await searchInput.type(str);
     }
 
-    public async addMediator(mediatorName: string, data?: FormFillProps) {
+    public async selectMediator(mediatorName: string) {
         const mediator = this.sidePanel.locator(`#card-select-${mediatorName}`);
         await mediator.waitFor();
         await mediator.click();
+    }
 
+    public async getForm() : Promise<Form> {
         const drawer = this.sidePanel.locator("#drawer1");
         await drawer.waitFor();
         const formDiv = drawer.locator("div").first();
         await formDiv.waitFor();
-
-        const form = new Form(undefined, undefined, formDiv);
-        if (data) {
-            await form.fill(data);
-        }
-        await form.submit("Add");
+        return new Form(undefined, undefined, formDiv);
     }
 
     public async updateMediator(props: FormFillProps) {
