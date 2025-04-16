@@ -8,7 +8,7 @@
  */
 
 import { test } from '@playwright/test';
-import { initTest, page } from '../Utils';
+import { initTest, page, toggleNotifications } from '../Utils';
 import { Automation } from '../components/ArtifactTest/Automation';
 import { Endpoint } from '../components/ArtifactTest/Endpoint';
 import { Sequence } from '../components/ArtifactTest/Sequence';
@@ -30,6 +30,7 @@ export default function createTests() {
 
     let currentTaskName: string = "TestTask";
     let automation: Automation;
+    let apiName: string;
     test('Automation tests', async ({ }, testInfo) => {
       const testAttempt = testInfo.retry + 1;
       await test.step('Add Automation', async () => {
@@ -53,11 +54,13 @@ export default function createTests() {
         console.log('Creating new API');
         api = new API(page.page);
         await api.init();
-        await api.addAPI("TestAPI" + testAttempt, "/testAdd" + testAttempt);
+        apiName = "TestAPI" + testAttempt;
+        await api.addAPI(apiName, "/testAdd" + testAttempt);
       });
       await test.step('Edit API', async () => {
         console.log('Editing API');
-        await api.editAPI("NewTestAPI" + testAttempt, "/newtest" + testAttempt);
+        apiName = "NewTestAPI" + testAttempt;
+        await api.editAPI(apiName, "/newtest" + testAttempt);
       });
 
       await test.step('Add Resource', async () => {
@@ -67,6 +70,10 @@ export default function createTests() {
       await test.step('Edit Resource', async () => {
         console.log('Editing Resource');
         await api.editResource();
+      });
+      await test.step('Go to swagger view', async () => {
+        console.log('Navigating to swagger view');
+        await api.goToSwaggerView();
       });
       await test.step('Delete Resource', async () => {
         console.log('Deleting Resource');
@@ -112,37 +119,74 @@ export default function createTests() {
         console.log('Editing load balance Endpoint');
         await lb.editLoadBalanceEndpoint("loadBalanceEP" + testAttempt, "loadBalanceEndpoint" + testAttempt);
       });
+      await test.step('Add failover Endpoint', async () => {
+        console.log('Creating new failover Endpoint');
+        await lb.addFailoverEndpoint("failoverEP" + testAttempt);
+      });
+      await test.step('Edit failover Endpoint', async () => {
+        console.log('Editing failover Endpoint');
+        await lb.editFailoverEndpoint("failoverEP" + testAttempt, "newFailoverEP" + testAttempt);
+      });
+      await test.step('Add Recipient List Endpoint', async () => {
+        console.log('Creating new Recipient List Endpoint');
+        await lb.addRecipientListEndpoint("recipientListEP" + testAttempt);
+      });
+      await test.step('Edit Recipient List Endpoint', async () => {
+        console.log('Editing Recipient List Endpoint');
+        await lb.editRecipientListEndpoint("recipientListEP" + testAttempt, "newRecipientListEP" + testAttempt);
+      });
     });
 
-    test('Sequence tests', async () => {
+    test('Sequence Tests', async () => {
       let sequence: Sequence;
       const testAttempt = test.info().retry + 1;
-      await test.step('Add Sequence', async () => {
-        console.log('Creating new Sequence');
+      const sequenceName = "TestSequence" + testAttempt;
+      await test.step('Create Sequence', async () => {
+        console.log('Create Sequence');
         sequence = new Sequence(page.page);
         await sequence.init();
-        await sequence.add("seqEP" + testAttempt);
+        await sequence.createSequence(sequenceName);
       });
       await test.step('Edit Sequence', async () => {
-        console.log('Editing Sequence');
-        await sequence.edit("seqEP" + testAttempt, "newSeqEP" + testAttempt, currentTaskName);
+        console.log('Edit Sequence');
+        await sequence.editSequence(sequenceName, "TestSequenceEdited" + testAttempt);
+      });
+      await test.step('Create Sequence from Project Explorer', async () => {
+        console.log('Create Sequence from Project Explorer');
+        await sequence.createSequenceFromProjectExplorer("TestNewSequence" + testAttempt);
       });
     });
 
-    test('Add Class Mediator', async () => {
+    test('Class Mediator Tests', async () => {
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Class Mediator');
+      const className = "SampleClass" + testAttempt;
+      const classNameForExplorer = "SampleNewClass" + testAttempt;
       const classMediator = new ClassMediator(page.page);
       await classMediator.init();
-      await classMediator.add("org.wso2.sample" + testAttempt);
+      console.log('Create Class Mediator');
+      await classMediator.createClassMediator(className);
+      console.log('Open Class Mediator');
+      await classMediator.openClassMediator(className);
+      console.log('Create Class Mediator from Project Explorer');
+      await classMediator.createClassMediatorFromProjectExplorer(classNameForExplorer);
+      await classMediator.clear([className, classNameForExplorer]);
     });
 
-    test('Add Ballerina Module', async () => {
+    test('Ballerina Module Tests', async () => {
+      await toggleNotifications(false);
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Ballerina Module');
+      const ballerinaModuleName = "TestBallerinaModule" + testAttempt;
       const ballerinaModule = new BallerinaModule(page.page);
       await ballerinaModule.init();
-      await ballerinaModule.add("testBal" + testAttempt);
+      console.log('Create Ballerina Module');
+      await ballerinaModule.createBallerinaModule(ballerinaModuleName);
+      console.log('Build Ballerina Module from Editor View');
+      await ballerinaModule.openFromProjectExplorerAndBuild(ballerinaModuleName);
+      console.log('Build Ballerina Module from Mediator Palette');
+      await ballerinaModule.openFromMediatorPaletteAndBuild(ballerinaModuleName);
+      console.log('Create Ballerina Module from Project Explorer');
+      await ballerinaModule.createBallerinaModuleFromProjectExplorer("TestNewBallerinaModule" + testAttempt);
+      await toggleNotifications(true);
     });
 
     test('Add Resource', async () => {
@@ -271,6 +315,14 @@ export default function createTests() {
         console.log('Editing Data Source');
         await dataSource.edit("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
       });
+      await test.step('Add Data source from side panel', async () => {
+        console.log('Creating new Data Source from side panel');
+        await dataSource.addCustomDataSourceFromSidepanel("testDataSource" + testAttempt);
+      });
+      await test.step('Edit Data source from side panel', async () => {
+        console.log('Editing Data Source from side panel');
+        await dataSource.editCustomDataSource("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
+      });
 
       await test.step('Add Data Service', async () => {
         console.log('Creating new Data Service');
@@ -292,11 +344,11 @@ export default function createTests() {
         console.log('Creating new Local Entry');
         localEntry = new LocalEntry(page.page);
         await localEntry.init();
-        await localEntry.addLocalEntry("localEntry" + testAttempt);
+        await localEntry.addInlineTextLocalEntry("localEntry" + testAttempt);
       });
       await test.step('Edit Local Entry', async () => {
         console.log('Editing Local Entry');
-        await localEntry.editLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
+        await localEntry.editInlineTextLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
       });
     });
 

@@ -102,6 +102,15 @@ export class Diagram {
         await sidePanel.close();
     }
 
+    public async refreshBallerinaModule(name: string, index: number = 0) {
+        await this.clickPlusButtonByIndex(index);
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        await sidePanel.search(name);
+        await sidePanel.refreshBallerinaModule(name);
+        await sidePanel.close();
+    }
+
     public async addConnectorOperation(connector: string, operation: string) {
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
@@ -354,6 +363,15 @@ export class SidePanel {
         await this.goToMediatorsPage();
 
         await connector.waitFor({ state: "hidden" });
+    }
+
+    public async refreshBallerinaModule(moduleName: string) {
+        const module = this.sidePanel.locator(`#card-select-${moduleName}`);
+        await module.waitFor();
+        const refreshBtn = module.locator(`.refresh-icon`);
+        await refreshBtn.click();
+        await this.goToMediatorsPage();
+        await module.waitFor({ state: "hidden" });
     }
 
     public async confirmDownloadDependency() {
