@@ -19,7 +19,6 @@ import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
-import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { deleteSwagger } from '../util/swagger';
 import { compareVersions } from '../util/onboardingUtils';
@@ -43,14 +42,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
 	const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
 
-	if (isRegistrySupported) {
-		registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
-		await registryExplorerDataProvider.refresh(lsClient);
-		window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
-		vscode.commands.executeCommand('setContext', 'MI.registry-explorer.isVisible', true);
-		commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });
-	}
-
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
 	// commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 	// 	window.showQuickPick([
@@ -67,18 +58,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ADD_ARTIFACT });
 		console.log('Add Artifact');
 	});
-	commands.registerCommand(COMMANDS.ADD_TO_REGISTRY_COMMAND, () => {
-		const projectUri = StateMachine.context().projectUri;
-		if (!projectUri) {
-			window.showErrorMessage(
-				'Unable to locate Project URI. Please try again after the extension has fully initialized.'
-			);
-			return;
-		}
-		const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources');
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
-		console.log('Add Registry Resource');
-	});
+
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
 		console.log('Add API');

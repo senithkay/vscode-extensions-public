@@ -3730,14 +3730,6 @@ ${endpointAttributes}
                     return "/_system/config";
                 }
             }
-            const refreshRegistryResource = (registryRoot: string) => {
-                if (registryRoot === '') {
-                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                } else {
-                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                    commands.executeCommand(COMMANDS.REFRESH_REGISTRY_COMMAND);
-                }
-            }
             let registryDir = path.join(projectDir, params.registryRoot);
             let transformedPath = getTransformedRegistryRoot(params.registryRoot);;
             if (params.createOption === "import") {
@@ -3764,7 +3756,6 @@ ${endpointAttributes}
                         const mediaType = await detectMediaType(params.filePath);
                         addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false, params.registryRoot !== "");
                     }
-                    refreshRegistryResource(params.registryRoot);
                     resolve({ path: destPath });
                 }
             } else if (params.createOption === 'entryOnly') {
@@ -3781,7 +3772,6 @@ ${endpointAttributes}
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
                 addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
-                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
 
             } else {
@@ -3800,7 +3790,6 @@ ${endpointAttributes}
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
                 addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
-                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
             }
         });

@@ -183,12 +183,6 @@
         {
           "id": "MI.project-explorer",
           "name": "Project Explorer"
-        },
-        {
-          "id": "MI.registry-explorer",
-          "name": "Registry Explorer",
-          "visibility": "collapsed",
-          "when": "MI.registry-explorer.isVisible"
         }
       ],
       "test": [
@@ -222,7 +216,7 @@
       {
         "view": "MI.project-explorer",
         "contents": "This project appears to have been created with Integration Studio. Please note that the VS Code extension offers limited support for these projects. To enhance compatibility, consider migrating your project using the provided migration tool.\n[Migrate Project](command:MI.migrateProject)",
-        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProject'"
+        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProject' && workspaceFolderCount == 1"
       },
       {
         "view": "MI.project-explorer",
@@ -280,20 +274,8 @@
         "category": "MI"
       },
       {
-        "command": "MI.registry-explorer.add",
-        "title": "Add to Resource",
-        "icon": "$(add)",
-        "category": "MI"
-      },
-      {
         "command": "MI.project-explorer.refresh",
         "title": "Refresh Project Explorer",
-        "icon": "$(refresh)",
-        "group": "navigation"
-      },
-      {
-        "command": "MI.registry-explorer.refresh",
-        "title": "Refresh Registry Explorer",
         "icon": "$(refresh)",
         "group": "navigation"
       },
@@ -402,13 +384,6 @@
         "command": "MI.project-explorer.add-registry-resource",
         "title": "Add Registry Resource",
         "icon": "$(add)",
-        "group": "navigation",
-        "category": "MI"
-      },
-      {
-        "command": "MI.registry-explorer.edit-reg-metadata",
-        "title": "Edit Registry Metadata",
-        "icon": "$(notebook-edit)",
         "group": "navigation",
         "category": "MI"
       },
@@ -594,10 +569,6 @@
           "when": "false"
         },
         {
-          "command": "MI.registry-explorer.edit-reg-metadata",
-          "when": "false"
-        },
-        {
           "command": "MI.project-explorer.add-class-mediator",
           "when": "false"
         },
@@ -696,16 +667,6 @@
         {
           "command": "MI.test.refresh.mock-services",
           "when": "false"
-        },
-        {
-          "command": "MI.registry-explorer.refresh",
-          "when": "view == MI.registry-explorer && projectOpened",
-          "group": "navigation"
-        },
-        {
-          "command": "MI.registry-explorer.add",
-          "when": "view == MI.registry-explorer && projectOpened",
-          "group": "navigation"
         }
       ],
       "view/title": [
@@ -717,16 +678,6 @@
         {
           "command": "MI.project-explorer.add.artifact",
           "when": "view == MI.project-explorer && projectOpened",
-          "group": "navigation"
-        },
-        {
-          "command": "MI.registry-explorer.refresh",
-          "when": "view == MI.registry-explorer && projectOpened",
-          "group": "navigation"
-        },
-        {
-          "command": "MI.registry-explorer.add",
-          "when": "view == MI.registry-explorer && projectOpened",
           "group": "navigation"
         },
         {
@@ -834,11 +785,6 @@
         {
           "command": "MI.project-explorer.add-registry-resource",
           "when": "view == MI.project-explorer && viewItem == registry",
-          "group": "inline"
-        },
-        {
-          "command": "MI.registry-explorer.edit-reg-metadata",
-          "when": "view == MI.registry-explorer && (viewItem == registry-with-metadata)",
           "group": "inline"
         },
         {
