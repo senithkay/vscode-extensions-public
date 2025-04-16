@@ -19,6 +19,7 @@ import {
     window,
     workspace,
     RelativePattern,
+    Uri,
 } from 'vscode';
 import * as path from 'path';
 import {
@@ -83,21 +84,30 @@ const main: string = 'org.eclipse.lemminx.XMLServerLauncher';
 const versionRegex = /(\d+\.\d+\.?\d*)/g;
 
 export class MILanguageClient {
-    private static _instance: MILanguageClient;
+    private static _instances: Map<string, MILanguageClient> = new Map();
     public languageClient: ExtendedLanguageClient | undefined;
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
     private COMPATIBLE_JDK_VERSION = "11"; // Minimum JDK version required to run the language server
     private _errorStack: ErrorType[] = [];
 
-    constructor(private context: ExtensionContext) { }
+    constructor(private context: ExtensionContext, private projectUri: string) { }
 
-    public static async getInstance(context?: ExtensionContext) {
-        if (!this._instance && context) {
-            this._instance = new MILanguageClient(context);
-            await this._instance.launch();
+    public static async getInstance(projectUri: string, context?: ExtensionContext): Promise<MILanguageClient> {
+        if (!this._instances.has(projectUri) && context) {
+            const instance = new MILanguageClient(context, projectUri);
+            await instance.launch(projectUri);
+            this._instances.set(projectUri, instance);
         }
-        return this._instance;
+        return this._instances.get(projectUri)!;
+    }
+
+    public static async getAllInstances(): Promise<MILanguageClient[]> {
+        const instances: MILanguageClient[] = [];
+        for (const instance of this._instances.values()) {
+            instances.push(instance);
+        }
+        return instances;
     }
 
     public getErrors() {
@@ -129,9 +139,9 @@ export class MILanguageClient {
         return isCompatible;
     }
 
-    private async launch() {
+    private async launch(projectUri: string) {
         try {
-            const JAVA_HOME= getJavaHomeFromConfig();
+            const JAVA_HOME = getJavaHomeFromConfig(this.projectUri);
             if (JAVA_HOME) {
                 const isJDKCompatible = await this.checkJDKCompatibility(JAVA_HOME);
                 if (!isJDKCompatible) {
@@ -159,7 +169,11 @@ export class MILanguageClient {
                     args: [...args, main],
                     options: {},
                 };
-                let workspaceFolder = workspace.workspaceFolders![0];
+                let workspaceFolder = workspace.getWorkspaceFolder(Uri.parse(this.projectUri));
+
+                if (!workspaceFolder) {
+                    throw new Error("Workspace folder not found.");
+                }
                 // Options to control the language client
                 let clientOptions: LanguageClientOptions = {
                     initializationOptions: { "settings": getXMLSettings() },
@@ -280,7 +294,7 @@ export class MILanguageClient {
 
             }
             let extensionPath = extensions.getExtension("wso2.micro-integrator")!.extensionPath;
-            const config = workspace.getConfiguration('MI');
+            const config = workspace.getConfiguration('MI', Uri.file(projectUri));
             const currentServerPath = config.get<string>(SELECTED_SERVER_PATH) || "";
             xml['xml']['extensionPath'] = [`${extensionPath}`];
             xml['xml']['miServerPath'] = currentServerPath;

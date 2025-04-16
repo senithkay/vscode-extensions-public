@@ -7,10 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Position, Range, Uri, WorkspaceEdit, commands, workspace } from "vscode";
+import { Position, Range, Uri, WorkspaceEdit, commands, workspace, window } from "vscode";
 import * as fs from "fs";
 import { COMMANDS } from "../constants";
 import path from "path";
+import { MILanguageClient } from "../lang-client/activator";
+import { extension } from "../MIExtensionContext";
 
 export async function replaceFullContentToFile(documentUri: string, content: string) {
     // Create the file if not present
@@ -31,4 +33,31 @@ export async function replaceFullContentToFile(documentUri: string, content: str
     if (isNewFile) {
         commands.executeCommand(COMMANDS.REFRESH_COMMAND);
     }
+}
+
+export async function askForProject(): Promise<string> {
+    const projects: Map<string, string> = new Map();
+    for (const wrkspace of workspace.workspaceFolders!) {
+        const lsClient = await MILanguageClient.getInstance(wrkspace.uri.fsPath, extension.context);
+        if (lsClient) {
+            const projectDetails = await lsClient.languageClient?.getProjectDetails();
+            if (projectDetails?.primaryDetails?.projectName?.value) {
+                if (projects.has(projectDetails.primaryDetails.projectName.value)) {
+                    projects.set(wrkspace.uri.fsPath, wrkspace.uri.fsPath);
+                } else {
+                    projects.set(projectDetails.primaryDetails.projectName.value, wrkspace.uri.fsPath);
+                }
+            }
+        }
+    }
+    const quickPick = await window.showQuickPick(
+        Array.from(projects.keys()),
+        {
+            placeHolder: 'Please select a project'
+        }
+    );
+    if (!quickPick) {
+        return "";
+    }
+    return projects.get(quickPick)!;
 }

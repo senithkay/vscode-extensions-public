@@ -849,8 +849,8 @@ export function findJavaFiles(folderPath): Map<string, string> {
  * Change the packaging of the root pom.xml file to the given value.
  * @param projectDir project directory.     
  */
-export async function changeRootPomForClassMediator() {
-    const rpcManager = new MiVisualizerRpcManager();
+export async function changeRootPomForClassMediator(projectDir: string) {
+    const rpcManager = new MiVisualizerRpcManager(projectDir);
     const pomValues = await rpcManager.getProjectDetails();
     const packagingValue = pomValues.primaryDetails.projectPackaging;
     if (packagingValue.range) {

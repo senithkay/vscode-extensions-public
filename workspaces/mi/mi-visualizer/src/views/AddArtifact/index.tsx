@@ -127,17 +127,16 @@ const BrowseBtnStyles = {
 
 export function AddArtifactView() {
     const { rpcClient } = useVisualizerContext();
-    const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [inputAiPrompt, setInputAiPrompt] = React.useState<string>("");
     const [viewMore, setViewMore] = React.useState<boolean>(false);
     const [files, setFiles] = useState<FileObject[]>([]);
     const [images, setImages] = useState<ImageObject[]>([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
     const [isResourceContentVisible, setIsResourceContentVisible] = useState(false);
-    const [runtimeVersion, setRuntimeVersion] = useState("");
+    const [projectUri, setProjectUri] = useState<string>("");
 
     const handleClick = async (key: string) => {
-        const dir = path.join(activeWorkspaces.fsPath, "src", "main", "wso2mi", "artifacts", key);
+        const dir = path.join(projectUri, "src", "main", "wso2mi", "artifacts", key);
         let entry = { info: { path: dir } };
         if (key === "apis") {
             await rpcClient
@@ -152,12 +151,12 @@ export function AddArtifactView() {
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-sequence", entry] });
         } else if (key === "classMediators") {
-            entry = { info: { path: path.join(activeWorkspaces.fsPath, 'src', 'main', 'java') } };
+            entry = { info: { path: path.join(projectUri, 'src', 'main', 'java') } };
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-class-mediator", entry] });
         } else if (key === "ballerinaModule") {
-            entry = { info: { path: path.join(activeWorkspaces.fsPath, 'src', 'main', 'ballerina') } };
+            entry = { info: { path: path.join(projectUri, 'src', 'main', 'ballerina') } };
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-ballerina-module", entry] });
@@ -209,13 +208,9 @@ export function AddArtifactView() {
     };
 
     useEffect(() => {
-        rpcClient
-            .getMiVisualizerRpcClient()
-            .getWorkspaces()
-            .then((response) => {
-                setActiveWorkspaces(response.workspaces[0]);
-                console.log(response.workspaces[0]);
-            });
+        rpcClient.getVisualizerState().then((machineView) => {
+            setProjectUri(machineView.projectUri);
+        });
         rpcClient.getMiVisualizerRpcClient().getProjectDetails().then((response) => {
             const runtimeVersion = response.primaryDetails.runtimeVersion.value;
             setIsResourceContentVisible(compareVersions(runtimeVersion, RUNTIME_VERSION_440) >= 0);
@@ -267,10 +262,10 @@ export function AddArtifactView() {
                             ></TextArea>
                             <FlexRow style={{ flexWrap: "wrap", gap: "2px", alignItems: "center", marginTop: "10px" }}>
                                 {files.length > 0 ? (
-                                    <Attachments attachments={files} nameAttribute="name" addControls={true} setAttachments={setFiles}/>
+                                    <Attachments attachments={files} nameAttribute="name" addControls={true} setAttachments={setFiles} />
                                 ) : null}
                                 {images.length > 0 ? (
-                                    <Attachments attachments={images} nameAttribute="imageName" addControls={true} setAttachments={setImages}/>
+                                    <Attachments attachments={images} nameAttribute="imageName" addControls={true} setAttachments={setImages} />
                                 ) : null}
                             </FlexRow>
                             {fileUploadStatus.type === 'error' && (
@@ -283,7 +278,7 @@ export function AddArtifactView() {
                                     appearance="primary"
                                     onClick={() => document.getElementById('fileInput').click()}
                                 >
-                                    <Codicon name="new-file"/>
+                                    <Codicon name="new-file" />
                                 </Button>
                                 <input
                                     id="fileInput"
@@ -293,9 +288,9 @@ export function AddArtifactView() {
                                     accept={[...VALID_FILE_TYPES.files, ...VALID_FILE_TYPES.images].join(",")}
                                     onChange={(e: any) => handleFileAttach(e, files, setFiles, images, setImages, setFileUploadStatus)}
                                 />
-                                <Button 
-                                    appearance="primary" 
-                                    disabled={inputAiPrompt.length === 0} 
+                                <Button
+                                    appearance="primary"
+                                    disabled={inputAiPrompt.length === 0}
                                     onClick={handleGenerateWithAI}
                                 >
                                     <Codicon name="wand" />
@@ -401,7 +396,7 @@ export function AddArtifactView() {
                                         description="Create resuable connections."
                                         onClick={() => handleClick("connections")}
                                     />
-                                    <Card 
+                                    <Card
                                         icon="arrow-swap"
                                         isCodicon
                                         title="Proxy"

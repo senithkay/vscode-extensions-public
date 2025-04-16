@@ -26,7 +26,7 @@ export class AiPanelWebview {
         this._panel = AiPanelWebview.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
-        RPCLayer.create(this._panel);
+        RPCLayer.create(this._panel, "");
     }
 
     private static createWebview(): vscode.WebviewPanel {

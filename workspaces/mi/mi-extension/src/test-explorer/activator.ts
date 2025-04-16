@@ -14,7 +14,7 @@ import { createTestsForAllFiles, testFileMatchPattern } from "./discover";
 import { getProjectName, getProjectRoot, startWatchingWorkspace } from "./helper";
 import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse } from "@wso2-enterprise/mi-core";
 import { COMMANDS } from "../constants";
-import { StateMachine, openView } from '../stateMachine';
+import { openView } from '../stateMachine';
 import { activateMockServiceTreeView } from "./mock-services/activator";
 import { TagRange, TestCase, UnitTest } from "../../../syntax-tree/lib/src";
 import { ExtendedLanguageClient } from "../lang-client/ExtendedLanguageClient";
@@ -26,7 +26,13 @@ const testSuiteNodes: string[] = [];
 const testCaseNodes: string[] = [];
 let langClient: ExtendedLanguageClient;
 
+let isTestExplorerActive = false;
 export async function activateTestExplorer(extensionContext: ExtensionContext, lsClient: ExtendedLanguageClient) {
+    if (isTestExplorerActive) {
+        return;
+    }
+    isTestExplorerActive = true;
+
     testController = tests.createTestController('synapse-tests', 'Synapse Tests');
     extensionContext.subscriptions.push(testController);
     langClient = lsClient;
@@ -216,12 +222,13 @@ export async function createTests(uri: Uri) {
 }
 
 async function getTestCaseNamesAndTestSuiteType(uri: Uri) {
-    const projectUri = StateMachine.context().projectUri;
+    const projectUri = getProjectRoot(uri);
 
     if (!projectUri) {
-        window.showErrorMessage('Project URI is not available');
+        window.showErrorMessage('Workspace is not available');
         return;
     }
+
     const st = await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: uri.fsPath
