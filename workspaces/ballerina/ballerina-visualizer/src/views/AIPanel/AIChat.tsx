@@ -51,7 +51,7 @@ import ReferenceDropdown from "./Components/ReferenceDropdown";
 import AccordionItem from "./Components/TestScenarioSegment";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { TestGeneratorIntermediaryState } from "./features/testGenerator";
-import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, parseCopilotSSEEvent } from "./utils/sse_utils";
+import { CopilotContentBlockContent, CopilotErrorContent, CopilotEvent, hasCodeBlocks, parseCopilotSSEEvent } from "./utils/sse_utils";
 import MarkdownRenderer from "./Components/MarkdownRenderer";
 import { CodeSection } from "./Components/CodeSection";
 import { CodeSegment } from "./Components/CodeSegment";
@@ -114,7 +114,7 @@ const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`
 // Define constants for command keys
 export const COMMAND_GENERATE = "/generate";
 export const COMMAND_SCAFFOLD = "/scaffold";
-export const COMMAND_NATURAL_PROGRAMMING = "/natural-programming";
+export const COMMAND_NATURAL_PROGRAMMING = "/natural-programming (experimental)";
 export const COMMAND_TESTS = "/tests";
 export const COMMAND_DATAMAP = "/datamap";
 export const COMMAND_TYPECREATOR = "/typecreator";
@@ -132,7 +132,7 @@ const TEMPLATE_TESTS = [
     "generate tests for resource <method(space)path> function",
 ];
 export const TEMPLATE_DATAMAP = [
-    "generate mappings using input as <recordname(s)> and output as <recordname> using the <functionname> function",
+    "generate mappings using input as <recordname(s)> and output as <recordname> using the {functionname} function",
     "generate mappings for the <functionname> function",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the attatched file"];
@@ -148,7 +148,8 @@ const DEFAULT_MENU_COMMANDS = [
 const GENERATE_TEST_AGAINST_THE_REQUIREMENT = "Generate tests against the requirements";
 const GENERATE_CODE_AGAINST_THE_REQUIREMENT = "Generate code based on the requirements";
 const CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION = "Check drift between code and documentation";
-const GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE = `${GENERATE_CODE_AGAINST_THE_REQUIREMENT}: <requirements>`;
+const GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS = "Generate code based on the following requirements: ";
+const GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED = GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS.trim();
 
 const TEMPLATE_NATURAL_PROGRAMMING: string[] = [];
 
@@ -160,8 +161,8 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
     [COMMAND_HEALTHCARE, TEMPLATE_HEALTHCARE],
     [COMMAND_DOCUMENTATION, TEMPLATE_DOCUMENTATION],
-    [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING],
     [COMMAND_OPENAPI, TEMPLATE_OPENAPI],
+    [COMMAND_NATURAL_PROGRAMMING, TEMPLATE_NATURAL_PROGRAMMING],
 ]);
 
 //TODO: Add the files relevant to the commands
@@ -354,7 +355,7 @@ export function AIChat() {
             );
         } else {
             TEMPLATE_NATURAL_PROGRAMMING.push(
-                GENERATE_CODE_AGAINST_THE_REQUIREMENT_TEMPLATE,
+                GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS,
                 CHECK_DRIFT_BETWEEN_CODE_AND_DOCUMENTATION,
                 GENERATE_TEST_AGAINST_THE_REQUIREMENT
             );
@@ -535,27 +536,17 @@ export function AIChat() {
                         } else {
                             const isRequirementsTemplateExists = isContentIncludedInMessageBody(
                                 messageBody,
-                                GENERATE_CODE_AGAINST_THE_REQUIREMENT
+                                GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED
                             );
                             if (isRequirementsTemplateExists && !isReqFileExists) {
                                 const handleExtractRequirements = () => {
-                                    const prefix = GENERATE_CODE_AGAINST_THE_REQUIREMENT;
+                                    const prefix = GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED;
                                     if (messageBody.includes(prefix)) {
-                                        return removePrefixSymbols(messageBody.split(prefix)[1].trim());
+                                        return messageBody.split(prefix)[1].trim();
                                     } else {
                                         return "";
                                     }
                                 };
-
-                                function removePrefixSymbols(text: string) {
-                                    // Check if the text starts with ':' or '<'
-                                    if (text.startsWith(":") || text.startsWith("<")) {
-                                        // Remove the first character
-                                        return text.slice(1);
-                                    }
-                                    // Return the original text if it doesn't start with ':' or '<'
-                                    return text;
-                                }
                                 const requirements = handleExtractRequirements();
                                 await rpcClient.getAiPanelRpcClient().updateRequirementSpecification({
                                     filepath: chatLocation,
@@ -579,7 +570,8 @@ export function AIChat() {
                                         ? parameters.inputRecord[0]
                                         : messageBody,
                                     attachments,
-                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)
+                                    isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
+                                            || isRequirementsTemplateExists
                                         ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT
                                         : isTestGenerationTemplateExists
                                         ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
@@ -671,7 +663,9 @@ export function AIChat() {
                     );
                     return;
                 } else if (commandKey === COMMAND_NATURAL_PROGRAMMING) {
-                    if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT)) {
+                    if (isContentIncludedInMessageBody(messageBody, GENERATE_CODE_AGAINST_THE_REQUIREMENT) 
+                            || isContentIncludedInMessageBody(
+                                    messageBody, GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED)) {
                         await processCodeGeneration(
                             token,
                             [messageBody, attachments, CodeGenerationType.CODE_FOR_USER_REQUIREMENT],
@@ -722,12 +716,17 @@ export function AIChat() {
                     "(\\s*(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+(?:[\\s,]+(?:[\\w\\/.-]+\\s*:\\s*)?[\\w:\\[\\]]+)*\\s*)"
                 )
                 .replace(/<recordname>/g, "(\\s*(?:[\\w\\/|.-]+\\s*:\\s*)?[\\w|:\\[\\]]+\\s*)")
-                .replace(/<requirements>/g, "([\\s\\S]+?)")
                 .replace(/<functionname>/g, "(.+?)")
+                .replace(/\{functionname\}/g, "(.+?)")
                 .replace(/<question>/g, "(.+?)")
                 .replace(/<method\(space\)path>/g, "([^\\n]+)");
+            
+            let regexpattern = `^${pattern}$`;
+            if (template == GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS) {
+                regexpattern = `^${pattern.trim()}`;
+            }
 
-            const regex = new RegExp(`^${pattern}$`, "i");
+            const regex = new RegExp(regexpattern, "i");
             const match = messageBody.match(regex);
             if (match) {
                 if (command === COMMAND_DATAMAP && template.includes("<recordname(s)>")) {
@@ -863,8 +862,9 @@ export function AIChat() {
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
-            sourceFiles: project.sourceFiles,
+            sourceFiles: transformProjectSource(project),
             operationType,
+            packageName: project.projectName,
         };
 
         const fileAttatchments = attachments.map((file) => ({
@@ -950,6 +950,7 @@ export function AIChat() {
                     const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
                         assistant_response: assistant_response,
                     });
+                    console.log("Raw resp Before repair:", assistant_response);
                     assistant_response = postProcessResp.assistant_response;
                     diagnostics = postProcessResp.diagnostics.diagnostics;
                     console.log("Initial Diagnostics : ", diagnostics);
@@ -963,7 +964,7 @@ export function AIChat() {
                 const MAX_REPAIR_ATTEMPTS = 3;
                 let repair_attempt = 0;
                 let diagnosticFixResp = assistant_response;
-                while (diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
+                while (hasCodeBlocks(assistant_response) && diagnostics.length > 0 && repair_attempt < MAX_REPAIR_ATTEMPTS) {
                     console.log("Repair iteration: ", repair_attempt);
                     console.log("Diagnotsics trynna fix: ", diagnostics);
                     const diagReq = {
@@ -974,10 +975,11 @@ export function AIChat() {
                     let newReqBody : any= {
                         usecase: useCase,
                         chatHistory: chatArray,
-                        sourceFiles: project.sourceFiles,
+                        sourceFiles: transformProjectSource(project),
                         diagnosticRequest: diagReq,
                         functions: functionsRef.current,
                         operationType,
+                        packageName: project.projectName,
                     };
                     if (attachments.length > 0) {
                         newReqBody.fileAttachmentContents = fileAttatchments;
@@ -1002,6 +1004,7 @@ export function AIChat() {
                     } else {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
+                        console.log("Resposne of attempt" + repair_attempt + " : ", repairResponse);
                         // replace original response with new code blocks
                         diagnosticFixResp = replaceCodeBlocks(diagnosticFixResp, repairResponse);
                         const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
@@ -1713,8 +1716,8 @@ export function AIChat() {
         matchingFunctionFile: string | null;
     }> {
         for (const func of existingFunctions) {
-            const functionContent = await rpcClient.getAiPanelRpcClient().getFromFile({
-                filePath: func.filePath.split("/").pop(),
+            const functionContent = await rpcClient.getAiPanelRpcClient().getContentFromFile({
+                filePath: func.filePath,
             });
 
             const fileName = func.filePath.split("/").pop();
@@ -1825,11 +1828,15 @@ export function AIChat() {
 
         const existingFunctions: { name: string; filePath: string; startLine: number; endLine: number }[] = [];
 
-        projectComponents.components.packages?.forEach((pkg) => {
-            pkg.modules?.forEach((mod) => {
+        for (const pkg of projectComponents.components.packages || []) {
+            for (const mod of pkg.modules || []) {
                 let filepath = pkg.filePath;
                 if (mod.name !== undefined) {
-                    filepath += `modules/${mod.name}/`;
+                    const modDir = await rpcClient.getAiPanelRpcClient().getModuleDirectory({
+                        moduleName: mod.name,
+                        filePath: filepath,
+                    })
+                    filepath += `${modDir}/${mod.name}/`;
                 }
                 mod.records.forEach((rec) => {
                     const recFilePath = filepath + rec.filePath;
@@ -1845,8 +1852,8 @@ export function AIChat() {
                         endLine: func.endLine,
                     });
                 });
-            });
-        });
+            }
+        }
 
         if (parameters.inputRecord.length > 0 || parameters.outputRecord !== "") {
             result = await processExistingFunctions(existingFunctions, functionName);
@@ -2063,7 +2070,8 @@ export function AIChat() {
         const requestBody: any = {
             usecase: useCase,
             chatHistory: chatArray,
-            sourceFiles: project.sourceFiles,
+            sourceFiles: transformProjectSource(project),
+            packageName: project.projectName,
         };
 
         const response = await fetchWithToken(
@@ -2503,10 +2511,11 @@ export function AIChat() {
             const reqBody : any = {
                 usecase: usecase,
                 chatHistory: chatArray.slice(0, chatArray.length - 2),
-                sourceFiles: project.sourceFiles,
+                sourceFiles: transformProjectSource(project),
                 diagnosticRequest: diagReq,
                 functions: functionsRef.current,
                 operationType: CodeGenerationType.CODE_GENERATION,
+                packageName: project.projectName,
             };
 
             const attatchments = lastAttatchmentsRef.current;
@@ -2610,7 +2619,6 @@ export function AIChat() {
 
                             <div style={{ display: "inline-flex" }}>
                                 <h2>WSO2 Copilot</h2>
-                                <PreviewContainerDefault>Preview</PreviewContainerDefault>
                             </div>
                             <Typography
                                 variant="body1"
@@ -2668,7 +2676,7 @@ export function AIChat() {
                                 <RoleContainer
                                     icon={message.role === "User" ? "account" : "hubot"}
                                     title={message.role}
-                                    showPreview={message.role !== "User"}
+                                    showPreview={false}
                                     isLoading={isLoading && !isSuggestionLoading && index === otherMessages.length - 1}
                                 />
                             )}
@@ -3032,7 +3040,7 @@ export function getProjectFromResponse(req: string): ProjectSource {
         sourceFiles.push({ filePath, content: fileContent });
     }
 
-    return { sourceFiles };
+    return { sourceFiles, projectName: "" };
 }
 
 export enum SegmentType {
@@ -3246,6 +3254,41 @@ function generateChatHistoryForSummarize(chatArray: ChatEntry[]): ChatEntry[] {
                 chatEntry.actor.toLowerCase() == "user" &&
                 chatEntry.isCodeGeneration &&
                 !chatEntry.message.includes(GENERATE_TEST_AGAINST_THE_REQUIREMENT) &&
-                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT)
+                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_REQUIREMENT) &&
+                !chatEntry.message.includes(GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED)
         );
+}
+
+interface SourceFiles {
+    filePath:string;
+    content:string;
+};
+
+function transformProjectSource(project: ProjectSource): SourceFiles[] {
+    const sourceFiles: SourceFiles[] = [];
+    project.sourceFiles.forEach((file) => {
+        sourceFiles.push({
+            filePath: file.filePath,
+            content: file.content,
+        });
+    });
+    project.projectModules?.forEach((module) => {
+        let basePath = "";
+        if (!module.isGenerated) {
+            basePath += "modules/";
+        } else {
+            basePath += "generated/";
+        }
+
+        basePath += module.moduleName + "/";
+        // const path = 
+        module.sourceFiles.forEach((file) => {
+            sourceFiles.push({
+                filePath: basePath + file.filePath,
+                content: file.content,
+            });
+        }
+        );
+    });
+    return sourceFiles;
 }

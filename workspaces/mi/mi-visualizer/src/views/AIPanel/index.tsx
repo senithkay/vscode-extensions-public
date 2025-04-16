@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,32 +8,18 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { AIMachineStateValue, AI_EVENT_TYPE, AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { AIMachineStateValue, AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
-import styled from '@emotion/styled';
-import { AIProjectGenerationChat } from './views/AIProjectGenerationChat';
-import { SignInToCopilotMessage } from './views/LoggedOutWindow';
-import { WaitingForLoginMessage } from './views/WaitingForLoginWindow';
-import { DisabledMessage } from './views/DisabledWindow';
-import { UpdateMIExtension } from './views/UpdateExtension';
+import { LoaderWrapper, ProgressRing } from './styles';
+import { AICodeGenerator }  from './component/AICodeGenerator';
+import { SignInToCopilotMessage } from '../LoggedOutWindow';
+import { WaitingForLoginMessage } from '../WaitingForLoginWindow';
+import { DisabledMessage } from '../DisabledWindow';
+import { UpdateMIExtension } from '../UpdateExtension';
+import { MICopilotContextProvider, useMICopilotContext } from "./component/MICopilotContext";
+import { Button } from '@vscode/webview-ui-toolkit';
 
-const LoaderWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50vh;
-    width: 100vw;
-`;
-
-const ProgressRing = styled(VSCodeProgressRing)`
-    height: 40px;
-    width: 40px;
-    margin-top: auto;
-    padding: 4px;
-`;
-
-const AIPanel = () => {
+export const AIPanel = () => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [state, setState] = React.useState<AIMachineStateValue>();
@@ -55,7 +41,11 @@ const AIPanel = () => {
         rpcClient.getAIVisualizerState().then((machineView) => {
             switch (machineView?.state) {
                 case "Ready":
-                    setViewComponent(<AIProjectGenerationChat />);
+                    setViewComponent(
+                        <MICopilotContextProvider>
+                            <AICodeGenerator />
+                        </MICopilotContextProvider>
+                    );
                     break;
                 case "loggedOut":
                     setViewComponent(<SignInToCopilotMessage />);
@@ -77,18 +67,16 @@ const AIPanel = () => {
     }
 
     return (
-        <div style={{
-            height: "100%"
-        }}>
-            {!viewComponent ? (
-                <LoaderWrapper>
-                    <ProgressRing />
-                </LoaderWrapper>
-            ) : <div style={{ height: "100%" }}>
-                {viewComponent}
-            </div>}
-        </div>
+            <div style={{
+                height: "100%"
+            }}>
+                {!viewComponent ? (
+                    <LoaderWrapper>
+                        <ProgressRing />
+                    </LoaderWrapper>
+                ) : <div style={{ height: "100%" }}>
+                    {viewComponent}
+                </div>}
+            </div>
     );
 };
-
-export default AIPanel;   

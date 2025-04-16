@@ -8,7 +8,7 @@
  */
 
 import { DisplayAnnotation } from "./ballerina";
-import { DiagnosticMessage, PropertyTypeMemberInfo } from "./bi";
+import { DiagnosticMessage, Imports, PropertyTypeMemberInfo } from "./bi";
 import { LineRange } from "./common";
 
 
@@ -72,6 +72,8 @@ export interface FunctionModel {
     optional: boolean;
     editable: boolean;
     codedata?: CodeData;
+
+    canAddParameters?: boolean;
 
     // accessor will be used by resource functions
     accessor?: PropertyModel;
@@ -137,6 +139,7 @@ export interface PropertyModel {
     typeMembers?: PropertyTypeMemberInfo[];
     httpParamType?: "QUERY" | "Header" | "PAYLOAD";
     diagnostics?: DiagnosticMessage[];
+    imports?: Imports;
 }
 
 export interface ParameterModel extends PropertyModel {

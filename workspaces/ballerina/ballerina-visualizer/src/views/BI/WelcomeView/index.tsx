@@ -95,6 +95,22 @@ const StepDescription = styled.div<{ color?: string }>`
     color: ${(props: { color?: string }) => props.color || "inherit"};
 `;
 
+const Option = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+  border-left: 3px solid #4a86e8;
+`;
+
+const OptionTitle = styled.div`
+  font-weight: 500;
+  font-size: 1.1em;
+  margin-bottom: 8px;
+`;
 
 type WelcomeViewProps = {
     isBISupported: boolean;
@@ -156,16 +172,26 @@ export function WelcomeView(props: WelcomeViewProps) {
                         <StepDescription>
                             Ready to build? Start a new integration project using our intuitive graphical designer.
                         </StepDescription>
-                        <StyledButton disabled={!props.isBISupported} appearance="primary" onClick={() => goToCreateProject()}>
-                            <ButtonContent>
-                                <Codicon name="add" iconSx={{ fontSize: 16 }} />
-                                Create New Integration
-                            </ButtonContent>
-                        </StyledButton>
+                        {props.isBISupported &&
+                            <StyledButton disabled={!props.isBISupported} appearance="primary" onClick={() => goToCreateProject()}>
+                                <ButtonContent>
+                                    <Codicon name="add" iconSx={{ fontSize: 16 }} />
+                                    Create New Integration
+                                </ButtonContent>
+                            </StyledButton>
+                        }
                         {!props.isBISupported &&
-                            <StepDescription>
-                                Your current ballerina distribution is not supported. Please update to version 2201.12.2 or above. <VSCodeLink onClick={updateBallerina}>Update Now</VSCodeLink>
-                            </StepDescription>
+                            <Option>
+                                <OptionTitle>Update to Ballerina 2201.12.3</OptionTitle>
+                                <StepDescription>
+                                    Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.
+                                </StepDescription>
+                                <StyledButton appearance="primary" onClick={updateBallerina}>
+                                    <ButtonContent>
+                                        Update Now
+                                    </ButtonContent>
+                                </StyledButton>
+                            </Option>
                         }
                     </Column>
                 </Row>

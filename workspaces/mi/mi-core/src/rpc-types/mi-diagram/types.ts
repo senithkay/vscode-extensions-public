@@ -1246,6 +1246,18 @@ export interface WriteContentToFileResponse {
     status: boolean;
 }
 
+export interface HandleFileRequest {
+    operation : "read" | "write" | "delete";
+    fileName : string;
+    filePath : string;
+    content?: string;
+}
+
+export interface HandleFileResponse {
+    status: boolean;
+    content?: string;
+}
+
 export interface HighlightCodeRequest {
     range: Range;
     force?: boolean;
@@ -1254,10 +1266,12 @@ export interface HighlightCodeRequest {
 
 export interface GetWorkspaceContextResponse {
     context: string[];
+    rootPath: string;
 }
 
 export interface GetSelectiveWorkspaceContextResponse {
     context: string[];
+    rootPath: string;
 }
 
 export interface GetSelectiveArtifactsRequest {

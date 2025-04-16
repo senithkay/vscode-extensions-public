@@ -8,15 +8,19 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useEffect, useState } from 'react';
+import React, { RefObject, useEffect, useState } from 'react';
 
 import { EditorContainer } from './styles';
 import { Parameter } from './ParamManager';
 import Form from '../Form';
 import { FormField, FormValues } from '../Form/types';
 import { useFormContext } from '../../context';
+import { RecordTypeField, TextEdit } from '@wso2-enterprise/ballerina-core';
+import { HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
+import { FormExpressionEditorRef } from '@wso2-enterprise/ui-toolkit';
 
 export interface ParamProps {
+    propertyKey: string;
     parameter: Parameter;
     paramFields: FormField[];
     onSave: (param: Parameter) => void;
@@ -25,8 +29,60 @@ export interface ParamProps {
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { parameter, paramFields, onSave, onCancelEdit, openRecordEditor } = props;
+    const { propertyKey, parameter, paramFields, onSave, onCancelEdit, openRecordEditor } = props;
     const { expressionEditor } = useFormContext();
+
+    const onCompletionItemSelect = async (value: string, fieldKey: string, additionalTextEdits?: TextEdit[]) => {
+        await expressionEditor?.onCompletionItemSelect(value, propertyKey, additionalTextEdits);
+    };
+
+    const getHelperPane = (
+        fieldKey: string,
+        exprRef: RefObject<FormExpressionEditorRef>,
+        anchorRef: RefObject<HTMLDivElement>,
+        defaultValue: string,
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight,
+        recordTypeField?: RecordTypeField
+    ) => {
+        return expressionEditor?.getHelperPane(
+            propertyKey,
+            exprRef,
+            anchorRef,
+            defaultValue,
+            value,
+            onChange,
+            changeHelperPaneState,
+            helperPaneHeight,
+            recordTypeField
+        );
+    };
+
+    const getTypeHelper = (
+        fieldKey: string,
+        typeBrowserRef: RefObject<HTMLDivElement>,
+        currentType: string,
+        currentCursorPosition: number,
+        typeHelperState: boolean,
+        onChange: (newType: string, newCursorPosition: number) => void,
+        changeTypeHelperState: (isOpen: boolean) => void,
+        helperPaneHeight: HelperPaneHeight,
+        closeCompletions: () => void
+    ) => {
+        return expressionEditor?.getTypeHelper(
+            propertyKey,
+            typeBrowserRef,
+            currentType,
+            currentCursorPosition,
+            typeHelperState,
+            onChange,
+            changeTypeHelperState,
+            helperPaneHeight,
+            closeCompletions
+        );
+    };
 
     const [fields, setFields] = useState<FormField[]>(paramFields);
 
@@ -47,7 +103,15 @@ export function ParamEditor(props: ParamProps) {
                 openRecordEditor={openRecordEditor}
                 onSubmit={handleOnSave}
                 onCancelForm={() => onCancelEdit(parameter)}
-                expressionEditor={expressionEditor}
+                expressionEditor={{
+                    ...expressionEditor,
+                    onCompletionItemSelect: onCompletionItemSelect,
+                    getHelperPane: getHelperPane,
+                    types: expressionEditor?.types,
+                    retrieveVisibleTypes: expressionEditor?.retrieveVisibleTypes,
+                    getTypeHelper: getTypeHelper,
+                    helperPaneHeight: expressionEditor?.helperPaneHeight
+                }}
                 submitText={parameter.key ? 'Save' : 'Add'}
                 nestedForm={true}
             />

@@ -128,6 +128,8 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.mi }}" == "true" ]; then
             echo "chatAPI=${{ secrets.MI_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.inputs.bi }}" == "true" ] || [ "${{ github.event.inputs.ballerina }}" == "true" ]; then
+            echo "chatAPI=${{ secrets.EGGPLANT_EXT_CHAT_API }}" >> $GITHUB_OUTPUT
           else
             echo "chatAPI=${{ secrets.TOOLING_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
           fi

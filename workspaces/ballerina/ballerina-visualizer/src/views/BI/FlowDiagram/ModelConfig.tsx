@@ -20,7 +20,7 @@ import { RelativeLoader } from "../../../components/RelativeLoader";
 import { findAgentNodeFromAgentCallNode, getAgentFilePath } from "./utils";
 
 const Container = styled.div`
-    padding: 16px 0 16px 16px;
+    padding: 16px;
     height: 100%;
 `;
 
@@ -215,10 +215,10 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
                     <RelativeLoader />
                 </LoaderContainer>
             )}
-            {!loading && selectedModelFields?.length > 0 && (
+            {!loading && selectedModelFields?.length > 0 && selectedModel?.codedata?.lineRange && (
                 <ConfigForm
                     formFields={selectedModelFields}
-                    filePath={agentFilePath.current}
+                    targetLineRange={selectedModel?.codedata.lineRange}
                     onSubmit={handleOnSave}
                     disableSaveButton={savingForm}
                 />

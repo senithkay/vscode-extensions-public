@@ -171,6 +171,14 @@ export async function getFnDefsForFnCalls(
     return fnDefs;
 }
 
+export function hasErrorDiagnosis(stNode: STNode): boolean {
+    const diagnostics = stNode.typeData?.diagnostics;
+    return diagnostics?.some((diag: any) => {
+        const severity = diag?.diagnosticInfo?.severity;
+        return severity !== "WARNING";
+    });
+}
+
 function isLocationLink(obj: any): obj is LocationLink {
     return obj.targetUri !== undefined && obj.targetRange !== undefined;
 }

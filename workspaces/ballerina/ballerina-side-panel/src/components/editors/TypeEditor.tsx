@@ -123,7 +123,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCompletionSelect = async (value: string) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(value);
+        await onCompletionItemSelect?.(value, field.key);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -166,13 +166,15 @@ export function TypeEditor(props: TypeEditorProps) {
         helperPaneHeight: HelperPaneHeight
     ) => {
         return getTypeHelper(
+            field.key,
             typeBrowserRef,
             value,
             cursorPositionRef.current,
             isTypeHelperOpen,
             onChange,
             handleChangeTypeHelperState,
-            helperPaneHeight
+            helperPaneHeight,
+            handleCancel
         );
     }
 
@@ -247,7 +249,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Set show default completion
-                                const typeExists = types.find((type) => type.label.includes(updatedValue));
+                                const typeExists = types.find((type) => type.label === updatedValue);
                                 const validTypeForCreation = updatedValue.match(/^[a-zA-Z_'][a-zA-Z0-9_]*$/);
                                 if (updatedValue && !typeExists && validTypeForCreation) {
                                     setShowDefaultCompletion(true);

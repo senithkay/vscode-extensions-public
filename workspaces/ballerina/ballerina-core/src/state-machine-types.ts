@@ -11,7 +11,8 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
-import { DevantMetadata } from "./rpc-types/bi-diagram/interfaces";
+import { FlowNode, ProjectStructureResponse } from "./interfaces/bi";
+import { ServiceModel } from "./interfaces/service";
 
 export type MachineStateValue =
     | 'initialize'
@@ -112,6 +113,15 @@ export interface VisualizerLocation {
     isGraphql?: boolean;
     metadata?: VisualizerMetadata;
     scope?: SCOPE;
+    projectStructure?: ProjectStructureResponse;
+    tempData?: TempData;
+}
+
+export interface TempData {
+    flowNode?: FlowNode;
+    serviceModel?: ServiceModel;
+    isNewService?: boolean;
+    identifier?: string;
 }
 
 export interface VisualizerMetadata {
