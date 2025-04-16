@@ -44,6 +44,10 @@ export default function createTests() {
         console.log('Editing Automation');
         await automation.edit("NewTestTask" + testAttempt);
       });
+      await test.step('Create External Trigger', async () => {
+        console.log('Creating new External Trigger');
+        await automation.createExternalTrigger("TestExternalTrigger" + testAttempt);
+      });
     });
 
     test('API tests', async () => {
@@ -341,6 +345,22 @@ export default function createTests() {
         console.log('Editing Local Entry');
         await localEntry.editInlineTextLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
       });
+      await test.step('Add XML Local Entry', async () => {
+        console.log('Creating new XML Local Entry');
+        await localEntry.addXmlLocalEntry("xmlLocalEntry" + testAttempt);
+      });
+      await test.step('Edit XML Local Entry', async () => {
+        console.log('Editing XML Local Entry');
+        await localEntry.editXmlLocalEntry("xmlLocalEntry" + testAttempt, "newXmlLocalEntry" + testAttempt);
+      });
+      await test.step('Add Source Url Local Entry from side panel', async () => {
+        console.log('Creating new Local Entry from side panel');
+        await localEntry.addSourceUrlLocalEntry("sourceUrlLocalEntry" + testAttempt);
+      });
+      await test.step('Edit Source Url Local Entry from side panel', async () => {
+        console.log('Editing Local Entry from side panel');
+        await localEntry.editSourceUrlLocalEntry("sourceUrlLocalEntry" + testAttempt, "newSourceUrlLocalEntry" + testAttempt);
+      });
     });
 
     test('Template tests', async () => {
@@ -370,6 +390,10 @@ export default function createTests() {
       await test.step('Edit Proxy Service', async () => {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
+      });
+      await test.step('Create Proxy Service from Project Explorer', async () => {
+        console.log('Creating new Proxy Service from Project Explorer');
+        await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
       });
     });
   });

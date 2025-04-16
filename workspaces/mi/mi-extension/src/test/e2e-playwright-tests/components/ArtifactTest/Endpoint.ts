@@ -148,6 +148,8 @@ export class Endpoint {
         await foEPFrame.getByRole('button', { name: 'Add new Endpoint' }).click();
         await foEPFrame.getByRole('textbox').first().fill('<endpoint name="test" xmlns="http://ws.apache.org/ns/synapse"></endpoint>');
         await foEPFrame.locator('.css-1qy2g5i > .codicon').click();
+        // await foEPFrame.getByRole('button', { name: 'Add new Endpoint' }).click();
+        // await foEPFrame.getByRole('textbox').nth(1).fill('testEp2');
         await foEPFrame.getByRole('textbox', { name: 'Description' }).fill('Description');
         await foEPFrame.getByText('Add Parameter').click();
         await foEPFrame.locator('#txt-field-0').getByPlaceholder('parameter_key').fill('testProperty');
