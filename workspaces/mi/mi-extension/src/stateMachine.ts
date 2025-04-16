@@ -533,7 +533,7 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const lsInstances = await MILanguageClient.getAllInstances();
                 await activateProjectExplorer(extension.context, lsInstances[0].languageClient!);
-                await activateTestExplorer(extension.context, lsInstances[0].languageClient!);
+                await activateTestExplorer(extension.context);
                 resolve(true);
             });
         },
