@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "iobjO": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "p1": {
+            "type": "string"
+          },
+          "p2": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "p1",
+          "p2"
+        ]
+      }
+    },
+    "m2O": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "s10O": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "iobjO",
+    "d2O",
+    "m2O",
+    "s10O"
+  ]
+}

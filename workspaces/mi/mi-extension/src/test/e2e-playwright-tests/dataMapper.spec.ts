@@ -279,245 +279,233 @@ export default function createTests() {
 
         await page.page.getByRole('tab', { name: 'Project Overview' }).waitFor();
 
-        console.log('Testing Array Mappings');
+        console.log('Testing Array Mappings - Part 0');
 
         const DM_NAME = 'dm';
 
-        // overwriteTsFile('array/map.ts');
-        overwriteTsFile('array/init.ts');
+        // overwriteTsFile('array/map1.ts');
+        // overwriteTsFile('array/init0.ts');
+        // overwriteTsFile('reset.ts');
+        overwriteTsFile('array/init1.ts');
+
+
 
         const projectExplorer = new ProjectExplorer(page.page);
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
         const dm = new DataMapper(page.page, DM_NAME);
         await dm.init();
+        const dmWebView = dm.getWebView();
+
 
         // console.log('- Load input schemas from JSON data');
         // await dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
 
         // console.log('- Load output schemas from JSON schema');
-        // await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out.schema.json');
+        // await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out0.schema.json');
 
-        // expect(dm.verifyTsFileContent('array/init.ts')).toBeTruthy();
+        // expect(dm.verifyTsFileContent('array/init0.ts')).toBeTruthy();
        
-        const dmWebView = dm.getWebView();
 
-        console.log('- Test direct');
-        // primitive direct array mapping
-        await dm.mapFields('input.d1I', 'objectOutput.d1O','menu-item-a2a-direct');
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('link-from-input.d1I.OUT-to-objectOutput.d1O.IN').waitFor({ state: 'attached' });
-
-        console.log('- Test mapping function');
-        // primitive array mapping with mapping function
-        await dm.mapFields('input.m1I', 'objectOutput.m1O','menu-item-a2a-inner');
-
-        await dm.mapFields('focusedInput.m1IItem', 'primitiveOutput.number');
-        await dmWebView.getByTestId('link-from-focusedInput.m1IItem.OUT-to-primitiveOutput.number.IN').waitFor({ state: 'attached' });
-
-        await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
-        await clearNotificationsByCloseButton(page);
-
-        // object array mapping with mapping function
-        await dm.mapFields('input.m1objI', 'objectOutput.m1objO','menu-item-a2a-inner');
-
-        await dm.mapFields('focusedInput.m1objIItem.p1', 'objectOutput.q1');
-        await dmWebView.getByTestId('link-from-focusedInput.m1objIItem.p1.OUT-to-objectOutput.q1.IN').waitFor({ state: 'attached' });
-
-        await dm.mapFields('focusedInput.m1objIItem.p2', 'objectOutput.q2','menu-item-a2a-inner');
-  
-        await dm.mapFields('focusedInput.p2Item', 'primitiveOutput.string');
-        await dmWebView.getByTestId('link-from-focusedInput.p2Item.OUT-to-primitiveOutput.string.IN').waitFor({ state: 'attached' });
-
-        await dm.gotoPreviousView();
-        await dm.gotoPreviousView();
-
-
-        console.log('- Test init');
-        // Initialize 1d array and map
-        await dm.selectConfigMenuItem('objectOutput.i1O', 'Initialize Array With Element');
-       
-        await dm.mapFields('input.i1I', 'objectOutput.i1O.0');
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i1O.0.IN').waitFor({ state: 'attached' });
-
-        // Initialize 2d array and map
-        
-        await dm.selectConfigMenuItem('objectOutput.i2O', 'Initialize Array With Element');
-        await dmWebView.getByTestId('array-widget-objectOutput.i2O.IN-values').getByText('Add Element').click();
-        await dm.selectConfigMenuItem('objectOutput.i2O.1', 'Add Element');
-
-        await dm.mapFields('input.i1I', 'objectOutput.i2O.1.0');
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i2O.1.0.IN').waitFor({ state: 'attached' });
-
-        
-
-        // Init array object and map scroll 
-        // await dm.selectConfigMenuItem('objectOutput.iobjO', 'Initialize Array With Element');
-
-        // await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
-        // await dm.scrollClickOutput(dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.0\\.p1"]'));
+        // console.log('- Test direct');
+        // // primitive direct array mapping
+        // await dm.mapFields('input.d1I', 'objectOutput.d1O','menu-item-a2a-direct');
         // await dm.waitForProgressEnd();
-        // await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN').waitFor({ state: 'attached' });
+        // await dmWebView.getByTestId('link-from-input.d1I.OUT-to-objectOutput.d1O.IN').waitFor({ state: 'attached' });
 
-        // working
+        // console.log('- Test mapping function');
+        // // primitive array mapping with mapping function
+        // await dm.mapFields('input.m1I', 'objectOutput.m1O','menu-item-a2a-inner');
+
+        // await dm.mapFields('focusedInput.m1IItem', 'primitiveOutput.number');
+        // await dmWebView.getByTestId('link-from-focusedInput.m1IItem.OUT-to-primitiveOutput.number.IN').waitFor({ state: 'attached' });
+
+        // await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
+        // await clearNotificationsByCloseButton(page);
+
+        // // object array mapping with mapping function
+        // await dm.mapFields('input.m1objI', 'objectOutput.m1objO','menu-item-a2a-inner');
+
+        // await dm.mapFields('focusedInput.m1objIItem.p1', 'objectOutput.q1');
+        // await dmWebView.getByTestId('link-from-focusedInput.m1objIItem.p1.OUT-to-objectOutput.q1.IN').waitFor({ state: 'attached' });
+
+        // await dm.mapFields('focusedInput.m1objIItem.p2', 'objectOutput.q2','menu-item-a2a-inner');
+  
+        // await dm.mapFields('focusedInput.p2Item', 'primitiveOutput.string');
+        // await dmWebView.getByTestId('link-from-focusedInput.p2Item.OUT-to-primitiveOutput.string.IN').waitFor({ state: 'attached' });
+
+        // await dm.gotoPreviousView();
+        // await dm.gotoPreviousView();
+
+
+        // console.log('- Test init');TODO: remove wait for progress end
+        // // Initialize 1d array and map
+        // await dm.selectConfigMenuItem('objectOutput.i1O', 'Initialize Array With Element');
+       
+        // await dm.mapFields('input.i1I', 'objectOutput.i1O.0');
+        // await dm.waitForProgressEnd();
+        // await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i1O.0.IN').waitFor({ state: 'attached' });
+
+        // // Initialize 2d array and map
+        
+        // await dm.selectConfigMenuItem('objectOutput.i2O', 'Initialize Array With Element');
+        // await dmWebView.getByTestId('array-widget-objectOutput.i2O.IN-values').getByText('Add Element').click();
+        // await dm.selectConfigMenuItem('objectOutput.i2O.1', 'Add Element');
+
+        // await dm.mapFields('input.i1I', 'objectOutput.i2O.1.0');
+        // await dm.waitForProgressEnd();
+        // await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i2O.1.0.IN').waitFor({ state: 'attached' });
+
+        // expect(dm.verifyTsFileContent('array/map0.ts')).toBeTruthy();
+        
+        // // working
 
        
 
-        console.log('Test array mapping delete');
+        // console.log('Test array mapping delete - Part 0');
 
 
-        const loc2 = dmWebView.getByTestId('array-connector-node-objectOutput.m1O.IN');
-        await loc2.locator('.codicon-trash').click({ force: true });
-        await loc2.waitFor({ state: 'detached' });
+        // const loc2 = dmWebView.getByTestId('array-connector-node-objectOutput.m1O.IN');
+        // await loc2.locator('.codicon-trash').click({ force: true });
+        // await loc2.waitFor({ state: 'detached' });
 
-        const loc3 = dmWebView.getByTestId('array-connector-node-objectOutput.m1objO.IN');
-        await loc3.getByTestId('expand-array-fn-m1objO').click({ force: true });
-        const loc3I1 = dmWebView.getByTestId('array-connector-node-objectOutput.q2.IN');
-        await loc3I1.getByTestId('expand-array-fn-q2').click({ force: true });
+        // const loc3 = dmWebView.getByTestId('array-connector-node-objectOutput.m1objO.IN');
+        // await loc3.getByTestId('expand-array-fn-m1objO').click({ force: true });
+        // const loc3I1 = dmWebView.getByTestId('array-connector-node-objectOutput.q2.IN');
+        // await loc3I1.getByTestId('expand-array-fn-q2').click({ force: true });
 
-        const loc3I1I1 = dmWebView.getByTestId('link-from-focusedInput.p2Item.OUT-to-primitiveOutput.string.IN');
-        await loc3I1I1.click({ force: true });
-        await dmWebView.getByTestId('expression-label-for-focusedInput.p2Item.OUT-to-primitiveOutput.string.IN')
-          .locator('.codicon-trash').click({ force: true });
-        await loc3I1I1.waitFor({ state: 'detached' });
-        await dm.gotoPreviousView();
-
-        await loc3I1.locator('.codicon-trash').click({ force: true });
-        await loc3I1.waitFor({ state: 'detached' });
-        await dm.gotoPreviousView();
-
-        await loc3.locator('.codicon-trash').click({ force: true });
-        await loc3.waitFor({ state: 'detached' });
-
-        const loc4 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i1O.0.IN');
-        await loc4.click({ force: true });
-        await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.i1O.0.IN')
-          .locator('.codicon-trash').click({ force: true });
-        await loc4.waitFor({ state: 'detached' });
-        
-        const loc5 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i2O.1.0.IN');
-        await loc5.click({ force: true });
-        await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.i2O.1.0.IN')
-          .locator('.codicon-trash').click({ force: true });
-        await loc5.waitFor({ state: 'detached' });
-
-        // const loc6 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN');
-        // await loc6.click({ force: true });
-        // await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN')
+        // const loc3I1I1 = dmWebView.getByTestId('link-from-focusedInput.p2Item.OUT-to-primitiveOutput.string.IN');
+        // await loc3I1I1.click({ force: true });
+        // await dmWebView.getByTestId('expression-label-for-focusedInput.p2Item.OUT-to-primitiveOutput.string.IN')
         //   .locator('.codicon-trash').click({ force: true });
-        // await loc6.waitFor({ state: 'detached' });
-
-        // const loc7 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p2.0.IN');
-        // await loc7.click({ force: true });
-        // await dmWebView.getByTestId('expression-label-for-input.iobjI.OUT-to-objectOutput.iobjO.1.p2.IN')
-        //   .locator('.codicon-trash').click({ force: true });
-        // await loc7.waitFor({ state: 'detached' });
-
-        // const loc8 = dmWebView.getByTestId('array-connector-node-objectOutput.m2O.IN');
-        // await loc8.getByTestId('expand-array-fn-m2O').click({ force: true });
-        // const loc8I1 = dmWebView.getByTestId('array-connector-node-arrayOutput.IN');
-        // await loc8I1.locator('[data-testid^="expand-array-fn-"]').click({ force: true });
-
-        // const loc8I1I1 = dmWebView.getByTestId('link-from-focusedInput.m2IItemItem.OUT-to-primitiveOutput.number.IN');
-        // await loc8I1I1.click({ force: true });
-        // await dmWebView.getByTestId('expression-label-for-focusedInput.m2IItemItem.OUT-to-primitiveOutput.number.IN')
-        //   .locator('.codicon-trash').click({ force: true });
-        // await loc8I1I1.waitFor({ state: 'detached' });
+        // await loc3I1I1.waitFor({ state: 'detached' });
         // await dm.gotoPreviousView();
 
-        // await loc8I1.locator('.codicon-trash').click({ force: true });
-        // await loc8I1.waitFor({ state: 'detached' });
+        // await loc3I1.locator('.codicon-trash').click({ force: true });
+        // await loc3I1.waitFor({ state: 'detached' });
         // await dm.gotoPreviousView();
 
-        // await loc8.locator('.codicon-trash').click({ force: true });
-        // await loc8.waitFor({ state: 'detached' });
+        // await loc3.locator('.codicon-trash').click({ force: true });
+        // await loc3.waitFor({ state: 'detached' });
 
-        // const loc9 = dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN');
-        // await loc9.locator('.codicon-trash').click({ force: true });
-        // await loc9.waitFor({ state: 'detached' });
-
-
-
-
-
-
-
-
-
-
-
-
+        // const loc4 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i1O.0.IN');
+        // await loc4.click({ force: true });
+        // await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.i1O.0.IN')
+        //   .locator('.codicon-trash').click({ force: true });
+        // await loc4.waitFor({ state: 'detached' });
         
+        // const loc5 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i2O.1.0.IN');
+        // await loc5.click({ force: true });
+        // await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.i2O.1.0.IN')
+        //   .locator('.codicon-trash').click({ force: true });
+        // await loc5.waitFor({ state: 'detached' });
 
-        // dm.resetTsFile();
+        // // expect(dm.verifyTsFileContent('array/del0.ts')).toBeTruthy();
+ 
+        // // dm.resetTsFile();
 
-        return;
+        console.log('Testing Array Mappings - Part 1');
 
-        await dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.0\\.p2"] #component-list-menu-btn i').click();
-        await dmWebView.getByText('Initialize Array').click();
-        await dmWebView.getByTestId('array-widget-objectOutput.iobjO.0.p2.IN-add-element').click();
-        await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
-        await dmWebView.getByTestId('array-widget-objectOutput.iobjO.0.p2.IN-values').locator('i').first().click();
-        await dm.waitForProgressEnd();
+        // await dm.editSchema(IOType.Output, SchemaType.JsonSchema, 'array/out1.schema.json');
+
+        // await page.page.pause();
+        // Init array object and map
+        await dm.selectConfigMenuItem('objectOutput.iobjO', 'Initialize Array With Element');
+        await dm.mapFields('input.i1I', 'objectOutput.iobjO.0.p1');
+        await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN').waitFor({ state: 'attached' });
+
+        await dm.selectConfigMenuItem('objectOutput.iobjO.0.p2', 'Initialize Array With Element');
+        await dm.mapFields('input.i1I', 'objectOutput.iobjO.0.p2.0');
         await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p2.0.IN').waitFor({ state: 'attached' });
 
-        await dm.scrollClickOutput(dmWebView.getByTestId('array-widget-objectOutput.iobjO.IN-add-element'));
-        await dmWebView.locator('[id="recordfield-input\\.iobjI"]').click();
-        await dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.1"]').click();
+        await dmWebView.getByTestId('array-widget-objectOutput.iobjO.IN-values').getByText('Add Element').nth(1).click();
         await dm.waitForProgressEnd();
+        await dm.mapFields('input.iobjI', 'objectOutput.iobjO.1','menu-item-o2o-direct');
         await dmWebView.getByTestId('link-from-input.iobjI.OUT-to-objectOutput.iobjO.1.IN').waitFor({ state: 'attached' });
 
 
-        // 2D array direct mapping
-        await dmWebView.locator('[id="recordfield-input\\.d2I"]').click();
-        await dm.scrollClickOutput(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.d2O.IN').locator('i'));
-        await dmWebView.locator('#menu-item-a2a-direct').click();
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('link-from-input.d2I.OUT-to-objectOutput.d2O.IN').waitFor({ state: 'attached' });
+        // 2D array direct mapping -redundant
+        // await dmWebView.locator('[id="recordfield-input\\.d2I"]').click();
+        // await dm.scrollClickOutput(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.d2O.IN').locator('i'));
+        // await dmWebView.locator('#menu-item-a2a-direct').click();
+        // await dm.waitForProgressEnd();
+        // await dmWebView.getByTestId('link-from-input.d2I.OUT-to-objectOutput.d2O.IN').waitFor({ state: 'attached' });
+
+
+        // 2D - 1D array direct mapping (singleton access) 30-38 - redundant
+        // await dmWebView.locator('[id="recordfield-input\\.s21I"]').click();
+        // await dm.scrollClickOutput(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.s21O.IN').locator('i'));
+        // await dm.waitForProgressEnd();
+        // await dmWebView.getByTestId('link-from-input.s21I.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
+        // await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.s21O.IN').waitFor({ state: 'attached' });
+        // await dmWebView.getByTestId('link-connector-node-objectOutput.s21O.IN').waitFor({ state: 'attached' });
+
+        // 2D array mapping with mapping function 
+       
+        await dm.mapFields('input.m2I', 'objectOutput.m2O', 'menu-item-a2a-inner');
+
+        await dm.mapFields('focusedInput.m2IItem', 'arrayOutput', 'menu-item-a2a-inner');
+
+        await dm.mapFields('focusedInput.m2IItemItem', 'primitiveOutput.number');
+        await dmWebView.getByTestId('link-from-focusedInput.m2IItemItem.OUT-to-primitiveOutput.number.IN').waitFor({ state: 'attached' });
+
+        await dm.gotoPreviousView();
+        await dm.gotoPreviousView();
 
         // 1D - 0D array direct mapping (singleton access)
-        await dmWebView.locator('[id="recordfield-input\\.s10O"]').click();
-        await dm.scrollClickOutput(dmWebView.locator('[id="recordfield-objectOutput\\.s10O"]').first());
-        await dm.waitForProgressEnd();
+        await dm.mapFields('input.s10O', 'objectOutput.s10O', 'menu-item-a2s-direct');
+
         await dmWebView.getByTestId('link-from-input.s10O.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.s10O.IN').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN').waitFor();
+        
+        // expect(dm.verifyTsFileContent('array/map1.ts')).toBeTruthy();
 
-        // 2D - 1D array direct mapping (singleton access) 30-38
-        await dmWebView.locator('[id="recordfield-input\\.s21I"]').click();
-        await dm.scrollClickOutput(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.s21O.IN').locator('i'));
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('link-from-input.s21I.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
-        await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.s21O.IN').waitFor({ state: 'attached' });
-        await dmWebView.getByTestId('link-connector-node-objectOutput.s21O.IN').waitFor({ state: 'attached' });
+        // await page.page.pause();
 
-        // 2D array mapping with mapping function 11-24
-        await dmWebView.locator('[id="recordfield-input\\.m2I"]').click();
-        await dmWebView.getByTestId('array-type-editable-record-field-objectOutput.m2O.IN').locator('i').click();
-        await dmWebView.locator('#menu-item-a2a-inner').click();
-        // await dm.waitForProgressEnd();
-        // await dmWebView.getByTestId('link-from-input.m2I.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
-        // await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.m2O.IN').waitFor({ state: 'attached' });
+        console.log('Test array mapping delete - Part 1');
 
-        // await dmWebView.getByTestId('expand-array-fn-m2O').locator('i').click();
-        await dmWebView.getByTestId('focusedInput.m2IItem-node').locator('i').click();
-        await dmWebView.getByTestId('arrayOutput-node').locator('i').first().click();
-        // await dmWebView.locator('#menu-item-a2a-inner').click();
-        // await dm.waitForProgressEnd();
-        // await dmWebView.getByTestId('link-from-focusedInput.m2IItem.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
-        // await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-arrayOutput.IN').waitFor({ state: 'attached' });
+        const loc6 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN');
+        await loc6.click({ force: true });
+        await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN')
+          .locator('.codicon-trash').click({ force: true });
+        await loc6.waitFor({ state: 'detached' });
 
-        // await dmWebView.getByTitle('Map array elements').locator('i').click();
-        await dmWebView.getByTestId('focusedInput.m2IItemItem-node').locator('i').click();
-        await dmWebView.getByTestId('primitiveOutput-node').locator('i').nth(1).click();
-        await dm.waitForProgressEnd();
-        await dmWebView.getByTestId('link-from-focusedInput.m2IItemItem.OUT-to-primitiveOutput.number.IN').waitFor({ state: 'attached' });
+        // await page.page.pause();
 
-        await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
-        await dmWebView.getByTestId('dm-header-breadcrumb-0').waitFor({ state: 'detached' });
+        const loc7 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p2.0.IN');
+        await loc7.click({ force: true });
+        await dmWebView.getByTestId('expression-label-for-input.i1I.OUT-to-objectOutput.iobjO.0.p2.0.IN')
+          .locator('.codicon-trash').click();
+        await loc7.waitFor({ state: 'detached' });
 
-        expect(dm.verifyTsFileContent('array/map.ts')).toBeTruthy();
+        const loc8 = dmWebView.getByTestId('link-from-input.iobjI.OUT-to-objectOutput.iobjO.1.IN');
+        await loc8.click({ force: true });
+        await dmWebView.getByTestId('expression-label-for-input.iobjI.OUT-to-objectOutput.iobjO.1.IN')
+          .locator('.codicon-trash').click();
+        await loc8.waitFor({ state: 'detached' });
+
+        const loc9 = dmWebView.getByTestId('array-connector-node-objectOutput.m2O.IN');
+        await loc9.getByTestId('expand-array-fn-m2O').click({ force: true });
+        const loc9I1 = dmWebView.getByTestId('array-connector-node-arrayOutput.IN');
+        await loc9I1.locator('[data-testid^="expand-array-fn-"]').click({ force: true });
+
+        const loc9I1I1 = dmWebView.getByTestId('link-from-focusedInput.m2IItemItem.OUT-to-primitiveOutput.number.IN');
+        await loc9I1I1.click({ force: true });
+        await dmWebView.getByTestId('expression-label-for-focusedInput.m2IItemItem.OUT-to-primitiveOutput.number.IN')
+          .locator('.codicon-trash').click({ force: true });
+        await loc9I1I1.waitFor({ state: 'detached' });
+        await dm.gotoPreviousView();
+
+        await loc9I1.locator('.codicon-trash').click({ force: true });
+        await loc9I1.waitFor({ state: 'detached' });
+        await dm.gotoPreviousView();
+
+        await loc9.locator('.codicon-trash').click({ force: true });
+        await loc9.waitFor({ state: 'detached' });
+
+        const loc10 = dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN');
+        await loc10.locator('.codicon-trash').click({ force: true });
+        await loc10.waitFor({ state: 'detached' });
 
         if (NEED_INITIAL_SETUP) {
           await dmWebView.locator('vscode-button[title="Go Back"]').click();

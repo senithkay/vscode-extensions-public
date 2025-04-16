@@ -34,14 +34,6 @@ q2: string[]
 }[]
 i1O: string[]
 i2O: string[][]
-iobjO: {
-p1: string
-p2: string[]
-}[]
-d2O: number[][]
-m2O: number[][]
-s10O: string
-s21O: string[]
 }
 
 

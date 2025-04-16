@@ -23,7 +23,6 @@ interface Root {
 }
 
 /*
-* title : "root",
 * outputType : "JSON",
 */
 interface OutputRoot {
@@ -35,20 +34,12 @@ interface OutputRoot {
     }[]
     i1O: string[]
     i2O: string[][]
-    iobjO: {
-        p1: string
-        p2: string[]
-    }[]
-    d2O: number[][]
-    m2O: number[][]
-    s10O: string
-    s21O: string[]
 }
 
 
 
 /**
- * functionName : map_S_root_S_root
+ * functionName : map_S_root_S_Root
  * inputVariable : inputroot
 */
 export function mapFunction(input: Root): OutputRoot {
@@ -65,21 +56,7 @@ export function mapFunction(input: Root): OutputRoot {
                 }
             }),
         i1O: [input.i1I],
-        i2O: [[input.i1I]],
-        iobjO: [{
-            p1: input.i1I,
-            p2: [input.i1I]
-        },
-        input.iobjI
-        ],
-        d2O: input.d2I,
-        s10O: input.s10O[0],
-        s21O: input.s21I[0],
-        m2O: input.m2I
-            .map((m2IItem) => {
-                return m2IItem
-                    .map((m2IItemItem) => { return m2IItemItem })
-            })
+        i2O: [[], [input.i1I]]
     }
 }
 

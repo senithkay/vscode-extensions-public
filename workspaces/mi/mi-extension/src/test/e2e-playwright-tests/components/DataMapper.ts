@@ -113,12 +113,12 @@ export class DataMapper {
     public async mapFields(sourceFieldFQN: string, targetFieldFQN: string, menuOptionId?: string) {
 
         const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"] .port`);
-        await sourceField.waitFor();
-        await sourceField.click({force: true});
-
-
         const targetField = this.webView.locator(`div[id="recordfield-${targetFieldFQN}"] .port`);
+
         await targetField.waitFor();
+        await sourceField.waitFor();
+
+        await sourceField.click({force: true});
         await targetField.click({force: true});
 
         if (menuOptionId) {
@@ -188,6 +188,7 @@ export class DataMapper {
         await menuOption.click();
 
         await menuOption.waitFor({ state: 'detached' });
+        await this.waitForProgressEnd();
     }
 
     public async gotoPreviousView() {

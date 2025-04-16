@@ -49,54 +49,6 @@
           "type": "string"
         }
       }
-    },
-    "iobjO": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "p1": {
-            "type": "string"
-          },
-          "p2": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "p1",
-          "p2"
-        ]
-      }
-    },
-    "d2O": {
-      "type": "array",
-      "items": {
-        "type": "array",
-        "items": {
-          "type": "number"
-        }
-      }
-    },
-    "m2O": {
-      "type": "array",
-      "items": {
-        "type": "array",
-        "items": {
-          "type": "number"
-        }
-      }
-    },
-    "s10O": {
-      "type": "string"
-    },
-    "s21O": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
     }
   },
   "required": [
@@ -104,11 +56,6 @@
     "m1O",
     "m1objO",
     "i1O",
-    "i2O",
-    "iobjO",
-    "d2O",
-    "m2O",
-    "s10O",
-    "s21O"
+    "i2O"
   ]
 }
