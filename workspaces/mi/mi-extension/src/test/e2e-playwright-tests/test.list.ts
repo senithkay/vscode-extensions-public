@@ -29,13 +29,13 @@ test.beforeAll(async () => {
     console.log('>>> Starting test suite');
 });
 
-// test.describe(artifactTests);
-// test.describe(connectionTests);
-// test.describe(connectorTests);
-// test.describe(inboundEpTests);
-// test.describe(logMediatorTests);
-// test.describe(cacheMediatorTests);
+test.describe(artifactTests);
 test.describe(dataMapperTests);
+test.describe(connectionTests);
+test.describe(connectorTests);
+test.describe(inboundEpTests);
+test.describe(logMediatorTests);
+test.describe(cacheMediatorTests);
 
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);

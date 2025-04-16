@@ -7,15 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { test, expect, Locator } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import * as path from 'path';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { clearNotificationAlerts, clearNotificationsByCloseButton, initTest, newProjectPath, dataFolder, page, resourcesFolder, vscode } from './Utils';
+import { clearNotificationsByCloseButton, initTest, newProjectPath, dataFolder, page, resourcesFolder, vscode } from './Utils';
 import { DataMapper, IOType, SchemaType } from './components/DataMapper';
 import { ProjectExplorer } from './components/ProjectExplorer';
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { Overview } from './components/Overview';
 
 const fs = require('fs');
 
@@ -24,18 +26,13 @@ export default function createTests() {
   test.describe('Data Mapper Tests', () => {
     const NEED_INITIAL_SETUP = true;
 
-    initTest(NEED_INITIAL_SETUP);
+    initTest();
 
     if (NEED_INITIAL_SETUP) setupProject();
     testBasicMappings();
     testArrayMappings();
     testImportOptions();
     
-    function overwriteTsFile(newTsFile: string) {
-      const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'datamapper', 'dm', 'dm.ts');
-      const dmDataFolder = path.join(dataFolder, 'datamapper-files');
-      fs.writeFileSync(tsFile, fs.readFileSync(path.join(dmDataFolder, newTsFile),'utf8'));
-    }
    
     function setupProject() {
       test('Setup project for Data Mapper', async () => {
@@ -43,10 +40,19 @@ export default function createTests() {
         await test.step('Create new API', async () => {
 
           console.log('Creating new API for datamapper');
+
+          const { title: iframeTitle } = await page.getCurrentWebview();
+          if (iframeTitle === MACHINE_VIEW.Overview) {
+            const overviewPage = new Overview(page.page);
+            await overviewPage.init();
+            await overviewPage.goToAddArtifact();
+          }
   
           const overviewPage = new AddArtifact(page.page);
           await overviewPage.init();
           await overviewPage.add('API');
+
+          const testAttempt = test.info().retry + 1;
   
           const apiForm = new Form(page.page, 'API Form');
           await apiForm.switchToFormView();
@@ -54,11 +60,11 @@ export default function createTests() {
             values: {
               'Name*': {
                 type: 'input',
-                value: 'dmApi',
+                value: 'dmApi'+testAttempt,
               },
               'Context*': {
                 type: 'input',
-                value: '/dmApi',
+                value: '/dmApi'+testAttempt,
               },
             }
           });
@@ -84,7 +90,7 @@ export default function createTests() {
         console.log('Testing Basic Mappings');
 
         let dm: DataMapper;
-        const DM_NAME = 'dm';
+        const DM_NAME = 'dm' + test.info().retry;
 
         await clearNotificationsByCloseButton(page);
 
@@ -108,7 +114,7 @@ export default function createTests() {
 
         const dmWebView = dm.getWebView();
 
-        // console.log('- Test direct mappings');
+        console.log('- Test direct mappings');
 
         // direct mapping
         // objectOutput.dmO = input.dmI;
@@ -277,11 +283,11 @@ export default function createTests() {
 
         console.log('Testing Array Mappings - Part 0');
 
-        const DM_NAME = 'dm';
+        const DM_NAME = 'dm' + test.info().retry;
 
         // overwriteTsFile('array/map1.ts');
         // overwriteTsFile('array/init0.ts');
-        overwriteTsFile('reset.ts');
+        // overwriteTsFile('reset.ts');
         // overwriteTsFile('array/init1.ts');
 
         const projectExplorer = new ProjectExplorer(page.page);
@@ -521,7 +527,7 @@ export default function createTests() {
 
         console.log('Testing Import Options');
 
-        const DM_NAME = 'dm';
+        const DM_NAME = 'dm' + test.info().retry;
 
         const projectExplorer = new ProjectExplorer(page.page);
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
@@ -544,6 +550,12 @@ export default function createTests() {
       });
       
 
+    }
+
+    function overwriteTsFile(newTsFile: string) {
+      const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'datamapper', 'dm', 'dm.ts');
+      const dmDataFolder = path.join(dataFolder, 'datamapper-files');
+      fs.writeFileSync(tsFile, fs.readFileSync(path.join(dmDataFolder, newTsFile),'utf8'));
     }
 
   }
