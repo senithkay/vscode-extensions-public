@@ -4672,7 +4672,7 @@ ${keyValuesXML}`;
                 port: port
             };
 
-            await openSwaggerWebview(swaggerData);
+            await openSwaggerWebview(this.projectUri, swaggerData);
         });
     }
 

@@ -16,13 +16,13 @@ import { extension } from '../MIExtensionContext';
 import { miServerRunStateChanged } from '@wso2-enterprise/mi-core';
 
 export class RuntimeServicesWebview {
-    public static currentPanel: RuntimeServicesWebview | undefined;
+    public static webviews: Map<string, RuntimeServicesWebview> = new Map();
     public static readonly viewType = 'micro-integrator.runtime-services-panel';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
-    constructor() {
-        this._panel = RuntimeServicesWebview.createWebview();
+    constructor(private projectUri: string) {
+        this._panel = this.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         this._panel?.onDidChangeViewState(() => {
@@ -34,13 +34,19 @@ export class RuntimeServicesWebview {
             }
         });
 
-        RPCLayer.create(this._panel);
+        RPCLayer.create(this._panel, projectUri);
     }
 
-    private static createWebview(): vscode.WebviewPanel {
+    private createWebview(): vscode.WebviewPanel {
+        let title = "Runtime Services";
+        const workspaces = vscode.workspace.workspaceFolders;
+        const projectName = workspaces && workspaces.length > 1 ? path.basename(this.projectUri) : '';
+        if (projectName) {
+            title = `${title} - ${projectName}`;
+        }
         const panel = vscode.window.createWebviewPanel(
             RuntimeServicesWebview.viewType,
-            "Runtime Services",
+            title,
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -102,7 +108,7 @@ export class RuntimeServicesWebview {
     }
 
     public dispose() {
-        RuntimeServicesWebview.currentPanel = undefined;
+        RuntimeServicesWebview.webviews.delete(this.projectUri);
         this._panel?.dispose();
 
         while (this._disposables.length) {

@@ -51,7 +51,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
             }
-            await executeBuildTask(projectUri, serverPath, shouldCopyTarget, postBuildTask);
+            await executeBuildTask(projectUri!, serverPath, shouldCopyTarget, postBuildTask);
         });
     });
 

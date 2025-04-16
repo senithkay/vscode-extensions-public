@@ -281,7 +281,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                             .then(async () => {
                                 if (args?.noDebug) {
                                     checkServerReadiness().then(() => {
-                                        openRuntimeServicesWebview();
+                                        openRuntimeServicesWebview(this.projectUri);
                                         extension.isServerStarted = true;
                                         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
 
@@ -294,7 +294,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     });
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
-                                        openRuntimeServicesWebview();
+                                        openRuntimeServicesWebview(this.projectUri);
                                         extension.isServerStarted = true;
                                         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
                                         response.success = true;
