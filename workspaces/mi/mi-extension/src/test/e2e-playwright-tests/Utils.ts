@@ -14,7 +14,7 @@ import path from "path";
 import { ElectronApplication, Page } from "@playwright/test";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
-import os from 'os';
+import { readFile } from 'fs/promises';
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -135,4 +135,28 @@ export async function copyFile(source: string, destination: string) {
         fs.rmSync(destination);
     }
     fs.copyFileSync(source, destination);
+}
+
+export async function waitUntilPomContains(page:Page, filePath: string, expectedText: string, timeout = 10000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+        const content = await readFile(filePath, 'utf8');
+        if (content.includes(expectedText)) {
+            return true;
+        }
+        await page.waitForTimeout(500);
+    }
+    throw new Error(`Timed out waiting for '${expectedText}' in pom.xml`);
+}
+
+export async function waitUntilPomNotContains(page:Page, filePath: string, expectedText: string, timeout = 10000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+        const content = await readFile(filePath, 'utf8');
+        if (!content.includes(expectedText)) {
+            return true;
+        }
+        await page.waitForTimeout(500);
+    }
+    throw new Error(`Timed out waiting for '${expectedText}' in pom.xml`);
 }

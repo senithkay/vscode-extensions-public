@@ -14,6 +14,7 @@ import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 import artifactTests from './artifactTests/artifact.spec';
 import logMediatorTests from './mediatorTests/log.spec';
 import cacheMediatorTests from './mediatorTests/cache.spec';
+import overviewPageTests from './OverviewPageTests/projectSettingPage.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
@@ -29,6 +30,7 @@ test.beforeAll(async () => {
 });
 
 test.describe(artifactTests);
+test.describe(overviewPageTests);
 test.describe(connectionTests);
 test.describe(connectorTests);
 test.describe(inboundEpTests);
