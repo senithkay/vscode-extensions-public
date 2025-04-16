@@ -90,8 +90,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                             position: {
                                 line: targetLineRange.startLine.line,
                                 offset: targetLineRange.startLine.offset
-                            },
-                            typeConstraint: 'anydata'
+                            }
                         })
                         .then((types) => {
                             const basicTypes = getTypes(types);
