@@ -8,7 +8,7 @@
  */
 
 import { test } from '@playwright/test';
-import { initTest, page } from '../Utils';
+import { initTest, page, toggleNotifications } from '../Utils';
 import { Automation } from '../components/ArtifactTest/Automation';
 import { Endpoint } from '../components/ArtifactTest/Endpoint';
 import { Sequence } from '../components/ArtifactTest/Sequence';
@@ -176,12 +176,21 @@ export default function createTests() {
       await classMediator.clear([className, classNameForExplorer]);
     });
 
-    test('Add Ballerina Module', async () => {
+    test('Ballerina Module Tests', async () => {
+      await toggleNotifications(false);
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Ballerina Module');
+      const ballerinaModuleName = "TestBallerinaModule" + testAttempt;
       const ballerinaModule = new BallerinaModule(page.page);
       await ballerinaModule.init();
-      await ballerinaModule.add("testBal" + testAttempt);
+      console.log('Create Ballerina Module');
+      await ballerinaModule.createBallerinaModule(ballerinaModuleName);
+      console.log('Build Ballerina Module from Editor View');
+      await ballerinaModule.openFromProjectExplorerAndBuild(ballerinaModuleName);
+      console.log('Build Ballerina Module from Mediator Palette');
+      await ballerinaModule.openFromMediatorPaletteAndBuild(ballerinaModuleName);
+      console.log('Create Ballerina Module from Project Explorer');
+      await ballerinaModule.createBallerinaModuleFromProjectExplorer("TestNewBallerinaModule" + testAttempt);
+      await toggleNotifications(true);
     });
 
     test('Add Resource', async () => {
