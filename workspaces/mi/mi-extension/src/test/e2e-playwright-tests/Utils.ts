@@ -91,6 +91,10 @@ export async function toggleNotifications(disable: boolean) {
 
 }
 
+export async function showNotifications() {
+    await page.executePaletteCommand("Notifications: Show Notifications");
+}
+
 export async function closeEditorGroup() {
     await page.executePaletteCommand('Close Editor Group');
 }
