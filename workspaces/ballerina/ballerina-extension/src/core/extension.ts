@@ -230,8 +230,6 @@ export class BallerinaExtension {
         });
 
         commands.registerCommand('ballerina.setup-ballerina', () => { // Install ballerina from central for new users. This should set the ballerina to system path
-            // Disable persistent sessions for the terminal
-            workspace.getConfiguration().update('terminal.integrated.enablePersistentSessions', false, ConfigurationTarget.Global);
             this.installBallerina();
         });
 
@@ -1247,6 +1245,9 @@ export class BallerinaExtension {
     }
 
     async getBallerinaVersion(ballerinaHome: string, overrideBallerinaHome: boolean): Promise<string> {
+        // Initialize with fresh environment
+        await this.syncEnvironment();
+
         // if ballerina home is overridden, use ballerina cmd inside distribution
         // otherwise use wrapper command
         if (ballerinaHome) {
@@ -1630,6 +1631,28 @@ export class BallerinaExtension {
     public setIsOpenedOnce(state: boolean) {
         this.isOpenedOnce = state;
     }
+
+
+    /**
+     * Synchronize process environment with the latest shell environment
+     * This is especially important after Ballerina installation when PATH has been updated
+     */
+    private async syncEnvironment(): Promise<void> {
+        try {
+            const freshEnv = await getShellEnvironment();
+            debug('Syncing process environment with shell environment');
+            updateProcessEnv(freshEnv);
+
+            // Show some debug info for PATH
+            if (isWindows()) {
+                debug(`Updated PATH: ${process.env.Path}`);
+            } else {
+                debug(`Updated PATH: ${process.env.PATH}`);
+            }
+        } catch (error) {
+            debug(`Failed to sync environment: ${error}`);
+        }
+    }
 }
 
 /**
@@ -1724,6 +1747,77 @@ export class TelemetryTracker {
     public incrementDiagramEditCount() {
         this.diagramEditCount++;
     }
+}
+
+function updateProcessEnv(newEnv: NodeJS.ProcessEnv): void {
+    // Update PATH/Path specially to preserve existing values that might not be in shell env
+    if (isWindows() && newEnv.Path) {
+        process.env.Path = newEnv.Path;
+    } else if (newEnv.PATH) {
+        process.env.PATH = newEnv.PATH;
+    }
+
+    // Update other environment variables
+    for (const key in newEnv) {
+        // Skip PATH as we've already handled it, and skip some internal variables
+        if (key !== 'PATH' && key !== 'Path' && !key.startsWith('npm_') && !key.startsWith('_')) {
+            process.env[key] = newEnv[key];
+        }
+    }
+
+    debug(`Process environment updated with fresh PATH: ${isWindows() ? process.env.Path : process.env.PATH}`);
+}
+
+function getShellEnvironment(): Promise<NodeJS.ProcessEnv> {
+    return new Promise((resolve, reject) => {
+        let command = '';
+
+        if (isWindows()) {
+            // Windows: use PowerShell to get environment
+            command = 'powershell.exe -Command "[Environment]::GetEnvironmentVariables(\'Process\') | ConvertTo-Json"';
+        } else {
+            // Unix-like systems: source profile files and print environment
+            const shell = process.env.SHELL || '/bin/bash';
+            if (shell.includes('zsh')) {
+                command = 'zsh -i -c "source ~/.zshrc > /dev/null 2>&1; env"';
+            } else {
+                command = 'bash -i -c "source ~/.bashrc > /dev/null 2>&1; env"';
+            }
+        }
+
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                debug(`Error getting shell environment: ${error.message}`);
+                return reject(error);
+            }
+
+            const env = { ...process.env }; // Start with current env
+
+            try {
+                if (isWindows()) {
+                    // Parse PowerShell JSON output
+                    const envVars = JSON.parse(stdout);
+                    Object.keys(envVars).forEach(key => {
+                        env[key] = envVars[key].toString();
+                    });
+                } else {
+                    // Parse Unix env output (KEY=value format)
+                    stdout.split('\n').forEach(line => {
+                        const match = line.match(/^([^=]+)=(.*)$/);
+                        if (match) {
+                            env[match[1]] = match[2];
+                        }
+                    });
+                }
+
+                debug('Successfully retrieved fresh environment variables');
+                resolve(env);
+            } catch (parseError) {
+                debug(`Error parsing environment output: ${parseError}`);
+                reject(parseError);
+            }
+        });
+    });
 }
 
 export const ballerinaExtInstance = new BallerinaExtension();
