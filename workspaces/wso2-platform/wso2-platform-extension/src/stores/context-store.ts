@@ -194,6 +194,7 @@ const getSelected = (items: { [key: string]: ContextItemEnriched }, prevSelected
 	);
 
 	const openKey: string | null | undefined = ext.context.globalState.get("open-local-repo");
+	ext.context.globalState.update("open-local-repo", null);
 	if (openKey) {
 		const selected = items[openKey];
 		if (selected?.org && selected?.project) {

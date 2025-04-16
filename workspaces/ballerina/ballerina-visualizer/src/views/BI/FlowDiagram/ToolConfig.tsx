@@ -18,7 +18,7 @@ import { Utils } from "vscode-uri";
 import { RelativeLoader } from "../../../components/RelativeLoader";
 
 const Container = styled.div`
-    padding: 16px 0 16px 16px;
+    padding: 16px;
     height: 100%;
 `;
 
@@ -109,10 +109,10 @@ export function ToolConfig(props: ToolConfigProps): JSX.Element {
                     <RelativeLoader />
                 </LoaderContainer>
             )}
-            {!loading && (
+            {!loading && agentCallNode?.codedata?.lineRange && (
                 <ConfigForm
                     formFields={formFields}
-                    filePath={agentFilePath.current}
+                    targetLineRange={agentCallNode.codedata.lineRange}
                     onSubmit={handleOnSave}
                     disableSaveButton={savingForm}
                 />

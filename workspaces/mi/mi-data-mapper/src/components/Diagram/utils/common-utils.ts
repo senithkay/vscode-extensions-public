@@ -28,7 +28,7 @@ import {
 import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from "../Node";
+import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode, UnionOutputNode } from "../Node";
 import { InputOutputPortModel, MappingType, ValueType } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
@@ -38,7 +38,8 @@ import {
     OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX,
     OBJECT_OUTPUT_TARGET_PORT_PREFIX,
     PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX,
-    SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX
+    SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
+    UNION_OUTPUT_TARGET_PORT_PREFIX
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
@@ -343,11 +344,12 @@ export function getTypeAnnotation(field: DMType): string {
 	let typeName = field.typeName || field.kind;
 
     if (field.kind === TypeKind.Array) {
-		typeName = `${getTypeAnnotation(field.memberType) || "any"}[]`;
-	} else if (field.kind === TypeKind.Union){
+        const memberTypeAnnotation = getTypeAnnotation(field.memberType);
+		typeName = memberTypeAnnotation ? `${memberTypeAnnotation}[]` : "";
+	} else if (field.kind === TypeKind.Union && !field.typeName){
         typeName = `(${field.unionTypes.map(unionType => getTypeAnnotation(unionType)).join(" | ")})`;
     } else if (field.kind === TypeKind.Interface && field.typeName === "Object") {
-        typeName = "any";
+        typeName = "";
     }
 
 	return typeName;
@@ -505,6 +507,8 @@ export function getTargetPortPrefix(node: NodeModel): string {
             return ARRAY_OUTPUT_TARGET_PORT_PREFIX;
         case node instanceof PrimitiveOutputNode:
             return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
+        case node instanceof UnionOutputNode:
+            return UNION_OUTPUT_TARGET_PORT_PREFIX;
         // TODO: Update cases for other node types
 		default:
 			return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
@@ -798,8 +802,12 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
         }
 
         if ((sourcePort.field.kind === TypeKind.Object || sourcePort.field.kind === TypeKind.Interface) 
-            && (targetPort.field.kind === TypeKind.Object || targetPort.field.kind === TypeKind.Interface)) {
-            return MappingType.ObjectToObject;
+            || (targetPort.field.kind === TypeKind.Object || targetPort.field.kind === TypeKind.Interface)) {
+            return MappingType.ObjectToObject; //TODO: Need to rename something like ContainsObject
+        }
+
+        if (sourcePort.field.kind === TypeKind.Union || targetPort.field.kind === TypeKind.Union) {
+            return MappingType.ObjectToObject; //TODO: Need to create separate mapping type for union if required
         }
     }
 

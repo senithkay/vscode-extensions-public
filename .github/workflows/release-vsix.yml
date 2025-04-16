@@ -128,6 +128,8 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.mi }}" == "true" ]; then
             echo "chatAPI=${{ secrets.MI_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.inputs.bi }}" == "true" ] || [ "${{ github.event.inputs.ballerina }}" == "true" ]; then
+            echo "chatAPI=${{ secrets.EGGPLANT_EXT_CHAT_API }}" >> $GITHUB_OUTPUT
           else
             echo "chatAPI=${{ secrets.TOOLING_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
           fi
@@ -141,11 +143,11 @@ jobs:
           token: ${{ secrets.PUBLISH_PAT }}
           chatAPI: ${{ steps.chat.outputs.chatAPI }}
   
-      - name: Create a release in wso2/bi-vscode repo
+      - name: Create a release in wso2/product-ballerina-integrator repo
         if: ${{ github.event.inputs.bi == 'true' }}
         uses: ./.github/actions/release
         with:
-          repo: wso2/bi-vscode
+          repo: wso2/product-ballerina-integrator
           name: ballerina-integrator
           token: ${{ secrets.PUBLISH_PAT }}
           chatAPI: ${{ steps.chat.outputs.chatAPI }}

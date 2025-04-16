@@ -1,18 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Member, Type } from '@wso2-enterprise/ballerina-core';
-import { Button, CheckBox, Codicon, Position, TextField } from '@wso2-enterprise/ui-toolkit';
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import React, { useRef, useState } from 'react';
+import { Imports, Member, Type } from '@wso2-enterprise/ballerina-core';
+import { Button, CheckBox, Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { typeToSource, defaultAnonymousRecordType, isValidBallerinaIdentifier } from './TypeUtil';
+import { typeToSource, defaultAnonymousRecordType } from './TypeUtil';
 import { RecordEditor } from './RecordEditor';
-import { TypeHelper } from '../TypeHelper';
 import { AdvancedOptions } from './AdvancedOptions';
+import { IdentifierField } from './IdentifierField';
+import { TypeField } from './TypeField';
 
 interface FieldEditorProps {
     member: Member;
-    selected: boolean;
     onChange: (member: Member) => void;
-    onSelect: () => void;
-    onDeselect: () => void;
+    type: Type;
+    onValidationError: (isError: boolean) => void;
+    onFieldValidation: (isIdentifier: boolean, hasError: boolean) => void;
+    onRecordValidation: (hasError: boolean) => void;
+    onDelete: () => void;
 }
 
 const ButtonDeactivated = styled.div<{}>`
@@ -24,17 +36,31 @@ const ButtonActive = styled.div<{}>`
     color: 'var(--vscode-editorWarning-foreground)';
 `;
 
+
+
+const ExpandIconButton = styled(Button)`
+    padding: 4px;
+    &:hover {
+        background: transparent;
+    }
+`;
+
+const CollapsibleSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid var(--vscode-welcomePage-tileBorder);
+    margin-left: 25px;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 4px;
+`;
+
 export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
-    const { member, selected, onChange, onSelect, onDeselect } = props;
+    const { member, onChange, onDelete, type, onValidationError, onFieldValidation, onRecordValidation } = props;
     const [panelOpened, setPanelOpened] = useState<boolean>(false);
     const recordEditorRef = useRef<{ addMember: () => void }>(null);
-    const typeFieldRef = useRef<HTMLInputElement>(null);
-    const typeHelperRef = useRef<HTMLDivElement>(null);
-    const typeBrowserRef = useRef<HTMLDivElement>(null);
-    const [typeFieldCursorPosition, setTypeFieldCursorPosition] = useState<number>(0);
-    const [helperPaneOffset, setHelperPaneOffset] = useState<Position>({ top: 0, left: 0 });
-    const [helperPaneOpened, setHelperPaneOpened] = useState<boolean>(false);
-    const [nameError, setNameError] = useState<string>('');
+    const currentImports = useRef<Imports | undefined>();
 
     const toggleOptional = () => {
         onChange({
@@ -50,41 +76,29 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         });
     }
 
-    const handleMemberNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleNameChange = (value: string) => {
         onChange({
             ...member,
-            name: e.target.value
+            name: value
         });
     }
 
-    const handleMemberNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {        
-        if (!isValidBallerinaIdentifier( e.target.value)) {
-            setNameError('Invalid Identifier.');
-        } else {
-            setNameError('');
+
+    const handleTypeChange = (value: string) => {
+        onChange({
+            ...member,
+            type: value,
+            imports: currentImports.current
+        });
+        currentImports.current = undefined;
+    }
+
+    const handleUpdateImports = (imports: Imports) => {
+        const newImportKey = Object.keys(imports)[0];
+        if (!member.imports || !Object.keys(member.imports)?.includes(newImportKey)) {
+            const updatedImports = { ...member.imports, ...imports };
+            currentImports.current = updatedImports;
         }
-    }
-
-    const handleMemberTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange({
-            ...member,
-            type: e.target.value
-        });
-    }
-
-    const handleTypeHelperChange = (newType: string, newCursorPosition: number) => {
-        onChange({
-            ...member,
-            type: newType
-        });
-        setTypeFieldCursorPosition(newCursorPosition);
-
-        // Focus the type field
-        typeFieldRef.current?.focus();
-        // Set cursor position
-        typeFieldRef.current?.shadowRoot
-            ?.querySelector('input')
-            ?.setSelectionRange(newCursorPosition, newCursorPosition);
     }
 
     const handleMemberDefaultValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,72 +131,29 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
         return false;
     }
 
-    const handleTypeFieldFocus = () => {
-        const rect = typeFieldRef.current.getBoundingClientRect();
-        const sidePanelLeft = window.innerWidth - 400; // Side panel width
-        const helperPaneLeftOffset = sidePanelLeft - rect.left;
-        setHelperPaneOffset({ top: 0, left: helperPaneLeftOffset });
-        setHelperPaneOpened(true);
-    }
-
-    const handleSelectionChange = () => {
-        const selection = window.getSelection();
-        if (!selection) {
-            return;
-        }
-
-        const range = selection.getRangeAt(0);
-
-        if (typeFieldRef.current.parentElement.contains(range.startContainer)) {
-            setTypeFieldCursorPosition(
-                typeFieldRef.current.shadowRoot.querySelector('input').selectionStart ?? 0
-            );
-        }
-    }
-
-    /* Track cursor position */
-    useEffect(() => {
-        const typeField = typeFieldRef.current;
-        if (!typeField) {
-            return;
-        }
-
-        document.addEventListener('selectionchange', handleSelectionChange);
-        return () => {
-            document.removeEventListener('selectionchange', handleSelectionChange);
-        }
-    }, [typeFieldRef.current]);
-
-    const handleTypeFieldBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        /* Prevent blur event when clicked on the type helper */
-        const searchElements = Array.from(document.querySelectorAll('#helper-pane-search'));
-        if (
-            (typeHelperRef.current?.contains(e.relatedTarget as Node) ||
-                typeBrowserRef.current?.contains(e.relatedTarget as Node)) &&
-            !searchElements.some(element => element.contains(e.relatedTarget as Node))
-        ) {
-            e.preventDefault();
-            e.stopPropagation();
-            typeFieldRef.current?.shadowRoot?.querySelector('input')?.focus();
-        }
-    };
-
     return (
         <>
-            <div style={{ display: 'flex', gap: '8px' }}>
-                <CheckBox label="" checked={selected} onChange={() => { selected ? onDeselect() : onSelect(); }} />
-                <TextField
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'start' }}>
+                <ExpandIconButton
+                    appearance="icon"
+                    onClick={() => setPanelOpened(!panelOpened)}
+                >
+                    <Codicon name={panelOpened ? "chevron-down" : "chevron-right"} />
+                </ExpandIconButton>
+                <IdentifierField
                     value={member.name}
-                    onChange={handleMemberNameChange}
-                    onBlur={handleMemberNameBlur}
-                    errorMsg={nameError}
+                    onChange={handleNameChange}
+                    rootType={type}
+                    onValidationError={(hasError) => onFieldValidation(true, hasError)}
                 />
-                <TextField
-                    ref={typeFieldRef}
-                    value={typeToSource(member.type)}
-                    onChange={handleMemberTypeChange}
-                    onFocus={handleTypeFieldFocus}
-                    onBlur={handleTypeFieldBlur}
+                <TypeField
+                    type={member.type}
+                    memberName={typeToSource(member.type)}
+                    onChange={handleTypeChange}
+                    onUpdateImports={handleUpdateImports}
+                    onValidationError={(hasError) => onFieldValidation(false, hasError)}
+                    rootType={type}
+                    isAnonymousRecord={isRecord(member.type)}
                 />
                 {isRecord(member.type) &&
                     <Button appearance="icon" onClick={() => recordEditorRef.current?.addMember()}>
@@ -192,10 +163,12 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                 <Button appearance="icon" onClick={toggleRecord}>
                     {isRecord(member.type) ? <ButtonActive>{`{`}&nbsp;{`}`}</ButtonActive> : <ButtonDeactivated>{`{`}&nbsp;{`}`}</ButtonDeactivated>}
                 </Button>
-                <Button appearance="icon" onClick={() => setPanelOpened(!panelOpened)}><Codicon name="kebab-vertical" /></Button>
+                <Button appearance="icon" onClick={onDelete}>
+                    <Codicon name="trash" />
+                </Button>
             </div>
             {panelOpened && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid var(--vscode-welcomePage-tileBorder)', marginLeft: '25px', marginBottom: '10px', padding: '8px', borderRadius: '4px' }}>
+                <CollapsibleSection>
                     <TextField label='Default Value' value={member.defaultValue} onChange={handleMemberDefaultValueChange} style={{ width: '180px' }} />
                     <TextField label='Description' value={member.docs} onChange={handleDescriptionChange} style={{ width: '180px' }} />
                     <CheckBox
@@ -203,7 +176,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                         checked={member?.optional}
                         onChange={toggleOptional}
                     />
-                </div >
+                </CollapsibleSection>
             )}
             {isRecord(member.type) && typeof member.type !== 'string' && (
                 <div style={{ marginLeft: '24px' }}>
@@ -214,21 +187,11 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                         onChange={(type: Type) => onChange({ ...member, type })}
                         onImportJson={() => { }}
                         onImportXml={() => { }}
+                        onValidationError={(hasError) => onRecordValidation(hasError)}
                     />
                     <AdvancedOptions type={member.type as Type} onChange={(type: Type) => onChange({ ...member, type })} />
                 </div>
             )}
-            <TypeHelper
-                ref={typeHelperRef}
-                typeFieldRef={typeFieldRef}
-                typeBrowserRef={typeBrowserRef}
-                currentType={typeToSource(member.type)}
-                currentCursorPosition={typeFieldCursorPosition}
-                onChange={handleTypeHelperChange}
-                positionOffset={helperPaneOffset}
-                open={helperPaneOpened}
-                onClose={() => setHelperPaneOpened(false)}
-            />
         </>
     );
 };

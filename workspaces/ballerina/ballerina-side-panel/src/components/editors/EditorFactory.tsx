@@ -30,6 +30,7 @@ import { DropdownChoiceForm } from "./DropdownChoiceForm";
 import { IdentifierEditor } from "./IdentifierEditor";
 import { ReadonlyField } from "./ReadonlyField";
 import { ContextAwareRawExpressionEditor } from "./RawExpressionEditor";
+import { IdentifierField } from "./IdentifierField";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -60,9 +61,9 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     if (!field.enabled || field.hidden) {
         return <></>;
     } else if (field.type === "MULTIPLE_SELECT") {
-        return <MultiSelectEditor field={field} label={"Add Another"} openSubPanel={openSubPanel} />;
+        return <MultiSelectEditor field={field} label={"Attach Another"} openSubPanel={openSubPanel} />;
     } else if (field.type === "CHOICE") {
-        return <ChoiceForm field={field} />;
+        return <ChoiceForm field={field} recordTypeFields={recordTypeFields} />;
     } else if (field.type === "DROPDOWN_CHOICE") {
         return <DropdownChoiceForm field={field} />;
     } else if (field.type === "TEXTAREA") {
@@ -95,7 +96,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 handleOnTypeChange={handleOnTypeChange}
             />
         );
-    } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
+    } else if (!field.items && (field.type === "EXPRESSION" || field.type === "LV_EXPRESSION") && field.editable) {
         // Expression field is a inline expression editor
         return (
             <ContextAwareExpressionEditor
@@ -128,6 +129,8 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         return <IdentifierEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
     } else if (field.type !== "IDENTIFIER" && !field.editable) {
         return <ReadonlyField field={field} />;
+    } else if (field.type === "IDENTIFIER" && field.editable) {
+        return <IdentifierField field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor

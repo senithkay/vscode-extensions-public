@@ -19,7 +19,6 @@ const IconWrapper = styled.div<{ size: number }>`
 const IconImage = styled.img<{ isLoading: boolean }>`
     width: 100%;
     height: 100%;
-    border-radius: 50%;
     opacity: ${(props: { isLoading: boolean }) => (props.isLoading ? 0 : 1)};
     transition: opacity 0.3s ease-in-out;
 `;

@@ -14,6 +14,7 @@ import {
     FormValues,
     ParameterValue,
     Parameter,
+    FormImports,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow, ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import {
@@ -42,6 +43,7 @@ import {
     FunctionNode,
     FocusFlowDiagramView,
     FOCUS_FLOW_DIAGRAM_VIEW,
+    Imports,
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -161,6 +163,7 @@ export function convertNodePropertyToFormField(
         optional: property.optional,
         advanced: property.advanced,
         placeholder: property.placeholder,
+        defaultValue: property.defaultValue as string,
         editable: isFieldEditable(property, connections, clientName),
         enabled: true,
         hidden: property.hidden,
@@ -174,6 +177,7 @@ export function convertNodePropertyToFormField(
         lineRange: property?.codedata?.lineRange,
         metadata: property.metadata,
         codedata: property.codedata,
+        imports: property.imports
     };
     return formField;
 }
@@ -242,7 +246,11 @@ export function getDataMappingFunctions(functions: Category[]): Category[] {
         .filter((category) => category.items.length > 0);
 }
 
-export function updateNodeProperties(values: FormValues, nodeProperties: NodeProperties): NodeProperties {
+export function updateNodeProperties(
+    values: FormValues,
+    nodeProperties: NodeProperties,
+    formImports: FormImports
+): NodeProperties {
     const updatedNodeProperties: NodeProperties = { ...nodeProperties };
 
     for (const key in values) {
@@ -250,6 +258,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
             const expression = updatedNodeProperties[key as NodePropertyKey];
             if (expression) {
                 expression.value = values[key];
+                expression.imports = formImports[key];
             }
         }
     }
@@ -265,6 +274,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
             return "AI Agent";
         case SidePanelView.AGENT_MODEL:
             return "Configure LLM Model";
+        case SidePanelView.AGENT_MEMORY_MANAGER:
+            return "Configure Memory";
         case SidePanelView.AGENT_TOOL:
             return "Configure Tool";
         case SidePanelView.ADD_TOOL:
@@ -714,6 +725,7 @@ function createParameterValue(index: number, paramValueKey: string, paramValue: 
     const type = paramValue.value.type.value;
     const variableLineRange = (paramValue.value.variable as any).codedata?.lineRange;
     const variableEditable = (paramValue.value.variable as any).editable;
+    const parameterDescription = paramValue.value.parameterDescription?.value;
 
     return {
         id: index,
@@ -725,6 +737,7 @@ function createParameterValue(index: number, paramValueKey: string, paramValue: 
         formValues: {
             variable: name,
             type: type,
+            parameterDescription: parameterDescription,
         },
     };
 }
@@ -804,4 +817,54 @@ export function getFlowNodeForNaturalFunction(node: FunctionNode): FlowNode {
         branches: [],
     };
     return flowNode;
+}
+
+/**
+ * Returns the line and the character offset of the expression
+ *
+ * @param expression
+ * @returns { lineOffset: number, charOffset: number }
+ */
+export function getInfoFromExpressionValue(
+    expression: string,
+    cursorPosition: number
+): { lineOffset: number, charOffset: number } {
+    const effectiveExpression = expression.slice(0, cursorPosition);
+    const lines = effectiveExpression.split(/\n/g);
+    const lineCount = lines.length - 1;
+    const charOffset = lines[lineCount].length;
+
+    return {
+        lineOffset: lineCount,
+        charOffset: charOffset
+    };
+}
+
+export const getImportsForProperty = (key: string, imports: FormImports): Imports | undefined => {
+    if (!imports) {
+        return undefined;
+    }
+
+    return imports[key];
+};
+
+export function getImportsForFormFields(formFields: FormField[]): FormImports {
+    const imports: FormImports = {};
+    for (const field of formFields) {
+        if (field.imports) {
+            imports[field.key] = field.imports;
+        }
+    }
+    return imports;
+}
+
+/**
+ * Filters the unsupported diagnostics for local connections
+ * @param diagnostics - Diagnostics to filter
+ * @returns Filtered diagnostics
+ */
+export function filterUnsupportedDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
+    return diagnostics.filter((diagnostic) => {
+        return !diagnostic.message.startsWith('unknown type') && !diagnostic.message.startsWith('undefined module');
+    });
 }

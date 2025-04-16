@@ -12,7 +12,7 @@ import {
     AIChatRequest,
     AddFieldRequest,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -40,8 +40,9 @@ import {
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    DeploymentRequest,
     DeploymentResponse,
-    DevantComponent,
+    DevantMetadata,
     EndOfFileRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -114,7 +115,7 @@ import {
     getBreakpointInfo,
     getConfigVariables,
     getDesignModel,
-    getDevantComponent,
+    getDevantMetadata,
     getEnclosedFunction,
     getEndOfFile,
     getExpressionCompletions,
@@ -253,8 +254,8 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(renameIdentifier, HOST_EXTENSION, params);
     }
 
-    deployProject(): Promise<DeploymentResponse> {
-        return this._messenger.sendRequest(deployProject, HOST_EXTENSION);
+    deployProject(params: DeploymentRequest): Promise<DeploymentResponse> {
+        return this._messenger.sendRequest(deployProject, HOST_EXTENSION, params);
     }
 
     openAIChat(params: AIChatRequest): void {
@@ -365,7 +366,7 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
     }
 
-    addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+    addFunction(params: AddFunctionRequest): Promise<AddImportItemResponse> {
         return this._messenger.sendRequest(addFunction, HOST_EXTENSION, params);
     }
 
@@ -389,8 +390,8 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getFunctionNames, HOST_EXTENSION);
     }
 
-    getDevantComponent(): Promise<DevantComponent | undefined> {
-        return this._messenger.sendRequest(getDevantComponent, HOST_EXTENSION);
+    getDevantMetadata(): Promise<DevantMetadata | undefined> {
+        return this._messenger.sendRequest(getDevantMetadata, HOST_EXTENSION);
     }
 
     generateOpenApiClient(params: OpenAPIClientGenerationRequest): Promise<GeneratedClientSaveResponse> {

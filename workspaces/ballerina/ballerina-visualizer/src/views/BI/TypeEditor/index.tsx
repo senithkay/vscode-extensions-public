@@ -13,17 +13,32 @@ import { LineRange, Type } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { TypeEditor, TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
 import { TYPE_HELPER_OPERATORS } from './constants';
-import { filterOperators, filterTypes, getTypeBrowserTypes, getTypes } from './utils';
+import { filterOperators, filterTypes, getImportedTypes, getTypeBrowserTypes, getTypes } from './utils';
+import { useMutation } from '@tanstack/react-query';
+import { Overlay, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { createPortal } from 'react-dom';
+import { LoadingRing } from '../../../components/Loader';
+import styled from '@emotion/styled';
+
+const LoadingContainer = styled.div`
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 5000;
+`;
 
 type FormTypeEditorProps = {
     type?: Type;
     onTypeChange: (type: Type) => void;
     newType: boolean;
+    newTypeValue?: string;
     isGraphql?: boolean;
 };
 
 export const FormTypeEditor = (props: FormTypeEditorProps) => {
-    const { type, onTypeChange, newType, isGraphql } = props;
+    const { type, onTypeChange, newType, newTypeValue, isGraphql } = props;
     const { rpcClient } = useRpcContext();
 
     const [filePath, setFilePath] = useState<string | undefined>(undefined);
@@ -33,6 +48,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
     const [loadingTypeBrowser, setLoadingTypeBrowser] = useState<boolean>(false);
 
     const [basicTypes, setBasicTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
+    const [importedTypes, setImportedTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
     const [filteredBasicTypes, setFilteredBasicTypes] = useState<TypeHelperCategory[]>([]);
     const [filteredOperators, setFilteredOperators] = useState<TypeHelperOperator[]>([]);
     const [filteredTypeBrowserTypes, setFilteredTypeBrowserTypes] = useState<TypeHelperCategory[]>([]);
@@ -73,18 +89,58 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                         .then((types) => {
                             setBasicTypes(getTypes(types));
                             setFilteredBasicTypes(getTypes(types));
+
+                            /* Get imported types */
+                            rpcClient
+                                .getBIDiagramRpcClient()
+                                .search({
+                                    filePath: filePath,
+                                    position: targetLineRange,
+                                    queryMap: {
+                                        q: '',
+                                        offset: 0,
+                                        limit: 60
+                                    },
+                                    searchKind: 'TYPE'
+                                })
+                                .then((response) => {
+                                    const importedTypes = getImportedTypes(response.categories);
+                                    setImportedTypes(importedTypes);
+                                })
+                                .finally(() => {
+                                    setLoading(false);
+                                });
                         })
-                        .finally(() => {
+                        .catch((error) => {
+                            console.error(error);
                             setLoading(false);
                         });
                 }
             } else if (isType) {
                 setFilteredBasicTypes(filterTypes(basicTypes, searchText));
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .search({
+                        filePath: filePath,
+                        position: targetLineRange,
+                        queryMap: {
+                            q: searchText,
+                            offset: 0,
+                            limit: 60
+                        },
+                        searchKind: 'TYPE'
+                    })
+                    .then((response) => {
+                        const importedTypes = getImportedTypes(response.categories);
+                        setImportedTypes(importedTypes);
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
             } else {
                 setFilteredOperators(filterOperators(TYPE_HELPER_OPERATORS, searchText));
+                setLoading(false);
             }
-
-            setLoading(false);
         }, 150),
         [basicTypes, filePath, targetLineRange]
     );
@@ -131,15 +187,18 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
         [debouncedSearchTypeBrowser]
     );
 
-    const handleTypeItemClick = async (item: TypeHelperItem) => {
-        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
-            filePath: filePath,
-            codedata: item.codedata,
-            kind: item.kind,
-            searchKind: 'TYPE'
-        });
+    const { mutateAsync: addFunction, isLoading: isAddingType } = useMutation(
+        (item: TypeHelperItem) => 
+            rpcClient.getBIDiagramRpcClient().addFunction({
+                filePath: filePath,
+                codedata: item.codedata,
+                kind: item.kind,
+                searchKind: 'TYPE'
+            })
+    );
 
-        return response.template ?? '';
+    const handleTypeItemClick = async (item: TypeHelperItem) => {
+        return await addFunction(item);
     };
 
     return (
@@ -150,11 +209,13 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                     rpcClient={rpcClient}
                     onTypeChange={onTypeChange}
                     newType={newType}
+                    newTypeValue={newTypeValue}
                     isGraphql={isGraphql}
                     typeHelper={{
                         loading,
                         loadingTypeBrowser,
                         basicTypes: filteredBasicTypes,
+                        importedTypes,
                         operators: filteredOperators,
                         typeBrowserTypes: filteredTypeBrowserTypes,
                         onSearchTypeHelper: handleSearchTypeHelper,
@@ -162,6 +223,13 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                         onTypeItemClick: handleTypeItemClick
                     }}
                 />
+            )}
+            {isAddingType && createPortal(
+                <>
+                    <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 5000 }} />
+                    <LoadingContainer> <LoadingRing /> </LoadingContainer>
+                </>
+                , document.body
             )}
         </>
     );

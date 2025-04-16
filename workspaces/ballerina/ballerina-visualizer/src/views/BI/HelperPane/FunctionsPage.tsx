@@ -8,23 +8,47 @@
  */
 
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
-import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, Overlay, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { LibraryBrowser } from './LibraryBrowser';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { LineRange, FunctionKind } from '@wso2-enterprise/ballerina-core';
 import { convertToHelperPaneFunction, extractFunctionInsertText } from '../../../utils/bi';
 import { debounce } from 'lodash';
+import { useMutation } from '@tanstack/react-query';
+import { createPortal } from 'react-dom';
+import { LoadingRing } from '../../../components/Loader';
+import styled from '@emotion/styled';
+
+const LoadingContainer = styled.div`
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 5000;
+`;
+
 
 type FunctionsPageProps = {
+    fieldKey: string;
     anchorRef: RefObject<HTMLDivElement>;
     fileName: string;
     targetLineRange: LineRange;
     onClose: () => void;
     onChange: (value: string) => void;
+    updateImports: (key: string, imports: {[key: string]: string}) => void;
 };
 
-export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, onChange }: FunctionsPageProps) => {
+export const FunctionsPage = ({
+    fieldKey,
+    anchorRef,
+    fileName,
+    targetLineRange,
+    onClose,
+    onChange,
+    updateImports
+}: FunctionsPageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
@@ -70,15 +94,24 @@ export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, o
         [debounceFetchFunctionInfo, searchValue]
     );
 
-    const onFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
-        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
-            filePath: fileName,
-            codedata: item.codedata,
-            kind: item.kind as FunctionKind,
-            searchKind: 'FUNCTION'
-        });
+    const { mutateAsync: addFunction, isLoading: isAddingFunction  } = useMutation(
+        (item: HelperPaneCompletionItem) => 
+            rpcClient.getBIDiagramRpcClient().addFunction({
+                filePath: fileName,
+                codedata: item.codedata,
+                kind: item.kind as FunctionKind,
+                searchKind: 'FUNCTION'
+            })
+    );
 
-        if (response.template) {
+    const onFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
+        const response = await addFunction(item);
+
+        if (response) {
+            const importStatement = {
+                [response.prefix]: response.moduleId
+            };
+            updateImports(fieldKey, importStatement);
             return extractFunctionInsertText(response.template);
         }
 
@@ -183,7 +216,7 @@ export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, o
             </HelperPane.Body>
             <HelperPane.Footer>
                 <HelperPane.IconButton
-                    title="Open library browser"
+                    title="Open function browser"
                     getIcon={() => <Codicon name="library" />}
                     onClick={() => setIsLibraryBrowserOpen(true)}
                 />
@@ -199,6 +232,13 @@ export const FunctionsPage = ({ anchorRef, fileName, targetLineRange, onClose, o
                     onChange={onChange}
                     onFunctionItemSelect={onFunctionItemSelect}
                 />
+            )}
+            {isAddingFunction && createPortal(
+                <>
+                    <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 5000 }} />
+                    <LoadingContainer> <LoadingRing /> </LoadingContainer>
+                </>
+                , document.body
             )}
         </>
     );

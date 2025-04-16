@@ -149,7 +149,7 @@ import {
     ListenerModelFromCodeRequest,
     ListenerModelFromCodeResponse,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     UpdateImportsRequest,
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
@@ -200,12 +200,20 @@ import {
     OpenAPIGeneratedModulesRequest,
     OpenAPIGeneratedModulesResponse,
     OpenAPIClientDeleteResponse,
-    OpenAPIClientDeleteRequest
+    OpenAPIClientDeleteRequest,
+    ImportsInfoResponse,
+    ProjectArtifactsRequest,
+    ProjectArtifacts,
+    Artifacts,
+    MemoryManagersRequest,
+    MemoryManagersResponse,
+    ArtifactsNotification
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../features/telemetry";
 import { DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
+import { updateProjectArtifacts } from "../utils/project-artifacts";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -300,7 +308,7 @@ enum EXTENDED_APIS {
     BI_UPDATE_RECORD_CONFIG = 'typesManager/updateRecordConfig',
     BI_GET_RECORD_MODEL_FROM_SOURCE = 'typesManager/findMatchingType',
     BI_GET_RECORD_SOURCE = 'typesManager/generateValue',
-    BI_SERVICE_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
+    BI_SERVICE_GET_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
     BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
     BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
     BI_SERVICE_ADD_LISTENER = 'serviceDesign/addListener',
@@ -316,7 +324,6 @@ enum EXTENDED_APIS {
     BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
     BI_SERVICE_ADD_FUNCTION = 'serviceDesign/addFunction',
     BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateFunction',
-    BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
     BI_SERVICE_SERVICE_CLASS_MODEL = 'serviceDesign/getServiceClassModelFromSource',
     BI_UPDATE_CLASS_FIELD = 'serviceDesign/updateClassField',
     BI_ADD_CLASS_FIELD = 'serviceDesign/addField',
@@ -331,6 +338,7 @@ enum EXTENDED_APIS {
     BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition',
     BI_AI_ALL_AGENTS = 'agentManager/getAllAgents',
     BI_AI_ALL_MODELS = 'agentManager/getAllModels',
+    BI_AI_ALL_MEMORY_MANAGERS = 'agentManager/getAllMemoryManagers',
     BI_AI_GET_MODELS = 'agentManager/getModels',
     BI_AI_GET_TOOLS = 'agentManager/getTools',
     BI_AI_GEN_TOOLS = 'agentManager/genTool',
@@ -341,6 +349,8 @@ enum EXTENDED_APIS {
     OPEN_API_GENERATE_CLIENT = 'openAPIService/genClient',
     OPEN_API_GENERATED_MODULES = 'openAPIService/getModules',
     OPEN_API_CLIENT_DELETE = 'openAPIService/deleteModule',
+    GET_ARTIFACTS = 'designModelService/artifacts',
+    PUBLISH_ARTIFACTS = 'designModelService/publishArtifacts'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -424,6 +434,23 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     registerPublishDiagnostics(): void {
         this.onNotification(VSCODE_APIS.PUBLISH_DIAGNOSTICS, () => {
         });
+    }
+
+    registerPublishArtifacts(): void {
+        this.onNotification(EXTENDED_APIS.PUBLISH_ARTIFACTS, (res: ArtifactsNotification) => {
+            try {
+                console.log("Publish Artifacts", { res });
+                if (res && Object.keys(res).length > 0) {
+                    updateProjectArtifacts(res);
+                }
+            } catch (error) {
+                console.error("Error in PUBLISH_ARTIFACTS handler:", error);
+            }
+        });
+    }
+
+    async getProjectArtifacts(params: ProjectArtifactsRequest): Promise<ProjectArtifacts> {
+        return this.sendRequest<ProjectArtifacts>(EXTENDED_APIS.GET_ARTIFACTS, params);
     }
 
     async definition(params: DefinitionParams): Promise<Location | Location[] | LocationLink[]> {
@@ -882,7 +909,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
-        return this.sendRequest<TriggerModelsResponse>(EXTENDED_APIS.BI_SERVICE_TRIGGER_MODELS, params);
+        return this.sendRequest<TriggerModelsResponse>(EXTENDED_APIS.BI_SERVICE_GET_TRIGGER_MODELS, params);
     }
 
     async getListeners(params: ListenersRequest): Promise<ListenersResponse> {
@@ -1005,12 +1032,12 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<GetGraphqlTypeResponse>(EXTENDED_APIS.BI_GET_GRAPHQL_TYPE, params);
     }
 
-    async updateImports(params: UpdateImportsRequest): Promise<void> {
-        return this.sendRequest<void>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
+    async updateImports(params: UpdateImportsRequest): Promise<ImportsInfoResponse> {
+        return this.sendRequest<ImportsInfoResponse>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
     }
 
-    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
-        return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
+    async addFunction(params: AddFunctionRequest): Promise<AddImportItemResponse> {
+        return this.sendRequest<AddImportItemResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
     }
 
     async getAllAgents(params: AINodesRequest): Promise<AINodesResponse> {
@@ -1019,6 +1046,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getAllModels(params: AIModelsRequest): Promise<AINodesResponse> {
         return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MODELS, params);
+    }
+
+    async getAllMemoryManagers(params: MemoryManagersRequest): Promise<MemoryManagersResponse> {
+        return this.sendRequest<MemoryManagersResponse>(EXTENDED_APIS.BI_AI_ALL_MEMORY_MANAGERS, params);
     }
 
     async getModels(params: AIModelsRequest): Promise<AIModelsResponse> {

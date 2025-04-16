@@ -15,9 +15,11 @@ import {
     AIModelsRequest,
     AINodesRequest,
     AIToolsRequest,
+    MemoryManagersRequest,
     createAIAgent,
     genTool,
     getAllAgents,
+    getAllMemoryManagers,
     getAllModels,
     getModels,
     getTools,
@@ -30,6 +32,7 @@ export function registerAiAgentRpcHandlers(messenger: Messenger) {
     const rpcManger = new AiAgentRpcManager();
     messenger.onRequest(getAllAgents, (args: AINodesRequest) => rpcManger.getAllAgents(args));
     messenger.onRequest(getAllModels, (args: AIModelsRequest) => rpcManger.getAllModels(args));
+    messenger.onRequest(getAllMemoryManagers, (args: MemoryManagersRequest) => rpcManger.getAllMemoryManagers(args));
     messenger.onRequest(getModels, (args: AIModelsRequest) => rpcManger.getModels(args));
     messenger.onRequest(getTools, (args: AIToolsRequest) => rpcManger.getTools(args));
     messenger.onRequest(genTool, (args: AIGentToolsRequest) => rpcManger.genTool(args));

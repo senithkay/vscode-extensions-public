@@ -10,7 +10,7 @@
 import { ChoreoComponentSubType, ChoreoComponentType, ComponentDisplayType, DevantScopes, GitProvider } from "./enums";
 import type { ComponentKind, ComponentKindSource, Organization, Project } from "./types/common.types";
 
-export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");
+export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-").replace(/_/g, "-");
 
 export const getShortenedHash = (hash: string) => hash?.substring(0, 8);
 
@@ -154,18 +154,18 @@ export const getIntegrationScopeText = (integrationScope: string): string => {
 	}
 };
 
-export const getTypeOfIntegrationType = (integrationScope: string): {type?: string, subType?: string} => {
+export const getTypeOfIntegrationType = (integrationScope: string): { type?: string; subType?: string } => {
 	switch (integrationScope) {
 		case DevantScopes.AUTOMATION:
-			return {type:ChoreoComponentType.ScheduledTask};
+			return { type: ChoreoComponentType.ScheduledTask };
 		case DevantScopes.INTEGRATION_AS_API:
-			return {type:ChoreoComponentType.Service};
+			return { type: ChoreoComponentType.Service };
 		case DevantScopes.EVENT_INTEGRATION:
-			return {type:ChoreoComponentType.EventHandler};
+			return { type: ChoreoComponentType.EventHandler };
 		case DevantScopes.FILE_INTEGRATION:
-			return {type:ChoreoComponentType.EventHandler, subType: ChoreoComponentSubType.fileIntegration};
+			return { type: ChoreoComponentType.EventHandler, subType: ChoreoComponentSubType.fileIntegration };
 		case DevantScopes.AI_AGENT:
-			return {type:ChoreoComponentType.Service, subType: ChoreoComponentSubType.AiAgent};
+			return { type: ChoreoComponentType.Service, subType: ChoreoComponentSubType.AiAgent };
 		default:
 			return {};
 	}

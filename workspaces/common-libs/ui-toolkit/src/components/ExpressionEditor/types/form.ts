@@ -41,18 +41,17 @@ type HelperPaneConditionalProps = {
 
 export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {
     resize?: 'vertical' | 'disabled';
-    rows?: number;
     growRange?: { start: number, offset: number };
     actionButtons?: ActionButtonType[];
     startAdornment?: ReactNode;
     endAdornment?: ReactNode;
     anchorRef?: MutableRefObject<HTMLDivElement>;
     expressionEditorIconName?: string;
+    enableExIcon?: boolean;
 };
 
 export type FormExpressionEditorElProps = FormExpressionEditorProps & {
     containerRef: MutableRefObject<HTMLDivElement>;
-    buttonRef?: MutableRefObject<HTMLDivElement>;
 }
 
 export type FormExpressionEditorRef = ExpressionEditorRef & {

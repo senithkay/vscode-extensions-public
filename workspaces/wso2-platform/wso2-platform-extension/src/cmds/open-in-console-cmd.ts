@@ -7,19 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, type ComponentKind, type Organization, type Project } from "@wso2-enterprise/wso2-platform-core";
-import { type ExtensionContext, type QuickPickItem, QuickPickItemKind, Uri, commands, env, window } from "vscode";
+import {
+	CommandIds,
+	type ComponentKind,
+	type ICreateComponentCmdParams,
+	type IOpenInConsoleCmdParams,
+	type Organization,
+	type Project,
+} from "@wso2-enterprise/wso2-platform-core";
+import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, env, window } from "vscode";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
-import { getUserInfoForCmd, quickPickWithLoader, selectOrg, selectProject } from "./cmd-utils";
+import { getNormalizedPath, isSamePath } from "../utils";
+import { getUserInfoForCmd, isRpcActive, quickPickWithLoader, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
 export function openInConsoleCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.OpenInConsole, async (params: { organization: Organization; project: Project; component: ComponentKind }) => {
+		commands.registerCommand(CommandIds.OpenInConsole, async (params: IOpenInConsoleCmdParams) => {
+			setExtensionName(params?.extName);
 			try {
+				isRpcActive(ext);
 				const extensionName = webviewStateStore.getState().state.extensionName;
 				const userInfo = await getUserInfoForCmd(`open a component in ${extensionName} console`);
 				if (userInfo) {
@@ -54,16 +64,69 @@ export function openInConsoleCommand(context: ExtensionContext) {
 
 					if (params?.component) {
 						env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}/overview`));
-					} else if (selected?.project) {
-						env.openExternal(Uri.parse(`${projectBaseUrl}/home`));
-					} else {
-						const cacheComponentPick: (QuickPickItem & { item?: any })[] = dataCacheStore
+					} else if (params?.componentFsPath) {
+						const matchingComponent = contextStore
 							.getState()
-							.getComponents(selectedOrg.handle, selectedProject.handler)
-							.map((item) => ({
+							.state?.components?.filter((item) => isSamePath(item.componentFsPath, params?.componentFsPath));
+						if (matchingComponent?.length === 0) {
+							// create a new component
+							window
+								.showInformationMessage(
+									`No ${extensionName} component found in this directory. Do you want to create one?`,
+									{ modal: true },
+									"Proceed",
+								)
+								.then((res) => {
+									if (res === "Proceed") {
+										commands.executeCommand(CommandIds.CreateNewComponent, {
+											...(params?.newComponentParams || {}),
+											componentDir: params?.componentFsPath || params?.newComponentParams?.componentDir,
+										} as ICreateComponentCmdParams);
+									}
+								});
+						} else if (matchingComponent?.length === 1) {
+							env.openExternal(Uri.parse(`${projectBaseUrl}/components/${matchingComponent[0]?.component?.metadata?.handler}/overview`));
+						} else if (matchingComponent && matchingComponent?.length > 1) {
+							// prompt to select a component
+							const componentItems: (QuickPickItem & { item?: ComponentKind })[] = matchingComponent.map((item) => ({
+								label: item.component?.metadata?.displayName!,
+								item: item?.component,
+							}));
+							const selectedComp = await window.showQuickPick(componentItems, {
+								title: "Multiple components detected. Please select a component to open",
+							});
+							if (selectedComp?.item) {
+								env.openExternal(Uri.parse(`${projectBaseUrl}/components/${selectedComp?.item?.metadata?.handler}/overview`));
+							}
+						}
+					} else {
+						let cacheComponentPick: (QuickPickItem & { item?: any })[] = [];
+
+						if (selected) {
+							cacheComponentPick = dataCacheStore
+								.getState()
+								.getComponents(selectedOrg.handle, selectedProject.handler)
+								.map((item) => ({
+									label: item.metadata.displayName,
+									item: { data: item, type: "component" },
+								}));
+						} else {
+							const components = await window.withProgress(
+								{ title: `Fetching components of ${selectedProject.name}...`, location: ProgressLocation.Notification },
+								() =>
+									ext.clients.rpcClient.getComponentList({
+										orgId: selectedOrg?.id?.toString()!,
+										orgHandle: selectedOrg?.handle!,
+										projectId: selectedProject?.id!,
+										projectHandle: selectedProject?.handler!,
+									}),
+							);
+							dataCacheStore.getState().setComponents(selectedOrg.handle, selectedProject.handler, components);
+							cacheComponentPick = components.map((item) => ({
 								label: item.metadata.displayName,
 								item: { data: item, type: "component" },
 							}));
+						}
 
 						const cacheQuickPicks: (QuickPickItem & { item?: any })[] = [
 							{

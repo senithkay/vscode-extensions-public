@@ -47,12 +47,11 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const classes = useIONodesStyles();
 
     const fieldName = getBalRecFieldName(field.name);
-    const fieldId = `${parentId}${isOptional ? `?.${fieldName}` : `.${fieldName}`}`;
+    const fieldId = `${parentId}.${fieldName}`;
     const portOut = getPort(`${fieldId}.OUT`);
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const isPortDisabled = hasLinkViaCollectClause && Object.keys(portOut.getLinks()).length === 0;
-    portOut.isDisabledDueToCollectClause = isPortDisabled;
 
     let fields: TypeField[];
     let optional = false;
@@ -66,8 +65,11 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     }
 
     let expanded = true;
-    if (portOut && portOut.collapsed) {
-        expanded = false;
+    if (portOut) {
+        if (portOut.collapsed) {
+            expanded = false;
+        }
+        portOut.isDisabledDueToCollectClause = isPortDisabled;
     }
 
     const typeName = getTypeName(field);

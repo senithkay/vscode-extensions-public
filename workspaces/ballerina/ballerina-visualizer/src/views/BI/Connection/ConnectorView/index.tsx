@@ -255,7 +255,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                 <Row>
                     <StyledSearchInput
                         value={searchText}
-                        placeholder="Search"
+                        placeholder="Search connectors"
                         autoFocus={true}
                         onChange={handleOnSearch}
                         size={60}

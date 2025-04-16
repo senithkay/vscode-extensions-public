@@ -8,8 +8,19 @@
  */
 
 import React, { RefObject, useEffect, useRef, useState } from 'react';
-import { getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
+
 import { TypeHelperCategory, TypeHelperItem } from '.';
+import { EMPTY_SEARCH_RESULT_MSG, EMPTY_SEARCH_TEXT_MSG } from './constant';
+
+const SearchMsg = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--vscode-descriptionForeground)
+`;
 
 type TypeBrowserProps = {
     typeBrowserRef: RefObject<HTMLDivElement>;
@@ -18,7 +29,7 @@ type TypeBrowserProps = {
     loadingTypeBrowser: boolean;
     typeBrowserTypes: TypeHelperCategory[];
     onSearchTypeBrowser: (searchText: string) => void;
-    onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
+    onTypeItemClick: (item: TypeHelperItem) => Promise<void>;
     onChange: (newType: string, newCursorPosition: number) => void;
     onClose: () => void;
 };
@@ -52,30 +63,6 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
         }
     }, [typeBrowserTypes]);
 
-    const handleTypeItemClick = async (item: TypeHelperItem) => {
-        const prefixRegex = /[a-zA-Z0-9_':]*$/;
-        const suffixRegex = /^[a-zA-Z0-9_':]*/;
-        const prefixMatch = currentType.slice(0, currentCursorPosition).match(prefixRegex);
-        const suffixMatch = currentType.slice(currentCursorPosition).match(suffixRegex);
-        const prefixCursorPosition = currentCursorPosition - (prefixMatch?.[0]?.length ?? 0);
-        const suffixCursorPosition = currentCursorPosition + (suffixMatch?.[0]?.length ?? 0);
-
-        try {
-            const updateText = await onTypeItemClick(item);
-            if (updateText) {
-                onChange(
-                    currentType.slice(0, prefixCursorPosition) + updateText + currentType.slice(suffixCursorPosition),
-                    prefixCursorPosition + updateText.length
-                );
-            }
-        } catch (error) {
-            console.error(error);
-        }
-
-        // Close the type browser
-        onClose();
-    };
-
     return (
         <HelperPane.LibraryBrowser
             anchorRef={typeBrowserRef}
@@ -86,7 +73,7 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
             title="Type Browser"
             titleSx={{ fontFamily: 'GilmerRegular' }}
         >
-            {typeBrowserTypes?.length > 0 &&
+            {typeBrowserTypes?.length > 0 ? (
                 typeBrowserTypes.map((category) => (
                     <HelperPane.Section
                         key={category.category}
@@ -102,7 +89,7 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
                                 key={`${category.category}-${item.name}`}
                                 label={item.name}
                                 getIcon={() => getIcon(item.type)}
-                                onClick={() => handleTypeItemClick(item)}
+                                onClick={() => onTypeItemClick(item)}
                             />
                         ))}
                         {category.subCategory?.map((subCategory) => (
@@ -116,13 +103,21 @@ export const TypeBrowser = (props: TypeBrowserProps) => {
                                         key={`${subCategory.category}-${item.name}`}
                                         label={item.name}
                                         getIcon={() => getIcon(item.type)}
-                                        onClick={() => handleTypeItemClick(item)}
+                                        onClick={() => onTypeItemClick(item)}
                                     />
                                 ))}
                             </HelperPane.LibraryBrowserSubSection>
                         ))}
                     </HelperPane.Section>
-                ))}
+                ))
+            ) : (
+                <SearchMsg>
+                    <Codicon name='search' sx={{ marginRight: '10px' }} />
+                    <p>
+                        {searchValue !== "" ? EMPTY_SEARCH_RESULT_MSG : EMPTY_SEARCH_TEXT_MSG}
+                    </p>
+                </SearchMsg>
+            )}
         </HelperPane.LibraryBrowser>
     );
 };

@@ -29,16 +29,23 @@ export interface ProjectSource {
     projectModules?: ProjectModule[];
     projectTests?: SourceFile[];
     sourceFiles: SourceFile[];
+    projectName: string;
 }
 
 export interface ProjectModule {
     moduleName: string;
     sourceFiles: SourceFile[];
+    isGenerated: boolean;
 }
 
 export interface SourceFile {
     filePath : string;
     content : string;
+}
+
+export interface GetModuleDirParams {
+    filePath: string;
+    moduleName: string;
 }
 
 export interface ProjectDiagnostics {
@@ -53,6 +60,7 @@ export interface DiagnosticEntry {
 export interface InitialPrompt {
     exists: boolean;
     text: string;
+    dataMappingFunctionName?: string;
 }
 
 export interface AIVisualizerState {
@@ -218,4 +226,11 @@ export interface DocAssistantResponse {
 export interface LLMDiagnostics {
     statusCode: number;
     diags: string;
+}
+
+export interface ExistingFunction {
+    name: string; 
+    filePath: string; 
+    startLine: number; 
+    endLine: number;
 }

@@ -60,6 +60,7 @@ export const LibraryBrowser = ({
             searchValue={searchValue}
             onSearch={handleSearch}
             onClose={onBack}
+            title='Function Browser'
             titleSx={{ fontFamily: 'GilmerRegular' }}
         >
             {libraryBrowserInfo?.category.map((category) => (

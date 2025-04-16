@@ -85,8 +85,10 @@ export const KeyTextWrapper = styled.div`
 export const Key= styled.div`
     cursor: pointer;
     margin-left: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
-
 
 export const IconTextWrapper = styled.div`
     display: flex;
@@ -105,6 +107,9 @@ export const ValueTextWrapper = styled.div`
     flex-direction: row;
     padding: 0 10px;
     height: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 export const OptionLabel = styled.div`
@@ -130,4 +135,10 @@ export const ActionIconWrapper = styled.div`
     cursor: pointer;
     height: 14px;
     width: 14px;
+`;
+
+export const TypeWrapper = styled.div`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;

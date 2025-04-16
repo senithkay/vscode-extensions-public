@@ -9,30 +9,46 @@
 
 import React, { forwardRef, useMemo, useEffect, useImperativeHandle, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
+import ReactMarkdown from "react-markdown";
 import {
     Button,
     Codicon,
     FormExpressionEditorRef,
     LinkButton,
     ThemeColors,
-    SidePanelBody
+    SidePanelBody,
+    CheckBox,
+    ProgressRing,
+    Typography,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
+import { ExpressionFormField, FormExpressionEditorProps, FormField, FormImports, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition, ExpressionProperty, RecordTypeField } from "@wso2-enterprise/ballerina-core";
+import {
+    Diagnostic,
+    LineRange,
+    NodeKind,
+    NodePosition,
+    SubPanel,
+    SubPanelView,
+    FormDiagnostics,
+    FlowNode,
+    LinePosition,
+    ExpressionProperty,
+    RecordTypeField,
+} from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
-import { formatJSONLikeString } from "./utils";
+import { formatJSONLikeString, stripHtmlTags, updateFormFieldWithImports } from "./utils";
 
 namespace S {
-    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean, compact?: boolean }>`
+    export const Container = styled(SidePanelBody) <{ nestedForm?: boolean; compact?: boolean }>`
         display: flex;
         flex-direction: column;
         gap: ${({ compact }) => (compact ? "8px" : "20px")};
-        height: ${({ nestedForm }) => nestedForm ? 'unset' : 'calc(100vh - 100px)'};
-        overflow-y: ${({ nestedForm }) => nestedForm ? 'visible' : 'scroll'};
+        height: ${({ nestedForm }) => (nestedForm ? "unset" : "calc(100vh - 100px)")};
+        overflow-y: ${({ nestedForm }) => (nestedForm ? "visible" : "auto")};
         & > :last-child {
             margin-top: ${({ compact }) => (compact ? "12px" : "0")};
         }
@@ -51,7 +67,7 @@ namespace S {
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
-        gap: 12px;
+        gap: 20px;
         width: 100%;
         margin-top: 8px;
         padding-bottom: ${({ showBorder }) => (showBorder ? "14px" : "0")};
@@ -96,6 +112,7 @@ namespace S {
 
     export const PrimaryButton = styled(Button)`
         appearance: "primary";
+        display: flex;
     `;
 
     export const BodyText = styled.div<{}>`
@@ -169,6 +186,113 @@ namespace S {
         display: flex;
         justify-content: flex-start;
     `;
+
+    export const MarkdownWrapper = styled.div`
+        position: relative;
+        width: 100%;
+    `;
+
+    export const MarkdownContainer = styled.div<{ isExpanded: boolean }>`
+        width: 100%;
+        ${({ isExpanded }) =>
+            !isExpanded &&
+            `
+            max-height: 200px;
+            mask-image: linear-gradient(to bottom, black 160px, transparent 200px);
+        `}
+        font-size: 13px;
+        font-family: var(--vscode-font-family);
+        color: ${ThemeColors.ON_SURFACE_VARIANT};
+        border-radius: 4px;
+        transition: max-height 0.3s ease-in-out;
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 16px 0 8px 0;
+            font-family: var(--vscode-font-family);
+            font-weight: normal;
+            font-size: 13px;
+            color: var(--vscode-editor-foreground);
+        }
+
+        p {
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            font-family: var(--vscode-font-family);
+        }
+
+        code {
+            // hide code blocks
+            display: none;
+        }
+
+        pre {
+            // hide code blocks
+            display: none;
+        }
+
+        ul,
+        ol {
+            margin: 8px 0;
+            padding-left: 24px;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        li {
+            margin: 4px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        blockquote {
+            margin: 8px 0;
+            padding-left: 8px;
+            border-left: 4px solid ${ThemeColors.PRIMARY};
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 8px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        th,
+        td {
+            border: 1px solid var(--vscode-editor-inactiveSelectionBackground);
+            padding: 8px;
+            text-align: left;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        th {
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+        }
+    `;
+
+    export const ConcertContainer = styled.div`
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+        border-radius: 4px;
+    `;
+
+    export const ConcertMessage = styled.div`
+        font-size: 13px;
+        color: ${ThemeColors.ON_SURFACE_VARIANT};
+    `;
 }
 export interface FormProps {
     infoLabel?: string;
@@ -181,6 +305,7 @@ export interface FormProps {
     projectPath?: string;
     selectedNode?: NodeKind;
     onSubmit?: (data: FormValues) => void;
+    isSaving?: boolean;
     openRecordEditor?: (isOpen: boolean, fields: FormValues, editingField?: FormField) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -198,6 +323,9 @@ export interface FormProps {
     isInferredReturnType?: boolean;
     disableSaveButton?: boolean;
     compact?: boolean;
+    concertRequired?: boolean;
+    concertMessage?: string;
+    formImports?: FormImports;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -210,6 +338,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         cancelText,
         actionButton,
         onSubmit,
+        isSaving,
         onCancelForm,
         oneTimeForm,
         openRecordEditor,
@@ -227,7 +356,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
         recordTypeFields,
         nestedForm,
         compact = false,
-        isInferredReturnType
+        isInferredReturnType,
+        concertRequired = true,
+        concertMessage,
+        formImports
     } = props;
 
     const {
@@ -247,8 +379,12 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
+    const [isMarkdownExpanded, setIsMarkdownExpanded] = useState(false);
+    const markdownRef = useRef<HTMLDivElement>(null);
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
+
+    const [isUserConcert, setIsUserConcert] = useState(false);
 
     useEffect(() => {
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
@@ -261,7 +397,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
             formFields.forEach((field) => {
                 if (isDropdownField(field)) {
                     defaultValues[field.key] = getValueForDropdown(field) ?? "";
-                } else if (typeof field.value === 'string') {
+                } else if (typeof field.value === "string") {
                     defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
                 } else {
                     defaultValues[field.key] = field.value ?? "";
@@ -275,6 +411,24 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     if (existingType !== newType) {
                         setValue(field.key, newType);
                         mergeFormDataWithFlowNode && getVisualiableFields();
+                    }
+                }
+
+                // Handle choice fields and their properties
+                if (field?.choices && field.choices.length > 0) {
+                    // Get the selected choice index (default to 0 if not set)
+                    const selectedChoiceIndex = formValues[field.key] !== undefined ? Number(formValues[field.key]) : 0;
+
+                    const selectedChoice = field.choices[selectedChoiceIndex];
+
+                    if (selectedChoice && selectedChoice?.properties) {
+                        Object.entries(selectedChoice.properties).forEach(([propKey, propValue]) => {
+                            if (propValue?.value !== undefined) {
+                                defaultValues[propKey] = propValue.value;
+                            }
+
+                            diagnosticsMap.push({ key: propKey, diagnostics: [] });
+                        });
                     }
                 }
 
@@ -307,9 +461,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 offset: updatedExpressionField.cursorPosition.offset,
                             },
                             propertyKey: updatedExpressionField.key,
-                            editorKey: updatedExpressionField.key
-                        }
-                    }
+                            editorKey: updatedExpressionField.key,
+                        },
+                    },
                 });
             }
         }
@@ -344,7 +498,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
             openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
         }
         setActiveFormField(key);
-    }
+    };
 
     const handleOnUseDataMapper = () => {
         const viewField = formFields.find((field) => field.key === "view");
@@ -363,7 +517,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
         const otherDiagnostics = diagnosticsInfo?.filter((item) => item.key !== diagnostics.key) || [];
         setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
-    }
+    };
 
     const handleOpenSubPanel = (subPanel: SubPanel) => {
         let updatedSubPanel = subPanel;
@@ -391,7 +545,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     };
 
     const getVisualiableFields = () => {
-        if(mergeFormDataWithFlowNode) {
+        if (mergeFormDataWithFlowNode) {
             const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
             handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
         }
@@ -414,7 +568,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
             isVariableNode,
             watch("type")
         );
-    }
+    };
 
     // has advance fields
     const hasAdvanceFields = formFields.some((field) => field.advanced && field.enabled && !field.hidden);
@@ -433,18 +587,18 @@ export const Form = forwardRef((props: FormProps, ref) => {
             unregister,
             setError,
             clearErrors,
-            formState: { isValidating, errors }
+            formState: { isValidating, errors },
         },
         expressionEditor: {
             ...expressionEditor,
-            getExpressionEditorDiagnostics: handleGetExpressionDiagnostics
+            getExpressionEditorDiagnostics: handleGetExpressionDiagnostics,
         },
         targetLineRange,
-        fileName
+        fileName,
     };
 
     // Find the first editable field
-    const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
+    const firstEditableFieldIndex = formFields.findIndex((field) => field.editable !== false);
 
     const isValid = useMemo(() => {
         if (!diagnosticsInfo) {
@@ -464,16 +618,15 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 continue;
             } else {
                 // Filter the BCE2066 diagnostics
-                diagnostics = diagnostics.filter(d => 
-                    d.code !== "BCE2066" ||
-                    d.message !== "incompatible types: expected 'any', found 'error'"
+                diagnostics = diagnostics.filter(
+                    (d) => d.code !== "BCE2066" || d.message !== "incompatible types: expected 'any', found 'error'"
                 );
-                
-                const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
+
+                const diagnosticsMessage = diagnostics.map((d) => d.message).join("\n");
                 setError(key, { type: "validate", message: diagnosticsMessage });
 
                 // If the severity is not ERROR, don't invalidate
-                const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
+                const hasErrorDiagnostics = diagnostics.some((d) => d.severity === 1);
                 if (hasErrorDiagnostics) {
                     hasDiagnostics = false;
                 } else {
@@ -483,19 +636,54 @@ export const Form = forwardRef((props: FormProps, ref) => {
         }
 
         return hasDiagnostics;
-    }, [diagnosticsInfo])
+    }, [diagnosticsInfo]);
 
-    const disableSaveButton = !isValid || isValidating || props.disableSaveButton;
+    const handleConcertChange = (checked: boolean) => {
+        setIsUserConcert(checked);
+    };
+
+    const disableSaveButton =
+        !isValid || isValidating || props.disableSaveButton || (concertMessage && concertRequired && !isUserConcert);
+
+    const handleShowMoreClick = () => {
+        setIsMarkdownExpanded(!isMarkdownExpanded);
+        // If collapsing, scroll to top of container with smooth animation
+        if (isMarkdownExpanded) {
+            const container = document.querySelector(".side-panel-body");
+            container?.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    };
 
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
-            <S.Container nestedForm={nestedForm} compact={compact}>
+            <S.Container nestedForm={nestedForm} compact={compact} className="side-panel-body">
                 {actionButton && <S.ActionButtonContainer>{actionButton}</S.ActionButtonContainer>}
-                {infoLabel && <S.InfoLabel>{infoLabel}</S.InfoLabel>}
+                {infoLabel && (
+                    <S.MarkdownWrapper>
+                        <S.MarkdownContainer ref={markdownRef} isExpanded={isMarkdownExpanded}>
+                            <ReactMarkdown>{stripHtmlTags(infoLabel)}</ReactMarkdown>
+                        </S.MarkdownContainer>
+                        {markdownRef.current && markdownRef.current.scrollHeight > 200 && (
+                            <S.ButtonContainer>
+                                <LinkButton
+                                    onClick={handleShowMoreClick}
+                                    sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}
+                                >
+                                    <Codicon
+                                        name={isMarkdownExpanded ? "chevron-up" : "chevron-down"}
+                                        iconSx={{ fontSize: 12 }}
+                                        sx={{ height: 12 }}
+                                    />
+                                    {isMarkdownExpanded ? "Show Less" : "Show More"}
+                                </LinkButton>
+                            </S.ButtonContainer>
+                        )}
+                    </S.MarkdownWrapper>
+                )}
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={!compact}>
-                        {variableField &&
+                        {variableField && (
                             <EditorFactory
                                 field={variableField}
                                 handleOnFieldFocus={handleOnFieldFocus}
@@ -503,11 +691,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 visualizableFields={visualizableFields}
                                 recordTypeFields={recordTypeFields}
                             />
-                        }
+                        )}
                         {typeField && !isInferredReturnType && (
                             <EditorFactory
                                 field={typeField}
-                                openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))}
+                                openRecordEditor={
+                                    openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))
+                                }
                                 openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 handleOnTypeChange={handleOnTypeChange}
@@ -518,33 +708,38 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
-                    {formFields.sort((a, b) => b.groupNo - a.groupNo)
+                    {formFields
+                        .sort((a, b) => b.groupNo - a.groupNo)
                         .filter((field) => field.type !== "VIEW")
                         .map((field) => {
                             if (
-                                ((field.key === "variable" || field.key === "type") && (prioritizeVariableField && variableField)) ||
+                                ((field.key === "variable" || field.key === "type") &&
+                                    prioritizeVariableField &&
+                                    variableField) ||
                                 field.advanced
                             ) {
                                 return;
                             }
+                            const updatedField = updateFormFieldWithImports(field, formImports);
                             return (
-                                <S.Row key={field.key}>
+                                <S.Row key={updatedField.key}>
                                     <EditorFactory
                                         ref={exprRef}
-                                        field={field}
+                                        field={updatedField}
                                         selectedNode={selectedNode}
-                                        openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
+                                        openRecordEditor={
+                                            openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, updatedField))
+                                        }
                                         openSubPanel={handleOpenSubPanel}
                                         subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
-                                        autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
+                                        autoFocus={firstEditableFieldIndex === formFields.indexOf(updatedField)}
                                         visualizableFields={visualizableFields}
                                         recordTypeFields={recordTypeFields}
                                     />
                                 </S.Row>
                             );
-                        })
-                    }
+                        })}
                     {hasAdvanceFields && (
                         <S.Row>
                             Advanced Configurations
@@ -574,12 +769,16 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         showAdvancedOptions &&
                         formFields.map((field) => {
                             if (field.advanced) {
+                                const updatedField = updateFormFieldWithImports(field, formImports);
                                 return (
-                                    <S.Row key={field.key}>
+                                    <S.Row key={updatedField.key}>
                                         <EditorFactory
                                             ref={exprRef}
-                                            field={field}
-                                            openRecordEditor={openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, field))}
+                                            field={updatedField}
+                                            openRecordEditor={
+                                                openRecordEditor &&
+                                                ((open: boolean) => handleOpenRecordEditor(open, updatedField))
+                                            }
                                             openSubPanel={handleOpenSubPanel}
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
@@ -591,12 +790,31 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             }
                         })}
                 </S.CategoryRow>
+
+                {concertMessage && (
+                    <S.ConcertContainer>
+                        <CheckBox checked={isUserConcert} onChange={handleConcertChange} label={concertMessage} />
+                    </S.ConcertContainer>
+                )}
+
                 {onSubmit && (
                     <S.Footer>
-                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  {cancelText || "Cancel"} </Button>}
-                        <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                            {submitText || "Save"}
-                        </S.PrimaryButton>
+                        {onCancelForm && (
+                            <Button appearance="secondary" onClick={onCancelForm}>
+                                {" "}
+                                {cancelText || "Cancel"}{" "}
+                            </Button>
+                        )}
+                        {!isSaving &&
+                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
+                                {submitText || "Save"}
+                            </S.PrimaryButton>
+                        }
+                        {isSaving &&
+                            <S.PrimaryButton disabled={true}>
+                                <ProgressRing sx={{ width: 16, height: 16, marginRight: 8 }} color={ThemeColors.ON_PRIMARY} /> <Typography variant="body2">{submitText}...</Typography>
+                            </S.PrimaryButton>
+                        }
                     </S.Footer>
                 )}
             </S.Container>

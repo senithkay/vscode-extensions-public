@@ -20,7 +20,9 @@ import {
     TextEdit,
     NodeKind,
     ExpressionProperty,
-    RecordTypeField
+    RecordTypeField,
+    FormDiagnostics,
+    Imports
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormField,
@@ -28,25 +30,30 @@ import {
     Form,
     ExpressionFormField,
     FormExpressionEditorProps,
-    PanelContainer
+    PanelContainer,
+    FormImports
 } from "@wso2-enterprise/ballerina-side-panel";
-import { TypeEditor } from "@wso2-enterprise/type-editor";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 import {
     convertBalCompletion,
     convertToVisibleTypes,
+    getImportsForFormFields,
+    getInfoFromExpressionValue,
+    removeDuplicateDiagnostics,
     updateLineRange
 } from "../../../../utils/bi";
 import { debounce, set } from "lodash";
 import { getHelperPane } from "../../HelperPane";
 import { FormTypeEditor } from "../../TypeEditor";
 import { getTypeHelper } from "../../TypeHelper";
+import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
 
 interface TypeEditorState {
     isOpen: boolean;
     field?: FormField; // Optional, to store the field being edited
+    newTypeValue?: string;
 }
 
 interface FormProps {
@@ -59,7 +66,8 @@ interface FormProps {
     onBack?: () => void;
     editForm?: boolean;
     isGraphqlEditor?: boolean;
-    onSubmit: (data: FormValues) => void;
+    onSubmit: (data: FormValues, formImports?: FormImports) => void;
+    isSaving?: boolean;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -70,6 +78,9 @@ interface FormProps {
     helperPaneSide?: 'right' | 'left';
     recordTypeFields?: RecordTypeField[];
     disableSaveButton?: boolean;
+    concertMessage?: string;
+    concertRequired?: boolean;
+    description?: string;
 }
 
 export function FormGeneratorNew(props: FormProps) {
@@ -82,6 +93,7 @@ export function FormGeneratorNew(props: FormProps) {
         cancelText,
         onBack,
         onSubmit,
+        isSaving,
         isGraphqlEditor,
         openSubPanel,
         updatedExpressionField,
@@ -91,27 +103,31 @@ export function FormGeneratorNew(props: FormProps) {
         compact = false,
         helperPaneSide,
         recordTypeFields,
-        disableSaveButton = false
+        disableSaveButton = false,
+        concertMessage,
+        concertRequired,
+        description
     } = props;
 
     const { rpcClient } = useRpcContext();
-    // console.log("======FormGeneratorNew======,", fields)
 
-    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false });
+    const [typeEditorState, setTypeEditorState] = useState<TypeEditorState>({ isOpen: false, newTypeValue: "" });
 
     /* Expression editor related state and ref variables */
+    const prevCompletionFetchText = useRef<string>("");
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
+    const [formImports, setFormImports] = useState<FormImports>({});
 
     useEffect(() => {
         if (fields) {
             setFields(fields);
+            setFormImports(getImportsForFormFields(fields));
         }
     }, [fields]);
 
@@ -154,142 +170,141 @@ export function FormGeneratorNew(props: FormProps) {
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
-        setFilteredTypes([]);
         setTypes([]);
         triggerCompletionOnNextRequest.current = false;
     };
 
-    const debouncedRetrieveCompletions = useCallback(debounce(
-        async (value: string, property: ExpressionProperty, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
-            let expressionCompletions: CompletionItem[] = [];
-            const effectiveText = value.slice(0, offset);
-            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-            const endOfStatementRegex = /[\)\]]\s*$/;
-            if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
-                // Case 1: When a character unrelated to triggering completions is entered
-                setCompletions([]);
-            } else if (
-                completions.length > 0 &&
-                completionFetchText.length > 0 &&
-                !triggerCharacter &&
-                !onlyVariables &&
-                !triggerCompletionOnNextRequest.current
-            ) {
-                // Case 2: When completions have already been retrieved and only need to be filtered
-                expressionCompletions = completions
-                    .filter((completion) => {
-                        const lowerCaseText = completionFetchText.toLowerCase();
-                        const lowerCaseLabel = completion.label.toLowerCase();
-
-                        return lowerCaseLabel.includes(lowerCaseText);
-                    })
-                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
-            } else {
-                // Case 3: When completions need to be retrieved from the language server
-                // Retrieve completions from the ls
-                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
-                    filePath: fileName,
-                    context: {
-                        expression: value,
-                        startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                        offset: offset,
-                        codedata: undefined,
-                        property: property
-                    },
-                    completionContext: {
-                        triggerKind: triggerCharacter ? 2 : 1,
-                        triggerCharacter: triggerCharacter as TriggerCharacter
-                    }
-                });
-
-                if (onlyVariables) {
-                    // If only variables are requested, filter out the completions based on the kind
-                    // 'kind' for variables = 6
-                    completions = completions?.filter((completion) => completion.kind === 6);
-                    triggerCompletionOnNextRequest.current = true;
-                } else {
-                    triggerCompletionOnNextRequest.current = false;
-                }
-
-                // Convert completions to the ExpressionBar format
-                let convertedCompletions: CompletionItem[] = [];
-                completions?.forEach((completion) => {
-                    if (completion.detail) {
-                        // HACK: Currently, completion with additional edits apart from imports are not supported
-                        // Completions that modify the expression itself (ex: member access)
-                        convertedCompletions.push(convertBalCompletion(completion));
-                    }
-                });
-                setCompletions(convertedCompletions);
-
-                if (triggerCharacter) {
-                    expressionCompletions = convertedCompletions;
-                } else {
-                    expressionCompletions = convertedCompletions
+    const debouncedRetrieveCompletions = useCallback(
+        debounce(
+            async (
+                value: string,
+                property: ExpressionProperty,
+                offset: number,
+                triggerCharacter?: string
+            ) => {
+                let expressionCompletions: CompletionItem[] = [];
+                const { parentContent, currentContent } = value
+                    .slice(0, offset)
+                    .match(EXPRESSION_EXTRACTION_REGEX)?.groups ?? {};
+                if (
+                    completions.length > 0 &&
+                    !triggerCharacter &&
+                    parentContent === prevCompletionFetchText.current
+                ) {
+                    expressionCompletions = completions
                         .filter((completion) => {
-                            const lowerCaseText = completionFetchText.toLowerCase();
+                            const lowerCaseText = currentContent.toLowerCase();
                             const lowerCaseLabel = completion.label.toLowerCase();
 
                             return lowerCaseLabel.includes(lowerCaseText);
                         })
                         .sort((a, b) => a.sortText.localeCompare(b.sortText));
-                }
-            }
+                } else {
+                    const { lineOffset, charOffset } = getInfoFromExpressionValue(value, offset);
+                    let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
+                        filePath: fileName,
+                        context: {
+                            expression: value,
+                            startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                            lineOffset: lineOffset,
+                            offset: charOffset,
+                            codedata: undefined,
+                            property: property
+                        },
+                        completionContext: {
+                            triggerKind: triggerCharacter ? 2 : 1,
+                            triggerCharacter: triggerCharacter as TriggerCharacter
+                        }
+                    });
 
-            setFilteredCompletions(expressionCompletions);
-        },
-        250
-    ), [rpcClient, completions, fileName, targetLineRange, triggerCompletionOnNextRequest.current]);
+                    // Convert completions to the ExpressionEditor format
+                    let convertedCompletions: CompletionItem[] = [];
+                    completions?.forEach((completion) => {
+                        if (completion.detail) {
+                            // HACK: Currently, completion with additional edits apart from imports are not supported
+                            // Completions that modify the expression itself (ex: member access)
+                            convertedCompletions.push(convertBalCompletion(completion));
+                        }
+                    });
+                    setCompletions(convertedCompletions);
+
+                    if (triggerCharacter) {
+                        expressionCompletions = convertedCompletions;
+                    } else {
+                        expressionCompletions = convertedCompletions
+                            .filter((completion) => {
+                                const lowerCaseText = currentContent.toLowerCase();
+                                const lowerCaseLabel = completion.label.toLowerCase();
+
+                                return lowerCaseLabel.includes(lowerCaseText);
+                            })
+                            .sort((a, b) => a.sortText.localeCompare(b.sortText));
+                    }
+                }
+
+                prevCompletionFetchText.current = parentContent ?? "";
+                setFilteredCompletions(expressionCompletions);
+            },
+            250
+        ),
+        [rpcClient, completions, fileName, targetLineRange]
+    );
 
     const handleRetrieveCompletions = useCallback(async (
         value: string,
         property: ExpressionProperty,
         offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
+        triggerCharacter?: string
     ) => {
-        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter, onlyVariables);
+        await debouncedRetrieveCompletions(value, property, offset, triggerCharacter);
 
         if (triggerCharacter) {
             await debouncedRetrieveCompletions.flush();
         }
     }, [debouncedRetrieveCompletions]);
 
-    const debouncedGetVisibleTypes = useCallback(debounce(async (value: string, cursorPosition: number, typeConstraint: string) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: fileName,
-                position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                typeConstraint: typeConstraint,
-            });
+    const debouncedGetVisibleTypes = useCallback(
+        debounce(async (typeConstraint?: string) => {
+            let visibleTypes: CompletionItem[] = types;
+            if (!types.length) {
+                const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                    filePath: fileName,
+                    position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                    typeConstraint: typeConstraint,
+                });
 
-            visibleTypes = convertToVisibleTypes(types);
-            setTypes(visibleTypes);
-        }
+                visibleTypes = convertToVisibleTypes(types);
+                setTypes(visibleTypes);
+            }
+        }, 250),
+        [rpcClient, types, fileName, targetLineRange]
+    );
 
-        const effectiveText = value.slice(0, cursorPosition);
-        let filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
+    const handleGetVisibleTypes = useCallback(
+        async (typeConstraint?: string) => {
+            await debouncedGetVisibleTypes(typeConstraint);
+        },
+        [debouncedGetVisibleTypes]
+    );
 
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-    }, 250), [rpcClient, types, fileName, targetLineRange]);
-
-    const handleGetVisibleTypes = useCallback(async (value: string, cursorPosition: number, typeConstraint?: string) => {
-        await debouncedGetVisibleTypes(value, cursorPosition, typeConstraint);
-    }, [debouncedGetVisibleTypes]);
-
-    const handleCompletionItemSelect = async (value: string, additionalTextEdits?: TextEdit[]) => {
+    const handleCompletionItemSelect = async (
+        value: string,
+        fieldKey: string,
+        additionalTextEdits?: TextEdit[]
+    ) => {
         if (additionalTextEdits?.[0].newText) {
             const response = await rpcClient.getBIDiagramRpcClient().updateImports({
                 filePath: fileName,
                 importStatement: additionalTextEdits[0].newText
             });
             expressionOffsetRef.current += response.importStatementOffset;
+
+            if (response.prefix && response.moduleId) {
+                const importStatement = {
+                    [response.prefix]: response.moduleId
+                }
+                handleUpdateImports(fieldKey, importStatement);
+            }
         }
         debouncedRetrieveCompletions.cancel();
         debouncedGetVisibleTypes.cancel();
@@ -300,7 +315,54 @@ export function FormGeneratorNew(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
+    const handleExpressionFormDiagnostics = useCallback(
+        debounce(
+            async (
+                showDiagnostics: boolean,
+                expression: string,
+                key: string,
+                property: ExpressionProperty,
+                setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
+                shouldUpdateNode?: boolean,
+                variableType?: string
+            ) => {
+                if (!showDiagnostics) {
+                    setDiagnosticsInfo({ key, diagnostics: [] });
+                    return;
+                }
+
+                try {
+                    const field = fields.find(f => f.key === key);
+                    if (field) {
+                        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+                            filePath: fileName,
+                            context: {
+                                expression: expression,
+                                startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                                lineOffset: 0,
+                                offset: 0,
+                                codedata: field.codedata,
+                                property: property,
+                            },
+                        });
+
+                        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                        setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
+                    }
+                } catch (error) {
+                    // Remove diagnostics if LS crashes
+                    console.error(">>> Error getting expression diagnostics", error);
+                    setDiagnosticsInfo({ key, diagnostics: [] });
+                }
+
+            },
+            250
+        ),
+        [rpcClient, fileName, targetLineRange]
+    );
+
     const handleGetHelperPane = (
+        fieldKey: string,
         exprRef: RefObject<FormExpressionEditorRef>,
         anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
@@ -308,7 +370,8 @@ export function FormGeneratorNew(props: FormProps) {
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         helperPaneHeight: HelperPaneHeight,
-        recordTypeField?: RecordTypeField
+        recordTypeField?: RecordTypeField,
+        isAssignIdentifier?: boolean
     ) => {
         const handleHelperPaneClose = () => {
             changeHelperPaneState(false);
@@ -316,6 +379,7 @@ export function FormGeneratorNew(props: FormProps) {
         }
 
         return getHelperPane({
+            fieldKey: fieldKey,
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
             exprRef: exprRef,
@@ -325,20 +389,31 @@ export function FormGeneratorNew(props: FormProps) {
             currentValue: value,
             onChange: onChange,
             helperPaneHeight: helperPaneHeight,
-            recordTypeField: recordTypeField
+            recordTypeField: recordTypeField,
+            isAssignIdentifier: isAssignIdentifier,
+            updateImports: handleUpdateImports
         });
     };
 
     const handleGetTypeHelper = (
+        fieldKey: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
         typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
-        typeHelperHeight: HelperPaneHeight
+        typeHelperHeight: HelperPaneHeight,
+        closeCompletions: () => void
     ) => {
+        const formField = fieldsValues.find(f => f.key === fieldKey);
+        const handleCreateNewType = (typeName: string) => {
+            closeCompletions();
+            setTypeEditorState({ isOpen: true, newTypeValue: typeName, field: formField });
+        }
+
         return getTypeHelper({
+            fieldKey: fieldKey,
             typeBrowserRef: typeBrowserRef,
             filePath: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
@@ -347,7 +422,9 @@ export function FormGeneratorNew(props: FormProps) {
             helperPaneHeight: typeHelperHeight,
             typeHelperState: typeHelperState,
             onChange: onChange,
-            changeTypeHelperState: changeHelperPaneState
+            changeTypeHelperState: changeHelperPaneState,
+            updateImports: handleUpdateImports,
+            onTypeCreate: handleCreateNewType
         });
     }
 
@@ -394,13 +471,26 @@ export function FormGeneratorNew(props: FormProps) {
             return updatedField;
         });
         setFields(updatedFields);
-        setTypeEditorState({ isOpen, field: editingField });
+        setTypeEditorState({ isOpen, field: editingField, newTypeValue: f[editingField?.key] });
     };
+
+    const handleUpdateImports = (key: string, imports: Imports) => {
+        const importKey = Object.keys(imports)?.[0];
+        if (Object.keys(formImports).includes(key)) {
+            if (importKey && !Object.keys(formImports[key]).includes(importKey)) {
+                const updatedImports = { ...formImports, [key]: { ...formImports[key], ...imports } };
+                setFormImports(updatedImports);
+            }
+        } else {
+            const updatedImports = { ...formImports, [key]: imports };
+            setFormImports(updatedImports);
+        }
+    }
 
     const defaultType = (): Type => {
         if (typeEditorState.field.type === 'PARAM_MANAGER') {
             return {
-                name: "MyType",
+                name: typeEditorState.newTypeValue || "MyType",
                 editable: true,
                 metadata: {
                     label: "",
@@ -416,7 +506,7 @@ export function FormGeneratorNew(props: FormProps) {
             };
         }
         return {
-            name: "MyType",
+            name: typeEditorState.newTypeValue || "MyType",
             editable: true,
             metadata: {
                 label: "",
@@ -441,10 +531,11 @@ export function FormGeneratorNew(props: FormProps) {
             completions: filteredCompletions,
             triggerCharacters: TRIGGER_CHARACTERS,
             retrieveCompletions: handleRetrieveCompletions,
-            types: filteredTypes,
+            types: types,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
             getTypeHelper: handleGetTypeHelper,
+            getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel,
@@ -453,7 +544,7 @@ export function FormGeneratorNew(props: FormProps) {
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
-        filteredTypes,
+        types,
         handleRetrieveCompletions,
         handleGetVisibleTypes,
         handleGetHelperPane,
@@ -463,7 +554,7 @@ export function FormGeneratorNew(props: FormProps) {
     ]);
 
     const handleSubmit = (values: FormValues) => {
-        onSubmit(values);
+        onSubmit(values, formImports);
     };
 
     const renderTypeEditor = (isGraphql: boolean) => (
@@ -476,6 +567,7 @@ export function FormGeneratorNew(props: FormProps) {
                 <FormTypeEditor
                     newType={true}
                     onTypeChange={handleTypeChange}
+                    newTypeValue={typeEditorState.newTypeValue}
                     {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>
@@ -496,6 +588,7 @@ export function FormGeneratorNew(props: FormProps) {
                     submitText={submitText}
                     cancelText={cancelText}
                     onSubmit={handleSubmit}
+                    isSaving={isSaving}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
                     expressionEditor={expressionEditor}
@@ -507,6 +600,10 @@ export function FormGeneratorNew(props: FormProps) {
                     compact={compact}
                     recordTypeFields={recordTypeFields}
                     disableSaveButton={disableSaveButton}
+                    concertMessage={concertMessage}
+                    concertRequired={concertRequired}
+                    infoLabel={description}
+                    formImports={formImports}
                 />
             )}
             {typeEditorState.isOpen && (

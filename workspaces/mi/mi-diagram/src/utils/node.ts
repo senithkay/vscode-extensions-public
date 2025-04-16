@@ -68,11 +68,7 @@ export function getNodeDescription(stNode: any): string {
             return;
         }
         case (MEDIATORS.SEQUENCE.toLowerCase()): {
-            if (stNode.tag === "target") {
-                return stNode.sequenceAttribute;
-            }
-
-            const description = stNode.staticReferenceKey || stNode.dynamicReferenceKey || stNode.key;
+            const description = stNode.sequenceAttribute|| stNode.staticReferenceKey || stNode.dynamicReferenceKey || stNode.key;
             if (description) {
                 return description.split(".")[0];
             }

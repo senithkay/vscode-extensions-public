@@ -223,13 +223,6 @@ export class NodeFactoryVisitor implements Visitor {
 
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END;
-                const showAddButton = !isSequnceConnect &&
-                    !(previousNode instanceof EmptyNodeModel
-                        && !previousNode.visible)
-                    && type !== NodeTypes.PLUS_NODE
-                    && RESTRICTED_NODE_TYPES.indexOf(currentNodeType) < 0
-                    && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0
-                    && previousNode.getStNode().viewState?.canAddAfter;
 
                 let addPosition: NodeAddPosition;
                 if (this.currentAddPosition != undefined) {
@@ -239,40 +232,48 @@ export class NodeFactoryVisitor implements Visitor {
                         position: previousStNode.range.endTagRange?.end ?? previousStNode.range.startTagRange.end,
                         trailingSpace: previousStNode.spaces.endingTagSpace?.trailingSpace?.space ?? previousStNode.spaces.startingTagSpace.trailingSpace.space
                     };
-                } else {
+                } else if (!this.currentBranchData?.name && previousStNode?.spaces) {
                     const space = previousStNode?.spaces?.endingTagSpace?.trailingSpace?.range?.end ? previousStNode.spaces.endingTagSpace.trailingSpace : previousStNode.spaces.startingTagSpace.trailingSpace;
                     addPosition = { position: space.range.end, trailingSpace: space.space };
                 }
 
+                const showAddButton = addPosition !== undefined && !isSequnceConnect &&
+                    !(previousNode instanceof EmptyNodeModel
+                        && !previousNode.visible)
+                    && type !== NodeTypes.PLUS_NODE
+                    && RESTRICTED_NODE_TYPES.indexOf(currentNodeType) < 0
+                    && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0
+                    && previousNode.getStNode().viewState?.canAddAfter;
                 const isBrokenLine = previousStNode.viewState.isBrokenLines ?? node.viewState.isBrokenLines;
-                let linkId;
-                if (addPosition.position?.line != undefined && addPosition.position?.character != undefined) {
-                    linkId = `${addPosition.position.line},${addPosition.position.character}${this.currentBranchData?.name ? `,${this.currentBranchData?.name}` : ''}`;
+                let linkId = "";
+                if (addPosition && addPosition.position?.line != undefined && addPosition.position?.character != undefined) {
+                    linkId += previousStNode.viewState?.id ? `${previousStNode.viewState?.id}-` : '';
+                    linkId += `${addPosition.position.line},${addPosition.position.character}${this.currentBranchData?.name ? `,${this.currentBranchData?.name}` : ''}`;
                 } else {
-                    linkId = `${previousStNode.viewState?.id}-${previousStNode.range.startTagRange.start.line},${previousStNode.range.startTagRange.start.character},${node.viewState?.id}-${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}`;
+                    linkId = `${previousStNode.viewState?.id}-${previousStNode?.range?.startTagRange?.start?.line},${previousStNode?.range?.startTagRange?.start?.character},${node.viewState?.id}-${node?.range?.startTagRange?.start?.line},${node?.range?.startTagRange?.start?.character}`;
                 }
-
-                const link = createNodesLink(
-                    previousNode as SourceNodeModel,
-                    diagramNode as TargetNodeModel,
-                    {
-                        id: linkId,
-                        label: this.currentBranchData?.name,
-                        stRange: addPosition.position,
-                        trailingSpace: addPosition.trailingSpace ?? "",
-                        brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
-                        previousNode: previousStNode.tag,
-                        nextNode: type !== NodeTypes.END_NODE ? node.tag : undefined,
-                        parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
-                        showArrow: !isSequnceConnect,
-                        showAddButton: showAddButton,
-                        diagnostics: this.currentBranchData?.diagnostics || [],
-                    }
-                );
 
                 if (!dontLink) {
+                    const link = createNodesLink(
+                        previousNode as SourceNodeModel,
+                        diagramNode as TargetNodeModel,
+                        {
+                            id: linkId,
+                            label: this.currentBranchData?.name,
+                            stRange: addPosition?.position,
+                            trailingSpace: addPosition?.trailingSpace ?? "",
+                            brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
+                            previousNode: previousStNode.tag,
+                            nextNode: type !== NodeTypes.END_NODE ? node.tag : undefined,
+                            parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
+                            showArrow: !isSequnceConnect,
+                            showAddButton: showAddButton,
+                            diagnostics: this.currentBranchData?.diagnostics || [],
+                        }
+                    );
                     this.links.push(link);
                 }
+
                 this.currentBranchData = undefined;
                 this.currentAddPosition = undefined;
             }
@@ -290,8 +291,11 @@ export class NodeFactoryVisitor implements Visitor {
         for (let i = 0; i < sequenceKeys.length; i++) {
             const sequence = subSequences[sequenceKeys[i]];
             if (sequence) {
-                const space = sequence.spaces.startingTagSpace.trailingSpace;
-                this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
+                const isReference = sequence.sequenceAttribute !== undefined;
+                if (!isReference) {
+                    const space = sequence.spaces.startingTagSpace.trailingSpace;
+                    this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
+                }
 
                 // add the start node for each sub flow in group node
                 const startNode = structuredClone(sequence);
@@ -312,14 +316,12 @@ export class NodeFactoryVisitor implements Visitor {
                     });
 
                 } else if (sequence.sequenceAttribute) {
-                    sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
-                    sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.DEFAULT.WIDTH / 2);
                     this.createNodeAndLinks({
                         node: sequence,
                         type: NodeTypes.REFERENCE_NODE,
                         name: MEDIATORS.SEQUENCE,
                         data: {
-                            referenceName: `sequence=${sequence.sequenceAttribute}`,
+                            referenceName: `${sequence.key ?? sequence}=${sequence.sequenceAttribute}`,
                             openViewName: OPEN_SEQUENCE_VIEW
                         }
                     });
@@ -351,7 +353,10 @@ export class NodeFactoryVisitor implements Visitor {
             const plusNode: STNode = {
                 ...node,
                 tag: ADD_NEW_SEQUENCE_TAG,
-                viewState: plusNodeViewState,
+                viewState: {
+                    ...plusNodeViewState,
+                    isBrokenLines: true
+                },
                 range: {
                     startTagRange: addNewSequenceRange,
                     endTagRange: addNewSequenceRange,
@@ -372,19 +377,25 @@ export class NodeFactoryVisitor implements Visitor {
             for (let i = 0; i < sequenceKeys.length; i++) {
                 const sequence = subSequences[sequenceKeys[i]];
                 if (sequence) {
+                    let lastNode: STNode;
                     if (sequence.mediatorList && sequence.mediatorList.length > 0) {
-                        const lastNode = (sequence.mediatorList as any)[(sequence.mediatorList as any).length - 1];
-                        this.previousSTNodes.push(lastNode);
+                        lastNode = (sequence.mediatorList as any)[(sequence.mediatorList as any).length - 1];
                     } else {
-                        this.previousSTNodes.push(subSequences[sequenceKeys[i]]);
+                        lastNode = subSequences[sequenceKeys[i]];
                     }
+
+                    const conditionEndNode = this.nodes.filter((node) => node.getStNode().viewState.id === `${JSON.stringify(lastNode?.range?.endTagRange)}_end`);
+                    if (conditionEndNode.length > 0) {
+                        lastNode = conditionEndNode[0].getStNode();
+                    }
+                    this.previousSTNodes.push(lastNode);
                 }
             }
 
             // add empty node
             this.currentBranchData = undefined;
             const eNode = structuredClone(node);
-            eNode.viewState.id = JSON.stringify(eNode.range.endTagRange) + "_end";
+            eNode.viewState.id = `${JSON.stringify(eNode.range.endTagRange)}_end`;
             eNode.viewState.y = eNode.viewState.y + eNode.viewState.fh;
             eNode.viewState.x = eNode.viewState.x + eNode.viewState.w / 2 - NODE_DIMENSIONS.EMPTY.WIDTH / 2;
             this.createNodeAndLinks({ node: eNode, type: NodeTypes.CONDITION_NODE_END });
@@ -782,10 +793,14 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.FILTER, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, MEDIATORS.FILTER, {
-            Then: node.then,
-            Else: node.else_,
-        }, NodeTypes.CONDITION_NODE, false);
+        const branches: any = {};
+        if (node.then) {
+            branches.Then = node.then;
+        }
+        if (node.else_) {
+            branches.Else = node.else_;
+        }
+        this.visitSubSequences(node, MEDIATORS.FILTER, branches, NodeTypes.CONDITION_NODE, false);
         this.skipChildrenVisit = true;
     }
     endVisitFilter(node: Filter): void {
@@ -805,9 +820,10 @@ export class NodeFactoryVisitor implements Visitor {
             start: defaultNode ? defaultNode.range.startTagRange.start : node.range.startTagRange.end,
             end: defaultNode ? defaultNode.range.startTagRange.start : node.range.endTagRange.start,
         }
-        this.visitSubSequences(node, MEDIATORS.SWITCH, {
-            ...cases, default: defaultNode
-        }, NodeTypes.CONDITION_NODE, true, newSequenceRange);
+        if (node._default) {
+            cases.default = node._default;
+        }
+        this.visitSubSequences(node, MEDIATORS.SWITCH, cases, NodeTypes.CONDITION_NODE, true, newSequenceRange);
         this.skipChildrenVisit = true;
     }
     endVisitSwitch(node: Switch): void {
@@ -820,6 +836,12 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.THROTTLE, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
 
+        if (node.onAcceptAttribute) {
+            node.onAccept.viewState.id = `${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}-onAccept`;
+        }
+        if (node.onRejectAttribute) {
+            node.onReject.viewState.id = `${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}-onReject`;
+        }
         this.visitSubSequences(node, MEDIATORS.THROTTLE, {
             OnAccept: node.onAccept,
             OnReject: node.onReject,

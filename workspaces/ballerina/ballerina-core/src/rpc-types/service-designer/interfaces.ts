@@ -7,20 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-export interface RecordSTRequest {
-    recordName: string;
-}
 export interface ExportOASRequest {
     documentFilePath?: string;
 }
 export interface ExportOASResponse {
     openSpecFile: string;
-}
-
-export interface RecordSTResponse {
-    recordST: TypeDefinition;
 }
 export interface ResponseCode {
     code: number;

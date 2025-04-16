@@ -3,8 +3,8 @@
   "displayName": "WSO2 Platform",
   "description": "Manage WSO2 Choreo and Devant projects in VS Code.",
   "license": "Apache-2.0",
-  "version": "1.0.0",
-  "cliVersion": "v1.2.82503131200",
+  "version": "1.0.7",
+  "cliVersion": "v1.2.82503172000",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -26,11 +26,6 @@
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
-      {
-        "command": "wso2.wso2-platform.getStarted",
-        "title": "Get Started",
-        "category": "WSO2"
-      },
       {
         "command": "wso2.wso2-platform.sign.in",
         "title": "Sign In",
@@ -172,12 +167,6 @@
           "default": "",
           "description": "The path to Choreo RPC server",
           "scope": "window"
-        },
-        "WSO2.WSO2-Platform.FeaturePreview.ProxyCreation": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable proxy creation from GitHub repository",
-          "scope": "window"
         }
       }
     },
@@ -237,8 +226,7 @@
     "webpack-permissions-plugin": "^1.0.9",
     "copy-webpack-plugin": "^11.0.0",
     "@biomejs/biome": "^1.8.3",
-    "terser-webpack-plugin": "^5.3.10",
-    "@types/unzipper":"^0.10.11"
+    "terser-webpack-plugin": "^5.3.10"
   },
   "dependencies": {
     "@vscode-logging/logger": "^1.2.3",
@@ -260,7 +248,6 @@
     "which": "^3.0.0",
     "vscode-jsonrpc": "^6.0.0",
     "zustand": "^4.5.2",
-    "@aws-sdk/client-s3": "^3.758.0",
-    "unzipper": "^0.12.3"
+    "@aws-sdk/client-s3": "^3.758.0"
   }
 }

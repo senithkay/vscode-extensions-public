@@ -20,8 +20,7 @@ type CompletionConditionalProps = {
         property: ExpressionProperty,
         offset: number,
         invalidateCache: boolean,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
+        triggerCharacter?: string
     ) => Promise<void>;
 } | {
     completions?: never;
@@ -63,6 +62,8 @@ export interface DiagramContextState {
         onSelectTool: (tool: ToolData, node: FlowNode) => void;
         onDeleteTool: (tool: ToolData, node: FlowNode) => void;
         goToTool: (tool: ToolData, node: FlowNode) => void;
+        onSelectMemoryManager: (node: FlowNode) => void;
+        onDeleteMemoryManager: (node: FlowNode) => void;
     };
     suggestions?: {
         fetching: boolean;
@@ -102,6 +103,8 @@ export const DiagramContext = React.createContext<DiagramContextState>({
         onSelectTool: () => {},
         onDeleteTool: () => {},
         goToTool: () => {},
+        onSelectMemoryManager: () => {},
+        onDeleteMemoryManager: () => {},
     },
     suggestions: {
         fetching: false,

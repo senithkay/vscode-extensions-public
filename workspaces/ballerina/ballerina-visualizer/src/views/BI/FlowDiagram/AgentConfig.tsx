@@ -18,7 +18,7 @@ import { cloneDeep } from "lodash";
 import { findAgentNodeFromAgentCallNode, getAgentFilePath } from "./utils";
 
 const Container = styled.div`
-    padding: 16px 0 16px 16px;
+    padding: 16px;
 `;
 
 const Row = styled.div`
@@ -184,12 +184,14 @@ export function AgentConfig(props: AgentConfigProps): JSX.Element {
 
     return (
         <Container>
-            <ConfigForm
-                formFields={formFields}
-                filePath={agentFilePath.current}
-                onSubmit={handleOnSave}
-                disableSaveButton={savingForm}
-            />
+            {agentCallNode?.codedata?.lineRange && (
+                <ConfigForm
+                    formFields={formFields}
+                    targetLineRange={agentCallNode.codedata.lineRange}
+                    onSubmit={handleOnSave}
+                    disableSaveButton={savingForm}
+                />
+            )}
         </Container>
     );
 }

@@ -104,6 +104,7 @@ import { getDMTypeDim } from "./type-utils";
 import { QueryParentFindingVisitor } from "../visitors/QueryParentFindingVisitor";
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { generateCustomFunction } from "../Link/link-utils";
+import { InputNode, NodeWithoutTypeDesc } from "../Actions/utils";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -823,15 +824,8 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	}
 }
 
-export function getInputPortsForExpr(node: RequiredParamNode
-										 | FromClauseNode
-										 | LetClauseNode
-										 | JoinClauseNode
-										 | LetExpressionNode
-										 | ModuleVariableNode
-										 | EnumTypeNode,
-                                     expr: STNode): RecordFieldPortModel {
-	let typeDesc = !(node instanceof LetExpressionNode || node instanceof ModuleVariableNode || node instanceof EnumTypeNode) && node.typeDef;
+export function getInputPortsForExpr(node: InputNode, expr: STNode ): RecordFieldPortModel {
+	let typeDesc = !isNodeWithoutTypeDesc(node) && node.typeDef;
 	let portIdBuffer;
 	if (node instanceof RequiredParamNode) {
 		portIdBuffer = node?.value && node.value.paramName.value
@@ -880,7 +874,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 			let nextTypeNode: TypeField = typeDesc;
 			for (let i = 1; i < fieldNames.length; i++) {
 				const fieldName = fieldNames[i];
-				portIdBuffer += fieldName.isOptional ? `?.${fieldName.name}` : `.${fieldName.name}`;
+				portIdBuffer += `.${fieldName.name}`;
 				let recField: TypeField;
 				const optionalRecordField = getOptionalRecordField(nextTypeNode);
 				if (optionalRecordField) {
@@ -892,7 +886,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 
 				if (recField) {
 					if (i === fieldNames.length - 1) {
-						const portId = portIdBuffer + ".OUT";
+						const portId = portIdBuffer.trim() + ".OUT";
 						let port = (node.getPort(portId) as RecordFieldPortModel);
 						while (port && port.hidden) {
 							port = port.parentModel;
@@ -1132,6 +1126,7 @@ export function getDefaultValue(typeName: string): string {
 			break;
 		case PrimitiveBalType.Enum:
 		case PrimitiveBalType.Union:
+			draftParameter = `()`;
 			break;
 		default:
 			draftParameter = `""`;
@@ -1527,7 +1522,13 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
 			expr = expr.valueExpr;
 		}
 		const innerExpr = getInnermostExpressionBody(expr);
-		const value: string = innerExpr?.value || innerExpr?.source;
+		let value: string = innerExpr?.value || innerExpr?.source;
+
+		if (STKindChecker.isListConstructor(innerExpr) && innerExpr.expressions.length === 0) {
+			// Ensure new lines and spaces are removed in empty arrays
+			value = "[]";
+		}
+
 		if (value !== undefined) {
 			return isDefaultValue(editableRecordField.type, value) ? ValueType.Default : ValueType.NonEmpty;
 		}
@@ -1985,16 +1986,36 @@ function getFieldNameFromOutputPort(outputPort: RecordFieldPortModel): string {
 	return fieldName;
 }
 
+function isNodeWithoutTypeDesc(node: BaseModel): node is NodeWithoutTypeDesc {
+	return (
+		node instanceof LetExpressionNode ||
+		node instanceof ModuleVariableNode ||
+		node instanceof EnumTypeNode ||
+		node instanceof ExpandedMappingHeaderNode
+	);
+}
+
 export const getOptionalRecordField = (field: TypeField): TypeField | undefined => {
 	if (!field) return;
+
+	let recField: TypeField;
 	if (PrimitiveBalType.Record === field.typeName && field.optional) {
-		return field;
+		recField = field;
 	} else if (PrimitiveBalType.Union === field.typeName) {
 		const isSimpleOptionalType = field.members?.some(member => member.typeName === '()');
-		if (isSimpleOptionalType && field.members?.length === 2){
-			return field.members?.find(member => member.typeName === PrimitiveBalType.Record);
+		if (isSimpleOptionalType && field.members?.length === 2) {
+			for (const member of field.members) {
+				if (member.typeName === PrimitiveBalType.Record) {
+					recField = member;
+				} else if (member.typeName === 'intersection') {
+					const recordMem = member.members?.find(member => member.typeName === PrimitiveBalType.Record);
+					recField = recordMem;
+				}
+			}
 		}
 	}
+
+	return recField;
 }
 
 export const isOptionalAndNillableField = (field: TypeField) => {
@@ -2015,7 +2036,7 @@ export const getOptionalArrayField = (field: TypeField): TypeField | undefined =
 }
 
 /** Filter out error and nill types and return only the types that can be displayed as mapping as target nodes */
-export const getFilteredUnionOutputTypes = (type: TypeField) => type.members?.filter(member => member && !["error", "()"].includes(member.typeName));
+export const getFilteredUnionOutputTypes = (type: TypeField) => type.members?.filter(member => member && !["error"].includes(member.typeName));
 
 
 export const getNewFieldAdditionModification = (node: STNode, fieldName: string, fieldValue = '') => {
