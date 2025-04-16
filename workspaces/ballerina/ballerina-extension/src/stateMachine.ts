@@ -225,11 +225,13 @@ const stateMachine = createMachine<MachineContext>(
                     commands.executeCommand('setContext', 'BI.status', 'loadingDone');
                     if (!ls.biSupported) {
                         commands.executeCommand('setContext', 'BI.status', 'updateNeed');
-                        const realPath = fs.realpathSync.native(ls.ballerinaHome);
-                        if (realPath.includes("ballerina-home")) {
-                            commands.executeCommand('setContext', 'BI.distribution', 'setByBI');
-                        } else {
-                            commands.executeCommand('setContext', 'BI.distribution', 'setByUser');
+                        if (ls.ballerinaHome) {
+                            const realPath = fs.realpathSync.native(ls.ballerinaHome);
+                            if (realPath.includes("ballerina-home")) {
+                                commands.executeCommand('setContext', 'BI.distribution', 'setByBI');
+                            } else {
+                                commands.executeCommand('setContext', 'BI.distribution', 'setByUser');
+                            }
                         }
                     }
                     resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
