@@ -36,6 +36,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateVisualizer(context);
 	activateAiPanel(context);
 
+	// TODO: Remove when VSCode fixes: https://github.com/microsoft/vscode/issues/188257
+	const orphanedTabs = vscode.window.tabGroups.all
+		.flatMap((tabGroup) => tabGroup.tabs)
+		.filter((tab) => (tab.input as any)?.viewType.includes("micro-integrator."));
+	vscode.window.tabGroups.close(orphanedTabs);
+
 	const firstProject = workspace.workspaceFolders?.[0];
 	if (firstProject) {
 		getStateMachine(firstProject.uri.fsPath);
