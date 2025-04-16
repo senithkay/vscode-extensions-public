@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Locator, Page, expect } from "@playwright/test";
+import { Frame, Locator, Page, expect } from "@playwright/test";
 import { getVsCodeButton, getWebviewInput, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
 export interface FormFillProps {
     values: {
         [key: string]: {
             value: string,
-            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression' | 'file' | 'inlineExpression' | 'radio',
+            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression' | 'file' | 'inlineExpression' | 'radio' | 'textarea',
             additionalProps?: {
                 [key: string]: any
             }
@@ -29,6 +29,7 @@ export interface ParamManagerValues {
 
 export class Form {
     private container!: Locator;
+    private webview!: Frame;
 
     constructor(private _page?: Page, private _name?: string, container?: Locator) {
         if (container) {
@@ -44,10 +45,11 @@ export class Form {
         if (!webview) {
             throw new Error("Failed to switch to Form View iframe");
         }
+        this.webview = webview;
         if (isPopUp) {
             this.container = webview.locator('#popUpPanel');
         } else {
-            this.container = webview.locator('div#root');
+            this.container = webview.locator('div.form-view');
         }
     }
 
@@ -82,10 +84,18 @@ export class Form {
                         await input.fill(data.value);
                         break;
                     }
+                    case 'textarea': {
+                        const input = this.container.locator(`textarea[aria-label="${key}"]`);
+                        await input.fill(data.value);
+                        break;
+                    }
                     case 'dropdown': {
-                        const dropdown = this.container.locator(`vscode-select[aria-label="${key}"]`);
+                        const dropdown = this.container.locator(`vscode-dropdown[aria-label="${key}"]`);
                         await dropdown.waitFor();
-                        await dropdown.selectOption({ label: data.value });
+                        await dropdown.click();
+                        const option = this.container.locator(`vscode-option[aria-label="${data.value}"]`);
+                        await option.waitFor();
+                        await option.click();
                         break;
                     }
                     case 'checkbox': {
@@ -176,8 +186,8 @@ export class Form {
         return await input.getAttribute('current-value');
     }
 
-    public async fillParamManager(props: ParamManagerValues, paramManagerLabel:string = "Add Parameter",
-                                  keyLabel: string = "Name*", valueLabel: string = "Value*", saveBtnLabel: string = "Save") {
+    public async fillParamManager(props: ParamManagerValues, paramManagerLabel: string = "Add Parameter",
+        keyLabel: string = "Name*", valueLabel: string = "Value*", saveBtnLabel: string = "Save") {
         for (const key in props) {
             const addParamaterBtn = this.container.locator(`div:text("${paramManagerLabel}")`).locator('..');
             await addParamaterBtn.waitFor();
@@ -193,5 +203,9 @@ export class Form {
             await saveBtn.waitFor();
             await saveBtn.click();
         }
+    }
+
+    public async getWebview() {
+        return this.webview;
     }
 }

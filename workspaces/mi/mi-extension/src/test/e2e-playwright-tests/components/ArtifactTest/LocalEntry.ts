@@ -12,7 +12,6 @@ import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
 import { Overview } from "../Overview";
-
 export class LocalEntry {
 
     constructor(private _page: Page) {
@@ -31,7 +30,7 @@ export class LocalEntry {
         await addArtifactPage.add('Local Entry');
     }
 
-    public async addLocalEntry(name: string) {
+    public async addInlineTextLocalEntry(name: string) {
         const mpWebView = await switchToIFrame('Local Entry Form', this._page);
         if (!mpWebView) {
             throw new Error("Failed to switch to Local Entry Form iframe");
@@ -54,7 +53,7 @@ export class LocalEntry {
         }
     }
 
-    public async editLocalEntry(prevName: string, newName: string) {
+    public async editInlineTextLocalEntry(prevName: string, newName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Local Entries', prevName], true);
