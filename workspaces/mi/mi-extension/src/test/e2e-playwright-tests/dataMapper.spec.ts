@@ -22,14 +22,14 @@ const fs = require('fs');
 export default function createTests() {
 
   test.describe('Data Mapper Tests', () => {
-    const NEED_INITIAL_SETUP = false;
+    const NEED_INITIAL_SETUP = true;
 
     initTest(NEED_INITIAL_SETUP);
 
     if (NEED_INITIAL_SETUP) setupProject();
-    // testBasicMappings();
+    testBasicMappings();
     testArrayMappings();
-    // testImportOptions();
+    testImportOptions();
     
     function overwriteTsFile(newTsFile: string) {
       const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'datamapper', 'dm', 'dm.ts');
@@ -200,9 +200,7 @@ export default function createTests() {
 
         await expect(expressionBar).not.toBeFocused();
 
-        // need to test edit button
-
-        // await page.page.pause();
+        // TODO: need to test edit button
 
         // expression editor - edit existing
         await dmWebView.locator('[id="recordfield-objectOutput\\.ompO\\.p1"]').click();
@@ -210,8 +208,6 @@ export default function createTests() {
         await expressionBar.fill('input.odmI.dm1 + "HI"');
         await dmWebView.locator('#data-mapper-canvas-container').click();
         await expect(expressionBar).not.toBeFocused();
-
-        // await page.page.pause();
 
         await dmWebView.getByTestId('link-from-input.odmI.dm1.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.ompO.p1.IN').waitFor({ state: 'attached' });
@@ -264,7 +260,7 @@ export default function createTests() {
      
         // await dmWebView.locator('#nav-bar-main').locator('vscode-button[title="Go Back"]').click();
         // await page.page.getByRole('tab', { name: 'Resource View' }).waitFor();
-        // dm.resetTsFile();
+        dm.resetTsFile();
 
 
         // if (NEED_INITIAL_SETUP) {
@@ -277,7 +273,7 @@ export default function createTests() {
     function testArrayMappings() {
       test('Test Array Mappings', async () => {
 
-        await page.page.getByRole('tab', { name: 'Project Overview' }).waitFor();
+        // await page.page.getByRole('tab', { name: 'Project Overview' }).waitFor();
 
         console.log('Testing Array Mappings - Part 0');
 
