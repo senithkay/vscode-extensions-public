@@ -456,11 +456,25 @@ export default function createTests() {
 
         await dmWebView.getByTestId('link-from-input.s10O.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
         await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.s10O.IN').waitFor({ state: 'attached' });
-        await dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN').waitFor();
-        
+        // await dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN').waitFor();
+        const loc10 = dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN');
+        await loc10.waitFor();
+
+        // 1D - 0D array direct mapping (edit singleton index)
+        const loc10Indx = loc10.getByTitle('indexing');
+        await loc10Indx.click({ force: true });
+        const expressionBar = dmWebView.locator('#expression-bar').getByRole('textbox', { name: 'Text field' });
+        await expect(expressionBar).toBeFocused();
+        await expressionBar.fill('input.s10O[1]');
+        // await expressionBar.press('Enter');
+        await dmWebView.locator('#data-mapper-canvas-container').click();
+        await expect(expressionBar).not.toBeFocused();
+
+        await expect(loc10Indx).toHaveText('[1]');
+
         // expect(dm.verifyTsFileContent('array/map1.ts')).toBeTruthy();
 
-        // await page.page.pause();
+        await page.page.pause();
 
         console.log('Test array mapping delete - Part 1');
 
@@ -503,13 +517,15 @@ export default function createTests() {
         await loc9.locator('.codicon-trash').click({ force: true });
         await loc9.waitFor({ state: 'detached' });
 
-        const loc10 = dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN');
+        // const loc10 = dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN');
         await loc10.locator('.codicon-trash').click({ force: true });
         await loc10.waitFor({ state: 'detached' });
 
-        if (NEED_INITIAL_SETUP) {
-          await dmWebView.locator('vscode-button[title="Go Back"]').click();
-        }
+        // expect(dm.verifyTsFileContent('array/del1.ts')).toBeTruthy();
+
+        // if (NEED_INITIAL_SETUP) {
+        //   await dmWebView.locator('vscode-button[title="Go Back"]').click();
+        // }
 
       });
     }
