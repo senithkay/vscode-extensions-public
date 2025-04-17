@@ -391,7 +391,6 @@ export class Template {
         await tempFrame.getByRole('textbox', { name: 'Default Value' }).fill('10');
         await tempFrame.getByText('Save').click();
         await tempFrame.getByRole('button', { name: 'Create' }).click();
-        await this._page.pause();
     }
 
     public async editSequenceTemplate(prevName: string, newName: string) {
@@ -404,7 +403,6 @@ export class Template {
         }
         const templEPFrame = templWebview.locator('div#root');
         await templEPFrame.getByTestId('edit-button').getByLabel('Icon Button').click();
-        await this._page.pause();
         await templEPFrame.getByRole('textbox', { name: 'Template Name*' }).fill(newName);
         await templEPFrame.getByLabel('Trace Enabled').click();
         await templEPFrame.getByLabel('Statistics Enabled').click();
