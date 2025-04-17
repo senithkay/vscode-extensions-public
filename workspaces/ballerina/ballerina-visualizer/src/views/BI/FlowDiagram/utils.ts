@@ -17,12 +17,7 @@ export const filterConnections = (categories: Category[]): Category[] => {
     return categories.map((category) => {
         if (category.metadata.label === "Connections") {
             const filteredItems = category.items.filter((item) => {
-                if (
-                    "metadata" in item &&
-                    "items" in item &&
-                    item.items.length > 0 &&
-                    "codedata" in item.items.at(0)
-                ) {
+                if ("metadata" in item && "items" in item && item.items.length > 0 && "codedata" in item.items.at(0)) {
                     const name = item.metadata.label || "";
                     const module = (item.items.at(0) as AvailableNode)?.codedata.module || "";
 
@@ -44,10 +39,19 @@ export const filterConnections = (categories: Category[]): Category[] => {
 export const transformCategories = (categories: Category[]): Category[] => {
     // First filter connections
     let filteredCategories = filterConnections(categories);
-    
+
     // filter out some categories that are not supported in the diagram
     // TODO: these categories should be supported in the future
-    const notSupportedCategories = ["PARALLEL_FLOW", "LOCK", "START", "TRANSACTION", "COMMIT", "ROLLBACK", "RETRY"];
+    const notSupportedCategories = [
+        "PARALLEL_FLOW",
+        "LOCK",
+        "START",
+        "TRANSACTION",
+        "COMMIT",
+        "ROLLBACK",
+        "RETRY",
+        "NP_FUNCTION",
+    ];
 
     filteredCategories = filteredCategories.map((category) => ({
         ...category,
@@ -69,7 +73,6 @@ export const transformCategories = (categories: Category[]): Category[] => {
         // HACK: update agent call node until LS update with the new agent node
         agentCallNode.codedata.object = "Agent";
         agentCallNode.codedata.parentSymbol = "";
-        agentCallNode.codedata.version = agentCallNode.codedata.version || "0.7.16";
     } else {
         // TODO: this should remove once LS update with the new agent node
         // add new item
@@ -121,20 +124,39 @@ export const getAgentFilePath = async (rpcClient: BallerinaRpcClient) => {
     return agentFilePath;
 };
 
+export const findFlowNodeByModuleVarName = async (variableName: string, rpcClient: BallerinaRpcClient) => {
+    try {
+        // Get all module nodes
+        const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
+        // Find the node with matching variable name
+        const flowNode = moduleNodes.flowModel.connections.find((node) => {
+            const value = node.properties?.variable?.value;
+            const sanitizedVarName = variableName.trim().replace(/\n/g, "");
+            return typeof value === "string" && value === sanitizedVarName;
+        });
+        if (!flowNode) {
+            console.error(`Flow node with variable name '${variableName}' not found`);
+            return null;
+        }
+        return flowNode;
+    } catch (error) {
+        console.error("Error finding flow node by variable name:", error);
+        return null;
+    }
+};
+
 export const findAgentNodeFromAgentCallNode = async (agentCallNode: FlowNode, rpcClient: BallerinaRpcClient) => {
     if (!agentCallNode || agentCallNode.codedata?.node !== "AGENT_CALL") return null;
-    // get all module nodes
-    const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
-    console.log(">>> module nodes", moduleNodes);
+
     // get agent name
-    const agentName = agentCallNode.properties.connection.value;
-    // get agent node
-    const agentNode = moduleNodes.flowModel.connections.find((node) => node.properties.variable.value === agentName);
-    if (!agentNode) {
-        console.error("Agent node not found");
-        return;
+    const connectionValue = agentCallNode.properties?.connection?.value;
+    if (typeof connectionValue !== "string") {
+        console.error("Agent connection value is not a string");
+        return null;
     }
-    return agentNode;
+
+    // use the new function to find the node
+    return await findFlowNodeByModuleVarName(connectionValue, rpcClient);
 };
 
 export const removeToolFromAgentNode = async (agentNode: FlowNode, toolName: string) => {
@@ -144,16 +166,18 @@ export const removeToolFromAgentNode = async (agentNode: FlowNode, toolName: str
     let toolsValue = updatedAgentNode.properties.tools.value;
     // remove new lines from the tools value
     toolsValue = toolsValue.toString().replace(/\n/g, "");
-    // Remove the tool from the tools array
+    // Remove the tools from the tools array
     if (typeof toolsValue === "string") {
-        if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-            // Parse the tools string
-            const toolsString = toolsValue.substring(1, toolsValue.length - 1);
-            let existingTools = toolsString.split(",").map((t) => t.trim());
+        const toolsArray = parseToolsString(toolsValue);
+        if (toolsArray.length > 0) {
             // Remove the tool
-            existingTools = existingTools.filter((t) => t !== toolName);
+            const existingTools = toolsArray.filter((t) => t !== toolName);
             // Update the tools value
-            toolsValue = `[${existingTools.join(", ")}]`;
+            toolsValue = existingTools.length === 1 ?
+                `[${existingTools[0]}]` :
+                `[${existingTools.join(", ")}]`;
+        } else {
+            toolsValue = `[]`;
         }
     } else {
         console.error("Tools value is not a string", toolsValue);
@@ -165,27 +189,25 @@ export const removeToolFromAgentNode = async (agentNode: FlowNode, toolName: str
     return updatedAgentNode;
 };
 
+
 export const addToolToAgentNode = async (agentNode: FlowNode, toolName: string) => {
     if (!agentNode || agentNode.codedata?.node !== "AGENT") return null;
     // clone the node to avoid modifying the original
     const updatedAgentNode = cloneDeep(agentNode);
     let toolsValue = updatedAgentNode.properties.tools.value;
-    // remove new lines from the tools value
-    toolsValue = toolsValue.toString().replace(/\n/g, "");
+    // remove new lines and normalize whitespace from the tools value
+    toolsValue = toolsValue.toString().replace(/\s+/g, "");
     if (typeof toolsValue === "string") {
-        if (toolsValue === "[]") {
-            toolsValue = `[${toolName}]`;
-        } else if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-            const toolsString = toolsValue.substring(1, toolsValue.length - 1);
-            const existingTools = toolsString.split(",").map((t) => t.trim());
-
-            if (!existingTools.includes(toolName)) {
-                toolsValue = toolsValue.substring(0, toolsValue.length - 1);
-                if (toolsValue.length > 1) {
-                    toolsValue += ", ";
-                }
-                toolsValue += toolName + "]";
+        const toolsArray = parseToolsString(toolsValue);
+        if (toolsArray.length > 0) {
+            // Add the tool if not exists
+            if (!toolsArray.includes(toolName)) {
+                toolsArray.push(toolName);
             }
+            // Update the tools value
+            toolsValue = toolsArray.length === 1 ?
+                `[${toolsArray[0]}]` :
+                `[${toolsArray.join(", ")}]`;
         } else {
             toolsValue = `[${toolName}]`;
         }
@@ -199,21 +221,82 @@ export const addToolToAgentNode = async (agentNode: FlowNode, toolName: string) 
     return updatedAgentNode;
 };
 
+// remove agent node, model node when removing ag
+export const removeAgentNode = async (agentCallNode: FlowNode, rpcClient: BallerinaRpcClient): Promise<boolean> => {
+    if (!agentCallNode || agentCallNode.codedata?.node !== "AGENT_CALL") return false;
+    // get module nodes
+    const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
+    // get agent name
+    const agentName = agentCallNode.properties.connection.value;
+    // get agent node
+    const agentNode = moduleNodes.flowModel.connections.find((node) => node.properties.variable.value === agentName);
+    console.log(">>> agent node", agentNode);
+    if (!agentNode) {
+        console.error("Agent node not found", agentCallNode);
+        return false;
+    }
+    // get model name
+    const modelName = agentNode?.properties.model.value;
+    console.log(">>> model name", modelName);
+    // get model node
+    const modelNode = moduleNodes.flowModel.connections.find((node) => node.properties.variable.value === modelName);
+    console.log(">>> model node", modelNode);
+    if (!modelNode) {
+        console.error("Model node not found", agentCallNode);
+        return false;
+    }
+    // get file path
+    const projectPath = await rpcClient.getVisualizerLocation();
+    const agentFileName = agentNode.codedata.lineRange.fileName;
+    const filePath = Utils.joinPath(URI.file(projectPath.projectUri), agentFileName).fsPath;
+    // delete the agent node
+    await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
+        filePath: filePath,
+        flowNode: agentNode,
+    });
+    // delete the model node
+    await rpcClient.getBIDiagramRpcClient().deleteFlowNode({
+        filePath: filePath,
+        flowNode: modelNode,
+    });
+    return true;
+};
+
 export const findFunctionByName = (components: BallerinaProjectComponents, functionName: string) => {
-    // Iterate through packages
     for (const pkg of components.packages) {
-        // Iterate through modules in each package
         for (const module of pkg.modules) {
-            // Search through functions
-            const foundFunction = module.functions.find(
-                (func: any) => func.name === functionName
-            );
+            const foundFunction = module.functions.find((func: any) => func.name === functionName);
             if (foundFunction) {
-                // update file path to include package path
-                foundFunction.filePath = Utils.joinPath(URI.file(pkg.filePath), foundFunction.filePath).fsPath;
+                const pkgUri = URI.parse(pkg.filePath);
+                const joinedUri = Utils.joinPath(pkgUri, foundFunction.filePath);
+                foundFunction.filePath = joinedUri.fsPath;
                 return foundFunction;
             }
         }
     }
     return null;
+};
+
+export const updateFlowNodePropertyValuesWithKeys = (flowNode: FlowNode) => {
+    const excludedKeys = ["variable", "type", "checkError", "targetType"];
+    for (const key in flowNode.properties) {
+        if (!excludedKeys.includes(key)) {
+            (flowNode.properties as Record<string, { value: string }>)[key].value = key;
+        }
+    }
 }
+
+const parseToolsString = (toolsStr: string): string[] => {
+    // Remove brackets and split by comma
+    const trimmed = toolsStr.trim();
+    if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+        return [];
+    }
+    const inner = trimmed.substring(1, trimmed.length - 1);
+    // Handle empty array case
+    if (!inner.trim()) {
+        return [];
+    }
+    // Split by comma and trim each element
+    return inner.split(",").map(tool => tool.trim());
+};

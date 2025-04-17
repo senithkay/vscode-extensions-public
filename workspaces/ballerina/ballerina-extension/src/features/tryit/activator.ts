@@ -401,6 +401,7 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
             content.serviceName.toLowerCase() === service?.name.toLowerCase()
             || (content.spec?.servers[0]?.url?.endsWith(service.basePath) && service?.name === '')
             || (content.spec?.servers[0]?.url == undefined && service?.name === '' // TODO: Update the condition after fixing the issue in the OpenAPI tool
+            || extractPath(content.spec?.servers[0]?.url) === extractPath(service.basePath)
             ));
 
         if (matchingDefinition.length === 0) {
@@ -855,6 +856,25 @@ function sanitizeBallerinaPathSegment(pathSegment: string): string {
     }
     return sanitized;
 }
+
+function extractPath(url) {
+    let match;
+
+    // If the string starts with one or more slashes, remove them.
+    if (url.startsWith("/")) {
+        return url.replace(/^\/+/, '');
+    }
+
+    if (url.includes("://")) {
+      // For URLs with a protocol, remove the protocal and host.
+      match = url.match(/^(?:[^\/]*:\/\/[^\/]+\/)(.*)$/);
+      return match ? match[1] : "";
+    } else {
+      // For strings without a protocol, discards the part up to the first "/" and returns everything after.
+      match = url.match(/^(?:[^\/]+\/)(.*)$/);
+      return match ? match[1] : "";
+    }
+  }
 
 // cleanup function for the watcher
 function disposeErrorWatcher() {

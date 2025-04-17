@@ -10,6 +10,7 @@ import * as React from "react";
 
 import { useStyles } from "./style";
 import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ISSUES_URL } from "../../../../components/Diagram/utils/constants";
 
 interface ErrorScreenProps {
     onClose: () => void;  
@@ -46,7 +47,7 @@ export default function ErrorScreen(props: ErrorScreenProps) {
                     A problem occurred while rendering the Inline Data Mapper.
                 </Typography>
                 <Typography variant="body2" className={classes.errorMsg}>
-                    Please raise an issue with the sample code in our <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">issue tracker</a>
+                    Please raise an issue with the sample code in our <a href={ISSUES_URL}>issue tracker</a>
                 </Typography>
             </div>
         </>

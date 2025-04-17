@@ -24,14 +24,14 @@ const AdvancedParamTitleWrapper = styled.div`
 
 export interface ResourceFormProps {
 	model: FunctionModel;
+	isSaving: boolean;
 	onSave: (functionModel: FunctionModel) => void;
 	onClose: () => void;
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { model, onSave, onClose } = props;
+	const { model, isSaving, onSave, onClose } = props;
 
-	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [functionModel, setFunctionModel] = useState<FunctionModel>(model);
 	const [isPathValid, setIsPathValid] = useState<boolean>(false);
 
@@ -79,16 +79,16 @@ export function ResourceForm(props: ResourceFormProps) {
 
 	return (
 		<>
-			{isLoading && <ProgressIndicator id="resource-loading-bar" />}
+			{isSaving && <ProgressIndicator id="resource-loading-bar" />}
 			<SidePanelBody>
-				<ResourcePath method={functionModel.accessor} path={functionModel.name} onChange={onPathChange} 
-				onError={onResourcePathError} />
+				<ResourcePath method={functionModel.accessor} path={functionModel.name} onChange={onPathChange}
+					onError={onResourcePathError} />
 				<Divider />
 				<Parameters showPayload={(functionModel.accessor.value && functionModel.accessor.value.toUpperCase() !== "GET")} parameters={functionModel.parameters} onChange={handleParamChange} schemas={functionModel.schema} />
 				<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
 				<ResourceResponse method={functionModel.accessor.value.toUpperCase() as HTTP_METHOD} response={functionModel.returnType} onChange={handleResponseChange} />
 				<ActionButtons
-					primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save", disabled: !isPathValid }}
+					primaryButton={{ text: isSaving ? "Saving..." : "Save", onClick: handleSave, tooltip: isSaving ? "Saving..." : "Save", disabled: !isPathValid || isSaving }}
 					secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
 					sx={{ justifyContent: "flex-end" }}
 				/>

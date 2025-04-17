@@ -46,7 +46,7 @@ import {
     UpdateImportsRequest,
     UpdateImportsResponse,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     FunctionNodeRequest,
     FunctionNodeResponse,
     ServiceClassModelResponse,
@@ -150,7 +150,7 @@ export const updateRecordConfig: RequestType<UpdateRecordConfigRequest, GetRecor
 export const getRecordModelFromSource: RequestType<GetRecordModelFromSourceRequest, GetRecordModelFromSourceResponse> = { method: `${_preFix}/getRecordModelFromSource` };
 export const getRecordSource: RequestType<RecordSourceGenRequest, RecordSourceGenResponse> = { method: `${_preFix}/getRecordSource` };
 export const updateImports: RequestType<UpdateImportsRequest, UpdateImportsResponse> = { method: `${_preFix}/updateImports` };
-export const addFunction: RequestType<AddFunctionRequest, AddFunctionResponse> = { method: `${_preFix}/addFunction` };
+export const addFunction: RequestType<AddFunctionRequest, AddImportItemResponse> = { method: `${_preFix}/addFunction` };
 export const getFunctionNode: RequestType<FunctionNodeRequest, FunctionNodeResponse> = { method: `${_preFix}/getFunctionNode` };
 export const getEndOfFile: RequestType<EndOfFileRequest, LinePosition> = { method: `${_preFix}/getEndOfFile` };
 export const search: RequestType<BISearchRequest, BISearchResponse> = { method: `${_preFix}/search` };

@@ -33,7 +33,7 @@ export const DM_UNSUPPORTED_TYPES = [
 
 const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
 
-export const ISSUES_URL = "https://github.com/wso2/ballerina-plugin-vscode/issues";
+export const ISSUES_URL = "https://github.com/wso2/product-ballerina-integrator/issues";
 
 export function isDMSupported(version: string): boolean {
     if (!version) {

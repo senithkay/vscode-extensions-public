@@ -14,6 +14,20 @@ import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { TypeEditor, TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
 import { TYPE_HELPER_OPERATORS } from './constants';
 import { filterOperators, filterTypes, getImportedTypes, getTypeBrowserTypes, getTypes } from './utils';
+import { useMutation } from '@tanstack/react-query';
+import { Overlay, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { createPortal } from 'react-dom';
+import { LoadingRing } from '../../../components/Loader';
+import styled from '@emotion/styled';
+
+const LoadingContainer = styled.div`
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 5000;
+`;
 
 type FormTypeEditorProps = {
     type?: Type;
@@ -173,15 +187,18 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
         [debouncedSearchTypeBrowser]
     );
 
-    const handleTypeItemClick = async (item: TypeHelperItem) => {
-        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
-            filePath: filePath,
-            codedata: item.codedata,
-            kind: item.kind,
-            searchKind: 'TYPE'
-        });
+    const { mutateAsync: addFunction, isLoading: isAddingType } = useMutation(
+        (item: TypeHelperItem) => 
+            rpcClient.getBIDiagramRpcClient().addFunction({
+                filePath: filePath,
+                codedata: item.codedata,
+                kind: item.kind,
+                searchKind: 'TYPE'
+            })
+    );
 
-        return response.template ?? '';
+    const handleTypeItemClick = async (item: TypeHelperItem) => {
+        return await addFunction(item);
     };
 
     return (
@@ -206,6 +223,13 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                         onTypeItemClick: handleTypeItemClick
                     }}
                 />
+            )}
+            {isAddingType && createPortal(
+                <>
+                    <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3`, zIndex: 5000 }} />
+                    <LoadingContainer> <LoadingRing /> </LoadingContainer>
+                </>
+                , document.body
             )}
         </>
     );

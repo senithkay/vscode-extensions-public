@@ -8,8 +8,8 @@
  */
 
 import styled from "@emotion/styled";
-import { Member, Type, TypeProperty } from "@wso2-enterprise/ballerina-core";
-import React from "react";
+import { Imports, Member, Type, TypeProperty } from "@wso2-enterprise/ballerina-core";
+import React, { useRef } from "react";
 import { TypeField } from "./TypeField";
 import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField/TextField";
 
@@ -57,6 +57,8 @@ namespace S {
     `;
 }
 export function ArrayEditor(props: ArrayEditorProps) {
+    const currentImports = useRef<Imports | undefined>();
+    
     console.log("ARRAY EDITOR PROPS", props.type);
     const newMember: Member = {
         kind: "TYPE",
@@ -83,8 +85,17 @@ export function ArrayEditor(props: ArrayEditorProps) {
     const updateMember = (newType: string) => {
         props.onChange({
             ...props.type,
-            members: [{ ...member, type: newType }]
+            members: [{ ...member, type: newType, imports: currentImports.current }]
         });
+        currentImports.current = undefined;
+    };
+
+    const handleUpdateImports = (imports: Imports) => {
+        const newImportKey = Object.keys(imports)[0];
+        if (!member.imports || !Object.keys(member.imports)?.includes(newImportKey)) {
+            const updatedImports = { ...member.imports, ...imports };
+            currentImports.current = updatedImports;
+        }
     };
 
     const updateSize = (newSize: string) => {
@@ -108,10 +119,12 @@ export function ArrayEditor(props: ArrayEditorProps) {
                         type={member.type}
                         memberName={typeof member.type === 'string' ? member.type : member.name}
                         onChange={(newType) => updateMember(newType)}
+                        onUpdateImports={(imports) => handleUpdateImports(imports)}
                         placeholder="Enter type"
                         sx={{ flexGrow: 1 }}
                         label="Type of the Array"
                         required={true}
+                        rootType={props.type}
                     />
                     <TextField
                         label="Size of the Array"

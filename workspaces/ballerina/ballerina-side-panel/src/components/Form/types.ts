@@ -8,7 +8,7 @@
  */
 
 import { RefObject } from "react";
-import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange, ExpressionProperty, Metadata, RecordTypeField  } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition, LineRange, ExpressionProperty, Metadata, RecordTypeField, Imports  } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, HelperPaneOrigin, OptionProps } from "@wso2-enterprise/ui-toolkit";
 
@@ -45,12 +45,14 @@ export type FormField = {
     lineRange?: LineRange;
     metadata?: Metadata;
     codedata?: {[key: string]: any};
+    imports?: {[key: string]: string};
 };
 
 export type ParameterValue = {
     value: {
         variable: { value: string };
         type: { value: string };
+        parameterDescription: { value: string };
     };
 };
 
@@ -119,13 +121,15 @@ type FormTypeConditionalProps = {
     types: CompletionItem[];
     retrieveVisibleTypes: (typeConstraint?: string) => Promise<void>;
     getTypeHelper: (
+        fieldKey: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
         typeHelperState: boolean,
         onChange: (newType: string, newCursorPosition: number) => void,
         changeTypeHelperState: (isOpen: boolean) => void,
-        helperPaneHeight: HelperPaneHeight
+        helperPaneHeight: HelperPaneHeight,
+        closeCompletions: () => void
     ) => JSX.Element;
     helperPaneOrigin?: HelperPaneOrigin;
     helperPaneHeight: HelperPaneHeight;
@@ -139,6 +143,7 @@ type FormTypeConditionalProps = {
 
 type FormHelperPaneConditionalProps = {
     getHelperPane: (
+        fieldKey: string,
         exprRef: RefObject<FormExpressionEditorRef>,
         anchorRef: RefObject<HTMLDivElement>,
         defaultValue: string,
@@ -146,7 +151,8 @@ type FormHelperPaneConditionalProps = {
         onChange: (value: string, updatedCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         helperPaneHeight: HelperPaneHeight,
-        recordTypeField?: RecordTypeField
+        recordTypeField?: RecordTypeField,
+        isAssignIdentifier?: boolean
     ) => JSX.Element;
     helperPaneOrigin?: HelperPaneOrigin;
     helperPaneHeight: HelperPaneHeight;
@@ -173,7 +179,7 @@ type FormExpressionEditorBaseProps = {
         shouldUpdateNode?: boolean,
         variableType?: string
     ) => Promise<void>;
-    onCompletionItemSelect?: (value: string, additionalTextEdits?: TextEdit[]) => Promise<void>;
+    onCompletionItemSelect?: (value: string, fieldKey: string, additionalTextEdits?: TextEdit[]) => Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCancel?: () => void;
@@ -193,3 +199,7 @@ export type FormExpressionEditorProps =
     FormHelperPaneConditionalProps &
     FormExpressionEditorBaseProps &
     SanitizedExpressionEditorProps;
+
+export type FormImports = {
+    [fieldKey: string]: Imports;
+}

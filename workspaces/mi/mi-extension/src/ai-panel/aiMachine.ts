@@ -17,6 +17,7 @@ import { extension } from '../MIExtensionContext';
 import fetch from 'node-fetch';
 import { USER_CHECK_BACKEND_URL } from '../constants';
 import { log } from '../util/logger';
+import { PromptObject } from '@wso2-enterprise/mi-core';
 
 interface ChatEntry {
     role: string;
@@ -34,22 +35,6 @@ interface AiMachineContext extends AIVisualizerLocation {
     errorMessage?: string;
     errorCode?: string;
     chatLog: ChatEntry[];
-}
-
-interface FileObject {
-    fileName: string;
-    fileContent: string;
-}
-
-interface ImageObject {
-    imageName: string;
-    imageBase64: string;
-}
-
-interface PromptObject {
-    aiPrompt: string;
-    files: FileObject[];
-    images: ImageObject[];
 }
 
 const aiStateMachine = createMachine<AiMachineContext>({

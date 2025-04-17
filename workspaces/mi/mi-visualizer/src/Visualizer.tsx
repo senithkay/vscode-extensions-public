@@ -13,7 +13,7 @@ import { MachineStateValue, AIMachineStateValue, SwaggerData } from "@wso2-enter
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import AIPanel from "./AIPanel";
+import { AIPanel } from "./views/AIPanel";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 import { WelcomePanel } from "./WelcomePanel";
 import { DisabledView } from "./views/Disabled";

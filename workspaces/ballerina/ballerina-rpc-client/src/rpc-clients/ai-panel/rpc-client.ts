@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -24,6 +24,7 @@ import {
     GenerateTypesFromRecordRequest,
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
+    GetModuleDirParams,
     InitialPrompt,
     LLMDiagnostics,
     NotifyAIMappingsRequest,
@@ -49,6 +50,7 @@ import {
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getContentFromFile,
     getDriftDiagnosticContents,
     getFileExists,
     getFromDocumentation,
@@ -56,6 +58,7 @@ import {
     getGeneratedTests,
     getInitialPrompt,
     getMappingsFromRecord,
+    getModuleDirectory,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
@@ -314,5 +317,13 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     createTestDirecoryIfNotExists(directoryPath: string): void {
         return this._messenger.sendNotification(createTestDirecoryIfNotExists, HOST_EXTENSION, directoryPath);
+    }
+
+    getModuleDirectory(params: GetModuleDirParams): Promise<string> {
+        return this._messenger.sendRequest(getModuleDirectory, HOST_EXTENSION, params);
+    }
+
+    getContentFromFile(content: GetFromFileRequest): Promise<string> {
+        return this._messenger.sendRequest(getContentFromFile, HOST_EXTENSION, content);
     }
 }

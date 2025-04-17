@@ -63,13 +63,14 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
     const steps = [
         { label: "Creating Agent", description: "Creating the AI chat agent" },
         { label: "Initializing", description: "Setting up the agent configuration" },
+        { label: "Pulling Modules", description: "Pulling the required modules" },
         { label: "Creating Listener", description: "Configuring the service listener" },
         { label: "Creating Service", description: "Setting up the AI chat service" },
         { label: "Completing", description: "Finalizing the agent setup" }
     ];
 
     useEffect(() => {
-        rpcClient.getServiceDesignerRpcClient().getListenerModel({ moduleName: type}).then(res => {
+        rpcClient.getServiceDesignerRpcClient().getListenerModel({ moduleName: type }).then(res => {
             setListenerModel(res.listener);
         });
     }, []);
@@ -105,9 +106,15 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
             listener.properties['listenOn'].value = "check http:getDefaultListener()";
 
             setCurrentStep(1);
+            // Set a timeout to show step 2 after 3 seconds
+            const timeoutId = setTimeout(() => {
+                setCurrentStep(2);
+            }, 3000);
             await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener });
+            // Clear the timeout if the operation completed before 3 seconds
+            clearTimeout(timeoutId);
 
-            setCurrentStep(2);
+            setCurrentStep(3);
             // Update the service name and create the service
             await rpcClient.getServiceDesignerRpcClient().getServiceModel({
                 filePath: "",
@@ -124,21 +131,11 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                     filePath: "",
                     service: res.service
                 }).then((res) => {
-                    setTimeout(() => {
-                        rpcClient.getVisualizerRpcClient().openView({
-                            type: EVENT_TYPE.OPEN_VIEW,
-                            location: {
-                                documentUri: res.filePath,
-                                position: res.position
-                            },
-                        });
-                    }, 1000);
-                    setCurrentStep(3);
-                    setIsCreating(false);
+                    setCurrentStep(4);
                 });
             });
 
-            setCurrentStep(3);
+            setCurrentStep(5);
         } catch (error) {
             console.error("Error creating AI Chat Agent:", error);
             setIsCreating(false);
@@ -188,7 +185,6 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                                         >
                                             {isCreating ? 'Creating...' : 'Create'}
                                         </Button>
-                                        <Button appearance="secondary">Cancel</Button>
                                     </ButtonContainer>
                                 </FormFields>
                             </FormContainer>

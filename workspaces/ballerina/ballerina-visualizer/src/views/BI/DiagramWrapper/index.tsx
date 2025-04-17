@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Button, Icon, Switch, View, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Switch, View, ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { BIFlowDiagram } from "../FlowDiagram";
 import { BISequenceDiagram } from "../SequenceDiagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -30,7 +30,15 @@ const ActionButton = styled(Button)`
 const SubTitleWrapper = styled.div`
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+`;
+
+const LeftElementsWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 12px;
 `;
 
 const AccessorType = styled.span`
@@ -47,13 +55,93 @@ const Path = styled.span`
     color: ${ThemeColors.ON_SURFACE};
     font-family: var(--vscode-editor-font-family);
     font-size: 13px;
+    max-width: 250px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.3;
 `;
 
 const Parameters = styled.span`
     color: ${ThemeColors.PRIMARY};
     font-family: var(--vscode-editor-font-family);
     font-size: 13px;
+    max-width: 360px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.3;
 `;
+
+const ReturnType = styled.span`
+    font-family: var(--vscode-editor-font-family);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+`;
+
+const ReturnTypeIcon = styled(Icon)`
+    margin-top: 5px;
+    width: 16px;
+    height: 16px;
+    font-size: 14px;
+`;
+
+interface WrappedTooltipProps {
+    content: string;
+    children: React.ReactNode;
+}
+
+const WrappedTooltip = ({ content, children }: WrappedTooltipProps) => {
+    // Format content by replacing commas or pipes with line breaks
+    const formatContent = (text: string) => {
+        if (!text) return "";
+        
+        let formattedItems: string[] = [];
+        
+        if (text.includes(",")) {
+            formattedItems = text
+                .split(",")
+                .map((item) => item.trim());
+        } else if (text.includes("|")) {
+            formattedItems = text
+                .split("|")
+                .map((item) => item.trim());
+        } else {
+            return text;
+        }
+        
+        // Return JSX with proper line breaks
+        return (
+            <>
+                {formattedItems.map((item, index) => (
+                    <React.Fragment key={index}>
+                        {item}
+                        {index < formattedItems.length - 1 && <br />}
+                    </React.Fragment>
+                ))}
+            </>
+        );
+    };
+
+    return (
+        <Tooltip 
+            content={formatContent(content)} 
+            containerSx={{ cursor: "default" }} 
+            sx={{
+                wordBreak: "break-word",
+                whiteSpace: "normal",
+                maxWidth: "500px",
+                fontFamily: "var(--vscode-editor-font-family)",
+            }}
+        >
+            {children}
+        </Tooltip>
+    );
+};
 
 export interface DiagramWrapperProps {
     syntaxTree: STNode;
@@ -80,28 +168,40 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                 setEnableSequenceDiagram(true);
             }
 
-            rpcClient.getBIDiagramRpcClient().getEnclosedFunction({
-                filePath: location.documentUri,
-                position: {
-                    line: location?.position?.startLine,
-                    offset: location?.position?.startColumn
-                },
-                findClass: true
-            }).then((serviceLocation) => {
-                rpcClient.getServiceDesignerRpcClient().getServiceModelFromCode({
-                    filePath: serviceLocation.filePath,
-                    codedata: {
-                        lineRange: {
-                            startLine: { line: serviceLocation?.startLine.line, offset: serviceLocation?.startLine.offset },
-                            endLine: { line: serviceLocation?.endLine.line, offset: serviceLocation?.endLine.offset }
-                        }
-                    }
-                }).then((serviceModel) => {
-                    setServiceType(serviceModel.service?.type);
-                    setBasePath(serviceModel.service?.properties?.basePath?.value?.trim());
-                    setListener(serviceModel.service?.properties?.listener?.value?.trim());
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEnclosedFunction({
+                    filePath: location.documentUri,
+                    position: {
+                        line: location?.position?.startLine,
+                        offset: location?.position?.startColumn,
+                    },
+                    findClass: true,
                 })
-            });
+                .then((serviceLocation) => {
+                    rpcClient
+                        .getServiceDesignerRpcClient()
+                        .getServiceModelFromCode({
+                            filePath: serviceLocation.filePath,
+                            codedata: {
+                                lineRange: {
+                                    startLine: {
+                                        line: serviceLocation?.startLine.line,
+                                        offset: serviceLocation?.startLine.offset,
+                                    },
+                                    endLine: {
+                                        line: serviceLocation?.endLine.line,
+                                        offset: serviceLocation?.endLine.offset,
+                                    },
+                                },
+                            },
+                        })
+                        .then((serviceModel) => {
+                            setServiceType(serviceModel.service?.type);
+                            setBasePath(serviceModel.service?.properties?.basePath?.value?.trim());
+                            setListener(serviceModel.service?.properties?.listener?.value?.trim());
+                        });
+                });
         });
     }, [rpcClient]);
 
@@ -122,7 +222,10 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
 
     const handleEdit = (fileUri?: string) => {
         const context: VisualizerLocation = {
-            view: view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION ? MACHINE_VIEW.BINPFunctionForm : MACHINE_VIEW.BIFunctionForm,
+            view:
+                view === FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION
+                    ? MACHINE_VIEW.BINPFunctionForm
+                    : MACHINE_VIEW.BIFunctionForm,
             identifier: (syntaxTree as ResourceAccessorDefinition).functionName.value,
             documentUri: fileUri,
         };
@@ -135,29 +238,37 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
     let isAgent = false;
     let method = "";
     const parameters = getParameters(syntaxTree);
+    const returnType = getReturnType(syntaxTree);
 
-    if (STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
+    if (syntaxTree && STKindChecker.isResourceAccessorDefinition(syntaxTree)) {
         isResource = true;
         method = (syntaxTree as ResourceAccessorDefinition).functionName.value;
-    } else if (STKindChecker.isFunctionDefinition(syntaxTree)) {
+    } else if (syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)) {
         isResource = false;
         method = syntaxTree.functionName.value;
-    } else if (STKindChecker.isObjectMethodDefinition(syntaxTree)) {
-        isRemote = syntaxTree.qualifierList?.some(qualifier => STKindChecker.isRemoteKeyword(qualifier)) || false;
+    } else if (syntaxTree && STKindChecker.isObjectMethodDefinition(syntaxTree)) {
+        isRemote = syntaxTree.qualifierList?.some((qualifier) => STKindChecker.isRemoteKeyword(qualifier)) || false;
         method = syntaxTree.functionName.value;
+    } else {
+        // FIXME: this is a temporary fix to navigate back to overview when the syntax tree is undefined
+        console.error(">>> cannot get method, syntaxTree is undefined");
+        rpcClient
+            .getVisualizerRpcClient()
+            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        return;
     }
 
     if (!isResource && method === "main") {
         isAutomation = true;
     }
 
-    if (serviceType === 'ai') {
+    if (serviceType === "ai") {
         isAgent = true;
     }
 
     const handleResourceTryIt = (methodValue: string, pathValue: string) => {
-        const resource = serviceType === 'http' ? { methodValue, pathValue } : undefined;
-        const commands = ["ballerina.tryit", false, resource, { basePath, listener }]
+        const resource = serviceType === "http" ? { methodValue, pathValue } : undefined;
+        const commands = ["ballerina.tryit", false, resource, { basePath, listener }];
         rpcClient.getCommonRpcClient().executeCommand({ commands });
     };
 
@@ -169,15 +280,35 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     title={isAgent ? "AI Chat Agent" : "Resource"}
                     subtitleElement={
                         <SubTitleWrapper>
-                            <AccessorType>{method}</AccessorType>
-                            <Path>{getResourcePath(syntaxTree)}</Path>
-                            {parameters && <Parameters>({parameters})</Parameters>}
+                            <LeftElementsWrapper>
+                                <AccessorType>{method}</AccessorType>
+                                <Path>{getResourcePath(syntaxTree)}</Path>
+                                {parameters && (
+                                    <WrappedTooltip content={parameters}>
+                                        <Parameters>({parameters})</Parameters>
+                                    </WrappedTooltip>
+                                )}
+                            </LeftElementsWrapper>
+                            {returnType && (
+                                <WrappedTooltip content={returnType}>
+                                    <ReturnType>
+                                        <ReturnTypeIcon name="bi-return" /> {returnType}
+                                    </ReturnType>
+                                </WrappedTooltip>
+                            )}
                         </SubTitleWrapper>
                     }
                     actions={
-                        serviceType === 'http' || isAgent ? (
-                            <ActionButton appearance="secondary" onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}>
-                                <Icon name={isAgent ? "comment-discussion" : "play"} isCodicon={true} sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
+                        serviceType === "http" || isAgent ? (
+                            <ActionButton
+                                appearance="secondary"
+                                onClick={() => handleResourceTryIt(method, getResourcePath(syntaxTree))}
+                            >
+                                <Icon
+                                    name={isAgent ? "comment-discussion" : "play"}
+                                    isCodicon={true}
+                                    sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }}
+                                />
                                 {isAgent ? "Chat" : "Try It"}
                             </ActionButton>
                         ) : null
@@ -189,8 +320,21 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     title={"Remote"}
                     subtitleElement={
                         <SubTitleWrapper>
-                            <Path>{method}</Path>
-                            {parameters && <Parameters>({parameters})</Parameters>}
+                            <LeftElementsWrapper>
+                                <Path>{method}</Path>
+                                {parameters && (
+                                    <WrappedTooltip content={parameters}>
+                                        <Parameters>({parameters})</Parameters>
+                                    </WrappedTooltip>
+                                )}
+                            </LeftElementsWrapper>
+                            {returnType && (
+                                <WrappedTooltip content={returnType}>
+                                    <ReturnType>
+                                        <ReturnTypeIcon name="bi-return" /> {returnType}
+                                    </ReturnType>
+                                </WrappedTooltip>
+                            )}
                         </SubTitleWrapper>
                     }
                 />
@@ -200,8 +344,22 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     title={getTitle(view)}
                     subtitleElement={
                         <SubTitleWrapper>
-                            <Path>{method}</Path>
-                            {parameters && <Parameters>({parameters})</Parameters>}
+                            <LeftElementsWrapper>
+                                <Path>{method}</Path>
+                                {parameters && (
+                                    <WrappedTooltip content={parameters}>
+                                        <Parameters>({parameters})</Parameters>
+                                    </WrappedTooltip>
+                                )}
+                            </LeftElementsWrapper>
+                            {returnType && (
+                                <WrappedTooltip content={returnType}>
+                                    <ReturnType>
+                                        <ReturnTypeIcon name="bi-return" />
+                                        {returnType}
+                                    </ReturnType>
+                                </WrappedTooltip>
+                            )}
                         </SubTitleWrapper>
                     }
                     actions={
@@ -217,7 +375,18 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     title={"Automation"}
                     subtitleElement={
                         <SubTitleWrapper>
-                            <Parameters>({getParameters(syntaxTree)})</Parameters>
+                            <LeftElementsWrapper>
+                                <WrappedTooltip content={getParameters(syntaxTree)}>
+                                    <Parameters>({getParameters(syntaxTree)})</Parameters>
+                                </WrappedTooltip>
+                            </LeftElementsWrapper>
+                            {returnType && (
+                                <WrappedTooltip content={returnType}>
+                                    <ReturnType>
+                                        <ReturnTypeIcon name="bi-return" /> {returnType}
+                                    </ReturnType>
+                                </WrappedTooltip>
+                            )}
                         </SubTitleWrapper>
                     }
                     actions={
@@ -237,6 +406,7 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     enableTransition={true}
                     onChange={handleToggleDiagram}
                     sx={{
+                        width: "250px",
                         margin: "auto",
                         position: "fixed",
                         top: "120px",
@@ -253,25 +423,23 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     onUpdate={handleUpdateDiagram}
                     onReady={handleReadyDiagram}
                 />
-            ) :
-                view ? (
-                    <BIFocusFlowDiagram
-                        syntaxTree={syntaxTree}
-                        projectPath={projectPath}
-                        filePath={filePath}
-                        onUpdate={handleUpdateDiagram}
-                        onReady={handleReadyDiagram}
-                        view={view}
-                    />
-                ) : (
-                    <BIFlowDiagram
-                        syntaxTree={syntaxTree}
-                        projectPath={projectPath}
-                        onUpdate={handleUpdateDiagram}
-                        onReady={handleReadyDiagram}
-                    />
-                )
-            }
+            ) : view ? (
+                <BIFocusFlowDiagram
+                    syntaxTree={syntaxTree}
+                    projectPath={projectPath}
+                    filePath={filePath}
+                    onUpdate={handleUpdateDiagram}
+                    onReady={handleReadyDiagram}
+                    view={view}
+                />
+            ) : (
+                <BIFlowDiagram
+                    syntaxTree={syntaxTree}
+                    projectPath={projectPath}
+                    onUpdate={handleUpdateDiagram}
+                    onReady={handleReadyDiagram}
+                />
+            )}
         </View>
     );
 }
@@ -294,9 +462,15 @@ function getResourcePath(resource: STNode) {
 }
 
 function getParameters(syntaxTree: STNode) {
-    if (STKindChecker.isResourceAccessorDefinition(syntaxTree) ||
+    if (!syntaxTree) {
+        console.error(">>> cannot get parameters, syntaxTree is undefined");
+        return "";
+    }
+    if (
+        STKindChecker.isResourceAccessorDefinition(syntaxTree) ||
         (STKindChecker.isObjectMethodDefinition(syntaxTree) &&
-            syntaxTree.qualifierList?.some(qualifier => STKindChecker.isRemoteKeyword(qualifier)))) {
+            syntaxTree.qualifierList?.some((qualifier) => STKindChecker.isRemoteKeyword(qualifier)))
+    ) {
         return syntaxTree.functionSignature.parameters
             .map((param) => {
                 if (!STKindChecker.isCommaToken(param)) {
@@ -333,6 +507,20 @@ function getParameters(syntaxTree: STNode) {
             })
             .filter(Boolean)
             .join(", ");
+    }
+    return "";
+}
+
+function getReturnType(syntaxTree: STNode) {
+    if (!syntaxTree) {
+        console.error(">>> cannot get return type, syntaxTree is undefined");
+        return "";
+    }
+    if (STKindChecker.isFunctionDefinition(syntaxTree)) {
+        return syntaxTree.functionSignature.returnTypeDesc?.type.source || "";
+    }
+    if (STKindChecker.isResourceAccessorDefinition(syntaxTree) || STKindChecker.isObjectMethodDefinition(syntaxTree)) {
+        return syntaxTree.functionSignature.returnTypeDesc?.type.source || "";
     }
     return "";
 }

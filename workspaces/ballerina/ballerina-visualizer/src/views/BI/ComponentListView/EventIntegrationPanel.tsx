@@ -14,7 +14,7 @@ import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, TriggerModelsResponse, Service
 import { CardGrid, PanelViewMore, Title, TitleWrapper } from './styles';
 import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
-import { OutOfScopeComponentTooltip } from './componentListUtils';
+import { isBetaModule, OutOfScopeComponentTooltip } from './componentListUtils';
 import { RelativeLoader } from '../../../components/RelativeLoader';
 
 interface EventIntegrationPanelProps {
@@ -56,10 +56,11 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
                                     title={item.name}
                                     icon={getEntryNodeIcon(item)}
                                     onClick={() => {
-                                        handleClick(DIRECTORY_MAP.SERVICES, item.moduleName);
+                                        handleClick(DIRECTORY_MAP.SERVICE, item.moduleName);
                                     }}
                                     disabled={isDisabled}
                                     tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
+                                    isBeta={isBetaModule(item.moduleName)}
                                 />
                             );
                         }
@@ -72,7 +73,6 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
 
 // TODO: This should be removed once the new icons are added to the BE API.
 export function getEntryNodeIcon(item: ServiceModel) {
-    console.log(">>> item", item);
     return getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "38px" }} />;
 }
 

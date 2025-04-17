@@ -37,7 +37,7 @@ export const LoadingRing = ({ message }: LoadingRingProps) => {
 
     return (
         <ProgressContainer>
-            <ProgressRing color={ThemeColors.PRIMARY}/>
+            <ProgressRing color={ThemeColors.PRIMARY} />
             {message && (
                 <LoadingText variant="body2">
                     {message}

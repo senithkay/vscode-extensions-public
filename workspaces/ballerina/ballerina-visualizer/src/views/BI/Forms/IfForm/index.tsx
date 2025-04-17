@@ -18,7 +18,8 @@ import {
     SubPanel,
     SubPanelView,
     FormDiagnostics,
-    Diagnostic
+    Diagnostic,
+    ExpressionProperty
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormValues,
@@ -54,7 +55,7 @@ export function IfForm(props: IfFormProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        subPanelView,
+        subPanelView
     } = props;
     const { 
         watch,
@@ -260,10 +261,11 @@ export function IfForm(props: IfFormProps) {
         setBranches(updatedBranches);
     };
 
-    const handleExpressionFormDiagnostics = useCallback(debounce(async (
+    const handleExpressionEditorDiagnostics = useCallback(debounce(async (
         showDiagnostics: boolean,
         expression: string,
-        key: string
+        key: string,
+        property: ExpressionProperty
     ) => {
         if (!showDiagnostics) {
             handleSetDiagnosticsInfo({ key, diagnostics: [] });
@@ -277,9 +279,8 @@ export function IfForm(props: IfFormProps) {
                 startLine: targetLineRange.startLine,
                 lineOffset: 0,
                 offset: 0,
-                node: node,
-                property: "condition",
-                branch: ""
+                codedata: undefined,
+                property: property,
             }
         });
 
@@ -339,30 +340,21 @@ export function IfForm(props: IfFormProps) {
                     return (
                         <FormStyles.Row key={field.key}>
                             <ExpressionEditor
-                                /* Completion related props */
-                                completions={activeEditor === index ? expressionEditor.completions : []}
-                                triggerCharacters={expressionEditor.triggerCharacters}
-                                retrieveCompletions={expressionEditor.retrieveCompletions}
-                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
-                                /* Helper pane related props */
-                                isLoadingHelperPaneInfo={expressionEditor.isLoadingHelperPaneInfo}
-                                variableInfo={expressionEditor.variableInfo}
-                                configVariableInfo={expressionEditor.configVariableInfo}
-                                functionInfo={expressionEditor.functionInfo}
-                                libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
-                                getHelperPaneData={expressionEditor.getHelperPaneData}
-                                onFunctionItemSelect={expressionEditor.onFunctionItemSelect}
-                                /* Other props */
+                                {...expressionEditor}
                                 ref={exprRef}
                                 control={control}
                                 field={field}
                                 watch={watch}
-                                getExpressionFormDiagnostics={handleExpressionFormDiagnostics}
-                                onFocus={() => handleEditorFocus(index)}
                                 openSubPanel={openSubPanel}
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
                                 onRemove={index !== 0 && !branch.label.includes("Else") ? () => removeCondition(index) : undefined}
+                                completions={activeEditor === index ? expressionEditor.completions : []}
+                                triggerCharacters={expressionEditor.triggerCharacters}
+                                retrieveCompletions={expressionEditor.retrieveCompletions}
+                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
+                                getExpressionEditorDiagnostics={handleExpressionEditorDiagnostics}
+                                onFocus={() => handleEditorFocus(index)}
                                 onCompletionItemSelect={expressionEditor.onCompletionItemSelect}
                                 onCancel={expressionEditor.onCancel}
                                 onBlur={expressionEditor.onBlur}

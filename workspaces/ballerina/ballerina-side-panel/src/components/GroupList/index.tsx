@@ -216,7 +216,7 @@ export function GroupList(props: GroupListProps) {
 export default GroupList;
 
 function getComponentTitle(node: Node) {
-    if (node.id === "RESOURCE_ACTION_CALL") {
+    if (node.id === "RESOURCE_ACTION_CALL" && node.description) {
         return stripHtmlTags(node.description);
     }
 
