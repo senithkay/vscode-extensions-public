@@ -90,7 +90,7 @@ export default function createTests() {
         console.log('Testing Basic Mappings');
 
         let dm: DataMapper;
-        const DM_NAME = 'dm' + test.info().retry;
+        const DM_NAME = 'dm' + test.info().retry + 1;
 
         await clearNotificationsByCloseButton(page);
 
@@ -283,7 +283,7 @@ export default function createTests() {
 
         console.log('Testing Array Mappings - Part 1');
 
-        const DM_NAME = 'dm' + test.info().retry;
+        const DM_NAME = 'dm' + test.info().retry + 1;
 
         // overwriteTsFile('array/map2.ts');
         // overwriteTsFile('array/init1.ts');
@@ -529,7 +529,7 @@ export default function createTests() {
 
         console.log('Testing Import Options');
 
-        const DM_NAME = 'dm' + test.info().retry;
+        const DM_NAME = 'dm' + test.info().retry + 1;
 
         const projectExplorer = new ProjectExplorer(page.page);
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
