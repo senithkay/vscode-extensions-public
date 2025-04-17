@@ -65,6 +65,8 @@ async function createProject(page: ExtendedPage) {
 
 async function resumeVSCode() {
     if (vscode && page) {
+        console.log('Reloading VSCode');
+        if(process.env.CI != 'true') await page.page.waitForTimeout(1000);
         await page.executePaletteCommand('Reload Window');
     } else {
         console.log('Starting VSCode');
