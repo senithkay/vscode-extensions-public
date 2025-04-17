@@ -1,7 +1,7 @@
 {
-    "d1O": [10, 20, 30],
-    "m1O": [40, 50, 60],
-    "m1objO": [
+    "oPrimDirect1D": [10, 20, 30],
+    "oPrimMapFn1D": [40, 50, 60],
+    "oObjMapFn1D": [
       {
         "q1": "sampleQ1",
         "q2": ["string1", "string2"]
@@ -11,12 +11,12 @@
         "q2": ["string3", "string4"]
       }
     ],
-    "i1O": ["stringA", "stringB", "stringC"],
-    "i2O": [
+    "oInitPrim1D": ["stringA", "stringB", "stringC"],
+    "oInitPrim2D": [
       ["nestedString1", "nestedString2"],
       ["nestedString3", "nestedString4"]
     ],
-    "iobjO": [
+    "oInitObj1D": [
       {
         "p1": "exampleP1",
         "p2": ["arrayStr1", "arrayStr2"]
@@ -31,12 +31,12 @@
       [100, 200],
       [300, 400]
     ],
-    "m2O": [
+    "oPrimMapFn2D": [
       [500, 600],
       [700, 800]
     ],
   
-    "s10O": "singleOutputString",
+    "oSingle": "singleOutputString",
     "s21O": ["outputStr1", "outputStr2", "outputStr3"]
 }
   

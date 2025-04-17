@@ -5,20 +5,20 @@ import * as dmUtils from "./dm-utils";
 * inputType : "JSON",
 */
 interface Root {
-    d1I: number[]
-    m1I: number[]
-    m1objI: {
+    iPrimDirect1D: number[]
+    iPrimMapFn1D: number[]
+    iObjMapFn1D: {
         p1: string
         p2: string[]
     }[]
-    i1I: string
-    iobjI: {
+    iInitPrim: string
+    iInitObj: {
         p1: string
         p2: string[]
     }
     d2I: number[][]
-    m2I: number[][]
-    s10O: string[]
+    iPrimMapFn2D: number[][]
+    iSingle1D: string[]
     s21I: string[][]
 }
 
@@ -26,12 +26,12 @@ interface Root {
 * outputType : "JSON",
 */
 interface OutputRoot {
-    iobjO: {
+    oInitObj1D: {
         p1: string
         p2: string[]
     }[]
-    m2O: number[][]
-    s10O: string
+    oPrimMapFn2D: number[][]
+    oSingle: string
 }
 
 
@@ -42,18 +42,18 @@ interface OutputRoot {
 */
 export function mapFunction(input: Root): OutputRoot {
     return {
-        iobjO: [{
-            p1: input.i1I,
-            p2: [input.i1I]
+        oInitObj1D: [{
+            p1: input.iInitPrim,
+            p2: [input.iInitPrim]
         },
-        input.iobjI
+        input.iInitObj
         ],
-        m2O: input.m2I
-            .map((m2IItem) => {
-                return m2IItem
-                    .map((m2IItemItem) => { return m2IItemItem })
+        oPrimMapFn2D: input.iPrimMapFn2D
+            .map((iPrimMapFn2DItem) => {
+                return iPrimMapFn2DItem
+                    .map((iPrimMapFn2DItemItem) => { return iPrimMapFn2DItemItem })
             }),
-        s10O: input.s10O[1]
+        oSingle: input.iSingle1D[1]
     }
 }
 

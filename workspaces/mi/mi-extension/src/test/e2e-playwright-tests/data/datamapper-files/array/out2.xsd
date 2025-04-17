@@ -4,16 +4,16 @@
   <xs:element name="root">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="iobjO" type="iobjOType"/>
+        <xs:element name="oInitObj1D" type="iobjOType"/>
         <xs:element name="d2O" type="d2OType"/>
-        <xs:element name="m2O" type="m2OType"/>
-        <xs:element name="s10O" type="xs:string"/>
+        <xs:element name="oPrimMapFn2D" type="oPrimMapFn2DType"/>
+        <xs:element name="oSingle" type="xs:string"/>
         <xs:element name="s21O" type="s21OType"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <!-- iobjO type definition -->
+  <!-- oInitObj1D type definition -->
   <xs:complexType name="iobjOType">
     <xs:sequence>
       <xs:element name="item" type="iobjItemType" minOccurs="0" maxOccurs="unbounded"/>
@@ -40,8 +40,8 @@
     </xs:sequence>
   </xs:complexType>
 
-  <!-- m2O type definition -->
-  <xs:complexType name="m2OType">
+  <!-- oPrimMapFn2D type definition -->
+  <xs:complexType name="oPrimMapFn2DType">
     <xs:sequence>
       <xs:element name="item" type="numberArrayType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>

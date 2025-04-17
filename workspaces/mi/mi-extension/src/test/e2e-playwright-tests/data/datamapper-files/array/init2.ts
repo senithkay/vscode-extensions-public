@@ -5,20 +5,20 @@ import * as dmUtils from "./dm-utils";
 * inputType : "JSON",
 */
 interface Root {
-    d1I: number[]
-    m1I: number[]
-    m1objI: {
+    iPrimDirect1D: number[]
+    iPrimMapFn1D: number[]
+    iObjMapFn1D: {
         p1: string
         p2: string[]
     }[]
-    i1I: string
-    iobjI: {
+    iInitPrim: string
+    iInitObj: {
         p1: string
         p2: string[]
     }
     d2I: number[][]
-    m2I: number[][]
-    s10O: string[]
+    iPrimMapFn2D: number[][]
+    iSingle1D: string[]
     s21I: string[][]
 }
 
@@ -26,12 +26,12 @@ interface Root {
 * outputType : "JSON",
 */
 interface OutputRoot {
-iobjO: {
+oInitObj1D: {
 p1: string
 p2: string[]
 }[]
-m2O: number[][]
-s10O: string
+oPrimMapFn2D: number[][]
+oSingle: string
 }
 
 

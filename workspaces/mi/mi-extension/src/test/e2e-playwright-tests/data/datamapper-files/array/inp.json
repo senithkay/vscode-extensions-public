@@ -1,7 +1,7 @@
 {
-    "d1I": [1, 2, 3],
-    "m1I": [4, 5, 6],
-    "m1objI": [
+    "iPrimDirect1D": [1, 2, 3],
+    "iPrimMapFn1D": [4, 5, 6],
+    "iObjMapFn1D": [
       {
         "p1": "example1",
         "p2": ["str1", "str2"]
@@ -11,9 +11,9 @@
         "p2": ["str3", "str4"]
       }
     ],
-    "i1I": "stringValue",
+    "iInitPrim": "stringValue",
   
-    "iobjI": {
+    "iInitObj": {
       "p1": "nestedString",
       "p2": ["nestedStr1", "nestedStr2"]
     },
@@ -22,12 +22,12 @@
       [1, 2],
       [3, 4]
     ],
-    "m2I": [
+    "iPrimMapFn2D": [
       [5, 6],
       [7, 8]
     ],
   
-    "s10O": ["output1", "output2", "output3"],
+    "iSingle1D": ["output1", "output2", "output3"],
     "s21I": [
       ["input1", "input2"],
       ["input3", "input4"]
