@@ -23,7 +23,7 @@ import AttachmentBox, { AttachmentsContainer } from "../AttachmentBox";
 import { StyledInputComponent, StyledInputRef } from "./StyledInput";
 import { AttachmentOptions, useAttachments } from "./hooks/useAttachments";
 import { Suggestion, SuggestionType, useCommands } from "./hooks/useCommands";
-import { BadgeType } from "../Badge";
+import { ChatBadgeType } from "../ChatBadge";
 import { Input, InputContent } from "./utils/inputUtils";
 import SuggestionsList from "./SuggestionsList";
 import { Command } from "../../commandTemplates/models/command.enum";
@@ -319,8 +319,8 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
          */
         const insertCommand = (command: Command, suffix: string, additionalProps?: { [key: string]: any }) => {
             inputRef.current?.insertBadgeAtCursor({
-                badgeText: command,
-                badgeType: BadgeType.Command,
+                displayText: command,
+                badgeType: ChatBadgeType.Command,
                 suffixText: " ",
                 ...additionalProps,
             });
@@ -351,8 +351,9 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             // insert the selected suggestion (Tag)
             if (suggestion.type === SuggestionType.Tag) {
                 inputRef.current?.insertBadgeAtCursor({
-                    badgeText: suggestion.text,
-                    badgeType: BadgeType.Tag,
+                    displayText: suggestion.text,
+                    rawValue: suggestion.rawValue,
+                    badgeType: ChatBadgeType.Tag,
                     suffixText: "",
                     tagInserted: true,
                 });
@@ -366,7 +367,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
          * - Stops on Escape
          */
         const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>, removedBadgeTypes?: string[]) => {
-            if (removedBadgeTypes?.includes(BadgeType.Command)) {
+            if (removedBadgeTypes?.includes(ChatBadgeType.Command)) {
                 setActiveCommand(null);
             }
             if (filteredSuggestions.length > 0) {

@@ -18,7 +18,7 @@ import React, {
 } from "react";
 import styled from "@emotion/styled";
 import ReactDOMServer from "react-dom/server";
-import Badge, { BadgeType } from "../Badge";
+import ChatBadge, { ChatBadgeType } from "../ChatBadge";
 import { decodeHTML } from "./utils/utils";
 import { useCursor } from "./hooks/useCursor";
 
@@ -81,12 +81,13 @@ export interface StyledInputRef {
     insertTextAtCursor: (params: { text: string; [key: string]: any }) => void;
     replaceTextWith: (targetText: string, replacementText: string) => void;
     insertBadgeAtCursor: (params: {
-        badgeText: string;
-        badgeType?: BadgeType;
+        displayText: string;
+        rawValue?: string;
+        badgeType?: ChatBadgeType;
         suffixText?: string;
         [key: string]: any;
     }) => void;
-    isPrevElementBadge: (type: BadgeType) => boolean;
+    isPrevElementBadge: (type: ChatBadgeType) => boolean;
     getContentAsInputList: () => Input[];
     ref: React.RefObject<HTMLDivElement>;
 }
@@ -155,28 +156,30 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
 
         const handleInsertBadgeAtCursor = useCallback(
             ({
-                badgeText,
+                displayText,
+                rawValue,
                 badgeType,
                 suffixText,
                 ...rest
             }: {
-                badgeText: string;
-                badgeType?: BadgeType;
+                displayText: string;
+                rawValue?: string;
+                badgeType?: ChatBadgeType;
                 suffixText?: string;
                 [key: string]: any;
             }) => {
                 if (!divRef.current) return;
-                if (!badgeText) return;
+                if (!displayText) return;
 
                 // Convert <Badge> into an HTML string using ReactDOMServer
-                const badgeHTML = ReactDOMServer.renderToStaticMarkup(<Badge badgeType={badgeType}>{badgeText}</Badge>);
+                const badgeHTML = ReactDOMServer.renderToStaticMarkup(<ChatBadge badgeType={badgeType} rawValue={rawValue ?? displayText}>{displayText}</ChatBadge>);
 
                 // Now we call the utility to insert that HTML + optional suffix
                 insertHTMLWithSuffixAtCursor(divRef.current, {
                     html: badgeHTML,
                     suffixText,
                     removeOverlapAtCursor,
-                    overlapText: badgeText, // if partial overlap is relevant
+                    overlapText: displayText, // if partial overlap is relevant
                     onChange: (val) => {
                         setInternalContent(val.text);
                         onChange?.(val);
@@ -187,7 +190,7 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
             [onChange, removeOverlapAtCursor]
         );
 
-        const handleIsPrevElementBadge = useCallback((type: BadgeType) => {
+        const handleIsPrevElementBadge = useCallback((type: ChatBadgeType) => {
             if (!divRef.current) return false;
             // Our utility expects a string for the badge type (since it can’t import BadgeType).
             return isPrevElementBadge(divRef.current, String(type));

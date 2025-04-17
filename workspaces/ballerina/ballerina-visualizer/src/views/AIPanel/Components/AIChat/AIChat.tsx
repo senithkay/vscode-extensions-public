@@ -9,7 +9,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import {
-    VisualizerLocation,
     GetWorkspaceContextResponse,
     ProjectSource,
     SourceFile,
@@ -26,9 +25,9 @@ import {
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Icon, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import AIChatInput, { AIChatInputRef } from "../AIChatInput/AIChatInput";
+import { AIChatInputRef } from "../AIChatInput";
 import ProgressTextSegment from "../ProgressTextSegment";
-import RoleContainer, { PreviewContainerDefault } from "../RoleContainter";
+import RoleContainer from "../RoleContainter";
 import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import { findRegexMatches } from "../../../../utils/utils";
 
@@ -51,7 +50,6 @@ import { Input, parseInput, stringifyInputArrayWithBadges } from "../AIChatInput
 import {
     commandTemplates,
     NATURAL_PROGRAMMING_TEMPLATES,
-    suggestedCommandTemplates,
     WILDCARD_TEMPLATE_ID,
 } from "../../commandTemplates/data/commandTemplates.const";
 import { Tag } from "../../commandTemplates/models/tag.model";

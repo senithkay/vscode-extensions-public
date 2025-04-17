@@ -9,7 +9,7 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import AIChatInput, { AIChatInputRef, TagOptions } from "../../AIChatInput/AIChatInput";
+import AIChatInput, { AIChatInputRef, TagOptions } from "../../AIChatInput";
 import { Input } from "../../AIChatInput/utils/inputUtils";
 import { Attachment } from "@wso2-enterprise/ballerina-core";
 import { commandTemplates } from "../../../commandTemplates/data/commandTemplates.const";

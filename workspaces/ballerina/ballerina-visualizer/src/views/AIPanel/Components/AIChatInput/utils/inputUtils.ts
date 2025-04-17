@@ -10,7 +10,7 @@
 import { CommandTemplates, WILDCARD_TEMPLATE_ID } from "../../../commandTemplates/data/commandTemplates.const";
 import { Command } from "../../../commandTemplates/models/command.enum";
 import { getTemplateDefinitionsByCommand } from "../../../commandTemplates/utils/utils";
-import { BadgeType } from "../../Badge";
+import { ChatBadgeType } from "../../ChatBadge";
 import { SYSTEM_BADGE_SECRET } from "../constants";
 import { matchCommandTemplate } from "./utils";
 
@@ -24,17 +24,18 @@ interface TextInput {
 }
 
 interface BaseBadgeInput {
-    badgeType: BadgeType;
-    value: string;
+    badgeType: ChatBadgeType;
+    display: string;
+    rawValue?: string;
 }
 
 interface CommandBadgeInput extends BaseBadgeInput {
-    badgeType: BadgeType.Command;
+    badgeType: ChatBadgeType.Command;
     command: Command;
 }
 
 interface TagBadgeInput extends BaseBadgeInput {
-    badgeType: BadgeType.Tag;
+    badgeType: ChatBadgeType.Tag;
 }
 
 type BadgeInput = CommandBadgeInput | TagBadgeInput;
@@ -152,10 +153,10 @@ export const stringifyInputArrayWithBadges = (inputs: Input[]): string => {
             // Common attributes for all system badges
             const baseAttrs = `data-system="true" data-auth="${SYSTEM_BADGE_SECRET}"`;
 
-            if (input.badgeType === BadgeType.Command) {
-                return `<badge ${baseAttrs} data-type="command" data-command="${input.command}">${input.value}</badge>`;
-            } else if (input.badgeType === BadgeType.Tag) {
-                return `<badge ${baseAttrs} data-type="tag">${input.value}</badge>`;
+            if (input.badgeType === ChatBadgeType.Command) {
+                return `<badge ${baseAttrs} data-type="command" data-command="${input.command}">${input.display}</badge>`;
+            } else if (input.badgeType === ChatBadgeType.Tag) {
+                return `<badge ${baseAttrs} data-type="tag">${input.display}</badge>`;
             }
 
             return '';
@@ -166,7 +167,7 @@ export const stringifyInputArrayWithBadges = (inputs: Input[]): string => {
 const isCommandBadge = (input: Input): input is CommandBadgeInput => {
     return (
         'badgeType' in input &&
-        input.badgeType === BadgeType.Command &&
+        input.badgeType === ChatBadgeType.Command &&
         'command' in input
     );
 }
@@ -176,8 +177,8 @@ const stringifyInputArray = (inputs: Input[]): string => {
         .map(input => {
             if ('content' in input) {
                 return input.content;
-            } else if (input.badgeType === BadgeType.Tag) {
-                return input.value;
+            } else if (input.badgeType === ChatBadgeType.Tag) {
+                return input.rawValue ?? input.display;
             }
             return '';
         })

@@ -7,9 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Command } from "../../../commandTemplates/models/command.enum";
 import { getCommand } from "../../../commandTemplates/utils/utils";
-import { BadgeType } from "../../Badge";
+import { ChatBadgeType } from "../../ChatBadge";
 import { Input } from "./inputUtils";
 
 /**
@@ -367,28 +366,31 @@ export const getContentAsInputList = (rootEl: HTMLDivElement): Input[] => {
             const el = node as HTMLElement;
 
             // If this node has a 'data-badge-type', treat it as a badge
-            const badgeType = el.dataset.badgeType as BadgeType | undefined;
+            const badgeType = el.dataset.badgeType as ChatBadgeType | undefined;
             if (badgeType) {
-                const value = el.textContent ?? "";
+                const display = el.textContent ?? "";
+                const rawValue = el.dataset.rawValue;
                 switch (badgeType) {
-                    case BadgeType.Command:
-                        const command = getCommand(value);
+                    case ChatBadgeType.Command:
+                        const command = getCommand(display);
                         if (command) {
                             results.push({
-                                badgeType: BadgeType.Command,
+                                badgeType: ChatBadgeType.Command,
                                 command: command,
-                                value: value
+                                display: display,
+                                rawValue: rawValue,
                             });
                         } else {
                             results.push({
-                                content: value
+                                content: display,
                             });
                         }
                         break;
-                    case BadgeType.Tag:
+                    case ChatBadgeType.Tag:
                         results.push({
-                            badgeType: BadgeType.Tag,
-                            value,
+                            badgeType: ChatBadgeType.Tag,
+                            display: display,
+                            rawValue: rawValue,
                         });
                         break;
                 }

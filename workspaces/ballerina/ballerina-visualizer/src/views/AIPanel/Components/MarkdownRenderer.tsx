@@ -13,7 +13,7 @@ import rehypeRaw from "rehype-raw";
 import hljs from "highlight.js";
 import yaml from "highlight.js/lib/languages/yaml";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import Badge from "./Badge";
+import Badge from "./ChatBadge";
 // @ts-ignore
 import ballerina from "../../../languages/ballerina.js";
 import { SYSTEM_BADGE_SECRET, SYSTEM_ERROR_SECRET } from "./AIChatInput/constants";

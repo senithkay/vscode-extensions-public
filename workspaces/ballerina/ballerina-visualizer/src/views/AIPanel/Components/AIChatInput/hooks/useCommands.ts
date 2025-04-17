@@ -12,7 +12,7 @@ import { Command } from "../../../commandTemplates/models/command.enum";
 import { getAllCommands, getTags, getTemplateDefinitionsByCommand } from "../../../commandTemplates/utils/utils";
 import { CommandTemplates, WILDCARD_TEMPLATE_ID } from "../../../commandTemplates/data/commandTemplates.const";
 import { Tag } from "../../../commandTemplates/models/tag.model";
-import { matchCommandTemplate } from "../utils/utils";
+import { matchCommandTemplate } from "../utils/utils"
 import { PlaceholderTagMap } from "../../../commandTemplates/data/placeholderTags.const";
 
 export enum SuggestionType {
@@ -33,6 +33,7 @@ export interface CommandSuggestion extends BaseSuggestion {
 
 export interface TagSuggestion extends BaseSuggestion {
     type: SuggestionType.Tag;
+    rawValue: string;
 }
 
 export interface TemplateSuggestion extends BaseSuggestion {
@@ -108,6 +109,7 @@ export function useCommands({ commandTemplate }: UseCommandsParams) {
                         .map(tag => ({
                             text: tag.display,
                             type: SuggestionType.Tag,
+                            rawValue: tag.value,
                         }));
 
                 if (activeCommand) {
@@ -146,6 +148,7 @@ export function useCommands({ commandTemplate }: UseCommandsParams) {
                                     .map(tag => ({
                                         text: tag.display,
                                         type: SuggestionType.Tag,
+                                        rawValue: tag.value,
                                     }));
                             }
                         }
