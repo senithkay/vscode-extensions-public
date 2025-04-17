@@ -576,8 +576,7 @@ export const getStateMachine = (projectUri: string): {
             langClient: null,
             errors: [],
             view: MACHINE_VIEW.Welcome
-        }));
-        stateService.start();
+        })).start();
         stateMachines.set(projectUri, stateService);
     }
     stateService = stateMachines.get(projectUri);
@@ -609,7 +608,18 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
 
     if (viewLocation?.projectUri) {
         const stateMachine = getStateMachine(viewLocation?.projectUri);
-        stateMachine.service().send({ type: type, viewLocation: viewLocation });
+        const state = stateMachine.state();
+        if (state === 'initialize') {
+            const listener = (state) => {
+                if (state?.value?.ready === "viewReady") {
+                    stateMachine.service().send({ type: type, viewLocation: viewLocation });
+                    stateMachine.service().off(listener);
+                }
+            };
+            stateMachine.service().onTransition(listener);
+        } else {
+            stateMachine.service().send({ type: type, viewLocation: viewLocation });
+        }
     } else {
         const workspaces = vscode.workspace.workspaceFolders;
         if (!workspaces || workspaces.length === 0) {

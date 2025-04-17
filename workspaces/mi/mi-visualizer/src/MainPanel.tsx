@@ -99,19 +99,18 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
     const [machineView, setMachineView] = useState<MACHINE_VIEW>();
     const [showNavigator, setShowNavigator] = useState<boolean>(true);
     const [formState, setFormState] = useState<PopupMachineStateValue>('initialize');
-    const [stateUpdated, setStateUpdated] = React.useState<boolean>(false);
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
-            setStateUpdated(!stateUpdated);
+            fetchContext();
         }
         if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
             handleResetError();
-            setStateUpdated(!stateUpdated);
+            fetchContext();
         }
         if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
-            setStateUpdated(!stateUpdated);
+            fetchContext();
         }
     });
 
@@ -120,8 +119,8 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
     });
 
     useEffect(() => {
-        fetchContext();
-    }, [stateUpdated]);
+        rpcClient.webviewReady();
+    }, []);
 
     useEffect(() => {
         rpcClient.getVisualizerState().then((machineView) => {
