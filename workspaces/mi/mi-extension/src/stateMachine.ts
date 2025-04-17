@@ -607,6 +607,14 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     updateProjectExplorer(viewLocation);
 
     if (viewLocation?.projectUri) {
+        if (!webviews.has(viewLocation.projectUri)) {
+            const panel = new VisualizerWebview(viewLocation.view!, viewLocation.projectUri, extension.webviewReveal);
+            webviews.set(viewLocation.projectUri!, panel);
+        } else {
+            const webview = webviews.get(viewLocation.projectUri)?.getWebview();
+            webview?.reveal(ViewColumn.Active);
+        }
+
         const stateMachine = getStateMachine(viewLocation?.projectUri);
         const state = stateMachine.state();
         if (state === 'initialize') {
