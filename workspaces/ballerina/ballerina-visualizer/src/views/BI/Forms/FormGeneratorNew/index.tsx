@@ -406,9 +406,10 @@ export function FormGeneratorNew(props: FormProps) {
         typeHelperHeight: HelperPaneHeight,
         closeCompletions: () => void
     ) => {
+        const formField = fieldsValues.find(f => f.key === fieldKey);
         const handleCreateNewType = (typeName: string) => {
             closeCompletions();
-            setTypeEditorState({ isOpen: true, newTypeValue: typeName });
+            setTypeEditorState({ isOpen: true, newTypeValue: typeName, field: formField });
         }
 
         return getTypeHelper({

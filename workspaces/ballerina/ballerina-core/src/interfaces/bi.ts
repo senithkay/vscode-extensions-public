@@ -307,6 +307,8 @@ export type NodeKind =
     | "RESOURCE_ACTION_CALL"
     | "RETURN"
     | "EXPRESSION"
+    | "LV_EXPRESSION"
+    | "ACTION_OR_EXPRESSION"
     | "RAW_TEMPLATE"
     | "ERROR_HANDLER"
     | "WHILE"

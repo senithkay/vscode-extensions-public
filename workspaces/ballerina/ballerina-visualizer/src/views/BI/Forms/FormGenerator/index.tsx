@@ -51,6 +51,7 @@ import {
     convertToFnSignature,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
+    filterUnsupportedDiagnostics,
     getFormProperties,
     getImportsForFormFields,
     getInfoFromExpressionValue,
@@ -486,7 +487,11 @@ export function FormGenerator(props: FormProps) {
                         },
                     });
     
-                    const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                    let uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+
+                    // HACK: filter unknown module and undefined type diagnostics for local connections
+                    uniqueDiagnostics = filterUnsupportedDiagnostics(uniqueDiagnostics);
+
                     setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
                 } catch (error) {
                     // Remove diagnostics if LS crashes
@@ -591,7 +596,7 @@ export function FormGenerator(props: FormProps) {
     ) => {
         const handleCreateNewType = (typeName: string) => {
             closeCompletions();
-            setTypeEditorState({ isOpen: true, newTypeValue: typeName });
+            setTypeEditorState({ isOpen: true, newTypeValue: typeName, fieldKey: fieldKey });
         }
 
         return getTypeHelper({

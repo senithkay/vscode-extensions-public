@@ -2,6 +2,12 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.1.5] - 2025-04-11
+
+### Improvements
+
+- UI Improvements to the MI Copilot for Enhanced User Experience
+
 ## [2.1.4] - 2025-04-04
 
 ### Fixed

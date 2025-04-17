@@ -2,7 +2,7 @@
     "name": "ballerina-integrator",
     "displayName": "Ballerina Integrator",
     "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
-    "version": "0.9.8",
+    "version": "1.0.0",
     "publisher": "wso2",
     "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
@@ -39,8 +39,13 @@
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\n[Update Now](command:ballerina.update-ballerina)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
-                "when": "BI.status == 'updateNeed'"
+                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\n[Update Now](command:ballerina.update-ballerina)\nPlease restart VS Code after updating the ballerina distribution.\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "when": "BI.status == 'updateNeed' && BI.distribution == 'setByBI'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\nPlease restart VS Code after updating the ballerina distribution.\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "when": "BI.status == 'updateNeed' && BI.distribution == 'setByUser'"
             },
             {
                 "view": "BI.project-explorer",

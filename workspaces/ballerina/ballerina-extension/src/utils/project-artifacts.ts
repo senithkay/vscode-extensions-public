@@ -77,8 +77,9 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
     // Current project structure
     const currentProjectStructure: ProjectStructureResponse = StateMachine.context().projectStructure;
     if (publishedArtifacts && currentProjectStructure) {
-        const tmpUri = URI.file(tmpdir()).toString();
-        if (publishedArtifacts.uri.includes(tmpUri)) {
+        const tmpUri = URI.file(tmpdir());
+        const publishedArtifactsUri = URI.parse(publishedArtifacts.uri);
+        if (publishedArtifactsUri.path.toLowerCase().includes(tmpUri.path.toLowerCase())) {
             // Skip the temp dirs
             return;
         }
@@ -86,7 +87,7 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
         StateMachine.setReadyMode();
         // Skip if the user is in diagram view
         const currentView = StateMachine.context().view;
-        const skipOpeningViews = [MACHINE_VIEW.BIDiagram, MACHINE_VIEW.ServiceDesigner, MACHINE_VIEW.GraphQLDiagram];
+        const skipOpeningViews = [MACHINE_VIEW.BIDiagram, MACHINE_VIEW.ServiceDesigner, MACHINE_VIEW.GraphQLDiagram, MACHINE_VIEW.DataMapper];
         if (entryLocation) {
             const location: VisualizerLocation = {
                 documentUri: entryLocation?.path,

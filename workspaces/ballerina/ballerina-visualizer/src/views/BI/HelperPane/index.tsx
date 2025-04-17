@@ -95,6 +95,7 @@ const HelperPaneEl = ({
                                 onChange={handleChange}
                                 currentValue={currentValue}
                                 recordTypeField={recordTypeField}
+                                onClose={onClose}
                             />
                         </HelperPane.PanelView>
                     )}
