@@ -91,24 +91,7 @@ export default function createTests() {
     async function testBasicMappings() {
       console.log('Testing Basic Mappings');
 
-      // let dm: DataMapper;
-
-
-      // console.log('- Load schemas from JSON data');
-
-      // if (NEED_INITIAL_SETUP) {
-
-      //   dm = new DataMapper(page.page, dmName);
-      //   await dm.init();
-      //   await dm.loadJsonFromCompFolder('basic');
-      //   expect(dm.verifyTsFileContent('basic/init.ts')).toBeTruthy();
-      // } else {
-      //   overwriteTsFile('basic/init.ts');
-      //   const projectExplorer = new ProjectExplorer(page.page);
-      //   await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', dmName], true);
-      //   dm = new DataMapper(page.page, dmName);
-      //   await dm.init();
-      // }
+     
 
       const projectExplorer = new ProjectExplorer(page.page);
       await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', dmName], true);
@@ -274,16 +257,6 @@ export default function createTests() {
 
       expect(dm.verifyTsFileContent('basic/del.ts')).toBeTruthy();
 
-      // await dmWebView.locator('#nav-bar-main').locator('vscode-button[title="Go Back"]').click();
-      // await page.page.getByRole('tab', { name: 'Resource View' }).waitFor();
-      
-
-
-      // if (NEED_INITIAL_SETUP) {
-      //   await dmWebView.locator('vscode-button[title="Go Back"]').click();
-      // }
-
-
     }
 
     async function testArrayMappings() {
@@ -361,7 +334,7 @@ export default function createTests() {
       expect(dm.verifyTsFileContent('array/map1.ts')).toBeTruthy();
 
 
-      console.log('Test array mapping delete - Part 1');
+      console.log('- Test delete');
 
       const loc2 = dmWebView.getByTestId('array-connector-node-objectOutput.oPrimMapFn1D.IN');
       await loc2.locator('.codicon-trash').click({ force: true });
@@ -478,7 +451,7 @@ export default function createTests() {
       expect(dm.verifyTsFileContent('array/map2.ts')).toBeTruthy();
 
 
-      console.log('Test array mapping delete - Part 2');
+      console.log('- Test delete');
 
       const loc6 = dmWebView.getByTestId('link-from-input.iInitPrim.OUT-to-objectOutput.oInitObj1D.0.p1.IN');
       await loc6.click({ force: true });
@@ -527,9 +500,6 @@ export default function createTests() {
     }
 
     async function testImportOptions() {
-
-
-      // await page.page.getByRole('tab', { name: 'Project Overview' }).waitFor();
 
       console.log('Testing Import Options');
 
