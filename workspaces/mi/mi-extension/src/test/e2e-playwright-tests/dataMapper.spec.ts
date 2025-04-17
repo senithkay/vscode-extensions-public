@@ -387,11 +387,6 @@ export default function createTests() {
       await dm.mapFields('input.iInitPrim', 'objectOutput.oInitObj1D.0.p1');
       await dmWebView.getByTestId('link-from-input.iInitPrim.OUT-to-objectOutput.oInitObj1D.0.p1.IN').waitFor({ state: 'attached' });
 
-      // Fails intermittently
-      // await dm.selectConfigMenuItem('objectOutput.oInitObj1D.0.p2', 'Initialize Array With Element');
-      // await dm.mapFields('input.iInitPrim', 'objectOutput.oInitObj1D.0.p2.0');
-      // await dmWebView.getByTestId('link-from-input.iInitPrim.OUT-to-objectOutput.oInitObj1D.0.p2.0.IN').waitFor({ state: 'attached' });
-
       await dmWebView.getByTestId('array-widget-objectOutput.oInitObj1D.IN-values').getByText('Add Element').click();
       await dm.waitForProgressEnd();
       await dm.mapFields('input.iInitObj', 'objectOutput.oInitObj1D.1', 'menu-item-o2o-direct');
@@ -439,13 +434,6 @@ export default function createTests() {
       await dmWebView.getByTestId('expression-label-for-input.iInitPrim.OUT-to-objectOutput.oInitObj1D.0.p1.IN')
         .locator('.codicon-trash').click({ force: true });
       await loc6.waitFor({ state: 'detached' });
-
-      // Fails intermittently
-      // const loc7 = dmWebView.getByTestId('link-from-input.iInitPrim.OUT-to-objectOutput.oInitObj1D.0.p2.0.IN');
-      // await loc7.click({ force: true });
-      // await dmWebView.getByTestId('expression-label-for-input.iInitPrim.OUT-to-objectOutput.oInitObj1D.0.p2.0.IN')
-      //   .locator('.codicon-trash').click();
-      // await loc7.waitFor({ state: 'detached' });
 
       const loc8 = dmWebView.getByTestId('link-from-input.iInitObj.OUT-to-objectOutput.oInitObj1D.1.IN');
       await loc8.click({ force: true });
