@@ -107,7 +107,7 @@ const ActionButton = styled.button`
     }
 `;
 
-interface TagOptions {
+export interface TagOptions {
     placeholderTags: PlaceholderTagMap;
     loadGeneralTags: () => Promise<Tag[]>;
     injectPlaceholderTags: (command: Command, templateId: string) => Promise<void>;
@@ -137,7 +137,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
         const [generalTags, setGeneralTags] = useState<Tag[]>([]);
         const [placeholderTagsRefreshKey, setPlaceholderTagsRefreshKey] = useState<number>(0);
 
-        // Refs
+        // refs
         const inputRef = useRef<StyledInputRef>(null);
         const containerRef = useRef<HTMLDivElement>(null);
         const activeSuggestionRef = useRef<HTMLLIElement | null>(null);

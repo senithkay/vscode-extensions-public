@@ -8,3 +8,4 @@
  */
 
 export const SYSTEM_BADGE_SECRET = "xf42Zkpq71";
+export const SYSTEM_ERROR_SECRET = "Yf17rkoL52";

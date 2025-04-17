@@ -26,41 +26,45 @@ import {
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Icon, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import AIChatInput, { AIChatInputRef } from "./Components/AIChatInput/AIChatInput";
-import ProgressTextSegment from "./Components/ProgressTextSegment";
-import RoleContainer, { PreviewContainerDefault } from "./Components/RoleContainter";
+import AIChatInput, { AIChatInputRef } from "../AIChatInput/AIChatInput";
+import ProgressTextSegment from "../ProgressTextSegment";
+import RoleContainer, { PreviewContainerDefault } from "../RoleContainter";
 import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
-import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
-import { findRegexMatches } from "../../utils/utils";
+import { findRegexMatches } from "../../../../utils/utils";
 
-import { Footer, FlexRow, AIChatView, Header, HeaderButtons, ChatMessage, Welcome, Badge } from "./styles";
-import ReferenceDropdown from "./Components/ReferenceDropdown";
-import AccordionItem from "./Components/TestScenarioSegment";
+import { AIChatView, Header, HeaderButtons, ChatMessage, Welcome, Badge } from "../../styles";
+import ReferenceDropdown from "../ReferenceDropdown";
+import AccordionItem from "../TestScenarioSegment";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { TestGeneratorIntermediaryState } from "./features/testGenerator";
+import { TestGeneratorIntermediaryState } from "../../features/testGenerator";
 import {
     CopilotContentBlockContent,
     CopilotErrorContent,
     CopilotEvent,
     hasCodeBlocks,
     parseCopilotSSEEvent,
-} from "./utils/sse_utils";
-import MarkdownRenderer from "./Components/MarkdownRenderer";
-import { CodeSection } from "./Components/CodeSection";
-import { CodeSegment } from "./Components/CodeSegment";
-import ErrorBox from "./Components/ErrorBox";
-import { Input, parseInput, stringifyInputArrayWithBadges } from "./Components/AIChatInput/utils/inputUtils";
+} from "../../utils/sseUtils";
+import MarkdownRenderer from "../MarkdownRenderer";
+import { CodeSection } from "../CodeSection";
+import ErrorBox from "../ErrorBox";
+import { Input, parseInput, stringifyInputArrayWithBadges } from "../AIChatInput/utils/inputUtils";
 import {
     commandTemplates,
     NATURAL_PROGRAMMING_TEMPLATES,
     suggestedCommandTemplates,
     WILDCARD_TEMPLATE_ID,
-} from "./commandTemplates/data/commandTemplates.const";
-import { Tag } from "./commandTemplates/models/tag.model";
-import { placeholderTags } from "./commandTemplates/data/placeholderTags.const";
-import { getTemplateById, getTemplateTextById, injectTags, upsertTemplate } from "./commandTemplates/utils/utils";
-import { Command } from "./commandTemplates/models/command.enum";
-import { acceptResolver, handleAttachmentSelection } from "./utils/attachment/attachmentManager";
+} from "../../commandTemplates/data/commandTemplates.const";
+import { Tag } from "../../commandTemplates/models/tag.model";
+import { placeholderTags } from "../../commandTemplates/data/placeholderTags.const";
+import { getTemplateById, getTemplateTextById, injectTags, upsertTemplate } from "../../commandTemplates/utils/utils";
+import { Command } from "../../commandTemplates/models/command.enum";
+import { acceptResolver, handleAttachmentSelection } from "../../utils/attachment/attachmentManager";
+import { abortFetchWithAuth, fetchWithAuth } from "../../utils/networkUtils";
+import { SYSTEM_ERROR_SECRET } from "../AIChatInput/constants";
+import { CodeSegment } from "../CodeSegment";
+import AttachmentBox, { AttachmentsContainer } from "../AttachmentBox";
+import Footer from "./Footer";
+import { useFooterLogic } from "./Footer/useFooterLogic";
 
 /* REFACTORED CODE START [1] */
 /* REFACTORED CODE END [1] */
@@ -104,9 +108,6 @@ var projectUuid = "";
 var backendRootUri = "";
 var chatLocation = "";
 
-let controller = new AbortController();
-let signal = controller.signal;
-
 var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
@@ -131,7 +132,6 @@ const GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED = GENERATE_CODE_AG
 export function AIChat() {
     const { rpcClient } = useRpcContext();
     const [userInput, setUserInput] = useState("");
-    const [state, setState] = useState<VisualizerLocation | null>(null);
     const [messages, setMessages] = useState<Array<{ role: string; content: string; type: string }>>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
@@ -154,6 +154,12 @@ export function AIChat() {
     const messagesEndRef = React.createRef<HTMLDivElement>();
 
     /* REFACTORED CODE START [2] */
+    // custom hooks: commands + attachments
+    const { loadGeneralTags, injectPlaceholderTags } = useFooterLogic({
+        rpcClient,
+    });
+
+    // Initialize the AIChatInput component with the default command template
     useEffect(function insertInitialInputContent() {
         aiChatInputRef.current?.setInputContent({
             type: "command-template",
@@ -318,15 +324,6 @@ export function AIChat() {
     }
 
     useEffect(() => {
-        // This code will run after isCodeLoading updates
-        console.log(isCodeLoading);
-    }, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
-
-    useEffect(() => {
-        console.log(isSyntaxError);
-    }, [isSyntaxError]);
-
-    useEffect(() => {
         generateNaturalProgrammingTemplate(isReqFileExists);
     }, [isReqFileExists]);
 
@@ -383,23 +380,27 @@ export function AIChat() {
         try {
             await processContent(token, content);
         } catch (error: any) {
-            console.error("Failed to process content:", error);
             setIsLoading(false);
             setIsCodeLoading(false);
             if (error.name === "AbortError") {
-                // Don't show an error message or show a user-friendly message
                 setMessages((prevMessages) => {
                     const newMessages = [...prevMessages];
-                    newMessages[newMessages.length - 1].content += `<error>Generation stopped by the user</error>`;
+                    newMessages[
+                        newMessages.length - 1
+                    ].content += `\n\n<error data-system="true" data-auth="${SYSTEM_ERROR_SECRET}">Generation stopped by the user</error>`;
                     return newMessages;
                 });
             } else {
                 setMessages((prevMessages) => {
                     const newMessages = [...prevMessages];
                     if (error && "message" in error) {
-                        newMessages[newMessages.length - 1].content += `<error>${error.message}</error>`;
+                        newMessages[
+                            newMessages.length - 1
+                        ].content += `\n\n<error data-system="true" data-auth="${SYSTEM_ERROR_SECRET}">${error.message}</error>`;
                     } else {
-                        newMessages[newMessages.length - 1].content += `<error>${error}</error>`;
+                        newMessages[
+                            newMessages.length - 1
+                        ].content += `\n\n<error data-system="true" data-auth="${SYSTEM_ERROR_SECRET}">${error}</error>`;
                     }
                     return newMessages;
                 });
@@ -432,7 +433,6 @@ export function AIChat() {
         ]);
 
         await handleSendQuery(content);
-        setUserInput("/generate ");
     }
 
     function getUserMessage(content: [string, Attachment[]]): string {
@@ -461,7 +461,7 @@ export function AIChat() {
                 case Command.NaturalProgramming: {
                     switch (parsedInput.templateId) {
                         case "code-doc-drift-check":
-                            await processLLMDiagnostics(token, attachments, userInput);
+                            await processLLMDiagnostics(token, attachments, inputText);
                             break;
                         case "generate-code-from-following-requirements":
                             await rpcClient.getAiPanelRpcClient().updateRequirementSpecification({
@@ -524,7 +524,7 @@ export function AIChat() {
                     switch (parsedInput.templateId) {
                         case "tests-for-service":
                             await processTestGeneration(
-                                [userInput, attachments],
+                                [inputText, attachments],
                                 token,
                                 "service",
                                 parsedInput.placeholderValues.servicename
@@ -532,7 +532,7 @@ export function AIChat() {
                             break;
                         case "tests-for-function":
                             await processTestGeneration(
-                                [userInput, attachments],
+                                [inputText, attachments],
                                 token,
                                 "function",
                                 parsedInput.placeholderValues.methodPath
@@ -545,7 +545,7 @@ export function AIChat() {
                     switch (parsedInput.templateId) {
                         case "mappings-for-records":
                             await processMappingParameters(
-                                userInput,
+                                inputText,
                                 token,
                                 {
                                     inputRecord: parsedInput.placeholderValues.inputRecords
@@ -559,7 +559,7 @@ export function AIChat() {
                             break;
                         case "mappings-for-function":
                             await processMappingParameters(
-                                userInput,
+                                inputText,
                                 token,
                                 {
                                     inputRecord: [],
@@ -576,7 +576,7 @@ export function AIChat() {
                     switch (parsedInput.templateId) {
                         case "types-for-attached":
                             if (attachments) {
-                                await processContextTypeCreation(userInput, token, attachments);
+                                await processContextTypeCreation(inputText, token, attachments);
                                 break;
                             } else {
                                 throw new Error("Error: Missing Attach context");
@@ -653,35 +653,6 @@ export function AIChat() {
         setIsSyntaxError(false);
     }
 
-    // async function loadMentions(command: string, template: string): Promise<string[]> {
-    //     switch (command) {
-    //         case COMMAND_GENERATE: {
-    //             return [];
-    //         }
-    //         case COMMAND_TESTS: {
-    //             if (template.includes("service")) {
-    //                 return (await rpcClient.getAiPanelRpcClient().getServiceNames()).mentions;
-    //             } else if (template.includes("resource")) {
-    //                 return (await rpcClient.getAiPanelRpcClient().getResourceMethodAndPaths()).mentions;
-    //             }
-    //             return [];
-    //         }
-    //         case COMMAND_DATAMAP: {
-    //             if (template.includes("<recordname(s)>") && template.includes("<recordname>")) {
-    //                 return (await rpcClient.getBIDiagramRpcClient().getRecordNames()).mentions;
-    //             } else {
-    //                 return (await rpcClient.getBIDiagramRpcClient().getFunctionNames()).mentions;
-    //             }
-    //         }
-    //         case COMMAND_TYPECREATOR: {
-    //             return [];
-    //         }
-    //         case COMMAND_DOCUMENTATION: {
-    //             return [];
-    //         }
-    //     }
-    // }
-
     async function processCodeGeneration(token: string, content: [string, Attachment[], string], message: string) {
         const [useCase, attachments, operationType] = content;
 
@@ -710,19 +681,13 @@ export function AIChat() {
         requestBody.fileAttachmentContents = fileAttatchments;
         lastAttatchmentsRef.current = fileAttatchments;
 
-        const response = await fetchWithToken(
-            backendRootUri + "/code",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(requestBody),
-                signal: signal,
-            },
-            rpcClient
-        );
+        const response = await fetchWithAuth({
+            url: backendRootUri + "/code",
+            method: "POST",
+            token: token,
+            body: requestBody,
+            rpcClient: rpcClient,
+        });
 
         if (!response.ok) {
             if (response.status > 400 && response.status < 500) {
@@ -823,19 +788,13 @@ export function AIChat() {
                     if (attachments.length > 0) {
                         newReqBody.fileAttachmentContents = fileAttatchments;
                     }
-                    const response = await fetchWithToken(
-                        backendRootUri + "/code/repair",
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${token}`,
-                            },
-                            body: JSON.stringify(newReqBody),
-                            signal: signal,
-                        },
-                        rpcClient
-                    );
+                    const response = await fetchWithAuth({
+                        url: backendRootUri + "/code/repair",
+                        method: "POST",
+                        token: token,
+                        body: newReqBody,
+                        rpcClient: rpcClient,
+                    });
                     if (!response.ok) {
                         setIsCodeLoading(false);
                         console.log("errr");
@@ -1104,19 +1063,13 @@ export function AIChat() {
         setIsCodeAdded(true);
 
         if (await rpcClient.getAiPanelRpcClient().isNaturalProgrammingDirectoryExists(chatLocation)) {
-            fetchWithToken(
-                backendRootUri + "/prompt/summarize",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ chats: updatedChatHistory, existingChatSummary: developerMdContent }),
-                    signal: signal,
-                },
-                rpcClient
-            )
+            fetchWithAuth({
+                url: backendRootUri + "/prompt/summarize",
+                method: "POST",
+                token: token,
+                body: { chats: updatedChatHistory, existingChatSummary: developerMdContent },
+                rpcClient: rpcClient,
+            })
                 .then(async (response) => {
                     const chatSummaryResponseStr = await streamToString(response.body);
                     await rpcClient
@@ -1214,19 +1167,13 @@ export function AIChat() {
                 targetSource: targetSource,
             };
 
-            const response = await fetchWithToken(
-                backendRootUri + "/testplan",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(requestBody),
-                    signal: signal,
-                },
-                rpcClient
-            );
+            const response = await fetchWithAuth({
+                url: backendRootUri + "/testplan",
+                method: "POST",
+                token: token,
+                body: requestBody,
+                rpcClient: rpcClient,
+            });
 
             if (!response.ok) {
                 handleErrorResponse(response);
@@ -1916,20 +1863,13 @@ export function AIChat() {
             sourceFiles: transformProjectSource(project),
             packageName: project.projectName,
         };
-
-        const response = await fetchWithToken(
-            backendRootUri + "/healthcare",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(requestBody),
-                signal: signal,
-            },
-            rpcClient
-        );
+        const response = await fetchWithAuth({
+            url: backendRootUri + "/healthcare",
+            method: "POST",
+            token: token,
+            body: requestBody,
+            rpcClient: rpcClient,
+        });
 
         if (!response.ok) {
             if (response.status > 400 && response.status < 500) {
@@ -2040,19 +1980,13 @@ export function AIChat() {
             chatHistory: chatArray,
         };
 
-        const response = await fetchWithToken(
-            backendRootUri + "/openapi",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(requestBody),
-                signal: signal,
-            },
-            rpcClient
-        );
+        const response = await fetchWithAuth({
+            url: backendRootUri + "/openapi",
+            method: "POST",
+            token: token,
+            body: requestBody,
+            rpcClient: rpcClient,
+        });
 
         if (!response.ok) {
             if (response.status > 400 && response.status < 500) {
@@ -2157,14 +2091,10 @@ export function AIChat() {
     }
 
     async function handleStop() {
-        // Abort the fetch
-        controller.abort();
+        // Abort any ongoing requests
+        abortFetchWithAuth();
         // Abort test generation if running
         rpcClient.getAiPanelRpcClient().abortTestGeneration();
-
-        // Create a new AbortController for future fetches
-        controller = new AbortController();
-        signal = controller.signal;
 
         setIsLoading(false);
         setIsCodeLoading(false);
@@ -2186,10 +2116,6 @@ export function AIChat() {
 
         setMessages((prevMessages) => []);
 
-        //generateSuggestions();
-
-        //clear the local storage
-        setUserInput("");
         localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
     }
 
@@ -2366,19 +2292,13 @@ export function AIChat() {
                 reqBody.fileAttachmentContents = attatchments;
             }
             console.log("Request body for repair:", reqBody);
-            const response = await fetchWithToken(
-                backendRootUri + "/code/repair",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(reqBody),
-                    signal: signal,
-                },
-                rpcClient
-            );
+            const response = await fetchWithAuth({
+                url: backendRootUri + "/code/repair",
+                method: "POST",
+                token: token,
+                body: reqBody,
+                rpcClient: rpcClient,
+            });
 
             if (!response.ok) {
                 throw new Error("Repair failed");
@@ -2415,38 +2335,6 @@ export function AIChat() {
         } finally {
             setIsCodeLoading(false);
             setIsLoading(false);
-        }
-    };
-
-    const loadGeneralTags = async (): Promise<Tag[]> => {
-        return [
-            {
-                display: "@test",
-                value: "test",
-                kind: "general",
-            },
-            {
-                display: "@second",
-                value: "second",
-                kind: "general",
-            },
-        ];
-    };
-
-    const injectPlaceholderTags = async (command: Command, templateId: string): Promise<void> => {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        switch (command) {
-            case Command.Tests:
-                switch (templateId) {
-                    case "tests-for-service":
-                        injectTags(command, templateId, "servicename", [
-                            {
-                                display: "@Tag",
-                                value: "Tag",
-                                kind: "placeholder-specific",
-                            },
-                        ]);
-                }
         }
     };
 
@@ -2629,8 +2517,6 @@ export function AIChat() {
                                             ))}
                                         </AttachmentsContainer>
                                     );
-                                } else if (segment.type === SegmentType.Error) {
-                                    return <ErrorBox key={i} message={segment.text} />;
                                 } else if (segment.type === SegmentType.InlineCode) {
                                     // return <BallerinaCodeBlock key={i} code={segment.text} />;
                                     return (
@@ -2698,7 +2584,7 @@ export function AIChat() {
                                     }
                                 } else {
                                     if (message.type === "Error") {
-                                        return <ErrorBox key={i} message={segment.text} />;
+                                        return <ErrorBox key={i}>{segment.text}</ErrorBox>;
                                     }
                                     return <MarkdownRenderer key={i} markdownContent={segment.text} />;
                                 }
@@ -2708,79 +2594,22 @@ export function AIChat() {
                 })}
                 <div ref={messagesEndRef} />
             </main>
-            <Footer>
-                {isLoading && isSuggestionLoading && (
-                    <div style={{ marginBottom: "5px" }}>Generating suggestions ...</div>
-                )}
-                {questionMessages.map((message, index) => (
-                    <>
-                        <div key={index} style={{ marginBottom: "5px" }}>
-                            <a
-                                href="#"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    //handleQuestionClick(message.content);
-                                }}
-                                style={{ textDecoration: "none" }}
-                            >
-                                <FlexRow>
-                                    <Icon name="wand-magic-sparkles-solid" sx="marginRight:5px" />
-                                    &nbsp;
-                                    <div>{message.content.replace(/^\d+\.\s/, "")}</div>
-                                </FlexRow>
-                            </a>
-                        </div>
-                    </>
-                ))}
-                {Array.isArray(otherMessages) && otherMessages.length === 0 && (
-                    <FlexRow>
-                        <div
-                            style={{
-                                marginTop: "16px",
-                                marginBottom: "6px",
-                                marginLeft: "2px",
-                                color: "var(--vscode-descriptionForeground)",
-                            }}
-                        >
-                            {suggestedCommandTemplates.map((content, index) => (
-                                <div key={index} style={{ marginBottom: "2px" }}>
-                                    <a
-                                        href="#"
-                                        style={{ textDecoration: "none", cursor: "pointer" }}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            aiChatInputRef.current.setInputContent(content);
-                                        }}
-                                    >
-                                        {content.type === "command-template"
-                                            ? `${content.command} ${content.text}`
-                                            : content.text}
-                                    </a>
-                                </div>
-                            ))}
-                        </div>
-                    </FlexRow>
-                )}
-                <FlexRow>
-                    <AIChatInput
-                        ref={aiChatInputRef}
-                        initialCommandTemplate={commandTemplates}
-                        tagOptions={{
-                            placeholderTags: placeholderTags,
-                            loadGeneralTags: loadGeneralTags,
-                            injectPlaceholderTags: injectPlaceholderTags,
-                        }}
-                        onSend={handleSend}
-                        onStop={handleStop}
-                        attachmentOptions={{
-                            multiple: true,
-                            acceptResolver: acceptResolver,
-                            handleAttachmentSelection: handleAttachmentSelection,
-                        }}
-                        isLoading={isLoading}
-                    />
-                </FlexRow>
-            </Footer>
+            <Footer
+                aiChatInputRef={aiChatInputRef}
+                tagOptions={{
+                    placeholderTags: placeholderTags,
+                    loadGeneralTags: loadGeneralTags,
+                    injectPlaceholderTags: injectPlaceholderTags,
+                }}
+                attachmentOptions={{
+                    multiple: true,
+                    acceptResolver: acceptResolver,
+                    handleAttachmentSelection: handleAttachmentSelection,
+                }}
+                onSend={handleSend}
+                onStop={handleStop}
+                isLoading={isLoading}
+            />
         </AIChatView>
     );
 }
@@ -2823,23 +2652,6 @@ export function replaceCodeBlocks(originalResp: string, newResp: string): string
     return finalResp;
 }
 
-function identifyLanguage(segmentText: string): string {
-    if (segmentText.includes("<") && segmentText.includes(">") && /(?:name|key)="([^"]+)"/.test(segmentText)) {
-        return "xml";
-    } else if (segmentText.includes("```toml")) {
-        return "toml";
-    } else if (segmentText.startsWith("```ballerina")) {
-        return "ballerina";
-    } else if (segmentText.startsWith("```")) {
-        // Split the string to get the first line
-        const firstLine = segmentText.split("\n", 1)[0];
-        // Remove the starting ```
-        return firstLine.substring(3).trim();
-    } else {
-        return "";
-    }
-}
-
 function extractRecordTypes(typesCode: string): { name: string; code: string }[] {
     const recordPattern = /\b(?:public|private)?\s*type\s+(\w+)\s+record\s+(?:{[|]?|[|]?{)[\s\S]*?;?\s*[}|]?;/g;
     const matches = [...typesCode.matchAll(recordPattern)];
@@ -2847,24 +2659,6 @@ function extractRecordTypes(typesCode: string): { name: string; code: string }[]
         name: match[1],
         code: match[0].trim(),
     }));
-}
-
-export async function fetchWithToken(url: string, options: RequestInit, rpcClient: any) {
-    let response = await fetch(url, options);
-    console.log("Response status: ", response.status);
-    if (response.status === 401) {
-        console.log("Token expired. Refreshing token...");
-        const newToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
-        console.log("refreshed token : " + newToken);
-        if (newToken) {
-            options.headers = {
-                ...options.headers,
-                Authorization: `Bearer ${newToken}`,
-            };
-            response = await fetch(url, options);
-        }
-    }
-    return response;
 }
 
 // Define the different event body types
@@ -2934,7 +2728,6 @@ export enum SegmentType {
     Text = "Text",
     Progress = "Progress",
     Attachment = "Attachment",
-    Error = "Error",
     InlineCode = "InlineCode",
     References = "References",
     TestScenario = "TestScenario",
@@ -3009,7 +2802,7 @@ export function splitContent(content: string): Segment[] {
 
     // Combined regex to capture either <code ...>```<language> code ```</code> or <progress>Text</progress>
     const regex =
-        /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>|<scenario>([\s\S]*?)<\/scenario>|<button\s+type="([^"]+)">([\s\S]*?)<\/button>|<inlineCode>([\s\S]*?)<inlineCode>|<references>([\s\S]*?)<references>/g;
+        /<code\s+filename="([^"]+)"(?:\s+type=("test"|"ai_map"))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<scenario>([\s\S]*?)<\/scenario>|<button\s+type="([^"]+)">([\s\S]*?)<\/button>|<inlineCode>([\s\S]*?)<inlineCode>|<references>([\s\S]*?)<references>/g;
     let match;
     let lastIndex = 0;
 
@@ -3073,18 +2866,8 @@ export function splitContent(content: string): Segment[] {
                 });
             }
         } else if (match[7]) {
-            // <error> block matched
-            const errorMessage = match[7].trim();
-
-            updateLastProgressSegmentLoading(true);
-            segments.push({
-                type: SegmentType.Error,
-                loading: false,
-                text: errorMessage,
-            });
-        } else if (match[8]) {
             // <scenario> block matched
-            const scenarioContent = match[8].trim();
+            const scenarioContent = match[7].trim();
 
             updateLastProgressSegmentLoading(true);
             segments.push({
@@ -3092,10 +2875,10 @@ export function splitContent(content: string): Segment[] {
                 loading: false,
                 text: scenarioContent,
             });
-        } else if (match[9]) {
+        } else if (match[8]) {
             // <button> block matched
-            const buttonType = match[9].trim();
-            const buttonContent = match[10].trim();
+            const buttonType = match[8].trim();
+            const buttonContent = match[9].trim();
 
             updateLastProgressSegmentLoading(true);
             segments.push({
@@ -3104,16 +2887,16 @@ export function splitContent(content: string): Segment[] {
                 text: buttonContent,
                 buttonType: buttonType,
             });
-        } else if (match[11]) {
+        } else if (match[10]) {
             segments.push({
                 type: SegmentType.InlineCode,
-                text: match[11].trim(),
+                text: match[10].trim(),
                 loading: false,
             });
-        } else if (match[12]) {
+        } else if (match[11]) {
             segments.push({
                 type: SegmentType.References,
-                text: match[12].trim(),
+                text: match[11].trim(),
                 loading: false,
             });
         }

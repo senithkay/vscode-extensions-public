@@ -16,18 +16,20 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import Badge from "./Badge";
 // @ts-ignore
 import ballerina from "../../../languages/ballerina.js";
-import { SYSTEM_BADGE_SECRET } from "./AIChatInput/constants";
+import { SYSTEM_BADGE_SECRET, SYSTEM_ERROR_SECRET } from "./AIChatInput/constants";
+import ErrorBox from "./ErrorBox";
 
 // Register custom languages with highlight.js
 hljs.registerLanguage("yaml", yaml);
 hljs.registerLanguage("ballerina", ballerina);
 
-// Escapes all HTML tags except the custom <badge> tag
-const escapeHtmlExceptBadge = (markdown: string): string => {
-    return markdown.replace(/<\/?(?!badge\b)(\w+)[^>]*>/g, (match) =>
+// Escapes all HTML tags except the custom  tag
+const escapeHtmlForCustomTags = (markdown: string): string => {
+    return markdown.replace(/<\/?(?!badge\b|error\b)(\w+)[^>]*>/g, (match) =>
         match.replace(/</g, "&lt;").replace(/>/g, "&gt;")
     );
 };
+
 
 interface MarkdownRendererProps {
     markdownContent: string;
@@ -147,10 +149,30 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
             // Fallback if position data is missing
             return `<badge>${children}</badge>`;
         },
+        error: ({ node, children }: any) => {
+            const propsMap = node?.properties || {};
+            const isSystemError = propsMap.dataSystem === "true" && propsMap.dataAuth === SYSTEM_ERROR_SECRET;
+
+            if (isSystemError) {
+                return <ErrorBox>{children}</ErrorBox>;
+            }
+
+            const start = node?.position?.start?.offset;
+            const end = node?.position?.end?.offset;
+
+            if (typeof start === "number" && typeof end === "number") {
+                const rawTag = markdownContent.slice(start, end);
+
+                return rawTag;
+            }
+
+            // Fallback if position data is missing
+            return `<error>${children}</error>`;
+        },
     });
 
     // Escape HTML except <badge> tags
-    const safeContent = escapeHtmlExceptBadge(markdownContent);
+    const safeContent = escapeHtmlForCustomTags(markdownContent);
 
     return (
         <div style={markdownWrapperStyle}>
