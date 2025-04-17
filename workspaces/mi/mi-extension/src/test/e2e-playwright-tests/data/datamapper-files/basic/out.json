@@ -1,23 +1,23 @@
 {
-  "dmO": "outputString1",
-  "dmeO": 123,
-  "moO": "outputString2",
-  "moeO": 456,
-  "odmO": {
-    "dm1": "nestedOutputString1",
-    "dm2": 789
+  "oPrimDirect": "outputString1",
+  "oPrimDirectErr": 123,
+  "oManyOne": "outputString2",
+  "oManyOneErr": 456,
+  "oObjDirect": {
+    "d1": "nestedOutputString1",
+    "d2": 789
   },
-  "odmeO": {
-    "dm1": "nestedOutputString2",
-    "dm2": "nestedOutputString3"
+  "oObjDirectErr": {
+    "d1": "nestedOutputString2",
+    "d2": "nestedOutputString3"
   },
-  "ompO": {
+  "oObjProp": {
     "p1": "parameter1",
     "p2": 10
   },
-  "cfnO": {
+  "oCustomFn": {
     "k1": "cfn1",
     "k3": 100
   },
-  "expO": "abc123"
+  "oExp": "abc123"
 }

@@ -5,25 +5,25 @@ import * as dmUtils from "./dm-utils";
 * inputType : "JSON",
 */
 interface Root {
-    dmI: string
-    dmeI: string
-    mo1I: string
-    mo2I: string
-    mo3I: string
-    moeI: boolean
-    odmI: {
-        dm1: string
-        dm2: number
+    iPrimDirect: string
+    iPrimDirectErr: string
+    iManyOne1: string
+    iManyOne2: string
+    iManyOne3: string
+    iManyOneErr: boolean
+    iObjDirect: {
+        d1: string
+        d2: number
     }
     opmI: {
         op1: string
         op2: string
     }
-    cfnI: {
+    iCustomFn: {
         k1: string
         k2: number
     }
-    expI: string
+    iExp: string
 }
 
 /*
@@ -31,27 +31,27 @@ interface Root {
 * outputType : "JSON",
 */
 interface OutputRoot {
-    dmO: string
-    dmeO: number
-    moO: string
-    moeO: number
-    odmO: {
-        dm1: string
-        dm2: number
+    oPrimDirect: string
+    oPrimDirectErr: number
+    oManyOne: string
+    oManyOneErr: number
+    oObjDirect: {
+        d1: string
+        d2: number
     }
-    odmeO: {
-        dm1: string
-        dm2: string
+    oObjDirectErr: {
+        d1: string
+        d2: string
     }
-    ompO: {
+    oObjProp: {
         p1: string
         p2: number
     }
-    cfnO: {
+    oCustomFn: {
         k1: string
         k3: number
     }
-    expO: string
+    oExp: string
 }
 
 
@@ -62,21 +62,21 @@ interface OutputRoot {
 */
 export function mapFunction(input: Root): OutputRoot {
     return {
-        dmO: input.dmI,
-        dmeO: input.dmeI,
-        moO: input.mo1I + input.mo2I + input.mo3I,
-        moeO: input.mo2I + input.moeI + input.mo3I,
-        odmO: input.odmI,
-        odmeO: input.odmI,
-        ompO: {
-            p1: input.odmI.dm1 + "HI",
+        oPrimDirect: input.iPrimDirect,
+        oPrimDirectErr: input.iPrimDirectErr,
+        oManyOne: input.iManyOne1 + input.iManyOne2 + input.iManyOne3,
+        oManyOneErr: input.iManyOne2 + input.iManyOneErr + input.iManyOne3,
+        oObjDirect: input.iObjDirect,
+        oObjDirectErr: input.iObjDirect,
+        oObjProp: {
+            p1: input.iObjDirect.d1 + "HI",
             p2: input.opmI.op2
         },
-        expO: dmUtils.toUppercase(input.expI),
-        cfnO: mapObjectToObject(input.cfnI)
+        oExp: dmUtils.toUppercase(input.iExp),
+        oCustomFn: mapObjectToObject(input.iCustomFn)
     }
 }
 
-function mapObjectToObject(cfnI: Root["cfnI"]): OutputRoot["cfnO"] {
+function mapObjectToObject(iCustomFn: Root["iCustomFn"]): OutputRoot["oCustomFn"] {
     return {};
 }
