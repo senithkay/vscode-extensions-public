@@ -317,7 +317,6 @@ export default function createTests() {
       await dm.selectConfigMenuItem('objectOutput.oInitPrim1D', 'Initialize Array With Element');
 
       await dm.mapFields('input.iInitPrim', 'objectOutput.oInitPrim1D.0');
-      // await dm.waitForProgressEnd();
       await dmWebView.getByTestId('link-from-input.iInitPrim.OUT-to-objectOutput.oInitPrim1D.0.IN').waitFor({ state: 'attached' });
 
       // Initialize 2d array and map, InitPrim2D
@@ -327,7 +326,6 @@ export default function createTests() {
       await dm.selectConfigMenuItem('objectOutput.oInitPrim2D.1', 'Add Element');
 
       await dm.mapFields('input.iInitPrim', 'objectOutput.oInitPrim2D.1.0');
-      // await dm.waitForProgressEnd();
       await dmWebView.getByTestId('link-from-input.iInitPrim.OUT-to-objectOutput.oInitPrim2D.1.0.IN').waitFor({ state: 'attached' });
 
       // #PAUSE_POINT
@@ -398,23 +396,6 @@ export default function createTests() {
       await dm.waitForProgressEnd();
       await dm.mapFields('input.iInitObj', 'objectOutput.oInitObj1D.1', 'menu-item-o2o-direct');
       await dmWebView.getByTestId('link-from-input.iInitObj.OUT-to-objectOutput.oInitObj1D.1.IN').waitFor({ state: 'attached' });
-
-
-      // 2D array direct mapping -redundant
-      // await dmWebView.locator('[id="recordfield-input\\.d2I"]').click();
-      // await dm.scrollClickOutput(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.d2O.IN').locator('i'));
-      // await dmWebView.locator('#menu-item-a2a-direct').click();
-      // await dm.waitForProgressEnd();
-      // await dmWebView.getByTestId('link-from-input.d2I.OUT-to-objectOutput.d2O.IN').waitFor({ state: 'attached' });
-
-
-      // 2D - 1D array direct mapping (singleton access) 30-38 - redundant
-      // await dmWebView.locator('[id="recordfield-input\\.s21I"]').click();
-      // await dm.scrollClickOutput(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.s21O.IN').locator('i'));
-      // await dm.waitForProgressEnd();
-      // await dmWebView.getByTestId('link-from-input.s21I.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
-      // await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.s21O.IN').waitFor({ state: 'attached' });
-      // await dmWebView.getByTestId('link-connector-node-objectOutput.s21O.IN').waitFor({ state: 'attached' });
 
       console.log('- Test mapping function 2D');
       // 2D array mapping with mapping function PrimMapFn2D
