@@ -146,7 +146,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
 
         vscode.workspace.onDidSaveTextDocument(async function (document) {
             const projectUri = vscode.workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
-            const currentView = getStateMachine(projectUri!).context().view;
+            const currentView = getStateMachine(projectUri!)?.context()?.view;
             if (SWAGGER_LANG_ID === document.languageId && projectUri) {
                 // Check if the saved document is a swagger file
                 const relativePath = vscode.workspace.asRelativePath(document.uri);

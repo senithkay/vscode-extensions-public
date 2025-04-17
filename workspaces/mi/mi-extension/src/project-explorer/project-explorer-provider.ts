@@ -128,7 +128,7 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 				const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
 				const projectTree = generateTreeData(workspace, resp, runtimeVersion);
 
-				if (projectTree && projectTree.children?.length! > 0) {
+				if (projectTree) {
 					data.push(projectTree);
 				}
 			};
@@ -625,7 +625,7 @@ function generateTreeDataOfBallerinaModule(project: vscode.WorkspaceFolder, data
 		ballerinaFiles.forEach(file => {
 			const nameWithoutExtension = file.name.replace('.bal', '');
 			modules.set(file.path, nameWithoutExtension.endsWith("-module") ?
-				nameWithoutExtension.replace('-module','') : nameWithoutExtension);
+				nameWithoutExtension.replace('-module', '') : nameWithoutExtension);
 		});;
 		for (var entry of modules.entries()) {
 			const filePath = entry[0];
