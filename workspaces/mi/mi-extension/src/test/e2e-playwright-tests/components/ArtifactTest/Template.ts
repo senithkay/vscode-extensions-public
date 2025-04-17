@@ -409,6 +409,5 @@ export class Template {
         await templEPFrame.getByLabel('Trace Enabled').click();
         await templEPFrame.getByLabel('Statistics Enabled').click();
         await templEPFrame.getByRole('button', { name: 'Save Changes' }).click();
-        // await this._page.pause();
     }
 }
