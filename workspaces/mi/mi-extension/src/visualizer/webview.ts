@@ -171,7 +171,7 @@ export class VisualizerWebview {
         webviews.delete(this.projectUri);
         deleteStateMachine(this.projectUri);
         RPCLayer._messengers.delete(this.projectUri);
-        (await MILanguageClient.getInstance(this.projectUri))?.languageClient?.stop();
+        await MILanguageClient.stopInstance(this.projectUri);
         this._panel?.dispose();
 
         while (this._disposables.length) {

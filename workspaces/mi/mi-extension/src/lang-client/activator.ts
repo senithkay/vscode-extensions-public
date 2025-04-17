@@ -102,6 +102,14 @@ export class MILanguageClient {
         return this._instances.get(projectUri)!;
     }
 
+    public static async stopInstance(projectUri: string) {
+        const instance = this._instances.get(projectUri);
+        if (instance) {
+            await instance.stop();
+            this._instances.delete(projectUri);
+        }
+    }
+
     public static async getAllInstances(): Promise<MILanguageClient[]> {
         const instances: MILanguageClient[] = [];
         for (const instance of this._instances.values()) {
