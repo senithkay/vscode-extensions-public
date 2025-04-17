@@ -686,11 +686,6 @@
           "group": "navigation"
         },
         {
-          "command": "MI.test.add.mock-service",
-          "when": "view == MI.mock-services && projectOpened",
-          "group": "navigation"
-        },
-        {
           "command": "MI.test.refresh.mock-services",
           "when": "view == MI.mock-services && projectOpened",
           "group": "navigation"
@@ -848,9 +843,14 @@
           "group": "inline"
         },
         {
+          "command": "MI.test.add.mock-service",
+          "group": "inline",
+          "when": "view == MI.mock-services && viewItem == workspace"
+        },
+        {
           "command": "MI.test.edit.mock-service",
           "group": "inline",
-          "when": "view == MI.mock-services"
+          "when": "view == MI.mock-services && viewItem == mockService"
         }
       ],
       "testing/item/context": [
@@ -876,11 +876,6 @@
         }
       ],
       "testing/message/context": [
-        {
-          "command": "MI.test.add.mock-service",
-          "group": "inline",
-          "when": "messageId in test.canAddMockService"
-        }
       ]
     },
     "icons": {

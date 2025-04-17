@@ -47,8 +47,9 @@ export async function activateTestExplorer(extensionContext: ExtensionContext) {
     // search for all the tests.
     startWatchingWorkspace(testFileMatchPattern, createTestsForAllFiles);
 
-    commands.registerCommand(COMMANDS.ADD_TEST_SUITE, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuite });
+    commands.registerCommand(COMMANDS.ADD_TEST_SUITE, (args: any) => {
+        const projectUri = getProjectRoot(Uri.parse(args?.id));
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuite, projectUri });
         console.log('Add Test suite');
     });
 

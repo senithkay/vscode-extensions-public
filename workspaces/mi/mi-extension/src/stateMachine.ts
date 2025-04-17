@@ -565,6 +565,12 @@ export const getStateMachine = (projectUri: string): {
 } => {
     let stateService;
     if (!stateMachines.has(projectUri)) {
+        // check if provided project is a valid workspace
+        const workspaces = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(projectUri));
+        if (!workspaces) {
+            vscode.window.showErrorMessage('No workspace folder is open.');
+            throw new Error('No workspace folder is open.');
+        }
         stateService = interpret(stateMachine.withContext({
             projectUri: projectUri,
             langClient: null,
