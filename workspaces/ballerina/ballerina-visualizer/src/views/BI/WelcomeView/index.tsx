@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import { MACHINE_VIEW, EVENT_TYPE, DownloadProgress } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
@@ -122,6 +122,9 @@ type WelcomeViewProps = {
 export function WelcomeView(props: WelcomeViewProps) {
     const { rpcClient } = useRpcContext();
     const [showUpdateButton, setShowUpdateButton] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [updateComplete, setUpdateComplete] = useState(false);
+    const [progress, setProgress] = useState<DownloadProgress>(null);
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((value) => {
@@ -153,8 +156,17 @@ export function WelcomeView(props: WelcomeViewProps) {
     };
 
     const updateBallerina = () => {
-        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina"] })
+        setIsLoading(true);
+        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina-visually"] }).then(() => {
+            setUpdateComplete(true);
+        }).catch(() => {
+            setIsLoading(false);
+        });
     };
+
+    rpcClient?.onDownloadProgress((response: DownloadProgress) => {
+        setProgress(response);
+    });
 
     return (
         <Wrapper>
@@ -197,13 +209,50 @@ export function WelcomeView(props: WelcomeViewProps) {
                                 <StepDescription>
                                     Your current Ballerina distribution is not supported. Please update to version 2201.12.3 or above.
                                 </StepDescription>
-                                {showUpdateButton &&
-                                    <StyledButton appearance="primary" onClick={updateBallerina}>
+                                <StyledButton appearance="primary" onClick={updateBallerina}>
+                                    <ButtonContent>
+                                        Update NowX
+                                    </ButtonContent>
+                                </StyledButton>
+
+                                {isLoading && (
+                                    <div style={{ marginTop: 10 }}>
+                                        <StepDescription>
+                                            Updating Ballerina... This may take a few minutes.
+                                        </StepDescription>
+                                        <br />
+                                        {progress && (
+                                            <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
+                                                <StepDescription>{progress.message}</StepDescription>
+                                                <div style={{
+                                                    width: '100%',
+                                                    height: '4px',
+                                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                                    borderRadius: '2px',
+                                                    overflow: 'hidden',
+                                                    position: 'relative'
+                                                }}>
+                                                    <div style={{
+                                                        position: 'absolute',
+                                                        width: `${progress.percentage}%`,
+                                                        height: '100%',
+                                                        backgroundColor: '#4a86e8',
+                                                        borderRadius: '2px',
+                                                        animation: 'progressAnimation 1.5s infinite ease-in-out'
+                                                    }} />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                {updateComplete && !isLoading && (
+                                    <StyledButton appearance="primary" onClick={() => rpcClient.getCommonRpcClient().executeCommand({ commands: ["workbench.action.reloadWindow"] })}>
                                         <ButtonContent>
-                                            Update Now
+                                            Restart VS Code
                                         </ButtonContent>
                                     </StyledButton>
-                                }
+                                )}
+
                                 <StepDescription style={{ marginTop: 10 }}>
                                     <strong>Please restart VS Code after updating the Ballerina distribution.</strong>
                                 </StepDescription>
