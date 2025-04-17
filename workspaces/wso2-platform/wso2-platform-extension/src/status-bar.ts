@@ -35,10 +35,11 @@ export function activateStatusbar({ subscriptions }: ExtensionContext) {
 function updateStatusBarItem(webviewState: WebviewState | null, authState?: AuthState | null, contextStoreState?: ContextStoreState | null): void {
 	statusBarItem.command = CommandIds.ManageDirectoryContext;
 	if (authState?.userInfo) {
-		if (contextStoreState?.selected?.project?.name) {
-			statusBarItem.text = `WSO2: ${contextStoreState?.selected?.project?.name}`;
-		} else {
-			statusBarItem.text = `WSO2: ${authState?.userInfo?.displayName}`;
+		statusBarItem.text = "WSO2";
+		if(contextStoreState?.selected){
+			statusBarItem.tooltip = `Logged in as ${authState.userInfo?.userEmail}.\n\nDirectory associated with:\n- Organization: ${contextStoreState?.selected?.org?.name}\n- Project: ${contextStoreState?.selected?.project?.name}`
+		}else{
+			statusBarItem.tooltip = `Logged in as ${authState.userInfo?.userEmail}.\n\nDirectory not associated with any WSO2 Projects.`
 		}
 		statusBarItem.show();
 	} else {

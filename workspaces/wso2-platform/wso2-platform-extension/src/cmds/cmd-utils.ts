@@ -329,15 +329,12 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 	if (!userInfo) {
 		const loginSelection = await window.showInformationMessage(
 			`You are not logged into ${extensionName}.`,
-			{ modal: true, detail: `Please sign in or sign up to continue and ${message}. ` },
-			"Sign In",
-			"Sign Up",
+			{ modal: true, detail: `Please login to continue and ${message}` },
+			"Login",
 		);
-		if (loginSelection === "Sign In" || loginSelection === "Sign Up") {
-			if (loginSelection === "Sign In") {
+		if (loginSelection === "Login") {
+			if (loginSelection === "Login") {
 				await commands.executeCommand(CommandIds.SignIn);
-			} else if (loginSelection === "Sign Up") {
-				await commands.executeCommand(CommandIds.SignUp);
 			}
 			userInfo = await waitForLogin();
 

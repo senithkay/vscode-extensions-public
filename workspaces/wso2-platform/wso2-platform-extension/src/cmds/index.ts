@@ -21,7 +21,6 @@ import { refreshContextCommand } from "./refresh-directory-context-cmd";
 import { signInCommand } from "./sign-in-cmd";
 import { signInWithAuthCodeCommand } from "./sign-in-with-code-cmd";
 import { signOutCommand } from "./sign-out-cmd";
-import { signUpCommand } from "./sign-up-cmd";
 import { viewComponentDependencyCommand } from "./view-comp-dependency-cmd";
 import { viewComponentCommand } from "./view-component-cmd";
 
@@ -30,7 +29,6 @@ export function activateCmds(context: ExtensionContext) {
 	refreshContextCommand(context);
 	deleteComponentCommand(context);
 	signInCommand(context);
-	signUpCommand(context);
 	signInWithAuthCodeCommand(context);
 	signOutCommand(context);
 	openInConsoleCommand(context);

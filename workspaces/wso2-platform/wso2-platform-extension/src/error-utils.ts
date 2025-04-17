@@ -108,7 +108,11 @@ export function handlerError(err: any) {
 			case ErrorCode.NoAccountAvailable:
 				w.showErrorMessage(`It looks like you don't have an account yet. Please sign up before logging in.`, "Sign Up").then((res) => {
 					if (res === "Sign Up") {
-						commands.executeCommand(CommandIds.SignUp);
+						if (extensionName === "Devant") {
+							commands.executeCommand("vscode.open", `${choreoEnvConfig.getDevantUrl()}/signup`);
+						} else {
+							commands.executeCommand("vscode.open", `${choreoEnvConfig.getConsoleUrl()}/signup`);
+						}
 					}
 				});
 				break;

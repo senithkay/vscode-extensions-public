@@ -16,7 +16,6 @@ import {
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
-import { webviewStateStore } from "../stores/webview-state-store";
 import { getUserInfoForCmd, isRpcActive, setExtensionName } from "./cmd-utils";
 import { removeContext } from "./create-directory-context-cmd";
 
@@ -24,7 +23,6 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.ManageDirectoryContext, async (params: IManageDirContextCmdParams) => {
 			setExtensionName(params?.extName);
-			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
 				isRpcActive(ext);
 				const userInfo = await getUserInfoForCmd("manage project");
@@ -35,7 +33,7 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 						quickPickOptions.push(
 							{ kind: QuickPickItemKind.Separator, label: "Selected Project" },
 							{ label: selected?.project?.name!, detail: selected?.org?.name, picked: true },
-							{ label: "Open in Console", detail: `Open the project '${selected.project?.name}' in ${extensionName} console` },
+							{ label: "Open in Console", detail: `Open the project '${selected.project?.name}' in web console` },
 						);
 					}
 
@@ -56,7 +54,7 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 						{ kind: QuickPickItemKind.Separator, label: "Other options" },
 						{
 							label: selected ? "Link with a different project" : "Link with a project",
-							detail: `Associate your workspace with a${selected ? " different" : ""} ${extensionName} project`,
+							detail: `Associate your workspace with a${selected ? " different" : ""} project`,
 						},
 					);
 

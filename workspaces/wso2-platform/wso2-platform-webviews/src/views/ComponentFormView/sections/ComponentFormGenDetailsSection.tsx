@@ -104,7 +104,6 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 	}, [subPath]);
 
 	const {
-		isLoading: isLoadingRepoAccess,
 		isFetching: isFetchingRepoAccess,
 		data: isRepoAuthorizedResp,
 		refetch: refetchRepoAccess,
@@ -119,7 +118,6 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 					credRef: provider !== GitProvider.GITHUB ? credential : "",
 				}),
 		enabled: !!repoUrl && !!provider && (provider !== GitProvider.GITHUB ? !!credential : true),
-		keepPreviousData: true,
 		refetchOnWindowFocus: true,
 	});
 
@@ -188,7 +186,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		onInvalidRepoRefreshing = isFetchingGitCred;
 	}
 
-	if (!invalidRepoMsg && repoUrl && !isLoadingRepoAccess && !isRepoAuthorizedResp?.isAccessible && provider) {
+	if (!invalidRepoMsg && repoUrl && !isRepoAuthorizedResp?.isAccessible && provider) {
 		if (provider === GitProvider.GITHUB) {
 			if (isRepoAuthorizedResp?.retrievedRepos) {
 				invalidRepoMsg = (

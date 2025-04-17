@@ -61,7 +61,12 @@ export function activateURIHandlers() {
 									const clientId = extName === "Devant" ? choreoEnvConfig.getDevantAsguadeoClientId() : undefined;
 									const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode, orgId, callbackUrl, clientId);
 									if (userInfo) {
-										await delay(1000);
+										if(contextStore?.getState().state?.selected){
+											const includesOrg = userInfo.organizations?.some(item=>item.handle === contextStore?.getState().state?.selected?.orgHandle)
+											if(!includesOrg){
+												contextStore.getState().resetState()
+											}
+										}
 										authStore.getState().loginSuccess(userInfo);
 										window.showInformationMessage(`Successfully signed into ${extName}`);
 									}

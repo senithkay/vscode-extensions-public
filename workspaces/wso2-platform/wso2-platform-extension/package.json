@@ -4,7 +4,7 @@
   "description": "Manage WSO2 Choreo and Devant projects in VS Code.",
   "license": "Apache-2.0",
   "version": "1.0.10",
-  "cliVersion": "v1.2.82504091500",
+  "cliVersion": "v1.2.82504171200",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -34,13 +34,6 @@
         "enablement": "!isLoggedIn"
       },
       {
-        "command": "wso2.wso2-platform.sign.up",
-        "title": "Sign Up",
-        "category": "WSO2",
-        "icon": "${sign-in}",
-        "enablement": "!isLoggedIn"
-      },
-      {
         "command": "wso2.wso2-platform.sign.in.with.authCode",
         "title": "Sign In with Auth Code",
         "category": "WSO2",
@@ -50,7 +43,8 @@
         "command": "wso2.wso2-platform.sign.out",
         "title": "Sign Out",
         "category": "WSO2",
-        "icon": "${sign-out}"
+        "icon": "${sign-out}",
+        "enablement": "isLoggedIn"
       },
       {
         "command": "wso2.wso2-platform.create.component",
