@@ -14,64 +14,59 @@ import { AddArtifact } from "../AddArtifact";
 import { Overview } from "../Overview";
 import { Form } from "../Form";
 
-interface ResourceDataFromTemplate {
+interface RegistryDataFromTemplate {
     name: string;
-    type: string;
+    templateType: string;
+    registryType: 'gov' | 'conf'; 
     registryPath: string;
 }
 
-interface ResourceDataFromFileSystem {
-    filePath: string,
+interface RegistryDataFromFileSystem {
+    filePath: string;
+    registryType: 'gov' | 'conf';
     registryPath: string;
 }
 
-export class Resource {
+export class Registry {
 
     constructor(private _page: Page) {
     }
 
-    public async openNewFormFromArtifacts() {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        await overviewPage.goToAddArtifact();
-
+    public async openFormFromArtifacts() {
+        const explorerSection = this._page.getByLabel('Project Explorer Section');
+        await explorerSection.hover();
+        await explorerSection.getByRole('button', { name: 'Add Artifact' }).click();
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
-        await addArtifactPage.add('Resource');
+        await addArtifactPage.add('Registry');
     }
 
-    private getResourceForm(): Form {
+    private getRegistryForm(): Form {
         const form = new Form(this._page, 'Resource Creation Form');
         return form;
     }
 
-    public async openNewFormFromSidePanel() {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Resources'], true);
-        await this._page.getByLabel('Add Resource').click();
-        await switchToIFrame('Resource Creation Form', this._page);
+    public async openFormFromSidePanel() {
+        await this._page.getByLabel('Registry Explorer Section').click();
+        await this._page.getByLabel('Add to Resource').click();
     }
 
     public async cancelForm() {
-        const form = this.getResourceForm();
+        const form = this.getRegistryForm();
         await form.switchToFormView();
         await form.cancel();
     }
 
-    public async openResource(dirName:string, resName: string) {
+    public async openRegistry(dirName:string, resName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Resources', dirName, resName], true);
+        await projectExplorer.findItem(['Project testProject', 'Registrys', dirName, resName], true);
     }
 
-    public async addFromFileSystem(data: ResourceDataFromFileSystem) {
+    public async addFromFileSystem(data: RegistryDataFromFileSystem) {
         const resWebView = await switchToIFrame('Resource Creation Form', this._page);
         if (!resWebView) {
-            throw new Error("Failed to switch to Resource Form iframe");
+            throw new Error("Failed to switch to Registry Form iframe");
         }
         const resFrame = resWebView.locator('div#root');
         await resFrame.waitFor();
@@ -83,24 +78,31 @@ export class Resource {
         await resFrame.getByRole('button', { name: 'Create' }).click();
     }
 
-    public async addFromTemplate(data: ResourceDataFromTemplate) {
+    public async addFromTemplate(data: RegistryDataFromTemplate) {
         const resWebView = await switchToIFrame('Resource Creation Form', this._page);
         if (!resWebView) {
-            throw new Error("Failed to switch to Resource Form iframe");
+            throw new Error("Failed to switch to Registry Form iframe");
         }
         const resFrame = resWebView.locator('div#root');
         await resFrame.waitFor();
+        await resFrame.getByLabel('From existing template').click();
         await resFrame.getByRole('textbox', { name: 'Resource Name*' }).fill(data.name);
         await resFrame.locator('#templateType div').nth(1).click();
-        await resFrame.getByLabel(data.type).click();
+        await resFrame.getByLabel(data.templateType).click();
+        await resFrame.getByLabel(this.getRegistryTypeLabel(data.registryType)).click();
         await resFrame.getByRole('textbox', { name: 'Registry Path' }).click();
         await resFrame.getByRole('textbox', { name: 'Registry Path' }).fill(data.registryPath);
         await resFrame.getByRole('button', { name: 'Create' }).click();
-        // after adding go to project overview page
-        // it was needed to avoid an issue when switching to Resource Form
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
+    }
+
+    private getRegistryTypeLabel(type: string): string {
+        switch (type) {
+            case 'gov':
+                return 'Governance registry (gov)';
+            case 'conf':
+                return 'Configuration registry (conf)';
+            default:
+                throw new Error(`Invalid registry type: ${type}`);
+        }
     }
 }

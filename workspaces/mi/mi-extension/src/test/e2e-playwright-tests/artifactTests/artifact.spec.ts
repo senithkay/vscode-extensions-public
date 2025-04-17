@@ -23,6 +23,7 @@ import { Proxy } from '../components/ArtifactTest/Proxy';
 import { DataSource } from '../components/ArtifactTest/DataSource';
 import { DataService } from '../components/ArtifactTest/DataService';
 import { API } from '../components/ArtifactTest/APITests';
+import path from 'path';
 
 export default function createTests() {
   test.describe('Artifact Tests', async () => {
@@ -43,6 +44,10 @@ export default function createTests() {
       await test.step('Edit Automation', async () => {
         console.log('Editing Automation');
         await automation.edit("NewTestTask" + testAttempt);
+      });
+      await test.step('Create External Trigger', async () => {
+        console.log('Creating new External Trigger');
+        await automation.createExternalTrigger("TestExternalTrigger" + testAttempt);
       });
     });
 
@@ -189,12 +194,40 @@ export default function createTests() {
       await toggleNotifications(true);
     });
 
-    test('Add Resource', async () => {
+    test('Registry Resource Tests', async () => {
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Resource');
-      const resource = new Resource(page.page);
-      await resource.init();
-      await resource.add("testResource" + testAttempt);
+      await test.step('Create new resource from artifacts', async () => {
+        console.log('Creating new resource from artifacts');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromArtifacts();
+        await resource.addFromTemplate({
+          name: 'testResource1' + testAttempt,
+          type: 'JSON File',
+          registryPath: 'json',
+        });
+      });
+
+      await test.step('Create new resource from side panel', async () => {
+        console.log('Creating new resource from side panel');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromSidePanel();
+        await resource.addFromTemplate({
+          name: 'testResource2' + testAttempt,
+          type: 'JSON File',
+          registryPath: 'json/testResource',
+        });
+      });
+
+      await test.step('Create new resource importing a file', async () => {
+        console.log('Creating new resource importing a file');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromArtifacts();
+        const filePath = path.join(__dirname, '..', 'data', 'new-project', 'testProject', 'testProject', 'src', 'main', 'wso2mi', 'resources', 'json', 'testResource1' + testAttempt + '.json');
+        await resource.addFromFileSystem({
+          filePath: filePath,
+          registryPath: 'newJson'
+        })
+      });
     });
 
     test('Message Store Tests', async () => {
@@ -350,6 +383,22 @@ export default function createTests() {
         console.log('Editing Local Entry');
         await localEntry.editInlineTextLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
       });
+      await test.step('Add XML Local Entry', async () => {
+        console.log('Creating new XML Local Entry');
+        await localEntry.addXmlLocalEntry("xmlLocalEntry" + testAttempt);
+      });
+      await test.step('Edit XML Local Entry', async () => {
+        console.log('Editing XML Local Entry');
+        await localEntry.editXmlLocalEntry("xmlLocalEntry" + testAttempt, "newXmlLocalEntry" + testAttempt);
+      });
+      await test.step('Add Source Url Local Entry from side panel', async () => {
+        console.log('Creating new Local Entry from side panel');
+        await localEntry.addSourceUrlLocalEntry("sourceUrlLocalEntry" + testAttempt);
+      });
+      await test.step('Edit Source Url Local Entry from side panel', async () => {
+        console.log('Editing Local Entry from side panel');
+        await localEntry.editSourceUrlLocalEntry("sourceUrlLocalEntry" + testAttempt, "newSourceUrlLocalEntry" + testAttempt);
+      });
     });
 
     test('Template tests', async () => {
@@ -379,6 +428,10 @@ export default function createTests() {
       await test.step('Edit Proxy Service', async () => {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
+      });
+      await test.step('Create Proxy Service from Project Explorer', async () => {
+        console.log('Creating new Proxy Service from Project Explorer');
+        await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
       });
     });
   });

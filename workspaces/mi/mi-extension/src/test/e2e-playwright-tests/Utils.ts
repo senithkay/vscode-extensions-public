@@ -14,7 +14,7 @@ import path from "path";
 import { ElectronApplication, Page } from "@playwright/test";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
-import os from 'os';
+import { readFile } from 'fs/promises';
 
 export const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -33,7 +33,7 @@ async function initVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
-async function createProject(page: ExtendedPage) {
+async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string) {
     console.log('Creating new project');
     await page.selectSidebarItem('Micro Integrator');
     const welcomePage = new Welcome(page);
@@ -46,7 +46,11 @@ async function createProject(page: ExtendedPage) {
         values: {
             'Project Name*': {
                 type: 'input',
-                value: 'testProject'
+                value: projectName || 'testProject',
+            },
+            'Micro Integrator runtime version*': {
+                type: 'dropdown',
+                value: runtimeVersino || '4.4.0'
             },
             'Select Location': {
                 type: 'file',
@@ -108,10 +112,10 @@ export async function closeEditorGroup() {
     await page.executePaletteCommand('Close Editor Group');
 }
 
-export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
+export function initTest(newProject: boolean = false, cleanupAfter?: boolean, projectName?: string, runtimeVersion?: string) {
     test.beforeAll(async ({ }, testInfo) => {
         console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);
-        if (!existsSync(path.join(newProjectPath, 'testProject')) || newProject) {
+        if (!existsSync(path.join(newProjectPath, projectName ?? 'testProject')) || newProject) {
             if (fs.existsSync(newProjectPath)) {
                 fs.rmSync(newProjectPath, { recursive: true });
             }
@@ -119,7 +123,7 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
             console.log('Starting VSCode');
             await initVSCode();
             await toggleNotifications(true);
-            await createProject(page);
+            await createProject(page, projectName, runtimeVersion);
         } else {
             console.log('Resuming VSCode');
             await resumeVSCode();
@@ -144,4 +148,28 @@ export async function copyFile(source: string, destination: string) {
         fs.rmSync(destination);
     }
     fs.copyFileSync(source, destination);
+}
+
+export async function waitUntilPomContains(page:Page, filePath: string, expectedText: string, timeout = 10000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+        const content = await readFile(filePath, 'utf8');
+        if (content.includes(expectedText)) {
+            return true;
+        }
+        await page.waitForTimeout(500);
+    }
+    throw new Error(`Timed out waiting for '${expectedText}' in pom.xml`);
+}
+
+export async function waitUntilPomNotContains(page:Page, filePath: string, expectedText: string, timeout = 10000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+        const content = await readFile(filePath, 'utf8');
+        if (!content.includes(expectedText)) {
+            return true;
+        }
+        await page.waitForTimeout(500);
+    }
+    throw new Error(`Timed out waiting for '${expectedText}' in pom.xml`);
 }
