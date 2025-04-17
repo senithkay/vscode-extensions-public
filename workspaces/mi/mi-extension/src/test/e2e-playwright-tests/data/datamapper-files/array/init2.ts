@@ -26,14 +26,12 @@ interface Root {
 * outputType : "JSON",
 */
 interface OutputRoot {
-    d1O: number[]
-    m1O: number[]
-    m1objO: {
-        q1: string
-        q2: string[]
-    }[]
-    i1O: string[]
-    i2O: string[][]
+iobjO: {
+p1: string
+p2: string[]
+}[]
+m2O: number[][]
+s10O: string
 }
 
 
@@ -43,10 +41,6 @@ interface OutputRoot {
  * inputVariable : inputroot
 */
 export function mapFunction(input: Root): OutputRoot {
-    return {
-        d1O: input.d1I,
-        i1O: [""],
-        i2O: [[], [""]]
-    }
+	return {}
 }
 

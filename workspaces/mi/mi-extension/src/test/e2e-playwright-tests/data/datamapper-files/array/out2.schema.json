@@ -2,27 +2,15 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
-    "d1O": {
-      "type": "array",
-      "items": {
-        "type": "number"
-      }
-    },
-    "m1O": {
-      "type": "array",
-      "items": {
-        "type": "number"
-      }
-    },
-    "m1objO": {
+    "iobjO": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "q1": {
+          "p1": {
             "type": "string"
           },
-          "q2": {
+          "p2": {
             "type": "array",
             "items": {
               "type": "string"
@@ -30,32 +18,28 @@
           }
         },
         "required": [
-          "q1",
-          "q2"
+          "p1",
+          "p2"
         ]
       }
     },
-    "i1O": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "i2O": {
+    "m2O": {
       "type": "array",
       "items": {
         "type": "array",
         "items": {
-          "type": "string"
+          "type": "number"
         }
       }
+    },
+    "s10O": {
+      "type": "string"
     }
   },
   "required": [
-    "d1O",
-    "m1O",
-    "m1objO",
-    "i1O",
-    "i2O"
+    "iobjO",
+    "d2O",
+    "m2O",
+    "s10O"
   ]
 }

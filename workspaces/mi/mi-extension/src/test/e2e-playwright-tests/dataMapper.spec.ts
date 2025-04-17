@@ -281,14 +281,14 @@ export default function createTests() {
 
         // await page.page.getByRole('tab', { name: 'Project Overview' }).waitFor();
 
-        console.log('Testing Array Mappings - Part 0');
+        console.log('Testing Array Mappings - Part 1');
 
         const DM_NAME = 'dm' + test.info().retry;
 
-        // overwriteTsFile('array/map1.ts');
-        // overwriteTsFile('array/init0.ts');
-        // overwriteTsFile('reset.ts');
+        // overwriteTsFile('array/map2.ts');
         // overwriteTsFile('array/init1.ts');
+        // overwriteTsFile('reset.ts');
+        // overwriteTsFile('array/init2.ts');
 
         const projectExplorer = new ProjectExplorer(page.page);
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', DM_NAME], true);
@@ -301,9 +301,9 @@ export default function createTests() {
         await dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
 
         console.log('- Load output schemas from JSON schema');
-        await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out0.schema.json');
+        await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out1.schema.json');
 
-        expect(dm.verifyTsFileContent('array/init0.ts')).toBeTruthy();
+        expect(dm.verifyTsFileContent('array/init1.ts')).toBeTruthy();
        
 
         console.log('- Test direct');
@@ -355,10 +355,10 @@ export default function createTests() {
         // await dm.waitForProgressEnd();
         await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i2O.1.0.IN').waitFor({ state: 'attached' });
 
-        expect(dm.verifyTsFileContent('array/map0.ts')).toBeTruthy();
+        expect(dm.verifyTsFileContent('array/map1.ts')).toBeTruthy();
 
 
-        console.log('Test array mapping delete - Part 0');
+        console.log('Test array mapping delete - Part 1');
 
         const loc2 = dmWebView.getByTestId('array-connector-node-objectOutput.m1O.IN');
         await loc2.locator('.codicon-trash').click({ force: true });
@@ -396,15 +396,15 @@ export default function createTests() {
         await loc5.waitFor({ state: 'detached' });
 
         // await page.page.pause();
-        expect(dm.verifyTsFileContent('array/del0.ts')).toBeTruthy();
+        expect(dm.verifyTsFileContent('array/del1.ts')).toBeTruthy();
  
 
-        console.log('Testing Array Mappings - Part 1');
+        console.log('Testing Array Mappings - Part 2');
 
-        await dm.editSchema(IOType.Output, SchemaType.JsonSchema, 'array/out1.schema.json');
+        await dm.editSchema(IOType.Output, SchemaType.JsonSchema, 'array/out2.schema.json');
 
         // await page.page.pause();
-        expect(dm.verifyTsFileContent('array/init1.ts')).toBeTruthy();
+        expect(dm.verifyTsFileContent('array/init2.ts')).toBeTruthy();
 
         // Init array object and map
         await dm.selectConfigMenuItem('objectOutput.iobjO', 'Initialize Array With Element');
@@ -468,10 +468,10 @@ export default function createTests() {
         await expect(loc10Indx).toHaveText('[1]');
 
         // await page.page.pause();
-        // expect(dm.verifyTsFileContent('array/map1.ts')).toBeTruthy();
+        // expect(dm.verifyTsFileContent('array/map2.ts')).toBeTruthy();
 
 
-        console.log('Test array mapping delete - Part 1');
+        console.log('Test array mapping delete - Part 2');
 
         const loc6 = dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN');
         await loc6.click({ force: true });
@@ -515,7 +515,7 @@ export default function createTests() {
         await loc10.waitFor({ state: 'detached' });
 
         // await page.page.pause();
-        // expect(dm.verifyTsFileContent('array/del1.ts')).toBeTruthy();
+        // expect(dm.verifyTsFileContent('array/del2.ts')).toBeTruthy();
 
         dm.resetTsFile();
 
