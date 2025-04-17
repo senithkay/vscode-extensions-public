@@ -169,8 +169,6 @@ export class Diagram {
         await this.diagramWebView.getByRole('button', { name: 'Create' }).click();
         await this.diagramWebView.getByRole('button', { name: 'Add' }).click();
 
-        await this.openDataMapperFromTreeView(name);
-
     }
 
     public async openDataMapperFromResourceView(name: string) {
