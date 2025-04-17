@@ -26,17 +26,10 @@
         "p2": ["arrayStr3", "arrayStr4"]
       }
     ],
-  
-    "d2O": [
-      [100, 200],
-      [300, 400]
-    ],
     "oPrimMapFn2D": [
       [500, 600],
       [700, 800]
     ],
-  
-    "oSingle": "singleOutputString",
-    "s21O": ["outputStr1", "outputStr2", "outputStr3"]
+    "oSingle": "singleOutputString"
 }
   

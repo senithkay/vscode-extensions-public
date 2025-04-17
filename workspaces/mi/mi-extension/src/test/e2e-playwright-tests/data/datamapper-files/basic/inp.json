@@ -9,7 +9,7 @@
     "d1": "nestedString",
     "d2": 42
   },
-  "opmI": {
+  "iObjProp": {
     "op1": "value1",
     "op2": "value2"
   },

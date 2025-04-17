@@ -25,6 +25,7 @@ export default function createTests() {
 
   test.describe('Data Mapper Tests', () => {
     const NEED_INITIAL_SETUP = true;
+    const COMPARE_TS_FILE = true;
 
     initTest(true);
 
@@ -179,9 +180,9 @@ export default function createTests() {
         await dm.mapFields('input.iObjDirect.d1', 'objectOutput.oObjProp.p1');
         await dmWebView.getByTestId('link-from-input.iObjDirect.d1.OUT-to-objectOutput.oObjProp.p1.IN').waitFor({ state: 'attached' });
 
-        // objectOutput.oObjProp.p2 = input.opmI.d2;
-        await dm.mapFields('input.opmI.op2', 'objectOutput.oObjProp.p2');
-        await dmWebView.getByTestId('link-from-input.opmI.op2.OUT-to-objectOutput.oObjProp.p2.IN').waitFor({ state: 'attached' });
+        // objectOutput.oObjProp.p2 = input.iObjProp.d2;
+        await dm.mapFields('input.iObjProp.op2', 'objectOutput.oObjProp.p2');
+        await dmWebView.getByTestId('link-from-input.iObjProp.op2.OUT-to-objectOutput.oObjProp.p2.IN').waitFor({ state: 'attached' });
 
         console.log('- Test expression bar');
 
@@ -303,6 +304,7 @@ export default function createTests() {
         console.log('- Load output schemas from JSON schema');
         await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out1.schema.json');
 
+        // #PAUSE_POINT
         expect(dm.verifyTsFileContent('array/init1.ts')).toBeTruthy();
        
 
@@ -355,6 +357,7 @@ export default function createTests() {
         // await dm.waitForProgressEnd();
         await dmWebView.getByTestId('link-from-input.iInitPrim.OUT-to-objectOutput.oInitPrim2D.1.0.IN').waitFor({ state: 'attached' });
 
+        // #PAUSE_POINT
         expect(dm.verifyTsFileContent('array/map1.ts')).toBeTruthy();
 
 
@@ -395,7 +398,7 @@ export default function createTests() {
           .locator('.codicon-trash').click({ force: true });
         await loc5.waitFor({ state: 'detached' });
 
-        // await page.page.pause();
+        // #PAUSE_POINT
         expect(dm.verifyTsFileContent('array/del1.ts')).toBeTruthy();
  
 
@@ -403,7 +406,7 @@ export default function createTests() {
 
         await dm.editSchema(IOType.Output, SchemaType.JsonSchema, 'array/out2.schema.json');
 
-        // await page.page.pause();
+        // #PAUSE_POINT
         expect(dm.verifyTsFileContent('array/init2.ts')).toBeTruthy();
 
         // Init array object and map, InitObj1D
@@ -467,8 +470,8 @@ export default function createTests() {
         await expect(expressionBar).not.toBeFocused();
         await expect(loc10Indx).toHaveText('[1]');
 
-        // await page.page.pause();
-        // expect(dm.verifyTsFileContent('array/map2.ts')).toBeTruthy();
+        // #PAUSE_POINT
+        expect(dm.verifyTsFileContent('array/map2.ts')).toBeTruthy();
 
 
         console.log('Test array mapping delete - Part 2');
@@ -514,8 +517,8 @@ export default function createTests() {
         await loc10.locator('.codicon-trash').click({ force: true });
         await loc10.waitFor({ state: 'detached' });
 
-        // await page.page.pause();
-        // expect(dm.verifyTsFileContent('array/del2.ts')).toBeTruthy();
+        // #PAUSE_POINT
+        expect(dm.verifyTsFileContent('array/del2.ts')).toBeTruthy();
 
         dm.resetTsFile();
 

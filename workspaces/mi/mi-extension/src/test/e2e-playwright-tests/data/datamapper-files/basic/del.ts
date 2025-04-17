@@ -15,7 +15,7 @@ interface Root {
         d1: string
         d2: number
     }
-    opmI: {
+    iObjProp: {
         op1: string
         op2: string
     }
@@ -67,7 +67,7 @@ export function mapFunction(input: Root): OutputRoot {
         oObjDirectErr: input.iObjDirect,
         oObjProp: {
             p1: input.iObjDirect.d1 + "HI",
-            p2: input.opmI.op2
+            p2: input.iObjProp.op2
         },
         oCustomFn: mapObjectToObject(input.iCustomFn)
     }

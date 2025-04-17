@@ -15,7 +15,7 @@ iObjDirect: {
 d1: string
 d2: number
 }
-opmI: {
+iObjProp: {
 op1: string
 op2: string
 }

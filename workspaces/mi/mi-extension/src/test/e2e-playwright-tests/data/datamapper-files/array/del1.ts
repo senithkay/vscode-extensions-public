@@ -16,10 +16,8 @@ interface Root {
         p1: string
         p2: string[]
     }
-    d2I: number[][]
     iPrimMapFn2D: number[][]
     iSingle1D: string[]
-    s21I: string[][]
 }
 
 /*
