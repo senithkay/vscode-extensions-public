@@ -26,7 +26,7 @@ export default function createTests() {
   test.describe('Data Mapper Tests', () => {
     let dmName: string = "dm1";
 
-    initTest(true);
+    initTest();
     test.beforeAll(setupDataMapper);
 
     test('Basic Mappings', testBasicMappings);
