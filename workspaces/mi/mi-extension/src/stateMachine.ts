@@ -757,30 +757,6 @@ async function checkIfMiProject(projectUri) {
         log(`Current workspace path: ${projectUri}`);
     }
 
-    // Register Project Creation command in any of the above cases
-    // if (!(await vscode.commands.getCommands()).includes(COMMANDS.CREATE_PROJECT_COMMAND)) {
-    //     vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, async (args) => {
-    //         if (args && args.name && args.path && args.scope) {
-    //             const rpcManager = new MiDiagramRpcManager("");
-    //             if (rpcManager) {
-    //                 await rpcManager.createProject(
-    //                     {
-    //                         directory: path.dirname(args.path),
-    //                         name: path.basename(args.path),
-    //                         open: false,
-    //                         miVersion: "4.4.0"
-    //                     }
-    //                 );
-    //                 await createSettingsFile(args);
-    //                 vscode.commands.executeCommand('workbench.action.closeFolder');
-    //             }
-    //         } else {
-    //             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
-    //             log('Create New Project');
-    //         }
-    //     });
-    // }
-
     log(`Project detection completed for path: ${projectUri} at ${new Date().toLocaleTimeString()}`);
     return {
         isProject,
@@ -791,23 +767,6 @@ async function checkIfMiProject(projectUri) {
         customProps,
         isEnvironmentSetUp
     };
-}
-
-async function createSettingsFile(args) {
-    const projectPath = args.path;
-    const settingsPath = path.join(projectPath, '.vscode', 'settings.json');
-    try {
-        const vscodeDir = path.join(projectPath, '.vscode');
-        if (!fs.existsSync(vscodeDir)) {
-            fs.mkdirSync(vscodeDir);
-        }
-        const settings = {
-            "MI.Scope": args.scope
-        };
-        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
-    } catch (error: any) {
-        vscode.window.showErrorMessage(`Failed to create settings file: ${error.message}`);
-    }
 }
 
 function findViewIcon(view) {

@@ -676,7 +676,7 @@
           "group": "navigation"
         },
         {
-          "command": "MI.project-explorer.add.artifact",
+          "command": "MI.project-explorer.create-project",
           "when": "view == MI.project-explorer && projectOpened",
           "group": "navigation"
         },
@@ -732,6 +732,11 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "MI.project-explorer.add.artifact",
+          "when": "viewItem == project",
+          "group": "inline"
+        },
         {
           "command": "MI.project-explorer.open-project-overview",
           "when": "viewItem == project",
@@ -875,8 +880,7 @@
           "when": "testId in test.cases"
         }
       ],
-      "testing/message/context": [
-      ]
+      "testing/message/context": []
     },
     "icons": {
       "distro-design-view": {
