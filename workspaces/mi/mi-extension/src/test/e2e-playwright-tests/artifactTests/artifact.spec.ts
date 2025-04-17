@@ -462,6 +462,7 @@ export default function createTests() {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
       });
+
       await test.step('Create Proxy Service from Project Explorer', async () => {
         console.log('Creating new Proxy Service from Project Explorer');
         await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
