@@ -119,7 +119,8 @@ type FormCompletionConditionalProps = {
 
 type FormTypeConditionalProps = {
     types: CompletionItem[];
-    retrieveVisibleTypes: (typeConstraint?: string) => Promise<void>;
+    referenceTypes: CompletionItem[];
+    retrieveVisibleTypes: (value: string, cursorPosition: number, fetchReferenceTypes?: boolean) => Promise<void>;
     getTypeHelper: (
         fieldKey: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
@@ -135,6 +136,7 @@ type FormTypeConditionalProps = {
     helperPaneHeight: HelperPaneHeight;
 } | {
     types?: never;
+    referenceTypes?: never;
     retrieveVisibleTypes?: never;
     getTypeHelper?: never;
     helperPaneOrigin?: never;
