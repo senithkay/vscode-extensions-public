@@ -171,22 +171,6 @@ export class Diagram {
 
     }
 
-    public async openDataMapperFromResourceView(name: string) {
-        const mediator = await this.getMediator('DataMapper');
-        await mediator.clickLink(name);
-    }
-
-    public async openDataMapperFromTreeView(name: string) {
-        const oaLabel = await this._page.waitForSelector('div[aria-label="Other Artifacts"]', { timeout: 180000 });
-        await oaLabel.click();
-
-        const dmLabel = await this._page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
-        await dmLabel.click();
-
-        const dmItem = await this._page.waitForSelector(`div[aria-label="${name}"]`, { timeout: 180000 });
-        await dmItem.click();
-    }
-
     private async clickPlusButtonByPosition(line: number, column: number) {
         const link = (await this.getDiagramContainer()).locator(`g[data-linkid=${line},${column}]`);
         await link.waitFor();
