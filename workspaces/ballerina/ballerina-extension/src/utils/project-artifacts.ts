@@ -164,7 +164,7 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
             entryValue.icon = getCustomEntryNodeIcon(artifact.module);
             if (artifact.module === "ai") {
                 entryValue.resources = [];
-                const aiResourceLocation = Object.values(artifact.children)[0]?.location;
+                const aiResourceLocation = Object.values(artifact.children).find(child => child.type === DIRECTORY_MAP.RESOURCE)?.location;
                 entryValue.position = {
                     endColumn: aiResourceLocation.endLine.offset,
                     endLine: aiResourceLocation.endLine.line,
