@@ -509,14 +509,11 @@ export class BallerinaExtension {
         // Remove 'sudo' prefix if present
         const actualCommand = command.replace(/^sudo\s+/, '');
 
-        // Create PowerShell command to run as admin
-        // Using PowerShell's Start-Process with -Verb RunAs to trigger UAC elevation
-        const psCommand = `
-            Start-Process PowerShell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command ${actualCommand.replace(/"/g, '\\"')}"
-        `;
+        // Create PowerShell command to run as administrator
+        const psCommand = `powershell -Command "Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList '-NoProfile -ExecutionPolicy Bypass -Command \"${actualCommand}\"'"`;
 
         let res: DownloadProgress = {
-            message: `Starting elevated command execution...`,
+            message: `Starting a powershell to update ballerina distribution...`,
             percentage: 0,
             success: false,
             step: progressStep
@@ -525,190 +522,63 @@ export class BallerinaExtension {
 
         // Show a message to the user that they'll need to respond to the UAC prompt
         window.showInformationMessage('Please confirm the User Account Control (UAC) prompt to run this command with administrator privileges');
-
-        return new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
             try {
                 // Execute the PowerShell command
-                const childProcess = exec(`powershell -Command "${psCommand}"`, { maxBuffer: 1024 * 1024 });
-
-                childProcess.stdout.on('data', (data) => {
-                    const output = data.toString();
-                    console.log('Command output:', output);
-
-                    progressStep++;
-                    const percentage = Math.min(progressStep * 10, 90);
-
-                    res = {
-                        message: `Executing: ${output.trim()}`,
-                        percentage: percentage,
-                        success: false,
-                        step: progressStep
-                    };
-                    RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-                });
-
+                const childProcess = exec(psCommand, { maxBuffer: 1024 * 1024 });
                 childProcess.stderr.on('data', (data) => {
                     const errorOutput = data.toString();
                     console.error('Command error:', errorOutput);
-
                     // Check for UAC cancellation
                     if (errorOutput.includes('cancelled by the user') || errorOutput.includes('was canceled')) {
-                        res = {
-                            message: `Administrator privileges were denied`,
-                            percentage: 0,
-                            success: false,
-                            step: -1
-                        };
-                        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-                        window.showErrorMessage(`Administrator privileges were denied. Command cannot be executed.`);
-                        reject(new Error('Administrator privileges were denied'));
-                        return;
+                        const errorMessage = `Administrator privileges were denied. Command cannot be executed.`
+                        throw new Error(errorMessage);
                     }
-
-                    res = {
-                        message: `Error: ${errorOutput.trim()}`,
-                        percentage: 0,
-                        success: false,
-                        step: -1
-                    };
-                    RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                 });
-
-                childProcess.on('close', async (code) => {
-                    console.log(`Command exited with code ${code}`);
-
+                childProcess.on('close', async (code, signal) => {
                     // Note: with Windows UAC, the actual admin process is detached, so this code
                     // only confirms the elevation request was successful, not the command itself
                     if (code === 0) {
-                        // Since we're running detached, we can't easily get the real command output
-                        // So we'll use polling to check if the command has completed
-                        await this.pollForCompletion(actualCommand);
-
-                        res = {
-                            message: 'Command initiated with administrator privileges',
-                            percentage: 100,
-                            success: true,
-                            step: progressStep + 1
-                        };
-                        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-
-                        window.showInformationMessage('Command executed with administrator privileges. Please wait for it to complete.');
-                        setTimeout(() => {
-                            commands.executeCommand('workbench.action.reloadWindow');
-                        }, 5000); // Wait 5 seconds before reloading
-                        resolve();
+                        // Check the versions
+                        const initialVersion = this.ballerinaVersion;
+                        // Get the current version
+                        const currentVersion = await this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome());
+                        // If version changed or timeout reached, we're done
+                        if (currentVersion !== initialVersion) {
+                            console.log(`Update completed. Version changed from ${initialVersion} to ${currentVersion}`);
+                            res = {
+                                message: `Successfully updated to version: ${currentVersion}`,
+                                percentage: 0,
+                                success: true,
+                                step: -1
+                            };
+                            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                            setTimeout(() => {
+                                commands.executeCommand('workbench.action.reloadWindow');
+                            }, 2000);
+                        }
                     } else {
-                        res = {
-                            message: `Failed to execute with administrator privileges`,
-                            percentage: 0,
-                            success: false,
-                            step: -1
-                        };
-                        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-
-                        window.showErrorMessage(`Failed to execute with administrator privileges. Exit code: ${code}`);
-                        reject(new Error(`Failed to execute with administrator privileges. Exit code: ${code}`));
+                        const errorMessage = `Failed to execute command with administrator privileges. Exit code: ${code}`;
+                        throw new Error(errorMessage);
                     }
                 });
             } catch (error) {
-                console.error('Error executing Windows admin command:', error);
-                const errorMessage = error instanceof Error ? error.message : String(error);
-
-                res = {
-                    message: `Error: ${errorMessage}`,
-                    percentage: 0,
-                    success: false,
-                    step: -1
-                };
-                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-
-                window.showErrorMessage(`Error executing admin command: ${errorMessage}`);
-                reject(error);
+                const err = error instanceof Error ? error.message : String(error);
+                const errorMessage = `Error executing admin command: ${err}`;
+                console.error(errorMessage, error);
+                throw new Error(errorMessage);
             }
-        });
-    }
-
-    // Poll for completion of a command by checking system state
-    private async pollForCompletion(command: string): Promise<void> {
-        // For 'bal dist update', we'll check ballerina version before and after
-        console.log(`Polling for completion of command: ${command}`);
-
-        // If this is the ballerina update command, we can check versions
-        const isBalUpdate = command.includes('bal dist update');
-        let initialVersion = '';
-
-        // If it's a ballerina update, get the initial version
-        if (isBalUpdate) {
-            try {
-                // Get current version before update completes
-                initialVersion = await this.getBallerinaVersionSync();
-                console.log(`Initial Ballerina version before update: ${initialVersion}`);
-            } catch (error) {
-                console.error('Error getting initial Ballerina version:', error);
-            }
-        }
-
-        const maxAttempts = 60; // Try for up to 60 seconds
-        let attempts = 0;
-
-        return new Promise<void>((resolve) => {
-            const checkInterval = setInterval(async () => {
-                attempts++;
-                console.log(`Checking completion status (attempt ${attempts}/${maxAttempts})`);
-
-                // Use different strategies depending on the command
-                if (isBalUpdate) {
-                    try {
-                        // Get the current version
-                        const currentVersion = await this.getBallerinaVersionSync();
-                        console.log(`Current Ballerina version: ${currentVersion}`);
-
-                        // If version changed or timeout reached, we're done
-                        if (currentVersion !== initialVersion || attempts >= maxAttempts) {
-                            console.log(`Update completed. Version changed from ${initialVersion} to ${currentVersion}`);
-                            clearInterval(checkInterval);
-                            resolve();
-                        }
-                    } catch (error) {
-                        console.error('Error checking Ballerina version:', error);
-                        // If we can't check version, continue polling until timeout
-                    }
-                } else {
-                    // For other commands, we could check process list or specific files
-                    // that would be modified by the command
-                    // ...
-
-                    // For now, just wait until timeout
-                    if (attempts >= maxAttempts) {
-                        console.log(`Command polling timeout reached after ${maxAttempts} seconds`);
-                        clearInterval(checkInterval);
-                        resolve();
-                    }
-                }
-            }, 1000); // Check every second
-        });
-    }
-
-    // Helper method to get Ballerina version synchronously
-    private async getBallerinaVersionSync(): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            const cmd = isWindows() ? 'bal.bat' : 'bal';
-            exec(`${cmd} version`, (error, stdout, stderr) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-
-                try {
-                    const versionOutput = stdout.trim();
-                    // Extract version from output like "Ballerina 2201.7.2 (Swan Lake Update 7)"
-                    const matches = versionOutput.match(/Ballerina\s+(\S+)/);
-                    const version = matches && matches[1] ? matches[1] : versionOutput;
-                    resolve(version);
-                } catch (err) {
-                    reject(err);
-                }
-            });
+        }).catch((error) => {
+            console.error('Error executing Windows admin command:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            res = {
+                message: `${errorMessage}`,
+                percentage: 0,
+                success: false,
+                step: -1
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+            window.showErrorMessage(`Error executing admin command: ${errorMessage}`);
         });
     }
 
