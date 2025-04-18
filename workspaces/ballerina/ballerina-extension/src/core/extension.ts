@@ -526,7 +526,7 @@ export class BallerinaExtension {
                     console.error('Command error:', errorOutput);
                     // Check for UAC cancellation
                     if (errorOutput.includes('cancelled by the user') || errorOutput.includes('was canceled')) {
-                        const errorMessage = `Administrator privileges were denied. Command cannot be executed.`
+                        const errorMessage = `Administrator privileges were denied. Command cannot be executed.`;
                         throw new Error(errorMessage);
                     }
                 });
