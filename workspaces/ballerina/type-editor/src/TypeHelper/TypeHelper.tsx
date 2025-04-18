@@ -34,6 +34,7 @@ type TypeHelperComponentProps = {
     currentCursorPosition: number;
     loading?: boolean;
     loadingTypeBrowser?: boolean;
+    referenceTypes: TypeHelperCategory[];
     basicTypes: TypeHelperCategory[];
     importedTypes: TypeHelperCategory[];
     operators: TypeHelperOperator[];
@@ -127,6 +128,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
         typeBrowserRef,
         loading = false,
         loadingTypeBrowser = false,
+        referenceTypes,
         basicTypes,
         importedTypes,
         operators,
@@ -325,7 +327,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                 <S.FooterContainer>
                     {onTypeCreate && (
                         <HelperPane.IconButton
-                            title={getTypeCreateText(currentType, basicTypes, newTypeName)}
+                            title={getTypeCreateText(currentType, referenceTypes, newTypeName)}
                             getIcon={() => <Codicon name="add" />}
                             onClick={() => onTypeCreate(newTypeName.current)}
                         />

@@ -39,6 +39,7 @@ const LoadingContainer = styled.div`
 
 type TypeHelperProps = {
     fieldKey: string;
+    valueTypeConstraint: string;
     typeBrowserRef: RefObject<HTMLDivElement>;
     filePath: string;
     targetLineRange: LineRange;
@@ -56,6 +57,7 @@ type TypeHelperProps = {
 const TypeHelperEl = (props: TypeHelperProps) => {
     const {
         fieldKey,
+        valueTypeConstraint,
         typeHelperState,
         filePath,
         targetLineRange,
@@ -92,7 +94,8 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                             position: {
                                 line: targetLineRange.startLine.line,
                                 offset: targetLineRange.startLine.offset
-                            }
+                            },
+                            ...(valueTypeConstraint && { typeConstraint: valueTypeConstraint })
                         })
                         .then((types) => {
                             const basicTypes = getTypes(types);
@@ -237,6 +240,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                 currentCursorPosition={currentCursorPosition}
                 loading={loading}
                 loadingTypeBrowser={loadingTypeBrowser}
+                referenceTypes={basicTypes}
                 basicTypes={filteredBasicTypes}
                 importedTypes={importedTypes}
                 operators={filteredOperators}
