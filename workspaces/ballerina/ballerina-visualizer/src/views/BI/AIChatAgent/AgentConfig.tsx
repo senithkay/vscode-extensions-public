@@ -9,7 +9,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { FlowNode } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, NodeProperties } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertConfig } from "../../../utils/bi";
@@ -142,6 +142,20 @@ export function AgentConfig(props: AgentConfigProps): JSX.Element {
             }
         }
 
+        // add verbose, maxIter and agentType fields from agent node
+        const otherAgentProperties: NodeProperties = {};
+        if (agentNode.properties.verbose) {
+            otherAgentProperties.verbose = cloneDeep(agentNode.properties.verbose);
+        }
+        if (agentNode.properties.maxIter) {
+            otherAgentProperties.maxIter = cloneDeep(agentNode.properties.maxIter);
+        }
+        if (agentNode.properties.agentType) {
+            otherAgentProperties.agentType = cloneDeep(agentNode.properties.agentType);
+        }
+        const otherAgentFormFields = convertConfig(otherAgentProperties);
+        agentCallFormFields.push(...otherAgentFormFields);
+
         // let's hide connection field
         const connectionField = agentCallFormFields.find((field) => field.key === "connection");
         if (connectionField) {
@@ -159,6 +173,9 @@ export function AgentConfig(props: AgentConfigProps): JSX.Element {
         const instructionValue = (rawData["instruction"] || "").replace(/"/g, '\\"');
         const systemPromptValue = `{role: "${roleValue}", instructions: string \`${instructionValue}\`}`;
         updatedAgentNode.properties.systemPrompt.value = systemPromptValue;
+        updatedAgentNode.properties.verbose.value = rawData["verbose"];
+        updatedAgentNode.properties.maxIter.value = rawData["maxIter"];
+        updatedAgentNode.properties.agentType.value = rawData["agentType"];
 
         const agentResponse = await rpcClient
             .getBIDiagramRpcClient()
