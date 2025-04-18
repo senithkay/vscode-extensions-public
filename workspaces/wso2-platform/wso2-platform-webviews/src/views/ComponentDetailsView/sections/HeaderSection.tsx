@@ -87,7 +87,7 @@ export const HeaderSection: FC<
 					appearance="icon"
 					onClick={() => onDeleteComponent()}
 					disabled={deletingComponent}
-					title="Delete Component"
+					title={`Delete ${extensionName === "Devant" ? "Integration" : "Component"}`}
 					className="text-vsc-descriptionForeground duration-200 hover:text-vsc-errorForeground"
 				>
 					<Codicon name="trash" />

@@ -121,6 +121,7 @@ interface TypeEditorProps {
         onSearchTypeHelper: (searchText: string, isType?: boolean) => void;
         onSearchTypeBrowser: (searchText: string) => void;
         onTypeItemClick: (item: TypeHelperItem) => Promise<AddImportItemResponse>;
+        onCloseCompletions?: () => void;
     }
 }
 

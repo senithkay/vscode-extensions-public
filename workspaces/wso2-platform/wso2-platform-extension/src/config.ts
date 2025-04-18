@@ -34,7 +34,7 @@ const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
 
 const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
 	ghApp: {
-		installUrl: "https://github.com/apps/wso2-cloud-apps-stage/installations/new",
+		installUrl: "https://github.com/apps/wso2-cloud-app-stage/installations/new",
 		authUrl: "https://github.com/login/oauth/authorize",
 		clientId: "Iv1.20fd2645fc8a5aab",
 		redirectUrl: "https://console.st.choreo.dev/ghapp",
@@ -48,7 +48,7 @@ const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
 
 const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
 	ghApp: {
-		installUrl: "https://github.com/apps/choreo-apps-dev/installations/new",
+		installUrl: "https://github.com/apps/wso2-cloud-app-dev/installations/new",
 		authUrl: "https://github.com/login/oauth/authorize",
 		clientId: "Iv1.f6cf2cd585148ee7",
 		redirectUrl: "https://consolev2.preview-dv.choreo.dev/ghapp",

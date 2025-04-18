@@ -22,11 +22,11 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 			setExtensionName(params?.extName);
 			try {
 				isRpcActive(ext);
-				const userInfo = await getUserInfoForCmd("create component dependency");
+				const extensionName = webviewStateStore.getState().state.extensionName;
+				const userInfo = await getUserInfoForCmd(`create dependency`);
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;
 					if (!selected?.org || !selected.project) {
-						const extensionName = webviewStateStore.getState().state.extensionName;
 						window.showInformationMessage(`This directory has not yet been linked to a ${extensionName} project`, "Link Directory").then((res) => {
 							if (res === "Link Directory") {
 								commands.executeCommand(CommandIds.CreateDirectoryContext);
@@ -38,18 +38,23 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 					const components = contextStore.getState().state.components;
 
 					if (components?.length === 0) {
-						window.showInformationMessage("No components available within the project directory", "Create Component").then((res) => {
-							if (res === "Create Component") {
-								commands.executeCommand(CommandIds.CreateNewComponent);
-							}
-						});
+						window
+							.showInformationMessage(
+								`No ${extensionName === "Devant" ? "integrations" : "components"} available within the project directory`,
+								`Create ${extensionName === "Devant" ? "Integration" : "Component"}`,
+							)
+							.then((res) => {
+								if (res === "Create Component" || res === "Create Integration") {
+									commands.executeCommand(CommandIds.CreateNewComponent);
+								}
+							});
 						return;
 					}
 
 					const component = await getComponentStateOfPath(params?.componentFsPath, components);
 
 					if (!component?.component) {
-						throw new Error("Failed to select component");
+						throw new Error(`Failed to select ${extensionName === "Devant" ? "integration" : "component"}`);
 					}
 
 					showComponentDetailsView(
@@ -67,8 +72,8 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 						.onOpenComponentDrawer(getComponentKey(selected.org, selected.project, component.component), ComponentViewDrawers.CreateConnection);
 				}
 			} catch (err: any) {
-				console.error("Failed to create component dependency", err);
-				window.showErrorMessage(err?.message || "Failed to create component dependency");
+				console.error("Failed to create dependency", err);
+				window.showErrorMessage(err?.message || "Failed to create dependency");
 			}
 		}),
 	);
