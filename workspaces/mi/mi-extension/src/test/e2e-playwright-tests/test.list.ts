@@ -32,13 +32,13 @@ test.beforeAll(async () => {
 });
 
 test.describe(artifactTests);
+test.describe(dataMapperTests);
 test.describe(overviewPageTests);
 test.describe(connectionTests);
 test.describe(connectorTests);
 test.describe(inboundEpTests);
 test.describe(logMediatorTests);
 test.describe(cacheMediatorTests);
-test.describe(dataMapperTests);
 test.describe(artifact430Tests);
 
 test.afterAll(async () => {
