@@ -157,6 +157,7 @@ export function FormGenerator(props: FormProps) {
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
+    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     useEffect(() => {
@@ -313,7 +314,7 @@ export function FormGenerator(props: FormProps) {
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
-        setTypes([]);
+        setFilteredTypes([]);
     };
 
     const debouncedRetrieveCompletions = useCallback(
@@ -409,25 +410,35 @@ export function FormGenerator(props: FormProps) {
     );
 
     const debouncedGetVisibleTypes = useCallback(
-        debounce(async (typeConstraint?: string) => {
+        debounce(async (value: string, cursorPosition: number, fetchReferenceTypes?: boolean) => {
             let visibleTypes: CompletionItem[] = types;
             if (!types.length) {
                 const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                     filePath: fileName,
-                    position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                    typeConstraint: typeConstraint,
+                    position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine
                 });
 
                 visibleTypes = convertToVisibleTypes(types);
                 setTypes(visibleTypes);
+            }
+
+            if (!fetchReferenceTypes) {
+                const effectiveText = value.slice(0, cursorPosition);
+                let filteredTypes = visibleTypes.filter((type) => {
+                    const lowerCaseText = effectiveText.toLowerCase();
+                    const lowerCaseLabel = type.label.toLowerCase();
+    
+                    return lowerCaseLabel.includes(lowerCaseText);
+                });
+                setFilteredTypes(filteredTypes);
             }
         }, 250),
         [rpcClient, types, fileName, targetLineRange]
     );
 
     const handleGetVisibleTypes = useCallback(
-        async (typeConstraint?: string) => {
-            await debouncedGetVisibleTypes(typeConstraint);
+        async (value: string, cursorPosition: number, fetchReferenceTypes?: boolean) => {
+            await debouncedGetVisibleTypes(value, cursorPosition, fetchReferenceTypes);
         },
         [debouncedGetVisibleTypes]
     );
@@ -592,11 +603,16 @@ export function FormGenerator(props: FormProps) {
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight,
-        closeCompletions: () => void
+        onTypeCreate: () => void,
     ) => {
         const handleCreateNewType = (typeName: string) => {
-            closeCompletions();
+            onTypeCreate();
             setTypeEditorState({ isOpen: true, newTypeValue: typeName, fieldKey: fieldKey });
+        }
+
+        const handleCloseCompletions = () => {
+            debouncedGetVisibleTypes.cancel();
+            handleExpressionEditorCancel();
         }
 
         return getTypeHelper({
@@ -611,7 +627,8 @@ export function FormGenerator(props: FormProps) {
             onChange: onChange,
             changeTypeHelperState: changeHelperPaneState,
             updateImports: handleUpdateImports,
-            onTypeCreate: handleCreateNewType
+            onTypeCreate: handleCreateNewType,
+            onCloseCompletions: handleCloseCompletions
         });
     }
 
@@ -621,7 +638,8 @@ export function FormGenerator(props: FormProps) {
             triggerCharacters: TRIGGER_CHARACTERS,
             retrieveCompletions: handleRetrieveCompletions,
             extractArgsFromFunction: extractArgsFromFunction,
-            types: types,
+            types: filteredTypes,
+            referenceTypes: types,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
             getTypeHelper: handleGetTypeHelper,
@@ -635,6 +653,7 @@ export function FormGenerator(props: FormProps) {
     }, [
         filteredCompletions,
         types,
+        filteredTypes,
         handleRetrieveCompletions,
         extractArgsFromFunction,
         handleGetVisibleTypes,
