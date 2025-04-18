@@ -264,35 +264,44 @@ export function FormGeneratorNew(props: FormProps) {
     }, [debouncedRetrieveCompletions]);
 
     const debouncedGetVisibleTypes = useCallback(
-        debounce(async (value: string, cursorPosition: number, fetchReferenceTypes?: boolean) => {
-            let visibleTypes: CompletionItem[] = types;
-            if (!types.length) {
-                const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                    filePath: fileName,
-                    position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine
-                });
+        debounce(
+            async (
+                value: string,
+                cursorPosition: number,
+                fetchReferenceTypes?: boolean,
+                valueTypeConstraint?: string
+            ) => {
+                let visibleTypes: CompletionItem[] = types;
+                if (!types.length) {
+                    const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                        filePath: fileName,
+                        position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                        ...(valueTypeConstraint && { typeConstraint: valueTypeConstraint })
+                    });
 
-                visibleTypes = convertToVisibleTypes(types);
-                setTypes(visibleTypes);
-            }
+                    visibleTypes = convertToVisibleTypes(types);
+                    setTypes(visibleTypes);
+                }
 
-            if (!fetchReferenceTypes) {
-                const effectiveText = value.slice(0, cursorPosition);
-                let filteredTypes = visibleTypes.filter((type) => {
-                    const lowerCaseText = effectiveText.toLowerCase();
-                    const lowerCaseLabel = type.label.toLowerCase();
-    
-                    return lowerCaseLabel.includes(lowerCaseText);
-                });
-                setFilteredTypes(filteredTypes);
-            }
-        }, 250),
+                if (!fetchReferenceTypes) {
+                    const effectiveText = value.slice(0, cursorPosition);
+                    let filteredTypes = visibleTypes.filter((type) => {
+                        const lowerCaseText = effectiveText.toLowerCase();
+                        const lowerCaseLabel = type.label.toLowerCase();
+
+                        return lowerCaseLabel.includes(lowerCaseText);
+                    });
+                    setFilteredTypes(filteredTypes);
+                }
+            },
+            250
+        ),
         [rpcClient, types, fileName, targetLineRange]
     );
 
     const handleGetVisibleTypes = useCallback(
-        async (value: string, cursorPosition: number, fetchReferenceTypes?: boolean) => {
-            await debouncedGetVisibleTypes(value, cursorPosition, fetchReferenceTypes);
+        async (value: string, cursorPosition: number, fetchReferenceTypes?: boolean, valueTypeConstraint?: string) => {
+            await debouncedGetVisibleTypes(value, cursorPosition, fetchReferenceTypes, valueTypeConstraint);
         },
         [debouncedGetVisibleTypes]
     );
@@ -410,6 +419,7 @@ export function FormGeneratorNew(props: FormProps) {
 
     const handleGetTypeHelper = (
         fieldKey: string,
+        valueTypeConstraint: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
@@ -432,6 +442,7 @@ export function FormGeneratorNew(props: FormProps) {
 
         return getTypeHelper({
             fieldKey: fieldKey,
+            valueTypeConstraint: valueTypeConstraint,
             typeBrowserRef: typeBrowserRef,
             filePath: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
