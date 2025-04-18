@@ -139,6 +139,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         // use same variable name for model fields
         if (selectedModel?.properties.variable) {
             nodeProperties.variable.value = selectedModel?.properties.variable.value;
+            nodeProperties.variable.hidden = true;
         } else {
             console.error("Already assigned model node variable not found", selectedModel);
         }
