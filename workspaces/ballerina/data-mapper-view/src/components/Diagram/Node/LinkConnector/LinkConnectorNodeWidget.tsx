@@ -156,7 +156,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         data-testid={`link-connector-indexing-${node?.value}`}
                         tooltip='indexing'
                     >
-                        {genArrayElementAccessExpr((node.valueNode as SpecificField).valueExpr)}
+                        {genArrayElementAccessExpr(node.valueNode)}
                     </Button>
                 ) : (
                     <Button
