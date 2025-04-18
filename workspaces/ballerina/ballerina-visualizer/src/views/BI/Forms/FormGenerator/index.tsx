@@ -315,7 +315,6 @@ export function FormGenerator(props: FormProps) {
         setFilteredCompletions([]);
         setCompletions([]);
         setFilteredTypes([]);
-        setTypes([]);
     };
 
     const debouncedRetrieveCompletions = useCallback(
@@ -604,11 +603,16 @@ export function FormGenerator(props: FormProps) {
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight,
-        closeCompletions: () => void
+        onTypeCreate: () => void,
     ) => {
         const handleCreateNewType = (typeName: string) => {
-            closeCompletions();
+            onTypeCreate();
             setTypeEditorState({ isOpen: true, newTypeValue: typeName, fieldKey: fieldKey });
+        }
+
+        const handleCloseCompletions = () => {
+            debouncedGetVisibleTypes.cancel();
+            handleExpressionEditorCancel();
         }
 
         return getTypeHelper({
@@ -623,7 +627,8 @@ export function FormGenerator(props: FormProps) {
             onChange: onChange,
             changeTypeHelperState: changeHelperPaneState,
             updateImports: handleUpdateImports,
-            onTypeCreate: handleCreateNewType
+            onTypeCreate: handleCreateNewType,
+            onCloseCompletions: handleCloseCompletions
         });
     }
 
@@ -647,6 +652,7 @@ export function FormGenerator(props: FormProps) {
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
+        types,
         filteredTypes,
         handleRetrieveCompletions,
         extractArgsFromFunction,

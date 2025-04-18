@@ -119,7 +119,6 @@ export function FormGeneratorNew(props: FormProps) {
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
@@ -171,8 +170,7 @@ export function FormGeneratorNew(props: FormProps) {
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
-        setTypes([]);
-        triggerCompletionOnNextRequest.current = false;
+        setFilteredTypes([]);
     };
 
     const debouncedRetrieveCompletions = useCallback(
@@ -415,12 +413,17 @@ export function FormGeneratorNew(props: FormProps) {
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight,
-        closeCompletions: () => void
+        onTypeCreate: () => void,
     ) => {
         const formField = fieldsValues.find(f => f.key === fieldKey);
         const handleCreateNewType = (typeName: string) => {
-            closeCompletions();
+            onTypeCreate();
             setTypeEditorState({ isOpen: true, newTypeValue: typeName, field: formField });
+        }
+
+        const handleCloseCompletions = () => {
+            debouncedGetVisibleTypes.cancel();
+            handleExpressionEditorCancel();
         }
 
         return getTypeHelper({
@@ -435,7 +438,8 @@ export function FormGeneratorNew(props: FormProps) {
             onChange: onChange,
             changeTypeHelperState: changeHelperPaneState,
             updateImports: handleUpdateImports,
-            onTypeCreate: handleCreateNewType
+            onTypeCreate: handleCreateNewType,
+            onCloseCompletions: handleCloseCompletions
         });
     }
 
