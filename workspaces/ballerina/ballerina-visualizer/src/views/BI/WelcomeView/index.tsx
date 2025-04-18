@@ -122,7 +122,6 @@ type WelcomeViewProps = {
 export function WelcomeView(props: WelcomeViewProps) {
     const { rpcClient } = useRpcContext();
     const [isLoading, setIsLoading] = useState(false);
-    const [updateComplete, setUpdateComplete] = useState(false);
     const [progress, setProgress] = useState<DownloadProgress>(null);
 
     const goToCreateProject = () => {
@@ -235,14 +234,6 @@ export function WelcomeView(props: WelcomeViewProps) {
                                         )}
                                     </div>
                                 )}
-                                {updateComplete && !isLoading && (
-                                    <StyledButton appearance="primary" onClick={() => rpcClient.getCommonRpcClient().executeCommand({ commands: ["workbench.action.reloadWindow"] })}>
-                                        <ButtonContent>
-                                            Restart VS Code
-                                        </ButtonContent>
-                                    </StyledButton>
-                                )}
-
                                 <StepDescription style={{ marginTop: 10 }}>
                                     <strong>Please restart VS Code after updating the Ballerina distribution.</strong>
                                 </StepDescription>
