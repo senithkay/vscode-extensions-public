@@ -121,18 +121,9 @@ type WelcomeViewProps = {
 
 export function WelcomeView(props: WelcomeViewProps) {
     const { rpcClient } = useRpcContext();
-    const [showUpdateButton, setShowUpdateButton] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [updateComplete, setUpdateComplete] = useState(false);
     const [progress, setProgress] = useState<DownloadProgress>(null);
-
-    useEffect(() => {
-        rpcClient.getVisualizerLocation().then((value) => {
-            if (value.metadata?.distributionSetBy === "setByBI") {
-                setShowUpdateButton(true);
-            }
-        });
-    }, []);
 
     const goToCreateProject = () => {
         rpcClient.getVisualizerRpcClient().openView({
@@ -157,11 +148,7 @@ export function WelcomeView(props: WelcomeViewProps) {
 
     const updateBallerina = () => {
         setIsLoading(true);
-        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina-visually"] }).then(() => {
-            setUpdateComplete(true);
-        }).catch(() => {
-            setIsLoading(false);
-        });
+        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina"] });
     };
 
     rpcClient?.onDownloadProgress((response: DownloadProgress) => {

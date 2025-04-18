@@ -95,7 +95,6 @@ export class RPCLayer {
 
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
-    const realPath = ballerinaExtInstance.ballerinaHome ? fs.realpathSync.native(ballerinaExtInstance.ballerinaHome) : "";
     return new Promise((resolve) => {
         resolve({
             documentUri: context.documentUri,
@@ -114,8 +113,7 @@ async function getContext(): Promise<VisualizerLocation> {
                 haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
-                target: context.metadata?.target,
-                distributionSetBy: realPath.includes("ballerina-home") ? "setByBI" : "setByUser"
+                target: context.metadata?.target
             },
             scope: context.scope,
         });
