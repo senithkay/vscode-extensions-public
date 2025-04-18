@@ -51,17 +51,27 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void>
 		= this._onDidChangeTreeData.event;
 
+	private _refreshRequestId: number = 0;
+
 	refresh = debounce(async (langClient: ExtendedLanguageClient) => {
+		const currentRequestId = ++this._refreshRequestId;
+
 		return window.withProgress({
 			location: { viewId: 'MI.project-explorer' },
 			title: 'Loading project structure'
 		}, async () => {
 			try {
-				this._data = await getProjectStructureData(langClient);
-				this._onDidChangeTreeData.fire();
+				// Only continue if this is still the most recent request
+				if (currentRequestId === this._refreshRequestId) {
+					const newData = await getProjectStructureData(langClient);
+					// Final check to ensure this is still the latest request
+					if (currentRequestId === this._refreshRequestId) {
+						this._data = newData;
+						this._onDidChangeTreeData.fire();
+					}
+				}
 			} catch (err) {
 				console.error(err);
-				this._data = [];
 			}
 		});
 	}, 300);
@@ -128,7 +138,7 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 				const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
 				const projectTree = generateTreeData(workspace, resp, runtimeVersion);
 
-				if (projectTree && projectTree.children?.length! > 0) {
+				if (projectTree && projectTree.children && projectTree.children.length > 0) {
 					data.push(projectTree);
 				}
 			};
