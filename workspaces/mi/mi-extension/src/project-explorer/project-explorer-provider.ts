@@ -12,13 +12,12 @@ import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolde
 import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
-import { findJavaFiles } from '../util/fileOperations';
+import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { compareVersions } from '../util/onboardingUtils';
 import { debounce } from 'lodash';
 
-let resourceDetails: ListRegistryArtifactsResponse;
 let extensionContext: vscode.ExtensionContext;
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -193,7 +192,8 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 		} else if (key === 'Resources') {
 			const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
 			if (!isRegistrySupported) {
-				children = generateResources(artifacts[key]);
+				const existingResources = getAvailableRegistryResources(project.uri.fsPath);
+				children = generateResources(artifacts[key], existingResources);
 			} else {
 				continue;
 			}
@@ -246,7 +246,7 @@ function getArtifactConfig(key: string) {
 	};
 }
 
-function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[] {
+function generateResources(data: RegistryResourcesFolder, resourceDetails: ListRegistryArtifactsResponse): ProjectExplorerEntry[] {
 	const result: ProjectExplorerEntry[] = [];
 	const resPathPrefix = path.join("wso2mi", "resources");
 	if (data) {
@@ -269,7 +269,7 @@ function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[
 				result.push(explorerEntry);
 				const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
 				const resourcePath = entry.path.substring(lastIndex);
-				if (checkExistenceOfResource(resourcePath)) {
+				if (checkExistenceOfResource(resourcePath, resourceDetails)) {
 					explorerEntry.contextValue = "registry-with-metadata";
 				} else {
 					explorerEntry.contextValue = "registry-without-metadata";
@@ -279,7 +279,7 @@ function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[
 		if (data.folders) {
 			for (const entry of data.folders) {
 				if (![".meta", "datamapper", "datamappers"].includes(entry.name)) {
-					const files = generateResources(entry);
+					const files = generateResources(entry, resourceDetails);
 					if (!files || files?.length === 0) {
 						continue;
 					}
@@ -290,11 +290,11 @@ function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[
 							type: 'resource',
 							path: `${entry.path}`
 						}, 'folder', true);
-					explorerEntry.children = generateResources(entry);
+					explorerEntry.children = generateResources(entry, resourceDetails);
 					result.push(explorerEntry);
 					const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
 					const resourcePath = entry.path.substring(lastIndex);
-					if (checkExistenceOfResource(resourcePath)) {
+					if (checkExistenceOfResource(resourcePath, resourceDetails)) {
 						explorerEntry.contextValue = "registry-with-metadata";
 					} else {
 						explorerEntry.contextValue = "registry-without-metadata";
@@ -306,7 +306,7 @@ function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[
 	return result;
 }
 
-function checkExistenceOfResource(resourcePath: string): boolean {
+function checkExistenceOfResource(resourcePath: string, resourceDetails: ListRegistryArtifactsResponse): boolean {
 	if (resourceDetails?.artifacts) {
 		for (const artifact of resourceDetails.artifacts) {
 			let transformedPath = artifact.path.replace("/_system/governance/mi-resources", '/resources');
