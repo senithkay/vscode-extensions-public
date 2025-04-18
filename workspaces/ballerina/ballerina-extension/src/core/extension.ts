@@ -237,7 +237,11 @@ export class BallerinaExtension {
             this.updateBallerinaDeveloperPack(true);
         });
 
-        commands.registerCommand('ballerina.update-ballerina', () => { // Update release pack from ballerina update tool with terminal/webview
+        commands.registerCommand('ballerina.update-ballerina', () => { // Update release pack from ballerina update tool with terminal
+            this.updateBallerina();
+        });
+
+        commands.registerCommand('ballerina.update-ballerina-visually', () => { // Update release pack from ballerina update tool with webview
             this.updateBallerinaVisually();
         });
 
@@ -384,7 +388,6 @@ export class BallerinaExtension {
     }
 
 
-    // TODO: This can be removed as its not used.
     async updateBallerina(restartWindow?: boolean) {
         this.getBallerinaVersion(this.ballerinaHome, false).then(async runtimeVersion => {
             const currentBallerinaVersion = runtimeVersion.split('-')[0];
@@ -392,7 +395,7 @@ export class BallerinaExtension {
             const terminal = window.createTerminal('Update Ballerina');
             terminal.show();
             terminal.sendText('bal dist update');
-            window.showInformationMessage('Ballerina update started. Please wait...');
+            window.showInformationMessage('Please proceed with the bal command to update the ballerina distribution');
         }, (reason) => {
             console.error('Error getting the ballerina version:', reason.message);
             this.showMessageSetupBallerina(restartWindow);
@@ -400,8 +403,8 @@ export class BallerinaExtension {
     }
 
     async updateBallerinaVisually() {
-        commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
-        const realPath = ballerinaExtInstance.ballerinaHome ? fs.realpathSync.native(ballerinaExtInstance.ballerinaHome) : "";
+        commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
+        const realPath = this.ballerinaHome ? fs.realpathSync.native(this.ballerinaHome) : "";
         this.executeCommandWithProgress(realPath.includes("ballerina-home") ? 'bal dist update' : 'sudo bal dist update');
     }
 

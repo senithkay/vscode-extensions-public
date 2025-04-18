@@ -148,10 +148,11 @@ export function WelcomeView(props: WelcomeViewProps) {
 
     const updateBallerina = () => {
         setIsLoading(true);
-        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina"] });
+        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina-visually"] });
     };
 
     rpcClient?.onDownloadProgress((response: DownloadProgress) => {
+        setIsLoading(true);
         setProgress(response);
     });
 
@@ -196,39 +197,41 @@ export function WelcomeView(props: WelcomeViewProps) {
                                 <StepDescription>
                                     Your current Ballerina distribution is not supported. Please update to version 2201.12.3 or above.
                                 </StepDescription>
-                                <StyledButton appearance="primary" onClick={updateBallerina}>
+                                <StyledButton appearance="primary" onClick={updateBallerina} disabled={isLoading}>
                                     <ButtonContent>
-                                        Update NowX
+                                        Update Now
                                     </ButtonContent>
                                 </StyledButton>
 
                                 {isLoading && (
                                     <div style={{ marginTop: 10 }}>
-                                        <StepDescription>
+                                        {!progress && <StepDescription>
                                             Updating Ballerina... This may take a few minutes.
                                         </StepDescription>
-                                        <br />
+                                        }
                                         {progress && (
-                                            <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
+                                            <>
                                                 <StepDescription>{progress.message}</StepDescription>
-                                                <div style={{
-                                                    width: '100%',
-                                                    height: '4px',
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                                    borderRadius: '2px',
-                                                    overflow: 'hidden',
-                                                    position: 'relative'
-                                                }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
                                                     <div style={{
-                                                        position: 'absolute',
-                                                        width: `${progress.percentage}%`,
-                                                        height: '100%',
-                                                        backgroundColor: '#4a86e8',
+                                                        width: '100%',
+                                                        height: '4px',
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                                         borderRadius: '2px',
-                                                        animation: 'progressAnimation 1.5s infinite ease-in-out'
-                                                    }} />
+                                                        overflow: 'hidden',
+                                                        position: 'relative'
+                                                    }}>
+                                                        <div style={{
+                                                            position: 'absolute',
+                                                            width: `${progress.percentage}%`,
+                                                            height: '100%',
+                                                            backgroundColor: '#4a86e8',
+                                                            borderRadius: '2px',
+                                                            animation: 'progressAnimation 1.5s infinite ease-in-out'
+                                                        }} />
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </>
                                         )}
                                     </div>
                                 )}
