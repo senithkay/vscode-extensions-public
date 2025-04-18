@@ -48,7 +48,7 @@ import {
 import { BALLERINA_COMMANDS, runCommand } from "../features/project";
 import { gitStatusBarItem } from "../features/editor-support/git-status";
 import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
-import { BallerinaProject, DownloadProgress, onDownloadProgress } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, DownloadProgress, onDownloadProgress, SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
 import os, { platform } from "os";
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import AdmZip from 'adm-zip';
@@ -237,11 +237,7 @@ export class BallerinaExtension {
             this.updateBallerinaDeveloperPack(true);
         });
 
-        commands.registerCommand('ballerina.update-ballerina', () => { // Update release pack from ballerina update tool with a terminal
-            this.updateBallerina(true);
-        });
-
-        commands.registerCommand('ballerina.update-ballerina-visually', () => {
+        commands.registerCommand('ballerina.update-ballerina', () => { // Update release pack from ballerina update tool with terminal/webview
             this.updateBallerinaVisually();
         });
 
@@ -388,6 +384,7 @@ export class BallerinaExtension {
     }
 
 
+    // TODO: This can be removed as its not used.
     async updateBallerina(restartWindow?: boolean) {
         this.getBallerinaVersion(this.ballerinaHome, false).then(async runtimeVersion => {
             const currentBallerinaVersion = runtimeVersion.split('-')[0];
@@ -403,29 +400,24 @@ export class BallerinaExtension {
     }
 
     async updateBallerinaVisually() {
-        this.getBallerinaVersion(this.ballerinaHome, false).then(async runtimeVersion => {
-            const currentBallerinaVersion = runtimeVersion.split('-')[0];
-            console.log('Current Ballerina version:', currentBallerinaVersion);
-            const realPath = ballerinaExtInstance.ballerinaHome ? fs.realpathSync.native(ballerinaExtInstance.ballerinaHome) : "";
-            this.executeCommandWithProgress(realPath.includes("ballerina-home") ? 'bal dist update' : 'sudo bal dist update');
-        }, (reason) => {
-            console.error('Error getting the ballerina version:', reason.message);
-            this.showMessageSetupBallerina();
-        });
+        commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
+        const realPath = ballerinaExtInstance.ballerinaHome ? fs.realpathSync.native(ballerinaExtInstance.ballerinaHome) : "";
+        this.executeCommandWithProgress(realPath.includes("ballerina-home") ? 'bal dist update' : 'sudo bal dist update');
     }
 
     private async executeCommandWithProgress(command: string) {
         // Check if this is a sudo command (for macOS/Linux) or needs admin rights (Windows)
         const isSudoCommand = command.trim().startsWith('sudo');
         window.showInformationMessage(`Executing: ${command}`);
-
         if (isSudoCommand) {
             if (isWindows()) {
                 // Windows: Use PowerShell with "Run as Administrator"
                 return this.executeWindowsAdminCommand(command);
             } else {
-                // macOS/Linux: Get password for sudo
-                return this.executeSudoCommandWithScript(command);
+                const terminal = window.createTerminal('Update Ballerina');
+                terminal.show();
+                terminal.sendText(command);
+                window.showInformationMessage('Please proceed with the sudo command to update the ballerina distribution');
             }
         } else {
             // Regular non-elevated command
@@ -582,6 +574,7 @@ export class BallerinaExtension {
         });
     }
 
+    // TODO: This can be removed.
     // Alternative method that uses a temporary script to execute sudo commands
     private async executeSudoCommandWithScript(command: string): Promise<void> {
 
