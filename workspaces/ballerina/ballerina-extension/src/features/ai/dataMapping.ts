@@ -24,7 +24,8 @@ export async function generateDataMapping(
   projectRoot: string,
   request: GenerateMappingsFromRecordRequest
 ): Promise<GenerateMappingFromRecordResponse> {
-    const source = createDataMappingFunctionSource(request.inputRecordTypes, request.outputRecordType, request.functionName);
+    const source = createDataMappingFunctionSource(request.inputRecordTypes, request.outputRecordType, request.functionName, 
+      request.inputNames);
     const file = request.attachment && request.attachment.length > 0
       ? request.attachment[0]
       : undefined;
@@ -99,10 +100,10 @@ async function getUpdatedFunctionSource(
   
     const { parseSuccess, source, syntaxTree } = processedST as SyntaxTree;
     if (!parseSuccess) {
-      throw new Error("Error modifying syntax tree");
+      throw new Error("No valid fields were identified for mapping between the given input and output records.");
     }
   
-    const fn = getFunction(
+    const fn = await getFunction(
       syntaxTree as ModulePart,
       funcDefinitionNode.functionName.value
     );
@@ -110,24 +111,37 @@ async function getUpdatedFunctionSource(
     return fn.source;
 }
 
-function createDataMappingFunctionSource(inputParams: DataMappingRecord[], outputParam: DataMappingRecord, functionName: string): string {
-    const finalFunctionName = functionName || "transform";
-    const parametersStr = inputParams
-        .map((item) => `${item.type}${item.isArray ? '[]' : ''} ${camelCase(item.type)}`)
-        .join(",");
+function createDataMappingFunctionSource(inputParams: DataMappingRecord[], outputParam: DataMappingRecord, functionName: string, inputNames:string[]): string {
+  const finalFunctionName = functionName || "transform";
 
-    const returnTypeStr = `returns ${outputParam.type}${outputParam.isArray ? '[]' : ''}`;
+  function processType(type: string): string {
+    let typeName = type.includes('/') ? type.split('/').pop()! : type;
+    if (typeName.includes(':')) {
+      const [modulePart, typePart] = typeName.split(':');
+      typeName = `${modulePart.split('.').pop()}:${typePart}`;
+    }
+    return typeName;
+  }
 
-    const modification = createFunctionSignature(
-        "",
-        finalFunctionName,
-        parametersStr,
-        returnTypeStr,
-        {startLine: 0, startColumn: 0},
-        false,
-        true,
-        outputParam.isArray ? '[]' : '{}'
-    );
-    const source = getSource(modification);
-    return source;
+  const parametersStr = inputParams
+    .map((item, index) => {
+      const paramName = inputNames[index] || camelCase(processType(item.type));
+      return `${processType(item.type)}${item.isArray ? '[]' : ''} ${paramName}`;
+    })
+    .join(", ");
+
+  const returnTypeStr = `returns ${processType(outputParam.type)}${outputParam.isArray ? '[]' : ''}`;
+
+  const modification = createFunctionSignature(
+    "",
+    finalFunctionName,
+    parametersStr,
+    returnTypeStr,
+    { startLine: 0, startColumn: 0 },
+    false,
+    true,
+    '{}'
+  );
+  const source = getSource(modification);
+  return source;
 }

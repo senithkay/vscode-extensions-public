@@ -7,35 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { DIRECTORY_MAP, EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel, NodePosition } from '@wso2-enterprise/ballerina-core';
-import { Button, Codicon, ComponentCard, Icon, TextField, Typography, Stepper, ProgressRing, View, ViewContent, CheckBox, AutoComplete } from '@wso2-enterprise/ui-toolkit';
+import { useEffect, useState } from 'react';
+import { EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel } from '@wso2-enterprise/ballerina-core';
+import { Stepper, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import ListenerConfigForm from './Forms/ListenerConfigForm';
 import ServiceConfigForm from './Forms/ServiceConfigForm';
-import { BodyText, LoadingContainer } from '../../styles';
-import { BIHeader } from '../BIHeader';
-import { FormValues } from '@wso2-enterprise/ballerina-side-panel';
-
-const FORM_WIDTH = 600;
-
-const FormContainer = styled.div`
-    padding-top: 15px;
-    padding-bottom: 15px;
-`;
-
-
-const ContainerX = styled.div`
-    padding: 0 20px 20px;
-    max-width: 600px;
-    > div:last-child {
-        padding: 20px 0;
-        > div:last-child {
-            justify-content: flex-start;
-        }
-    }
-`;
+import { LoadingContainer, LoadingOverlayContainer } from '../../styles';
+import { TitleBar } from '../../../components/TitleBar';
+import { TopNavigationBar } from '../../../components/TopNavigationBar';
+import { LoadingRing } from '../../../components/Loader';
+import { isBetaModule } from '../ComponentListView/componentListUtils';
 
 const Container = styled.div`
     display: "flex";
@@ -44,33 +27,16 @@ const Container = styled.div`
     margin: 20px;
 `;
 
-const BottomMarginTextWrapper = styled.div`
-    margin-top: 20px;
-    margin-left: 20px;
-    font-size: 15px;
-    margin-bottom: 10px;
+const StepperContainer = styled.div`
+    margin-top: 16px;
+    margin-left: 16px;
+    margin-bottom: 20px;
 `;
 
-const HorizontalCardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-`;
-
-const ButtonWrapper = styled.div`
-    max-width: 600px;
-    display: flex;
-    gap: 10px;
-    justify-content: right;
-`;
-
+interface WizardHeaderInfo {
+    title: string;
+    moduleName: string;
+}
 
 export interface ServiceWizardProps {
     type: string;
@@ -82,6 +48,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     const [step, setStep] = useState<number>(0);
 
+    const [headerInfo, setHeaderInfo] = useState<WizardHeaderInfo>(undefined);
     const [listenerModel, setListenerModel] = useState<ListenerModel>(undefined);
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [listeners, setListeners] = useState<ListenersResponse>(undefined);
@@ -91,11 +58,17 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     const [saving, setSaving] = useState<boolean>(false);
     const [existingListener, setExistingListener] = useState<string>(undefined);
-
-    const listenerConfigForm = useRef<{ triggerSave: () => void }>(null);
-    const serviceConfigForm = useRef<{ triggerSave: () => void }>(null);
+    const [pullingModules, setPullingModules] = useState<boolean>(false);
 
     useEffect(() => {
+        rpcClient.getServiceDesignerRpcClient()
+            .getServiceModel({ filePath: "", moduleName: type, listenerName: "" })
+            .then(res => {
+                setHeaderInfo({
+                    title: res.service.displayName || res.service.name,
+                    moduleName: res.service.moduleName
+                });
+            });
         rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
             console.log("Existing Listeners: ", res);
             setExisting(res.hasListeners);
@@ -119,7 +92,14 @@ export function ServiceWizard(props: ServiceWizardProps) {
         setSaving(true);
         let listenerName;
         if (value) {
+            // Set a timeout to show step 2 after 3 seconds
+            const timeoutId = setTimeout(() => {
+                setPullingModules(true);
+            }, 3000);
             await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener: value });
+            // Clear the timeout if the operation completed before 3 seconds
+            clearTimeout(timeoutId);
+            setPullingModules(false);
             if (value.properties['name'].value) {
                 listenerName = value.properties['name'].value;
             }
@@ -138,33 +118,9 @@ export function ServiceWizard(props: ServiceWizardProps) {
         });
     };
 
-    const handleOnNext = () => {
-        if (existing && !creatingListener) {
-            handleListenerSubmit();
-        } else {
-            if (listenerConfigForm.current) {
-                listenerConfigForm.current.triggerSave();
-            }
-        }
-    }
-
-    const handleOnSave = () => {
-        if (serviceConfigForm.current) {
-            serviceConfigForm.current.triggerSave();
-        }
-    }
-
     const handleServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position
-            },
-        });
-        setSaving(false);
     }
 
     const onBack = () => {
@@ -184,38 +140,40 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     return (
         <View>
-            <ViewContent padding>
-                <BIHeader />
-                {!listenerModel &&
+            <TopNavigationBar />
+            {headerInfo && (
+                <TitleBar
+                    title={headerInfo.title}
+                    isBetaFeature={isBetaModule(headerInfo.moduleName)}
+                />
+            )}
+            <ViewContent>
+                {!listenerModel && !listeners &&
                     <LoadingContainer>
-                        <ProgressRing />
-                        <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading...</Typography>
+                        <LoadingRing message="Loading listener..." />
                     </LoadingContainer>
                 }
                 {listenerModel &&
                     <Container>
-                        {!listeners?.hasListeners && <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />}
-                        {step === 0 && !saving &&
+                        {!listeners?.hasListeners &&
+                            <StepperContainer>
+                                <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />
+                            </StepperContainer>
+                        }
+                        {step === 0 &&
                             <>
-                                <ListenerConfigForm formRef={listenerConfigForm} listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
+                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={saving ? "Creating" : (listeners?.hasListeners ? "Create" : undefined)} isSaving={saving} />
                             </>
                         }
-                        {step === 0 && saving &&
-                            <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Creating the listener...</Typography>
-                            </LoadingContainer>
-                        }
-                        {step === 1 && !saving &&
+                        {step === 1 &&
                             <>
-                                <ServiceConfigForm formRef={serviceConfigForm} serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={saving ? "Creating" : "Create"} isSaving={saving} />
                             </>
                         }
-                        {step === 1 && saving &&
-                            <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Saving... Please wait</Typography>
-                            </LoadingContainer>
+                        {pullingModules &&
+                            <LoadingOverlayContainer>
+                                <LoadingRing message="Pulling the required modules..." />
+                            </LoadingOverlayContainer>
                         }
                     </Container>
                 }

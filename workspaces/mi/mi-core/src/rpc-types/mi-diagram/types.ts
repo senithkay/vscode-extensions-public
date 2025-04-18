@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { DiagramService, Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Diagnostic, Position, TextDocumentIdentifier, TextEdit } from "vscode-languageserver-types";
 import { HelperPaneData } from '../../interfaces/mi-diagram';
 
@@ -28,7 +28,7 @@ export interface ApplyEditRequest {
 
 export interface ApplyEditsRequest {
     documentUri: string;
-    edits: TextEdit[];
+    edits: ExtendedTextEdit[];
     disableFormatting?: boolean;
     disableUndoRedo?: boolean;
     addNewLine?: boolean;
@@ -43,11 +43,14 @@ export interface CreateAPIRequest {
     name: string;
     xmlData?: string;
     version?: string;
+    context?: string;
+    versionType?: string;
     saveSwaggerDef?: boolean;
     swaggerDefPath?: string;
     wsdlType?: "file" | "url";
     wsdlDefPath?: string;
     wsdlEndpointName?: string;
+    projectDir?: string;
 }
 
 export interface EditAPIRequest {
@@ -445,6 +448,7 @@ export interface ShowErrorMessageRequest {
 
 export interface OpenDiagramRequest {
     path: string;
+    beside?: boolean;
 }
 
 export interface CreateAPIResponse {
@@ -1242,6 +1246,18 @@ export interface WriteContentToFileResponse {
     status: boolean;
 }
 
+export interface HandleFileRequest {
+    operation : "read" | "write" | "delete";
+    fileName : string;
+    filePath : string;
+    content?: string;
+}
+
+export interface HandleFileResponse {
+    status: boolean;
+    content?: string;
+}
+
 export interface HighlightCodeRequest {
     range: Range;
     force?: boolean;
@@ -1250,10 +1266,12 @@ export interface HighlightCodeRequest {
 
 export interface GetWorkspaceContextResponse {
     context: string[];
+    rootPath: string;
 }
 
 export interface GetSelectiveWorkspaceContextResponse {
     context: string[];
+    rootPath: string;
 }
 
 export interface GetSelectiveArtifactsRequest {
@@ -1399,6 +1417,17 @@ export interface CreateClassMediatorRequest {
 export interface CreateClassMediatorResponse {
     path: string;
 }
+
+export interface CreateBallerinaModuleRequest {
+    projectDirectory: string;
+    moduleName: string;
+    version: string;
+}
+
+export interface CreateBallerinaModuleResponse {
+    path: string;
+}
+
 export interface GetBackendRootUrlResponse {
     url: string;
 }
@@ -1467,6 +1496,8 @@ export interface ConnectorDependency {
     artifactId: string;
     version: string;
     connectorPath?: string;
+    isBallerinaModule?: boolean;
+    ballerinaModulePath?: string;
 }
 
 export interface UpdateConnectorRequest {
@@ -1494,6 +1525,10 @@ export interface StoreConnectorJsonResponse {
     outboundConnectors?: any[];
     inboundConnectors?: any[];
     connectors?: any[];
+}
+
+export interface LocalInboundConnectorsResponse {
+    "inbound-connector-data"?: any;
 }
 
 export interface RemoveConnectorRequest {
@@ -1624,6 +1659,22 @@ export interface DeleteArtifactRequest {
 
 export interface APIContextsResponse {
     contexts: string[]
+}
+
+export interface BuildProjectRequest {
+    buildType?: 'docker' | 'capp';
+}
+
+export interface DevantMetadata {
+    isLoggedIn?: boolean;
+    hasComponent?: boolean;
+    hasLocalChanges?: boolean;
+}
+
+export interface DeployProjectRequest {
+}
+export interface DeployProjectResponse {
+    success: boolean;
 }
 
 export interface ExportProjectRequest {
@@ -1816,7 +1867,17 @@ export interface DSSFetchTablesResponse {
 export interface MarkAsDefaultSequenceRequest {
     path: string;
     remove?: boolean;
+    name?: string
 }
+
+export const SCOPE = {
+    AUTOMATION: 'automation',
+    INTEGRATION_AS_API: 'integration-as-api',
+    EVENT_INTEGRATION: 'event-integration',
+    FILE_INTEGRATION: 'file-integration',
+    AI_AGENT: 'ai-agent',
+    ANY: 'any'
+};
 
 export interface GetSubFoldersRequest {
     path: string;
@@ -1839,7 +1900,10 @@ export interface MediatorTryOutRequest {
     file: string;
     line: number;
     column: number;
+    contentType?: string;
     inputPayload?: string;
+    queryParams?: Param[];
+    pathParams?: Param[];
     mediatorType?: string;
     mediatorInfo?: MediatorTryOutInfo,
     tryoutId?: string;
@@ -1848,6 +1912,11 @@ export interface MediatorTryOutRequest {
         text: string;
         range: Range;
     }[]
+}
+
+export interface Param {
+    key: string;
+    value: string;
 }
 
 export interface MediatorTryOutResponse {
@@ -1885,20 +1954,27 @@ export interface Params {
 }
 
 export interface SavePayloadRequest {
-    payload: string;
+    payload: any;
+    artifactModel: DiagramService;
+    defaultPayload: string;
 }
 
 export interface GetPayloadsRequest {
     documentUri: string;
+    artifactModel: DiagramService;
 }
 
 export interface GetPayloadsResponse {
     payloads: InputPayload[];
+    defaultPayload: string;
 }
 
 export interface InputPayload {
     name: string;
+    contentType: string;
     content: string;
+    queryParams: { [key: string]: string }[];
+    pathParams: { [key: string]: string }[];
 }
 
 export interface GetMediatorsRequest {
@@ -1907,12 +1983,15 @@ export interface GetMediatorsRequest {
 }
 
 export interface GetMediatorsResponse {
-    [key: string]: { 
-        items: Mediator[],
+    [key: string]: {
+        items: Mediator[] | MediatorCategory[],
         isConnector?: boolean;
+        isSupportCategories?: boolean;
         artifactId?: string;
         version?: string;
         connectorPath?: string;
+        isBallerinaModule?: boolean;
+        ballerinaModulePath?: string
     };
 }
 
@@ -1924,10 +2003,15 @@ export interface Mediator {
     icon: string;
     operationName?: string;
     iconPath?: string;
+    tooltip?: string;
+}
+
+export interface MediatorCategory {
+    [key: string]: Mediator[];
 }
 
 export interface GetMediatorRequest {
-    mediatorType: string;
+    mediatorType?: string;
     documentUri: string;
     range: Range;
     isEdit?: boolean;
@@ -1950,7 +2034,12 @@ export interface UpdateMediatorRequest {
 }
 
 export interface UpdateMediatorResponse {
-    textEdits: TextEdit[];
+    textEdits: ExtendedTextEdit[];
+}
+
+export interface ExtendedTextEdit extends TextEdit {
+    documentUri?: string;
+    isCreateNewFile?: boolean;
 }
 
 export interface GetConnectionSchemaRequest {

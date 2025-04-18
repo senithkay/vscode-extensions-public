@@ -8,6 +8,7 @@
  */
 export const OBJECT_OUTPUT_TARGET_PORT_PREFIX = "objectOutput";
 export const ARRAY_OUTPUT_TARGET_PORT_PREFIX = "arrayOutput";
+export const UNION_OUTPUT_TARGET_PORT_PREFIX = "unionOutput";
 export const PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX = "primitiveOutput";
 export const FOCUSED_INPUT_SOURCE_PORT_PREFIX = "focusedInput";
 export const SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX = "subMappingInput";
@@ -52,6 +53,6 @@ export const OFFSETS = {
     INTERMEDIATE_CLAUSE_HEIGHT: 80
 }
 
-export const DATA_MAPPER_DOC_VERSION = "4.4.0"; // TODO: Replace this with "latest" after the release
+export const DATA_MAPPER_DOC_VERSION = "latest";
 export const DATA_MAPPER_DOC_URL = `https://mi.docs.wso2.com/en/${DATA_MAPPER_DOC_VERSION}/reference/mediators/data-mapper-mediator/`;
-export const DATA_MAPPER_ARRAY_MAPPING_DOC_URL = `${DATA_MAPPER_DOC_URL}#array-mapping`;
+export const DATA_MAPPER_ARRAY_MAPPING_DOC_URL = `${DATA_MAPPER_DOC_URL}#array-mappings`;

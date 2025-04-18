@@ -1,22 +1,24 @@
 
-import { ExtendedLangClient, ballerinaExtInstance } from './core';
+import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, TempData } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
-import { commands, Uri, workspace } from 'vscode';
+import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
 import { notifyCurrentWebview, RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
-import * as fs from 'fs';
 import * as path from 'path';
 import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
+import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
+import { buildProjectArtifactsStructure, forceUpdateProjectArtifacts } from './utils/project-artifacts';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
+    isBISupported: boolean;
     errorCode: string | null;
 }
 
@@ -25,18 +27,44 @@ export let undoRedoManager: UndoRedoManager;
 
 const stateMachine = createMachine<MachineContext>(
     {
-        /** @xstate-layout N4IgpgJg5mDOIC5QDUCWsCuBDANqgXmAE4B0AkgHaoAuAxBAPYVgmoUBuDA1i2prgWLkq1BG04BjLNVRMA2gAYAuoqWJQABwawasiupAAPRACYAjGZIKArCYUAOAMxnr1gJz23HgDQgAnqYKjiQmACxeXgBskaEA7KGRsfYAvsm+fNh4hKSUNLTERAykGjjSAGZFALYkGQLZwjRiHAxSMvLKqgZaOm36SEaI0ZEkZiZ21mY2jtbTvgEIbrEkkU4mK7Em7hZOqenomYKkAKJEhUS0AEpHACoXAJqd-d26TAbGCKNziKO7ILVZQguYCwED8tAA8gAFI4AOQA+sgyEcAOqPTTaF59UDvcLBSLTUKhBSbab40JfD6xBQkNyOeKxMzOBRuEyxFm-f6HGqoMAAdwAghIZOwwLQAMIAGXBAGUjmiQM9em9EI5IiYaSYWY57GY3GTEhTHCZ7MtVXFzMyxmZYhz9nUhGg+YLhaKobCEUjUcouhilf13saSI44rYzJ5Qjr4o5HBT7AphrZg9bpmEZpFbfwAaRHQKhagRbQAGJkCVHOFigAS-JhAHEjgAReWKvTKj4KWIUxLDTYKSaOPVeILWDMHeo5535ljsHm83J0RjMVjNHjczNc8d5kUkad8udNSTSPSqJu+lv+xCEhNORw2eyJOJOCludwkWLWXuM+N2SLWFJpP52lm3JOpuU4znO+SnEUJAlOUVSrqODozhOW47rOIj7i0h7tCo3pPKerznh8oSBi49ihKMTjhO+Hb+BexIkBGX5jJq0ZqiO9rZshoEkLyYAAEY5hKDAgpA9BMCw4jcLwgHrtxLq8QJQkiRAkCYa0R4dHh6I9Ge2KILEMRBs+STMmYkQWMSsb4iQ74KPZhJxFGf57GuY7yZOimCTOwmiRAkFnDBpTUBURDVJy7kgQpfHeXyvmqRA6nYRQx7aQqBFYgMCCGaExnWKZbjmZZJixuZVj2e2kRuHExKuBxQEbgpaHxWwUC0IiKJwlc-L1g8aXNoR+lthZjGsn2ozrO41nqhVvZEjE-bWKE9VyVFnkYBoEDSGAObiYuUkrhFSFrVuG1bdQO0zklvSpWo+G6YNWWXrZ163veSQxnR2UWOVvabCY0x-W4K2RbmClndtu0FNBsEhfBR1cSdLAQxdObXZpuF3TpmKts9v7Rm99KPl90TBHZCgkfi1VuL2qT-hQDCqfA-QIz6D2Ze8AC0iTLLYD6TBM9ibLR8yc2+tkVWYCR6vY77hCDQhzmzONESRFLWt24R6hMGw2KyjgK8cUFEMrfpDaMawkHG5iuHSstGtY6uTFY4yMiyzIUbENr-gjJBAiC8zY2bWWqsM+JLbE2rxjE1WffMdjqmEUR6jYHhGstPuyaDKFgKbelZZzuq82ESQC2GmwGl9+XWDSETU6yP6y4bwFg55aFK-dKtDca6ozKMDjGvNCRx4g1MS-ZtiR-lzgZ65iGI63W4xcpfl5497zuNS2ozFS1iRMykdmLGNivnZ5lqvGhVmM3jVtz5KmtWvHOjy4QahHSaw0-brLTePc3xu-Z8s8AJuWOovMCfJ-agifq2C2lhdTWwSESeI79f5a1pD+cyXhnA3w8qdTakMZwwKIpsXKCdL5hDjPGewFIva5R-L+Kk+9+wWG9nPTiLcc7bhnCcM4xChqFRrsGD+VUHAzB-iTKqp8PyhAmE5LwdNkhAA */
+        /** @xstate-layout N4IgpgJg5mDOIC5QDUCWsCuBDANqgXmAE4DEASgKIDKFAKgPq0Dy9FAGrRQHJUCSTXepQCCAEQCaAbQAMAXUSgADgHtYqAC6plAOwUgAnogC0ARgDsAVgB0AZgvSHANhPS7Ji44BMAGhAAPRHsAFgBfEN80TFwCYitUbQ1UaMISCB0wOO0AN2UAawzI7DxCIkzE5LAEeJyAYyxNHRlZJr0VNQbdJH9ETyCgqwAOO2legE4gxwtLTxtfQwQTT1HpW1G18aCLAaCZsIj0IpjS+PLisBJiImVSxRx6gDNrgFsrQorjhM0KquzlOo6mi0um1Ejo9AEEL1+kN7GMJlMLDM5sYTHYrI5LA4bNILOYpgM9iA3mdSlgaposvUwAAZKipdKZHL5V4Hd5WMkUqm0n61epabSAuStVSgzqgCF2UZWIJmTyIkwDcYDcxBZELGzjaVjUYWUbbbEmUaE4lHdnk1CU9Q0umXa5WW4PZ4sqIks2cq3c6p-PmNORApQijrgxCS6Wy+WKoLKsyqgyIExBPXSxNrSwuBXSAnhIms104WAUIhXUiUWhkKRC4GB-nBhYDTxWQ2LMwKpUqnxx9WanYp3X66SG42501gPxW7RqHRkMBYCD6EhMAAK3HoyF4FAA6v6QCCg10Ib0BtLhjYXPZpMsBo41QmLNZPAMY2tXI4caMzEOXaasqgwAB3YRzSyDIf3-XhPnpbQMi9ZkTRKKxQIAoCQN-P9wI0HlvQBP1KwDdoay6eZz2ldYBgsbFT0TCxfAlcwrA8R8PBcNwPE-Q54MQwCKQyP8wAAIzQf9qWUWd4igSDoN+WDhw41CuItHj+MEv9hNE7QoEw-5+UFeQq3wsF9x6bZ6McRjnFcXEPDVTYGxTPVyNcBMdTYtlOOQqxeIE1DVIgSAJMZPIChk2I3O4jylO8kTfIgTSfQFHDdLw0VayWBshkxUZ3ERMwbD6azpH6OyyIopyLBc11QoUhDUOnWd5yXFc103bddwI8UelPVYbEsbFcUsMwBjVO8j1y7q7BKqjyu-OT3MQ2q5xIJqN3oABVRdRGETgWurAz2shTqNW6hy+vxNVHEmWxHyjPUBmkAavCm2T-3k4Dqv-eb5wAMV4akKFYUReFobb9LFbp9pMLqepxPEBrVMxZWPRY+k2bZdmzOCQpmsLEIoCBEnUkgKABhhRAEChgeSwz9scKwzFGI7NnhxwbAxDt5kfKUZTsl83w-QltGUXz4C6DGiGFEHayMUZr07IxPGZqwRnPZYJnfPoyvR4KPlOGJxcpvbTClSZegGs8FTlDEhqjEi1mKxzJs1r94I5C0uSoPW9wNw10URGVlWh+sPDMOHsUbFMr3rZYH1CR32NifNC2LD22rBw2fZN-3cUDy3O0yiG6dtmFEzumxHtiUdx0nbQPuT3bU+942-bN7Pg87FwJisTwn2WRwgm6uU+f2J3Mee5Da9BiEjCjNVTxp+sUxsB8KMHnNh9KSrXsQ9D1HH2tpCGhwbfsibnNj1ysaqzzlJ8sTd6p-fO1MhsnL1J+o+2Mv14v16r8i2dIDvntYyUZHymRsGRFszhZidgGLAzuSMBo9nsCzT+b0kLYxqjOOcgCwYP3mO3awfRbY3TuleTwqCN4oX-LjfGUAcEQjwfGcwUpRjak8CYRw0sCqODCGEIAA */
         id: "Visualizer",
         initial: 'initialize',
         predictableActionArguments: true,
         context: {
             langClient: null,
             errorCode: null,
+            isBISupported: false,
             view: MACHINE_VIEW.Overview
         },
         on: {
             RESET_TO_EXTENSION_READY: {
-                target: "extensionReady"
+                target: "extensionReady",
+            },
+            UPDATE_PROJECT_STRUCTURE: {
+                actions: [
+                    assign({
+                        projectStructure: (context, event) => event.payload,
+                        tempData: (context, event) => event.stateMachineNavigate ? undefined : context.tempData // Remove temp data if the location is set
+                    }),
+                    (context, event) => {
+                        if (event.stateMachineNavigate) {
+                            if (event.location) {
+                                openView(EVENT_TYPE.OPEN_VIEW, event.location);
+                            } else {
+                                updateView();
+                            }
+                        } else {
+                            notifyCurrentWebview();
+                        }
+                        commands.executeCommand("BI.project-explorer.refresh");
+                    }
+                ]
+            },
+            SET_TEMP_DATA: {
+                actions: assign({
+                    tempData: (context, event) => event.payload
+                })
             }
         },
         states: {
@@ -47,7 +75,8 @@ const stateMachine = createMachine<MachineContext>(
                         target: "activateLS",
                         actions: assign({
                             isBI: (context, event) => event.data.isBI,
-                            projectUri: (context, event) => event.data.projectUri
+                            projectUri: (context, event) => event.data.projectPath,
+                            scope: (context, event) => event.data.scope
                         })
                     },
                     onError: {
@@ -59,13 +88,28 @@ const stateMachine = createMachine<MachineContext>(
                 invoke: {
                     src: 'activateLanguageServer',
                     onDone: {
-                        target: "extensionReady",
+                        target: "fetchProjectStructure",
                         actions: assign({
-                            langClient: (context, event) => event.data
+                            langClient: (context, event) => event.data.langClient,
+                            isBISupported: (context, event) => event.data.isBISupported
                         })
                     },
                     onError: {
-                        target: "extensionReady"
+                        target: "lsError"
+                    }
+                }
+            },
+            fetchProjectStructure: {
+                invoke: {
+                    src: 'registerProjectArtifactsStructure',
+                    onDone: {
+                        target: "extensionReady",
+                        actions: assign({
+                            projectStructure: (context, event) => event.data.projectStructure
+                        })
+                    },
+                    onError: {
+                        target: "lsError"
                     }
                 }
             },
@@ -83,7 +127,10 @@ const stateMachine = createMachine<MachineContext>(
                             documentUri: (context, event) => event.viewLocation.documentUri,
                             position: (context, event) => event.viewLocation.position,
                             identifier: (context, event) => event.viewLocation.identifier,
-                            serviceType: (context, event) => event.viewLocation.serviceType
+                            serviceType: (context, event) => event.viewLocation.serviceType,
+                            type: (context, event) => event.viewLocation?.type,
+                            isGraphql: (context, event) => event.viewLocation?.isGraphql,
+                            metadata: (context, event) => event.viewLocation?.metadata
                         })
                     }
                 }
@@ -116,7 +163,8 @@ const stateMachine = createMachine<MachineContext>(
                                     view: (context, event) => event.data.view,
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
-                                    syntaxTree: (context, event) => event.data.syntaxTree
+                                    syntaxTree: (context, event) => event.data.syntaxTree,
+                                    focusFlowDiagramView: (context, event) => event.data.focusFlowDiagramView
                                 })
                             }
                         }
@@ -130,7 +178,10 @@ const stateMachine = createMachine<MachineContext>(
                                     documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
                                     identifier: (context, event) => event.viewLocation.identifier,
-                                    serviceType: (context, event) => event.viewLocation.serviceType
+                                    serviceType: (context, event) => event.viewLocation.serviceType,
+                                    type: (context, event) => event.viewLocation?.type,
+                                    isGraphql: (context, event) => event.viewLocation?.isGraphql,
+                                    metadata: (context, event) => event.viewLocation?.metadata
                                 })
                             },
                             VIEW_UPDATE: {
@@ -140,16 +191,13 @@ const stateMachine = createMachine<MachineContext>(
                                     position: (context, event) => event.viewLocation.position,
                                     view: (context, event) => event.viewLocation.view,
                                     identifier: (context, event) => event.viewLocation.identifier,
-                                    serviceType: (context, event) => event.viewLocation.serviceType
+                                    serviceType: (context, event) => event.viewLocation.serviceType,
+                                    type: (context, event) => event.viewLocation?.type,
+                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
                                 })
                             },
                             FILE_EDIT: {
-                                target: "viewEditing",
-                                actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier
-                                })
+                                target: "viewEditing"
                             },
                         }
                     },
@@ -157,11 +205,6 @@ const stateMachine = createMachine<MachineContext>(
                         on: {
                             EDIT_DONE: {
                                 target: "viewReady",
-                                actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier
-                                })
                             }
                         }
                     }
@@ -173,14 +216,44 @@ const stateMachine = createMachine<MachineContext>(
         activateLanguageServer: (context, event) => {
             return new Promise(async (resolve, reject) => {
                 try {
-                    commands.executeCommand('setContext', 'BI.status', 'loading');
+                    commands.executeCommand('setContext', 'BI.status', 'loadingLS');
                     const ls = await activateBallerina();
                     fetchAndCacheLibraryData();
                     StateMachineAI.initialize();
                     StateMachinePopup.initialize();
-                    resolve(ls.langClient);
+                    commands.executeCommand('setContext', 'BI.status', 'loadingDone');
+                    if (!ls.biSupported) {
+                        commands.executeCommand('setContext', 'BI.status', 'updateNeed');
+                        if (ls.ballerinaHome.includes("ballerina-home")) {
+                            commands.executeCommand('setContext', 'BI.distribution', 'setByBI');
+                        } else {
+                            commands.executeCommand('setContext', 'BI.distribution', 'setByUser');
+                        }
+                    }
+                    resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
                 } catch (error) {
                     throw new Error("LS Activation failed", error);
+                }
+            });
+        },
+        registerProjectArtifactsStructure: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    // If the project uri is not set, we don't need to build the project structure
+                    if (context.projectUri) {
+
+                        // Add a 2 second delay before registering artifacts
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        // Register the event driven listener to get the artifact changes
+                        context.langClient.registerPublishArtifacts();
+                        // Initial Project Structure
+                        const projectStructure = await buildProjectArtifactsStructure(context.projectUri, context.langClient);
+                        resolve({ projectStructure });
+                    } else {
+                        resolve({ projectStructure: undefined });
+                    }
+                } catch (error) {
+                    resolve({ projectStructure: undefined });
                 }
             });
         },
@@ -194,10 +267,10 @@ const stateMachine = createMachine<MachineContext>(
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
-                            webview.title = "Kola";
+                            const biExtension = extensions.getExtension('wso2.ballerina-integrator');
                             webview.iconPath = {
-                                light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
-                                dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
+                                light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'light-icon.svg' : 'ballerina.svg')),
+                                dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', biExtension ? 'dark-icon.svg' : 'ballerina-inverse.svg'))
                             };
                         }
                         resolve(true);
@@ -213,17 +286,10 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise(async (resolve, reject) => {
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
-                        if (context.isBI) {
-                            const entryPoints = (await new BiDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
-                            if (entryPoints === 0) {
-                                history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
-                                return resolve();
-                            }
-                        }
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
                     }
-                    const view = await getView(context.documentUri, context.position);
+                    const view = await getView(context.documentUri, context.position, context?.projectUri);
                     history.push(view);
                     return resolve();
                 } else {
@@ -232,7 +298,9 @@ const stateMachine = createMachine<MachineContext>(
                             view: context.view,
                             documentUri: context.documentUri,
                             position: context.position,
-                            identifier: context.identifier
+                            identifier: context.identifier,
+                            type: context?.type,
+                            isGraphql: context?.isGraphql
                         }
                     });
                     return resolve();
@@ -242,9 +310,7 @@ const stateMachine = createMachine<MachineContext>(
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
                 StateMachinePopup.resetState();
-                const historyStack = history.get();
-                const selectedEntry = historyStack[historyStack.length - 1];
-
+                const selectedEntry = getLastHistory();
                 if (!context.langClient) {
                     if (!selectedEntry) {
                         return resolve({ view: MACHINE_VIEW.Overview, documentUri: context.documentUri });
@@ -256,7 +322,17 @@ const stateMachine = createMachine<MachineContext>(
                     return resolve(selectedEntry.location);
                 }
 
-                const { location: { documentUri, position } = { documentUri: context.documentUri, position: undefined }, uid } = selectedEntry ?? {};
+                const defaultLocation = {
+                    documentUri: context.documentUri,
+                    position: undefined
+                };
+                const {
+                    location = defaultLocation,
+                    uid
+                } = selectedEntry ?? {};
+
+                const { documentUri, position } = location;
+
                 const node = documentUri && await StateMachine.langClient().getSyntaxTree({
                     documentIdentifier: {
                         uri: Uri.file(documentUri).toString()
@@ -338,8 +414,8 @@ const stateMachine = createMachine<MachineContext>(
                     }
                     undoRedoManager.updateContent(documentUri, node?.syntaxTree?.source);
                 }
-                const updatedHistory = history.get();
-                return resolve(updatedHistory[updatedHistory.length - 1].location);
+                const lastView = getLastHistory().location;
+                return resolve(lastView);
             });
         }
     }
@@ -365,46 +441,96 @@ export const StateMachine = {
     context: () => { return stateService.getSnapshot().context; },
     langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
+    setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
+    setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
+    updateProjectStructure: (payload: ProjectStructureResponse, stateMachineNavigate: boolean, location?: VisualizerLocation) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, stateMachineNavigate, location }); },
+    setTempData: (payload: TempData) => { stateService.send({ type: "SET_TEMP_DATA", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
     },
 };
 
-export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation) {
+export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
+    StateMachine.setReadyMode();
+    if (resetHistory) {
+        history?.clear();
+    }
+    extension.hasPullModuleResolved = false;
+    extension.hasPullModuleNotification = false;
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function updateView() {
-    const historyStack = history.get();
-    const lastView = historyStack[historyStack.length - 1];
+export function updateView(refreshTreeView?: boolean) {
+    let lastView = getLastHistory();
+    // Step over to the next location if the last view is skippable
+    if (!refreshTreeView && lastView?.location.view.includes("SKIP")) {
+        history.pop(); // Remove the last entry
+        lastView = getLastHistory(); // Get the new last entry
+    }
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
-    if (StateMachine.context().isBI) {
-        commands.executeCommand("BI.project-explorer.refresh");
+    if (refreshTreeView) {
+        forceUpdateProjectArtifacts();
     }
     notifyCurrentWebview();
 }
 
-async function checkForProjects() {
-    let isBI = false;
-    let projectUri = '';
-    try {
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length === 0) {
-            throw new Error("No workspace folders found");
-        }
-        // Assume we are only interested in the root workspace folder
-        const rootFolder = workspaceFolders[0].uri.fsPath;
-        const ballerinaTomlPath = path.join(rootFolder, 'Ballerina.toml');
-        projectUri = rootFolder;
+function getLastHistory() {
+    const historyStack = history?.get();
+    return historyStack?.[historyStack?.length - 1];
+}
 
-        if (fs.existsSync(ballerinaTomlPath)) {
-            const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
-            isBI = data.includes('bi = true');
-        }
-    } catch (err) {
-        console.error(err);
+async function checkForProjects(): Promise<{ isBI: boolean, projectPath: string, scope?: SCOPE }> {
+    const workspaceFolders = workspace.workspaceFolders;
+
+    if (!workspaceFolders) {
+        return { isBI: false, projectPath: '' };
     }
+
+    if (workspaceFolders.length > 1) {
+        return await handleMultipleWorkspaces(workspaceFolders);
+    }
+
+    return await handleSingleWorkspace(workspaceFolders[0].uri);
+}
+
+async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFolder[]) {
+    const balProjects = workspaceFolders.filter(folder => checkIsBallerina(folder.uri));
+
+    if (balProjects.length > 1) {
+        const projectPaths = balProjects.map(folder => folder.uri.fsPath);
+        const selectedProject = await window.showQuickPick(projectPaths, {
+            placeHolder: 'Select a project to load the Ballerina Integrator'
+        });
+
+        const isBI = checkIsBI(Uri.file(selectedProject));
+        const scope = isBI && fetchScope(Uri.file(selectedProject));
+        setBIContext(isBI);
+        return { isBI, projectPath: selectedProject, scope };
+    } else if (balProjects.length === 1) {
+        const isBI = checkIsBI(balProjects[0].uri);
+        const scope = isBI && fetchScope(balProjects[0].uri);
+        setBIContext(isBI);
+        return { isBI, projectPath: balProjects[0].uri.fsPath, scope };
+    }
+
+    return { isBI: false, projectPath: '' };
+}
+
+async function handleSingleWorkspace(workspaceURI: any) {
+    const isBallerina = checkIsBallerina(workspaceURI);
+    const isBI = isBallerina && checkIsBI(workspaceURI);
+    const scope = fetchScope(workspaceURI);
+    const projectPath = isBallerina ? workspaceURI.fsPath : "";
+
+    setBIContext(isBI);
+    if (!isBI) {
+        console.error("No BI enabled workspace found");
+    }
+
+    return { isBI, projectPath, scope };
+}
+
+function setBIContext(isBI: boolean) {
     commands.executeCommand('setContext', 'isBIProject', isBI);
-    return { isBI, projectUri };
 }

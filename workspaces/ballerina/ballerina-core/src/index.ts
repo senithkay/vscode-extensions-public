@@ -33,6 +33,9 @@ export * from "./ls-utils/WSConnection";
 export * from "./ls-utils/BallerinaLanguageClient";
 
 // ------ RPC interfaces -------->
+export * from "./rpc-types/ai-agent";
+export * from "./rpc-types/ai-agent/interfaces";
+export * from "./rpc-types/ai-agent/rpc-type";
 export * from "./rpc-types/bi-diagram";
 export * from "./rpc-types/bi-diagram/interfaces";
 export * from "./rpc-types/bi-diagram/rpc-type";
@@ -70,6 +73,14 @@ export * from "./rpc-types/ai-panel/interfaces";
 export * from "./rpc-types/inline-data-mapper";
 export * from "./rpc-types/inline-data-mapper/rpc-type";
 export * from "./rpc-types/inline-data-mapper/interfaces";
+export * from "./rpc-types/test-manager";
+export * from "./rpc-types/test-manager/rpc-type";
+export * from "./rpc-types/icp-service";
+export * from "./rpc-types/icp-service/rpc-type";
+export * from "./rpc-types/agent-chat";
+export * from "./rpc-types/agent-chat/interfaces";
+export * from "./rpc-types/agent-chat/rpc-type";
+
 
 // ------ History class and interface -------->
 export * from "./history";

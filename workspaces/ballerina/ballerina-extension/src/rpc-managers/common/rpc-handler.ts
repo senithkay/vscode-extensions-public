@@ -15,24 +15,26 @@ import {
     GoToSourceRequest,
     OpenExternalUrlRequest,
     RunExternalCommandRequest,
+    ShowErrorMessageRequest,
     WorkspaceFileRequest,
     executeCommand,
     experimentalEnabled,
     getBallerinaDiagnostics,
-    getTypes,
+    getTypeCompletions,
     getWorkspaceFiles,
     getWorkspaceRoot,
     goToSource,
     openExternalUrl,
     runBackgroundTerminalCommand,
     selectFileOrDirPath,
+    showErrorMessage
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { CommonRpcManager } from "./rpc-manager";
 
 export function registerCommonRpcHandlers(messenger: Messenger) {
     const rpcManger = new CommonRpcManager();
-    messenger.onRequest(getTypes, () => rpcManger.getTypes());
+    messenger.onRequest(getTypeCompletions, () => rpcManger.getTypeCompletions());
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
     messenger.onRequest(getWorkspaceFiles, (args: WorkspaceFileRequest) => rpcManger.getWorkspaceFiles(args));
     messenger.onRequest(getBallerinaDiagnostics, (args: BallerinaDiagnosticsRequest) => rpcManger.getBallerinaDiagnostics(args));
@@ -42,4 +44,5 @@ export function registerCommonRpcHandlers(messenger: Messenger) {
     messenger.onRequest(selectFileOrDirPath, (args: FileOrDirRequest) => rpcManger.selectFileOrDirPath(args));
     messenger.onRequest(experimentalEnabled, () => rpcManger.experimentalEnabled());
     messenger.onRequest(getWorkspaceRoot, () => rpcManger.getWorkspaceRoot());
+    messenger.onNotification(showErrorMessage, (args: ShowErrorMessageRequest) => rpcManger.showErrorMessage(args));
 }

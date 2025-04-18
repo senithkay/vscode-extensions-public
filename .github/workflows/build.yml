@@ -14,6 +14,11 @@ on:
         type: boolean
         required: false
         default: false
+      wso2-platform:
+        description: Update WSO2 Platform extension version
+        type: boolean
+        required: false
+        default: false   
       choreo:
         description: Update Choreo extension version
         type: boolean
@@ -150,6 +155,7 @@ jobs:
           enableCache: ${{ inputs.enableCache }}
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
+          wso2-platform: ${{ inputs.wso2-platform }}
           api-chat: ${{ inputs.api-chat }}
           apk: ${{ inputs.apk }}
           bi: ${{ inputs.bi }}
@@ -161,7 +167,7 @@ jobs:
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
     needs: Build_Stage
-    if: ${{ (inputs.ballerina == 'true' && needs.Build_Stage.outputs.runBalExtTests == 'true') || github.base_ref == 'release-ballerina' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -177,7 +183,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -222,7 +228,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -261,6 +267,7 @@ jobs:
         with:
           path: workspaces/ballerina/ballerina-extension/test-resources/e2e-test-out.mp4
           name: Ballerina-e2e-test-recording-${{ github.run_attempt }}
+          retention-days: 5
         if: failure()
 
       - name: Publish e2e test Screenshots
@@ -268,6 +275,7 @@ jobs:
         with:
           path: workspaces/ballerina/ballerina-extension/test-resources/screenshots/
           name: Ballerina-e2e-test-screenshots-${{ github.run_attempt }}
+          retention-days: 5
         if: failure()
 
   UiTest_Choreo:
@@ -291,7 +299,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -343,6 +351,7 @@ jobs:
         with:
           path: workspaces/choreo/choreo-extension/test-resources/output.txt
           name: Choreo-e2e-test-output-${{ github.run_attempt }}
+          retention-days: 5
         if: failure()
 
       - name: Publish e2e test recording
@@ -350,6 +359,7 @@ jobs:
         with:
           path: workspaces/choreo/choreo-extension/test-resources/e2e-test-out.mp4
           name: Choreo-e2e-test-recording-${{ github.run_attempt }}
+          retention-days: 5
         if: failure()
 
       - name: Publish e2e test Screenshots
@@ -362,7 +372,7 @@ jobs:
   ExtTest_MI:
     name: Run MI diagram tests
     needs: Build_Stage
-    if: ${{ (needs.Build_Stage.outputs.runMIExtTests) || github.base_ref == 'release-mi' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runMIExtTests == 'true' || github.base_ref == 'release-mi' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -378,7 +388,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -392,7 +402,7 @@ jobs:
   UITest_MI:
     name: Run MI UI tests
     needs: Build_Stage
-    if: ${{ (needs.Build_Stage.outputs.runMIExtTests) || github.base_ref == 'release-mi' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runMIExtTests == 'true' || github.base_ref == 'release-mi' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -408,7 +418,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1
+        uses: gigara/setup-rush@v1.1.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -435,6 +445,7 @@ jobs:
         with:
           name: MI-e2e-test-results-${{ github.run_attempt }}
           path: workspaces/mi/mi-extension/test-results/**
+          retention-days: 5
           
       - name: Upload recordings
         uses: actions/upload-artifact@v4
@@ -442,3 +453,4 @@ jobs:
         with:
           name: MI-e2e-test-recording-${{ github.run_attempt }}
           path: workspaces/mi/mi-extension/src/test/test-resources/videos/**
+          retention-days: 5

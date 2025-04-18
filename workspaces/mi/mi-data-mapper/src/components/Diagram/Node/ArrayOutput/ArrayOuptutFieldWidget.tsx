@@ -16,7 +16,7 @@ import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnSta
 import classnames from "classnames";
 
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMViewsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -72,7 +72,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
-    const viewsStore = useDMViewsStore();
 
     const typeName = getTypeName(field.type);
     const fieldName = field.type.fieldName || '';
@@ -245,7 +244,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     };
 
     const handleModifyFieldOptionality = async () => {
-        viewsStore.setViews(context.views);
         try {
             await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
         } catch (error) {

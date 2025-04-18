@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectorNodeModel } from "./ConnectorNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { STNode, Tool } from "@wso2-enterprise/mi-syntax-tree/src";
 import { ClickAwayListener, Icon, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -22,6 +22,7 @@ import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 import { Body, Content, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import path from "path";
+import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 
 namespace S {
     export type NodeStyleProp = {
@@ -127,8 +128,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const hasDiagnotics = node.hasDiagnotics();
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
+    const connectorNode = ((node.stNode as Tool).mediator ?? node.stNode) as Connector;
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
-    const description = node.stNode.tag.split(".")[1];
 
     useEffect(() => {
         node.setSelected(sidePanelContext?.node === node);
@@ -146,7 +147,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
         const fetchData = async () => {
             const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
                 documentUri: node.documentUri,
-                connectorName: node.stNode.tag.split(".")[0]
+                connectorName: connectorNode.tag.split(".")[0]
             });
 
             const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
@@ -157,7 +158,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 connectorName: node.stNode.tag.split(".")[0]
             });
 
-            const connectionName = (node.stNode as Connector).configKey;
+            const connectionName = connectorNode.configKey;
             const connection = connectionData.connections.find((connection: any) => connection.name === connectionName);
             const connectionType = connection ? connection.connectionType : null;
 
@@ -183,9 +184,42 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
+    const getConnectionNodeRange = async () => {
+        const text = await rpcClient?.getMiDiagramRpcClient().getTextAtRange({
+            documentUri: node.documentUri,
+            range: node.stNode.range.startTagRange
+        });
+
+        const lastQuoteIndex = text.text.lastIndexOf('"') !== -1 ? text.text.lastIndexOf('"') : text.text.lastIndexOf("'");
+        const textBeforeLastQuote = text.text.substring(0, lastQuoteIndex + 1);
+
+        const configKeyLines = textBeforeLastQuote.split('\n');
+        const connectionNameLine = configKeyLines?.[configKeyLines.length - 1];
+
+        const firstQuoteIndex = connectionNameLine?.indexOf('"') !== -1 ? connectionNameLine?.indexOf('"') : connectionNameLine?.indexOf("'");
+
+        const newlineCount = configKeyLines.length - 1;
+
+        const connectionNameStartPosition = {
+            line: node.stNode.range.startTagRange.start.line + newlineCount,
+            character: newlineCount === 0 ? node.stNode.range.startTagRange.start.character + firstQuoteIndex + 1
+                : firstQuoteIndex + 1
+        }
+
+        const connectionNameEndPosition = {
+            line: node.stNode.range.startTagRange.start.line + newlineCount,
+            character: newlineCount === 0 ? node.stNode.range.startTagRange.start.character + firstQuoteIndex + connectorNode.configKey.length + 1
+                : firstQuoteIndex + connectorNode.configKey.length + 1
+        }
+
+        const nodeRange = { start: connectionNameStartPosition, end: connectionNameEndPosition };
+
+        return nodeRange;
+    }
+
     const handleOnClick = async (e: any) => {
         e.stopPropagation();
-        const nodeRange = { start: node.stNode.range.startTagRange.start, end: node.stNode.range.endTagRange.end || node.stNode.range.startTagRange.end };
+        const nodeRange = { start: node.stNode.range.startTagRange.start, end: node.stNode?.range?.endTagRange?.end || node.stNode.range.startTagRange.end };
         if (e.ctrlKey || e.metaKey) {
             // open code and highlight the selected node
             rpcClient.getMiDiagramRpcClient().highlightCode({
@@ -195,12 +229,11 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
         } else if (node.isSelected()) {
             const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
                 documentUri: node.documentUri,
-                connectorName: node.stNode.tag.split(".")[0]
+                connectorName: connectorNode.tag.split(".")[0]
             });
 
-            const operationName = node.stNode.tag.split(/\.(.+)/)[1];
+            const operationName = connectorNode.tag.split(/\.(.+)/)[1];
             const connectorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
-                mediatorType: node.stNode.tag,
                 range: nodeRange,
                 documentUri: node.documentUri,
                 isEdit: true
@@ -217,15 +250,52 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     form: formJSON,
                     title: `${FirstCharToUpperCase(operationName)} Operation`,
                     uiSchemaPath: connectorData.uiSchemaPath,
-                    parameters: (node.stNode as Connector).parameters ?? [],
+                    parameters: connectorNode.parameters ?? [],
                     connectorName: connectorData.name,
                     operationName: operationName,
-                    connectionName: (node.stNode as Connector).configKey,
+                    connectionName: connectorNode.configKey,
                     icon: iconPath,
                 },
                 parentNode: node.mediatorName,
                 node: node,
                 tag: node.stNode.tag
+            });
+        }
+    }
+
+    const handleOnConnectionClick = async (e: any) => {
+        e.stopPropagation();
+
+        const nodeRange = await getConnectionNodeRange();
+
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+            documentUri: node.documentUri,
+            connectorName: node.stNode.tag.split(".")[0]
+        });
+
+        const definition = await rpcClient?.getMiDiagramRpcClient().getDefinition({
+            document: {
+                uri: node.documentUri,
+            },
+            position: nodeRange.start
+        });
+
+        if (e.ctrlKey || e.metaKey) {
+            // open file of selected connection
+            rpcClient.getMiDiagramRpcClient().openFile({ path: definition.uri, beside: true });
+
+        } else if (node.isSelected()) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    documentUri: definition.uri,
+                    view: MACHINE_VIEW.ConnectionForm,
+                    customProps: {
+                        connectionName: connectorNode.configKey,
+                        connector: connectorData
+                    }
+                },
+                isPopup: true
             });
         }
     }
@@ -258,12 +328,10 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                             )}
                             <Content>
                                 <Header showBorder={true}>
-                                    <Name>{FirstCharToUpperCase((node.stNode as Connector).method)}</Name>
+                                    <Name>{FirstCharToUpperCase(connectorNode.method)}</Name>
                                 </Header>
                                 <Body>
-                                    <Tooltip content={description} position={'bottom'} >
-                                        <Description>{FirstCharToUpperCase((node.stNode as Connector).connectorName)}</Description>
-                                    </Tooltip>
+                                    <Description>{FirstCharToUpperCase(connectorNode.connectorName)}</Description>
                                 </Body>
                             </Content>
                         </div>
@@ -271,14 +339,14 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>
-            {(node.stNode as Connector).configKey &&
+            {connectorNode.configKey &&
                 <S.CircleContainer
                     onMouseEnter={() => setIsHoveredConnector(true)}
                     onMouseLeave={() => setIsHoveredConnector(false)}
-                    onClick={(e) => handleOnClick(e)}
+                    onClick={(e) => handleOnConnectionClick(e)}
                 >
                     <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
-                        <svg width="110" height="50" viewBox="0 0 103 40">
+                        <svg width={NODE_DIMENSIONS.CONNECTOR.CONNECTION_PART_WIDTH} height="50" viewBox="0 0 103 40">
                             <circle
                                 cx="80"
                                 cy="20"
@@ -322,10 +390,10 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     </Tooltip>
                 </S.CircleContainer>
             }
-            {(node.stNode as Connector).configKey &&
+            {connectorNode.configKey &&
                 <S.ConnectionContainer>
                     <S.ConnectionText>
-                        {(node.stNode as Connector).configKey}
+                        {connectorNode.configKey}
                     </S.ConnectionText>
                 </S.ConnectionContainer>}
             <Popover

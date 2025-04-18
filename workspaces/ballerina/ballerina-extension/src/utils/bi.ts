@@ -7,13 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { exec } from "child_process";
-import { window, commands, workspace, Uri, TextDocument } from "vscode";
+import { window, commands, workspace, Uri } from "vscode";
 import * as fs from 'fs';
 import path from "path";
-import { BallerinaTrigger, ComponentRequest, CreateComponentResponse, createFunctionSignature, createImportStatement, createServiceDeclartion, createTrigger, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, STModification, SyntaxTreeResponse, Trigger } from "@wso2-enterprise/ballerina-core";
-import { StateMachine, history, openView, updateView } from "../stateMachine";
+import { BallerinaProjectComponents, ComponentRequest, CreateComponentResponse, createFunctionSignature, EVENT_TYPE, NodePosition, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { StateMachine, history, openView } from "../stateMachine";
 import { applyModifications, modifyFileContent, writeBallerinaFileDidOpen } from "./modification";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { URI } from "vscode-uri";
 
 export const README_FILE = "readme.md";
 export const FUNCTIONS_FILE = "functions.bal";
@@ -77,15 +78,34 @@ export function createBIProjectPure(name: string, projectPath: string) {
         fs.mkdirSync(projectRoot);
     }
 
+    // Get current username from the system across different OS platforms
+    let username;
+    try {
+        if (process.platform === 'win32') {
+            // Windows
+            username = process.env.USERNAME || 'myOrg';
+        } else {
+            // macOS and Linux
+            username = process.env.USER || 'myOrg';
+        }
+    } catch (error) {
+        console.error('Error getting username:', error);
+    }
+
     const EMPTY = "\n";
 
     const ballerinaTomlContent = `
 [package]
-org = "wso2"
+org = "${username}"
 name = "${name}"
 version = "0.1.0"
 
-bi = true  
+`;
+
+    const settingsJsonContent = `
+{
+    "ballerina.isBI": true
+}
 `;
 
     const launchJsonContent = `
@@ -96,7 +116,7 @@ bi = true
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Ballerina Run/Debug",
+            "name": "Ballerina Debug",
             "type": "ballerina",
             "request": "launch",
             "programArgs": [],
@@ -123,6 +143,20 @@ bi = true
 }
 `;
 
+    const gitignoreContent = `
+# Ballerina generates this directory during the compilation of a package.
+# It contains compiler-generated artifacts and the final executable if this is an application package.
+target/
+
+# Ballerina maintains the compiler-generated source code here.
+# Remove this if you want to commit generated sources.
+generated/
+
+# Contains configuration values used during development time.
+# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+Config.toml
+`;
+
     // Create Ballerina.toml file
     const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
     writeBallerinaFileDidOpen(ballerinaTomlPath, ballerinaTomlContent);
@@ -143,6 +177,14 @@ bi = true
     const mainBal = path.join(projectRoot, 'main.bal');
     writeBallerinaFileDidOpen(mainBal, EMPTY);
 
+    // Create main.bal file
+    const agentsBal = path.join(projectRoot, 'agents.bal');
+    writeBallerinaFileDidOpen(agentsBal, EMPTY);
+
+    // Create functions.bal file
+    const functionsBal = path.join(projectRoot, 'functions.bal');
+    writeBallerinaFileDidOpen(functionsBal, EMPTY);
+
     // Create datamappings.bal file
     const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
     writeBallerinaFileDidOpen(datamappingsBalPath, EMPTY);
@@ -159,6 +201,11 @@ bi = true
 
     // Create settings.json file
     const settingsPath = path.join(vscodeDir, 'settings.json');
+    fs.writeFileSync(settingsPath, settingsJsonContent);
+
+    // Create .gitignore file
+    const gitignorePath = path.join(projectRoot, '.gitignore');
+    fs.writeFileSync(gitignorePath, gitignoreContent.trim());
 
     console.log(`BI project created successfully at ${projectRoot}`);
     commands.executeCommand('vscode.openFolder', Uri.file(path.resolve(projectRoot)));
@@ -167,9 +214,22 @@ bi = true
 export async function createBIAutomation(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const functionFile = await handleAutomationCreation(params);
-        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position: { startLine: 5, startColumn: 0, endLine: 12, endColumn: 1 } });
+        const components = await StateMachine.langClient().getBallerinaProjectComponents({
+            documentIdentifiers: [{ uri: URI.file(StateMachine.context().projectUri).toString() }]
+        }) as BallerinaProjectComponents;
+        const position: NodePosition = {};
+        for (const pkg of components.packages) {
+            for (const module of pkg.modules) {
+                module.automations.forEach(func => {
+                    position.startColumn = func.startColumn;
+                    position.startLine = func.startLine;
+                    position.endLine = func.endLine;
+                    position.endColumn = func.endColumn;
+                });
+            }
+        }
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position });
         history.clear();
-        commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
     });
 }
@@ -194,18 +254,14 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
         });
         openView(EVENT_TYPE.OPEN_VIEW, { documentUri: targetFile, position: targetPosition });
         history.clear();
-        commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
     });
 }
 
 // <---------- Task Source Generation START-------->
 export async function handleAutomationCreation(params: ComponentRequest) {
-    const displayAnnotation = `@display {
-    label: "${params.functionType.name}"
-}`;
     let paramList = '';
-    const paramLength = params.functionType.parameters.length;
+    const paramLength = params.functionType?.parameters.length;
     if (paramLength > 0) {
         params.functionType.parameters.forEach((param, index) => {
             let paramValue = param.defaultValue ? `${param.type} ${param.name} = ${param.defaultValue}, ` : `${param.type} ${param.name}, `;
@@ -218,7 +274,6 @@ export async function handleAutomationCreation(params: ComponentRequest) {
     let funcSignature = `public function main(${paramList}) returns error? {`;
     const balContent = `import ballerina/log;
 
-${displayAnnotation}
 ${funcSignature}
     do {
 

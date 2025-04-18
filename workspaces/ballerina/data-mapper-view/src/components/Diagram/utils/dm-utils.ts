@@ -46,11 +46,11 @@ import { PortModel } from "@projectstorm/react-diagrams-core";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
-import { DMNode } from "../../DataMapper/DataMapper";
+import { DMNode, ViewOption } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/RenderingError";
 import { getLetExpression, getLetExpressions } from "../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isArraysSupported } from "../../DataMapper/utils";
-import { ExpressionLabelModel, ArrayMappingType, AggregationFunctions } from "../Label";
+import { ExpressionLabelModel, AggregationFunctions } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../Mappings/FieldAccessToSpecificFied";
@@ -74,7 +74,7 @@ import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode, MODULE_VAR_SOURCE_NODE_TYPE } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { UnionTypeNode } from "../Node/UnionType";
-import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
+import { IntermediatePortModel, MappingType, RecordFieldPortModel, ValueType } from "../Port";
 import { FromClauseBindingPatternFindingVisitor } from "../visitors/FromClauseBindingPatternFindingVisitor";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
@@ -97,10 +97,14 @@ import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
 import { QueryExprFindingVisitorByPosition } from "../visitors/QueryExprFindingVisitorByPosition";
 import { NodeFindingVisitorByPosition } from "../visitors/NodeFindingVisitorByPosition";
-import { result } from "lodash";
 import { CustomAction } from "../CodeAction/CodeAction";
 import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisitor";
 import { BaseModel } from "@projectstorm/react-canvas-core";
+import { getDMTypeDim } from "./type-utils";
+import { QueryParentFindingVisitor } from "../visitors/QueryParentFindingVisitor";
+import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
+import { generateCustomFunction } from "../Link/link-utils";
+import { InputNode, NodeWithoutTypeDesc } from "../Actions/utils";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -127,23 +131,21 @@ export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	return fieldsToReturn
 }
 
-export async function createSourceForMapping(link: DataMapperLinkModel) {
+export async function createSourceForMapping(
+	sourcePort: RecordFieldPortModel,
+	targetPort: RecordFieldPortModel,
+	rhsValue?: string
+) {
 	let source = "";
 	let lhs = "";
 	let rhs = "";
 	const modifications: STModification[] = [];
 
-	if (!link.getSourcePort() || !link.getTargetPort()) {
-		return;
-	}
-
-	const sourcePort = link.getSourcePort() as RecordFieldPortModel;
-	const targetPort = link.getTargetPort() as RecordFieldPortModel;
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
 	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
 	const { applyModifications } = targetNode.context;
 
-	rhs = sourcePort.fieldFQN;
+	rhs =  rhsValue || sourcePort.fieldFQN;
 
 	if (isMappedToPrimitiveTypePort(targetPort)
 		|| isMappedToRootListConstructor(targetPort)
@@ -423,108 +425,216 @@ export async function createSourceForUserInput(
 	}
 }
 
-export function modifySpecificFieldSource(link: DataMapperLinkModel) {
+export function modifySpecificFieldSource(
+	sourcePort: RecordFieldPortModel,
+	targetPort: RecordFieldPortModel,
+	newLinkId: string,
+	rhsValue?: string
+) {
 	let rhs = "";
 	const modifications: STModification[] = [];
-	const sourcePort = link.getSourcePort();
 	if (sourcePort && sourcePort instanceof RecordFieldPortModel) {
-		rhs = sourcePort.fieldFQN;
+		rhs = rhsValue || sourcePort.fieldFQN;
 	}
 
-	if (link.getTargetPort()) {
-		const targetPort = link.getTargetPort();
-		const targetNode = targetPort.getNode();
-		if (targetNode instanceof LinkConnectorNode) {
-			targetNode.value = targetNode.value + " + " + rhs;
-			targetNode.updateSource();
-		}
-		else {
-			let targetPos: NodePosition;
-			let targetType: TypeField;
-			Object.keys(targetPort.getLinks()).forEach((linkId) => {
-				if (linkId !== link.getID()) {
-					const targerPortLink = targetPort.getLinks()[linkId]
-					if (sourcePort instanceof IntermediatePortModel) {
-						if (sourcePort.getParent() instanceof LinkConnectorNode) {
-							targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position as NodePosition
-						}
-					} else if (targerPortLink.getLabels().length > 0) {
-						targetPos = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode.position as NodePosition;
-						targetType = getTypeFromStore(targetPos);
-					} else if (targetNode instanceof MappingConstructorNode
-						|| targetNode instanceof PrimitiveTypeNode
-						|| targetNode instanceof ListConstructorNode)
-					{
-						const linkConnector = targetNode
-							.getModel()
-							.getNodes()
-							.find(
-								(node) =>
-									node instanceof LinkConnectorNode &&
-									node.targetPort.portName === (targerPortLink.getTargetPort() as RecordFieldPortModel).portName
-							);
-						targetPos = (linkConnector as LinkConnectorNode).valueNode.position as NodePosition;
+	const targetNode = targetPort.getNode();
+	if (targetNode instanceof LinkConnectorNode) {
+		targetNode.value = targetNode.value + " + " + rhs;
+		targetNode.updateSource();
+	}
+	else {
+		let targetPos: NodePosition;
+		let targetType: TypeField;
+		Object.keys(targetPort.getLinks()).forEach((linkId) => {
+			if (linkId !== newLinkId) {
+				const targerPortLink = targetPort.getLinks()[linkId]
+				if (sourcePort instanceof IntermediatePortModel) {
+					if (sourcePort.getParent() instanceof LinkConnectorNode) {
+						targetPos = (sourcePort.getParent() as LinkConnectorNode).valueNode.position as NodePosition
 					}
-
+				} else if (targerPortLink.getLabels().length > 0) {
+					targetPos = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode.position as NodePosition;
+					targetType = getTypeFromStore(targetPos);
+				} else if (targetNode instanceof MappingConstructorNode
+					|| targetNode instanceof PrimitiveTypeNode
+					|| targetNode instanceof ListConstructorNode)
+				{
+					const linkConnector = targetNode
+						.getModel()
+						.getNodes()
+						.find(
+							(node) =>
+								node instanceof LinkConnectorNode &&
+								node.targetPort.portName === (targerPortLink.getTargetPort() as RecordFieldPortModel).portName
+						);
+					targetPos = (linkConnector as LinkConnectorNode).valueNode.position as NodePosition;
 				}
-			});
-			if (targetType &&
-				targetType.typeName === PrimitiveBalType.Json &&
-				(sourcePort as RecordFieldPortModel).field.typeName === PrimitiveBalType.Json) {
-				modifications.push({
-					type: "INSERT",
-					config: {
-						"STATEMENT": `value:mergeJson(${(targetNode as UnionTypeNode).recordField.value.source}, ${(sourcePort as RecordFieldPortModel).fieldFQN})`,
-					},
-					...targetPos
-				})
 
-				// add imports
-				modifications.push({
-					type: "IMPORT",
-					config: {
-						"TYPE": JSON_MERGE_MODULE_NAME,
-					},
-					startLine: 0,
-					startColumn: 0,
-					endLine: 0,
-					endColumn: 0
-				});
-
-				const { context } = targetNode as DataMapperNodeModel;
-				void context.applyModifications(modifications);
-			} else if (targetPos) {
-				modifications.push({
-					type: "INSERT",
-					config: {
-						"STATEMENT": " + " + rhs,
-					},
-					endColumn: targetPos.endColumn,
-					endLine: targetPos.endLine,
-					startColumn: targetPos.endColumn,
-					startLine: targetPos.endLine
-				});
 			}
+		});
+		if (targetType &&
+			targetType.typeName === PrimitiveBalType.Json &&
+			(sourcePort as RecordFieldPortModel).field.typeName === PrimitiveBalType.Json) {
+			modifications.push({
+				type: "INSERT",
+				config: {
+					"STATEMENT": `value:mergeJson(${(targetNode as UnionTypeNode).recordField.value.source}, ${(sourcePort as RecordFieldPortModel).fieldFQN})`,
+				},
+				...targetPos
+			})
+
+			// add imports
+			modifications.push({
+				type: "IMPORT",
+				config: {
+					"TYPE": JSON_MERGE_MODULE_NAME,
+				},
+				startLine: 0,
+				startColumn: 0,
+				endLine: 0,
+				endColumn: 0
+			});
+
 			const { context } = targetNode as DataMapperNodeModel;
 			void context.applyModifications(modifications);
+		} else if (targetPos) {
+			modifications.push({
+				type: "INSERT",
+				config: {
+					"STATEMENT": " + " + rhs,
+				},
+				endColumn: targetPos.endColumn,
+				endLine: targetPos.endLine,
+				startColumn: targetPos.endColumn,
+				startLine: targetPos.endLine
+			});
 		}
+		const { context } = targetNode as DataMapperNodeModel;
+		void context.applyModifications(modifications);
 	}
 
 }
 
-export function replaceSpecificFieldValue(link: DataMapperLinkModel, modifications: STModification[]) {
-	const targetPort = link.getTargetPort() as RecordFieldPortModel;
-	const targetNode = targetPort.getNode();
+export async function updateExistingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string) {
+	const modifications = [];
+	let sourceField = newValue || sourcePort && sourcePort instanceof RecordFieldPortModel && sourcePort.fieldFQN;
+	modifications.push(getModificationForSpecificFieldValue(targetPort, sourceField));
+	replaceSpecificFieldValue(targetPort, modifications);
+}
+
+export async function mapUsingCustomFunction(
+	sourcePort: RecordFieldPortModel,
+	targetPort: RecordFieldPortModel,
+	linkId: string,
+	context: IDataMapperContext,
+	valueType: ValueType
+) {
+	const existingFunctions = context.moduleComponents.functions.map((fn) => fn.name);
+	const [functionName, functionSource] = generateCustomFunction(sourcePort, targetPort, existingFunctions);
+	const functionCallExpr = `${functionName}(${sourcePort.fieldFQN})`;
+
+	const modifications: STModification[] = [];
+
+	const customFnPosition: NodePosition = {
+		...context.functionST.position,
+		startLine: context.functionST.position.endLine,
+		startColumn: context.functionST.position.endColumn
+	}
+
+	modifications.push({
+		type: "INSERT",
+		config: {
+			"STATEMENT": functionSource,
+		},
+		...customFnPosition
+	});
+
+	await context.applyModifications(modifications);
+
+	if (valueType === ValueType.Default) {
+		await updateExistingValue(sourcePort, targetPort, functionCallExpr);
+	} else if (valueType === ValueType.NonEmpty) {
+		await modifySpecificFieldSource(sourcePort, targetPort, linkId, functionCallExpr);
+	} else {
+		await createSourceForMapping(sourcePort, targetPort, functionCallExpr);
+	}
+
+	// Navigate to the data mapper function
+	// TODO: Instead creating custom function from the front-end, we should use a LS API to create the function
+	// and then navigate to the function by using the position returned by the LS API
+	context.goToSource({
+		...context.functionST.position,
+		endLine: context.functionST.position.startLine,
+		endColumn: context.functionST.position.startColumn
+	});
+}
+
+export function replaceSpecificFieldValue(targetPort: PortModel, modifications: STModification[]) {
+	const targetNode = (targetPort as RecordFieldPortModel).getNode();
 	const { context } = targetNode as DataMapperNodeModel;
 	void context.applyModifications(modifications);
 }
 
+export function expandArrayFn(node: QueryExpressionNode) {
+	let isExprBodyQuery: boolean;
+	let isSelectClauseQuery: boolean;
+
+	const { parentNode, value, context, targetPort: { fieldFQN } } = node;
+	const { selection, changeSelection } = context;
+	const selectedST = selection.selectedST.stNode;
+
+
+	let exprFnBody: ExpressionFunctionBody;
+	if (STKindChecker.isFunctionDefinition(selectedST) && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
+        exprFnBody = selectedST.functionBody;
+    }
+
+	if (STKindChecker.isBracedExpression(parentNode)) {
+		// Handle scenarios where user tries to expand into
+		// braced indexed query expressions which are at the function body level
+		const specificFieldFindingVisitor = new QueryParentFindingVisitor(value.position);
+		traversNode(selectedST, specificFieldFindingVisitor);
+		const specificField = specificFieldFindingVisitor.getSpecificField();
+		if (specificField && STKindChecker.isFunctionDefinition(specificField)) {
+			isExprBodyQuery = true;
+		}
+	} else if (exprFnBody && isRepresentFnBody(parentNode, exprFnBody)) {
+		isExprBodyQuery = true;
+	} else if (STKindChecker.isSelectClause(parentNode)
+		|| (STKindChecker.isSpecificField(parentNode)
+			&& STKindChecker.isQueryExpression(parentNode.valueExpr)
+			&& !isPositionsEquals(value.position, parentNode.valueExpr.position))
+	) {
+		isSelectClauseQuery = true;
+	}
+	let selectClauseIndex: number;
+	if (isSelectClauseQuery) {
+		const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(value.position);
+		traversNode(selectedST, queryExprFindingVisitor);
+		selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
+	}
+
+	const hasIndexedQuery = hasIndexedQueryExpr(parentNode);
+	const hasCollectClause = hasCollectClauseExpr(value);
+	const mappingType = getQueryExprMappingType(hasIndexedQuery, hasCollectClause);
+	changeSelection(ViewOption.EXPAND,
+		{
+			...selection,
+			selectedST: {
+				stNode: isExprBodyQuery || isSelectClauseQuery ? selectedST : parentNode,
+				fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : isSelectClauseQuery ? SELECT_CALUSE_QUERY : fieldFQN,
+				position: value.position,
+				index: selectClauseIndex,
+				mappingType: mappingType,
+			}
+		})
+}
+
 export function getModificationForSpecificFieldValue(
-	link: DataMapperLinkModel,
-	sourceField: string
+	targetPort: PortModel,
+	newSource: string
 ): STModification {
-	if (link.getTargetPort() && sourceField) {
-		const targetPort = link.getTargetPort() as RecordFieldPortModel;
+	if (targetPort instanceof RecordFieldPortModel) {
 		const editableRecordField = targetPort.editableRecordField;
 		let targetPosition: NodePosition;
 		if (editableRecordField?.value) {
@@ -539,7 +649,7 @@ export function getModificationForSpecificFieldValue(
 			return {
 				type: "INSERT",
 				config: {
-					"STATEMENT": sourceField,
+					"STATEMENT": newSource,
 				},
 				...targetPosition
 			};
@@ -714,15 +824,8 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	}
 }
 
-export function getInputPortsForExpr(node: RequiredParamNode
-										 | FromClauseNode
-										 | LetClauseNode
-										 | JoinClauseNode
-										 | LetExpressionNode
-										 | ModuleVariableNode
-										 | EnumTypeNode,
-                                     expr: STNode): RecordFieldPortModel {
-	let typeDesc = !(node instanceof LetExpressionNode || node instanceof ModuleVariableNode || node instanceof EnumTypeNode) && node.typeDef;
+export function getInputPortsForExpr(node: InputNode, expr: STNode ): RecordFieldPortModel {
+	let typeDesc = !isNodeWithoutTypeDesc(node) && node.typeDef;
 	let portIdBuffer;
 	if (node instanceof RequiredParamNode) {
 		portIdBuffer = node?.value && node.value.paramName.value
@@ -771,7 +874,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 			let nextTypeNode: TypeField = typeDesc;
 			for (let i = 1; i < fieldNames.length; i++) {
 				const fieldName = fieldNames[i];
-				portIdBuffer += fieldName.isOptional ? `?.${fieldName.name}` : `.${fieldName.name}`;
+				portIdBuffer += `.${fieldName.name}`;
 				let recField: TypeField;
 				const optionalRecordField = getOptionalRecordField(nextTypeNode);
 				if (optionalRecordField) {
@@ -783,7 +886,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 
 				if (recField) {
 					if (i === fieldNames.length - 1) {
-						const portId = portIdBuffer + ".OUT";
+						const portId = portIdBuffer.trim() + ".OUT";
 						let port = (node.getPort(portId) as RecordFieldPortModel);
 						while (port && port.hidden) {
 							port = port.parentModel;
@@ -961,6 +1064,36 @@ export function getTypeName(field: TypeField): string {
 	return getShortenedTypeName(typeName);
 }
 
+export function normalizeTypeName(typeName: string) {
+    // Handle union types first
+    if (typeName.includes('|')) {
+        const types = typeName.split('|').map(t => t.trim());
+        const transformedTypes = types.map(type => {
+            const arrayDim = (type.match(/\[]/g) || []).length;
+            const baseName = type.replace(/\[]/g, '');
+            return arrayDim > 0 ? `${baseName}${arrayDim}DArray` : baseName;
+        });
+        return transformedTypes.join('Or');
+    }
+
+    let baseName = typeName.replace(/\[]/g, '');
+
+	// Handle imported types
+	if (baseName.includes(':')) {
+		const [moduleName, type] = baseName.split(':');
+		baseName = `${moduleName}_${type}`;
+	}
+
+    // Handle array types
+    const arrayDim = (typeName.match(/\[]/g) || []).length;
+
+    if (arrayDim === 0) {
+        return baseName;
+    }
+    
+    return arrayDim === 1 ? `${baseName}Array` : `${baseName}${arrayDim}DArray`;
+}
+
 export function getDefaultValue(typeName: string): string {
 	let draftParameter = "";
 	switch (typeName) {
@@ -993,6 +1126,7 @@ export function getDefaultValue(typeName: string): string {
 			break;
 		case PrimitiveBalType.Enum:
 		case PrimitiveBalType.Union:
+			draftParameter = `()`;
 			break;
 		default:
 			draftParameter = `""`;
@@ -1126,12 +1260,12 @@ export function findTypeByInfoFromStore(typeInfo: NonPrimitiveBal): TypeField {
 	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
 
 	for (const type of recordTypeDescriptors.typeDescriptors.values()) {
-		if (isTypeMatch(type, typeInfo)) {
-			return type;
-		} else if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-			if (isTypeMatch(type.memberType, typeInfo)) {
-				return type.memberType;
-			}
+		if (!type) {
+			return undefined;
+		}
+		const matchingType = getMatchingType(type, typeInfo);
+		if (matchingType) {
+			return matchingType;
 		}
 	}
 
@@ -1328,17 +1462,6 @@ export function getRelativePathOfField(bindingPattern: STNode, targetIdentifier:
 	return path;
 }
 
-export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): ArrayMappingType {
-	let mappingType: ArrayMappingType;
-	if (isSourceArray && isTargetArray) {
-		mappingType = ArrayMappingType.ArrayToArray;
-	} else if (isSourceArray && !isTargetArray) {
-		mappingType = ArrayMappingType.ArrayToSingleton;
-	}
-
-	return mappingType;
-}
-
 export function getQueryExprMappingType(hasIndexedQuery: boolean, hasCollectClause: boolean): QueryExprMappingType {
 	if (hasIndexedQuery) {
 		return QueryExprMappingType.A2SWithSelect;
@@ -1388,6 +1511,38 @@ export function getMappedFnNames(targetPort: PortModel) {
 
 export function isLinkModel(node: BaseModel) {
     return node instanceof DataMapperLinkModel;
+}
+
+export function getValueType(lm: DataMapperLinkModel): ValueType {
+	const editableRecordField = (lm.getTargetPort() as RecordFieldPortModel).editableRecordField;
+
+	if (editableRecordField?.value) {
+		let expr = editableRecordField.value;
+		if (STKindChecker.isSpecificField(expr)) {
+			expr = expr.valueExpr;
+		}
+		const innerExpr = getInnermostExpressionBody(expr);
+		let value: string = innerExpr?.value || innerExpr?.source;
+
+		if (STKindChecker.isListConstructor(innerExpr) && innerExpr.expressions.length === 0) {
+			// Ensure new lines and spaces are removed in empty arrays
+			value = "[]";
+		}
+
+		if (value !== undefined) {
+			return isDefaultValue(editableRecordField.type, value) ? ValueType.Default : ValueType.NonEmpty;
+		}
+	}
+
+	return ValueType.Empty;
+}
+
+export function toFirstLetterLowerCase(identifierName: string){
+    return identifierName.charAt(0).toLowerCase() + identifierName.slice(1);
+}
+
+export function toFirstLetterUpperCase(identifierName: string){
+    return identifierName.charAt(0).toUpperCase() + identifierName.slice(1);
 }
 
 function getInnerExpr(node: FieldAccess | OptionalFieldAccess): STNode {
@@ -1488,7 +1643,33 @@ export function getCollectClauseActions(
 	});
 }
 
-function isTypeMatch(type: TypeField, typeInfo: NonPrimitiveBal): boolean {
+export function getMatchingType(type: TypeField, typeInfo: NonPrimitiveBal): TypeField {
+	if (isTypeMatch(type, typeInfo)) {
+		return type;
+	} else if (type.typeName === PrimitiveBalType.Record) {
+		for (const field of type.fields) {
+			const matchingType = getMatchingType(field, typeInfo);
+			if (matchingType) {
+				return matchingType;
+			}
+		}
+	} else if (type.typeName === PrimitiveBalType.Array && type.memberType) {
+		if (isTypeMatch(type.memberType, typeInfo)) {
+			return type.memberType;
+		} else if (type.memberType?.typeName === PrimitiveBalType.Record) {
+			for (const field of type.memberType.fields) {
+				const matchingType = getMatchingType(field, typeInfo);
+				if (matchingType) {
+					return matchingType;
+				}
+			}
+		}
+	}
+
+	return undefined;
+}
+
+export function isTypeMatch(type: TypeField, typeInfo: NonPrimitiveBal): boolean {
 	return (
 		type.typeInfo &&
 		type.typeInfo.orgName === typeInfo.orgName &&
@@ -1683,6 +1864,61 @@ export function getLetClauseVarNames(letClause: LetClause): string[] {
 	return varNames;
 }
 
+export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
+
+    if (sourcePort instanceof RecordFieldPortModel
+        && targetPort instanceof RecordFieldPortModel
+        && targetPort.field && sourcePort.field) {
+            
+		const sourceDim = getDMTypeDim(sourcePort.field);
+		const targetDim = getDMTypeDim(targetPort.field);
+
+		if (sourceDim > 0) {
+			const dimDelta = sourceDim - targetDim;
+			if (dimDelta == 0) return MappingType.ArrayToArray;
+			if (dimDelta > 0) return MappingType.ArrayToSingleton;
+		} else if (sourcePort.field.typeName === PrimitiveBalType.Union) {
+			return MappingType.UnionToAny;
+		} else if (sourcePort.field.typeName === PrimitiveBalType.Record
+			&& targetPort.field.typeName === PrimitiveBalType.Record) {
+			return MappingType.RecordToRecord;
+		}
+    }
+
+    return MappingType.Default;
+}
+
+export function buildInputAccessExpr(fieldFqn: string): string {
+	// Regular expression to match either quoted strings or non-quoted strings with dots
+	const regex = /"([^"]+)"|'([^"]+)'|([^".]+)/g;
+
+	const result = fieldFqn.replace(regex, (match, doubleQuoted, singleQuoted, unquoted) => {
+		if (doubleQuoted) {
+			return `["${doubleQuoted}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
+		} else if (singleQuoted) {
+			return `['${singleQuoted}']`; // If the part is enclosed in single quotes, wrap it in square brackets
+		} else {
+			return unquoted; // Otherwise, leave the part unchanged
+		}
+	});
+
+	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
+}
+
+export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: PortModel) {
+    if (sourcePort instanceof RecordFieldPortModel && targetPort instanceof RecordFieldPortModel) {
+        let suffix = '';
+        const sourceDim = getDMTypeDim(sourcePort.field);
+        const targetDim = getDMTypeDim(targetPort.field);
+        const dimDelta = sourceDim - targetDim;
+        for (let i = 0; i < dimDelta; i++) {
+            suffix += '[0]';
+        }
+        return suffix;
+    }
+    return '';
+};
+
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)
 		&& targetPort?.editableRecordField?.value
@@ -1750,15 +1986,36 @@ function getFieldNameFromOutputPort(outputPort: RecordFieldPortModel): string {
 	return fieldName;
 }
 
+function isNodeWithoutTypeDesc(node: BaseModel): node is NodeWithoutTypeDesc {
+	return (
+		node instanceof LetExpressionNode ||
+		node instanceof ModuleVariableNode ||
+		node instanceof EnumTypeNode ||
+		node instanceof ExpandedMappingHeaderNode
+	);
+}
+
 export const getOptionalRecordField = (field: TypeField): TypeField | undefined => {
+	if (!field) return;
+
+	let recField: TypeField;
 	if (PrimitiveBalType.Record === field.typeName && field.optional) {
-		return field;
+		recField = field;
 	} else if (PrimitiveBalType.Union === field.typeName) {
 		const isSimpleOptionalType = field.members?.some(member => member.typeName === '()');
-		if (isSimpleOptionalType && field.members?.length === 2){
-			return field.members?.find(member => member.typeName === PrimitiveBalType.Record);
+		if (isSimpleOptionalType && field.members?.length === 2) {
+			for (const member of field.members) {
+				if (member.typeName === PrimitiveBalType.Record) {
+					recField = member;
+				} else if (member.typeName === 'intersection') {
+					const recordMem = member.members?.find(member => member.typeName === PrimitiveBalType.Record);
+					recField = recordMem;
+				}
+			}
 		}
 	}
+
+	return recField;
 }
 
 export const isOptionalAndNillableField = (field: TypeField) => {
@@ -1779,7 +2036,7 @@ export const getOptionalArrayField = (field: TypeField): TypeField | undefined =
 }
 
 /** Filter out error and nill types and return only the types that can be displayed as mapping as target nodes */
-export const getFilteredUnionOutputTypes = (type: TypeField) => type.members?.filter(member => member && !["error", "()"].includes(member.typeName));
+export const getFilteredUnionOutputTypes = (type: TypeField) => type.members?.filter(member => member && !["error"].includes(member.typeName));
 
 
 export const getNewFieldAdditionModification = (node: STNode, fieldName: string, fieldValue = '') => {

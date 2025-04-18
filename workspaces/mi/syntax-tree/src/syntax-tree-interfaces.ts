@@ -1133,6 +1133,7 @@ export interface DataServiceCall extends STNode {
 }
 
 export interface APIResource extends STNode {
+    api: string;
     inSequence: Sequence;
     outSequence: Sequence;
     faultSequence: Sequence;
@@ -1845,6 +1846,30 @@ export interface Connector extends STNode {
     method: string;
     parameters: ConnectorParameter[];
     configKey?: string;
+    tools?: Tools;
+}
+
+export interface AIConnector extends Connector {
+    connections: { [key: string]: AIConnectorConnection };
+}
+
+export interface AIConnectorConnection {
+    name: string;
+    path: string;
+    connectionType?: string;
+    connectorName?: string;
+    parameters: any[]
+}
+
+export interface Tools extends STNode {
+    tools: Tool[];
+}
+
+export interface Tool extends STNode {
+    name: string;
+    description: string;
+    template: string;
+    mediator: Connector;
 }
 
 export interface ConnectorParameter extends STNode {

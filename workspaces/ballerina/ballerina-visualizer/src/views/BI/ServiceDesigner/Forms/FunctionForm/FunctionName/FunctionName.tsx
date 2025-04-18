@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { PropertyModel } from '@wso2-enterprise/ballerina-core';
+import { ReadonlyField } from '../../../components/ReadonlyField';
 
 const NameContainer = styled.div`
     display: flex;
@@ -33,21 +34,23 @@ export function FunctionName(props: FunctionNameProps) {
 	return (
 		<>
 			<NameContainer>
-				<TextField
-					sx={{ marginLeft: 15, flexGrow: 1 }}
-					autoFocus
-					disabled={readonly}
-					errorMsg={""}
-					label="Function Name"
-					size={70}
-					onTextChange={(input) => {
-						const trimmedInput = input.trim();
-						handleNameChange(trimmedInput);
-					}}
-					placeholder="foo"
-					value={name.value}
-					onFocus={(e) => e.target.select()}
-				/>
+				{readonly && <ReadonlyField label="Function Name" name={name.value} />}
+				{!readonly &&
+					<TextField
+						sx={{ flexGrow: 1 }}
+						autoFocus
+						errorMsg={""}
+						label="Function Name"
+						size={70}
+						onChange={(e) => {
+							const trimmedInput = e.target.value.trim();
+							handleNameChange(trimmedInput);
+						}}
+						placeholder="foo"
+						value={name.value}
+						onFocus={(e) => e.target.select()}
+					/>
+				}
 			</NameContainer>
 		</>
 	);

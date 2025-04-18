@@ -25,11 +25,12 @@ import {
     WorkspaceFileRequest,
     WorkspacesFileResponse,
     FileOrDirRequest,
-    WorkspaceRootResponse
+    WorkspaceRootResponse,
+    ShowErrorMessageRequest
 } from "./interfaces";
 
 export interface CommonRPCAPI {
-    getTypes: () => Promise<TypeResponse>;
+    getTypeCompletions: () => Promise<TypeResponse>;
     goToSource: (params: GoToSourceRequest) => void;
     getWorkspaceFiles: (params: WorkspaceFileRequest) => Promise<WorkspacesFileResponse>;
     getBallerinaDiagnostics: (params: BallerinaDiagnosticsRequest) => Promise<BallerinaDiagnosticsResponse>;
@@ -39,4 +40,5 @@ export interface CommonRPCAPI {
     selectFileOrDirPath: (params: FileOrDirRequest) => Promise<FileOrDirResponse>;
     experimentalEnabled: () => Promise<boolean>;
     getWorkspaceRoot: () => Promise<WorkspaceRootResponse>;
+    showErrorMessage: (params: ShowErrorMessageRequest) => void;
 }

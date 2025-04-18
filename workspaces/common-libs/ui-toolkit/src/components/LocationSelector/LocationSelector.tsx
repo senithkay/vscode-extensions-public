@@ -49,6 +49,12 @@ const LabelContainer = styled.div<ContainerProps>`
     margin-bottom: 4px;
 `;
 
+const PathText = styled.div`
+    font-family: var(--vscode-editor-font-family);
+    padding: 4px 0;
+    opacity: 0.8;
+`;
+
 export const LocationSelector: React.FC<FileSelectorProps> = (props: FileSelectorProps) => {
     const { id, label, required, selectionText, sx, btnText, onSelect, selectedFile } = props;
 
@@ -60,9 +66,9 @@ export const LocationSelector: React.FC<FileSelectorProps> = (props: FileSelecto
                 </div>
                 {(required && label) && (<RequiredFormInput />)}
             </LabelContainer>
-            <LabelContainer>
+            <PathText>
                 {selectedFile ? <span>{selectedFile}</span> : <div style={{color: "var(--vscode-editor-foreground)"}}>{selectionText}</div>}
-            </LabelContainer>
+            </PathText>
             <BrowseBtn appearance="secondary" id="file-selector-btn" onClick={onSelect}>
                 {btnText || "Select Location"}
             </BrowseBtn>

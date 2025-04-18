@@ -119,20 +119,39 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
             const projectDetails = await langClient.getProjectDetails();
             const existingDependencies = projectDetails.dependencies || [];
-            const newDependencies = params.dependencies.filter(dep => {
-                const dependenciesToCheck = dep.type === 'zip' ? existingDependencies.connectorDependencies : existingDependencies.otherDependencies;
-                return !dependenciesToCheck.some(existingDep =>
-                    existingDep.groupId === dep.groupId &&
-                    existingDep.artifact === dep.artifact &&
-                    existingDep.version === dep.version
-                )
-            }
-            );
 
-            if (newDependencies.length > 0) {
-                const res = await langClient.updateDependencies({ dependencies: newDependencies });
+            const updatedDependencies: any[] = [];
+            const removedDependencies: any[] = [];
+
+            params.dependencies.forEach(dep => {
+                const dependenciesToCheck = dep.type === 'zip' ? existingDependencies.connectorDependencies : existingDependencies.otherDependencies;
+                let alreadyAvailable = false;
+                dependenciesToCheck.forEach(existingDep => {
+                    if (existingDep.groupId === dep.groupId &&
+                        existingDep.artifact === dep.artifact) {
+                        if (existingDep.version !== dep.version) {
+                            removedDependencies.push(existingDep);
+                        } else {
+                            alreadyAvailable = true;
+                        }
+                        return;
+                    }
+                });
+
+                !alreadyAvailable && updatedDependencies.push(dep);
+            });
+
+            if (updatedDependencies.length > 0) {
+                const res = await langClient.updateDependencies({ dependencies: updatedDependencies });
                 await this.updatePom(res.textEdits);
             }
+
+            if (removedDependencies.length > 0) {
+                await this.updatePomValues({
+                    pomValues: removedDependencies.map(dep => ({ range: dep.range, value: '' }))
+                });
+            }
+
             resolve(true);
         });
     }
@@ -179,6 +198,15 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.updateConnectorDependencies();
             resolve(res);
+        });
+    }
+
+    async updateDependenciesFromOverview(params: UpdateDependenciesRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateDependencies({ dependencies: params.dependencies });
+            await this.updatePom(res.textEdits);
+            resolve(true);
         });
     }
 

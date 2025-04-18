@@ -37,7 +37,6 @@ export class LetExpressionNode extends DataMapperNodeModel {
     public letExpr: LetExpression;
     public letVarDecls: DMLetVarDecl[];
     public hasNoMatchingFields: boolean;
-    public x: number;
     public numberOfFields:  number;
 
     constructor(
@@ -86,14 +85,18 @@ export class LetExpressionNode extends DataMapperNodeModel {
                             if (type && (type.typeName === PrimitiveBalType.Record)) {
                                 const fields = type.fields;
                                 fields.forEach((subField) => {
-                                    this.numberOfFields += 1 + this.addPortsForInputRecordField(subField, "OUT",
-                                        varName.value, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
-                                        this.context.collapsedFields, parentPort.collapsed);
+                                    this.numberOfFields += 1 + this.addPortsForInputRecordField(
+                                        subField, "OUT", varName.value, varName.value,
+                                        LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort, this.context.collapsedFields,
+                                        parentPort.collapsed
+                                    );
                                 });
                             } else {
-                                this.numberOfFields += this.addPortsForInputRecordField(type, "OUT",
-                                    varName.value, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
-                                    this.context.collapsedFields, parentPort.collapsed);
+                                this.numberOfFields += this.addPortsForInputRecordField(
+                                    type, "OUT", varName.value, varName.value,
+                                    LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort, this.context.collapsedFields,
+                                    parentPort.collapsed
+                                );
                             }
 
                             this.letVarDecls.push({varName: varName.value, type, declaration: decl});
@@ -113,10 +116,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
         if (typeof x === 'number' && typeof y === 'number'){
-            if (!this.x){
-                this.x = x;
-            }
-            super.setPosition(this.x, y);
+            super.setPosition(x, y);
         }
     }
 }

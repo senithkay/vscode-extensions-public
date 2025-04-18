@@ -18,6 +18,7 @@ import { getBalRecFieldName, getOptionalRecordField, getTypeName, isOptionalAndN
 import { InputSearchHighlight } from "../Search";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useIONodesStyles } from "../../../../styles";
+import { getUnionTypes } from "../../../utils/union-type-utils";
 
 export interface RecordFieldTreeItemWidgetProps {
     parentId: string;
@@ -46,12 +47,11 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const classes = useIONodesStyles();
 
     const fieldName = getBalRecFieldName(field.name);
-    const fieldId = `${parentId}${isOptional ? `?.${fieldName}` : `.${fieldName}`}`;
+    const fieldId = `${parentId}.${fieldName}`;
     const portOut = getPort(`${fieldId}.OUT`);
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const isPortDisabled = hasLinkViaCollectClause && Object.keys(portOut.getLinks()).length === 0;
-    portOut.isDisabledDueToCollectClause = isPortDisabled;
 
     let fields: TypeField[];
     let optional = false;
@@ -65,13 +65,28 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     }
 
     let expanded = true;
-    if (portOut && portOut.collapsed) {
-        expanded = false;
+    if (portOut) {
+        if (portOut.collapsed) {
+            expanded = false;
+        }
+        portOut.isDisabledDueToCollectClause = isPortDisabled;
     }
 
     const typeName = getTypeName(field);
 
     const indentation = fields ? 0 : ((treeDepth + 1) * 16) + 8;
+
+    const getUnionType = () => {
+        const typeText: JSX.Element[] = [];
+        const unionTypes = getUnionTypes(field);
+        unionTypes.forEach((type) => {
+            typeText.push(<>{type}</>);
+            if (type !== unionTypes[unionTypes.length - 1]) {
+                typeText.push(<> | </>);
+            }
+        });
+        return typeText;
+    };
 
     const label = (
         <span style={{ marginRight: "auto" }}>
@@ -82,7 +97,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
             </span>
             {typeName && (
                 <span className={classes.inputTypeLabel}>
-                    {typeName}
+                    {field.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
                 </span>
             )}
 
@@ -120,6 +135,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
             >
                 <span className={classes.label}>
                     {fields && <Button
+                            id={"expand-or-collapse-" + fieldId}
                             appearance="icon"
                             tooltip="Expand/Collapse"
                             onClick={handleExpand}

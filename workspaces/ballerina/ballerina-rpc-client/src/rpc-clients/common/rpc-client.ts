@@ -20,6 +20,7 @@ import {
     OpenExternalUrlRequest,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
+    ShowErrorMessageRequest,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspaceRootResponse,
@@ -27,13 +28,14 @@ import {
     executeCommand,
     experimentalEnabled,
     getBallerinaDiagnostics,
-    getTypes,
+    getTypeCompletions,
     getWorkspaceFiles,
     getWorkspaceRoot,
     goToSource,
     openExternalUrl,
     runBackgroundTerminalCommand,
-    selectFileOrDirPath
+    selectFileOrDirPath,
+    showErrorMessage
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -45,8 +47,8 @@ export class CommonRpcClient implements CommonRPCAPI {
         this._messenger = messenger;
     }
 
-    getTypes(): Promise<TypeResponse> {
-        return this._messenger.sendRequest(getTypes, HOST_EXTENSION);
+    getTypeCompletions(): Promise<TypeResponse> {
+        return this._messenger.sendRequest(getTypeCompletions, HOST_EXTENSION);
     }
 
     goToSource(params: GoToSourceRequest): void {
@@ -83,5 +85,9 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     getWorkspaceRoot(): Promise<WorkspaceRootResponse> {
         return this._messenger.sendRequest(getWorkspaceRoot, HOST_EXTENSION);
+    }
+
+    showErrorMessage(params: ShowErrorMessageRequest): void {
+        return this._messenger.sendNotification(showErrorMessage, HOST_EXTENSION, params);
     }
 }

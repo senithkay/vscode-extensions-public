@@ -12,18 +12,15 @@
  */
 
 import { ProjectStructureResponse } from "../../interfaces/bi";
+import { LinePosition } from "../../interfaces/common";
 import {
     BIAvailableNodesRequest,
     BIAvailableNodesResponse,
     BIFlowModelResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -43,10 +40,43 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
     BIDesignModelResponse,
+    GetTypesResponse,
+    UpdateTypeResponse,
+    GetTypesRequest,
+    UpdateTypeRequest,
+    GetTypeRequest,
+    GetTypeResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
     AddFunctionRequest,
-    AddFunctionResponse
+    AddImportItemResponse,
+    FunctionNodeRequest,
+    FunctionNodeResponse,
+    ServiceClassModelResponse,
+    ModelFromCodeRequest,
+    ClassFieldModifierRequest,
+    SourceEditResponse,
+    ServiceClassSourceRequest,
+    AddFieldRequest,
+    RenameIdentifierRequest,
+    BISearchRequest,
+    BISearchResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
+    UpdateRecordConfigRequest,
+    RecordSourceGenRequest,
+    RecordSourceGenResponse,
+    GetRecordModelFromSourceResponse,
+    GetRecordModelFromSourceRequest,
+    UpdateTypesRequest,
+    UpdateTypesResponse,
+    DeploymentRequest,
+    DeploymentResponse,
+    OpenAPIClientGenerationRequest,
+    OpenAPIGeneratedModulesRequest,
+    OpenAPIGeneratedModulesResponse,
+    OpenAPIClientDeleteRequest,
+    OpenAPIClientDeleteResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -63,7 +93,12 @@ import {
     BreakpointRequest,
     CurrentBreakpointsResponse,
     FormDidOpenParams,
-    FormDidCloseParams
+    FormDidCloseParams,
+    EndOfFileRequest,
+    RecordsInWorkspaceMentions,
+    BuildMode,
+    DevantMetadata,
+    GeneratedClientSaveResponse
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -72,7 +107,6 @@ export interface BIDiagramAPI {
     deleteFlowNode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
     deleteByComponentInfo: (params: BIDeleteByComponentInfoRequest) => Promise<BIDeleteByComponentInfoResponse>;
     getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
-    getFunctions: (params: BIGetFunctionsRequest) => Promise<BIGetFunctionsResponse>;
     getEnclosedFunction: (params: BIGetEnclosedFunctionRequest) => Promise<BIGetEnclosedFunctionResponse>;
     getNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getAiSuggestions: (params: BIAiSuggestionsRequest) => Promise<BIAiSuggestionsResponse>;
@@ -81,7 +115,6 @@ export interface BIDiagramAPI {
     getProjectStructure: () => Promise<ProjectStructureResponse>;
     getProjectComponents: () => Promise<ProjectComponentsResponse>;
     createComponent: (params: ComponentRequest) => Promise<CreateComponentResponse>;
-    getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
     getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
@@ -90,10 +123,11 @@ export interface BIDiagramAPI {
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
-    deployProject: () => void;
+    renameIdentifier: (params: RenameIdentifierRequest) => Promise<void>;
+    deployProject: (params: DeploymentRequest) => Promise<DeploymentResponse>;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
-    buildProject: () => void;
+    buildProject: (mode: BuildMode) => void;
     runProject: () => void;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     addBreakpointToSource: (params: BreakpointRequest) => void;
@@ -104,6 +138,28 @@ export interface BIDiagramAPI {
     formDidOpen: (params: FormDidOpenParams) => Promise<void>;
     formDidClose: (params: FormDidCloseParams) => Promise<void>;
     getDesignModel: () => Promise<BIDesignModelResponse>;
+    getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
+    getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
+    updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    updateTypes: (params: UpdateTypesRequest) => Promise<UpdateTypesResponse>;
+    getServiceClassModel: (params: ModelFromCodeRequest) => Promise<ServiceClassModelResponse>;
+    updateClassField: (params: ClassFieldModifierRequest) => Promise<SourceEditResponse>;
+    addClassField: (params: AddFieldRequest) => Promise<SourceEditResponse>;
+    updateServiceClass: (params: ServiceClassSourceRequest) => Promise<SourceEditResponse>;
+    createGraphqlClassType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
+    getRecordConfig: (params: GetRecordConfigRequest) => Promise<GetRecordConfigResponse>;
+    updateRecordConfig: (params: UpdateRecordConfigRequest) => Promise<GetRecordConfigResponse>;
+    getRecordModelFromSource: (params: GetRecordModelFromSourceRequest) => Promise<GetRecordModelFromSourceResponse>;
+    getRecordSource: (params: RecordSourceGenRequest) => Promise<RecordSourceGenResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
-    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddImportItemResponse>;
+    getFunctionNode: (params: FunctionNodeRequest) => Promise<FunctionNodeResponse>;
+    getEndOfFile: (params: EndOfFileRequest) => Promise<LinePosition>;
+    search: (params: BISearchRequest) => Promise<BISearchResponse>;
+    getRecordNames: () => Promise<RecordsInWorkspaceMentions>;
+    getFunctionNames: () => Promise<RecordsInWorkspaceMentions>;
+    getDevantMetadata: () => Promise<DevantMetadata | undefined>;
+    generateOpenApiClient: (params: OpenAPIClientGenerationRequest) => Promise<GeneratedClientSaveResponse>;
+    getOpenApiGeneratedModules: (params: OpenAPIGeneratedModulesRequest) => Promise<OpenAPIGeneratedModulesResponse>;
+    deleteOpenApiGeneratedModules: (params: OpenAPIClientDeleteRequest) => Promise<OpenAPIClientDeleteResponse>;
 }

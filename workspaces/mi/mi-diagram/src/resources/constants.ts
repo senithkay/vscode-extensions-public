@@ -39,6 +39,7 @@ export enum VSCodeColors {
     ON_SECONDARY = "var(--vscode-button-foreground)",
     SECONDARY_CONTAINER = "var(--vscode-sideBar-background)",
     SECONDARY_BUTTON = "var(--button-secondary-background)",
+    SECONDARY_TEXT = "var(--vscode-list-deemphasizedForeground)",
 
     SURFACE_BRIGHT = "var(--vscode-editor-background)",
     SURFACE = "var(--vscode-sideBar-background)",
@@ -52,12 +53,19 @@ export enum VSCodeColors {
 
     ERROR = "var(--vscode-errorForeground)",
 
+    DELETE_ICON = "var(--vscode-minimap-errorHighlight)",
+
     INPUT_OPTION_ACTIVE = "var(--vscode-inputOption-activeBackground)",
     INPUT_OPTION_INACTIVE = "var(--vscode-inputOption-inactiveBackground)",
     INPUT_OPTION_HOVER = "var(--vscode-inputOption-hoverBackground)",
     INPUT_OPTION_ACTIVE_BORDER = "var(--vscode-inputOption-activeBorder)",
 
     WARNING = "var(--vscode-editorWarning-foreground)",
+
+    BUTTON_HOVER = "var(--vscode-pickerGroup-border)",
+
+    TILE_BACKGROUND = "var(--vscode-welcomePage-tileBackground)",
+    TILE_HOVER_BACKGROUND = "var(--vscode-welcomePage-tileHoverBackground)",
 }
 
 export const Colors = {
@@ -87,6 +95,8 @@ export const Colors = {
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 
+    DELETE_ICON: VSCodeColors.DELETE_ICON,
+
     INPUT_OPTION_ACTIVE: VSCodeColors.INPUT_OPTION_ACTIVE,
     INPUT_OPTION_INACTIVE: VSCodeColors.INPUT_OPTION_INACTIVE,
     INPUT_OPTION_HOVER: VSCodeColors.INPUT_OPTION_HOVER,
@@ -94,25 +104,16 @@ export const Colors = {
 
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
     WARNING: VSCodeColors.WARNING,
+
+    SECONDARY_TEXT: VSCodeColors.SECONDARY_TEXT,
+
+    BUTTON_HOVER: VSCodeColors.BUTTON_HOVER,
+
+    TILE_BACKGROUND: VSCodeColors.TILE_BACKGROUND,
+    TILE_HOVER_BACKGROUND: VSCodeColors.TILE_HOVER_BACKGROUND,
 };
 
 export const SIDE_PANEL_WIDTH = 450;
-
-export const NODE_GAP = {
-    START_X: 0,
-    START_Y: 40,
-    END_Y: 40,
-    X: 0,
-    Y: 50,
-    BRANCH_X: 50,
-    BRANCH_TOP: 60,
-    BRANCH_BOTTOM: 0,
-    SEQUENCE_Y: 100,
-    GROUP_NODE_START_Y: 50,
-    GROUP_NODE_END_Y: 50,
-    GROUP_NODE_HORIZONTAL_PADDING: 22,
-    TEXT_NODE_GAP: 25,
-};
 
 export const NODE_DIMENSIONS = {
     DEFAULT: {
@@ -169,6 +170,13 @@ export const NODE_DIMENSIONS = {
     CONNECTOR: {
         WIDTH: 150,
         HEIGHT: 60,
+        CONNECTION_PART_WIDTH: 110,
+        FULL_WIDTH: 150 + 110,
+    },
+    AI_AGENT: {
+        WIDTH: 200,
+        CONNECTION_PART_WIDTH: 135,
+        FULL_WIDTH: 200 + 135,
     },
     DATA_SERVICE: {
         WIDTH: 150,
@@ -178,6 +186,24 @@ export const NODE_DIMENSIONS = {
     BORDER: 1,
 };
 
+export const NODE_GAP = {
+    START_X: 0,
+    START_Y: 40,
+    END_Y: 40,
+    X: 0,
+    Y: 50,
+    BRANCH_X: 50,
+    BRANCH_TOP: 60,
+    BRANCH_BOTTOM: 0,
+    SEQUENCE_Y: 100,
+    GROUP_NODE_START_Y: 50,
+    GROUP_NODE_END_Y: 50,
+    GROUP_NODE_HORIZONTAL_PADDING: 22,
+    AI_AGENT_TOP: 65,
+    AI_AGENT_BOTTOM: 10,
+    AI_AGENT_TOOLS_Y: 20,
+    CONNECTION_CIRCLE_Y: 20,
+};
 
 // MEDIATOR NAMES
 export const MEDIATORS = {
@@ -271,6 +297,7 @@ export enum NodeTypes {
     EMPTY_NODE = "empty-node",
     CONNECTOR_NODE = "connector-node",
     DATA_SERVICE_NODE = "data-service-node",
+    AI_AGENT_NODE = "ai-agent-node",
 }
 
 export const NODE_LINK = "node-link";
@@ -303,8 +330,9 @@ export const DATA_SERVICE = {
 
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
-    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
+    CONNECTORS_STORE: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
+    CONNECTOR_SEARCH: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}",
+    CONNECTOR_VERSION: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/${repoName}/versions/${versionId}?runtimeVersion=4.3.0&product=MI"
 }
 
 export const ERROR_MESSAGES = {

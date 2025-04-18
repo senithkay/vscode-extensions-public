@@ -11,6 +11,8 @@
 import {
     ExportOASRequest,
     ExportOASResponse,
+    FunctionModelRequest,
+    FunctionModelResponse,
     FunctionSourceCodeRequest,
     HttpResourceModelRequest,
     HttpResourceModelResponse,
@@ -21,8 +23,6 @@ import {
     ListenerSourceCodeRequest,
     ListenersRequest,
     ListenersResponse,
-    RecordSTRequest,
-    RecordSTResponse,
     ServiceDesignerAPI,
     ServiceModelFromCodeRequest,
     ServiceModelFromCodeResponse,
@@ -37,11 +37,11 @@ import {
     addResourceSourceCode,
     addServiceSourceCode,
     exportOASFile,
+    getFunctionModel,
     getHttpResourceModel,
     getListenerModel,
     getListenerModelFromCode,
     getListeners,
-    getRecordST,
     getServiceModel,
     getServiceModelFromCode,
     getTriggerModels,
@@ -57,10 +57,6 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
 
     constructor(messenger: Messenger) {
         this._messenger = messenger;
-    }
-
-    getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
-        return this._messenger.sendRequest(getRecordST, HOST_EXTENSION, params);
     }
 
     exportOASFile(params: ExportOASRequest): Promise<ExportOASResponse> {
@@ -93,6 +89,10 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
 
     getServiceModel(params: ServiceModelRequest): Promise<ServiceModelResponse> {
         return this._messenger.sendRequest(getServiceModel, HOST_EXTENSION, params);
+    }
+
+    getFunctionModel(params: FunctionModelRequest): Promise<FunctionModelResponse> {
+        return this._messenger.sendRequest(getFunctionModel, HOST_EXTENSION, params);
     }
 
     addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {

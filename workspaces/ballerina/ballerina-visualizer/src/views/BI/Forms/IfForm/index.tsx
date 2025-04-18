@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, CompletionItem, FormExpressionEditorRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 import {
     FlowNode,
@@ -18,9 +18,9 @@ import {
     SubPanel,
     SubPanelView,
     FormDiagnostics,
-    Diagnostic
+    Diagnostic,
+    ExpressionProperty
 } from "@wso2-enterprise/ballerina-core";
-import { Colors } from "../../../../resources/constants";
 import {
     FormValues,
     ExpressionEditor,
@@ -55,7 +55,7 @@ export function IfForm(props: IfFormProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        subPanelView,
+        subPanelView
     } = props;
     const { 
         watch,
@@ -261,10 +261,11 @@ export function IfForm(props: IfFormProps) {
         setBranches(updatedBranches);
     };
 
-    const handleExpressionFormDiagnostics = useCallback(debounce(async (
+    const handleExpressionEditorDiagnostics = useCallback(debounce(async (
         showDiagnostics: boolean,
         expression: string,
-        key: string
+        key: string,
+        property: ExpressionProperty
     ) => {
         if (!showDiagnostics) {
             handleSetDiagnosticsInfo({ key, diagnostics: [] });
@@ -276,10 +277,10 @@ export function IfForm(props: IfFormProps) {
             context: {
                 expression: expression,
                 startLine: targetLineRange.startLine,
+                lineOffset: 0,
                 offset: 0,
-                node: node,
-                property: "condition",
-                branch: ""
+                codedata: undefined,
+                property: property,
             }
         });
 
@@ -339,30 +340,21 @@ export function IfForm(props: IfFormProps) {
                     return (
                         <FormStyles.Row key={field.key}>
                             <ExpressionEditor
-                                /* Completion related props */
-                                completions={activeEditor === index ? expressionEditor.completions : []}
-                                triggerCharacters={expressionEditor.triggerCharacters}
-                                retrieveCompletions={expressionEditor.retrieveCompletions}
-                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
-                                /* Helper pane related props */
-                                isLoadingHelperPaneInfo={expressionEditor.isLoadingHelperPaneInfo}
-                                variableInfo={expressionEditor.variableInfo}
-                                configVariableInfo={expressionEditor.configVariableInfo}
-                                functionInfo={expressionEditor.functionInfo}
-                                libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
-                                getHelperPaneData={expressionEditor.getHelperPaneData}
-                                onFunctionItemSelect={expressionEditor.onFunctionItemSelect}
-                                /* Other props */
+                                {...expressionEditor}
                                 ref={exprRef}
                                 control={control}
                                 field={field}
                                 watch={watch}
-                                getExpressionFormDiagnostics={handleExpressionFormDiagnostics}
-                                onFocus={() => handleEditorFocus(index)}
                                 openSubPanel={openSubPanel}
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
                                 onRemove={index !== 0 && !branch.label.includes("Else") ? () => removeCondition(index) : undefined}
+                                completions={activeEditor === index ? expressionEditor.completions : []}
+                                triggerCharacters={expressionEditor.triggerCharacters}
+                                retrieveCompletions={expressionEditor.retrieveCompletions}
+                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
+                                getExpressionEditorDiagnostics={handleExpressionEditorDiagnostics}
+                                onFocus={() => handleEditorFocus(index)}
                                 onCompletionItemSelect={expressionEditor.onCompletionItemSelect}
                                 onCancel={expressionEditor.onCancel}
                                 onBlur={expressionEditor.onBlur}
@@ -372,20 +364,20 @@ export function IfForm(props: IfFormProps) {
                 }
             })}
 
-            <LinkButton onClick={addNewCondition} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+            <LinkButton onClick={addNewCondition} sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}>
                 <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                 Add Else IF Block
             </LinkButton>
 
             {!hasElseBranch && (
-                <LinkButton onClick={addElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                <LinkButton onClick={addElseBlock} sx={{ fontSize: 12, padding: 8, color: ThemeColors.PRIMARY, gap: 4 }}>
                     <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                     Add Else Block
                 </LinkButton>
             )}
 
             {hasElseBranch && (
-                <LinkButton onClick={removeElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.ERROR, gap: 4 }}>
+                <LinkButton onClick={removeElseBlock} sx={{ fontSize: 12, padding: 8, color: ThemeColors.ERROR, gap: 4 }}>
                     <Codicon name={"chrome-minimize"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
                     Remove Else Block
                 </LinkButton>

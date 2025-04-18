@@ -29,6 +29,17 @@ export const Container = styled.div`
     flex-direction: column;
     justify-content: center;
     font-family: "GilmerRegular";
+    
+    &.preview-mode {
+        padding: 10px;
+        background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
+        background-size: 8px 8px;
+        background-color: ${Colors.SURFACE_BRIGHT};
+        overflow: hidden;
+        border-radius: 8px;
+        cursor: pointer ;
+        border: 1px solid ${Colors.SURFACE_CONTAINER};
+    }
 `;
 
 export const DiagramContainer = styled.div`
@@ -46,5 +57,13 @@ export const DiagramContainer = styled.div`
     }
     [data-nodeid="${MAIN_CELL}"] {
         pointer-events: none;
+    }
+    
+    &.preview-mode {
+        background-size: 8px 8px;
+        padding: 5px;
+        .cell-diagram-canvas {
+            cursor: pointer ;
+        }
     }
 `;

@@ -70,11 +70,11 @@ export function FunctionForm(props: ResourceFormProps) {
 			{isLoading && <ProgressIndicator id="resource-loading-bar" />}
 			<SidePanelBody>
 				<EditorContentColumn>
-					<FunctionName name={functionModel.name} onChange={onNameChange} readonly={functionModel.name.editable} />
+					<FunctionName name={functionModel.name} onChange={onNameChange} readonly={!functionModel.name.editable} />
 					<Divider />
-					<Parameters parameters={functionModel.parameters} onChange={handleParamChange} />
+					<Parameters parameters={functionModel.parameters} onChange={handleParamChange} canAddParameters={functionModel.canAddParameters} />
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Returns</Typography>
-					<FunctionReturn returnType={functionModel.returnType} onChange={handleResponseChange} readonly={functionModel.returnType.editable} />
+					<FunctionReturn returnType={functionModel.returnType} onChange={handleResponseChange} readonly={!functionModel.returnType.editable} />
 				</EditorContentColumn>
 				<ActionButtons
 					primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}

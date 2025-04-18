@@ -221,6 +221,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    HandleFileRequest,
+    HandleFileResponse,
     getAllDependenciesRequest,
     getSTRequest,
     getSTResponse,
@@ -245,16 +247,24 @@ import {
     TestConnectorConnectionResponse,
     MiVersionResponse,
     CheckDBDriverResponse,
-    RemoveDBDriverResponse,
     CopyArtifactRequest,
     CopyArtifactResponse,
     GetArtifactTypeRequest,
-    GetArtifactTypeResponse
+    GetArtifactTypeResponse,
+    ExtendedTextEdit,
+    LocalInboundConnectorsResponse,
+    BuildProjectRequest,
+    DeployProjectRequest,
+    DeployProjectResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse,
+    SCOPE,
+    DevantMetadata
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
-import { copy, remove } from 'fs-extra';
+import { copy, exists, remove } from 'fs-extra';
 import { isEqual, reject } from "lodash";
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
@@ -262,14 +272,13 @@ import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
-import * as syntaxTree from '../../../../syntax-tree/lib/src';
-import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, extensions, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
-import { UnitTest } from "../../../../syntax-tree/lib/src";
+import { DiagramService, APIResource, NamedSequence, UnitTest, Proxy } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -283,6 +292,7 @@ import { importProject } from "../../util/migrationUtils";
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
+import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
@@ -290,8 +300,12 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom } from "../../util/onboardingUtils";
+import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { checkForDevantExt } from "../../extension";
+import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
+import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
+import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 const AdmZip = require('adm-zip');
 
@@ -316,28 +330,113 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
         return new Promise((resolve) => {
-
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.artifactModel);
+            let content;
+            if (type == "API") {
+                content = this.readInputPayloadFile(name) ?? { type };
+                content[key] = { requests: params.payload };
+                content[key].defaultRequest = params.defaultPayload;
+            } else {
+                content = { type };
+                content.requests = params.payload;
+                content.defaultRequest = params.defaultPayload;
+            }
             const projectUri = StateMachine.context().projectUri!;
             const tryout = path.join(projectUri, ".tryout");
             if (!fs.existsSync(tryout)) {
                 fs.mkdirSync(tryout);
             }
-            fs.writeFileSync(path.join(tryout, "input.json"), params.payload);
+            fs.writeFileSync(path.join(tryout, name + ".json"), JSON.stringify(content, null, 2));
             resolve(true);
         });
     }
 
+    getResourceInfoToSavePayload(artifactModel: DiagramService) {
+        if (artifactModel.tag === 'resource') {
+            return {
+                name: (artifactModel as APIResource).api,
+                type: "API",
+                key: (artifactModel as APIResource).uriTemplate ?? (artifactModel as APIResource).urlMapping
+            }
+        } else if (artifactModel.tag === 'proxy') {
+            return {
+                name: (artifactModel as Proxy).name,
+                type: "PROXY",
+                key: (artifactModel as Proxy).name
+            }
+        } else {
+            return {
+                name: (artifactModel as NamedSequence).name,
+                type: "SEQUENCE",
+                key: (artifactModel as NamedSequence).name
+            }
+        }
+    }
+
     async getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return new Promise((resolve) => {
-            const projectUri = StateMachine.context().projectUri!;
-            const tryout = path.join(projectUri, ".tryout", "input.json");
-            if (fs.existsSync(tryout)) {
-                const payloads = JSON.parse(fs.readFileSync(tryout, "utf8"));
-                resolve({ payloads });
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.artifactModel);
+            const allPayloads = this.readInputPayloadFile(name);
+            if (allPayloads) {
+                let defaultPayload;
+                let payloads;
+                if (type == "API") {
+                    payloads = allPayloads[key]?.requests ?? [];
+                    defaultPayload = allPayloads[key]?.defaultRequest ?? "";
+                } else {
+                    payloads = allPayloads.requests ?? [];
+                    defaultPayload = allPayloads.defaultRequest;
+                }
+                resolve({ payloads, defaultPayload });
             } else {
-                resolve({ payloads: [] })
+                resolve({ payloads: [], defaultPayload: "" });
             }
         });
+    }
+
+    async getAllInputDefaultPayloads(): Promise<Record<string, any>> {
+        const projectUri = StateMachine.context().projectUri!;
+        const tryoutFolderPath = path.join(projectUri, ".tryout");
+        const payloadMapByArtifact: Record<string, any> = {};
+
+        if (fs.existsSync(tryoutFolderPath)) {
+            const files = fs.readdirSync(tryoutFolderPath);
+
+            files.forEach((file) => {
+                const filePath = path.join(tryoutFolderPath, file);
+                if (fs.statSync(filePath).isFile()) {
+                    const fileContent = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+                    const fileNameWithoutExtension = path.basename(file, ".json");
+                    
+                    if (fileContent.type === "API") {
+                        const payloadMapByResource: Record<string, object> = {};
+                        Object.keys(fileContent).forEach((key) => {
+                            if (key.startsWith("/")) { // Select only API resources
+                                const defaultRequestName = fileContent[key].defaultRequest;
+                                const defaultRequest = fileContent[key].requests.find((request: any) => request.name === defaultRequestName);
+                                payloadMapByResource[key] = defaultRequest ? defaultRequest : null;
+                            }
+                        });
+                        payloadMapByArtifact[fileNameWithoutExtension] = payloadMapByResource;
+                    } else {
+                        const defaultRequestName = fileContent.defaultRequest;
+                        const defaultRequest = fileContent.requests.find((request: any) => request.name === defaultRequestName);
+                        payloadMapByArtifact[fileNameWithoutExtension] = defaultRequest ? defaultRequest : null;
+                    }
+                }
+            });
+        }
+
+        return payloadMapByArtifact;
+    }
+
+    readInputPayloadFile(name: string) {
+        const projectUri = StateMachine.context().projectUri!;
+        const tryout = path.join(projectUri, ".tryout", name + ".json");
+        if (fs.existsSync(tryout)) {
+            return JSON.parse(fs.readFileSync(tryout, "utf8"));
+        }
+        return null;
     }
 
     async tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
@@ -498,27 +597,44 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 xmlData,
                 name,
                 version,
+                context,
+                versionType,
                 saveSwaggerDef,
                 swaggerDefPath,
                 wsdlType,
                 wsdlDefPath,
-                wsdlEndpointName
+                wsdlEndpointName,
+                projectDir
             } = params;
+            let apiVersionType = versionType ?? "";
+            let apiVersion = version ?? "";
+            let apiContext = context ?? "";
 
             const getSwaggerName = (swaggerDefPath: string) => {
                 const ext = path.extname(swaggerDefPath);
-                return `${name}${ext}`;
+                return `${name}${apiVersion !== "" ? `_v${apiVersion}` : ''}${ext}`;
             };
             let fileName: string;
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
+                const projectDetailsRes = await langClient?.getProjectDetails();
+                const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+                const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
+
+                const getPublishSwaggerPath = (swaggerDefPath: string) => {
+                    if (isRegistrySupported) {
+                        return `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}`;
+                    } else {
+                        return `gov:mi-resources/api-definitions/${getSwaggerName(swaggerDefPath)}`;
+                    }
+                }
                 if (swaggerDefPath) {
                     response = await langClient.generateAPI({
                         apiName: name,
                         swaggerOrWsdlPath: swaggerDefPath,
-                        publishSwaggerPath:
-                            saveSwaggerDef ? `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}` : undefined,
+                        publishSwaggerPath: saveSwaggerDef ? getPublishSwaggerPath(swaggerDefPath) : undefined,
                         mode: "create.api.from.swagger"
                     });
                 } else if (wsdlDefPath) {
@@ -530,7 +646,34 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         wsdlEndpointName
                     });
                 }
-                fileName = name;
+
+                const options = {
+                    ignoreAttributes: false,
+                    allowBooleanAttributes: true,
+                    attributeNamePrefix: "@_",
+                    attributesGroupName: "@_"
+                };
+                const parser = new XMLParser(options);
+                const jsonObj = parser.parse(response.apiXml);
+                apiVersionType = jsonObj.api["@_"]['@_version-type'] ?? apiVersionType;
+                apiVersion = jsonObj.api["@_"]['@_version'] ?? apiVersion;
+                apiContext = jsonObj.api["@_"]['@_context'] ?? apiContext;
+                fileName = `${name}${apiVersion !== "" ? `_v${apiVersion}` : ''}`;
+
+                if (saveSwaggerDef && swaggerDefPath) {
+                    const swaggerRegPath = path.join(
+                        workspacePath,
+                        SWAGGER_REL_DIR,
+                        fileName + "_original" + path.extname(swaggerDefPath)
+                    );
+                    fs.mkdirSync(path.dirname(swaggerRegPath), { recursive: true });
+                    fs.copyFileSync(swaggerDefPath, swaggerRegPath);
+                }
+
+                if (!isRegistrySupported) {
+                    const swaggerArtifactName = `resources_api-definitions_${getSwaggerName(swaggerDefPath ?? '')}`.replace(/\./g, '_');
+                    addNewEntryToArtifactXML(projectDir ?? '', swaggerArtifactName, getSwaggerName(swaggerDefPath ?? ''), "/_system/governance/mi-resources/api-definitions", "application/yaml", false, false);
+                }
             } else {
                 fileName = `${name}${version ? `_v${version}` : ''}`;
             }
@@ -545,6 +688,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
+            
+            const metadataPath = path.join(workspacePath, "src", "main", "wso2mi", "resources", "metadata", name + (apiVersion == "" ? "" : "_" + apiVersion) + "_metadata.yaml");
+            fs.writeFileSync(metadataPath, getAPIMetadata({ name: name, version: apiVersion == "" ? "1.0.0" : apiVersion, context: apiContext, versionType: apiVersionType ? (apiVersionType == "url" ? apiVersionType : false) : false }));
 
             // If WSDL is used, create an Endpoint
             if (response.endpointXml) {
@@ -558,20 +704,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         end: { line: sanitizedEndpointXml.split('\n').length + 1, character: 0 }
                     }
                 });
-            }
-
-            // Save swagger file
-            if (saveSwaggerDef && swaggerDefPath) {
-                const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
-                const swaggerRegPath = path.join(
-                    workspacePath,
-                    SWAGGER_REL_DIR,
-                    getSwaggerName(swaggerDefPath)
-                );
-                if (!fs.existsSync(path.dirname(swaggerRegPath))) {
-                    fs.mkdirSync(path.dirname(swaggerRegPath), { recursive: true });
-                }
-                fs.copyFileSync(swaggerDefPath, swaggerRegPath);
             }
 
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -588,8 +720,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
             if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
+                const originalFileName = `${path.basename(documentUri, path.extname(documentUri))}.yaml`;
+                const originalFilePath = path.join(path.dirname(documentUri), originalFileName);
                 await this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`) });
                 documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
+                // Path to old API file
+                const projectDir = workspace.getWorkspaceFolder(Uri.file(originalFilePath))?.uri.fsPath;
+                const oldAPIXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'api-definitions', originalFileName);
+                // Delete the old API from resources folder
+                if (fs.existsSync(oldAPIXMLPath)) {
+                    fs.unlinkSync(oldAPIXMLPath);
+                }
             }
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
@@ -1553,7 +1694,7 @@ ${endpointAttributes}
         const options = {
             ignoreAttributes: false,
             allowBooleanAttributes: true,
-            attributeNamePrefix: "@_",
+            attributeNamePrefix: "",
             attributesGroupName: "@_"
         };
         const parser = new XMLParser(options);
@@ -1565,10 +1706,10 @@ ${endpointAttributes}
                 const jsonData = parser.parse(xmlData);
 
                 const response: GetTaskResponse = {
-                    name: jsonData.task["@_"]["@_name"],
-                    group: jsonData.task["@_"]["@_group"],
-                    implementation: jsonData.task["@_"]["@_class"],
-                    pinnedServers: jsonData.task["@_"]["@_pinnedServers"],
+                    name: jsonData.task["@_"]["name"],
+                    group: jsonData.task["@_"]["group"],
+                    implementation: jsonData.task["@_"]["class"],
+                    pinnedServers: jsonData.task["@_"]["pinnedServers"],
                     triggerType: 'simple',
                     triggerCount: null,
                     triggerInterval: 1,
@@ -1576,34 +1717,34 @@ ${endpointAttributes}
                     taskProperties: []
                 };
 
-                if (jsonData.task.trigger["@_"]["@_once"] !== undefined) {
+                if (jsonData.task.trigger["@_"]["once"] !== undefined) {
                     response.triggerCount = 1;
-                } else if (jsonData.task.trigger["@_"]["@_interval"] !== undefined) {
-                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
-                    response.triggerCount = jsonData.task.trigger["@_"]?.["@_count"] != null ?
-                        Number(jsonData.task.trigger["@_"]["@_count"]) : null;
+                } else if (jsonData.task.trigger["@_"]["interval"] !== undefined) {
+                    response.triggerInterval = Number(jsonData.task.trigger["@_"]["interval"]);
+                    response.triggerCount = jsonData.task.trigger["@_"]?.["count"] != null ?
+                        Number(jsonData.task.trigger["@_"]["count"]) : null;
                 }
-                else if (jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
+                else if (jsonData.task.trigger["@_"]["cron"] !== undefined) {
                     response.triggerType = 'cron';
-                    response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
+                    response.triggerCron = jsonData.task.trigger["@_"]["cron"];
                 }
                 if (jsonData.task.property) {
                     response.taskProperties = Array.isArray(jsonData.task.property) ?
                         jsonData.task.property.map((prop: any) => ({
-                            key: prop["@_"]["@_name"],
-                            value: prop["@_"]["@_value"],
+                            key: prop["@_"]["name"],
+                            value: prop["@_"]["value"],
                             isLiteral: true
                         })) :
                         [{
-                            key: jsonData.task.property["@_"]["@_name"],
-                            value: jsonData.task.property["@_"]["@_value"],
+                            key: jsonData.task.property["@_"]["name"],
+                            value: jsonData.task.property["@_"]["value"],
                             isLiteral: true
                         }];
                     const builder = new XMLBuilder(options);
-                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["@_name"] === "message");
+                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["name"] === "message");
                     if (message.length > 0) {
                         response.taskProperties = response.taskProperties.filter(prop => prop.key !== "message");
-                        if (message[0]["@_"]["@_value"] === undefined) {
+                        if (message[0]["@_"]["value"] === undefined) {
                             delete message[0]["@_"];
                             let xml = builder.build(message[0]);
                             response.taskProperties.push({
@@ -1614,7 +1755,7 @@ ${endpointAttributes}
                         } else {
                             response.taskProperties.push({
                                 key: "message",
-                                value: message[0]["@_"]["@_value"],
+                                value: message[0]["@_"]["value"],
                                 isLiteral: true
                             });
                         }
@@ -1675,6 +1816,10 @@ ${endpointAttributes}
                 resolve({ path: filePath, content: "" });
             }
         });
+    }
+
+    async buildBallerinaModule(projectPath: string): Promise<void> {
+        await buildBallerinaModule(projectPath);
     }
 
     async getTemplate(params: RetrieveTemplateRequest): Promise<RetrieveTemplateResponse> {
@@ -2486,19 +2631,24 @@ ${endpointAttributes}
     async applyEdit(params: ApplyEditRequest | ApplyEditsRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
-            const uri = params.documentUri;
-            const file = Uri.file(uri);
-            const addNewLine = params.addNewLine ?? true;
 
             const getRange = (range: STRange | Range) =>
                 new Range(new Position(range.start.line, range.start.character),
                     new Position(range.end.line, range.end.character));
 
             if ('text' in params) {
+                const uri = params.documentUri;
+                const file = Uri.file(uri);
                 const textToInsert = params.addNewLine ? (params.text.endsWith('\n') ? params.text : `${params.text}\n`) : params.text;
                 edit.replace(file, getRange(params.range), textToInsert);
             } else if ('edits' in params) {
                 params.edits.forEach(editRequest => {
+                    const uri = editRequest.documentUri ?? params.documentUri;
+                    const file = Uri.file(uri);
+
+                    if (editRequest.isCreateNewFile) {
+                        edit.createFile(file);
+                    }
                     const textToInsert = params.addNewLine ? (editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`) : editRequest.newText;
                     edit.replace(file, getRange(editRequest.range), textToInsert);
                 });
@@ -2506,22 +2656,26 @@ ${endpointAttributes}
 
             await workspace.applyEdit(edit);
 
-            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri) ||
-                await workspace.openTextDocument(file);
-
             if (!params.disableFormatting) {
-                const formatEdits = (editRequest: TextEdit) => {
+                const formatEdits = (editRequest: ExtendedTextEdit) => {
                     const textToInsert = editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`;
                     const formatRange = this.getFormatRange(getRange(editRequest.range), textToInsert);
-                    return this.rangeFormat({ uri, range: formatRange });
+                    return this.rangeFormat({ uri: editRequest.documentUri!, range: formatRange });
                 };
                 if ('text' in params) {
-                    await formatEdits({ range: getRange(params.range), newText: params.text });
+                    await formatEdits({ range: getRange(params.range), newText: params.text, documentUri: params.documentUri });
                 } else if ('edits' in params) {
-                    await Promise.all(params.edits.map(editRequest => formatEdits({ range: getRange(editRequest.range), newText: editRequest.newText })));
+                    await Promise.all(params.edits.map(editRequest => formatEdits({
+                        range: getRange(editRequest.range),
+                        newText: editRequest.newText,
+                        documentUri: editRequest.documentUri ?? params.documentUri
+                    })));
                 }
             }
             if (!params.disableUndoRedo) {
+                const uri = params.documentUri;
+                const file = Uri.file(uri);
+                let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri) || await workspace.openTextDocument(file);
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
@@ -2789,7 +2943,7 @@ ${endpointAttributes}
         if (!fs.lstatSync(params.path).isDirectory()) {
             const uri = Uri.file(params.path);
             workspace.openTextDocument(uri).then((document) => {
-                window.showTextDocument(document);
+                window.showTextDocument(document, params.beside ? ViewColumn.Beside : undefined);
             });
         }
     }
@@ -2916,34 +3070,34 @@ ${endpointAttributes}
             window.showInformationMessage(`Successfully created ${name} project`);
             const projectOpened = StateMachine.context().projectOpened;
 
-            if (open) {
-                if (projectOpened) {
-                    const answer = await window.showInformationMessage(
-                        "Do you want to open the created project in the current window or new window?",
-                        "Current Window",
-                        "New Window"
-                    );
+            commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            resolve({ filePath: path.join(directory, name) });
 
-                    if (answer === "Current Window") {
-                        const folderUri = Uri.file(path.join(directory, name));
+            // FIX ME: Enable when multiproject support provided
+            // if (open) {
+            //     if (projectOpened) {
+            //         const answer = await window.showInformationMessage(
+            //             "Do you want to open the created project in the current window or new window?",
+            //             "Current Window",
+            //             "New Window"
+            //         );
 
-                        // Get the currently opened workspaces
-                        const workspaceFolders = workspace.workspaceFolders || [];
+            //         if (answer === "Current Window") {
+            //             const folderUri = Uri.file(path.join(directory, name));
 
-                        // Check if the folder is not already part of the workspace
-                        if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
-                            workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
-                        }
-                    } else {
-                        commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                        resolve({ filePath: path.join(directory, name) });
-                    }
+            //             // Get the currently opened workspaces
+            //             const workspaceFolders = workspace.workspaceFolders || [];
 
-                } else {
-                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-                    resolve({ filePath: path.join(directory, name) });
-                }
-            }
+            //             // Check if the folder is not already part of the workspace
+            //             if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
+            //                 workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
+            //             }
+            //         } else {
+            //             commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+            //             resolve({ filePath: path.join(directory, name) });
+            //         }
+
+            //     }
 
             resolve({ filePath: path.join(directory, name) });
         });
@@ -3147,6 +3301,57 @@ ${endpointAttributes}
 
 
     }
+
+    async handleFileWithFS(params: HandleFileRequest): Promise<HandleFileResponse> {
+        const { fileName, filePath, operation, content } = params;
+
+        if (!filePath) {
+            console.error("File path is undefined");
+            return { status: false, content: "File path is required" };
+        }
+
+        const isExist = fs.existsSync(filePath);
+
+        try {
+            switch (operation) {
+                case 'read':
+                    if (isExist) {
+                        const fileContent = fs.readFileSync(filePath, "utf-8");
+                        return { status: true, content: fileContent };
+                    } else {
+                        return { status: false, content: "File not found" };
+                    }
+
+                case 'write':
+                    if (content !== undefined) {
+                        await replaceFullContentToFile(filePath, content);
+                        window.showInformationMessage(`Written content to ${fileName} successfully.`);
+                        return { status: true, content : content };
+                    } else {
+                        console.error("File content is undefined");
+                        return { status: false, content: "File content is required for write operation" };
+                    }
+
+                case 'delete':
+                    if (isExist) {
+                        fs.unlinkSync(filePath);
+                        window.showInformationMessage(`Deleted ${fileName} successfully.`);
+                        return { status: true, content: "File deleted successfully" };
+                    } else {
+                        window.showInformationMessage(`File with name ${fileName} not found.`);
+                        return { status: false, content: "File not found" };
+                    }
+
+                default:
+                    console.error(`Invalid file operation: ${operation}`);
+                    return { status: false, content: "Invalid file operation" };
+            } 
+        } catch (error) {
+            console.error(`Error during file operation (${operation}) at ${filePath}:`, error);
+            return { status: false, content: `Error during file operation: ${(error as Error).message}` };
+        }
+    }
+        
     async highlightCode(params: HighlightCodeRequest) {
         const documentUri = StateMachine.context().documentUri;
         let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
@@ -3168,12 +3373,12 @@ ${endpointAttributes}
             throw new Error('No workspace is currently open');
         }
 
-        var rootPath = workspaceFolders[0].uri.fsPath;
-        rootPath += '/src/main/wso2mi/artifacts';
+        var workspaceDir = workspaceFolders[0].uri.fsPath;
+        const artifactDirPath = workspaceDir + '/src/main/wso2mi/artifacts';
         const fileContents: string[] = [];
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
         for (const folder of resourceFolders) {
-            const folderPath = path.join(rootPath, folder);
+            const folderPath = path.join(artifactDirPath, folder);
             // Check if the folder exists before reading its contents
             if (fs.existsSync(folderPath)) {
                 const files = await fs.promises.readdir(folderPath);
@@ -3189,7 +3394,7 @@ ${endpointAttributes}
                 }
             }
         }
-        return { context: fileContents };
+        return { context: fileContents, rootPath: workspaceDir };
     }
 
     async getProjectUuid(): Promise<GetProjectUuidResponse> {
@@ -3457,15 +3662,15 @@ ${endpointAttributes}
                 desFileName += '.xml';
             }
             const destinationFilePath = path.join(destinationDirectory, desFileName);
-    
+
             // Ensure the destination directory exists
             await fs.promises.mkdir(destinationDirectory, { recursive: true });
-    
+
             // Check if the destination file already exists
             if (fs.existsSync(destinationFilePath)) {
                 return { success: false, error: 'File already exists' };
             }
-    
+
             // Copy the file from the source to the destination
             const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
             await fs.promises.copyFile(sourceFilePath, destinationFilePath);
@@ -3711,8 +3916,29 @@ ${endpointAttributes}
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
             await replaceFullContentToFile(filePath, content);
+            const classMediator = await vscode.workspace.openTextDocument(filePath);
+            await classMediator.save();
 
             await changeRootPomForClassMediator();
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async createBallerinaModule(params: CreateBallerinaModuleRequest): Promise<CreateBallerinaModuleResponse> {
+        return new Promise(async (resolve) => {
+            const content = getBallerinaModuleContent();
+            const configContent = getBallerinaConfigContent({ name: params.moduleName, version: params.version });
+            const fullPath = path.join(params.projectDirectory, params.moduleName);
+            fs.mkdirSync(fullPath, { recursive: true });
+            const filePath = path.join(fullPath, `${params.moduleName}-module.bal`);
+            await replaceFullContentToFile(filePath, content);
+            const balFile = await vscode.workspace.openTextDocument(filePath);
+            await balFile.save();
+            const configFilePath = path.join(fullPath, "Ballerina.toml");
+            await replaceFullContentToFile(configFilePath, configContent);
+            const configFile = await vscode.workspace.openTextDocument(configFilePath);
+            await configFile.save();
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -3730,13 +3956,14 @@ ${endpointAttributes}
         if (currentFile && !fs.lstatSync(currentFile).isDirectory()) {
             currentFileContent = fs.readFileSync(currentFile, 'utf8');
         }
-        var rootPath = workspaceFolders[0].uri.fsPath;
-        rootPath += '/src/main/wso2mi/artifacts';
+         
+        const workspaceDir = workspaceFolders[0].uri.fsPath;;
+        const artifactDirPath = workspaceDir + '/src/main/wso2mi/artifacts';
         const fileContents: string[] = [];
         fileContents.push(currentFileContent);
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
         for (const folder of resourceFolders) {
-            const folderPath = path.join(rootPath, folder);
+            const folderPath = path.join(artifactDirPath, folder);
             // Check if the folder exists before reading its contents
             if (fs.existsSync(folderPath)) {
                 const files = await fs.promises.readdir(folderPath);
@@ -3756,14 +3983,19 @@ ${endpointAttributes}
             }
         }
 
-        return { context: fileContents };
+        return { context: fileContents, rootPath: workspaceDir };
     }
 
     async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
-
         const config = vscode.workspace.getConfiguration('MI');
         const ROOT_URL = config.get('rootUrl') as string;
-        return { url: ROOT_URL };
+        const ENHANCED_ROOT_URL = config.get('enhancedRootUrl') as string;
+        const RUNTIME_THRESHOLD_VERSION = RUNTIME_VERSION_440;
+        const runtimeVersion = await getMIVersionFromPom();
+        
+        const isVersionThresholdReached = runtimeVersion ? compareVersions(runtimeVersion, RUNTIME_THRESHOLD_VERSION) : -1;
+
+        return isVersionThresholdReached < 0 ? { url: ROOT_URL } : { url: ENHANCED_ROOT_URL };
     }
 
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
@@ -3843,7 +4075,7 @@ ${endpointAttributes}
                     resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
-                const runtimeVersion = miVersion ? miVersion: await getMIVersionFromPom();
+                const runtimeVersion = miVersion ? miVersion : await getMIVersionFromPom();
 
                 const response = await fetch(APIS.CONNECTOR);
                 const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
@@ -4314,16 +4546,123 @@ ${keyValuesXML}`;
         }
     }
 
-    async buildProject(): Promise<void> {
+    async buildProject(params: BuildProjectRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
-            if (selection === "Build CAPP") {
+            let selection = params?.buildType?.toString();
+            if (!selection) {
+                selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
+            }
+            if (selection === "Build CAPP" || selection === "capp") {
                 await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
-            } else if (selection === "Create Docker Image") {
+            } else if (selection === "Create Docker Image" || selection === "docker") {
                 await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE);
             }
             resolve();
         });
+    }
+
+    async deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
+        return new Promise(async (resolve) => {
+            if (!checkForDevantExt()) {
+                return;
+            }
+            const params: ICreateComponentCmdParams = {
+                buildPackLang: "microintegrator",
+                name: path.basename(StateMachine.context().projectUri!),
+                componentDir: StateMachine.context().projectUri,
+                extName: "Devant",
+            };
+
+            const langClient = StateMachine.context().langClient!;
+
+            let integrationType: string | undefined;
+            if (params.componentDir) {
+                const rootPath = (await this.getProjectRoot({ path: params.componentDir })).path;
+                const resp = await langClient.getProjectIntegrationType(rootPath);
+
+                function mapTypeToScope(type: string): string | undefined {
+                    switch (type) {
+                        case 'AUTOMATION':
+                            return SCOPE.AUTOMATION;
+                        case 'INTEGRATION_AS_API':
+                            return SCOPE.INTEGRATION_AS_API;
+                        case 'EVENT_INTEGRATION':
+                            return SCOPE.EVENT_INTEGRATION;
+                        case 'FILE_INTEGRATION':
+                            return SCOPE.FILE_INTEGRATION;
+                        case 'AI_AGENT':
+                            return SCOPE.AI_AGENT;
+                        case 'ANY':
+                            return SCOPE.ANY;
+                    }
+                }
+
+                if (resp.length === 1) {
+                    const type = resp[0]
+                    integrationType = mapTypeToScope(type);
+                } else if (resp.length === 0) {
+                    window.showErrorMessage("You don't have any artifacts within this project. Please add an artifact and try again.");
+                } else {
+                    // Show a quick pick to select deployment option
+                    const selectedScope = await window.showQuickPick(resp, {
+                        placeHolder: 'You have different types of artifacts within this project. Select the artifact type to be deployed'
+                    });
+
+                    if (selectedScope) {
+                        integrationType = mapTypeToScope(selectedScope);
+                    }
+                }
+
+                if (!integrationType) {
+                    return { success: false };
+                }
+
+                const paramsWithType: ICreateComponentCmdParams = { ...params, integrationType: integrationType as DevantScopes, };
+
+                commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, paramsWithType);
+                resolve({ success: true });
+
+            } else {
+                resolve({ success: false });
+            }
+        });
+    }
+
+    async getDevantMetadata(): Promise<DevantMetadata> {
+        let hasContextYaml = false;
+        let isLoggedIn = false;
+        let hasComponent = false;
+        let hasLocalChanges = false;
+        try {
+            const projectRoot = StateMachine.context().projectUri;
+            if(projectRoot){
+                const repoRoot = getRepoRoot(projectRoot);
+                if (repoRoot) {
+                    const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
+                    if (fs.existsSync(contextYamlPath)) {
+                        hasContextYaml = true;
+                    }
+                }
+
+                const platformExt = extensions.getExtension("wso2.wso2-platform");
+                if (!platformExt) {
+                    return { hasComponent: hasContextYaml, isLoggedIn: false };
+                }
+                const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
+                hasLocalChanges = await platformExtAPI.localRepoHasChanges(projectRoot);
+                isLoggedIn = platformExtAPI.isLoggedIn();
+                if (isLoggedIn) {
+                    const components = platformExtAPI.getDirectoryComponents(projectRoot);
+                    hasComponent = components.length > 0;
+                    return { isLoggedIn, hasComponent, hasLocalChanges };
+                }
+                return { isLoggedIn, hasComponent: hasContextYaml, hasLocalChanges };
+            }
+            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
+        } catch(err){
+            console.error("failed to call getDevantMetadata: ", err);
+            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
+        }
     }
 
     async exportProject(params: ExportProjectRequest): Promise<void> {
@@ -4456,6 +4795,11 @@ ${keyValuesXML}`;
 
     async compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
         return new Promise(async (resolve) => {
+
+            // TODO: Remove below return statment after fixing issue
+            // https://github.com/wso2/mi-vscode/issues/968 
+            return resolve({ swaggerExists: false });
+
             const { apiPath, apiName } = params;
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
@@ -4910,68 +5254,8 @@ ${keyValuesXML}`;
 
     async markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const { path: filePath, remove } = params;
-            const langClient = StateMachine.context().langClient;
-
-            if (!langClient) {
-                window.showErrorMessage('Language client is not available');
-                throw new Error('Language client is not available');
-            }
-
-            // Get the syntax tree of the given file path
-            const syntaxTree = await langClient.getSyntaxTree({
-                documentIdentifier: {
-                    uri: filePath
-                },
-            });
-
-            // Get the sequence name from the syntax tree
-            const sequenceName = syntaxTree?.syntaxTree?.sequence?.name;
-            if (!sequenceName) {
-                window.showErrorMessage('Failed to get the sequence name from the syntax tree');
-                throw new Error('Failed to get the sequence name from the syntax tree');
-            }
-
-            // Read the POM file
-            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
-            if (!workspaceFolder) {
-                window.showErrorMessage('Cannot find workspace folder');
-                throw new Error('Cannot find workspace folder');
-            }
-
-            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
-            const pomContent = fs.readFileSync(pomPath, 'utf-8');
-            const mainSequenceTag = `<mainSequence>${sequenceName}</mainSequence>`;
-
-            // Check if the <properties> tag exists
-            const propertiesTagExists = pomContent.includes('<properties>');
-
-            let updatedPomContent;
-            if (propertiesTagExists) {
-                if (remove) {
-                    // Remove the <mainSequence> tag from the POM
-                    updatedPomContent = pomContent.replace(/\s*<mainSequence>.*?<\/mainSequence>/, '');
-                } else {
-                    // Inject the <mainSequence> tag inside the <properties> tag
-                    updatedPomContent = pomContent.replace(/<properties>([\s\S]*?)<\/properties>/, (match, p1) => {
-                        if (p1.includes('<mainSequence>')) {
-                            // Update the existing <mainSequence> tag
-                            return match.replace(/<mainSequence>.*?<\/mainSequence>/, mainSequenceTag);
-                        } else {
-                            // Get the indentation from the <properties> tag
-                            const propertiesIndentation = pomContent.match(/(\s*)<properties>/)?.[1] || '';
-                            const indentedMainSequenceTag = `\t${mainSequenceTag}`;
-                            // Add the <mainSequence> tag
-                            return `<properties>${p1}${indentedMainSequenceTag}${propertiesIndentation}</properties>`;
-                        }
-                    });
-                }
-            } else {
-                window.showErrorMessage('Failed to find the project properties in the POM file');
-            }
-
-            // Write the updated POM content back to the file
-            fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
+            const { path: filePath, remove, name } = params;
+            commands.executeCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, { info: { path: filePath, name } }, remove);
 
             resolve();
         });
@@ -5134,6 +5418,14 @@ ${keyValuesXML}`;
         });
     }
 
+    async getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getLocalInboundConnectors();
+            resolve(response);
+        });
+    }
+
     async getConnectionSchema(param: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
@@ -5217,6 +5509,18 @@ ${keyValuesXML}`;
     }
 }
 
+export function getRepoRoot(projectRoot: string): string | undefined {
+    // traverse up the directory tree until .git directory is found
+    const gitDir = path.join(projectRoot, ".git");
+    if (fs.existsSync(gitDir)) {
+        return projectRoot;
+    }
+    // path is root return undefined
+    if (projectRoot === path.parse(projectRoot).root) {
+        return undefined;
+    }
+    return getRepoRoot(path.join(projectRoot, ".."));
+}
 
 export async function askProjectPath() {
     return await window.showOpenDialog({
@@ -5265,7 +5569,7 @@ export async function askImportFileDir() {
         canSelectFolders: false,
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
-        title: "Select a xml file to import",
-        filters: { 'XML': ['xml'] }
+        title: "Select a file to import",
+        filters: { 'ATF': ['xml', 'dbs'] }
     });
 }

@@ -10,20 +10,130 @@
 import { exec, execSync } from 'child_process';
 import { debug } from '../../utils';
 import * as os from 'os';
-import { vscode } from '@wso2-enterprise/ballerina-core';
-import { window } from 'vscode';
+import * as vscode from 'vscode';
+
+export const TRYIT_TEMPLATE = `/*
+### {{#if isResourceMode}}Try Resource: '{{resourceMethod}} {{resourcePath}}'{{else}}Try Service: '{{serviceName}}' (http://localhost:{{port}}{{trim basePath}}){{/if}}
+{{info.description}}
+*/
+
+{{#each paths}}
+{{#each this}}
+/*
+{{#unless ../../isResourceMode}}#### {{uppercase @key}} {{@../key}}{{/unless}}
+
+{{#if parameters}}
+{{#with (groupParams parameters)}}
+{{#if path}}
+**Path Parameters:**
+{{#each path}}
+- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
+{{/each}}
+{{/if}}
+
+{{#if query}}
+**Query Parameters:**
+{{#each query}}
+- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
+{{/each}}
+{{/if}}
+
+{{#if header}}
+**Header Parameters:**
+{{#each header}}
+- \`{{name}}\` [{{schema.type}}]{{#if description}} - {{description}}{{/if}}{{#if required}} (Required){{/if}}
+{{/each}}
+{{/if}}
+{{/with}}
+{{/if}}
+*/
+###
+{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{{@../key}}}{{queryParams parameters}}{{#if parameters}}{{headerParams parameters}}{{/if}}
+{{#if requestBody}}Content-Type: {{getContentType requestBody}}
+
+{{generateRequestBody requestBody}}
+{{/if}}
+
+{{/each}}
+{{/each}}`;
+
+export const HTTPYAC_CONFIG_TEMPLATE = `
+const fs = require('fs');
+const path = require('path');
+
+// Define the log file path relative to the config file location
+const LOG_FILE_PATH = path.join(__dirname, '{{errorLogFile}}');
+
+// Helper function to format error groups
+const formatErrorGroup = (title, params) => {
+  if (params.length === 0) return '';
+  return \`\${title}:\\n\${params.map(p => \`  - \${p}\`).join('\\n')}\\n\`;
+};
+
+module.exports = {
+  configureHooks: function (api) {
+    api.hooks.onRequest.addHook('validatePlaceholders', function (request) {
+      const missingParams = {
+        path: [],
+        query: [],
+        header: []
+      };
+
+      // Check URL path parameters
+      const url = new URL(request.url);
+      const decodedPath = decodeURIComponent(url.pathname);
+      const pathParamRegex = /[{]([^{}]+)[}]/g;
+      const pathMatches = [...decodedPath.matchAll(pathParamRegex)];
+      
+      pathMatches.forEach(match => {
+        missingParams.path.push(match[1]);
+      });
+
+      // Check query parameters
+      for (const [key, value] of url.searchParams.entries()) {
+        if (value === '{?}') {
+          missingParams.query.push(key);
+        }
+      }
+
+      // Check headers
+      for (const [key, value] of Object.entries(request.headers || {})) {
+        if (value === '{?}') {
+          missingParams.header.push(key);
+        }
+      }
+
+      // Check if any parameters are missing
+      const hasMissingParams = Object.values(missingParams)
+        .some(group => group.length > 0);
+
+      if (hasMissingParams) {
+        const errorMessage = [
+          \`Request to "\${request.url}" has missing required parameters:\\n\`,
+          formatErrorGroup('Path Parameters', missingParams.path),
+          formatErrorGroup('Query Parameters', missingParams.query),
+          formatErrorGroup('Header Parameters', missingParams.header),
+          '\\nPlease provide values for these parameters before sending the request.'
+        ].filter(Boolean).join('\\n');
+
+        // Write to log file
+        fs.writeFileSync(LOG_FILE_PATH, errorMessage, 'utf8');
+      }
+    });
+  }
+};`;
 
 // Retrieve the platform-specific commands
 const platform = os.platform();
 
 export interface Process {
-    serviceName: string;
+    processName: string;
     pid: string;
     command: string;
-    port: number;
+    ports: number[];
 }
 
-export function findRunningBallerinaServices(projectPath: string): Promise<Process[]> {
+export function findRunningBallerinaProcesses(projectPath: string): Promise<Process[]> {
     // Execute the 'ps' command to retrieve running processes with command
     return new Promise((resolve, reject) => {
         exec(getPSCommand(platform, `-XX:HeapDumpPath=${projectPath}`), (error, stdout) => {
@@ -34,40 +144,58 @@ export function findRunningBallerinaServices(projectPath: string): Promise<Proce
 
             // Parse the output of the 'ps' command
             const out = stdout.trim().split('\n');
-            const processes = platform == 'win32' ? out.slice(1) : out; // Exclude the header row
+            const processes = platform === 'win32' ? out.slice(out.length - 1) : out; // Exclude the header row
 
             // Extract the service name, PID, and command information
-            let services = processes.map((service) => {
-                const [, serviceName, pid, command] = service.trim().match(/(\S+)\s+(\d+)\s+(.+)/) || [];
-                const port = pid ? getServicePort(pid) : undefined;
-                return { serviceName, pid, command, port };
+            let balProcesses = processes.map((service) => {
+                const [, processName, pid, command] = service.trim().match(/(\S+)\s+(\d+)\s+(.+)/) || [];
+                const ports = pid ? getServicePorts(pid) : [];
+                return { processName, pid, command, ports };
             });
 
             // Display the service information
-            services = services.filter((service) => !isNaN(service.port as any));
-            services.forEach((service) => {
-                debug(`Service: ${service.serviceName} Port: ${service.port}`);
+            balProcesses = balProcesses.filter((process) => process.ports && process.ports.length > 0);
+            balProcesses.forEach((service) => {
+                debug(`Bal Process: ${service.pid}, Port(s): ${service.ports}`);
             });
 
-            return resolve(services);
+            return resolve(balProcesses);
         });
     });
 }
 
-// Function to retrieve the port information of a service using its process ID (PID)
-function getServicePort(pid: string): number | undefined {
+// Function to retrieve the port information of services using the related Ballerina program's process ID (PID)
+function getServicePorts(pid: string): number[] {
     try {
-        const output = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
-        if (isNaN(output as any)) {
-            const portMatch = output.match(/\*:\d+/);
-            if (portMatch) {
-                return parseInt(portMatch[0].substring(2));
+        const output: string = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
+        if (isNaN(output.trim() as any)) {
+            const listeningConnectionRegex = /^n(?:\*|localhost):(\d+)\b$/;
+            let ports: number[];
+            if (platform === "win32") {
+                ports = output
+                    .trim()
+                    .split(/\r?\n/)
+                    .map(line => parseInt(line.trim()))
+                    .filter((port): port is number => port !== null);
+            } else {
+                ports = output
+                    .split(/\r?\n/)
+                    .map(line => line.trim())
+                    .filter(line => listeningConnectionRegex.test(line))
+                    .map(line => {
+                        const match = line.match(listeningConnectionRegex);
+                        return match ? parseInt(match[1]) : null; // Convert port number to integer
+                    })
+                    .filter((port): port is number => port !== null);
             }
-        } else { return parseInt(output); }
+            return ports;
+        } else {
+            return [parseInt(output.trim())];
+        }
     } catch (error) {
         debug(`Error retrieving port for process ${pid}: ${error}`);
     }
-    return undefined;
+    return [];
 }
 
 // Function to get the platform-specific 'ps' command
@@ -98,20 +226,67 @@ function getLSOFCommand(platform: string, pid: string): string {
     }
 }
 
-export async function waitForBallerinaService(projectDir: string): Promise<number> {
-    const defaultPort = 9090;
-    const maxAttempts = 30; // Try for 30 seconds
-    let attempts = 0;
+export async function waitForBallerinaService(projectDir: string): Promise<void> {
+    const maxAttempts = 100; // Try for 10 seconds
+    const timeout = 100; // 100ms
 
-    while (attempts < maxAttempts) {
-        const runningServices = await findRunningBallerinaServices(projectDir);
-        if (runningServices.length > 0) {
-            return runningServices[0].port;
+    let attempt = 0;
+    while (attempt < maxAttempts) {
+        const runningProcesses = await findRunningBallerinaProcesses(projectDir);
+        if (runningProcesses.length > 0) {
+            return;
         }
 
-        // Wait for 1 second before next attempt
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        attempts++;
+        await new Promise(resolve => setTimeout(resolve, timeout));
+        attempt++;
     }
-    throw new Error('Timed out waiting for Ballerina service to start');
+    throw new Error('Timed out waiting for Ballerina service(s) to start');
 }
+
+/**
+ * Centralized error handling function for Try It feature
+ */
+export function handleError(error, context: string, showToUser = true): void {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    if (showToUser) {
+        vscode.window.showErrorMessage(`${context}: ${errorMessage}`);
+    }
+
+    console.error(`[${context}]`, error);
+}
+
+/**
+ * Singleton class to manage the language client reference
+ */
+export class ClientManager {
+    private static instance: ClientManager;
+    private langClient: any = undefined;
+
+    private constructor() { }
+
+    public static getInstance(): ClientManager {
+        if (!ClientManager.instance) {
+            ClientManager.instance = new ClientManager();
+        }
+        return ClientManager.instance;
+    }
+
+    public setClient(client: any): void {
+        this.langClient = client;
+    }
+
+    public getClient(): any {
+        if (!this.langClient) {
+            throw new Error('Language client is not initialized');
+        }
+        return this.langClient;
+    }
+
+    public hasClient(): boolean {
+        return !!this.langClient;
+    }
+}
+
+// Export singleton instance
+export const clientManager = ClientManager.getInstance();

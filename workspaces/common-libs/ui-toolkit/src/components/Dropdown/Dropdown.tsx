@@ -15,6 +15,7 @@ import {
 import styled from "@emotion/styled";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
+import { Codicon } from "../Codicon/Codicon";
 
 export interface OptionProps {
     id?: string;
@@ -36,6 +37,8 @@ export interface DropdownProps extends ComponentProps<"select"> {
     description?: string | ReactNode;
     descriptionSx?: any;
     onValueChange?: (value: string) => void;
+    addNewBtnLabel?: string;
+    addNewBtnClick?: () => void;
 }
 
 const SmallProgressRing = styled(VSCodeProgressRing)`
@@ -61,7 +64,7 @@ const Container = styled.div<ContainerProps>`
     ${(props: ContainerProps) => props.sx};
 `;
 
-const LabelContainer = styled.div<ContainerProps>`
+const Label = styled.div<ContainerProps>`
     display: flex;
     flex-direction: row;
     margin-bottom: 2px;
@@ -73,9 +76,15 @@ const Description = styled.div<ContainerProps>`
     text-align: left;
     ${(props: ContainerProps) => props.sx};
 `;
+const LabelContainer = styled.div<ContainerProps>`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+`;
 
 export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((props, ref) => {
-    const { isLoading, isRequired, id, items, label, errorMsg, labelAdornment, description, sx, descriptionSx, containerSx, dropdownContainerSx, ...rest } = props;
+    const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, addNewBtnLabel, addNewBtnClick, description, descriptionSx, dropdownContainerSx, labelAdornment, ...rest } = props;
 
     const handleValueChange = (e: any) => {
         props.onValueChange && props.onValueChange(e.target.value);
@@ -88,11 +97,13 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                 <SmallProgressRing />
             ) : (
                 <DropDownContainer sx={dropdownContainerSx}>
-                    { label && (
+                    {label && (
                         <LabelContainer>
-                            <label htmlFor={id}>{label}</label> 
-                            {(isRequired) && (<RequiredFormInput />)}
-                            {labelAdornment && labelAdornment}
+                            <Label>
+                                <label htmlFor={id}>{label}</label>
+                                {(isRequired) && (<RequiredFormInput />)}
+                                {labelAdornment && labelAdornment}
+                            </Label>
                         </LabelContainer>
                     )}
                     {description && (
@@ -106,6 +117,18 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                                 {item?.content || item.value}
                             </VSCodeOption>
                         ))}
+                        {addNewBtnClick &&
+                            <VSCodeOption
+                                key={"NEW"}
+                                onClick={() => addNewBtnClick()}
+                                value={undefined}
+                            >
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <Codicon name="add" />
+                                    {addNewBtnLabel}
+                                </div>
+                            </VSCodeOption>
+                        }
                     </VSCodeDropdown>
                     {errorMsg && (
                         <ErrorBanner errorMsg={errorMsg} />

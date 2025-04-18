@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
@@ -15,10 +15,10 @@ import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 const Wrapper = styled.div`
-    height: calc(100vh - 100px);
     max-width: 660px;
     margin: 80px 120px;
-    overflow: auto;
+    height: calc(100vh - 160px);
+    overflow-y: auto;
 `;
 
 const Headline = styled.div`
@@ -97,9 +97,39 @@ const StepDescription = styled.div<{ color?: string }>`
     color: ${(props: { color?: string }) => props.color || "inherit"};
 `;
 
+const Option = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+  border-left: 3px solid #4a86e8;
+`;
 
-export function WelcomeView() {
+const OptionTitle = styled.div`
+  font-weight: 500;
+  font-size: 1.1em;
+  margin-bottom: 8px;
+`;
+
+type WelcomeViewProps = {
+    isBISupported: boolean;
+};
+
+
+export function WelcomeView(props: WelcomeViewProps) {
     const { rpcClient } = useRpcContext();
+    const [showUpdateButton, setShowUpdateButton] = useState(false);
+
+    useEffect(() => {
+        rpcClient.getVisualizerLocation().then((value) => {
+            if (value.metadata?.distributionSetBy === "setByBI") {
+                setShowUpdateButton(true);
+            }
+        });
+    }, []);
 
     const goToCreateProject = () => {
         rpcClient.getVisualizerRpcClient().openView({
@@ -112,20 +142,24 @@ export function WelcomeView() {
 
     const openGettingStartedGuide = () => {
         rpcClient.getCommonRpcClient().openExternalUrl({
-            url: "https://wso2.github.io/docs-kola/get-started/quick-start-guide/"
+            url: "https://bi.docs.wso2.com/get-started/quick-start-guide/"
         })
     };
 
     const openSamples = () => {
         rpcClient.getCommonRpcClient().openExternalUrl({
-            url: "https://wso2.github.io/docs-kola/learn/message-transformation/"
+            url: "https://bi.docs.wso2.com/learn/message-transformation/"
         })
+    };
+
+    const updateBallerina = () => {
+        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina"] })
     };
 
     return (
         <Wrapper>
             <TitleContainer>
-                <Headline>Kola Integrator for VS Code</Headline>
+                <Headline>Ballerina Integrator for VS Code</Headline>
                 <Caption>
                     A comprehensive integration solution that simplifies your digital transformation journey.
                     Streamlines connectivity among applications, services, data, and cloud using a user-friendly
@@ -138,8 +172,8 @@ export function WelcomeView() {
                     <Column>
                         <StepTitle>Get Started Quickly</StepTitle>
                         <StepDescription>
-                            New to Kola? Start here! Explore step-by-step tutorials to help you get up and running with
-                            ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the Guide</VSCodeLink>.
+                            New to Ballerina Integrator? Start here! Explore step-by-step tutorials to help you get up and running with
+                            ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the guide</VSCodeLink>.
                         </StepDescription>
                     </Column>
                 </Row>
@@ -149,19 +183,39 @@ export function WelcomeView() {
                         <StepDescription>
                             Ready to build? Start a new integration project using our intuitive graphical designer.
                         </StepDescription>
-                        <StyledButton appearance="primary" onClick={() => goToCreateProject()}>
-                            <ButtonContent>
-                                <Codicon name="add" iconSx={{ fontSize: 16 }} />
-                                Create New Integration
-                            </ButtonContent>
-                        </StyledButton>
+                        {props.isBISupported &&
+                            <StyledButton disabled={!props.isBISupported} appearance="primary" onClick={() => goToCreateProject()}>
+                                <ButtonContent>
+                                    <Codicon name="add" iconSx={{ fontSize: 16 }} />
+                                    Create New Integration
+                                </ButtonContent>
+                            </StyledButton>
+                        }
+                        {!props.isBISupported &&
+                            <Option>
+                                <OptionTitle>Update to Ballerina 2201.12.3</OptionTitle>
+                                <StepDescription>
+                                    Your current Ballerina distribution is not supported. Please update to version 2201.12.3 or above.
+                                </StepDescription>
+                                {showUpdateButton &&
+                                    <StyledButton appearance="primary" onClick={updateBallerina}>
+                                        <ButtonContent>
+                                            Update Now
+                                        </ButtonContent>
+                                    </StyledButton>
+                                }
+                                <StepDescription style={{ marginTop: 10 }}>
+                                    <strong>Please restart VS Code after updating the Ballerina distribution.</strong>
+                                </StepDescription>
+                            </Option>
+                        }
                     </Column>
                 </Row>
                 <Row>
                     <Column>
                         <StepTitle>Explore Pre-Built Samples</StepTitle>
                         <StepDescription>
-                            Need inspiration? Browse through sample projects to see how Kola handles real-world
+                            Need inspiration? Browse through sample projects to see how Ballerina Integrator handles real-world
                             integrations. <VSCodeLink onClick={openSamples}>Explore Samples</VSCodeLink>.
                         </StepDescription>
                     </Column>

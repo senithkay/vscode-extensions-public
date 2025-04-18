@@ -14,6 +14,7 @@ export * from "./vscode";
 export * from "./interfaces/mi";
 export * from "./interfaces/mi-data-mapper";
 export * from "./interfaces/mi-diagram";
+export * from "./interfaces/mi-copilot";
 
 // ------ History class and interface -------->
 export * from "./history";

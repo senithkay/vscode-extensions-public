@@ -198,7 +198,7 @@ function parseNonLiteral(
         type: 'ENUM',
       }
     case 'NAMED_SCHEMA':
-      return newInterface(schema as SchemaSchema, options, processed, usedNames, keyName)
+      return newInterface(schema as SchemaSchema, options, processed, usedNames, keyName, keyNameFromDefinition)
     case 'NEVER':
       return {
         deprecated: schema.deprecated,
@@ -285,9 +285,6 @@ function parseNonLiteral(
         type: 'UNION',
       }
     case 'UNNAMED_SCHEMA':
-      if (schema.type === 'object' && schema.properties && keyNameFromDefinition === undefined) {
-        return newInterface(schema as SchemaSchema, options, processed, usedNames, keyName, keyName);
-      }
       return newInterface(schema as SchemaSchema, options, processed, usedNames, keyName, keyNameFromDefinition)
     case 'UNTYPED_ARRAY':
       // normalised to not be undefined

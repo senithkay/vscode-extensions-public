@@ -8,8 +8,9 @@
  */
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Colors, NODE_GAP_Y, NODE_LINK, NodeTypes } from "../../resources/constants";
+import { NODE_GAP_Y, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { Branch, FlowNode, LinePosition, NodeModel } from "../../utils/types";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export const LINK_BOTTOM_OFFSET = 30;
 
@@ -33,7 +34,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     topNode: FlowNode | Branch; // top statement node or parent block node
     target: LinePosition;
     // options
-    showArrow: boolean;
+    showArrow = true;
     showAddButton = true;
     showButtonAlways = false;
     brokenLine = false;
@@ -48,8 +49,8 @@ export class NodeLinkModel extends DefaultLinkModel {
         super({
             type: NODE_LINK,
             width: 10,
-            color: Colors.PRIMARY,
-            selectedColor: Colors.SECONDARY,
+            color: ThemeColors.PRIMARY,
+            selectedColor: ThemeColors.SECONDARY,
             curvyness: 0,
         });
         if (options) {
@@ -69,7 +70,7 @@ export class NodeLinkModel extends DefaultLinkModel {
                 if ((options as NodeLinkModelOptions).showButtonAlways === true) {
                     this.showButtonAlways = (options as NodeLinkModelOptions).showButtonAlways;
                 }
-                if ((options as NodeLinkModelOptions).showArrow) {
+                if ((options as NodeLinkModelOptions).showArrow === false) {
                     this.showArrow = (options as NodeLinkModelOptions).showArrow;
                 }
                 if ((options as NodeLinkModelOptions).brokenLine === true) {
@@ -202,7 +203,7 @@ export class NodeLinkModel extends DefaultLinkModel {
 
     // show node arrow. default true. but target node is a EmptyNodeModel, then false
     showArrowToNode(): boolean {
-        if (this.showArrow) {
+        if (this.showArrow === false) {
             return this.showArrow;
         }
         if (this.points.length != 2) {

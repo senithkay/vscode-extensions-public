@@ -11,8 +11,7 @@ import React from "react";
 import { DownloadProgress } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { Button, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../../resources/constants";
+import { Button, Icon, ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 const Wrapper = styled.div`
     height: calc(100vh - 100px);
@@ -25,6 +24,13 @@ const Headline = styled.div`
     font-size: 2.7em;
     font-weight: 400;
     font-size: 2.7em;
+    white-space: nowrap;
+    margin-bottom: 15px;
+`;
+
+const SubLine = styled.div`
+    font-size: 2.0em;
+    font-weight: 400;
     white-space: nowrap;
     margin-bottom: 20px;
 `;
@@ -112,7 +118,7 @@ export function SetupView(props: SetupViewProps) {
     const [progress, setProgress] = React.useState<DownloadProgress>(null);
 
     const downloadLS = () => {
-        rpcClient.getCommonRpcClient().executeCommand({ commands: ["kolab-setup.setupKola"] });
+        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.setup-ballerina"] });
     };
 
     const reloadVscode = () => {
@@ -125,9 +131,9 @@ export function SetupView(props: SetupViewProps) {
 
     const getIcon = (complete: boolean, loading: boolean) => {
         if (complete) {
-            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: Colors.PRIMARY, cursor: "default" }} />;
+            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: ThemeColors.PRIMARY, cursor: "default" }} />;
         } else if (loading) {
-            return <ProgressRing sx={{ height: "16px", width: "16px" }} color={Colors.PRIMARY} />;
+            return <ProgressRing sx={{ height: "16px", width: "16px" }} color={ThemeColors.PRIMARY} />;
         } else {
             return <Icon name="radio-button-unchecked" iconSx={{ fontSize: "16px", cursor: "default" }} />;
         }
@@ -136,14 +142,14 @@ export function SetupView(props: SetupViewProps) {
     return (
         <Wrapper>
             <TitleContainer>
-                <Headline>Let's Set Up Kola for VS Code</Headline>
+                <Headline>Ballerina Integrator for VS Code</Headline>
+                <SubLine>Let's set up your environment</SubLine>
                 <Caption>
-                    Welcome to Kola! Let's quickly set up your environment to get started. Just click the button below,
-                    and we’ll take care of everything step by step.
+                    Ballerina distribution is required but not found. Just click the button below, and we’ll take care of everything step by step.
                 </Caption>
             </TitleContainer>
             <StyledButton appearance="primary" onClick={() => downloadLS()} disabled={progress !== null}>
-                <ButtonContent>Set Up Kola</ButtonContent>
+                <ButtonContent>Set up Ballerina distribution</ButtonContent>
             </StyledButton>
             {progress &&
                 <StepContainer>
@@ -151,10 +157,9 @@ export function SetupView(props: SetupViewProps) {
                         <IconContainer>
                             {getIcon(progress?.step > 1 || progress?.success, progress?.step === 1)}
                         </IconContainer>
-
                         <Column>
-                            <StepTitle>Check Latest Version</StepTitle>
-                            <StepDescription>Ensuring you have the latest version of the Kola runtime.</StepDescription>
+                            <StepTitle>Prepare Installation</StepTitle>
+                            <StepDescription>Checking versions and preparing environment for installation.</StepDescription>
                         </Column>
                     </Row>
                     <Row>
@@ -162,10 +167,8 @@ export function SetupView(props: SetupViewProps) {
                             {getIcon(progress?.step > 2 || progress?.success, progress?.step === 2)}
                         </IconContainer>
                         <Column>
-                            <StepTitle>
-                                Download Kola Runtime {progress?.percentage ? "( " + progress.percentage + "% )" : ""}
-                            </StepTitle>
-                            <StepDescription>Fetching the runtime required to run Kola.</StepDescription>
+                            <StepTitle>Install Ballerina Tool {progress?.step === 2 && progress?.percentage ? "(" + progress.percentage + "% - " + progress?.totalSize.toFixed(0) + "MB)" : ""}</StepTitle>
+                            <StepDescription>Downloading and installing the Ballerina tool package.</StepDescription>
                         </Column>
                     </Row>
                     <Row>
@@ -173,8 +176,8 @@ export function SetupView(props: SetupViewProps) {
                             {getIcon(progress?.step > 3 || progress?.success, progress?.step === 3)}
                         </IconContainer>
                         <Column>
-                            <StepTitle>Unzip Files</StepTitle>
-                            <StepDescription>Unpacking the downloaded files to prepare for installation.</StepDescription>
+                            <StepTitle>Install Ballerina Distribution {progress?.step === 3 && progress?.percentage ? "(" + progress.percentage + "% - " + progress?.totalSize.toFixed(0) + "MB)" : ""}</StepTitle>
+                            <StepDescription>Downloading and installing the Ballerina distribution package.</StepDescription>
                         </Column>
                     </Row>
                     <Row>
@@ -182,8 +185,8 @@ export function SetupView(props: SetupViewProps) {
                             {getIcon(progress?.step > 4 || progress?.success, progress?.step === 4)}
                         </IconContainer>
                         <Column>
-                            <StepTitle>Install Kola Runtime</StepTitle>
-                            <StepDescription>Integrating the Kola runtime with your VS Code setup.</StepDescription>
+                            <StepTitle>Install Java Runtime {progress?.step === 4 && progress?.percentage ? "(" + progress.percentage + "% - " + progress?.totalSize.toFixed(0) + "MB)" : ""}</StepTitle>
+                            <StepDescription>Downloading and installing the required Java Runtime Environment.</StepDescription>
                         </Column>
                     </Row>
                     <Row>
@@ -191,8 +194,8 @@ export function SetupView(props: SetupViewProps) {
                             {getIcon(progress?.step > 5 || progress?.success, progress?.step === 5)}
                         </IconContainer>
                         <Column>
-                            <StepTitle>Clean Up</StepTitle>
-                            <StepDescription>Cleaning up temporary files and finalizing the setup.</StepDescription>
+                            <StepTitle>Complete Setup</StepTitle>
+                            <StepDescription>Configuring VS Code, setting permissions and finalizing installation.</StepDescription>
                         </Column>
                     </Row>
                 </StepContainer>
@@ -201,7 +204,7 @@ export function SetupView(props: SetupViewProps) {
                 <StepContainer>
                     <Row>
                         <Column>
-                            <StepTitle color={Colors.ERROR}>Something went wrong while setting up Kola</StepTitle>
+                            <StepTitle color={ThemeColors.ERROR}>Something went wrong while setting up Ballerina Integrator</StepTitle>
                             <StepDescription>{progress.message}</StepDescription>
                             <StepDescription>
                                 Please check your internet connection or permissions and try again.
@@ -217,13 +220,13 @@ export function SetupView(props: SetupViewProps) {
                 <StepContainer>
                     <Row>
                         <Column>
-                            <StepTitle>Restart to Apply Changes</StepTitle>
+                            <StepTitle>Restart to apply changes</StepTitle>
                             <StepDescription>
-                                To finish the setup, please restart the Kola extension. This ensures everything is
+                                To finish the setup, please restart the VS Code. This ensures everything is
                                 configured correctly and ready to use.
                             </StepDescription>
                             <StyledButton appearance="primary" onClick={() => reloadVscode()}>
-                                <ButtonContent>Restart VSCode</ButtonContent>
+                                <ButtonContent>Restart VS Code</ButtonContent>
                             </StyledButton>
                         </Column>
                     </Row>

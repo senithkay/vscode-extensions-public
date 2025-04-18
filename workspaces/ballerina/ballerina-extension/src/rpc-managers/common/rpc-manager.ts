@@ -24,6 +24,7 @@ import {
     OpenExternalUrlRequest,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
+    ShowErrorMessageRequest,
     SyntaxTree,
     TypeResponse,
     WorkspaceFileRequest,
@@ -31,15 +32,16 @@ import {
     WorkspacesFileResponse,
 } from "@wso2-enterprise/ballerina-core";
 import child_process from 'child_process';
-import { Uri, commands, env, window, workspace } from "vscode";
+import { Uri, commands, env, window, workspace, MarkdownString } from "vscode";
 import { URI } from "vscode-uri";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
-import { askFilePath, askProjectPath, getUpdatedSource } from "./utils";
+import { askFilePath, askProjectPath, BALLERINA_INTEGRATOR_ISSUES_URL, getUpdatedSource } from "./utils";
+import path from 'path';
 
 export class CommonRpcManager implements CommonRPCAPI {
-    async getTypes(): Promise<TypeResponse> {
+    async getTypeCompletions(): Promise<TypeResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             const completionParams: CompletionParams = {
@@ -63,7 +65,10 @@ export class CommonRpcManager implements CommonRPCAPI {
 
     async goToSource(params: GoToSourceRequest): Promise<void> {
         const context = StateMachine.context();
-        const filePath = params?.filePath || context.documentUri!;
+        let filePath = params?.filePath || context.documentUri!;
+        if (params?.fileName && context?.projectUri) {
+            filePath = path.join(context.projectUri, params.fileName);
+        }
         goToSource(params.position, filePath);
     }
 
@@ -179,10 +184,11 @@ export class CommonRpcManager implements CommonRPCAPI {
     async runBackgroundTerminalCommand(params: RunExternalCommandRequest): Promise<RunExternalCommandResponse> {
         return new Promise<CommandResponse>(function (resolve) {
             child_process.exec(`${params.command}`, async (err, stdout, stderr) => {
+                console.log(">>> command stdout: ", stdout);
                 if (err) {
                     resolve({
                         error: true,
-                        message: stderr
+                        message: stderr + "\n" + stdout
                     });
                 } else {
                     resolve({
@@ -201,7 +207,13 @@ export class CommonRpcManager implements CommonRPCAPI {
     async getWorkspaceRoot(): Promise<WorkspaceRootResponse> {
         return new Promise(async (resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
-            resolve ( workspaceFolders ? { path: workspaceFolders[0].uri.fsPath } : { path: "" });
+            resolve(workspaceFolders ? { path: workspaceFolders[0].uri.fsPath } : { path: "" });
         });
+    }
+
+    async showErrorMessage(params: ShowErrorMessageRequest): Promise<void> {
+        const messageWithLink = new MarkdownString(params.message);
+        messageWithLink.appendMarkdown(`\n\nPlease [create an issue](${BALLERINA_INTEGRATOR_ISSUES_URL}) if the issue persists.`);
+        window.showErrorMessage(messageWithLink.value);
     }
 }

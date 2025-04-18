@@ -10,13 +10,12 @@
 import React, { useEffect, useState } from "react";
 import { STModification } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { Drawer } from "@wso2-enterprise/ui-toolkit";
+import { Drawer, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import styled from "@emotion/styled";
 import { URI } from "vscode-uri";
 import { FormField } from "@wso2-enterprise/ballerina-side-panel";
 import { RecordEditor as BalRecordEditor } from '@wso2-enterprise/record-creator';
-import { Colors } from "../../resources/constants";
 
 const DrawerContainer = styled.div`
     fontFamily: GilmerRegular;
@@ -29,13 +28,14 @@ export interface RecordEditorProps {
     width?: string;
     onClose: () => void;
     updateFields?: (fields: FormField[]) => void;
+    typeId?: string;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
     const {
         isRecordEditorOpen,
         fields,
-        rpcClient,  
+        rpcClient,
         onClose,
         updateFields,
         width
@@ -43,11 +43,11 @@ export function RecordEditor(props: RecordEditorProps) {
     const [recordFullST, setRecordFullST] = useState<STNode>();
     const [recordPath, setRecordPath] = useState<string>();
 
-    const handleCloseRecordEditor = () => { 
+    const handleCloseRecordEditor = () => {
         onClose();
     };
 
-    const handleCancelRecordEditor = (recordName: string | undefined) => {   
+    const handleCancelRecordEditor = (recordName: string | undefined) => {
         if (fields) {
             const updatedFormValues = fields.map((formField: FormField) => {
                 // Check if recordName is type of string
@@ -63,7 +63,7 @@ export function RecordEditor(props: RecordEditorProps) {
 
     const applyRecordModifications = async (modifications: STModification[]) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
-        const filePath =  (await rpcClient.getVisualizerLocation()).metadata?.recordFilePath;
+        const filePath = (await rpcClient.getVisualizerLocation()).metadata?.recordFilePath;
         let updatedModifications = modifications;
         if (modifications.length === 1) {
             // Change the start position of the modification to the beginning of the file
@@ -96,13 +96,14 @@ export function RecordEditor(props: RecordEditorProps) {
             setRecordPath(vl.metadata?.recordFilePath);
         });
     }, []);
+
     return (
         <Drawer
             isOpen={isRecordEditorOpen}
             id="record-editor-drawer"
             isSelected={true}
             sx={{
-                backgroundColor: Colors.SURFACE_DIM,
+                backgroundColor: ThemeColors.SURFACE_DIM,
                 boxShadow: "none",
                 width: width ? width : "400px",
             }}
@@ -115,7 +116,7 @@ export function RecordEditor(props: RecordEditorProps) {
                     langServerRpcClient={rpcClient.getLangClientRpcClient()}
                     // @ts-ignore
                     libraryBrowserRpcClient={null}
-                    onCancelStatementEditor={() => {}}
+                    onCancelStatementEditor={() => { }}
                     onCancel={handleCancelRecordEditor}
                     recordCreatorRpcClient={rpcClient.getRecordCreatorRpcClient()}
                     targetPosition={{ startLine: 0, startColumn: 0 }}

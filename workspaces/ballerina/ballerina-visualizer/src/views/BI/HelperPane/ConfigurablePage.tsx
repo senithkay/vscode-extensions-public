@@ -7,35 +7,32 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, TextField } from "@wso2-enterprise/ui-toolkit";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button, Codicon, COMPLETION_ITEM_KIND, Dropdown, getIcon, HelperPane, OptionProps, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
-import { LineRange, ConfigVariable } from "@wso2-enterprise/ballerina-core";
+import { LineRange, ConfigVariable, NodeProperties } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertToHelperPaneConfigurableVariable, filterHelperPaneVariables } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
-import { HELPER_PANE_PAGE, HelperPanePageType } from ".";
+import { FieldValues, useForm } from "react-hook-form";
+import { debounce } from "lodash";
 
 type ConfigurablePageProps = {
-    fileName: string;
-    targetLineRange: LineRange;
-    setCurrentPage: (page: HelperPanePageType) => void;
-    onClose: () => void;
     onChange: (value: string) => void;
 };
 
-type ConfigData = {
-    confName: string;
-    confType: string;
-    confValue: string;
-};
-
 namespace S {
-    export const FormSection = styled.div`
+    export const Form = styled.div`
         display: flex;
         flex-direction: column;
         gap: 8px;
+    `
+
+    export const FormBody = styled.div`
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     `;
 
     export const ButtonPanel = styled.div`
@@ -46,13 +43,63 @@ namespace S {
     `;
 }
 
-export const ConfigurablePage = ({
-    fileName,
-    targetLineRange,
-    setCurrentPage,
-    onClose,
-    onChange,
-}: ConfigurablePageProps) => {
+const getConfigVariable = (fileName: string, lineRange: LineRange, values?: FieldValues): ConfigVariable => {
+    return {
+        id: '',
+        metadata: {
+            label: 'Config',
+            description: 'Create a configurable variable'
+        },
+        codedata: {
+            node: 'CONFIG_VARIABLE',
+            lineRange: {
+                fileName: fileName,
+                startLine: lineRange.startLine,
+                endLine: lineRange.endLine
+            }
+        },
+        returning: false,
+        properties: {
+            type: {
+                metadata: {
+                    label: 'Type',
+                    description: 'Type of the variable'
+                },
+                valueType: 'TYPE',
+                value: values?.type ?? '',
+                optional: false,
+                advanced: false,
+                editable: true
+            },
+            variable: {
+                metadata: {
+                    label: 'Variable',
+                    description: 'Name of the variable'
+                },
+                valueType: 'IDENTIFIER',
+                value: values?.variable ?? '',
+                valueTypeConstraint: 'Global',
+                optional: false,
+                advanced: false,
+                editable: true
+            },
+            defaultable: {
+                metadata: {
+                    label: 'Default value',
+                    description: 'Default value for the config, if empty your need to provide a value at runtime'
+                },
+                valueType: 'EXPRESSION',
+                value: values?.defaultable ?? '',
+                optional: true,
+                advanced: true,
+                editable: true
+            }
+        },
+        branches: []
+    };
+};
+
+export const ConfigurablePage = ({ onChange }: ConfigurablePageProps) => {
     const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>("");
@@ -62,111 +109,82 @@ export const ConfigurablePage = ({
     const [filteredConfigurableInfo, setFilteredConfigurableInfo] = useState<HelperPaneVariableInfo | undefined>(
         undefined
     );
-    const [confName, setConfName] = useState<string>("");
-    const [confType, setConfType] = useState<string>("");
-    const [confValue, setConfValue] = useState<string>("");
+    const [confTypes, setConfTypes] = useState<OptionProps[]>([]);
+    const [endLineRange, setEndLineRange] = useState<LineRange | undefined>();
+    const [isValid, setIsValid] = useState<boolean>(false);
+    const [configFilePath, setConfigFilePath] = useState<string>();
 
-    const getConfigurableVariableInfo = () => {
+    const {
+        register,
+        handleSubmit,
+        reset,
+        getValues,
+        setError,
+        setValue,
+        formState: { errors }
+    } = useForm({
+        mode: "onChange"
+    });
+
+    const getConfigurableVariableInfo = useCallback(() => {
         setIsLoading(true);
         setTimeout(() => {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getVisibleVariableTypes({
-                    filePath: fileName,
-                    position: {
-                        line: targetLineRange.startLine.line,
-                        offset: targetLineRange.startLine.offset,
-                    },
-                })
-                .then((response) => {
-                    if (response.categories?.length) {
-                        const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(response.categories);
-                        setConfigurableInfo(convertedConfigurableInfo);
-                        setFilteredConfigurableInfo(convertedConfigurableInfo);
-                    }
-                })
-                .then(() => setIsLoading(false));
-        }, 1100);
-    };
+            // Get project path
+            rpcClient.getVisualizerLocation().then((location) => {
+                const configFilePath = Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath;
+                setConfigFilePath(configFilePath);
 
-    const handleSaveConfigurables = async (values: ConfigData) => {
-        const variable: ConfigVariable = {
-            id: "",
-            metadata: {
-                label: "Config",
-                description: "Create a configurable variable",
-            },
-            codedata: {
-                node: "CONFIG_VARIABLE",
-                lineRange: {
-                    fileName: "config.bal",
-                    startLine: {
-                        line: 0,
-                        offset: 0,
-                    },
-                    endLine: {
-                        line: 0,
-                        offset: 0,
-                    },
-                },
-            },
-            returning: false,
-            properties: {
-                type: {
-                    metadata: {
-                        label: "Type",
-                        description: "Type of the variable",
-                    },
-                    valueType: "TYPE",
-                    value: "",
-                    optional: false,
-                    advanced: false,
-                    editable: true,
-                },
-                variable: {
-                    metadata: {
-                        label: "Variable",
-                        description: "Name of the variable",
-                    },
-                    valueType: "IDENTIFIER",
-                    value: "",
-                    optional: false,
-                    advanced: false,
-                    editable: true,
-                },
-                defaultable: {
-                    metadata: {
-                        label: "Default value",
-                        description: "Default value for the config, if empty your need to provide a value at runtime",
-                    },
-                    valueType: "EXPRESSION",
-                    value: "",
-                    optional: true,
-                    advanced: true,
-                    editable: true,
-                },
-            },
-            branches: [],
-        };
+                // Get end line range
+                rpcClient
+                    .getBIDiagramRpcClient()
+                    .getEndOfFile({
+                        filePath: configFilePath
+                    })
+                    .then((linePosition) => {
+                        setEndLineRange({
+                            startLine: linePosition,
+                            endLine: linePosition
+                        });
 
-        variable.properties.variable.value = values.confName;
+                        // Get visible variable types
+                        rpcClient
+                            .getBIDiagramRpcClient()
+                            .getVisibleVariableTypes({
+                                filePath: configFilePath,
+                                position: linePosition
+                            })
+                            .then((response) => {
+                                if (response.categories?.length) {
+                                    const convertedConfigurableInfo = convertToHelperPaneConfigurableVariable(
+                                        response.categories
+                                    );
+                                    setConfigurableInfo(convertedConfigurableInfo);
+                                    setFilteredConfigurableInfo(convertedConfigurableInfo);
+                                }
+                                setIsLoading(false);
+                            });
+                    });
+            });
+        }, 150);
+    }, [rpcClient]);
+
+    const handleSaveConfigurables = async (values: FieldValues) => {
+        const variable: ConfigVariable = getConfigVariable('config.bal', endLineRange, values);
+
         variable.properties.defaultable.value =
-            values.confValue === "" || values.confValue === null ? "?" : '"' + values.confValue + '"';
+            values.defaultable === "" || values.defaultable === null ? "?" : values.defaultable;
         variable.properties.defaultable.optional = true;
-        variable.properties.type.value = values.confType;
 
-        rpcClient.getVisualizerLocation().then((location) => {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .updateConfigVariables({
-                    configVariable: variable,
-                    configFilePath: Utils.joinPath(URI.file(location.projectUri), "config.bal").fsPath,
-                })
-                .then((response: any) => {
-                    console.log(">>> Config variables------", response);
-                    getConfigurableVariableInfo();
-                });
-        });
+        rpcClient
+            .getBIDiagramRpcClient()
+            .updateConfigVariables({
+                configVariable: variable,
+                configFilePath: configFilePath,
+            })
+            .then((response: any) => {
+                console.log(">>> Config variables------", response);
+                getConfigurableVariableInfo();
+            });
     };
 
     useEffect(() => {
@@ -176,98 +194,174 @@ export const ConfigurablePage = ({
         }
     }, []);
 
+    const debounceFilterConfigurables = useCallback(
+        debounce((searchText: string) => {
+            setFilteredConfigurableInfo(filterHelperPaneVariables(configurableInfo, searchText));
+            setIsLoading(false);
+        }, 150),
+        [configurableInfo, setFilteredConfigurableInfo, setIsLoading, filterHelperPaneVariables]
+    );
+
     const handleSearch = (searchText: string) => {
         setSearchValue(searchText);
-        setFilteredConfigurableInfo(filterHelperPaneVariables(configurableInfo, searchText));
+        setIsLoading(true);
+        debounceFilterConfigurables(searchText);
     };
 
     const clearForm = () => {
         setIsFormVisible(false);
-        setConfName("");
-        setConfType("");
-        setConfValue("");
+        reset();
     };
 
-    const handleSave = () => {
-        const confData = {
-            confName: confName,
-            confType: confType,
-            confValue: confValue,
-        };
-
-        handleSaveConfigurables(confData as any)
+    const handleSave = (values: FieldValues) => {
+        handleSaveConfigurables(values)
             .then(() => {
                 setIsFormVisible(false);
-                setCurrentPage(HELPER_PANE_PAGE.CONFIGURABLE);
+                reset();
             })
             .catch((error) => {
                 console.error("Failed to save variable:", error);
             });
     };
 
-    const isConfigDataValid = () => {
-        return confName.length > 0 && confType.length > 0 && confValue.length > 0;
-    };
+    useEffect(() => {
+        if (isFormVisible) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getVisibleTypes({
+                    filePath: configFilePath,
+                    position: endLineRange?.startLine,
+                    typeConstraint: "anydata"
+                })
+                .then((types) => {
+                    const typesWithoutDuplicates = types?.filter(type => !type.labelDetails.detail.includes("Used"))
+                    setConfTypes(
+                        typesWithoutDuplicates.map((type) => ({
+                            id: type.label,
+                            content: type.label,
+                            value: type.insertText
+                        }))
+                    );
+                    setValue('type', typesWithoutDuplicates?.[0]?.label);
+                });
+        }
+    }, [isFormVisible]);
+
+    const fetchDiagnostics = useCallback(
+        debounce(async () => {
+            const configVariable = getConfigVariable(
+                'config.bal',
+                endLineRange
+            );
+            let isValid = true;
+            for (const [key, value] of Object.entries(getValues())) {
+                // HACK: skip diagnostics for defaultable property with an empty value
+                if (key === 'defaultable' && value === '') {
+                    continue;
+                }
+
+                const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+                    filePath: configFilePath,
+                    context: {
+                        expression: value,
+                        startLine: endLineRange?.startLine,
+                        offset: 0,
+                        lineOffset: 0,
+                        codedata: configVariable.codedata,
+                        property: configVariable.properties[key as keyof NodeProperties]
+                    }
+                });
+
+                if (response.diagnostics.length > 0) {
+                    const diagnosticsMessage = response.diagnostics.map((d) => d.message).join('\n');
+                    setError(key, { type: 'validate', message: diagnosticsMessage });
+                    isValid = false;
+                }
+            }
+            setIsValid(isValid);
+        }, 150),
+        [rpcClient, endLineRange, getValues, setError]
+    );
+
+    const validateInput = useCallback(() => {
+        fetchDiagnostics();
+    }, [fetchDiagnostics]);
 
     return (
         <>
             <HelperPane.Header
-                title="Configurables"
-                onBack={() => setCurrentPage(HELPER_PANE_PAGE.CATEGORY)}
-                onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
-                titleSx={{ fontFamily: "GilmerRegular" }}
+                titleSx={{ fontFamily: 'GilmerRegular' }}
             />
             <HelperPane.Body loading={isLoading}>
                 {!isFormVisible ? (
-                    <>
-                        {filteredConfigurableInfo?.category.map((category) => (
-                            <React.Fragment key={category.label}>
-                                {category.items.map((item, index) => (
+                    filteredConfigurableInfo?.category.map((category) => {
+                        if (!category.items || category.items.length === 0) {
+                            return null;
+                        }
+
+                        return (
+                            <HelperPane.Section
+                                key={category.label}
+                                title={category.label}
+                                titleSx={{ fontFamily: 'GilmerMedium' }}
+                            >
+                                {category.items.map((item) => (
                                     <HelperPane.CompletionItem
-                                        key={index}
+                                        key={`${category.label}-${item.label}`}
                                         label={item.label}
                                         type={item.type}
                                         onClick={() => onChange(item.label)}
                                         getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
                                     />
                                 ))}
-                            </React.Fragment>
-                        ))}
-                    </>
-                ) : (
-                    <HelperPane.Section title="Create New Configurable Variable" titleSx={{ fontFamily: "GilmerMedium" }}>
-                        <S.FormSection>
+                            </HelperPane.Section>
+                        );
+                    })
+                ) : endLineRange && (
+                    <S.Form>
+                        <Typography variant="body2" sx={{ fontFamily: 'GilmerMedium' }}>
+                            Create New Configurable Variable
+                        </Typography>
+                        <S.FormBody>
                             <TextField
+                                id="variable"
                                 label="Name"
                                 placeholder="Enter a name for the variable"
-                                value={confName}
-                                onChange={(e) => setConfName(e.target.value)}
+                                required
+                                {...register('variable', {
+                                    onChange: validateInput
+                                })}
+                                errorMsg={errors.variable?.message?.toString()}
                             />
-                            {/* TODO: Update the component to a TypeSelector when the API is provided */}
-                            <TextField
+                            <Dropdown
+                                id="type"
                                 label="Type"
-                                placeholder="Enter a type for the variable"
-                                value={confType}
-                                onChange={(e) => setConfType(e.target.value)}
+                                items={confTypes}
+                                {...register('type', {
+                                    onChange: validateInput
+                                })}
                             />
                             <TextField
-                                label="Value"
-                                placeholder="Enter a value for the variable"
-                                value={confValue}
-                                onChange={(e) => setConfValue(e.target.value)}
+                                id="defaultable"
+                                label="Default Value"
+                                placeholder="Enter default value for the variable"
+                                {...register('defaultable', {
+                                    onChange: validateInput
+                                })}
+                                errorMsg={errors.defaultable?.message?.toString()}
                             />
-                        </S.FormSection>
+                        </S.FormBody>
                         <S.ButtonPanel>
                             <Button appearance="secondary" onClick={clearForm}>
                                 Cancel
                             </Button>
-                            <Button appearance="primary" onClick={handleSave} disabled={!isConfigDataValid()}>
+                            <Button appearance="primary" onClick={handleSubmit(handleSave)} disabled={!isValid}>
                                 Save
                             </Button>
                         </S.ButtonPanel>
-                    </HelperPane.Section>
+                    </S.Form>
                 )}
             </HelperPane.Body>
             {!isFormVisible && (

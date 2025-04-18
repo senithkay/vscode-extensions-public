@@ -21,7 +21,6 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BackIcon, CloseIcon, LogIcon } from "../../resources";
-import { Colors } from "../../resources/constants";
 import { Category, Item, Node } from "./types";
 import { cloneDeep, debounce } from "lodash";
 import GroupList from "../GroupList";
@@ -57,7 +56,7 @@ namespace S {
         margin-top: 8px;
         margin-bottom: ${({ showBorder }) => (showBorder ? "20px" : "12px")};
         padding-bottom: 8px;
-        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
+        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
     export const Row = styled.div<{}>`
@@ -108,7 +107,7 @@ namespace S {
         align-items: center;
         gap: 5px;
         padding: 5px;
-        border: 1px solid ${Colors.OUTLINE_VARIANT};
+        border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 5px;
         height: 36px;
         cursor: ${({ enabled }) => (enabled ? "pointer" : "not-allowed")};
@@ -116,20 +115,17 @@ namespace S {
         ${({ enabled }) => !enabled && "opacity: 0.5;"}
         &:hover {
             ${({ enabled }) =>
-            enabled &&
-            `
-                background-color: ${Colors.PRIMARY_CONTAINER};
-                border: 1px solid ${Colors.PRIMARY};
+                enabled &&
+                `
+                background-color: ${ThemeColors.PRIMARY_CONTAINER};
+                border: 1px solid ${ThemeColors.PRIMARY};
             `}
         }
     `;
 
     export const ComponentTitle = styled.div`
-        text-overflow: ellipsis;
-        overflow: hidden;
         white-space: nowrap;
         width: 124px;
-        word-break: break-all;
     `;
 
     export const IconContainer = styled.div`
@@ -140,15 +136,15 @@ namespace S {
         & svg {
             height: 16px;
             width: 16px;
-            fill: ${Colors.ON_SURFACE};
-            stroke: ${Colors.ON_SURFACE};
+            fill: ${ThemeColors.ON_SURFACE};
+            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 
     export const HorizontalLine = styled.hr`
         width: 100%;
         border: 0;
-        border-top: 1px solid ${Colors.OUTLINE_VARIANT};
+        border-top: 1px solid ${ThemeColors.OUTLINE_VARIANT};
     `;
 
     export const BackButton = styled(Button)`
@@ -172,13 +168,13 @@ namespace S {
         align-items: center;
         gap: 8px;
         padding: 6px 2px;
-        color: ${Colors.PRIMARY};
-        border: 1px dashed ${Colors.PRIMARY};
+        color: ${ThemeColors.PRIMARY};
+        border: 1px dashed ${ThemeColors.PRIMARY};
         border-radius: 5px;
         cursor: pointer;
         &:hover {
-            border: 1px solid ${Colors.PRIMARY};
-            background-color: ${Colors.PRIMARY_CONTAINER};
+            border: 1px solid ${ThemeColors.PRIMARY};
+            background-color: ${ThemeColors.PRIMARY_CONTAINER};
         }
     `;
 
@@ -209,6 +205,7 @@ interface NodeListProps {
     onAddFunction?: () => void;
     onBack?: () => void;
     onClose?: () => void;
+    searchPlaceholder?: string;
 }
 
 export function NodeList(props: NodeListProps) {
@@ -222,9 +219,8 @@ export function NodeList(props: NodeListProps) {
         onAddFunction,
         onBack,
         onClose,
+        searchPlaceholder
     } = props;
-
-    console.log(">>> categories", { categories });
 
     const [searchText, setSearchText] = useState<string>("");
     const [showGeneratePanel, setShowGeneratePanel] = useState(false);
@@ -277,9 +273,24 @@ export function NodeList(props: NodeListProps) {
                 }
 
                 return (
-                    <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)} title={node.label}>
+                    <S.Component
+                        key={node.id + index}
+                        enabled={node.enabled}
+                        onClick={() => handleAddNode(node)}
+                        title={node.label}
+                    >
                         <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
-                        <S.ComponentTitle>{node.label}</S.ComponentTitle>
+                        <S.ComponentTitle
+                            ref={(el) => {
+                                if (el && el.scrollWidth > el.clientWidth) {
+                                    el.style.fontSize = "13px";
+                                    el.style.wordBreak = "break-word";
+                                    el.style.whiteSpace = "normal";
+                                }
+                            }}
+                        >
+                            {node.label}
+                        </S.ComponentTitle>
                     </S.Component>
                 );
             })}
@@ -306,11 +317,24 @@ export function NodeList(props: NodeListProps) {
             <>
                 {groups.map((group, index) => {
                     const isConnectionCategory = group.title === "Connections";
-                    const isProjectFunctionsCategory = group.title === "Project";
-                    if ((!group || group.items.length === 0) && !isConnectionCategory && !isProjectFunctionsCategory) {
+                    const isProjectFunctionsCategory = group.title === "Current Integration";
+                    const isDataMapperCategory = isProjectFunctionsCategory && title === "Data Mappers";
+                    const isAgentCategory = group.title === "Agents";
+                    const isNpFunctionCategory = isProjectFunctionsCategory && title === "Natural Functions";
+                    if (
+                        (!group || group.items.length === 0) &&
+                        !isConnectionCategory &&
+                        !isProjectFunctionsCategory &&
+                        !isAgentCategory &&
+                        !isNpFunctionCategory
+                    ) {
                         return null;
                     }
                     if (searchText && group.items.length === 0) {
+                        return null;
+                    }
+                    // skip current integration category if onAddFunction is not provided and items are empty
+                    if (!onAddFunction && isProjectFunctionsCategory && group.items?.length === 0) {
                         return null;
                     }
                     return (
@@ -324,36 +348,84 @@ export function NodeList(props: NodeListProps) {
                                 {!isSubCategory && (
                                     <>
                                         <S.Title>{group.title}</S.Title>
-                                        {(isConnectionCategory || isProjectFunctionsCategory) && (
-                                            <Button
-                                                appearance="icon"
-                                                tooltip={isConnectionCategory ? "Add Connection" : "Create Function"}
-                                                onClick={isConnectionCategory ? handleAddConnection : handleAddFunction}
-                                            >
-                                                <Codicon name="add" />
-                                            </Button>
+                                        {(isConnectionCategory || isProjectFunctionsCategory || isAgentCategory) && (
+                                            <>
+                                                {onAddConnection && isConnectionCategory && (
+                                                    <Button
+                                                        appearance="icon"
+                                                        tooltip="Add Connection"
+                                                        onClick={handleAddConnection}
+                                                    >
+                                                        <Codicon name="add" />
+                                                    </Button>
+                                                )}
+                                                {onAddFunction && isDataMapperCategory && (
+                                                    <Button
+                                                        appearance="icon"
+                                                        tooltip="Create Data Mapper"
+                                                        onClick={handleAddFunction}
+                                                    >
+                                                        <Codicon name="add" />
+                                                    </Button>
+                                                )}
+                                                {onAddFunction &&
+                                                    isProjectFunctionsCategory &&
+                                                    !isDataMapperCategory &&
+                                                    !isNpFunctionCategory && (
+                                                        <Button
+                                                            appearance="icon"
+                                                            tooltip="Create Function"
+                                                            onClick={handleAddFunction}
+                                                        >
+                                                            <Codicon name="add" />
+                                                        </Button>
+                                                    )}
+                                                {onAddFunction && isNpFunctionCategory && (
+                                                    <Button
+                                                        appearance="icon"
+                                                        tooltip="Create Natural Function"
+                                                        onClick={handleAddFunction}
+                                                    >
+                                                        <Codicon name="add" />
+                                                    </Button>
+                                                )}
+                                            </>
                                         )}
                                     </>
                                 )}
                             </S.Row>
-                            {/* {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>} */}
-                            {isConnectionCategory && group.items.length === 0 && (
+                            {onAddConnection && isConnectionCategory && group.items.length === 0 && (
                                 <S.HighlightedButton onClick={handleAddConnection}>
-                                    <Codicon name="add" iconSx={{ fontSize: 12 }} />
+                                    <Codicon
+                                        name="add"
+                                        iconSx={{ fontSize: 12 }}
+                                        sx={{ display: "flex", alignItems: "center" }}
+                                    />
                                     Add Connection
                                 </S.HighlightedButton>
                             )}
-                            {isProjectFunctionsCategory && group.items.length === 0 && !searchText && !isSearching && (
-                                <S.HighlightedButton onClick={handleAddFunction}>
-                                    <Codicon name="add" iconSx={{ fontSize: 12 }} />
-                                    Create Function
-                                </S.HighlightedButton>
-                            )}
+                            {onAddFunction &&
+                                isProjectFunctionsCategory &&
+                                group.items.length === 0 &&
+                                !searchText &&
+                                !isSearching && (
+                                    <S.HighlightedButton onClick={handleAddFunction}>
+                                        <Codicon name="add" iconSx={{ fontSize: 12 }} />
+                                        {`Create ${
+                                            isDataMapperCategory
+                                                ? "Data Mapper"
+                                                : isNpFunctionCategory
+                                                ? "Natural Function"
+                                                : "Function"
+                                        }`}
+                                    </S.HighlightedButton>
+                                )}
                             {group.items.length > 0 && "id" in group.items.at(0)
                                 ? getNodesContainer(group.items as Node[])
-                                : isConnectionCategory || isProjectFunctionsCategory
-                                    ? getConnectionContainer(group.items as Category[])
-                                    : getCategoryContainer(group.items as Category[], true)}
+                                : (onAddConnection && isConnectionCategory) ||
+                                  (onAddFunction && isProjectFunctionsCategory)
+                                ? getConnectionContainer(group.items as Category[])
+                                : getCategoryContainer(group.items as Category[], true)}
                         </S.CategoryRow>
                     );
                 })}
@@ -408,7 +480,7 @@ export function NodeList(props: NodeListProps) {
                             leftLabel="Search"
                             rightLabel="Generate"
                             checked={showGeneratePanel}
-                            checkedColor={Colors.PRIMARY}
+                            checkedColor={ThemeColors.PRIMARY}
                             enableTransition={true}
                             onChange={() => {
                                 setShowGeneratePanel(!showGeneratePanel);
@@ -439,7 +511,7 @@ export function NodeList(props: NodeListProps) {
                     <S.Row>
                         <S.StyledSearchInput
                             value={searchText}
-                            placeholder="Search"
+                            placeholder={searchPlaceholder || "Search"} 
                             autoFocus={true}
                             onChange={handleOnSearch}
                             size={60}

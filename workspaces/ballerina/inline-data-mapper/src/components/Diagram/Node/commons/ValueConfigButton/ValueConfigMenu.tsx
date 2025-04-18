@@ -78,6 +78,10 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
     });
 
     return (
-        <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={items} position='bottom-left' />
+        <ContextMenu
+            id={`value-config-${portName}`}
+            iconSx={{ transform: "rotate(90deg)" }}
+            menuItems={items} position='bottom-left'
+        />
     );
 }

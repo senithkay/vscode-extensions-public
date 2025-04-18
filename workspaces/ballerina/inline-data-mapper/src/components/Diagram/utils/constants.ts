@@ -8,7 +8,6 @@
  */
 export const OBJECT_OUTPUT_TARGET_PORT_PREFIX = "objectOutput";
 export const ARRAY_OUTPUT_TARGET_PORT_PREFIX = "arrayOutput";
-export const OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX = "objectOutputFieldAdder";
 
 export const defaultModelOptions = { zoom: 90 };
 export const VISUALIZER_PADDING = 0;
@@ -20,6 +19,8 @@ export const GAP_BETWEEN_INPUT_NODES = 10;
 export const GAP_BETWEEN_FILTER_NODE_AND_INPUT_NODE = 50;
 export const GAP_BETWEEN_NODE_HEADER_AND_BODY = 10;
 export const GAP_BETWEEN_FIELDS = 1;
+
+export const ISSUES_URL = "https://github.com/wso2/product-ballerina-integrator/issues";
 
 export const OFFSETS = {
     SOURCE_NODE: {

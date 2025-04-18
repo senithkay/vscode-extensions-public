@@ -18,6 +18,7 @@ import { activateDebugConfigProvider } from './features/debugger';
 import { activate as activateProjectFeatures } from './features/project';
 import { activate as activateEditorSupport } from './features/editor-support';
 import { activate as activateTesting } from './features/testing/activator';
+import { activate as activateBITesting } from './features/test-explorer/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
 import { activate as activateNotebook } from './views/notebook';
@@ -34,6 +35,8 @@ import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
 import { RPCLayer } from './RPCLayer';
 import { activateAIFeatures } from './features/ai/activator';
 import { activateTryItCommand } from './features/tryit/activator';
+import { activate as activateNPFeatures } from './features/natural-programming/activator';
+import { activateAgentChatPanel } from './views/agent-chat/activate';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -84,7 +87,7 @@ export async function activate(context: ExtensionContext) {
     // Wait for the ballerina extension to be ready
     await StateMachine.initialize();
     // Then return the ballerina extension context
-    return ballerinaExtInstance;
+    return { ballerinaExtInstance, projectPath: StateMachine.context().projectUri };
 }
 
 export async function activateBallerina(): Promise<BallerinaExtension> {
@@ -109,17 +112,15 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Activate editor support
         activateEditorSupport(ballerinaExtInstance);
 
-        // Activate Ballerina Testing
-        activateTesting(ballerinaExtInstance);
-
         // <------------ MAIN FEATURES ----------->
         // Enable Ballerina by examples
         activateBBE(ballerinaExtInstance);
 
-        if (StateMachine.context().isBI) {
-            //Enable BI Feature
-            activateBIFeatures(ballerinaExtInstance);
-        }
+        //Enable BI Feature
+        activateBIFeatures(ballerinaExtInstance);
+
+        // Enable Ballerina Testing Explorer
+        activateBITesting(ballerinaExtInstance);
 
         // Enable Ballerina Notebook
         activateNotebook(ballerinaExtInstance);
@@ -131,9 +132,6 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
 
-        //TOOD: Remove. Temp workaround to disable auth
-        extension.context.secrets.store('BallerinaAIUser', 'abc');
-        extension.context.secrets.store('BallerinaAIRefreshToken', 'abc');
         //activate ai panel
         activateAiPanel(ballerinaExtInstance);
 
@@ -143,11 +141,26 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Activate Try It command
         activateTryItCommand(ballerinaExtInstance);
 
+        // Activate natural programming features
+        activateNPFeatures(ballerinaExtInstance);
+
+        // Activate Agent Chat Panel
+        activateAgentChatPanel(ballerinaExtInstance);
+
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
         langClient.onNotification('window/showTextDocument', (location: Location) => {
             if (location.uri !== undefined) {
                 window.showTextDocument(Uri.parse(location.uri.toString()), { selection: location.range });
+            }
+        });
+        // Handle pull module progress notifications
+        langClient.onNotification('$/progress', (params: any) => {
+            if (params.token && params.token.startsWith('pull-module')) {
+                extension.hasPullModuleNotification = true;
+                if (params.value.kind === 'report') {
+                    extension.hasPullModuleResolved = true;
+                }
             }
         });
         isPluginStartup = false;
@@ -166,7 +179,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             // cmds.forEach((cmd) => {
             //     const cmdID: string = cmd.command;
             //     // This is to skip the command un-registration
-            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //     if (!(cmdID.includes("ballerina-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
             //         commands.registerCommand(cmdID, () => {
             //             ballerinaExtInstance.showMessageInstallBallerina();
             //         });
@@ -179,7 +192,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             // cmds.forEach((cmd) => {
             //     const cmdID: string = cmd.command;
             //     // This is to skip the command un-registration
-            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //     if (!(cmdID.includes("ballerina-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
             //         commands.registerCommand(cmdID, () => {
             //             const actionViewLogs = "View Logs";
             //             window.showWarningMessage("Ballerina extension did not start properly."

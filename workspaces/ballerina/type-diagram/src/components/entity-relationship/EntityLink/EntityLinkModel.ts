@@ -14,7 +14,7 @@ export class EntityLinkModel extends SharedLinkModel {
 	readonly cardinality: Cardinality;
 	readonly testId: string;
 
-	constructor(cardinality: Cardinality, testId?: string) {
+	constructor(cardinality?: Cardinality, testId?: string) {
 		super('entityLink');
 
 		this.cardinality = cardinality;

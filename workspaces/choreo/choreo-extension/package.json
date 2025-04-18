@@ -3,7 +3,7 @@
   "displayName": "Choreo",
   "description": "An extension for managing your Choreo projects and components",
   "license": "Apache-2.0",
-  "version": "2.2.1",
+  "version": "2.2.4",
   "cliVersion": "v1.2.82412081830",
   "publisher": "wso2",
   "bugs": {
@@ -48,8 +48,7 @@
         "command": "wso2.choreo.sign.out",
         "title": "Sign Out",
         "category": "Choreo",
-        "icon": "${sign-out}",
-        "enablement": "isLoggedIn"
+        "icon": "${sign-out}"
       },
       {
         "command": "wso2.choreo.create.component",
@@ -225,12 +224,6 @@
           "default": "",
           "description": "The path to Choreo RPC server",
           "scope": "window"
-        },
-        "FeaturePreview.ProxyCreation": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable proxy creation from GitHub repository",
-          "scope": "window"
         }
       }
     },
@@ -272,7 +265,7 @@
         "description": "choreo-2",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f12a"
+          "fontCharacter": "\\f156"
         }
       }
     }

@@ -8,7 +8,7 @@
  */
 
 // feature usage events
-export const TM_EVENT_EXTENSION_INIT = "kolab.extension.init";
+export const TM_EVENT_EXTENSION_INIT = "ballerina.extension.init";
 export const TM_EVENT_EXTENSION_ACTIVATE = "editor-workspace-ballerina-extension-activate";
 
 // events for opening custom views
@@ -50,13 +50,15 @@ export const TM_EVENT_PROJECT_ADD = "execute.project.add";
 // event for generating Cloud.toml for current project
 export const TM_EVENT_PROJECT_CLOUD = "execute.project.cloud";
 
+export const TM_EVENT_AUTH_COPILOT = "execute.auth.copilot";
+
 // events for language server
-export const TM_EVENT_LANG_SERVER = "kolab.langserver.event";
-export const TM_ERROR_LANG_SERVER = "kolab.langserver.error";
-export const TM_FEATURE_USAGE_LANG_SERVER = "kolab.langserver.feature.usage";
+export const TM_EVENT_LANG_SERVER = "ballerina.langserver.event";
+export const TM_ERROR_LANG_SERVER = "ballerina.langserver.error";
+export const TM_FEATURE_USAGE_LANG_SERVER = "ballerina.langserver.feature.usage";
 
 // events related to editor support features
-export const TM_EVENT_STRING_SPLIT = "kolab.string.split";
+export const TM_EVENT_STRING_SPLIT = "ballerina.string.split";
 
 // events for executor codelenses
 export const TM_EVENT_SOURCE_DEBUG_CODELENS = "execute.source.debug.codelens";
@@ -77,7 +79,7 @@ export const TM_EVENT_EDIT_SOURCE = "editor-workspace-edit-source";
 export const TM_EVENT_EDIT_DIAGRAM = "editor-workspace-edit-diagram";
 export const TM_EVENT_GRAPHQL_RUN = "editor-workspace-tryit-graphql";
 
-export const TM_EVENT_LANG_CLIENT = "kolab.langclient.event";
+export const TM_EVENT_LANG_CLIENT = "ballerina.langclient.event";
 
 // performance analyzer events
 export const TM_EVENT_PERF_REQUEST = "perfomance-analyzer-request";

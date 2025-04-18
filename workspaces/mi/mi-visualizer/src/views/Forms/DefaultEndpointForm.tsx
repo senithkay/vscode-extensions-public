@@ -431,7 +431,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                 isPopup: true
             });
         } else {
-            handleCancel();
+            openOverview();
         }
         
     };
@@ -460,7 +460,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
         });
     }
 
-    const handleCancel = () => {
+    const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {view: MACHINE_VIEW.Overview},
@@ -468,8 +468,16 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
         });
     };
 
+    const handleCloseButtonClick = () => {
+        if (props.handlePopupClose) {
+            props.handlePopupClose();
+        } else {
+            openOverview();
+        }
+    };
+
     return (
-        <FormView title={isTemplate ? 'Template' : 'Endpoint'} onClose={props.handlePopupClose ?? handleCancel}>
+        <FormView title={isTemplate ? 'Template' : 'Endpoint'} onClose={props.handlePopupClose ?? openOverview}>
             <TypeChip
                 type={isTemplate ? "Default Endpoint Template" : "Default Endpoint"}
                 onClick={changeType}
@@ -658,7 +666,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
             <FormActions>
                 <Button
                     appearance="secondary"
-                    onClick={handleCancel}
+                    onClick={handleCloseButtonClick}
                 >
                     Cancel
                 </Button>

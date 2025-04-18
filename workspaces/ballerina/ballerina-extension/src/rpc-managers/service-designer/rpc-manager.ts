@@ -9,9 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    DIRECTORY_MAP,
     ExportOASRequest,
     ExportOASResponse,
+    FunctionModelRequest,
+    FunctionModelResponse,
     FunctionSourceCodeRequest,
     HttpResourceModelRequest,
     HttpResourceModelResponse,
@@ -24,9 +25,6 @@ import {
     ListenersRequest,
     ListenersResponse,
     OpenAPISpec,
-    ProjectStructureResponse,
-    RecordSTRequest,
-    RecordSTResponse,
     ResourceSourceCodeResponse,
     STModification,
     ServiceDesignerAPI,
@@ -38,31 +36,19 @@ import {
     SourceUpdateResponse,
     SyntaxTree,
     TriggerModelsRequest,
-    TriggerModelsResponse,
-    buildProjectStructure
+    TriggerModelsResponse
 } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, NodePosition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import * as fs from 'fs';
 import { existsSync, writeFileSync } from "fs";
 import * as yaml from 'js-yaml';
 import * as path from 'path';
-import { Uri, commands, window, workspace } from "vscode";
+import * as vscode from "vscode";
+import { Uri, window, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
+import { extension } from "../../BalExtensionContext";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
-
-    async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
-        return new Promise(async (resolve) => {
-            const context = StateMachine.context();
-            const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
-            res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
-                if (type.name === params.recordName) {
-                    resolve({ recordST: type.st as TypeDefinition });
-                }
-            });
-            resolve(null);
-        });
-    }
 
     async exportOASFile(params: ExportOASRequest): Promise<ExportOASResponse> {
         return new Promise(async (resolve) => {
@@ -102,6 +88,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenersResponse = await context.langClient.getListeners(params);
                 resolve(res);
@@ -129,6 +116,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenerSourceCodeResponse = await context.langClient.addListenerSourceCode(params);
                 const position = await this.updateSource(res);
@@ -136,10 +124,24 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
-                resolve(result);
+                // Set timeout to resolve after 2 seconds if no notification received
+                setTimeout(() => {
+                    if (extension.hasPullModuleNotification) {
+                        const waitForModuleResolution = new Promise<void>((resolve) => {
+                            const checkInterval = setInterval(() => {
+                                if (extension.hasPullModuleResolved) {
+                                    clearInterval(checkInterval);
+                                    resolve();
+                                }
+                            }, 100);
+                        });
+                        waitForModuleResolution.then(() => {
+                            resolve(result);
+                        });
+                    } else {
+                        resolve(result);
+                    }
+                }, 1000);
             } catch (error) {
                 console.log(error);
             }
@@ -152,6 +154,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenerSourceCodeResponse = await context.langClient.updateListenerSourceCode(params);
                 const position = await this.updateSource(res);
@@ -159,9 +162,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -175,6 +175,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ServiceModelResponse = await context.langClient.getServiceModel(params);
                 resolve(res);
@@ -184,13 +185,18 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-
     async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
+            // Update the state tempData with the service model. This is used to navigate after the source code is updated
+            StateMachine.setTempData({
+                serviceModel: params.service,
+                isNewService: true
+            });
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const identifiers = [];
                 for (let property in params.service.properties) {
@@ -198,16 +204,25 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     if (value) {
                         identifiers.push(value);
                     }
+                    if (params.service.properties[property].choices) {
+                        params.service.properties[property].choices.forEach(choice => {
+                            if (choice.properties) {
+                                Object.keys(choice.properties).forEach(subProperty => {
+                                    const subPropertyValue = choice.properties[subProperty].value;
+                                    if (subPropertyValue) {
+                                        identifiers.push(subPropertyValue);
+                                    }
+                                });
+                            }
+                        });
+                    }
                 }
                 const res: ListenerSourceCodeResponse = await context.langClient.addServiceSourceCode(params);
                 const position = await this.updateSource(res, identifiers);
-                const result: SourceUpdateResponse = {
+                let result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -218,9 +233,14 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
+            // Update the state tempData with the service model. This is used to navigate after the source code is updated
+            StateMachine.setTempData({
+                serviceModel: params.service
+            });
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const identifiers = [];
                 for (let property in params.service.properties) {
@@ -235,9 +255,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     filePath: targetFile,
                     position: position
                 };
-                if (StateMachine.context().isBI) {
-                    commands.executeCommand("BI.project-explorer.refresh");
-                }
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -272,9 +289,13 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
+            StateMachine.setTempData({
+                serviceModel: params.service
+            });
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
+                this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
@@ -296,10 +317,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
+            StateMachine.setTempData({
+                serviceModel: params.service
+            });
             try {
-                const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `main.bal`);
-                params.filePath = targetFile;
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
                     startColumn: params.codedata.lineRange.startLine.offset
@@ -307,7 +328,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const res: ResourceSourceCodeResponse = await context.langClient.updateResourceSourceCode(params);
                 const position = await this.updateSource(res, undefined, targetPosition);
                 const result: SourceUpdateResponse = {
-                    filePath: targetFile,
+                    filePath: params.filePath,
                     position: position
                 };
                 resolve(result);
@@ -318,13 +339,24 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     }
 
     private async updateSource(params: ListenerSourceCodeResponse, identifiers?: string[], targetPosition?: NodePosition): Promise<NodePosition> {
+        StateMachine.setEditMode();
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
         let position: NodePosition;
-        for (const [key, value] of Object.entries(params.textEdits)) {
+        const sortedTextEdits = Object.entries(params.textEdits).sort((a, b) => b[0].length - a[0].length);
+        for (const [key, value] of sortedTextEdits) {
             const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
-            if (!existsSync(fileUri.path)) {
-                writeFileSync(fileUri.path, '');
+            if (!existsSync(fileUri.fsPath)) {
+                writeFileSync(fileUri.fsPath, '');
+                await new Promise(resolve => setTimeout(resolve, 500)); // Add small delay to ensure file is created
+                await StateMachine.langClient().didOpen({
+                    textDocument: {
+                        uri: fileUriString,
+                        text: '',
+                        languageId: 'ballerina',
+                        version: 1
+                    }
+                });
             }
             const edits = value;
 
@@ -363,35 +395,20 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 })) as SyntaxTree;
 
                 if (parseSuccess) {
-                    (identifiers || targetPosition) && (syntaxTree as ModulePart).members.forEach(member => {
-                        if (STKindChecker.isServiceDeclaration(member)) {
-                            if (identifiers && identifiers.every(id => id && member.source.includes(id))) {
-                                position = member.position;
-                            }
-                            if (targetPosition && member.position.startLine === targetPosition.startLine && member.position.startColumn === targetPosition.startColumn) {
-                                position = member.position;
-                            }
-                        }
+                    const fileUri = Uri.file(request.filePath);
+                    const workspaceEdit = new vscode.WorkspaceEdit();
+                    workspaceEdit.replace(
+                        fileUri,
+                        new vscode.Range(
+                            new vscode.Position(0, 0),
+                            new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                        ),
+                        source
+                    );
+                    await workspace.applyEdit(workspaceEdit);
+                    await StateMachine.langClient().resolveMissingDependencies({
+                        documentIdentifier: { uri: fileUriString },
                     });
-                    fs.writeFileSync(request.filePath, source);
-                    await StateMachine.langClient().didChange({
-                        textDocument: { uri: fileUriString, version: 1 },
-                        contentChanges: [
-                            {
-                                text: source,
-                            },
-                        ],
-                    });
-
-                    if (!targetPosition) {
-                        await StateMachine.langClient().resolveMissingDependencies({
-                            documentIdentifier: { uri: fileUriString },
-                        });
-                    }
-                    // // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
-                    // await StateMachine.langClient().didOpen({
-                    //     textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                    // });
                 }
             }
         } catch (error) {
@@ -416,9 +433,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `main.bal`);
-                params.filePath = targetFile;
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
                     startColumn: params.codedata.lineRange.startLine.offset
@@ -426,7 +440,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const res: ResourceSourceCodeResponse = await context.langClient.addFunctionSourceCode(params);
                 const position = await this.updateSource(res, undefined, targetPosition);
                 const result: SourceUpdateResponse = {
-                    filePath: targetFile,
+                    filePath: params.filePath,
                     position: position
                 };
                 resolve(result);
@@ -446,5 +460,26 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 console.log(error);
             }
         });
+    }
+
+    async getFunctionModel(params: FunctionModelRequest): Promise<FunctionModelResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: FunctionModelResponse = await context.langClient.getFunctionModel(params);
+                resolve(res);
+            } catch (error) {
+                console.log(">>> error fetching function model", error);
+            }
+        });
+    }
+
+    private ensureFileExists(targetFile: string) {
+        // Check if the file exists
+        if (!fs.existsSync(targetFile)) {
+            // Create the file if it does not exist
+            fs.writeFileSync(targetFile, "");
+            console.log(`>>> Created file at ${targetFile}`);
+        }
     }
 }

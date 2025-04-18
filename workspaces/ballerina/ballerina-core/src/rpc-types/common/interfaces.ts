@@ -19,6 +19,7 @@ export interface TypeResponse {
 export interface GoToSourceRequest {
     position: NodePosition;
     filePath?: string
+    fileName?: string
 }
 
 export interface WorkspaceFileRequest {
@@ -75,4 +76,8 @@ export interface FileOrDirResponse {
 }
 export interface FileOrDirRequest {
     isFile?: boolean;
+}
+
+export interface ShowErrorMessageRequest {
+    message: string;
 }

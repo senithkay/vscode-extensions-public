@@ -75,3 +75,5 @@ playwright-report/
 **/storybook-static/
 
 extensions.json
+
+!sample-mi-project.zip

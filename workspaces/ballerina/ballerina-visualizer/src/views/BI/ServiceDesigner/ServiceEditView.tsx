@@ -7,16 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { DIRECTORY_MAP, EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel, NodePosition, LineRange } from '@wso2-enterprise/ballerina-core';
-import { Button, Codicon, ComponentCard, Icon, TextField, Typography, Stepper, ProgressRing, View, ViewContent, CheckBox, AutoComplete } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect, useState } from 'react';
+import { ServiceModel, NodePosition, LineRange, ListenerModel } from '@wso2-enterprise/ballerina-core';
+import { Typography, ProgressRing, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import ListenerConfigForm from './Forms/ListenerConfigForm';
 import ServiceConfigForm from './Forms/ServiceConfigForm';
-import { BodyText, LoadingContainer } from '../../styles';
-import { BIHeader } from '../BIHeader';
-import { FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { LoadingContainer } from '../../styles';
+import { TitleBar } from '../../../components/TitleBar';
+import { TopNavigationBar } from '../../../components/TopNavigationBar';
+import ListenerConfigForm from './Forms/ListenerConfigForm';
 
 const FORM_WIDTH = 600;
 
@@ -81,33 +81,56 @@ export function ServiceEditView(props: ServiceEditViewProps) {
     const { filePath, position } = props;
     const { rpcClient } = useRpcContext();
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
+    const [listenerModel, setListenerModel] = useState<ListenerModel>(undefined);
 
     const [saving, setSaving] = useState<boolean>(false);
+    const [step, setStep] = useState<number>(1);
 
     useEffect(() => {
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
         rpcClient.getServiceDesignerRpcClient().getServiceModelFromCode({ filePath, codedata: { lineRange } }).then(res => {
             setServiceModel(res.service);
+            rpcClient.getServiceDesignerRpcClient().getListenerModel({ moduleName: res.service.moduleName }).then(res => {
+                console.log("Listener Model: ", res);
+                setListenerModel(res.listener);
+            });
         })
     }, []);
 
     const onSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().updateServiceSourceCode({ filePath, service: value });
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position
-            },
-        });
-        setSaving(false);
+    }
+
+    const handleListenerSubmit = async (value?: ListenerModel) => {
+        setSaving(true);
+        let listenerName;
+        if (value) {
+            await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener: value });
+            if (value.properties['name'].value) {
+                listenerName = value.properties['name'].value;
+                serviceModel.properties['listener'].value = listenerName;
+                serviceModel.properties['listener'].items.push(listenerName);
+                setServiceModel({ ...serviceModel, properties: { ...serviceModel.properties } });
+                setSaving(false);
+                setStep(1);
+            }
+        }
+    };
+
+    const onBack = () => {
+        setStep(1);
+    }
+
+    const openListenerForm = () => {
+        setStep(0);
     }
 
     return (
         <View>
+            <TopNavigationBar />
+            <TitleBar title="Service" subtitle="Edit Service" />
             <ViewContent padding>
-                <BIHeader />
                 {!serviceModel &&
                     <LoadingContainer>
                         <ProgressRing />
@@ -116,16 +139,15 @@ export function ServiceEditView(props: ServiceEditViewProps) {
                 }
                 {serviceModel &&
                     <Container>
-                        {!saving &&
+                        {step === 0 &&
                             <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} openListenerForm={undefined} formSubmitText={"Save"} />
+                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={onBack} formSubmitText={saving ? "Creating" : "Create"} isSaving={saving} />
                             </>
                         }
-                        {saving &&
-                            <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Saving... Please wait</Typography>
-                            </LoadingContainer>
+                        {step === 1 &&
+                            <>
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} openListenerForm={openListenerForm} formSubmitText={saving ? "Saving" : "Save"} isSaving={saving} />
+                            </>
                         }
                     </Container>
                 }

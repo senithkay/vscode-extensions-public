@@ -32,9 +32,9 @@ import {
     ProjectForm,
     ComponentListView,
     PopupMessage,
-    MainForm,
     FunctionForm,
-    SetupView
+    SetupView,
+    TestFunctionForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -57,7 +57,11 @@ import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurable
 import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
-import { DataMapperForm } from "./views/BI/DataMapperForm";
+import { ServiceClassDesigner } from "./views/BI/ServiceClassEditor/ServiceClassDesigner";
+import { ServiceClassConfig } from "./views/BI/ServiceClassEditor/ServiceClassConfig";
+import { AIAgentDesigner } from "./views/BI/AIChatAgent";
+import { AIChatAgentWizard } from "./views/BI/AIChatAgent/AIChatAgentWizard";
+import { BallerinaUpdateView } from "./views/BI/BallerinaUpdateView";
 
 const globalStyles = css`
     *,
@@ -82,7 +86,7 @@ const PopUpContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 2100;
+    z-index: 2000;
 `;
 
 const MainPanel = () => {
@@ -153,16 +157,20 @@ const MainPanel = () => {
     const fetchContext = () => {
         setNavActive(true);
         rpcClient.getVisualizerLocation().then((value) => {
+            let defaultFunctionsFile = Utils.joinPath(URI.file(value.projectUri), 'functions.bal').fsPath;
+            if (value.documentUri) {
+                defaultFunctionsFile = value.documentUri
+            }
             if (!value?.view) {
                 setViewComponent(<LoadingRing />);
             } else {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
-                        if (value.isBI) {
-                            setViewComponent(<OverviewBI />);
-                            break;
-                        }
-                        setViewComponent(<Overview visualizerLocation={value} />);
+                        setViewComponent(
+                            <OverviewBI
+                                projectPath={value.projectUri}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
@@ -172,47 +180,73 @@ const MainPanel = () => {
                             />
                         );
                         break;
+                    case MACHINE_VIEW.AIAgentDesigner:
+                        setViewComponent(<AIAgentDesigner
+                            filePath={value.documentUri}
+                            position={value?.position}
+                        />);
+                        break;
                     case MACHINE_VIEW.BIDiagram:
                         setViewComponent(
-                            <DiagramWrapper syntaxTree={value?.syntaxTree} projectPath={value.projectUri} />
+                            <DiagramWrapper
+                                syntaxTree={value?.syntaxTree}
+                                projectPath={value?.projectUri}
+                                filePath={value?.documentUri}
+                                view={value?.focusFlowDiagramView}
+                            />
                         );
                         break;
                     case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);
                         break;
                     case MACHINE_VIEW.TypeDiagram:
-                        setViewComponent(<TypeDiagram selectedRecordId={value?.identifier} />);
+                        setViewComponent(<TypeDiagram selectedTypeId={value?.identifier} projectUri={value?.projectUri} />);
                         break;
                     case MACHINE_VIEW.DataMapper:
                         setViewComponent(
                             <DataMapper
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
-                                isBI={value.isBI}
                                 applyModifications={applyModifications}
                             />
                         );
                         break;
                     case MACHINE_VIEW.BIDataMapperForm:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <DataMapperForm
-                                    filePath={Utils.joinPath(URI.file(location.projectUri), 'data_mappings.bal').fsPath}
-                                />
-                            );
-                        });
+                        setViewComponent(
+                            <FunctionForm
+                                projectPath={value.projectUri}
+                                filePath={defaultFunctionsFile}
+                                functionName={value?.identifier}
+                                isDataMapper={true}
+                            />
+                        );
+                        break;
+                    case MACHINE_VIEW.BINPFunctionForm:
+                        setViewComponent(
+                            <FunctionForm
+                                projectPath={value.projectUri}
+                                filePath={defaultFunctionsFile}
+                                functionName={value?.identifier}
+                                isDataMapper={false}
+                                isNpFunction={true}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.GraphQLDiagram:
-                        setViewComponent(<GraphQLDiagram />);
+                        setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri} />);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(
                             <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications} />
                         );
                         break;
+                    case MACHINE_VIEW.BallerinaUpdateView:
+                        setNavActive(false);
+                        setViewComponent(<BallerinaUpdateView />);
+                        break;
                     case MACHINE_VIEW.BIWelcome:
                         setNavActive(false);
-                        setViewComponent(<WelcomeView />);
+                        setViewComponent(<WelcomeView isBISupported={value.metadata.isBISupported} />);
                         break;
                     case MACHINE_VIEW.SetupView:
                         setNavActive(false);
@@ -223,41 +257,64 @@ const MainPanel = () => {
                         setViewComponent(<ProjectForm />);
                         break;
                     case MACHINE_VIEW.BIComponentView:
-                        setViewComponent(<ComponentListView />);
+                        setViewComponent(<ComponentListView scope={value.scope} />);
+                        break;
+                    case MACHINE_VIEW.AIChatAgentWizard:
+                        setViewComponent(<AIChatAgentWizard />);
                         break;
                     case MACHINE_VIEW.BIServiceWizard:
                         setViewComponent(<ServiceWizard type={value.serviceType} />);
                         break;
+                    case MACHINE_VIEW.BIServiceClassDesigner:
+                        setViewComponent(
+                            <ServiceClassDesigner
+                                type={value?.type}
+                                isGraphql={value?.isGraphql}
+                                projectUri={value?.projectUri}
+                            />
+                        );
+                        break;
                     case MACHINE_VIEW.BIServiceConfigView:
                         setViewComponent(<ServiceEditView filePath={value.documentUri} position={value?.position} />);
+                        break;
+                    case MACHINE_VIEW.BIServiceClassConfigView:
+                        setViewComponent(
+                            <ServiceClassConfig
+                                fileName={value.documentUri}
+                                position={value?.position}
+                                projectUri={value?.projectUri} />
+                        );
                         break;
                     case MACHINE_VIEW.BIListenerConfigView:
                         setViewComponent(<ListenerEditView filePath={value.documentUri} position={value?.position} />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <AddConnectionWizard
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
-                                />
-                            );
-                        });
+                        setViewComponent(
+                            <AddConnectionWizard
+                                fileName={value.documentUri || value.projectUri}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.EditConnectionWizard:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
-                                <EditConnectionWizard
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
-                                    connectionName={value?.identifier}
-                                />
-                            );
-                        });
+                        setViewComponent(
+                            <EditConnectionWizard
+                                fileName={value.documentUri || value.projectUri}
+                                connectionName={value?.identifier}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
-                        setViewComponent(<MainForm />);
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} filePath={defaultFunctionsFile} functionName={value?.identifier} isAutomation={true} />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
-                        setViewComponent(<FunctionForm />);
+                        setViewComponent(<FunctionForm projectPath={value.projectUri} filePath={defaultFunctionsFile} functionName={value?.identifier} />);
+                        break;
+                    case MACHINE_VIEW.BITestFunctionForm:
+                        setViewComponent(<TestFunctionForm
+                            functionName={value?.identifier}
+                            filePath={value?.documentUri}
+                            serviceType={value?.serviceType}
+                        />);
                         break;
                     case MACHINE_VIEW.ViewConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {
@@ -329,7 +386,7 @@ const MainPanel = () => {
         <>
             <Global styles={globalStyles} />
             <VisualizerContainer>
-                {navActive && <NavigationBar showHome={showHome} />}
+                {/* {navActive && <NavigationBar showHome={showHome} />} */}
                 {viewComponent && <ComponentViewWrapper>{viewComponent}</ComponentViewWrapper>}
                 {sidePanel !== "EMPTY" && sidePanel === "ADD_CONNECTION" && (
                     <ConnectorList applyModifications={applyModifications} />

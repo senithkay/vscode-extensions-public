@@ -15,11 +15,12 @@ import { FormField } from "../Form/types";
 import { capitalize, getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
-import { PropertyModel } from "@wso2-enterprise/ballerina-core";
+import { PropertyModel, RecordTypeField } from "@wso2-enterprise/ballerina-core";
 import { EditorFactory } from "./EditorFactory";
 
 interface ChoiceFormProps {
     field: FormField;
+    recordTypeFields?: RecordTypeField[];
 }
 
 const Form = styled.div`
@@ -41,22 +42,29 @@ const FormSection = styled.div`
 `;
 
 export function ChoiceForm(props: ChoiceFormProps) {
-    const { field } = props;
+    const { field, recordTypeFields } = props;
     const { form } = useFormContext();
-    const { register } = form;
+    const { setValue } = form;
 
-    const [selectedOption, setSelectedOption] = useState<number>(0);
+    const [selectedOption, setSelectedOption] = useState<number>(1);
 
     const [dynamicFields, setDynamicFields] = useState<FormField[]>([]);
 
 
     // Add useEffect to set initial values
     useEffect(() => {
-        const property = field.choices[selectedOption];
-        setDynamicFields(convertConfig(property));
+        const realValue = selectedOption - 1;
+        const property = field.choices[realValue];
+        const choiceProperty = convertConfig(property);
+        setDynamicFields(choiceProperty);
+        if (choiceProperty.length > 0) {
+            Object.entries(property.properties).forEach(([propKey, propValue]) => {
+                if (propValue.value !== undefined) {
+                    setValue(propKey, propValue.value);
+                }
+            });
+        }
     }, [selectedOption]);
-
-
 
     const convertConfig = (model: PropertyModel): FormField[] => {
         const formFields: FormField[] = [];
@@ -65,10 +73,11 @@ export function ChoiceForm(props: ChoiceFormProps) {
             const formField: FormField = {
                 key: key,
                 label: expression?.metadata.label || key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
-                type: expression.valueType === "EXPRESSION" ? "Default" : expression.valueType,
+                type: expression.valueType,
                 documentation: expression?.metadata.description || "",
                 valueType: expression.valueTypeConstraint,
                 editable: expression.editable,
+                enabled: expression?.enabled ?? true,
                 optional: expression.optional,
                 value: expression.value,
                 valueTypeConstraint: expression.valueTypeConstraint,
@@ -76,7 +85,8 @@ export function ChoiceForm(props: ChoiceFormProps) {
                 diagnostics: [],
                 items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items,
                 choices: expression.choices,
-                placeholder: expression.placeholder
+                placeholder: expression.placeholder,
+                defaultValue: expression.defaultValue as string
             }
             formFields.push(formField);
         }
@@ -90,19 +100,16 @@ export function ChoiceForm(props: ChoiceFormProps) {
                 <RadioButtonGroup
                     id="choice-options"
                     label={field.documentation}
-                    defaultValue={selectedOption}
+                    defaultValue={1}
                     defaultChecked={true}
                     value={selectedOption}
-                    {...register(field.key, {
-                        setValueAs: () => {
-                            console.log("Setting choice value as:", selectedOption);
-                            return selectedOption;
-                        }
-                    })}
-                    options={field.choices.map((choice, index) => ({ id: index.toString(), value: index, content: choice.metadata.label }))}
+                    options={field.choices.map((choice, index) => ({ id: index.toString(), value: index + 1, content: choice.metadata.label }))}
                     onChange={(e) => {
                         console.log("Choice Form Index:", Number(e.target.value))
-                        setSelectedOption(Number(e.target.value));
+                        const checkedValue = Number(e.target.value);
+                        const realValue = checkedValue - 1;
+                        setSelectedOption(checkedValue);
+                        setValue(field.key, realValue);
                     }}
                 />
             </ChoiceSection>
@@ -111,7 +118,9 @@ export function ChoiceForm(props: ChoiceFormProps) {
                 {dynamicFields.map((dfield) => {
                     return (
                         <EditorFactory
+                            key={dfield.key}
                             field={dfield}
+                            recordTypeFields={recordTypeFields}
                         />
                     );
                 })}

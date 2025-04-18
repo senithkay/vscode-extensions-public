@@ -29,7 +29,7 @@ export interface WorkspaceFolder {
 }
 
 export interface ComponentRequest {
-    type: DIRECTORY_MAP;
+    type: DIRECTORY_MAP | "testFunctions";
     serviceType?: ComponentServiceType;
     functionType?: ComponentFunctionType;
 }
@@ -41,7 +41,7 @@ export interface ComponentServiceType {
     specPath?: string;
 }
 export interface ComponentFunctionType {
-    name: string;
+    name?: string;
     parameters: FunctionParameters[],
     returnType?: string;
     cron?: string;
@@ -68,6 +68,10 @@ export interface CreateComponentResponse {
 
 export interface ProjectComponentsResponse {
     components: BallerinaProjectComponents
+}
+
+export interface RecordsInWorkspaceMentions {
+    mentions: string[]
 }
 
 export interface ReadmeContentRequest {
@@ -146,4 +150,22 @@ export interface FormDidOpenParams {
 
 export interface FormDidCloseParams {
     filePath: string;
+}
+
+export interface EndOfFileRequest {
+    filePath: string;
+}
+export enum BuildMode {
+    JAR = "jar",
+    DOCKER = "docker"
+}
+
+export interface DevantMetadata {
+    isLoggedIn?: boolean;
+    hasComponent?: boolean;
+    hasLocalChanges?: boolean;
+}
+
+export interface GeneratedClientSaveResponse {
+    errorMessage?: string;
 }

@@ -7,20 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Codicon, ErrorBanner, LinkButton, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ErrorBanner, LinkButton, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
-import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
-import { DEFAULT_ICON, ERROR_MESSAGES } from '../../../resources/constants';
+import { GetMediatorsResponse, Mediator, MediatorCategory } from '@wso2-enterprise/mi-core';
+import { ButtonGrid, ButtonGroup, GridButton } from '../commons/ButtonGroup';
+import { Colors, DEFAULT_ICON, ERROR_MESSAGES } from '../../../resources/constants';
 import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
 import { RemoveConnectorPage } from './RemoveConnectorPage';
+import { DiagramService } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 interface MediatorProps {
     nodePosition: any;
@@ -28,6 +29,7 @@ interface MediatorProps {
     documentUri: string;
     searchValue?: string;
     clearSearch?: () => void;
+    artifactModel: DiagramService;
 }
 
 const INBUILT_MODULES = ["favourites", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
@@ -69,12 +71,26 @@ export function Mediators(props: MediatorProps) {
                 const isConnector = !INBUILT_MODULES.includes(key);
 
                 if (isConnector) {
-                    const iconPath = values.items[0].iconPath;
-                    const iconPathUri = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" });
+                    if (values.isSupportCategories) {
+                        const items = values.items as unknown as MediatorCategory;
 
-                    values.items.forEach((value) => {
-                        value.iconPath = iconPathUri.uri;
-                    });
+                        Object.entries(items).forEach(([key, group]) => {
+                            const iconPath = (group[0] as Mediator).iconPath; // Get the iconPath from the first item
+                            rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" }).then(iconPathUri => {
+                                group.forEach((mediator: Mediator) => {
+                                    mediator.iconPath = iconPathUri.uri; // Set the iconPath for each mediator
+                                });
+                            });
+                        });
+
+                    } else {
+                        const iconPath = (values.items[0] as Mediator).iconPath;
+                        const iconPathUri = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" });
+
+                        values.items.forEach((value) => {
+                            value.iconPath = iconPathUri.uri;
+                        });
+                    }
                 }
 
                 if (key !== "other") {
@@ -134,6 +150,7 @@ export function Mediators(props: MediatorProps) {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
+                        artifactModel={props.artifactModel}
                     />
                 </div>;
         } else {
@@ -148,6 +165,7 @@ export function Mediators(props: MediatorProps) {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
+                        artifactModel={props.artifactModel}
                     />
                 </div>;
         }
@@ -161,44 +179,99 @@ export function Mediators(props: MediatorProps) {
         }
     };
 
-    const searchForm = (value: string, search?: boolean) => {
+    const searchForm = (value: string, search?: boolean): GetMediatorsResponse => {
         const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, '');
         const searchValue = normalizeString(value || '');
 
-        return Object.keys(allMediators).reduce((acc: any, key: string) => {
-            const filtered = (allMediators as any)[key].items.filter((mediator: { title: string; operationName: string }) => {
-                if (search) {
-                    return normalizeString(mediator.operationName).includes(searchValue)
-                        || normalizeString(mediator.title).includes(searchValue)
-                        || normalizeString(key).includes(searchValue);
-                } else {
-                    return normalizeString(mediator.operationName) === searchValue;
-                }
-            });
+        const searchedMediators: GetMediatorsResponse = { ...allMediators };
 
-            if (filtered.length > 0) {
-                acc[key] = { "items": filtered };
+        Object.entries(allMediators).forEach(([key, values]) => {
+            const containsCategories = allMediators[key].isSupportCategories;
+            if (containsCategories) {
+                const items = values.items as unknown as MediatorCategory[];
+
+                const searchedCategories: any = { ...items }
+
+                Object.entries(items).forEach(([categoryKey, category]) => {
+                    const filtered = (category as any).filter((mediator: { title: string; operationName: string }) => {
+                        if (search) {
+                            return normalizeString(mediator.operationName).includes(searchValue)
+                                || normalizeString(mediator.title).includes(searchValue)
+                                || normalizeString(key).includes(searchValue)
+                                || normalizeString(categoryKey).includes(searchValue);
+                        } else {
+                            return normalizeString(mediator.operationName) === searchValue;
+                        }
+                    });
+
+                    if (filtered.length > 0) {
+                        searchedCategories[categoryKey] = filtered ;
+                    } else {
+                        delete searchedCategories[categoryKey];
+                    }
+                });
+
+                if (Object.keys(searchedCategories).length > 0) {
+                    searchedMediators[key] = { ...searchedMediators[key], items: searchedCategories };
+                } else {
+                    delete searchedMediators[key];
+                }
+            } else {
+                const filtered = (allMediators as any)[key].items.filter((mediator: { title: string; operationName: string }) => {
+                    if (search) {
+                        return normalizeString(mediator.operationName).includes(searchValue)
+                            || normalizeString(mediator.title).includes(searchValue)
+                            || normalizeString(key).includes(searchValue);
+                    } else {
+                        return normalizeString(mediator.operationName) === searchValue;
+                    }
+                });
+
+                if (filtered.length > 0) {
+                    searchedMediators[key] = { "items": filtered };
+                } else {
+                    delete searchedMediators[key];
+                }
             }
-            return acc;
-        }, {});
+        });
+
+        return searchedMediators;
     };
 
     const reloadPalette = async (connectorName?: string) => {
         props.clearSearch();
         await fetchMediators();
         await fetchLocalConnectorData();
-        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);;
+        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);
     };
 
     const deleteConnector = async (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => {
         const removePage = <RemoveConnectorPage
-            connectorName={connectorName}
-            artifactId={artifactId}
-            version={version}
-            connectorPath={connectorPath}
-            onRemoveSuccess={reloadPalette} />;
+                        connectorName={connectorName}
+                        artifactId={artifactId}
+                        version={version}
+                        connectorPath={connectorPath}
+                        onRemoveSuccess={reloadPalette} />;
 
         sidepanelAddPage(sidePanelContext, removePage, FirstCharToUpperCase(connectorName), iconUrl);
+    }
+
+    const refreshConnector = async (connectorName: string, ballerinaModulePath: string) => {
+        setIsLoading(true);
+        await rpcClient.getMiDiagramRpcClient().buildBallerinaModule(ballerinaModulePath);
+        const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+        if (response === "Success") {
+            await reloadPalette(connectorName);
+        }
+        setIsLoading(false);
+    }
+
+    const firstCharToUpperCaseForDefault = (name: string) => {
+        if (INBUILT_MODULES.includes(name)) {
+            return FirstCharToUpperCase(name);
+        } else {
+            return name;
+        }
     }
 
     const addModule = () => {
@@ -211,6 +284,38 @@ export function Mediators(props: MediatorProps) {
         const icon = <Codicon name="library" iconSx={{ fontSize: 20, color: 'var(--vscode-textLink-foreground)' }} />
 
         sidepanelAddPage(sidePanelContext, modulesList, 'Add Modules', icon);
+    }
+
+    const MediatorGrid = ({ mediator, key }: { mediator: Mediator; key: string }) => {
+        return <Tooltip content={mediator?.tooltip} position='bottom' key={mediator.title}>
+            <GridButton
+                key={mediator.title}
+                title={mediator.title}
+                description={mediator.description}
+                icon={
+                    mediator.iconPath ?
+                        <img
+                            src={mediator.iconPath}
+                            alt="Icon"
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = DEFAULT_ICON;
+                            }}
+                        /> :
+                        getMediatorIconsFromFont(mediator.tag, key === "most popular")
+                }
+                onClick={() => getMediator(mediator, key === "most popular",
+                    <img
+                        src={mediator.iconPath}
+                        alt="Icon"
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = DEFAULT_ICON;
+                        }}
+                    />
+                )}
+            />
+        </Tooltip>
     }
 
     const MediatorList = () => {
@@ -231,37 +336,43 @@ export function Mediators(props: MediatorProps) {
                     <div key={key} style={{ marginTop: '15px' }} data-key={key}>
                         <ButtonGroup
                             key={key}
-                            title={FirstCharToUpperCase(key)}
-                            isCollapsed={!expandedModules.includes(key)}
+                            title={firstCharToUpperCaseForDefault(key)}
+                            isCollapsed={props.searchValue ? false : !expandedModules.includes(key)}
                             connectorDetails={values["isConnector"] ?
-                                { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"] }
-                                : undefined}
-                            onDelete={deleteConnector}>
-                            {values["items"].map((mediator: Mediator) => (
-                                <GridButton
-                                    key={mediator.title}
-                                    title={mediator.title}
-                                    description={mediator.description}
-                                    icon={
-                                        mediator.iconPath ?
-                                            <img src={mediator.iconPath}
-                                                alt="Icon"
-                                                onError={(e) => {
-                                                    const target = e.target as HTMLImageElement;
-                                                    target.src = DEFAULT_ICON
-                                                }} /> :
-                                            getMediatorIconsFromFont(mediator.tag, key === "most popular")
-                                    }
-                                    onClick={() => getMediator(mediator, key === "most popular",
-                                        <img src={mediator.iconPath}
-                                            alt="Icon"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.src = DEFAULT_ICON
-                                            }} />
-                                    )}
-                                />
-                            ))}
+                                { artifactId: values["artifactId"], version: values["version"], connectorPath: values["connectorPath"],
+                                    isBallerinaModule: values["isBallerinaModule"], ballerinaModulePath: values["ballerinaModulePath"] } : undefined}
+                            onDelete={deleteConnector}
+                            onRefresh={refreshConnector}
+                            versionTag={values.version}
+                            disableGrid={values.isSupportCategories}>
+                            {!values.isSupportCategories ? (
+                                <>
+                                    {(values.items as Mediator[]).map((mediator: Mediator) => (
+                                        <MediatorGrid mediator={mediator} key={key} />
+                                    ))}
+                                </>
+                            ) : (
+                                <>
+                                    {Object.entries(values.items as unknown as MediatorCategory).map(([key, group]) => {
+                                        return (
+                                            <>
+                                                <div style={{
+                                                    padding: "10px 0px 0px 10px",
+                                                    color: Colors.SECONDARY_TEXT,
+                                                    fontSize: "11px"
+                                                }}>
+                                                    {key}
+                                                </div>
+                                                <ButtonGrid>
+                                                    {(group as Mediator[]).map((mediator: Mediator) => (
+                                                        <MediatorGrid mediator={mediator} key={key} />
+                                                    ))}
+                                                </ButtonGrid>
+                                            </>
+                                        )
+                                    })}
+                                </>
+                            )}
                         </ButtonGroup >
                     </div>
                 ))}

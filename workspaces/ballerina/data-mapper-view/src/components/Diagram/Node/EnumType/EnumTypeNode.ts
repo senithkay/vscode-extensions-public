@@ -67,7 +67,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
         );
         this.numberOfFields = 1;
         this.enumTypeDecls = [];
-        this.enums = context.moduleVariables ? context.moduleVariables.enumDecls : [];
+        this.enums = context.moduleComponents ? context.moduleComponents.enumDecls : [];
     }
 
     async initPorts() {
@@ -190,6 +190,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
                 this.numberOfFields += this.addPortsForInputRecordField(
                     field.type,
                     "OUT",
+                    varName,
                     varName,
                     ENUM_TYPE_SOURCE_PORT_PREFIX,
                     parentPort,

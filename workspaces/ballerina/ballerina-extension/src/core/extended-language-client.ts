@@ -32,7 +32,6 @@ import {
     PersistERModelParams,
     PersistERModel,
     Diagnostics,
-    TypeParams,
     ExpressionType,
     ConnectorsParams,
     TriggersParams,
@@ -60,6 +59,8 @@ import {
     SyntaxTreeNodeParams,
     SyntaxTreeNode,
     ExecutorPositions,
+    TestsDiscoveryRequest,
+    TestsDiscoveryResponse,
     JsonToRecordParams,
     XMLToRecordParams,
     XMLToRecord,
@@ -84,8 +85,6 @@ import {
     BIFlowModelResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
-    BIConnectorsRequest,
-    BIConnectorsResponse,
     ConnectorRequest,
     ConnectorResponse,
     BISuggestedFlowModelRequest,
@@ -95,8 +94,6 @@ import {
     SequenceModelResponse,
     ServiceFromOASRequest,
     ServiceFromOASResponse,
-    BIGetFunctionsRequest,
-    BIGetFunctionsResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
@@ -141,10 +138,18 @@ import {
     ServiceSourceCodeRequest,
     BIDesignModelRequest,
     BIDesignModelResponse,
+    GetTypesResponse,
+    GetTypesRequest,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
+    GetGraphqlTypeRequest,
+    GetGraphqlTypeResponse,
+    GetTypeRequest,
+    GetTypeResponse,
     ListenerModelFromCodeRequest,
     ListenerModelFromCodeResponse,
     AddFunctionRequest,
-    AddFunctionResponse,
+    AddImportItemResponse,
     UpdateImportsRequest,
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
@@ -152,12 +157,63 @@ import {
     InlineDataMapperModelResponse,
     VisualizableFieldsRequest,
     VisualizableFieldsResponse,
-    AddArrayElementRequest
+    AddArrayElementRequest,
+    GetTestFunctionRequest,
+    GetTestFunctionResponse,
+    AddOrUpdateTestFunctionRequest,
+    TestSourceEditResponse,
+    FunctionNodeResponse,
+    FunctionNodeRequest,
+    ModelFromCodeRequest,
+    ServiceClassModelResponse,
+    ClassFieldModifierRequest,
+    SourceEditResponse,
+    ServiceClassSourceRequest,
+    AddFieldRequest,
+    FunctionModelRequest,
+    FunctionModelResponse,
+    TypeDataWithReferences,
+    AINodesResponse,
+    AIModelsRequest,
+    AIToolsRequest,
+    AIToolsResponse,
+    AIGentToolsRequest,
+    AIGentToolsResponse,
+    ICPEnabledRequest,
+    ICPEnabledResponse,
+    AINodesRequest,
+    BISearchRequest,
+    BISearchResponse,
+    AIModelsResponse,
+    GetRecordConfigRequest,
+    GetRecordConfigResponse,
+    UpdateRecordConfigRequest,
+    RecordSourceGenResponse,
+    RecordSourceGenRequest,
+    GetRecordModelFromSourceRequest,
+    GetRecordModelFromSourceResponse,
+    UpdateTypesRequest,
+    UpdateTypesResponse,
+    DidChangeWatchedFileParams,
+    OpenAPIClientGenerationRequest,
+    OpenAPIClientGenerationResponse,
+    OpenAPIGeneratedModulesRequest,
+    OpenAPIGeneratedModulesResponse,
+    OpenAPIClientDeleteResponse,
+    OpenAPIClientDeleteRequest,
+    ImportsInfoResponse,
+    ProjectArtifactsRequest,
+    ProjectArtifacts,
+    Artifacts,
+    MemoryManagersRequest,
+    MemoryManagersResponse,
+    ArtifactsNotification
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../features/telemetry";
 import { DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
+import { updateProjectArtifacts } from "../utils/project-artifacts";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -181,6 +237,8 @@ enum EXTENDED_APIS {
     PACKAGE_CONFIG_SCHEMA = 'ballerinaPackage/configSchema',
     JSON_TO_RECORD_CONVERT = 'jsonToRecord/convert',
     XML_TO_RECORD_CONVERT = 'xmlToRecord/convert',
+    JSON_TO_RECORD_TYPE_CONVERT = 'jsonToRecordTypes/convert',
+    XML_TO_RECORD_TYPE_CONVERT = 'xmlToRecordTypes/convert',
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
@@ -213,9 +271,7 @@ enum EXTENDED_APIS {
     BI_DELETE_NODE = 'flowDesignService/deleteFlowNode',
     BI_DELETE_BY_COMPONENT_INFO = 'flowDesignService/deleteComponent',
     BI_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
-    BI_GET_FUNCTIONS = 'flowDesignService/getFunctions',
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
-    BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_GEN_ERROR_HANDLER = 'flowDesignService/addErrorHandler',
@@ -235,24 +291,66 @@ enum EXTENDED_APIS {
     BI_VISIBLE_TYPES = 'expressionEditor/types',
     REFERENCES = 'textDocument/references',
     BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics',
-    BI_SERVICE_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
+    BI_TRIGGER_MODELS = 'triggerDesignService/getTriggerModels',
+    BI_TRIGGER_MODEL = 'triggerDesignService/getTriggerModel',
+    BI_TRIGGER_SOURCE_CODE = 'triggerDesignService/getSourceCode',
+    BI_TRIGGER_MODEL_FROM_CODE = 'triggerDesignService/getTriggerModelFromCode',
+    BI_TRIGGER_UPDATE_FROM_CODE = 'triggerDesignService/updateTrigger',
+    BI_TRIGGER_ADD_FUNCTION = 'triggerDesignService/addTriggerFunction',
+    BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction',
+    BI_GET_TYPES = 'typesManager/getTypes',
+    BI_GET_TYPE = 'typesManager/getType',
+    BI_UPDATE_TYPE = 'typesManager/updateType',
+    BI_UPDATE_TYPES = 'typesManager/updateTypes',
+    BI_GET_GRAPHQL_TYPE = 'typesManager/getGraphqlType',
+    BI_CREATE_GRAPHQL_CLASS_TYPE = 'typesManager/createGraphqlClassType',
+    BI_GET_RECORD_CONFIG = 'typesManager/recordConfig',
+    BI_UPDATE_RECORD_CONFIG = 'typesManager/updateRecordConfig',
+    BI_GET_RECORD_MODEL_FROM_SOURCE = 'typesManager/findMatchingType',
+    BI_GET_RECORD_SOURCE = 'typesManager/generateValue',
+    BI_SERVICE_GET_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
     BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
     BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
     BI_SERVICE_ADD_LISTENER = 'serviceDesign/addListener',
     BI_SERVICE_UPDATE_LISTENER = 'serviceDesign/updateListener',
     BI_SERVICE_GET_LISTENER_SOURCE = 'serviceDesign/getListenerFromSource',
     BI_SERVICE_GET_SERVICE = 'serviceDesign/getServiceModel',
+    BI_SERVICE_GET_FUNCTION = 'serviceDesign/getFunctionModel',
     BI_SERVICE_ADD_SERVICE = 'serviceDesign/addService',
     BI_SERVICE_UPDATE_SERVICE = 'serviceDesign/updateService',
     BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
-    BI_SERVICE_GET_RESOURCE = 'serviceDesign/getHttpResourceModel',
+    BI_SERVICE_UPDATE_SERVICE_CLASS = 'serviceDesign/updateServiceClass',
+    BI_SERVICE_GET_RESOURCE = 'serviceDesign/getFunctionModel',
     BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
     BI_SERVICE_ADD_FUNCTION = 'serviceDesign/addFunction',
     BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateFunction',
-    BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
+    BI_SERVICE_SERVICE_CLASS_MODEL = 'serviceDesign/getServiceClassModelFromSource',
+    BI_UPDATE_CLASS_FIELD = 'serviceDesign/updateClassField',
+    BI_ADD_CLASS_FIELD = 'serviceDesign/addField',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
     BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
-    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
+    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate',
+    BI_DISCOVER_TESTS_IN_PROJECT = 'testManagerService/discoverInProject',
+    BI_DISCOVER_TESTS_IN_FILE = 'testManagerService/discoverInFile',
+    BI_GET_TEST_FUNCTION = 'testManagerService/getTestFunction',
+    BI_ADD_TEST_FUNCTION = 'testManagerService/addTestFunction',
+    BI_UPDATE_TEST_FUNCTION = 'testManagerService/updateTestFunction',
+    BI_EDIT_FUNCTION_NODE = 'flowDesignService/functionDefinition',
+    BI_AI_ALL_AGENTS = 'agentManager/getAllAgents',
+    BI_AI_ALL_MODELS = 'agentManager/getAllModels',
+    BI_AI_ALL_MEMORY_MANAGERS = 'agentManager/getAllMemoryManagers',
+    BI_AI_GET_MODELS = 'agentManager/getModels',
+    BI_AI_GET_TOOLS = 'agentManager/getTools',
+    BI_AI_GEN_TOOLS = 'agentManager/genTool',
+    BI_IS_ICP_ENABLED = 'icpService/isIcpEnabled',
+    BI_ADD_ICP = 'icpService/addICP',
+    BI_DISABLE_ICP = 'icpService/disableICP',
+    BI_SEARCH = 'flowDesignService/search',
+    OPEN_API_GENERATE_CLIENT = 'openAPIService/genClient',
+    OPEN_API_GENERATED_MODULES = 'openAPIService/getModules',
+    OPEN_API_CLIENT_DELETE = 'openAPIService/deleteModule',
+    GET_ARTIFACTS = 'designModelService/artifacts',
+    PUBLISH_ARTIFACTS = 'designModelService/publishArtifacts'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -291,7 +389,8 @@ enum VSCODE_APIS {
     DOC_SYMBOL = 'textDocument/documentSymbol',
     CODE_ACTION = 'textDocument/codeAction',
     EXECUTE_CMD = 'workspace/executeCommand',
-    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics'
+    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics',
+    DID_CHANGE_WATCHED_FILES = 'workspace/didChangeWatchedFiles'
 }
 
 export class ExtendedLangClient extends LanguageClient implements ExtendedLangClientInterface {
@@ -327,9 +426,31 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         this.sendNotification(VSCODE_APIS.DID_CHANGE, params);
     }
 
+    didChangedWatchedFiles(params: DidChangeWatchedFileParams): void {
+        debug(`didChangedWatchedFiles at ${new Date()} - ${new Date().getTime()}`);
+        this.sendNotification(VSCODE_APIS.DID_CHANGE_WATCHED_FILES, params);
+    }
+
     registerPublishDiagnostics(): void {
         this.onNotification(VSCODE_APIS.PUBLISH_DIAGNOSTICS, () => {
         });
+    }
+
+    registerPublishArtifacts(): void {
+        this.onNotification(EXTENDED_APIS.PUBLISH_ARTIFACTS, (res: ArtifactsNotification) => {
+            try {
+                console.log("Publish Artifacts", { res });
+                if (res && Object.keys(res).length > 0) {
+                    updateProjectArtifacts(res);
+                }
+            } catch (error) {
+                console.error("Error in PUBLISH_ARTIFACTS handler:", error);
+            }
+        });
+    }
+
+    async getProjectArtifacts(params: ProjectArtifactsRequest): Promise<ProjectArtifacts> {
+        return this.sendRequest<ProjectArtifacts>(EXTENDED_APIS.GET_ARTIFACTS, params);
     }
 
     async definition(params: DefinitionParams): Promise<Location | Location[] | LocationLink[]> {
@@ -385,9 +506,9 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return response;
     }
 
-    async getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
-    }
+    // async getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE> {
+    //     return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
+    // }
 
     async getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTORS);
@@ -557,7 +678,6 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
-        const test = await this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
         return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 
@@ -585,6 +705,40 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
     }
 
+    async getProjectTestFunctions(params: TestsDiscoveryRequest): Promise<TestsDiscoveryResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISCOVER_TESTS_IN_PROJECT, params);
+    }
+
+    async getFileTestFunctions(params: TestsDiscoveryRequest): Promise<TestsDiscoveryResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISCOVER_TESTS_IN_FILE, params);
+    }
+
+    async getTestFunction(params: GetTestFunctionRequest): Promise<GetTestFunctionResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_GET_TEST_FUNCTION, params);
+    }
+
+    async addTestFunction(params: AddOrUpdateTestFunctionRequest):
+        Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_ADD_TEST_FUNCTION, params);
+    }
+
+    async updateTestFunction(params: AddOrUpdateTestFunctionRequest):
+        Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_UPDATE_TEST_FUNCTION, params);
+    }
+
+    async isIcpEnabled(params: ICPEnabledRequest): Promise<ICPEnabledResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_IS_ICP_ENABLED, params);
+    }
+
+    async addICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_ADD_ICP, params);
+    }
+
+    async disableICP(params: ICPEnabledRequest): Promise<TestSourceEditResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.BI_DISABLE_ICP, params);
+    }
+
     async getProjectDiagnostics(params: ProjectDiagnosticsRequest): Promise<ProjectDiagnosticsResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.RUNNER_DIAGNOSTICS);
         if (!isSupported) {
@@ -607,6 +761,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async convertXMLToRecord(params: XMLToRecordParams): Promise<XMLToRecord | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.XML_TO_RECORD_CONVERT, params);
+    }
+
+    async convertJsonToRecordType(params: JsonToRecordParams): Promise<TypeDataWithReferences> {
+        return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_TYPE_CONVERT, params);
+    }
+
+    async convertXmlToRecordType(params: XMLToRecordParams): Promise<TypeDataWithReferences> {
+        return this.sendRequest(EXTENDED_APIS.XML_TO_RECORD_TYPE_CONVERT, params);
     }
 
     async getBalShellResult(params: NoteBookCellOutputParams): Promise<NoteBookCellOutput | NOT_SUPPORTED_TYPE> {
@@ -673,20 +835,12 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<BIAvailableNodesResponse>(EXTENDED_APIS.BI_AVAILABLE_NODES, params);
     }
 
-    async getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
-        return this.sendRequest<BIGetFunctionsResponse>(EXTENDED_APIS.BI_GET_FUNCTIONS, params);
-    }
-
     async getEnclosedFunctionDef(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
         return this.sendRequest<BIGetEnclosedFunctionResponse>(EXTENDED_APIS.BI_GET_ENCLOSED_FUNCTION, params);
     }
 
     async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
         return this.sendRequest<BINodeTemplateResponse>(EXTENDED_APIS.BI_NODE_TEMPLATE, params);
-    }
-
-    async getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
-        return this.sendRequest<BIConnectorsResponse>(EXTENDED_APIS.BI_CONNECTOR, params);
     }
 
     async generateServiceFromOAS(params: ServiceFromOASRequest): Promise<ServiceFromOASResponse> {
@@ -755,11 +909,15 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
-        return this.sendRequest<TriggerModelsResponse>(EXTENDED_APIS.BI_SERVICE_TRIGGER_MODELS, params);
+        return this.sendRequest<TriggerModelsResponse>(EXTENDED_APIS.BI_SERVICE_GET_TRIGGER_MODELS, params);
     }
 
     async getListeners(params: ListenersRequest): Promise<ListenersResponse> {
         return this.sendRequest<ListenersResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENERS, params);
+    }
+
+    async getFunctionNode(params: FunctionNodeRequest): Promise<FunctionNodeResponse> {
+        return this.sendRequest<FunctionNodeResponse>(EXTENDED_APIS.BI_EDIT_FUNCTION_NODE, params);
     }
 
     async getListenerModel(params: ListenerModelRequest): Promise<ListenerModelResponse> {
@@ -782,6 +940,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ServiceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE, params);
     }
 
+    async getFunctionModel(params: FunctionModelRequest): Promise<FunctionModelResponse> {
+        return this.sendRequest<FunctionModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_FUNCTION, params);
+    }
+
     async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
         return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_SERVICE, params);
     }
@@ -792,6 +954,22 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getServiceModelFromCode(params: ServiceModelFromCodeRequest): Promise<ServiceModelFromCodeResponse> {
         return this.sendRequest<ServiceModelFromCodeResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE_SOURCE, params);
+    }
+
+    async updateServiceClass(params: ServiceClassSourceRequest): Promise<SourceEditResponse> {
+        return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_SERVICE_CLASS, params);
+    }
+
+    async getServiceClassModel(params: ModelFromCodeRequest): Promise<ServiceClassModelResponse> {
+        return this.sendRequest<ServiceClassModelResponse>(EXTENDED_APIS.BI_SERVICE_SERVICE_CLASS_MODEL, params);
+    }
+
+    async updateClassField(params: ClassFieldModifierRequest): Promise<SourceEditResponse> {
+        return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_UPDATE_CLASS_FIELD, params);
+    }
+
+    async addClassField(params: AddFieldRequest): Promise<SourceEditResponse> {
+        return this.sendRequest<SourceEditResponse>(EXTENDED_APIS.BI_ADD_CLASS_FIELD, params);
     }
 
     async getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {
@@ -814,12 +992,92 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<BIDesignModelResponse>(EXTENDED_APIS.BI_DESIGN_MODEL, params);
     }
 
-    async updateImports(params: UpdateImportsRequest): Promise<void> {
-        return this.sendRequest<void>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
+    async getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
+        return this.sendRequest<GetTypesResponse>(EXTENDED_APIS.BI_GET_TYPES, params);
     }
 
-    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
-        return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
+    async getType(params: GetTypeRequest): Promise<GetTypeResponse> {
+        return this.sendRequest<GetTypeResponse>(EXTENDED_APIS.BI_GET_TYPE, params);
+    }
+
+    async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_UPDATE_TYPE, params);
+    }
+
+    async updateTypes(params: UpdateTypesRequest): Promise<UpdateTypesResponse> {
+        return this.sendRequest<UpdateTypesResponse>(EXTENDED_APIS.BI_UPDATE_TYPES, params);
+    }
+
+    async createGraphqlClassType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_CREATE_GRAPHQL_CLASS_TYPE, params);
+    }
+
+    async getRecordConfig(params: GetRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this.sendRequest<GetRecordConfigResponse>(EXTENDED_APIS.BI_GET_RECORD_CONFIG, params);
+    }
+
+    async updateRecordConfig(params: UpdateRecordConfigRequest): Promise<GetRecordConfigResponse> {
+        return this.sendRequest<GetRecordConfigResponse>(EXTENDED_APIS.BI_UPDATE_RECORD_CONFIG, params);
+    }
+
+    async getRecordSource(params: RecordSourceGenRequest): Promise<RecordSourceGenResponse> {
+        return this.sendRequest<RecordSourceGenResponse>(EXTENDED_APIS.BI_GET_RECORD_SOURCE, params);
+    }
+
+    async getRecordModelFromSource(params: GetRecordModelFromSourceRequest): Promise<GetRecordModelFromSourceResponse> {
+        return this.sendRequest<GetRecordModelFromSourceResponse>(EXTENDED_APIS.BI_GET_RECORD_MODEL_FROM_SOURCE, params);
+    }
+
+    async getGraphqlTypeModel(params: GetGraphqlTypeRequest): Promise<GetGraphqlTypeResponse> {
+        return this.sendRequest<GetGraphqlTypeResponse>(EXTENDED_APIS.BI_GET_GRAPHQL_TYPE, params);
+    }
+
+    async updateImports(params: UpdateImportsRequest): Promise<ImportsInfoResponse> {
+        return this.sendRequest<ImportsInfoResponse>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
+    }
+
+    async addFunction(params: AddFunctionRequest): Promise<AddImportItemResponse> {
+        return this.sendRequest<AddImportItemResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
+    }
+
+    async getAllAgents(params: AINodesRequest): Promise<AINodesResponse> {
+        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_AGENTS, params);
+    }
+
+    async getAllModels(params: AIModelsRequest): Promise<AINodesResponse> {
+        return this.sendRequest<AINodesResponse>(EXTENDED_APIS.BI_AI_ALL_MODELS, params);
+    }
+
+    async getAllMemoryManagers(params: MemoryManagersRequest): Promise<MemoryManagersResponse> {
+        return this.sendRequest<MemoryManagersResponse>(EXTENDED_APIS.BI_AI_ALL_MEMORY_MANAGERS, params);
+    }
+
+    async getModels(params: AIModelsRequest): Promise<AIModelsResponse> {
+        return this.sendRequest<AIModelsResponse>(EXTENDED_APIS.BI_AI_GET_MODELS, params);
+    }
+
+    async getTools(params: AIToolsRequest): Promise<AIToolsResponse> {
+        return this.sendRequest<AIToolsResponse>(EXTENDED_APIS.BI_AI_GET_TOOLS, params);
+    }
+
+    async genTool(params: AIGentToolsRequest): Promise<AIGentToolsResponse> {
+        return this.sendRequest<AIGentToolsResponse>(EXTENDED_APIS.BI_AI_GEN_TOOLS, params);
+    }
+
+    async search(params: BISearchRequest): Promise<BISearchResponse> {
+        return this.sendRequest<BISearchResponse>(EXTENDED_APIS.BI_SEARCH, params);
+    }
+
+    async openApiGenerateClient(params: OpenAPIClientGenerationRequest): Promise<OpenAPIClientGenerationResponse> {
+        return this.sendRequest<OpenAPIClientGenerationResponse>(EXTENDED_APIS.OPEN_API_GENERATE_CLIENT, params);
+    }
+
+    async getOpenApiGeneratedModules(params: OpenAPIGeneratedModulesRequest): Promise<OpenAPIGeneratedModulesResponse> {
+        return this.sendRequest<OpenAPIGeneratedModulesResponse>(EXTENDED_APIS.OPEN_API_GENERATED_MODULES, params);
+    }
+
+    async deleteOpenApiGeneratedModule(params: OpenAPIClientDeleteRequest): Promise<OpenAPIClientDeleteResponse> {
+        return this.sendRequest<OpenAPIClientDeleteResponse>(EXTENDED_APIS.OPEN_API_CLIENT_DELETE, params);
     }
 
     // <------------ BI APIS END --------------->

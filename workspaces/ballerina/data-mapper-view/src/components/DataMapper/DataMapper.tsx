@@ -11,8 +11,10 @@ import React, { useEffect, useMemo, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
 import {
+    EVENT_TYPE,
     FileListEntry,
-    GenerateMappingsResponse
+    MACHINE_VIEW,
+    VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
@@ -42,7 +44,6 @@ import { useFileContent, useDMMetaData, useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
-import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { QueryExprMappingType } from "../Diagram/Node/QueryExpression";
 import { AutoMapError } from "./Error/AutoMapError";
@@ -199,15 +200,15 @@ export function DataMapperC(props: DataMapperViewProps) {
         applyModifications,
         onClose,
         goToFunction: updateSelectedComponent,
-        renderRecordPanel,
-        isBI,
-        experimentalEnabled
+        renderRecordPanel
     } = props;
     const openedViaPlus = false;
-    const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
 
-    const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
+    const {
+        projectComponents,
+        isFetching: isFetchingComponents,
+    } = useProjectComponents(langServerRpcClient, filePath, fnST.source);
     const { 
         ballerinaVersion,
         dMSupported,
@@ -215,20 +216,11 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingDMMetaData,
         isError: isErrorDMMetaData
     } = useDMMetaData(langServerRpcClient);
-    const { content, isFetching: isFetchingContent } = useFileContent(langServerRpcClient, filePath, fnST);
+    const {
+        content,
+        isFetching: isFetchingContent
+    } = useFileContent(langServerRpcClient, filePath, fnST);
 
-    const targetPosition = fnST ? {
-        ...fnST.position,
-        startColumn: 0,
-        endColumn: 0
-    } : {
-        startLine: 0,
-        startColumn: 0,
-        endLine: 0,
-        endColumn: 0
-    };
-
-    const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [isStmtEditorCanceled, setIsStmtEditorCanceled] = useState(false);
     const [showDMOverlay, setShowDMOverlay] = useState(false);
@@ -243,7 +235,7 @@ export function DataMapperC(props: DataMapperViewProps) {
     const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [fnSignature, setFnSignature] = useState(getFnSignatureFromST(fnST));
     const [showLocalVarConfigPanel, setShowLocalVarConfigPanel] = useState(false);
-    const { setFunctionST, setImports } = useDMStore();
+    const { setFunctionST } = useDMStore();
     const { resetSearchStore } = useDMSearchStore();
     const [dmContext, setDmContext] = useState<DataMapperContext>();
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
@@ -259,6 +251,10 @@ export function DataMapperC(props: DataMapperViewProps) {
     const typeStoreStatus = typeStore.getStatus();
     const { rpcClient } = useRpcContext();
 
+    const goToSource = (position: NodePosition) => {
+        rpcClient.getCommonRpcClient().goToSource({ position, filePath });
+    };
+
     const isOverlay = (!isFetchingDMMetaData && !isErrorDMMetaData) && (showDMOverlay || showLocalVarConfigPanel || autoMapInProgress);
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
@@ -270,23 +266,14 @@ export function DataMapperC(props: DataMapperViewProps) {
         setCurrentReferences(referencedFields);
     }
 
-    const onConfigOpen = () => {
-        setConfigPanelOpen(true);
-    }
-
-    const onConfigClose = () => {
-        setConfigPanelOpen(false);
-        if (showConfigPanel) {
-            // Close data mapper when having incomplete fnST
-            rpcClient.getVisualizerRpcClient().goHome();
-        }
-    }
-
-    const onConfigSave = (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => {
-        setConfigPanelOpen(false);
-        setInputs(inputParams);
-        setOutput(outputType);
-    }
+    const onEdit = () => {
+        const context: VisualizerLocation = {
+            view: MACHINE_VIEW.BIDataMapperForm,
+            identifier: fnST.functionName.value,
+            documentUri: filePath,
+        };
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
+    };
 
     const enableStatementEditor = (expressionInfo: ExpressionInfo) => {
         setCurrentEditableField(expressionInfo);
@@ -349,10 +336,11 @@ export function DataMapperC(props: DataMapperViewProps) {
 
     const importStatements = useMemo(() => content ? content[1] : [], [content, isFetchingContent]);
 
-    const moduleVariables = useMemo(() => {
+    const moduleComponents = useMemo(() => {
         const moduleVars = [];
         const consts = [];
         const enums = [];
+        const functions = [];
         if (projectComponents && projectComponents.packages) {
             for (const pkg of projectComponents.packages) {
                 for (const mdl of pkg.modules) {
@@ -368,6 +356,9 @@ export function DataMapperC(props: DataMapperViewProps) {
                             enum: enumType,
                         });
                     }
+                    for (const fn of mdl.functions) {
+                        functions.push(fn);
+                    }
                 }
             }
         }
@@ -375,46 +366,12 @@ export function DataMapperC(props: DataMapperViewProps) {
             moduleVarDecls: moduleVars,
             constDecls: consts,
             enumDecls: enums,
+            functions: functions
         };
     }, [projectComponents, isFetchingComponents]);
 
     const autoMapWithAI = async () => {
-        const ai = rpcClient.getAiPanelRpcClient();
-        setAutoMapInProgress(true);
-        try {
-            const newFnPositionPromise = ai.generateMappings({position: fnST.position, filePath});
-            const timeoutPromise = new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    reject(new Error('Reached timeout.'));
-                }, AUTO_MAP_TIMEOUT_MS);
-            });
-            const resolvedPromise = await Promise.race([newFnPositionPromise, timeoutPromise]);
-            setAutoMapInProgress(false);
-
-            if (!(resolvedPromise instanceof Error)) {
-                const autogen = (resolvedPromise as GenerateMappingsResponse);
-                if (autogen.error) {
-                    if (autogen.error.code === 1) {
-                        // As unauthorized is handled by the extension
-                        await ai.promptLogin();
-                        return;
-                    }
-                    setAutoMapError({ code: autogen.error.code, onClose: closeAutoMapError, message: autogen.error.message});
-                    return;
-                }
-                const newFnPosition = autogen.newFnPosition;
-                const _ = await newFnPosition && ai.notifyAIMappings({newFnPosition, prevFnSource: fnST.source, filePath});
-            }
-        } catch (error) {
-            setAutoMapInProgress(false);
-
-            if (error.message === 'Reached timeout.') {
-                setAutoMapError({ code: 500, onClose: closeAutoMapError });
-            } else {
-                // tslint:disable-next-line:no-console
-                console.error("Error in automapping. ", error);
-            }
-        }
+        rpcClient.getAiPanelRpcClient().generateMappings({position: fnST.position, filePath});
     };
 
     const stopAutoMap = async (): Promise<boolean> => {
@@ -423,10 +380,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         await ai.stopAIMappings();
         return true;
     }
-
-    const closeAutoMapError = () => {
-        setAutoMapError(undefined);
-    };
 
     useEffect(() => {
         if (fnST) {
@@ -451,7 +404,6 @@ export function DataMapperC(props: DataMapperViewProps) {
             dispatchSelection({ type: ViewOption.RESET });
         }
         setFunctionST(fnST);
-        setImports(importStatements);
         setShouldRestoreTypes(true);
         const fnSignatureFromFnST = getFnSignatureFromST(fnST);
         const fnNameFromFnST = getFnNameFromST(fnST);
@@ -483,7 +435,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                     selection,
                     langServerRpcClient,
                     currentFile,
-                    moduleVariables,
+                    moduleComponents,
                     handleSelectedST,
                     goToSource,
                     diagnostics,
@@ -544,7 +496,7 @@ export function DataMapperC(props: DataMapperViewProps) {
             && (output.typeNature === TypeNature.INVALID || output.typeNature === TypeNature.TYPE_UNAVAILABLE);
         if (selection.prevST.length === 0
             && typeStoreStatus === TypeStoreStatus.Loaded
-            && ((!isConfigPanelOpen && !showConfigPanel) || hasIncompleteInputs || hasIncompleteOutput)) {
+            && ((!hasInvalidIO) || hasIncompleteInputs || hasIncompleteOutput)) {
             if (fnST && selection.state === DMState.INITIALIZED) {
                 // When open the DM of an existing function using code lens
                 const hasNoParameter = fnST.functionSignature.parameters.length === 0;
@@ -575,7 +527,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         }
     }, [selection.state])
 
-    const showConfigPanel = useMemo(() => {
+    const hasInvalidIO = useMemo(() => {
         if (inputs && output) {
             const hasInvalidInputs = !inputs.length || inputs.some(input => input.isUnsupported);
             const isInvalidOutput = output.isUnsupported;
@@ -584,8 +536,8 @@ export function DataMapperC(props: DataMapperViewProps) {
     }, [inputs, output])
 
     useEffect(() => {
-        handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen || showConfigPanel);
-    }, [currentEditableField, selection.selectedST, isConfigPanelOpen, showConfigPanel])
+        handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || hasInvalidIO);
+    }, [currentEditableField, selection.selectedST, hasInvalidIO])
 
     useEffect(() => {
         resetSearchStore();
@@ -595,22 +547,9 @@ export function DataMapperC(props: DataMapperViewProps) {
         setErrorKind(kind);
     };
 
-    const cPanelProps = {
-        fnST,
-        targetPosition,
-        importStatements,
-        projectComponents,
-        filePath,
-        inputs,
-        output,
-        currentFile,
-        ballerinaVersion,
-        onSave: onConfigSave,
-        onClose: onConfigClose,
-        applyModifications,
-        langServerRpcClient,
-        recordPanel
-    }
+    const handleBack = () => {
+        rpcClient.getVisualizerRpcClient()?.goBack();
+    };
 
     return (
         <DataMapperErrorBoundary hasError={hasInternalError}>
@@ -642,12 +581,11 @@ export function DataMapperC(props: DataMapperViewProps) {
                             <DataMapperHeader
                                 selection={selection}
                                 hasEditDisabled={!dMSupported || !!errorKind}
-                                experimentalEnabled={experimentalEnabled}
-                                isBI={isBI}
                                 changeSelection={handleSelectedST}
-                                onConfigOpen={onConfigOpen}
                                 onClose={onClose}
                                 autoMapWithAI={autoMapWithAI}
+                                onEdit={onEdit}
+                                onBack={handleBack}
                             />
                         )}
                         {(!isFetchingDMMetaData && !isErrorDMMetaData) && !dMSupported && (
@@ -660,13 +598,13 @@ export function DataMapperC(props: DataMapperViewProps) {
                         )}
                         {errorKind && <IOErrorComponent errorKind={errorKind} classes={classes} />}
                         {autoMapError && <AutoMapErrorComponent autoMapError={autoMapError} classes={classes} />}
-                        {dmNodes.length > 0 && (
+                        {dmNodes.length > 0 && !hasInvalidIO && !errorKind && (
                             <DataMapperDiagram
                                 nodes={dmNodes}
                                 onError={handleErrors}
                             />
                         )}
-                        {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
+                        {hasInvalidIO && <IOErrorComponent errorKind={ErrorNodeKind.Other} classes={classes} />}
                         {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}

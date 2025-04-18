@@ -7,23 +7,22 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem, LinkButton } from "@wso2-enterprise/ui-toolkit";
-import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, ServiceModel, SubPanel } from "@wso2-enterprise/ballerina-core";
-import { debounce } from "lodash";
+import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { LineRange, Property, RecordTypeField, ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
-import { BodyText } from "../../../styles";
 import { FormGeneratorNew } from "../../Forms/FormGeneratorNew";
+import { FormHeader } from "../../../../components/FormHeader";
+import { getImportsForProperty } from "../../../../utils/bi";
 
 const Container = styled.div`
-    padding: 0 20px 20px;
+    /* padding: 0 20px 20px; */
     max-width: 600px;
     height: 100%;
     > div:last-child {
-        padding: 20px 0;
+        /* padding: 20px 0; */
         > div:last-child {
             justify-content: flex-start;
         }
@@ -31,7 +30,7 @@ const Container = styled.div`
 `;
 
 const FormContainer = styled.div`
-    padding-top: 15px;
+    /* padding-top: 15px; */
     padding-bottom: 15px;
 `;
 
@@ -56,8 +55,8 @@ interface ServiceConfigFormProps {
     serviceModel: ServiceModel;
     onSubmit: (data: ServiceModel) => void;
     openListenerForm?: () => void;
+    isSaving?: boolean;
     onBack?: () => void;
-    formRef?: React.Ref<unknown>;
     formSubmitText?: string;
 }
 
@@ -65,18 +64,79 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [serviceFields, setServiceFields] = useState<FormField[]>([]);
-    const { serviceModel, onSubmit, onBack, formRef, openListenerForm, formSubmitText = "Next" } = props;
+    const { serviceModel, onSubmit, onBack, openListenerForm, formSubmitText = "Next", isSaving } = props;
     const [filePath, setFilePath] = useState<string>('');
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
+    const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
 
     const createTitle = `Provide the necessary configuration details for the ${serviceModel.displayAnnotation.label} to complete the setup.`;
     const editTitle = `Update the configuration details for the ${serviceModel.displayAnnotation.label} as needed.`
 
     useEffect(() => {
+        // Check for choices in properties (for HTTP service types)
+        if (serviceModel?.listenerProtocol === "http") {
+            const choiceRecordTypeFields = Object.entries(serviceModel.properties)
+                .filter(([_, property]) => property.choices)
+                .flatMap(([parentKey, property]) =>
+                    Object.entries(property.choices).flatMap(([choiceKey, choice]) =>
+                        Object.entries(choice.properties || {})
+                            .filter(([_, choiceProperty]) =>
+                                choiceProperty.typeMembers &&
+                                choiceProperty.typeMembers.some(member => member.kind === "RECORD_TYPE")
+                            )
+                            .map(([choicePropertyKey, choiceProperty]) => ({
+                                key: choicePropertyKey,
+                                property: {
+                                    ...choiceProperty,
+                                    metadata: {
+                                        label: choiceProperty.metadata?.label || choicePropertyKey,
+                                        description: choiceProperty.metadata?.description || ''
+                                    },
+                                    valueType: choiceProperty?.valueType || 'string',
+                                    diagnostics: {
+                                        hasDiagnostics: choiceProperty.diagnostics && choiceProperty.diagnostics.length > 0,
+                                        diagnostics: choiceProperty.diagnostics
+                                    }
+                                } as Property,
+                                recordTypeMembers: choiceProperty.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+                            }))
+                    )
+                );
+            console.log(">>> recordTypeFields of http serviceModel", choiceRecordTypeFields);
+
+            setRecordTypeFields(choiceRecordTypeFields);
+        } else {
+            const recordTypeFields: RecordTypeField[] = Object.entries(serviceModel.properties)
+                .filter(([_, property]) =>
+                    property.typeMembers &&
+                    property.typeMembers.some(member => member.kind === "RECORD_TYPE")
+                )
+                .map(([key, property]) => ({
+                    key,
+                    property: {
+                        ...property,
+                        metadata: {
+                            label: property.metadata?.label || key,
+                            description: property.metadata?.description || ''
+                        },
+                        valueType: property?.valueType || 'string',
+                        diagnostics: {
+                            hasDiagnostics: property.diagnostics && property.diagnostics.length > 0,
+                            diagnostics: property.diagnostics
+                        }
+                    } as Property,
+                    recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+                }));
+            console.log(">>> recordTypeFields of serviceModel", recordTypeFields);
+
+            setRecordTypeFields(recordTypeFields);
+        }
+
         serviceModel && setServiceFields(convertConfig(serviceModel));
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [serviceModel]);
 
-    const handleListenerSubmit = async (data: FormValues) => {
+    const handleListenerSubmit = async (data: FormValues, formImports: FormImports) => {
         serviceFields.forEach(val => {
             if (val.type === "CHOICE") {
                 val.choices.forEach((choice, index) => {
@@ -91,14 +151,31 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
             } else if (data[val.key]) {
                 val.value = data[val.key];
             }
+            val.imports = getImportsForProperty(val.key, formImports);
         })
         const response = updateConfig(serviceFields, serviceModel);
         onSubmit(response);
     };
 
     const handleListenerForm = (panel: SubPanel) => {
-        openListenerForm && openListenerForm();
+        if (panel.view === SubPanelView.ADD_NEW_FORM) {
+            openListenerForm && openListenerForm();
+        }
     }
+
+    useEffect(() => {
+        if (filePath && rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [filePath, rpcClient]);
 
     return (
         <Container>
@@ -106,20 +183,18 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 <>
                     {serviceFields.length > 0 &&
                         <FormContainer>
-                            <Typography variant="h2" sx={{ marginTop: '16px' }}>{serviceModel.displayAnnotation.label} Configuration</Typography>
-                            <BodyText>
-                                {formSubmitText === "Save" ? editTitle : createTitle}
-                            </BodyText>
-                            {filePath &&
+                            <FormHeader title={`${serviceModel.displayAnnotation.label} Configuration`} />
+                            {filePath && targetLineRange &&
                                 <FormGeneratorNew
-                                    ref={formRef}
                                     fileName={filePath}
-                                    targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                    targetLineRange={targetLineRange}
                                     fields={serviceFields}
                                     onBack={onBack}
+                                    isSaving={isSaving}
                                     openSubPanel={handleListenerForm}
                                     onSubmit={handleListenerSubmit}
                                     submitText={formSubmitText}
+                                    recordTypeFields={recordTypeFields}
                                 />
                             }
                         </FormContainer>
@@ -143,15 +218,17 @@ function convertConfig(listener: ServiceModel): FormField[] {
             documentation: expression?.metadata.description || "",
             valueType: expression.valueTypeConstraint,
             editable: true,
+            enabled: expression.enabled ?? true,
             optional: expression.optional,
             value: expression.valueType === "MULTIPLE_SELECT" ? (expression.value ? [expression.value] : [expression.items[0]]) : expression.value,
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
-            items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items || [expression.value],
+            items: expression.items,
             choices: expression.choices,
             placeholder: expression.placeholder,
-            addNewButton: expression.addNewButton
+            addNewButton: expression.addNewButton,
+            lineRange: expression?.codedata?.lineRange
         }
 
         formFields.push(formField);

@@ -15,11 +15,11 @@ import { css } from '@emotion/css';
 import classNames from "classnames";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
-import { InputOutputPortModel } from '../Port';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
+import { set } from 'lodash';
 
 export interface ExpressionLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -102,9 +102,9 @@ export enum ArrayMappingType {
     ArrayToSingleton
 }
 
-// now we can render all what we want in the label
 export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
-    const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
+    const [isTempLink, setIsTempLink] = useState<boolean>(false);
+    const [isLinkSelected, setIsLinkSelected] = useState<boolean>(false);
     const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
@@ -112,11 +112,15 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const { link, value, deleteLink } = props.model;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
+    const handleLinkStatus = (isSelected: boolean) => {
+        setIsLinkSelected(isSelected);
+    }
+
     useEffect(() => {
         if (link) {
             link.registerListener({
                 selectionChanged(event) {
-                    setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
+                    handleLinkStatus(event.isSelected);
                 },
             });
             const isSourceArray = isSourcePortArray(source);
@@ -124,9 +128,15 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
             const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
             setArrayMappingType(mappingType);
         } else {
-            setLinkStatus(LinkState.TemporaryLink);
+            setIsTempLink(true);
         }
-    }, [props.model]);
+    }, [link]);
+
+    useEffect(() => {
+        if (link) {
+            setIsLinkSelected(link.isSelected());
+        }
+    }, [link?.isSelected()]);
 
     const onClickDelete = (evt?: MouseEvent<HTMLDivElement>) => {
         if (evt) {
@@ -224,7 +234,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const source = link?.getSourcePort();
     const target = link?.getTargetPort();
 
-    return linkStatus === LinkState.TemporaryLink
+
+    return isTempLink
         ? (
             <div
                 className={classNames(
@@ -240,7 +251,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                 data-testid={`expression-label-for-${link?.getSourcePort()?.getName()}-to-${link?.getTargetPort()?.getName()}`}
                 className={classNames(
                     classes.container,
-                    linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden
+                    !isLinkSelected && !deleteInProgress && classes.containerHidden
                 )}
             >
                 {elements}

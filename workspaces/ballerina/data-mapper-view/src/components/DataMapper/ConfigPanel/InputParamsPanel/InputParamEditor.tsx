@@ -46,7 +46,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
     const [paramName, setParamName] = useState<string>(param?.name || "");
     const [pramError, setParamError] = useState<string>("");
     const [isValidParam, setIsValidParam] = useState(true);
-    const [isArray, setIsArray] = useState<boolean>(param?.isArray);
+    const [isArray, setIsArray] = useState<boolean>(param?.isArray || false);
 
     const validateNameValue = (value: string) => {
         if (value && validateParamName) {

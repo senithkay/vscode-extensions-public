@@ -11,8 +11,7 @@
 import { useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
-import { Colors } from "../../resources/constants";
-
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
     engine: DiagramEngine;
@@ -21,7 +20,7 @@ interface NodeLinkWidgetProps {
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
 
-    const linkColor = link.visible ? (isHovered ? Colors.PRIMARY : Colors.ON_SURFACE) : "transparent";
+    const linkColor = link.visible ? (isHovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE) : "transparent";
 
     return (
         <g pointerEvents={"all"} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>

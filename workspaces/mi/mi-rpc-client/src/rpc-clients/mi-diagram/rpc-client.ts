@@ -186,6 +186,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    HandleFileRequest,
+    HandleFileResponse,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -198,6 +200,7 @@ import {
     compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
+    createBallerinaModule,
     createConnection,
     createDataService,
     createDataSource,
@@ -308,6 +311,7 @@ import {
     updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile,
+    handleFileWithFS,
     StoreConnectorJsonResponse,
     getStoreConnectorJSON,
     TestDbConnectionRequest,
@@ -347,6 +351,7 @@ import {
     MediatorTryOutRequest,
     tryOutMediator,
     getInputPayloads,
+    getAllInputDefaultPayloads,
     saveInputPayload,
     MediatorTryOutResponse,
     SavePayloadRequest,
@@ -387,6 +392,17 @@ import {
     getArtifactType,
     GetArtifactTypeResponse,
     askImportFileDir,
+    LocalInboundConnectorsResponse,
+    getLocalInboundConnectors,
+    BuildProjectRequest,
+    deployProject,
+    DeployProjectRequest,
+    DeployProjectResponse,
+    CreateBallerinaModuleRequest,
+    CreateBallerinaModuleResponse,
+    buildBallerinaModule,
+    DevantMetadata,
+    getDevantMetadata
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -662,6 +678,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(writeContentToFile, HOST_EXTENSION, params);
     }
 
+    handleFileWithFS(params: HandleFileRequest): Promise<HandleFileResponse> {
+        return this._messenger.sendRequest(handleFileWithFS, HOST_EXTENSION, params);
+    }
+
     highlightCode(params: HighlightCodeRequest): void {
         return this._messenger.sendNotification(highlightCode, HOST_EXTENSION, params);
     }
@@ -714,6 +734,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createClassMediator, HOST_EXTENSION, params);
     }
 
+    createBallerinaModule(params: CreateBallerinaModuleRequest): Promise<CreateBallerinaModuleResponse> {
+        return this._messenger.sendRequest(createBallerinaModule, HOST_EXTENSION, params);
+    }
+
+    buildBallerinaModule(projectPath: string): Promise<void> {
+        return this._messenger.sendRequest(buildBallerinaModule, HOST_EXTENSION, projectPath);
+    }
+
     getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
         return this._messenger.sendRequest(getSelectiveWorkspaceContext, HOST_EXTENSION);
     }
@@ -751,7 +779,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     }
 
     copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
-        return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params)
+        return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params);
     }
 
     copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {
@@ -850,8 +878,16 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAllAPIcontexts, HOST_EXTENSION);
     }
 
-    buildProject(): void {
-        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
+    buildProject(params: BuildProjectRequest): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION, params);
+    }
+
+    deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
+        return this._messenger.sendRequest(deployProject, HOST_EXTENSION, params);
+    }
+
+    getDevantMetadata(): Promise<DevantMetadata> {
+        return this._messenger.sendRequest(getDevantMetadata, HOST_EXTENSION);
     }
 
     refreshAccessToken(): Promise<void> {
@@ -977,8 +1013,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
         return this._messenger.sendRequest(saveInputPayload, HOST_EXTENSION, params);
     }
+
     getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return this._messenger.sendRequest(getInputPayloads, HOST_EXTENSION, params);
+    }
+
+    getAllInputDefaultPayloads(): Promise<Record<string, unknown>> {
+        return this._messenger.sendRequest(getAllInputDefaultPayloads, HOST_EXTENSION);
     }
 
     getMediators(params: GetMediatorsRequest): Promise<GetMediatorsResponse> {
@@ -991,6 +1032,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     updateMediator(params: UpdateMediatorRequest): Promise<void> {
         return this._messenger.sendRequest(updateMediator, HOST_EXTENSION, params);
+    }
+
+    getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
+        return this._messenger.sendRequest(getLocalInboundConnectors, HOST_EXTENSION);
     }
 
     getConnectionSchema(params: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {

@@ -140,7 +140,7 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
     const inputRef = useRef(null);
 
     const fetchTypes = async () => {
-        const types = await commonRpcClient.getTypes();
+        const types = await commonRpcClient.getTypeCompletions();
         setItems(types.data.map(type => type.insertText));
     };
 

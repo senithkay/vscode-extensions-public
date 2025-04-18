@@ -68,11 +68,7 @@ export function getNodeDescription(stNode: any): string {
             return;
         }
         case (MEDIATORS.SEQUENCE.toLowerCase()): {
-            if (stNode.tag === "target") {
-                return stNode.sequenceAttribute;
-            }
-
-            const description = stNode.staticReferenceKey || stNode.dynamicReferenceKey || stNode.key;
+            const description = stNode.sequenceAttribute|| stNode.staticReferenceKey || stNode.dynamicReferenceKey || stNode.key;
             if (description) {
                 return description.split(".")[0];
             }
@@ -106,11 +102,65 @@ export function getNodeDescription(stNode: any): string {
     }
 }
 
-export function getTextWidth(text: any, font?: any) {
+export function getTextSizes(text: any, fontSize?: any, fontWidth?: string, fontFamily?: string, containerWidth?: number, maxLineCount?: number) {
+    function getCssStyle(element: Element, prop: string) {
+        return window.getComputedStyle(element, null).getPropertyValue(prop);
+    }
+    function getCanvasFont(el = document.body) {
+        const fontW = fontWidth ?? (getCssStyle(el, 'font-weight') || 'normal');
+        const fontS = fontSize ?? (getCssStyle(el, 'font-size') || '16px');
+        const fontF = fontFamily ?? (getCssStyle(el, 'font-family') || 'Times New Roman');
+
+        return `${fontW} ${fontS} ${fontF}`;
+    }
+
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
-    context.font = font || getComputedStyle(document.body).font;
+    context.font = getCanvasFont();
 
-    return context.measureText(text).width + 5.34 + NODE_GAP.TEXT_NODE_GAP;
+    const metrics = context.measureText(text);
+    const width = metrics.width;
+
+    if (!text) {
+        return { width: 0, height: 0 };
+    }
+
+    // Split text into lines if container width is provided
+    if (containerWidth) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+            const word = words[i];
+            const testLine = currentLine + ' ' + word;
+            const testWidth = context.measureText(testLine).width;
+
+            if (testWidth <= containerWidth) {
+                currentLine = testLine;
+            } else {
+                lines.push(currentLine);
+                currentLine = word;
+            }
+
+            // Return early if maxLineCount is hit
+            if (maxLineCount && lines.length >= maxLineCount) {
+                const lineHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+                const height = lineHeight * maxLineCount;
+                return { width: containerWidth, height, lineCount: maxLineCount };
+            }
+        }
+        lines.push(currentLine);
+
+        // Calculate total height based on line count
+        const lineHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+        const height = lineHeight * lines.length;
+
+        return { width: containerWidth, height, lineCount: lines.length };
+    }
+
+    // Return single line metrics if no container width
+    const height = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+    return { width, height, lineCount: 1 };
 }

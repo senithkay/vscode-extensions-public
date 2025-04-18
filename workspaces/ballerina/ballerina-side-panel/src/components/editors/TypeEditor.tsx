@@ -7,13 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Codicon,
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
+    HelperPaneHeight,
+    Icon,
     RequiredFormInput,
+    ThemeColors,
+    Tooltip,
     Typography
 } from "@wso2-enterprise/ui-toolkit";
 import { FormField } from "../Form/types";
@@ -22,6 +26,7 @@ import { Controller } from "react-hook-form";
 import { S } from "./ExpressionEditor";
 import { sanitizeType } from "./utils";
 import { debounce } from "lodash";
+import styled from "@emotion/styled";
 
 interface TypeEditorProps {
     field: FormField;
@@ -31,14 +36,47 @@ interface TypeEditorProps {
     autoFocus?: boolean;
 }
 
-const getDefaultCompletion = () => (
-    <S.TitleContainer>
-        <Codicon name="add" />
-        <Typography variant="body3" sx={{ fontWeight: 600 }}>
-            Add Type
-        </Typography>
-    </S.TitleContainer>
-);
+const Ribbon = styled.div({
+    backgroundColor: ThemeColors.PRIMARY,
+    opacity: 0.6,
+    width: '24px',
+    height: `calc(100% - 6.5px)`,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    borderTopLeftRadius: '2px',
+    borderBottomLeftRadius: '2px',
+    borderRight: 'none',
+    marginTop: '3.75px',
+    paddingTop: '6px',
+    cursor: 'pointer'
+});
+
+const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
+    return (
+        <Tooltip content="Add Type" containerSx={{ cursor: 'default' }}>
+            <Ribbon onClick={onClick}>
+                <Icon name="bi-type" sx={{ 
+                    color: ThemeColors.ON_PRIMARY, 
+                    fontSize: '12px', 
+                    width: '12px', 
+                    height: '12px'
+                }} />
+            </Ribbon>
+        </Tooltip>
+    );
+};
+
+const getDefaultCompletion = (newType: string) => {
+    return (
+        <S.TitleContainer>
+            <Codicon name="add" />
+            <Typography variant="body3" sx={{ fontWeight: 600 }}>
+                Add Type: {newType}
+            </Typography>
+        </S.TitleContainer>
+    )
+}
 
 export function TypeEditor(props: TypeEditorProps) {
     const { field, openRecordEditor, handleOnFieldFocus, handleOnTypeChange, autoFocus } = props;
@@ -46,7 +84,11 @@ export function TypeEditor(props: TypeEditorProps) {
     const { control } = form;
     const {
         types,
+        referenceTypes,
+        helperPaneOrigin: typeHelperOrigin,
+        helperPaneHeight: typeHelperHeight,
         retrieveVisibleTypes,
+        getTypeHelper,
         onFocus,
         onBlur,
         onCompletionItemSelect,
@@ -55,18 +97,19 @@ export function TypeEditor(props: TypeEditorProps) {
     } = expressionEditor;
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
+    const typeBrowserRef = useRef<HTMLDivElement>(null);
+
     const cursorPositionRef = useRef<number | undefined>(undefined);
     const [showDefaultCompletion, setShowDefaultCompletion] = useState<boolean>(false);
     const [focused, setFocused] = useState<boolean>(false);
+
+    const [isTypeHelperOpen, setIsTypeHelperOpen] = useState<boolean>(false);
 
     const handleFocus = async (value: string) => {
         setFocused(true);
         // Trigger actions on focus
         await onFocus?.();
-        await retrieveVisibleTypes(value, value.length);
-        if (openRecordEditor) {
-            setShowDefaultCompletion(true);
-        }
+        await retrieveVisibleTypes(value, value.length, true);
         handleOnFieldFocus?.(field.key);
     };
 
@@ -81,7 +124,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCompletionSelect = async (value: string) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(value);
+        await onCompletionItemSelect?.(value, field.key);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -91,6 +134,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCancel = () => {
         onCancel?.();
+        handleChangeTypeHelperState(false);
         setShowDefaultCompletion(false);
     }
 
@@ -100,10 +144,66 @@ export function TypeEditor(props: TypeEditorProps) {
     }
 
     const handleTypeEdit = (value: string) => {
-        handleOnTypeChange();
+        handleOnTypeChange && handleOnTypeChange();
     };
 
     const debouncedTypeEdit = debounce(handleTypeEdit, 300);
+
+    const handleChangeTypeHelperState = (isOpen: boolean) => {
+        setIsTypeHelperOpen(isOpen);
+    };
+
+    const toggleTypeHelperPaneState = () => {
+        if (!isTypeHelperOpen) {
+            exprRef.current?.focus();
+        } else {
+            handleChangeTypeHelperState(false);
+        }
+    };
+
+    const handleGetTypeHelper = (
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        helperPaneHeight: HelperPaneHeight
+    ) => {
+        return getTypeHelper(
+            field.key,
+            typeBrowserRef,
+            value,
+            cursorPositionRef.current,
+            isTypeHelperOpen,
+            onChange,
+            handleChangeTypeHelperState,
+            helperPaneHeight,
+            handleCancel
+        );
+    }
+
+    /* Track cursor position */
+    const handleSelectionChange = () => {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+
+        if (exprRef.current?.parentElement.contains(range.startContainer)) {
+            cursorPositionRef.current = exprRef.current?.inputElement?.selectionStart ?? 0;
+        }
+    }
+
+    useEffect(() => {
+        const typeField = exprRef.current;
+        if (!typeField) {
+            return;
+        }
+
+        document.addEventListener('selectionchange', handleSelectionChange);
+        return () => {
+            document.removeEventListener('selectionchange', handleSelectionChange);
+        }
+    }, [exprRef.current]);
 
     return (
         <S.Container>
@@ -115,34 +215,64 @@ export function TypeEditor(props: TypeEditorProps) {
                     </S.LabelContainer>
                     <S.Description>{field.documentation}</S.Description>
                 </S.Header>
-                {field.valueType && <S.Type isVisible={focused} title={field.valueType}>{sanitizeType(field.valueType)}</S.Type>}
+                {field.valueTypeConstraint && 
+                    <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>{sanitizeType(field.valueTypeConstraint as string)}</S.Type>}
             </S.HeaderContainer>
             <Controller
                 control={control}
                 name={field.key}
                 defaultValue={field.value}
-                rules={{ required: !field.optional && !field.placeholder }}
+                rules={{
+                    required: {
+                        value: !field.optional,
+                        message: `${field.label} is required`
+                    }
+                }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
                         <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
+                            anchorRef={typeBrowserRef}
                             name={name}
+                            startAdornment={<EditorRibbon onClick={toggleTypeHelperPaneState} />}
                             completions={types}
                             showDefaultCompletion={showDefaultCompletion}
-                            getDefaultCompletion={getDefaultCompletion}
+                            getDefaultCompletion={() => getDefaultCompletion(value)}
                             value={value}
-                            onChange={async (value: string, updatedCursorPosition: number) => {
-                                onChange(value);
-                                debouncedTypeEdit(value);
+                            onChange={async (updatedValue: string, updatedCursorPosition: number) => {
+                                if (updatedValue === value) {
+                                    return;
+                                }
+
+                                onChange(updatedValue);
+                                debouncedTypeEdit(updatedValue);
                                 cursorPositionRef.current = updatedCursorPosition;
 
-                                // Retrieve visible types
-                                await retrieveVisibleTypes(value, updatedCursorPosition);
+                                // Set show default completion
+                                const typeExists = referenceTypes.find((type) => type.label === updatedValue);
+                                const validTypeForCreation = updatedValue.match(/^[a-zA-Z_'][a-zA-Z0-9_]*$/);
+                                if (updatedValue && !typeExists && validTypeForCreation) {
+                                    setShowDefaultCompletion(true);
+                                } else {
+                                    setShowDefaultCompletion(false);
+                                }
+
+                                // Retrieve types
+                                await retrieveVisibleTypes(
+                                    updatedValue,
+                                    updatedCursorPosition
+                                );
                             }}
                             onCompletionSelect={handleCompletionSelect}
                             onDefaultCompletionSelect={handleDefaultCompletionSelect}
                             onFocus={() => handleFocus(value)}
+                            enableExIcon={false}
+                            isHelperPaneOpen={isTypeHelperOpen}
+                            changeHelperPaneState={handleChangeTypeHelperState}
+                            getHelperPane={handleGetTypeHelper}
+                            helperPaneOrigin={typeHelperOrigin}
+                            helperPaneHeight={typeHelperHeight}
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={handleCancel}
@@ -150,7 +280,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             autoFocus={autoFocus}
                             sx={{ paddingInline: '0' }}
                         />
-                        {error && <ErrorBanner errorMsg={error.message.toString()} />}
+                        {error?.message && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>
                 )}
             />

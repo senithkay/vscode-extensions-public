@@ -17,6 +17,7 @@ interface UpdateFileContentRequest {
     filePath: string;
     content: string;
     skipForceSave?: boolean;
+    updateViewFlag?: boolean; // New flag to control updateView execution, default true
 }
 
 export async function applyModifications(fileName: string, modifications: STModification[]): Promise<SyntaxTreeResponse | NOT_SUPPORTED_TYPE> {
@@ -28,7 +29,7 @@ export async function applyModifications(fileName: string, modifications: STModi
 }
 
 export async function modifyFileContent(params: UpdateFileContentRequest): Promise<boolean> {
-    const { filePath, content, skipForceSave } = params;
+    const { filePath, content, skipForceSave, updateViewFlag = true } = params;
     const normalizedFilePath = normalize(filePath);
     const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
 
@@ -43,20 +44,11 @@ export async function modifyFileContent(params: UpdateFileContentRequest): Promi
         }
         return doc.save();
     } else {
-        StateMachine.langClient().didChange({
-            contentChanges: [
-                {
-                    text: content
-                }
-            ],
-            textDocument: {
-                uri: URI.file(normalizedFilePath).toString(),
-                version: 1
-            }
-        });
-        writeFileSync(normalizedFilePath, content);
+        writeBallerinaFileDidOpen(normalizedFilePath, content);
         StateMachine.langClient().updateStatusBar();
-        updateView();
+        if (updateViewFlag) {
+            updateView();
+        }
     }
 
     return false;
@@ -64,6 +56,14 @@ export async function modifyFileContent(params: UpdateFileContentRequest): Promi
 
 export async function writeBallerinaFileDidOpen(filePath: string, content: string) {
     writeFileSync(filePath, content.trim());
+    StateMachine.langClient().didChange({
+        textDocument: { uri: filePath, version: 1 },
+        contentChanges: [
+            {
+                text: content,
+            },
+        ],
+    });
     StateMachine.langClient().didOpen({
         textDocument: {
             uri: Uri.file(filePath).toString(),

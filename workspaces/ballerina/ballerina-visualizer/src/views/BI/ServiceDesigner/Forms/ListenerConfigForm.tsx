@@ -7,22 +7,22 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, ListenerModel } from "@wso2-enterprise/ballerina-core";
-import { debounce } from "lodash";
+import { Typography, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { ListenerModel, LineRange, RecordTypeField, PropertyModel, PropertyTypeMemberInfo, Property } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
-import { BodyText } from "../../../styles";
 import FormGeneratorNew from "../../Forms/FormGeneratorNew";
+import { FormHeader } from "../../../../components/FormHeader";
+import { getImportsForProperty } from "../../../../utils/bi";
 
 const Container = styled.div`
-    padding: 0 20px 20px;
+    /* padding: 0 20px 20px; */
     max-width: 600px;
     > div:last-child {
-        padding: 20px 0;
+        /* padding: 20px 0; */
         > div:last-child {
             justify-content: flex-start;
         }
@@ -30,7 +30,7 @@ const Container = styled.div`
 `;
 
 const FormContainer = styled.div`
-    padding-top: 15px;
+    /* padding-top: 15px; */
     padding-bottom: 15px;
 `;
 
@@ -45,8 +45,8 @@ const LoadingContainer = styled.div`
 interface ListenerConfigFormProps {
     listenerModel: ListenerModel;
     onSubmit?: (data: ListenerModel) => void;
+    isSaving?: boolean;
     onBack?: () => void;
-    formRef?: React.Ref<unknown>;
     formSubmitText?: string;
 }
 
@@ -54,19 +54,46 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [listenerFields, setListenerFields] = useState<FormField[]>([]);
-    const { listenerModel, onSubmit, onBack, formRef, formSubmitText = "Next" } = props;
+    const { listenerModel, onSubmit, onBack, formSubmitText = "Next", isSaving } = props;
     const [filePath, setFilePath] = useState<string>('');
+    const [targetLineRange, setTargetLineRange] = useState<LineRange>();
+    const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
 
     useEffect(() => {
+        const recordTypeFields: RecordTypeField[] = Object.entries(listenerModel.properties)
+            .filter(([_, property]) =>
+                property.typeMembers &&
+                property.typeMembers.some(member => member.kind === "RECORD_TYPE")
+            )
+            .map(([key, property]) => ({
+                key,
+                property: {
+                    ...property,
+                    metadata: {
+                        label: property.metadata?.label || key,
+                        description: property.metadata?.description || ''
+                    },
+                    valueType: property?.valueType || 'string',
+                    diagnostics: {
+                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0,
+                        diagnostics: property.diagnostics
+                    }
+                } as Property,
+                recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+            }));
+        console.log(">>> recordTypeFields", recordTypeFields);
+        setRecordTypeFields(recordTypeFields);
+
         listenerModel && setListenerFields(convertConfig(listenerModel));
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [listenerModel]);
 
-    const handleListenerSubmit = async (data: FormValues) => {
+    const handleListenerSubmit = async (data: FormValues, formImports: FormImports) => {
         listenerFields.forEach(val => {
             if (data[val.key]) {
                 val.value = data[val.key]
             }
+            val.imports = getImportsForProperty(val.key, formImports);
         })
         const response = updateConfig(listenerFields, listenerModel);
         onSubmit(response);
@@ -74,6 +101,20 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
 
     const createTitle = `Provide the necessary configuration details for the ${listenerModel.displayAnnotation.label} to complete the setup.`;
     const editTitle = `Update the configuration details for the ${listenerModel.displayAnnotation.label} as needed.`
+
+    useEffect(() => {
+        if (filePath && rpcClient) {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getEndOfFile({ filePath })
+                .then((res) => {
+                    setTargetLineRange({
+                        startLine: res,
+                        endLine: res,
+                    });
+                });
+        }
+    }, [filePath, rpcClient]);
 
     return (
         <Container>
@@ -89,19 +130,21 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 <>
                     {listenerFields.length > 0 &&
                         <FormContainer>
-                            <Typography variant="h2" sx={{ marginTop: '16px' }}>{listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration</Typography>
+                            {/* <Typography variant="h2" sx={{ marginTop: '16px' }}>{listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration</Typography>
                             <BodyText>
                                 {formSubmitText === "Save" ? editTitle : createTitle}
-                            </BodyText>
-                            {filePath &&
+                            </BodyText> */}
+                            <FormHeader title={`${listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration`} />
+                            {filePath && targetLineRange &&
                                 <FormGeneratorNew
-                                    ref={formRef}
                                     fileName={filePath}
-                                    targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                    targetLineRange={targetLineRange}
                                     fields={listenerFields}
                                     onSubmit={handleListenerSubmit}
                                     onBack={onBack}
+                                    isSaving={isSaving}
                                     submitText={formSubmitText}
+                                    recordTypeFields={recordTypeFields}
                                 />
                             }
                         </FormContainer>
@@ -125,13 +168,15 @@ function convertConfig(listener: ListenerModel): FormField[] {
             documentation: expression?.metadata.description || "",
             valueType: expression.valueTypeConstraint,
             editable: expression.editable,
+            enabled: expression.enabled ?? true,
             optional: expression.optional,
             value: expression.value,
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
             items: expression.items,
-            placeholder: expression.placeholder
+            placeholder: expression.placeholder,
+            lineRange: expression?.codedata?.lineRange
         }
         formFields.push(formField);
     }

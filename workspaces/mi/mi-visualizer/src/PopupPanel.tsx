@@ -116,7 +116,13 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     setViewComponent(<AddDriver handlePopupClose={props.handleClose} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);
                     break;
                 case MACHINE_VIEW.ManageDependencies:
-                    setViewComponent(<ManageDependencies onClose={props.handleClose} dependencies={machineSate.customProps.dependencies} title={machineSate.customProps.title} />);
+                    setViewComponent(<ManageDependencies
+                        onClose={props.handleClose}
+                        dependencies={machineSate.customProps.dependencies}
+                        title={machineSate.customProps.title}
+                        type={machineSate.customProps.type}
+                    />
+                    );
                     break;
                 case MACHINE_VIEW.ManageConfigurables:
                     setViewComponent(<ManageConfigurables onClose={props.handleClose} configurables={machineSate.customProps.configs} />);
