@@ -1919,6 +1919,24 @@ export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: P
     return '';
 };
 
+export function genArrayElementAccessExpr(node: STNode): string {
+    let accessors: string[] = [];
+
+    while (STKindChecker.isIndexedExpression(node)) {
+        const keyExprs = node.keyExpression;
+		if (keyExprs?.length === 1 && STKindChecker.isNumericLiteral(keyExprs[0])) {
+			accessors.push(keyExprs[0].source);
+			node = node.containerExpression;
+		}
+    }
+    accessors.reverse();
+    return `[${accessors.join(",")}]`;
+}
+
+export function hasFieldAccessExpression(node: STNode): boolean {
+	return STKindChecker.isSpecificField(node) && STKindChecker.isIndexedExpression(node.valueExpr)
+}
+
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)
 		&& targetPort?.editableRecordField?.value
