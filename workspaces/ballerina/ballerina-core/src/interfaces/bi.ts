@@ -353,7 +353,8 @@ export type NodeKind =
     | "AUTOMATION"
     | "CONFIG_VARIABLE"
     | "CLASS_INIT"
-    | "PARALLEL_FLOW";
+    | "PARALLEL_FLOW"
+    | "INCLUDED_FIELD";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];

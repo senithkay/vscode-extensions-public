@@ -9,7 +9,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { CodeData, FlowNode, NodeProperties } from "@wso2-enterprise/ballerina-core";
+import { CodeData, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertConfig } from "../../../utils/bi";
@@ -234,8 +234,8 @@ export function MemoryManagerConfig(props: MemoryManagerConfigProps): JSX.Elemen
                 advanced: true,
                 hidden: false,
                 codedata: {
-                    kind: "INCLUDED_FIELD",
-                    originalName: "memory",
+                    node: "INCLUDED_FIELD",
+                    symbol: "memory",
                 },
                 typeMembers: [
                     {
