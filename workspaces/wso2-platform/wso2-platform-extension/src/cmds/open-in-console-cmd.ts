@@ -21,17 +21,17 @@ import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
-import { getNormalizedPath, isSamePath } from "../utils";
+import { isSamePath } from "../utils";
 import { getUserInfoForCmd, isRpcActive, quickPickWithLoader, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
 export function openInConsoleCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.OpenInConsole, async (params: IOpenInConsoleCmdParams) => {
 			setExtensionName(params?.extName);
+			const extensionName = webviewStateStore.getState().state.extensionName;
 			try {
 				isRpcActive(ext);
-				const extensionName = webviewStateStore.getState().state.extensionName;
-				const userInfo = await getUserInfoForCmd(`open a component in ${extensionName} console`);
+				const userInfo = await getUserInfoForCmd(`open a ${extensionName === "Devant" ? "integration" : "component"} in ${extensionName} console`);
 				if (userInfo) {
 					let selectedOrg = params?.organization;
 					let selectedProject = params?.project;
@@ -72,7 +72,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 							// create a new component
 							window
 								.showInformationMessage(
-									`No ${extensionName} component found in this directory. Do you want to create one?`,
+									`No ${extensionName} ${extensionName === "Devant" ? "integration" : "component"} found in this directory. Do you want to create one?`,
 									{ modal: true },
 									"Proceed",
 								)
@@ -93,7 +93,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 								item: item?.component,
 							}));
 							const selectedComp = await window.showQuickPick(componentItems, {
-								title: "Multiple components detected. Please select a component to open",
+								title: `Multiple ${extensionName === "Devant" ?"integrations" :"components"} detected. Please select ${extensionName === "Devant" ? "an integration" : "a component"} to open`,
 							});
 							if (selectedComp?.item) {
 								env.openExternal(Uri.parse(`${projectBaseUrl}/components/${selectedComp?.item?.metadata?.handler}/overview`));
@@ -112,7 +112,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 								}));
 						} else {
 							const components = await window.withProgress(
-								{ title: `Fetching components of ${selectedProject.name}...`, location: ProgressLocation.Notification },
+								{ title: `Fetching ${extensionName === "Devant" ?"integrations" :"components"} of project ${selectedProject.name}...`, location: ProgressLocation.Notification },
 								() =>
 									ext.clients.rpcClient.getComponentList({
 										orgId: selectedOrg?.id?.toString()!,
@@ -171,7 +171,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 
 								return cacheQuickPicks;
 							},
-							loadingTitle: `Loading components of project ${selectedProject.name}`,
+							loadingTitle: `Loading ${extensionName === "Devant" ?"integrations" :"components"} of project ${selectedProject.name}`,
 							selectTitle: `Select an option to open in ${extensionName} Console`,
 						});
 
@@ -183,8 +183,8 @@ export function openInConsoleCommand(context: ExtensionContext) {
 					}
 				}
 			} catch (err: any) {
-				console.error("Failed to create component", err);
-				window.showErrorMessage(err?.message || "Failed to create component");
+				console.error(`Failed to open ${extensionName === "Devant" ? "integration" : "component"}`, err);
+				window.showErrorMessage(err?.message || `Failed to open ${extensionName === "Devant" ? "integration" : "component"}`);
 			}
 		}),
 	);
