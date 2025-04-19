@@ -159,14 +159,42 @@ export function activateVisualizer(context: vscode.ExtensionContext, firstProjec
         // Handle the text change and diagram update with rpc notification
         vscode.workspace.onDidChangeTextDocument(async function (document) {
             const projectUri = vscode.workspace.getWorkspaceFolder(document.document.uri)?.uri.fsPath;
-            if (!REFRESH_ENABLED_DOCUMENTS.includes(document.document.languageId) || !projectUri) {
+
+            if (!projectUri) {
                 return;
             }
             const webview = webviews.get(projectUri);
+
+            if (!webview) {
+                return;
+            }
+
+            if (!REFRESH_ENABLED_DOCUMENTS.includes(document.document.languageId) || !projectUri) {
+                return;
+            }
+
             if (webview?.getWebview()?.active || AiPanelWebview.currentPanel?.getWebview()?.active) {
                 await document.document.save();
                 if (!getStateMachine(projectUri).context().view?.endsWith('Form')) {
                     refreshDiagram(projectUri);
+                }
+            }
+
+            if (document.document.uri.fsPath.endsWith('pom.xml')) {
+                const projectUri = vscode.workspace.getWorkspaceFolder(document.document.uri)?.uri.fsPath;
+                const langClient = getStateMachine(projectUri!).context().langClient;
+                const confirmUpdate = await vscode.window.showInformationMessage(
+                    'The pom.xml file has been modified. Do you want to update the dependencies?',
+                    'Yes',
+                    'No'
+                );
+
+                if (confirmUpdate === 'Yes') {
+                    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+                    statusBarItem.text = '$(sync) Updating dependencies...';
+                    statusBarItem.show();
+                    await langClient?.updateConnectorDependencies();
+                    statusBarItem.hide();
                 }
             }
         }, extension.context),
@@ -187,11 +215,20 @@ export function activateVisualizer(context: vscode.ExtensionContext, firstProjec
 
         vscode.workspace.onDidSaveTextDocument(async function (document) {
             const projectUri = vscode.workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
+
+            if (!projectUri) {
+                return;
+            }
+            const relativePath = vscode.workspace.asRelativePath(document.uri);
+            const webview = webviews.get(projectUri);
+
+            if (!webview) {
+                return;
+            }
+
             const currentView = getStateMachine(projectUri!)?.context()?.view;
             if (SWAGGER_LANG_ID === document.languageId && projectUri) {
                 // Check if the saved document is a swagger file
-                const relativePath = vscode.workspace.asRelativePath(document.uri);
-                const webview = webviews.get(projectUri);
                 if (path.dirname(relativePath) === SWAGGER_REL_DIR && webview) {
                     webview.getWebview()?.reveal(webview.isBeside() ? vscode.ViewColumn.Beside : vscode.ViewColumn.Active);
                 }
@@ -230,30 +267,16 @@ export function activateVisualizer(context: vscode.ExtensionContext, firstProjec
                 refreshDiagram(projectUri!);
             }
         }, extension.context),
-
-        vscode.workspace.onDidChangeTextDocument(async (event) => {
-            if (event.document.uri.fsPath.endsWith('pom.xml')) {
-                const projectUri = vscode.workspace.getWorkspaceFolder(event.document.uri)?.uri.fsPath;
-                const langClient = getStateMachine(projectUri!).context().langClient;
-                const confirmUpdate = await vscode.window.showInformationMessage(
-                    'The pom.xml file has been modified. Do you want to update the dependencies?',
-                    'Yes',
-                    'No'
-                );
-
-                if (confirmUpdate === 'Yes') {
-                    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-                    statusBarItem.text = '$(sync) Updating dependencies...';
-                    statusBarItem.show();
-                    await langClient?.updateConnectorDependencies();
-                    statusBarItem.hide();
-                }
-            }
-        })
     );
 }
 
 export const refreshDiagram = debounce(async (projectUri: string, refreshDiagram: boolean = true) => {
+    const webview = webviews.get(projectUri);
+
+    if (!webview) {
+        return;
+    }
+
     if (!getStateMachine(projectUri).context().isOldProject) {
         await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
     }
