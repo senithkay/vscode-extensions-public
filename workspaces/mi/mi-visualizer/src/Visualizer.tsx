@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { createRef, useEffect } from "react";
+import React, { createRef, useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { MachineStateValue, AIMachineStateValue, SwaggerData } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, AIMachineStateValue, SwaggerData, VisualizerLocation, Platform } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
@@ -48,6 +48,7 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
     const { rpcClient } = useVisualizerContext();
     const errorBoundaryRef = createRef<any>();
     const [state, setState] = React.useState<MachineStateValue | AIMachineStateValue>('initialize');
+    const [visualizerState, setVisualizerState] = useState<VisualizerLocation>();
 
     const handleResetError = () => {
         if (errorBoundaryRef.current) {
@@ -56,7 +57,13 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
     };
 
     rpcClient?.onStateChanged((newState: MachineStateValue | AIMachineStateValue) => {
-        setState(newState);
+        if (state === newState) {
+            return;
+        }
+        rpcClient.getVisualizerState().then((initialState) => {
+            setState(newState);
+            setVisualizerState(initialState);
+        });
     });
 
     useEffect(() => {
@@ -77,7 +84,7 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
             {(() => {
                 switch (mode) {
                     case MODES.VISUALIZER:
-                        return <VisualizerComponent state={state as MachineStateValue} handleResetError={handleResetError} />
+                        return <VisualizerComponent state={state as MachineStateValue} visualizerState={visualizerState} />
                     case MODES.AI:
                         return <AiVisualizerComponent state={state as AIMachineStateValue} />
                     case MODES.RUNTIME_SERVICES:
@@ -90,12 +97,13 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
     );
 };
 
-const VisualizerComponent = React.memo(({ state, handleResetError }: { state: MachineStateValue, handleResetError: () => void }) => {
+const VisualizerComponent = React.memo(({ state, visualizerState }: { state: MachineStateValue, visualizerState: VisualizerLocation }) => {
     switch (true) {
         case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
-            return <MainPanel handleResetError={handleResetError} />;
+            return <MainPanel visualizerState={visualizerState} />;
         case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
-            return <WelcomePanel />;
+            console.log('Rendering WelcomePanel');
+            return <WelcomePanel machineView={visualizerState.view} />;
         case typeof state === 'object' && 'environmentSetup' in state && state.environmentSetup === "viewReady":
             return <EnvironmentSetup />
         case state === 'disabled':
