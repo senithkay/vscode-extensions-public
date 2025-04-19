@@ -571,8 +571,7 @@ export const getStateMachine = (projectUri: string): {
         // check if provided project is a valid workspace
         const workspaces = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(projectUri));
         if (!workspaces) {
-            vscode.window.showErrorMessage('No workspace folder is open.');
-            throw new Error('No workspace folder is open.');
+            console.warn('No workspace folder is open.');
         }
         stateService = interpret(stateMachine.withContext({
             projectUri: projectUri,
@@ -637,20 +636,21 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
             vscode.window.showErrorMessage('No workspace folder is open.');
             return;
         }
-        if (workspaces.length === 1) {
-            viewLocation!.projectUri = workspaces[0].uri.fsPath;
-            const stateMachine = getStateMachine(workspaces[0].uri.fsPath);
-            return stateMachine.service().send({ type: type, viewLocation: viewLocation });
-        }
 
-        askForPrj();
-        async function askForPrj() {
-            const projectUri = await askForProject();
-            if (projectUri) {
-                const stateMachine = getStateMachine(projectUri);
-                stateMachine.service().send({ type: type, viewLocation: viewLocation });
+        if (workspaces.length > 1) {
+            askForPrj();
+            async function askForPrj() {
+                const projectUri = await askForProject();
+                if (projectUri) {
+                    const stateMachine = getStateMachine(projectUri);
+                    stateMachine.service().send({ type: type, viewLocation: viewLocation });
+                }
             }
         }
+
+        viewLocation!.projectUri = workspaces[0].uri.fsPath;
+        const stateMachine = getStateMachine(workspaces[0].uri.fsPath);
+        return stateMachine.service().send({ type: type, viewLocation: viewLocation });
     }
 }
 
@@ -712,19 +712,23 @@ async function checkIfMiProject(projectUri) {
     try {
         // Check for pom.xml files excluding node_modules directory
         const pomFilePath = path.join(projectUri, 'pom.xml');
-        const pomContent = await fs.promises.readFile(pomFilePath, 'utf-8');
-        isProject = pomContent.includes('<projectType>integration-project</projectType>');
-        if (isProject) {
-            log("MI project detected in " + projectUri);
+        if (fs.existsSync(pomFilePath)) {
+            const pomContent = await fs.promises.readFile(pomFilePath, 'utf-8');
+            isProject = pomContent.includes('<projectType>integration-project</projectType>');
+            if (isProject) {
+                log("MI project detected in " + projectUri);
+            }
         }
 
         // If not found, check for .project files
         if (!isProject) {
             const projectPath = path.join(projectUri, '.project');
-            const projectContent = await fs.promises.readFile(projectPath, 'utf-8');
-            if (projectContent.includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
-                isOldProject = true;
-                log("Integration Studio project detected in " + projectUri);
+            if (fs.existsSync(projectPath)) {
+                const projectContent = await fs.promises.readFile(projectPath, 'utf-8');
+                if (projectContent.includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
+                    isOldProject = true;
+                    log("Integration Studio project detected in " + projectUri);
+                }
             }
         }
     } catch (err) {
@@ -769,7 +773,7 @@ async function checkIfMiProject(projectUri) {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
     }
 
-    if (projectUri) {
+    if (isProject || isOldProject) {
         isEnvironmentSetUp = await setupEnvironment(projectUri, isOldProject);
         if (!isEnvironmentSetUp) {
             vscode.commands.executeCommand('setContext', 'MI.status', 'notSetUp');

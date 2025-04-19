@@ -3048,6 +3048,9 @@ ${endpointAttributes}
                         resolve({ filePath: path.join(directory, name) });
                     }
 
+                } else {
+                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+                    resolve({ filePath: path.join(directory, name) });
                 }
             }
             resolve({ filePath: path.join(directory, name) });

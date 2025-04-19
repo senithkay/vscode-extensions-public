@@ -22,19 +22,12 @@ import { extensions, workspace } from 'vscode';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getStateMachine } from './stateMachine';
 import { webviews } from './visualizer/webview';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+const os = require('os');
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
-	activateUriHandlers();
-	activateHistory();
-
-	activateDebugger(context);
-	activateMigrationSupport(context);
-	// activateActivityPanel(context);
-	// activateAiPrompt(context);
-	activateRuntimeService(context);
-	activateVisualizer(context);
-	activateAiPanel(context);
 
 	// TODO: Remove when VSCode fixes: https://github.com/microsoft/vscode/issues/188257
 	const orphanedTabs = vscode.window.tabGroups.all
@@ -42,9 +35,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		.filter((tab) => (tab.input as any)?.viewType.includes("micro-integrator."));
 	vscode.window.tabGroups.close(orphanedTabs);
 
-	const firstProject = workspace.workspaceFolders?.[0];
+	let firstProject = workspace.workspaceFolders?.[0]?.uri?.fsPath;
 	if (firstProject) {
-		getStateMachine(firstProject.uri.fsPath);
+		getStateMachine(firstProject);
+	} else {
+		// new project
+		// use a temporary directory to start the state machine
+		const projectUuid = uuidv4();
+		firstProject = path.join(os.tmpdir(), projectUuid);
+		getStateMachine(firstProject);
 	}
 	workspace.onDidChangeWorkspaceFolders(async (event) => {
 		if (event.added.length > 0) {
@@ -62,6 +61,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	}
 	);
 	StateMachineAI.initialize();
+
+	activateUriHandlers();
+	activateHistory();
+
+	activateDebugger(context);
+	activateMigrationSupport(context);
+	// activateActivityPanel(context);
+	// activateAiPrompt(context);
+	activateRuntimeService(context);
+	activateVisualizer(context, firstProject);
+	activateAiPanel(context);
 }
 
 export async function deactivate(): Promise<void> {

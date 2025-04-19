@@ -44,47 +44,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
 
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
-	commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, async (args) => {
-		if (args && args.name && args.path && args.scope) {
-			const rpcManager = new MiDiagramRpcManager("");
-			if (rpcManager) {
-				await rpcManager.createProject(
-					{
-						directory: path.dirname(args.path),
-						name: path.basename(args.path),
-						open: false,
-						miVersion: "4.4.0"
-					}
-				);
-				await createSettingsFile(args);
-			}
 
-			async function createSettingsFile(args) {
-				const projectPath = args.path;
-				const settingsPath = path.join(projectPath, '.vscode', 'settings.json');
-				try {
-					const vscodeDir = path.join(projectPath, '.vscode');
-					if (!fs.existsSync(vscodeDir)) {
-						fs.mkdirSync(vscodeDir);
-					}
-					const settings = {
-						"MI.Scope": args.scope
-					};
-					fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
-				} catch (error: any) {
-					vscode.window.showErrorMessage(`Failed to create settings file: ${error.message}`);
-				}
-			}
-		} else {
-			// active webview
-			const webview = [...webviews.values()].find(webview => webview.getWebview()?.active) || [...webviews.values()][0];
-			if (webview) {
-				const projectUri = webview.getProjectUri();
-				openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm, projectUri });
-			}
-			log('Create New Project');
-		}
-	});
 	commands.registerCommand(COMMANDS.ADD_ARTIFACT_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ADD_ARTIFACT, projectUri: entry.info?.path });
 		console.log('Add Artifact');

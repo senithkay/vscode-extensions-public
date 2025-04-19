@@ -23,8 +23,10 @@ import { deleteSwagger, generateSwagger } from '../util/swagger';
 import { VisualizerWebview, webviews } from './webview';
 import * as fs from 'fs';
 import { AiPanelWebview } from '../ai-panel/webview';
+import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
+import { log } from '../util/logger';
 
-export function activateVisualizer(context: vscode.ExtensionContext) {
+export function activateVisualizer(context: vscode.ExtensionContext, firstProject: string) {
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.OPEN_PROJECT, () => {
             window.showOpenDialog({ canSelectFolders: true, canSelectFiles: true, filters: { 'CAPP': ['car', 'zip'] }, openLabel: 'Open MI Project' })
@@ -47,6 +49,45 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                         }
                     }
                 });
+        }),
+        commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, async (args) => {
+            if (args && args.name && args.path && args.scope) {
+                const rpcManager = new MiDiagramRpcManager("");
+                if (rpcManager) {
+                    await rpcManager.createProject(
+                        {
+                            directory: path.dirname(args.path),
+                            name: path.basename(args.path),
+                            open: false,
+                            miVersion: "4.4.0"
+                        }
+                    );
+                    await createSettingsFile(args);
+                }
+
+                async function createSettingsFile(args) {
+                    const projectPath = args.path;
+                    const settingsPath = path.join(projectPath, '.vscode', 'settings.json');
+                    try {
+                        const vscodeDir = path.join(projectPath, '.vscode');
+                        if (!fs.existsSync(vscodeDir)) {
+                            fs.mkdirSync(vscodeDir);
+                        }
+                        const settings = {
+                            "MI.Scope": args.scope
+                        };
+                        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
+                    } catch (error: any) {
+                        vscode.window.showErrorMessage(`Failed to create settings file: ${error.message}`);
+                    }
+                }
+            } else {
+                // active webview
+                const webview = [...webviews.values()].find(webview => webview.getWebview()?.active) || [...webviews.values()][0];
+                const projectUri = webview ? webview.getProjectUri() : firstProject;
+                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm, projectUri });
+                log('Create New Project');
+            }
         })
     );
     context.subscriptions.push(
