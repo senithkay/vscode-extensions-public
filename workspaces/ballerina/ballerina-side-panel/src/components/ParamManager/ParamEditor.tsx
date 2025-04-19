@@ -108,6 +108,7 @@ export function ParamEditor(props: ParamProps) {
                     onCompletionItemSelect: onCompletionItemSelect,
                     getHelperPane: getHelperPane,
                     types: expressionEditor?.types,
+                    referenceTypes: expressionEditor?.referenceTypes,
                     retrieveVisibleTypes: expressionEditor?.retrieveVisibleTypes,
                     getTypeHelper: getTypeHelper,
                     helperPaneHeight: expressionEditor?.helperPaneHeight

@@ -612,11 +612,12 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
     });
     const parsedXml = parser.parse(originalXml);
 
+    createTagIfNotFound(parsedXml, "project.properties");
     updatePomXml(parsedXml, "project.properties.{project.runtime.version}", version);
     updatePomXml(parsedXml, "project.properties.{car.plugin.version}", LATEST_CAR_PLUGIN_VERSION);
     updatePomXml(parsedXml, "project.properties.{dockerfile.base.image}", "wso2/wso2mi:${project.runtime.version}");
-    updatePomXml(parsedXml, "project.profiles.profile[].build.plugins.plugin[artifactId=vscode-car-plugin].version", "${car.plugin.version}");
-    updatePomXml(parsedXml, "project.profiles.profile[].build.plugins.plugin[artifactId=mi-container-config-mapper].executions.execution[id=config-mapper-parser].configuration.miVersion", "${project.runtime.version}");
+    updatePomXml(parsedXml, "project.profiles.profile.build.plugins.plugin[artifactId=vscode-car-plugin].version", "${car.plugin.version}");
+    updatePomXml(parsedXml, "project.profiles.profile.build.plugins.plugin[artifactId=mi-container-config-mapper].executions.execution[id=config-mapper-parser].configuration.miVersion", "${project.runtime.version}");
 
     const builder = new XMLBuilder({
         ignoreAttributes: false,
@@ -631,6 +632,29 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
     await fs.promises.writeFile(pomFiles[0].fsPath, updatedXml);
 }
 
+function createTagIfNotFound(parsedXml: any[], path: string) {
+    const pathParts = path.split('.');
+    let currentNode = parsedXml;
+    let parentNode = null as any;
+
+    for (const part of pathParts) {
+        if (Array.isArray(currentNode)) {
+            // If currentNode is an array, find the first object with the property
+            const foundNode = currentNode.find((node: any) => node[part]);
+            if (foundNode) {
+                parentNode = currentNode;
+                currentNode = foundNode[part];
+            } else {
+                // Create a new object and push it to the array
+                const newNode = { [part]: [] };
+                currentNode.push(newNode);
+                parentNode = currentNode;
+                currentNode = newNode[part];
+            }
+        }
+    }
+}
+
 /**
  * Updates values in a parsed XML object using path notation
  * 
@@ -638,7 +662,6 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
  * @param path - Path with special notation:
  *   - Regular nested elements: "project.properties"
  *   - Properties with dots in name: "project.properties.{project.runtime.version}"
- *   - Array iteration: "project.profiles.profile[].build"
  *   - Conditional selection: "plugin[artifactId=vscode-car-plugin]"
  * @param value - The new value to set
  * @param createIfNotFound - Whether to create the last node if not found (default: true)
@@ -646,9 +669,6 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
 function updatePomXml(parsedXml: any[], path: string, value: string, createIfNotFound = true): void {
     // Parse the path parts, handling the special curly brace syntax for properties with dots
     const pathParts = extractPathParts();
-
-    // Create a WeakMap to store parent references
-    const parentMap = createIfNotFound ? createParentReferences(parsedXml) : new WeakMap<object, any>();
 
     traverseWithPath(parsedXml, 0);
 
@@ -671,7 +691,7 @@ function updatePomXml(parsedXml: any[], path: string, value: string, createIfNot
             } else if (char === '}' && inCurlyBraces) {
                 // End of curly brace section
                 inCurlyBraces = false;
-                pathParts.push({ dottedProperty: currentPart });
+                pathParts.push(currentPart);
                 currentPart = '';
             } else if (char === '.' && !inCurlyBraces) {
                 // Path separator (only outside curly braces)
@@ -691,135 +711,52 @@ function updatePomXml(parsedXml: any[], path: string, value: string, createIfNot
         }
         return pathParts;
     }
-    function createParentReferences(parsedXml: any[]): WeakMap<object, any> {
-        const parentMap = new WeakMap<object, any>();
-
-        function processNode(node: any, parent: any): void {
-            if (typeof node !== 'object' || node === null) {
-                return;
-            }
-            parentMap.set(node, parent);
-
-            if (Array.isArray(node)) {
-                for (const item of node) {
-                    processNode(item, node);
-                }
-                return;
-            }
-
-            for (const key of Object.keys(node)) {
-                const value = node[key];
-
-                if (Array.isArray(value)) {
-                    processNode(value, node);
-                } else if (typeof value === 'object' && value !== null) {
-                    processNode(value, node);
-                }
-            }
-        }
-
-        processNode(parsedXml, null);
-
-        return parentMap;
-    }
-
-    function findNodesByPathPart(nodes: any[], pathPart: any): any[] {
-        // Handle dotted property in curly braces
-        if (typeof pathPart === 'object' && pathPart.dottedProperty) {
-            const results = [] as any[];
-            for (const node of nodes) {
-                if (node[pathPart.dottedProperty]) {
-                    results.push(node);
-                }
-            }
-            return results;
-        }
-
-        // Check if this is an "all items" array accessor like "profile[]"
-        if (typeof pathPart === 'string' && pathPart.endsWith('[]')) {
-            const elementName = pathPart.substring(0, pathPart.length - 2);
-
-            // Collect all matching elements from all nodes
-            const results = [] as any[];
-            for (const node of nodes) {
-                if (node[elementName]) {
-                    // Add all elements to results
-                    for (const element of node[elementName]) {
-                        results.push(element);
-                    }
-                }
-            }
-            return results;
-        }
-
-        // Check if this is a condition like "plugin[artifactId=vscode-car-plugin]"
-        if (typeof pathPart === 'string') {
-            const conditionMatch = pathPart.match(/^(.+)\[(.+)=(.+)\]$/);
-            if (conditionMatch) {
-                const [_, elementName, conditionProp, conditionValue] = conditionMatch;
-
-                // Find all nodes with this element name that match the condition
-                const results = [] as any[];
-                for (const node of nodes) {
-                    if (node[elementName]) {
-                        // For each element, check if it matches the condition
-                        for (const element of node[elementName]) {
-                            if (typeof element[conditionProp] === 'object' &&
-                                element[conditionProp][0]?.["#text"] === conditionValue) {
-                                results.push(...node[elementName]);
-                            }
-                        }
-                    }
-                }
-                return results;
-            }
-        }
-
-        // Regular property access
-        const results = [] as any[];
-        for (const node of nodes) {
-            if (node[pathPart]) {
-                results.push(...node[pathPart]);
-            }
-        }
-
-        return results;
-    }
 
     function traverseWithPath(currentNodes: any[], currentPathIndex: number): void {
-        if (currentPathIndex >= pathParts.length || currentNodes.length === 0) {
+        if (currentPathIndex >= pathParts.length) {
             return;
         }
-
-        const currentPathPart = typeof pathParts[currentPathIndex] === 'object' ?
-            pathParts[currentPathIndex].dottedProperty : pathParts[currentPathIndex];
+        const currentPathPart = pathParts[currentPathIndex];
 
         // For the last path part, update the value
         if (currentPathIndex === pathParts.length - 1 && currentPathPart) {
             let updated = false;
             for (const node of currentNodes) {
-                if (typeof node === 'object' && node[currentPathPart]) {
-                    node[currentPathPart][0]["#text"] = value;
+                if (Array.isArray(node[currentPathPart])) {
+                    if (node[currentPathPart].length > 0) {
+                        node[currentPathPart][0]["#text"] = value;
+                    } else {
+                        node[currentPathPart].push({ "#text": value });
+                    }
                     updated = true;
                 }
             }
-            // If node not found, add it to the parent
-            const parent = parentMap.get(currentNodes[0]);
-            if (createIfNotFound && !updated && parent) {
-                if (Array.isArray(parent)) {
-                    parent.push({ [currentPathPart]: [{ "#text": value }] });
-                } else {
-                    parent[currentPathPart] = [{ "#text": value }];
-                }
+            // If node not found, add it
+            if (createIfNotFound && !updated) {
+                const newNode = { [currentPathPart]: [{ "#text": value }] };
+                currentNodes.push(newNode);
             }
-            return;
         } else {
-            // For intermediate path parts, collect all matching nodes and continue traversing
-            const nextNodes = findNodesByPathPart(currentNodes, currentPathPart);
-
-            if (nextNodes.length > 0) {
-                traverseWithPath(nextNodes, currentPathIndex + 1);
-
+            const conditionMatch = currentPathPart.match(/^(.+)\[(.+)=(.+)\]$/);
+            if (conditionMatch) {
+                const [_, elementName, conditionProp, conditionValue] = conditionMatch;
+                // Find all nodes with this element name that match the condition
+                for (const node of currentNodes) {
+                    if (Array.isArray(node[elementName])) {
+                        for (const element of node[elementName]) {
+                            if (typeof element[conditionProp] === 'object' &&
+                                element[conditionProp][0]?.["#text"] === conditionValue) {
+                                traverseWithPath(node[elementName], currentPathIndex + 1);
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (const node of currentNodes) {
+                    if (Array.isArray(node[currentPathPart])) {
+                        traverseWithPath(node[currentPathPart], currentPathIndex + 1);
+                    }
+                }
             }
         }
     }

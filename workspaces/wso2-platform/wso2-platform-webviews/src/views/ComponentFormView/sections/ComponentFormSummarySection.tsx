@@ -171,7 +171,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 				<Banner
 					className="mb-4"
 					title="Local Changes Detected"
-					subTitle={`${extensionName} builds your component from the source code in the selected remote repository. Please commit and push your local changes to the remote Git repository.`}
+					subTitle={`${extensionName} builds your ${extensionName === "Devant" ? "integration" : "component"} from the source code in the selected remote repository. Please commit and push your local changes to the remote Git repository.`}
 				/>
 			)}
 
