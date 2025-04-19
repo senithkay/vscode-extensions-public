@@ -180,7 +180,7 @@ export class API {
 
         const overviewPage = new Overview(this._page);
         await overviewPage.init();
-        await this._page.getByLabel('Open Service Designer').click();
+        await this._page.getByRole('button', { name: 'Open Service Designer' }).click();
     }
 
     public async deleteResource() {
@@ -197,7 +197,7 @@ export class API {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         console.log("Navigated to project overview");
-        
+
         const overviewPage = new Overview(this._page);
         await overviewPage.init();
         const webview = await overviewPage.getWebView();
@@ -288,7 +288,7 @@ export class API {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         console.log("Navigated to project overview");
-        
+
         const overviewPage = new Overview(this._page);
         await overviewPage.init();
         await overviewPage.goToAddArtifact();
