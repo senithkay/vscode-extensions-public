@@ -13,7 +13,6 @@ import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, M
 import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
-import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { compareVersions } from '../util/onboardingUtils';
 import { debounce } from 'lodash';
