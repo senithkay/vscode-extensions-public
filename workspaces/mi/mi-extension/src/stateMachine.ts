@@ -184,7 +184,7 @@ const stateMachine = createMachine<MachineContext>({
                     invoke: {
                         src: 'updateStack',
                         onDone: {
-                            target: "viewNavigated"
+                            target: "viewReady"
                         }
                     }
                 },
@@ -192,20 +192,12 @@ const stateMachine = createMachine<MachineContext>({
                     invoke: {
                         src: 'findView',
                         onDone: {
-                            target: "viewNavigated",
+                            target: "viewReady",
                             actions: assign({
                                 stNode: (context, event) => event.data.stNode,
                                 diagnostics: (context, event) => event.data.diagnostics,
                                 dataMapperProps: (context, event) => event.data?.dataMapperProps
                             })
-                        }
-                    }
-                },
-                viewNavigated: {
-                    invoke: {
-                        src: 'updateAIView',
-                        onDone: {
-                            target: "viewReady"
                         }
                     }
                 },
@@ -255,19 +247,9 @@ const stateMachine = createMachine<MachineContext>({
                                 customProps: (context, event) => event.viewLocation.customProps,
                                 dataMapperProps: (context, event) => event.viewLocation.dataMapperProps
                             })
-                        },
-                        FILE_EDIT: {
-                            target: "viewEditing"
                         }
                     }
-                },
-                viewEditing: {
-                    on: {
-                        EDIT_DONE: {
-                            target: "viewReady"
-                        }
-                    }
-                },
+                }
             }
         },
         disabled: {
@@ -281,6 +263,7 @@ const stateMachine = createMachine<MachineContext>({
                 viewLoading: {
                     invoke: {
                         src: 'openWebPanel',
+                        data: (context, event) => ({ context, event, setTitle: true }),
                         onDone: {
                             target: 'viewReady'
                         }
@@ -354,7 +337,7 @@ const stateMachine = createMachine<MachineContext>({
                 }
             });
         },
-        openWebPanel: (context, event) => {
+        openWebPanel: (context, event, setTitle) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise(async (resolve, reject) => {
                 if (!context?.projectUri) {
@@ -374,12 +357,14 @@ const stateMachine = createMachine<MachineContext>({
                     const webview = webviews.get(context.projectUri)?.getWebview();
                     if (webview) {
                         webview.reveal(ViewColumn.Active);
-                        webview.title = context.view ?? 'Design View';
 
                         // wait until webview is ready
                         const start = Date.now();
                         while (!webview.visible && Date.now() - start < 5000) {
                             await new Promise(resolve => setTimeout(resolve, 10));
+                        }
+                        if (setTitle) {
+                            webview.title = context.view!;
                         }
                     }
                     resolve(true);
@@ -499,6 +484,13 @@ const stateMachine = createMachine<MachineContext>({
                         viewLocation.diagnostics = res.diagnostics;
                     }
                 }
+
+                // set webview title
+                const webview = webviews.get(context.projectUri!)?.getWebview();
+                if (webview) {
+                    webview.title = context.view!;
+                }
+
                 updateProjectExplorer(viewLocation);
                 resolve(viewLocation);
             });
