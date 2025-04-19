@@ -31,6 +31,8 @@ export class ProjectExplorer {
             } else {
                 if (click) {
                     await currentItem.click();
+                } else {
+                    await currentItem.hover();
                 }
             }
         }

@@ -175,12 +175,8 @@ export class API {
         await saveBtn.click();
 
         const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        console.log("Navigated to project overview");
-
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        await this._page.getByRole('button', { name: 'Open Service Designer' }).click();
+        const item = await projectExplorer.findItem(['Project testProject', 'APIs', 'NewTestAPI1:v1.0.2']);
+        await item.getByRole('button', { name: 'Open Service Designer' }).click();
     }
 
     public async deleteResource() {
