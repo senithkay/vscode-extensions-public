@@ -372,12 +372,15 @@ const stateMachine = createMachine<MachineContext>({
                     }
                 } else {
                     const webview = webviews.get(context.projectUri)?.getWebview();
-                    webview?.reveal(ViewColumn.Active);
+                    if (webview) {
+                        webview.reveal(ViewColumn.Active);
+                        webview.title = context.view ?? 'Design View';
 
-                    // wait until webview is ready
-                    const start = Date.now();
-                    while (!webview?.visible && Date.now() - start < 5000) {
-                        await new Promise(resolve => setTimeout(resolve, 10));
+                        // wait until webview is ready
+                        const start = Date.now();
+                        while (!webview.visible && Date.now() - start < 5000) {
+                            await new Promise(resolve => setTimeout(resolve, 10));
+                        }
                     }
                     resolve(true);
                 }
