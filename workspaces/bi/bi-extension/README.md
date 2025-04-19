@@ -6,7 +6,7 @@ WSO2 Ballerina Integrator Visual Studio Code extension (BI for VS Code) is a com
 
 You need the following to work with the Ballerina Integrator extension
 - [Ballerina VS Code extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina)
-- [Ballerina Swan Lake Update 12 (2201.12.x)](https://ballerina.io/downloads/) or above
+- [Ballerina Swan Lake Update 12 (2201.12.3)](https://ballerina.io/downloads/) or above
 
 **If these prerequisites are not installed on your local machine, the Ballerina Integrator for VS Code extension will guide you through the download and configuration process during the setup.**
 

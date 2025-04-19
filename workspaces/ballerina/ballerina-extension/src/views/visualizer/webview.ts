@@ -15,7 +15,7 @@ import { debounce } from "lodash";
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from "../../utils/webview-utils";
 import { extension } from "../../BalExtensionContext";
 import { StateMachine, updateView } from "../../stateMachine";
-import { ballerinaExtInstance, LANGUAGE } from "../../core";
+import { LANGUAGE } from "../../core";
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -32,7 +32,7 @@ export class VisualizerWebview {
         RPCLayer.create(this._panel);
 
         // Handle the text change and diagram update with rpc notification
-        const sendUpdateNotificationToWebview = debounce((refreshTreeView?: boolean) => {
+        const sendUpdateNotificationToWebview = debounce(async (refreshTreeView?: boolean) => {
             if (this._panel) {
                 updateView(refreshTreeView);
             }
@@ -43,7 +43,7 @@ export class VisualizerWebview {
             const state = StateMachine.state();
             const machineReady = typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
             if (this._panel?.active && machineReady && document && document.document.languageId === LANGUAGE.BALLERINA) {
-                sendUpdateNotificationToWebview(true);
+                sendUpdateNotificationToWebview();
             }
         }, extension.context);
 

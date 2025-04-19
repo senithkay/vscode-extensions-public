@@ -29,3 +29,6 @@ export const ANIMATION = {
         opacity: 0,
     }),
 };
+
+export const EMPTY_SEARCH_TEXT_MSG = "Please search for the type you want to add.";
+export const EMPTY_SEARCH_RESULT_MSG = "No results found. Please try a different search.";

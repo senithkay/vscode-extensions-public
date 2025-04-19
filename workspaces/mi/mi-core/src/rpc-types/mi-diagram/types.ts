@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { DiagramService, Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Diagnostic, Position, TextDocumentIdentifier, TextEdit } from "vscode-languageserver-types";
 import { HelperPaneData } from '../../interfaces/mi-diagram';
 
@@ -1246,6 +1246,18 @@ export interface WriteContentToFileResponse {
     status: boolean;
 }
 
+export interface HandleFileRequest {
+    operation : "read" | "write" | "delete";
+    fileName : string;
+    filePath : string;
+    content?: string;
+}
+
+export interface HandleFileResponse {
+    status: boolean;
+    content?: string;
+}
+
 export interface HighlightCodeRequest {
     range: Range;
     force?: boolean;
@@ -1254,10 +1266,12 @@ export interface HighlightCodeRequest {
 
 export interface GetWorkspaceContextResponse {
     context: string[];
+    rootPath: string;
 }
 
 export interface GetSelectiveWorkspaceContextResponse {
     context: string[];
+    rootPath: string;
 }
 
 export interface GetSelectiveArtifactsRequest {
@@ -1651,6 +1665,12 @@ export interface BuildProjectRequest {
     buildType?: 'docker' | 'capp';
 }
 
+export interface DevantMetadata {
+    isLoggedIn?: boolean;
+    hasComponent?: boolean;
+    hasLocalChanges?: boolean;
+}
+
 export interface DeployProjectRequest {
 }
 export interface DeployProjectResponse {
@@ -1880,7 +1900,10 @@ export interface MediatorTryOutRequest {
     file: string;
     line: number;
     column: number;
+    contentType?: string;
     inputPayload?: string;
+    queryParams?: Param[];
+    pathParams?: Param[];
     mediatorType?: string;
     mediatorInfo?: MediatorTryOutInfo,
     tryoutId?: string;
@@ -1889,6 +1912,11 @@ export interface MediatorTryOutRequest {
         text: string;
         range: Range;
     }[]
+}
+
+export interface Param {
+    key: string;
+    value: string;
 }
 
 export interface MediatorTryOutResponse {
@@ -1926,20 +1954,27 @@ export interface Params {
 }
 
 export interface SavePayloadRequest {
-    payload: string;
+    payload: any;
+    artifactModel: DiagramService;
+    defaultPayload: string;
 }
 
 export interface GetPayloadsRequest {
     documentUri: string;
+    artifactModel: DiagramService;
 }
 
 export interface GetPayloadsResponse {
     payloads: InputPayload[];
+    defaultPayload: string;
 }
 
 export interface InputPayload {
     name: string;
+    contentType: string;
     content: string;
+    queryParams: { [key: string]: string }[];
+    pathParams: { [key: string]: string }[];
 }
 
 export interface GetMediatorsRequest {

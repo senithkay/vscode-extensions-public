@@ -174,7 +174,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 				branch: genDetails.branch,
 				langVersion: buildDetails.langVersion,
 				port: buildDetails.webAppPort,
-				originCloud: extensionName === 'Devant' ? "devant" :"choreo"
+				originCloud: extensionName === "Devant" ? "devant" : "choreo",
 			};
 
 			if (provider !== GitProvider.GITHUB) {
@@ -295,14 +295,17 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	}
 
 	if (type === ChoreoComponentType.Service) {
-		if ( ![ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.Ballerina].includes(buildPackLang as ChoreoBuildPackNames) || ([ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.Ballerina].includes(buildPackLang as ChoreoBuildPackNames) && !useDefaultEndpoints)) {
+		if (
+			![ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.Ballerina].includes(buildPackLang as ChoreoBuildPackNames) ||
+			([ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.Ballerina].includes(buildPackLang as ChoreoBuildPackNames) && !useDefaultEndpoints)
+		) {
 			steps.push({
 				label: "Endpoint Details",
 				content: (
 					<ComponentFormEndpointsSection
 						{...props}
 						key="endpoints-step"
-						componentName={name || "component"}
+						componentName={name || extensionName === "Devant" ? "integration" : "component"}
 						onNextClick={(data) => submitEndpoints(data.endpoints as Endpoint[])}
 						onBackClick={() => setStepIndex(stepIndex - 1)}
 						isSaving={isSubmittingEndpoints}

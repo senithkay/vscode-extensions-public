@@ -14,10 +14,11 @@ import { Divider, Dropdown, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EditorContainer, EditorContent } from '../../../styles';
 import { LineRange, ParameterModel } from '@wso2-enterprise/ballerina-core';
-import { FormField } from '@wso2-enterprise/ballerina-side-panel';
+import { FormField, FormImports } from '@wso2-enterprise/ballerina-side-panel';
 import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI, Utils } from 'vscode-uri';
+import { getImportsForProperty } from '../../../../../../utils/bi';
 
 const options = [{ id: "0", value: "QUERY" }, { id: "1", value: "Header" }];
 
@@ -115,15 +116,23 @@ export function ParamEditor(props: ParamProps) {
         updateFormFields();
     }, [param.name, param.type, param.defaultValue, hideType]);
 
-    const onParameterSubmit = (dataValues: any) => {
-        console.log("Param values", dataValues);
+    const onParameterSubmit = (dataValues: any, formImports: FormImports) => {
+        console.log('Param values', dataValues);
         onSave({
             ...param,
-            type: { ...param.type, value: dataValues['type'] ?? param.type.value },
+            type: {
+                ...param.type,
+                value: dataValues['type'] ?? param.type.value,
+                imports: getImportsForProperty('type', formImports)
+            },
             name: { ...param.name, value: dataValues['name'] ?? param.name.value },
-            defaultValue: { ...param.defaultValue, value: dataValues['defaultValue'] ?? param.defaultValue?.value, enabled: dataValues['defaultValue'] && true }
+            defaultValue: {
+                ...param.defaultValue,
+                value: dataValues['defaultValue'] ?? param.defaultValue?.value,
+                enabled: dataValues['defaultValue'] && true
+            }
         });
-    }
+    };
 
     useEffect(() => {
         if (filePath && rpcClient) {

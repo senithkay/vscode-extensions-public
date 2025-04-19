@@ -35,3 +35,11 @@ export interface DriftResponseData {
 export interface DriftResponse {
     drift : string;
 }
+
+export interface BallerinaSource {
+    balFiles: string; 
+    readme: string; 
+    requirements: string; 
+    developerOverview: string; 
+    moduleName: string;
+}

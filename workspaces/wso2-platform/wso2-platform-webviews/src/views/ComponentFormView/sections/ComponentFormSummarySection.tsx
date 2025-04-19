@@ -171,7 +171,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 				<Banner
 					className="mb-4"
 					title="Local Changes Detected"
-					subTitle={`${extensionName} builds your component from the source code in the selected remote repository. Please commit and push your local changes to the remote Git repository.`}
+					subTitle={`${extensionName} builds your ${extensionName === "Devant" ? "integration" : "component"} from the source code in the selected remote repository. Please commit and push your local changes to the remote Git repository.`}
 				/>
 			)}
 
@@ -179,7 +179,10 @@ export const ComponentFormSummarySection: FC<Props> = ({
 				className={classNames("grid grid-cols-2 gap-1 md:grid-cols-3 md:gap-2 xl:grid-cols-4 xl:gap-3", isLoadingConfigDriftFiles && "animate-pulse")}
 			>
 				<ComponentSummaryItem title="Name" text={genDetails?.name} />
-				<ComponentSummaryItem title="Type" text={extensionName === "Devant" ? getIntegrationComponentTypeText(type, initialValues?.subType) : getComponentTypeText(type)} />
+				<ComponentSummaryItem
+					title="Type"
+					text={extensionName === "Devant" ? getIntegrationComponentTypeText(type, initialValues?.subType) : getComponentTypeText(type)}
+				/>
 				<ComponentSummaryItem title="Repository" text={genDetails?.repoUrl} className="col-span-2" />
 				<ComponentSummaryItem title="Branch" text={genDetails?.branch} />
 				{genDetails?.subPath && genDetails?.subPath !== "." && <ComponentSummaryItem title="Directory" text={genDetails?.subPath} />}
