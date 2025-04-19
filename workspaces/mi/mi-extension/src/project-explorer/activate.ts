@@ -26,6 +26,7 @@ import { removeFromHistory } from '../history';
 import * as fs from "fs";
 import { webviews } from '../visualizer/webview';
 import { log } from '../util/logger';
+import { MILanguageClient } from '../lang-client/activator';
 
 let isProjectExplorerInitialized = false;
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
@@ -35,7 +36,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	isProjectExplorerInitialized = true;
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
-	await projectExplorerDataProvider.refresh(lsClient);
+	await projectExplorerDataProvider.refresh();
 	let registryExplorerDataProvider;
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 
@@ -43,7 +44,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
 	const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
 
-	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
+	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
 
 	commands.registerCommand(COMMANDS.ADD_ARTIFACT_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ADD_ARTIFACT, projectUri: entry.info?.path });
@@ -530,8 +531,8 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 				if (filePath !== "") {
 					const fileName = path.basename(filePath);
-					const langClient = getStateMachine(workspace.uri.fsPath).context().langClient;
-					const fileUsageIdentifiers = await langClient?.getResourceUsages(filePath);
+					const langClient = await MILanguageClient.getInstance(workspace.uri.fsPath);
+					const fileUsageIdentifiers = await langClient?.languageClient?.getResourceUsages(filePath);
 					const fileUsageMessage = fileUsageIdentifiers?.length && fileUsageIdentifiers?.length > 0 ? "It is used in:\n" + fileUsageIdentifiers.join(", ") : "No usage found";
 					window.showInformationMessage("Do you want to delete : " + fileName + "\n\n" + fileUsageMessage, { modal: true }, "Yes")
 						.then(async answer => {
@@ -539,9 +540,9 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 								const res = await deleteRegistryResource(filePath);
 								if (res.status === true) {
 									window.showInformationMessage(res.info);
-									projectExplorerDataProvider.refresh(lsClient);
+									projectExplorerDataProvider.refresh();
 									if (isRegistrySupported && registryExplorerDataProvider) {
-										registryExplorerDataProvider.refresh(lsClient);
+										registryExplorerDataProvider.refresh();
 									}
 								} else {
 									window.showErrorMessage(res.info);
@@ -552,9 +553,9 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				break;
 			}
 		}
-		projectExplorerDataProvider.refresh(lsClient);
+		projectExplorerDataProvider.refresh();
 		if (compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0 && registryExplorerDataProvider) {
-			registryExplorerDataProvider.refresh(lsClient);
+			registryExplorerDataProvider.refresh();
 		}
 		if (file) {
 			const projectUri = workspace.getWorkspaceFolder(Uri.file(file))?.uri?.fsPath;

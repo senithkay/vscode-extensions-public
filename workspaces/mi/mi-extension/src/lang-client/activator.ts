@@ -42,6 +42,7 @@ import util = require('util');
 import { log } from '../util/logger';
 import { getJavaHomeFromConfig } from '../util/onboardingUtils';
 import { SELECTED_SERVER_PATH } from '../debugger/constants';
+import { extension } from '../MIExtensionContext';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
@@ -91,11 +92,11 @@ export class MILanguageClient {
     private COMPATIBLE_JDK_VERSION = "11"; // Minimum JDK version required to run the language server
     private _errorStack: ErrorType[] = [];
 
-    constructor(private context: ExtensionContext, private projectUri: string) { }
+    constructor(private projectUri: string) { }
 
-    public static async getInstance(projectUri: string, context?: ExtensionContext): Promise<MILanguageClient> {
-        if (!this._instances.has(projectUri) && context) {
-            const instance = new MILanguageClient(context, projectUri);
+    public static async getInstance(projectUri: string): Promise<MILanguageClient> {
+        if (!this._instances.has(projectUri)) {
+            const instance = new MILanguageClient(projectUri);
             await instance.launch(projectUri);
             this._instances.set(projectUri, instance);
         }
@@ -159,8 +160,8 @@ export class MILanguageClient {
                     throw new Error(errorMessage);
                 }
                 let executable: string = path.join(JAVA_HOME, 'bin', 'java');
-                let schemaPath = this.context.asAbsolutePath(path.join("synapse-schemas", "synapse_config.xsd"));
-                let langServerCP = this.context.asAbsolutePath(path.join('ls', '*'));
+                let schemaPath = extension.context.asAbsolutePath(path.join("synapse-schemas", "synapse_config.xsd"));
+                let langServerCP = extension.context.asAbsolutePath(path.join('ls', '*'));
 
                 let schemaPathArg = '-DSCHEMA_PATH=' + schemaPath;
                 const args: string[] = [schemaPathArg, '-cp', langServerCP];
@@ -258,8 +259,8 @@ export class MILanguageClient {
                 activateTagClosing(tagProvider, { synapseXml: true, xsl: true },
                     'xml.completion.autoCloseTags');
                 languages.setLanguageConfiguration('SynapseXml', getIndentationRules());
-                registerDefinitionProvider(this.context, this.languageClient);
-                registerFormattingProvider(this.context, this.languageClient);
+                registerDefinitionProvider(extension.context, this.languageClient);
+                registerFormattingProvider(extension.context, this.languageClient);
             } else {
                 log("Error: The JAVA_HOME environment variable is not defined. Please make sure to set the JAVA_HOME environment variable to the installation directory of your JDK.");
                 this.updateErrors(ERRORS.JAVA_HOME);

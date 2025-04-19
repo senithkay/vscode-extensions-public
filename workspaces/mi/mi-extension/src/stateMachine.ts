@@ -338,7 +338,7 @@ const stateMachine = createMachine<MachineContext>({
                 log("Waiting for LS to be ready " + new Date().toLocaleTimeString());
                 try {
                     vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
-                    const instance = await MILanguageClient.getInstance(context.projectUri!, extension.context);
+                    const instance = await MILanguageClient.getInstance(context.projectUri!);
                     const errors = instance.getErrors();
                     if (errors.length) {
                         return reject(errors);
@@ -537,8 +537,8 @@ const stateMachine = createMachine<MachineContext>({
         },
         activateOtherFeatures: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                const lsInstances = await MILanguageClient.getAllInstances();
-                await activateProjectExplorer(extension.context, lsInstances[0].languageClient!);
+                const ls = await MILanguageClient.getInstance(context.projectUri!);
+                await activateProjectExplorer(extension.context, ls.languageClient!);
                 await activateTestExplorer(extension.context);
                 resolve(true);
             });

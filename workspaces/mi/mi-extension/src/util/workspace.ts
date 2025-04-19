@@ -38,7 +38,7 @@ export async function replaceFullContentToFile(documentUri: string, content: str
 export async function askForProject(): Promise<string> {
     const projects: Map<string, string> = new Map();
     for (const wrkspace of workspace.workspaceFolders!) {
-        const lsClient = await MILanguageClient.getInstance(wrkspace.uri.fsPath, extension.context);
+        const lsClient = await MILanguageClient.getInstance(wrkspace.uri.fsPath);
         if (lsClient) {
             const projectDetails = await lsClient.languageClient?.getProjectDetails();
             if (projectDetails?.primaryDetails?.projectName?.value) {
