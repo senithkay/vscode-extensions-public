@@ -56,6 +56,9 @@ const stateMachine = createMachine<MachineContext>({
                     {
                         target: 'environmentSetup',
                         cond: (context, event) => (event.data.isProject === true || event.data.isOldProject === true) && event.data.isEnvironmentSetUp === false,
+                        actions: assign({
+                            view: (context, event) => MACHINE_VIEW.SETUP_ENVIRONMENT
+                        })
                     },
                     {
                         target: 'oldProjectDetected',

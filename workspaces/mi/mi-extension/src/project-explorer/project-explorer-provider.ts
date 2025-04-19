@@ -16,6 +16,7 @@ import { findJavaFiles } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { compareVersions } from '../util/onboardingUtils';
+import { debounce } from 'lodash';
 
 let resourceDetails: ListRegistryArtifactsResponse;
 let extensionContext: vscode.ExtensionContext;
@@ -51,7 +52,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void>
 		= this._onDidChangeTreeData.event;
 
-	refresh(langClient: ExtendedLanguageClient) {
+	refresh = debounce(async (langClient: ExtendedLanguageClient) => {
 		return window.withProgress({
 			location: { viewId: 'MI.project-explorer' },
 			title: 'Loading project structure'
@@ -64,7 +65,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 				this._data = [];
 			}
 		});
-	}
+	}, 300);
 
 	constructor(private context: vscode.ExtensionContext) {
 		this._data = [];
@@ -83,7 +84,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	}
 
 	getParent(element: ProjectExplorerEntry): vscode.ProviderResult<ProjectExplorerEntry> {
-		if (element.info?.path === undefined) return undefined;
+		if (element.info?.path === undefined || element.contextValue === 'project') return undefined;
 
 		const projects = (this._data);
 		for (const project of projects) {
@@ -95,7 +96,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 				return fileElement;
 			}
 		}
-		return element;
+		return undefined;
 	}
 
 	recursiveSearchParent(element: ProjectExplorerEntry, path: string): ProjectExplorerEntry | undefined {

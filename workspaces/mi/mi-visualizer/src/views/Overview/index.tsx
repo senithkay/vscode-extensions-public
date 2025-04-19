@@ -214,6 +214,7 @@ export function Overview(props: OverviewProps) {
                     iconSx={{ fontSize: "18px", color: "#0066cc" }}
                 >
                     <Button
+                        data-testid="add-artifact-button"
                         appearance="primary"
                         onClick={handleAddArtifact}
                         tooltip="Add Artifact"

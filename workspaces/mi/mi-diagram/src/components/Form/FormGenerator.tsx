@@ -480,7 +480,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
                 return (<Keylookup
                     value={field.value}
-                    filterType={(keyType as any) ?? "resource"}
+                    filterType={(keyType as any) ?? "registry"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
                     allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
@@ -503,7 +503,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
                 return (<Keylookup
                     value={field.value}
-                    filterType={(keyType as any) ?? "resource"}
+                    filterType={(keyType as any) ?? "registry"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
                     allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}

@@ -1,0 +1,162 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { expect, Page } from "@playwright/test";
+import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ProjectExplorer } from "../ProjectExplorer";
+import { AddArtifact } from "../AddArtifact";
+import { Overview } from "../Overview";
+import { clearNotificationAlerts, page, showNotifications } from "../../Utils";
+import { ServiceDesigner } from "../ServiceDesigner";
+import { Form } from '../Form';
+import { Diagram } from '../Diagram';
+import { MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+
+export class BallerinaModule {
+
+    constructor(private _page: Page) {
+    }
+
+    public async init() {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        await overviewPage.goToAddArtifact();
+
+        const addArtifactPage = new AddArtifact(this._page);
+        await addArtifactPage.init();
+        await addArtifactPage.add('Ballerina Module');
+    }
+
+    public async createBallerinaModuleFromProjectExplorer(moduleName: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Ballerina Modules'], true);
+        await this._page.getByLabel('Add Ballerina Module').click();
+        const ballerinaModuleView = await switchToIFrame('Ballerina Module Creation Form', this._page);
+        if (!ballerinaModuleView) {
+            throw new Error("Failed to switch to the Ballerina Module Form iframe");
+        }
+
+        const ballerinaFormFrame = ballerinaModuleView.locator('div#root');
+        await ballerinaFormFrame.getByRole('textbox', { name: 'Module Name*' }).fill(moduleName);
+        await ballerinaFormFrame.getByRole('textbox', { name: 'Version*' }).fill('1.0.0');
+        await ballerinaFormFrame.getByRole('button', { name: 'Create' }).click();
+
+        await this._page.getByRole('tab', { name: `${moduleName}-module.bal` }).getByLabel('Close').click();
+        await projectExplorer.goToOverview("testProject");
+        const overview = await switchToIFrame('Project Overview', this._page);
+        if (!overview) {
+            throw new Error("Failed to switch to the project overview page");
+        }
+    }
+
+    public async createBallerinaModule(moduleName: string) {
+        const ballerinaModuleView = await switchToIFrame('Ballerina Module Creation Form', this._page);
+        if (!ballerinaModuleView) {
+            throw new Error("Failed to switch to the Ballerina Module Form iframe");
+        }
+
+        const ballerinaFormFrame = ballerinaModuleView.locator('div#root');
+        await ballerinaFormFrame.getByRole('textbox', { name: 'Module Name*' }).fill(moduleName);
+        await ballerinaFormFrame.getByRole('textbox', { name: 'Version*' }).fill('1.0.0');
+        await ballerinaFormFrame.getByRole('button', { name: 'Create' }).click();
+        await this._page.getByRole('tab', { name: `${moduleName}-module.bal` }).getByLabel('Close').click();
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+
+        const overview = await switchToIFrame('Project Overview', this._page);
+        if (!overview) {
+            throw new Error("Failed to switch to the project overview page");
+        }
+    }
+
+    public async openFromProjectExplorerAndBuild(moduleName: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Ballerina Modules', `${moduleName}-module.bal (${moduleName})`], true);
+
+        const page = await this._page;
+        await page.getByLabel('Build Ballerina Module').click();
+        const successNotification = await page.getByText('Ballerina module build successful', { exact: true })
+        const errorNotification = await page.getByText('Ballerina not found. Please download Ballerina and try again.', { exact: true })
+        const notificationAlert = await Promise.race([
+            successNotification.waitFor({ state: 'visible', timeout: 20000 }),
+            errorNotification.waitFor({ state: 'visible', timeout: 20000 })
+        ]);
+
+        if (await errorNotification.isVisible()) {
+            await showNotifications();
+            await page.getByRole('button', { name: 'Install Now' }).click();
+            await clearNotificationAlerts();
+            await page.getByRole('tab', { name: 'Project Overview' }).getByLabel('Close').click();
+            const webview = await switchToIFrame('Ballerina Integrator', this._page);
+            if (!webview) {
+                throw new Error("Failed to switch to the Ballerina Module Form iframe");
+            }
+            await webview.locator('vscode-button').locator('div:has-text("Set up Ballerina distribution")').click();
+            console.log("Downloading Ballerina");
+            const restartButton = webview.locator('vscode-button').locator('div:has-text("Restart VS Code")');
+            await expect(restartButton).toBeVisible({ timeout: 600000 });
+            console.log("Ballerina download completed");
+            await page.getByRole('tab', { name: 'Ballerina Integrator', exact: true }).getByLabel('Close').click();
+            await clearNotificationAlerts();
+            await page.getByLabel('Build Ballerina Module').click();
+            const updatedNotification = await page.getByText('Ballerina module build successful', { exact: true })
+            await expect(updatedNotification).toBeVisible({ timeout: 20000 });
+        }
+        await clearNotificationAlerts();
+
+        await page.getByRole('tab', { name: `${moduleName}-module.bal` }).getByLabel('Close').click();
+        await page.getByRole('tab', { name: 'Micro Integrator' }).locator('a').click();
+        await projectExplorer.goToOverview("testProject");
+    }
+
+    public async openFromMediatorPaletteAndBuild(moduleName: string) {
+        const { title: iframeTitle } = await page.getCurrentWebview();
+        if (iframeTitle === MACHINE_VIEW.Overview) {
+            const overviewPage = new Overview(page.page);
+            await overviewPage.init();
+            await overviewPage.goToAddArtifact();
+        }
+
+        const addArtifactPage = new AddArtifact(page.page);
+        await addArtifactPage.init();
+        await addArtifactPage.add('API');
+
+        const apiForm = new Form(page.page, 'API Form');
+        await apiForm.switchToFormView();
+        await apiForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: 'TestBallerinaAPI',
+                },
+                'Context*': {
+                    type: 'input',
+                    value: '/TestBallerinaAPI',
+                },
+            }
+        });
+        await apiForm.submit();
+
+        const serviceDesigner = new ServiceDesigner(page.page);
+        await serviceDesigner.init();
+        const resource = await serviceDesigner.resource('GET', '/');
+        await resource.click();
+
+        const diagram = new Diagram(page.page, 'Resource');
+        await diagram.init();
+        await diagram.refreshBallerinaModule(moduleName);
+        const notificationAlert = await page.page.getByText('Ballerina module build successful', { exact: true })
+        await expect(notificationAlert).toBeVisible({ timeout: 20000 });
+    }
+}

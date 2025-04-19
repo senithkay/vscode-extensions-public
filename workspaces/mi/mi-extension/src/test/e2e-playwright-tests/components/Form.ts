@@ -7,16 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Locator, Page, expect } from "@playwright/test";
+import { Frame, Locator, Page, expect } from "@playwright/test";
 import { getVsCodeButton, getWebviewInput, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
 export interface FormFillProps {
     values: {
         [key: string]: {
             value: string,
-            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression' | 'file'
+            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression' | 'file' | 'inlineExpression' | 'radio' | 'textarea',
+            additionalProps?: {
+                [key: string]: any
+            }
         }
-    }
+    },
+    enabledFields?: string[];
 }
 
 export interface ParamManagerValues {
@@ -25,6 +29,7 @@ export interface ParamManagerValues {
 
 export class Form {
     private container!: Locator;
+    private webview!: Frame;
 
     constructor(private _page?: Page, private _name?: string, container?: Locator) {
         if (container) {
@@ -32,7 +37,7 @@ export class Form {
         }
     }
 
-    public async switchToFormView() {
+    public async switchToFormView(isPopUp?: boolean) {
         if (!this._name || !this._page) {
             throw new Error("Name and Page are required to switch to Form View");
         }
@@ -40,7 +45,12 @@ export class Form {
         if (!webview) {
             throw new Error("Failed to switch to Form View iframe");
         }
-        this.container = webview.locator('div#root');
+        this.webview = webview;
+        if (isPopUp) {
+            this.container = webview.locator('#popUpPanel');
+        } else {
+            this.container = webview.locator('div.form-view');
+        }
     }
 
     public async close() {
@@ -56,14 +66,13 @@ export class Form {
     }
 
     public async submit(btnText: string = "Create") {
-        const submitBtn = this.container.locator(`vscode-button:has-text("${btnText}")`);
-        await submitBtn.waitFor();
+        const submitBtn = await getVsCodeButton(this.container, btnText, "primary");
         expect(await submitBtn.isEnabled()).toBeTruthy();
         await submitBtn.click();
     }
 
     public async fill(props: FormFillProps) {
-        const { values } = props;
+        const { values, enabledFields } = props;
         if (values) {
             const keys = Object.keys(values);
             for (let i = 0; i < keys.length; i++) {
@@ -75,10 +84,18 @@ export class Form {
                         await input.fill(data.value);
                         break;
                     }
+                    case 'textarea': {
+                        const input = this.container.locator(`textarea[aria-label="${key}"]`);
+                        await input.fill(data.value);
+                        break;
+                    }
                     case 'dropdown': {
-                        const dropdown = this.container.locator(`vscode-select[aria-label="${key}"]`);
+                        const dropdown = this.container.locator(`vscode-dropdown[aria-label="${key}"]`);
                         await dropdown.waitFor();
-                        await dropdown.selectOption({ label: data.value });
+                        await dropdown.click();
+                        const option = this.container.locator(`vscode-option[aria-label="${data.value}"]`);
+                        await option.waitFor();
+                        await option.click();
                         break;
                     }
                     case 'checkbox': {
@@ -92,16 +109,36 @@ export class Form {
                         break;
                     }
                     case 'combo': {
-                        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../..');
+                        let parentDiv;
+                        if (data.additionalProps?.nthValue !== undefined) {
+                            parentDiv = this.container.locator(`label:text("${key}")`).nth(data.additionalProps?.nthValue).locator('../../..');
+                        } else {
+                            parentDiv = this.container.locator(`label:text("${key}")`).locator('../../..');
+                        }
                         await parentDiv.waitFor();
                         const input = parentDiv.locator('input[role="combobox"]');
                         await input.click();
-                        const option = parentDiv.locator(`li:has-text("${data.value}")`);
-                        await option.click();
+                        let option;
+                        if (data.additionalProps?.hasMultipleValues) {
+                            const regex = new RegExp(`${data.value}1|${data.value}2|${data.value}3`);
+                            option = parentDiv.locator('li', { hasText: regex });
+                        } else {
+                            option = parentDiv.locator(`li:has-text("${data.value}")`);
+                        }
+                        await option.first().click();
                         break;
                     }
                     case 'expression': {
-                        const input = await getWebviewInput(this.container, `EX${key}`);
+                        const container = this.container.locator(`div[data-test-id="EX${key}"]`);
+                        await container.waitFor();
+                        const textInput = container.locator('textarea');
+                        await textInput.fill(data.value);
+                        break;
+                    }
+                    case 'inlineExpression': {
+                        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../..');
+                        await parentDiv.waitFor();
+                        const input = parentDiv.locator('div[contenteditable="true"]');
                         await input.fill(data.value);
                         break;
                     }
@@ -113,10 +150,35 @@ export class Form {
                         await textInput?.fill(data.value);
                         const okBtn = await fileInput?.waitForSelector('a.monaco-button:has-text("OK")');
                         await okBtn?.click();
+                        break;
+                    }
+                    case 'radio': {
+                        const checkbox = this.container.locator(`vscode-radio[aria-label="${key}"]`);
+                        await checkbox.waitFor();
+                        if (data.value === 'checked') {
+                            await checkbox.check();
+                        } else {
+                            await checkbox.uncheck();
+                        }
+                        break;
                     }
                 }
             }
         }
+        if (enabledFields) {
+            for (let i = 0; i < enabledFields.length; i++) {
+                const key = enabledFields[i];
+                const enabledField = this.container.locator(`label:text("${key}")`);
+                await enabledField.waitFor();
+            }
+        }
+    }
+
+    public async clickAddNewForField(key: string) {
+        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../..');
+        await parentDiv.waitFor();
+        const addNewBtn = parentDiv.locator('div:text("Add New")');
+        await addNewBtn.click();
     }
 
     public async getInputValue(key: string) {
@@ -124,21 +186,26 @@ export class Form {
         return await input.getAttribute('current-value');
     }
 
-    public async fillParamManager(props: ParamManagerValues) {
+    public async fillParamManager(props: ParamManagerValues, paramManagerLabel: string = "Add Parameter",
+        keyLabel: string = "Name*", valueLabel: string = "Value*", saveBtnLabel: string = "Save") {
         for (const key in props) {
-            const addParamaterBtn = this.container.locator(`div:text("Add Parameter")`).locator('..');
+            const addParamaterBtn = this.container.locator(`div:text("${paramManagerLabel}")`).locator('..');
             await addParamaterBtn.waitFor();
             await addParamaterBtn.click();
 
             const value = props[key];
-            const keyInput = await getWebviewInput(this.container, "Key*");
+            const keyInput = await getWebviewInput(this.container, keyLabel);
             await keyInput.fill(key);
-            const valueInput = await getWebviewInput(this.container, "Value*");
+            const valueInput = await getWebviewInput(this.container, valueLabel);
             await valueInput.fill(value);
 
-            const saveBtn = this.container.locator(`div:text("Save")`).locator('..');
+            const saveBtn = this.container.locator(`div:text("${saveBtnLabel}")`).locator('..');
             await saveBtn.waitFor();
             await saveBtn.click();
         }
+    }
+
+    public async getWebview() {
+        return this.webview;
     }
 }
