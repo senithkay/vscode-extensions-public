@@ -69,9 +69,6 @@ export class BallerinaModule {
         await ballerinaFormFrame.getByRole('textbox', { name: 'Module Name*' }).fill(moduleName);
         await ballerinaFormFrame.getByRole('textbox', { name: 'Version*' }).fill('1.0.0');
         await ballerinaFormFrame.getByRole('button', { name: 'Create' }).click();
-        await this._page.getByRole('tab', { name: `${moduleName}-module.bal` }).getByLabel('Close').click();
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
 
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
@@ -81,23 +78,22 @@ export class BallerinaModule {
 
     public async openFromProjectExplorerAndBuild(moduleName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'Ballerina Modules', `${moduleName}-module.bal (${moduleName})`], true);
 
-        const page = await this._page;
-        await page.getByLabel('Build Ballerina Module').click();
-        const successNotification = await page.getByText('Ballerina module build successful', { exact: true })
-        const errorNotification = await page.getByText('Ballerina not found. Please download Ballerina and try again.', { exact: true })
-        const notificationAlert = await Promise.race([
+        const currentPage = this._page;
+        await currentPage.getByLabel('Build Ballerina Module').click();
+        const successNotification = currentPage.getByText('Ballerina module build successful', { exact: true })
+        const errorNotification = currentPage.getByText('Ballerina not found. Please download Ballerina and try again.', { exact: true })
+        await Promise.race([
             successNotification.waitFor({ state: 'visible', timeout: 20000 }),
             errorNotification.waitFor({ state: 'visible', timeout: 20000 })
         ]);
 
         if (await errorNotification.isVisible()) {
             await showNotifications();
-            await page.getByRole('button', { name: 'Install Now' }).click();
+            await currentPage.getByRole('button', { name: 'Install Now' }).click();
             await clearNotificationAlerts();
-            await page.getByRole('tab', { name: 'Project Overview' }).getByLabel('Close').click();
+            await currentPage.getByRole('tab', { name: 'Project Overview' }).getByLabel('Close').click();
             const webview = await switchToIFrame('Ballerina Integrator', this._page);
             if (!webview) {
                 throw new Error("Failed to switch to the Ballerina Module Form iframe");
@@ -107,16 +103,16 @@ export class BallerinaModule {
             const restartButton = webview.locator('vscode-button').locator('div:has-text("Restart VS Code")');
             await expect(restartButton).toBeVisible({ timeout: 600000 });
             console.log("Ballerina download completed");
-            await page.getByRole('tab', { name: 'Ballerina Integrator', exact: true }).getByLabel('Close').click();
+            await currentPage.getByRole('tab', { name: 'Ballerina Integrator', exact: true }).getByLabel('Close').click();
             await clearNotificationAlerts();
-            await page.getByLabel('Build Ballerina Module').click();
-            const updatedNotification = await page.getByText('Ballerina module build successful', { exact: true })
+            await currentPage.getByLabel('Build Ballerina Module').click();
+            const updatedNotification = currentPage.getByText('Ballerina module build successful', { exact: true })
             await expect(updatedNotification).toBeVisible({ timeout: 20000 });
         }
         await clearNotificationAlerts();
 
-        await page.getByRole('tab', { name: `${moduleName}-module.bal` }).getByLabel('Close').click();
-        await page.getByRole('tab', { name: 'Micro Integrator' }).locator('a').click();
+        await currentPage.getByRole('tab', { name: `${moduleName}-module.bal` }).getByLabel('Close').click();
+        await page.selectSidebarItem('Micro Integrator');
         await projectExplorer.goToOverview("testProject");
     }
 
