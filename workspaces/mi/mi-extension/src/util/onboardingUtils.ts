@@ -931,7 +931,7 @@ export async function buildBallerinaModule(projectPath: string) {
     }
 }
 
-async function runBallerinaBuildsWithProgress(projectPath: string) {
+async function runBallerinaBuildsWithProgress(balProjectPath: string) {
     await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
@@ -942,7 +942,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
             progress.report({ increment: 10, message: "Pull dependencies..." });
             const balHome = path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString();
 
-            runCommand(`${balHome}${path.sep}bal tool pull mi-module-gen`, `"${projectPath}"`, onData, onError, buildModule);
+            runCommand(`${balHome}${path.sep}bal tool pull mi-module-gen`, `"${balProjectPath}"`, onData, onError, buildModule);
 
             let isModuleAlreadyInstalled = false, commandFailed = false;
             function onData(data: string) {
@@ -973,7 +973,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                 commandFailed = false;
                 progress.report({ increment: 40, message: "Generating module..." });
 
-                runCommand(`${balHome}${path.sep}bal mi-module-gen -i .`, `"${projectPath}"`, onData, onError, onComplete);
+                runCommand(`${balHome}${path.sep}bal mi-module-gen -i .`, `"${balProjectPath}"`, onData, onError, onComplete);
 
                 async function onComplete() {
                     try {
@@ -982,7 +982,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                             return;
                         }
                         progress.report({ increment: 40, message: "Copying Ballerina module..." });
-                        const targetFolderPath = path.join(projectPath, 'target');
+                        const targetFolderPath = path.join(balProjectPath, 'target');
                         if (fs.existsSync(targetFolderPath)) {
                             fs.rmSync(targetFolderPath, { recursive: true, force: true });
                         } else {
@@ -990,16 +990,21 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                             return vscode.window.showErrorMessage("Target directory not found");
                         }
 
-                        const tomlContent = fs.readFileSync(path.join(projectPath, "Ballerina.toml"), 'utf8');
+                        const tomlContent = fs.readFileSync(path.join(balProjectPath, "Ballerina.toml"), 'utf8');
                         const nameMatch = tomlContent.match(/name\s*=\s*"([^"]+)"/);
                         const versionMatch = tomlContent.match(/version\s*=\s*"([^"]+)"/);
                         const name = nameMatch ? nameMatch[1] : null;
                         const version = versionMatch ? versionMatch[1] : null;
 
                         const zipName = name + "-connector-" + version + ".zip";
-                        const zipPath = path.join(projectPath, zipName);
+                        const zipPath = path.join(balProjectPath, zipName);
 
-                        const copyTo = path.join(projectPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', zipName);
+                        const projectUri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(balProjectPath))?.uri?.fsPath;
+                        if (!projectUri) {
+                            reject();
+                            return vscode.window.showErrorMessage("Could not find the workspace folder");
+                        }
+                        const copyTo = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources', 'connectors', zipName);
                         if (fs.existsSync(copyTo)) {
                             await fs.promises.rm(copyTo, { force: true });
 
