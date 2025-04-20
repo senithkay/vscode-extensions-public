@@ -60,25 +60,26 @@ export class BallerinaModule {
     }
 
     public async createBallerinaModule(moduleName: string) {
-        const ballerinaModuleView = await switchToIFrame('Ballerina Module Creation Form', this._page);
-        if (!ballerinaModuleView) {
-            throw new Error("Failed to switch to the Ballerina Module Form iframe");
-        }
-
-        const ballerinaFormFrame = ballerinaModuleView.locator('div#root');
-        await ballerinaFormFrame.getByRole('textbox', { name: 'Module Name*' }).fill(moduleName);
-        await ballerinaFormFrame.getByRole('textbox', { name: 'Version*' }).fill('1.0.0');
-        await ballerinaFormFrame.getByRole('button', { name: 'Create' }).click();
-
-        const overview = await switchToIFrame('Project Overview', this._page);
-        if (!overview) {
-            throw new Error("Failed to switch to the project overview page");
-        }
+        const form = new Form(this._page, 'Ballerina Module Creation Form');
+        await form.switchToFormView();
+        await form.fill({
+            values: {
+                'Module Name*': {
+                    type: 'input',
+                    value: moduleName,
+                },
+                'Version*': {
+                    type: 'input',
+                    value: '1.0.0',
+                },
+            }
+        });
+        await form.submit();
     }
 
     public async openFromProjectExplorerAndBuild(moduleName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.findItem(['Project testProject', 'Ballerina Modules', `${moduleName}-module.bal (${moduleName})`], true);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Ballerina Modules', `${moduleName}-module.bal (${moduleName})`], true);
 
         const currentPage = this._page;
         await currentPage.getByLabel('Build Ballerina Module').click();
@@ -93,7 +94,6 @@ export class BallerinaModule {
             await showNotifications();
             await currentPage.getByRole('button', { name: 'Install Now' }).click();
             await clearNotificationAlerts();
-            await currentPage.getByRole('tab', { name: 'Project Overview' }).getByLabel('Close').click();
             const webview = await switchToIFrame('Ballerina Integrator', this._page);
             if (!webview) {
                 throw new Error("Failed to switch to the Ballerina Module Form iframe");
