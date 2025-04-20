@@ -19,6 +19,7 @@ import { deleteStateMachine, getStateMachine } from '../stateMachine';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { refreshDiagram } from './activate';
 import { MILanguageClient } from '../lang-client/activator';
+import { deletePopupStateMachine } from '../stateMachinePopup';
 
 export const webviews: Map<string, VisualizerWebview> = new Map();
 export class VisualizerWebview {
@@ -155,6 +156,7 @@ export class VisualizerWebview {
     public async dispose() {
         webviews.delete(this.projectUri);
         deleteStateMachine(this.projectUri);
+        deletePopupStateMachine(this.projectUri);
         RPCLayer._messengers.delete(this.projectUri);
         await MILanguageClient.stopInstance(this.projectUri);
         this._panel?.dispose();
