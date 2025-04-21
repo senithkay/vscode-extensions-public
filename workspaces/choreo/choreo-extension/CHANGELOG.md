@@ -2,6 +2,12 @@
 
 All significant updates to the [Choreo VSCode extension](https://marketplace.visualstudio.com/items?itemName=WSO2.choreo) are documented here. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
+## [2.2.4] - 2025-04-02
+
+### Added
+- Support for component.yaml version 1.2
+- Support for Git based proxies
+
 ## [2.2.1] - 2024-12-12
 
 ### Added

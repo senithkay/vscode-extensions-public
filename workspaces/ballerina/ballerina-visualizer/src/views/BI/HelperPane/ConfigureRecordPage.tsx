@@ -21,6 +21,7 @@ type ConfigureRecordPageProps = {
     onChange: (value: string, isRecordConfigureChange: boolean) => void;
     currentValue: string;
     recordTypeField: RecordTypeField;
+    onClose: () => void;
 };
 
 export const LabelContainer = styled.div({
@@ -31,7 +32,7 @@ export const LabelContainer = styled.div({
 });
 
 export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
-    const { fileName, targetLineRange, onChange, currentValue, recordTypeField } = props;
+    const { fileName, targetLineRange, onChange, currentValue, recordTypeField, onClose } = props;
     const { rpcClient } = useRpcContext();
 
     const [recordModel, setRecordModel] = useState<TypeField[]>([]);
@@ -39,14 +40,6 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
     const firstRender = useRef<boolean>(true);
     const sourceCode = useRef<string>(currentValue);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const debouncedGetExistingRecordModel = useCallback(
-        (currentValue: string) => {
-            setIsLoading(true);
-            getDebouncedExistingRecordModel(currentValue);
-        },
-        [recordTypeField]
-    );
 
     useEffect(() => {
         if (firstRender.current) {
@@ -57,12 +50,8 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
                 getNewRecordModel();
             }
         } else if (currentValue !== sourceCode.current) {
-            // Only update if currentValue is different from our last known source code
-            if (currentValue) {
-                debouncedGetExistingRecordModel(currentValue);
-            } else {
-                getNewRecordModel();
-            }
+            // Close helper pane if user changed the value in the expression editor
+            onClose();
         }
     }, [currentValue]);
 
@@ -95,10 +84,6 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
     const getExistingRecordModel = async () => {
         await fetchRecordModelFromSource(currentValue);
     };
-
-    const getDebouncedExistingRecordModel = debounce(async (currentValue: string) => {
-        await fetchRecordModelFromSource(currentValue);
-    }, 500);
 
     const getNewRecordModel = async () => {
         setIsLoading(true);
@@ -192,8 +177,8 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
 
         if (recordSourceResponse.recordValue !== undefined) {
             const content = recordSourceResponse.recordValue;
-            onChange(content, true);
             sourceCode.current = content;
+            onChange(content, true);
         }
     }
 

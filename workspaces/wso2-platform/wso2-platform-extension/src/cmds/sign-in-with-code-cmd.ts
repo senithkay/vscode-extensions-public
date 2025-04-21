@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, type ICmdParamsBase } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, commands, window } from "vscode";
 import * as vscode from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
@@ -15,11 +15,14 @@ import { ErrorCode } from "../choreo-rpc/constants";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
 import { authStore } from "../stores/auth-store";
+import { isRpcActive, setExtensionName } from "./cmd-utils";
 
 export function signInWithAuthCodeCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.SignInWithAuthCode, async () => {
+		commands.registerCommand(CommandIds.SignInWithAuthCode, async (params: ICmdParamsBase) => {
+			setExtensionName(params?.extName);
 			try {
+				isRpcActive(ext);
 				// This is used in the extension test runner to sign into choreo
 				getLogger().debug("Signing in to WSO2 Platform using code");
 
@@ -39,7 +42,7 @@ export function signInWithAuthCodeCommand(context: ExtensionContext) {
 					window.showErrorMessage("Auth Code is required to login");
 				}
 			} catch (error: any) {
-				if (!(error instanceof ResponseError) || error.code !== ErrorCode.NoOrgsAvailable) {
+				if (!(error instanceof ResponseError) || ![ErrorCode.NoOrgsAvailable, ErrorCode.NoAccountAvailable].includes(error.code)) {
 					window.showErrorMessage("Sign in failed. Please check the logs for more details.");
 				}
 				getLogger().error(`WSO2 Platform sign in Failed: ${error.message}`);

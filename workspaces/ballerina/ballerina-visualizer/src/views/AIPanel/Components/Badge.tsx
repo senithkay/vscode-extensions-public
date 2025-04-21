@@ -18,9 +18,9 @@ const Badge: React.FC<BadgeProps> = ({ children }) => {
         <div
             contentEditable={false}
             style={{
-                backgroundColor: "var(--vscode-editorWidget-background)",
-                color: "var(--vscode-editorWidget-foreground)",
-                padding: "4px",
+                backgroundColor: "var(--vscode-toolbar-hoverBackground)",
+                color: "var(--vscode-icon-foreground)",
+                padding: "4px 0",
                 borderRadius: "4px",
                 display: "inline-flex",
                 alignItems: "center",

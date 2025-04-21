@@ -472,7 +472,7 @@ export function Diagram(props: DiagramProps) {
                             clearSidePanelState(sidePanelState);
                         }}
                     >
-                        <SidePanelList nodePosition={sidePanelState.nodeRange} trailingSpace={sidePanelState.trailingSpace} documentUri={props.documentUri} />
+                        <SidePanelList nodePosition={sidePanelState.nodeRange} trailingSpace={sidePanelState.trailingSpace} documentUri={props.documentUri} artifactModel={props.model} />
                     </SidePanel>
                 </SidePanelProvider>
             </S.Container >

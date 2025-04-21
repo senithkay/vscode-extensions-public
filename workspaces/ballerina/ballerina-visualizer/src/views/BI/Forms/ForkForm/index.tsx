@@ -19,14 +19,13 @@ import {
     SubPanelView,
     FormDiagnostics,
     Diagnostic,
+    ExpressionProperty,
 } from "@wso2-enterprise/ballerina-core";
 import {
     FormValues,
     ExpressionEditor,
     ExpressionFormField,
     FormExpressionEditorProps,
-    TypeEditor,
-    TextEditor,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
 import { convertNodePropertyToFormField, removeDuplicateDiagnostics } from "../../../../utils/bi";
@@ -56,7 +55,7 @@ export function ForkForm(props: ForkFormProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        subPanelView,
+        subPanelView
     } = props;
     const {
         watch,
@@ -221,8 +220,12 @@ export function ForkForm(props: ForkFormProps) {
         }
     };
 
-    const handleExpressionFormDiagnostics = useCallback(
-        debounce(async (showDiagnostics: boolean, expression: string, key: string) => {
+    const handleExpressionEditorDiagnostics = useCallback(debounce(async (
+        showDiagnostics: boolean,
+        expression: string,
+        key: string,
+        property: ExpressionProperty
+    ) => {
             if (!showDiagnostics) {
                 handleSetDiagnosticsInfo({ key, diagnostics: [] });
                 return;
@@ -235,9 +238,8 @@ export function ForkForm(props: ForkFormProps) {
                     startLine: targetLineRange.startLine,
                     lineOffset: 0,
                     offset: 0,
-                    node: node,
-                    property: "variable",
-                    branch: "",
+                    codedata: undefined,
+                    property: property,
                 },
             });
 
@@ -300,27 +302,21 @@ export function ForkForm(props: ForkFormProps) {
                     return (
                         <FormStyles.Row key={field.key}>
                             <ExpressionEditor
-                                completions={activeEditor === index ? expressionEditor.completions : []}
-                                triggerCharacters={expressionEditor.triggerCharacters}
-                                retrieveCompletions={expressionEditor.retrieveCompletions}
-                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
-                                isLoadingHelperPaneInfo={expressionEditor.isLoadingHelperPaneInfo}
-                                variableInfo={expressionEditor.variableInfo}
-                                configVariableInfo={expressionEditor.configVariableInfo}
-                                functionInfo={expressionEditor.functionInfo}
-                                libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
-                                getHelperPaneData={expressionEditor.getHelperPaneData}
-                                onFunctionItemSelect={expressionEditor.onFunctionItemSelect}
+                                {...expressionEditor}
                                 ref={exprRef}
                                 control={control}
                                 field={field}
                                 watch={watch}
-                                getExpressionFormDiagnostics={handleExpressionFormDiagnostics}
-                                onFocus={() => handleEditorFocus(index)}
                                 openSubPanel={openSubPanel}
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
                                 onRemove={branches.length > 2 ? () => removeWorker(index) : undefined}
+                                completions={activeEditor === index ? expressionEditor.completions : []}
+                                triggerCharacters={expressionEditor.triggerCharacters}
+                                retrieveCompletions={expressionEditor.retrieveCompletions}
+                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
+                                getExpressionEditorDiagnostics={handleExpressionEditorDiagnostics}
+                                onFocus={() => handleEditorFocus(index)}
                                 onCompletionItemSelect={expressionEditor.onCompletionItemSelect}
                                 onCancel={expressionEditor.onCancel}
                                 onBlur={expressionEditor.onBlur}

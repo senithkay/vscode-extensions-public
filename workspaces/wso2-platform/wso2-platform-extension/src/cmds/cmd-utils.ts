@@ -7,9 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, type ComponentKind, type Organization, type Project, type UserInfo } from "@wso2-enterprise/wso2-platform-core";
+import {
+	CommandIds,
+	type ComponentKind,
+	type ExtensionName,
+	type Organization,
+	type Project,
+	type UserInfo,
+} from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, type QuickPickItem, QuickPickItemKind, type WorkspaceFolder, commands, window, workspace } from "vscode";
-import { ext } from "../extensionVariables";
+import { type ExtensionVariables, ext } from "../extensionVariables";
 import { authStore, waitForLogin } from "../stores/auth-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
@@ -17,9 +24,10 @@ import { webviewStateStore } from "../stores/webview-state-store";
 export const selectComponent = async (
 	org: Organization,
 	project: Project,
-	loadingTitle = "Loading Components...",
-	selectTitle = "Select Component",
+	loadingTitle = "Loading Components/Integrations...",
+	selectTitle = "Select Component/Integrations",
 ): Promise<ComponentKind> => {
+	const extName = webviewStateStore.getState().state?.extensionName;
 	const selectedComponent = await quickPickWithLoader({
 		cacheQuickPicks: dataCacheStore
 			.getState()
@@ -35,24 +43,27 @@ export const selectComponent = async (
 			dataCacheStore.getState().setComponents(org.handle, project.handler, components);
 
 			if (!components || components.length === 0) {
-				throw new Error("You do not have any existing components in your project. Please retry after creating one.");
+				throw new Error(
+					`You do not have any existing ${extName === "Devant" ? "integrations" : "components"} in your project. Please retry after creating one.`,
+				);
 			}
 
 			return components.map((item) => ({ label: item.metadata.displayName, item }));
 		},
 		loadingTitle,
 		selectTitle,
-		placeholder: "Component Name",
+		placeholder: `${extName === "Devant" ? "Integration" : "Component"} Name`,
 	});
 
 	if (!selectedComponent) {
-		throw new Error("Failed to select component");
+		throw new Error(`Failed to select ${extName === "Devant" ? "integration" : "component"}`);
 	}
 
 	return selectedComponent;
 };
 
 export const selectProject = async (org: Organization, loadingTitle = "Loading projects...", selectTitle = "Select project"): Promise<Project> => {
+	const extName = webviewStateStore.getState().state?.extensionName;
 	const selectedProject = await quickPickWithLoader({
 		cacheQuickPicks: dataCacheStore
 			.getState()
@@ -63,7 +74,7 @@ export const selectProject = async (org: Organization, loadingTitle = "Loading p
 			dataCacheStore.getState().setProjects(org.handle, projects);
 
 			if (!projects || projects.length === 0) {
-				throw new Error("You do not have any existing components or projects. Please try creating one.");
+				throw new Error(`You do not have any existing ${extName === "Devant" ? "integrations" : "components"} or projects. Please try creating one.`);
 			}
 
 			return projects.map((item) => ({ label: item.name, detail: `Handle: ${item.handler}`, item }));
@@ -175,7 +186,7 @@ export const selectProjectWithCreateNew = async (
 		});
 
 		if (!newProjectName) {
-			throw new Error("New project name is required to create a component.");
+			throw new Error("New project name is required to proceed.");
 		}
 
 		const selectedProject = await window.withProgress(
@@ -283,6 +294,7 @@ export async function quickPickWithLoader<T>(params: {
 		quickPick.items = params.cacheQuickPicks;
 	}
 	quickPick.show();
+	let parentErr: Error | undefined;
 
 	params
 		.loadQuickPicks()
@@ -293,15 +305,20 @@ export async function quickPickWithLoader<T>(params: {
 		})
 		.catch((err) => {
 			quickPick.dispose();
+			parentErr = err;
 			throw err;
 		});
-
 	const selectedQuickPick = await new Promise((resolve) => {
 		quickPick.onDidAccept(() => resolve(quickPick.selectedItems[0]));
 		quickPick.onDidHide(() => resolve(null));
 	});
+
 	quickPick.dispose();
 	const selectedT = (selectedQuickPick as QuickPickItem & { item?: T })?.item;
+
+	if (parentErr) {
+		throw parentErr;
+	}
 
 	return selectedT;
 }
@@ -316,7 +333,9 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 			"Login",
 		);
 		if (loginSelection === "Login") {
-			await commands.executeCommand(CommandIds.SignIn);
+			if (loginSelection === "Login") {
+				await commands.executeCommand(CommandIds.SignIn);
+			}
 			userInfo = await waitForLogin();
 
 			const response = await window.showInformationMessage(
@@ -331,4 +350,16 @@ export const getUserInfoForCmd = async (message: string): Promise<UserInfo | nul
 		}
 	}
 	return userInfo;
+};
+
+export const setExtensionName = (extName?: ExtensionName) => {
+	if (extName) {
+		webviewStateStore.getState().setExtensionName(extName);
+	}
+};
+
+export const isRpcActive = (ext: ExtensionVariables) => {
+	if (!ext.clients.rpcClient.isActive()) {
+		throw new Error(`${webviewStateStore.getState().state.extensionName} extension is still hasn't been initialized...`);
+	}
 };

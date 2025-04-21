@@ -22,6 +22,7 @@ import { Dropdown } from "../../../components/FormElements/Dropdown";
 import { PathSelect } from "../../../components/FormElements/PathSelect";
 import { TextField } from "../../../components/FormElements/TextField";
 import { useCreateNewOpenApiFile, useGoToSource } from "../../../hooks/use-queries";
+import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { type componentEndpointItemSchema, type componentEndpointsFormSchema, getOpenApiFiles, sampleEndpointItem } from "../componentFormSchema";
 
@@ -103,6 +104,7 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({
 	directoryUriPath,
 }) => {
 	const [endpointListItemRef] = useAutoAnimate();
+	const { extensionName } = useExtWebviewContext();
 
 	const { createNewOpenApiFile } = useCreateNewOpenApiFile({
 		directoryFsPath,
@@ -139,7 +141,7 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({
 			required
 			key="ep-name"
 			name={`endpoints.${index}.name`}
-			placeholder="component-name"
+			placeholder={extensionName === "Devant" ? "integration-name" : "component-name"}
 			control={form.control}
 			wrapClassName="col-span-2"
 		/>,

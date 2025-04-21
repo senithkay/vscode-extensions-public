@@ -65,7 +65,6 @@ export const DropdownContainer = styled.div<StyleBase>`
 export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorElProps>((props, ref) => {
     const {
         containerRef,
-        buttonRef,
         anchorRef,
         value,
         disabled,
@@ -435,9 +434,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         const handleOutsideClick = async (e: any) => {
             if (
                 isFocused &&
-                !buttonRef.current?.contains(e.target) &&
-                !actionButtonsRef.current?.contains(e.target) &&
-                !textAreaRef.current?.contains(e.target) &&
+                !containerRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target) &&
                 !anchorRef?.current?.contains(e.target)
@@ -455,7 +452,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             document.removeEventListener('mousedown', handleOutsideClick);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [onBlur, changeHelperPaneState, buttonRef.current]);
+    }, [onBlur, changeHelperPaneState, containerRef.current]);
 
     return (
         <Container ref={elementRef}>

@@ -20,7 +20,7 @@ import { RelativeLoader } from "../../../components/RelativeLoader";
 import { findAgentNodeFromAgentCallNode, getAgentFilePath } from "./utils";
 
 const Container = styled.div`
-    padding: 16px 0 16px 16px;
+    padding: 16px;
     height: 100%;
 `;
 
@@ -192,13 +192,13 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
                         errorMsg=""
                         id="agent-model-dropdown"
                         items={[
-                            { value: "Select a model...", content: "Select a model..." },
+                            { value: "Select a provider...", content: "Select a provider..." },
                             ...modelsCodeData.map((model) => ({ value: model.object, content: model.object })),
                         ]}
-                        label="Select Model Family"
-                        description={"Available Model Families"}
+                        label="Select Model Provider"
+                        description={"Available Providers"}
                         onValueChange={(value) => {
-                            if (value === "Select a model...") {
+                            if (value === "Select a provider...") {
                                 return; // Skip the init option
                             }
                             const selectedModelCodeData = modelsCodeData.find((model) => model.object === value);
@@ -215,10 +215,10 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
                     <RelativeLoader />
                 </LoaderContainer>
             )}
-            {!loading && selectedModelFields?.length > 0 && (
+            {!loading && selectedModelFields?.length > 0 && selectedModel?.codedata?.lineRange && (
                 <ConfigForm
                     formFields={selectedModelFields}
-                    filePath={agentFilePath.current}
+                    targetLineRange={selectedModel?.codedata.lineRange}
                     onSubmit={handleOnSave}
                     disableSaveButton={savingForm}
                 />
