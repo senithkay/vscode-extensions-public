@@ -62,4 +62,21 @@ export class Proxy {
         await frame.getByLabel('udp').click();
         await frame.getByRole('button', { name: 'Update' }).click();
     }
+
+    public async createProxyServiceFormSidepanel(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services'], true);
+        await this._page.getByLabel('Add Proxy Service').click();
+        const proxyWebView = await switchToIFrame('Proxy Service Form', this._page);
+        if (!proxyWebView) {
+            throw new Error("Failed to switch to Proxy Service Form iframe");
+        }
+        const proxyFrame = proxyWebView.locator('div#root');
+        await proxyFrame.getByRole('textbox', { name: 'Proxy Service Name*' }).fill(name);
+        await proxyFrame.getByLabel('rabbitmq').click();
+        await proxyFrame.getByRole('button', { name: 'Create' }).click();
+    }
+
 }

@@ -31,14 +31,43 @@ export class ClassMediator {
         await addArtifactPage.add('Class Mediator');
     }
 
-    public async add(pName: string) {
-        const seqWebView = await switchToIFrame('ClassMediator Creation Form', this._page);
-        if (!seqWebView) {
+    public async createClassMediatorFromProjectExplorer(className: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Class Mediators'], true);
+        await this._page.getByLabel('Add Class Mediator').click();
+        const cmWebview = await switchToIFrame('ClassMediator Creation Form', this._page);
+        if (!cmWebview) {
             throw new Error("Failed to switch to Class Mediator Form iframe");
         }
-        const seqFrame = seqWebView.locator('div#root');
-        await seqFrame.getByRole('textbox', { name: 'Package Name*' }).fill(pName);
-        await seqFrame.getByRole('textbox', { name: 'Class Name*' }).fill('SampleClass');
-        await seqFrame.getByRole('button', { name: 'Create' }).click();
+        const classMediatorFrame = cmWebview.locator('div#root');
+        await classMediatorFrame.getByRole('textbox', { name: 'Package Name*' }).fill('org.wso2.sample');
+        await classMediatorFrame.getByRole('textbox', { name: 'Class Name*' }).fill(className);
+        await classMediatorFrame.getByRole('button', { name: 'Create' }).click();
+    }
+
+    public async createClassMediator(className: string) {
+        const cmWebview = await switchToIFrame('ClassMediator Creation Form', this._page);
+        if (!cmWebview) {
+            throw new Error("Failed to switch to Class Mediator Form iframe");
+        }
+        const classMediatorFrame = cmWebview.locator('div#root');
+        await classMediatorFrame.getByRole('textbox', { name: 'Package Name*' }).fill("org.wso2.sample");
+        await classMediatorFrame.getByRole('textbox', { name: 'Class Name*' }).fill(className);
+        await classMediatorFrame.getByRole('button', { name: 'Create' }).click();
+    }
+
+    public async openClassMediator(className: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Class Mediators', `${className}.java (org.wso2.sample)`], true);
+        await this._page.getByRole('tab', { name: 'Micro Integrator' }).locator('a').click();
+        await projectExplorer.goToOverview("testProject");
+    }
+
+    public async clear(classNames: string[]) {
+        for (const className of classNames) {
+            await this._page.getByRole('tab', { name: className }).getByLabel('Close').click();
+        }
     }
 }

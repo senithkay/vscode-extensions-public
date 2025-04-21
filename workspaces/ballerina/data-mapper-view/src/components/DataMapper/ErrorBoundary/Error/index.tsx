@@ -10,6 +10,7 @@ import * as React from "react";
 
 import { useStyles } from "./style";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { ISSUES_URL } from "../../utils";
 
 export default function Default() {
     const classes = useStyles();
@@ -36,7 +37,7 @@ export default function Default() {
                 A problem occurred while rendering the Data Mapper.
             </Typography>
             <Typography variant="body2" className={classes.errorMsg}>
-                Please raise an issue with the sample code in our <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">issue tracker</a>
+                Please raise an issue with the sample code in our <a href={ISSUES_URL}>issue tracker</a>
             </Typography>
         </div>
     );

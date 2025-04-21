@@ -480,7 +480,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
                 return (<Keylookup
                     value={field.value}
-                    filterType={(keyType as any) ?? "resource"}
+                    filterType={(keyType as any) ?? "registry"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
                     allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
@@ -503,7 +503,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
                 return (<Keylookup
                     value={field.value}
-                    filterType={(keyType as any) ?? "resource"}
+                    filterType={(keyType as any) ?? "registry"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
                     allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
@@ -677,7 +677,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         const name = getNameForController(element.value.name);
         const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
         const matchPattern = element.value.matchPattern;
-        const validateType = element.value.validateType;
+        let validateType = element.value.validateType;
         const defaultValue = getDefaultValue(element);
 
         if (getValues(name) === undefined) {
@@ -717,6 +717,10 @@ export function FormGenerator(props: FormGeneratorProps) {
                         },
                         ...(validateType) && {
                             validate: (value) => {
+                                if (typeof validateType === 'object' && 'conditionField' in validateType) {
+                                    const conditionFieldValue = getValues(validateType.conditionField);
+                                    validateType = validateType.mapping[conditionFieldValue];
+                                }
                                 if (validateType === 'number' && isNaN(value)) {
                                     return "Value should be a number";
                                 }
@@ -728,6 +732,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                                         JSON.parse(value);
                                     } catch (e) {
                                         return "Value should be a valid JSON";
+                                    }
+                                }
+                                if (validateType === 'xml' && typeof value !== 'object') {
+                                    const parser = new DOMParser();
+                                    const xmlDoc = parser.parseFromString(value, "application/xml");
+                                    if (xmlDoc.getElementsByTagName("parsererror").length) {
+                                        return "Value should be a valid XML";
                                     }
                                 }
                                 return true;

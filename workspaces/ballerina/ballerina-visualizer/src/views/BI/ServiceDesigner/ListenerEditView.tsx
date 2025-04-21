@@ -94,20 +94,12 @@ export function ListenerEditView(props: ListenerEditViewProps) {
     const onSubmit = async (value: ListenerModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().updateListenerSourceCode({ filePath, listener: value });
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position
-            },
-        });
-        setSaving(false);
     }
 
     return (
         <View>
             <TopNavigationBar />
-            <TitleBar title="Listener" subtitle="Edit Listener" />
+            <TitleBar title="Listener" subtitle="Configure Listener" />
             <ViewContent padding>
                 {!listenerModel &&
                     <LoadingContainer>
@@ -117,17 +109,7 @@ export function ListenerEditView(props: ListenerEditViewProps) {
                 }
                 {listenerModel &&
                     <Container>
-                        {!saving &&
-                            <>
-                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={onSubmit} formSubmitText={"Save"} />
-                            </>
-                        }
-                        {saving &&
-                            <LoadingContainer>
-                                <ProgressRing />
-                                <Typography variant="h3" sx={{ marginTop: '16px' }}>Saving... Please wait</Typography>
-                            </LoadingContainer>
-                        }
+                        <ListenerConfigForm listenerModel={listenerModel} onSubmit={onSubmit} formSubmitText={saving ? "Saving" : "Save"} isSaving={saving} />
                     </Container>
                 }
             </ViewContent>

@@ -7,20 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Type,
     NodePosition,
     GetGraphqlTypeResponse,
     GetGraphqlTypeRequest,
     EVENT_TYPE,
-    MACHINE_VIEW,
+    MACHINE_VIEW
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
 import {
     Button,
-    Codicon,
     ProgressRing,
     ThemeColors,
     View,

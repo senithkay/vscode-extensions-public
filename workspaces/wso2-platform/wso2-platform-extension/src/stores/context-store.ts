@@ -9,7 +9,6 @@
 
 import { existsSync, readFileSync } from "fs";
 import * as path from "path";
-import { getGitRemotes, getGitRoot } from "@wso2-enterprise/git-vscode";
 import {
 	type ComponentKind,
 	type ContextItem,
@@ -27,6 +26,7 @@ import { ProgressLocation, window, workspace } from "vscode";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { ext } from "../extensionVariables";
+import { getGitRemotes, getGitRoot } from "../git/util";
 import { isSubpath } from "../utils";
 import { authStore } from "./auth-store";
 import { dataCacheStore } from "./data-cache-store";
@@ -194,6 +194,7 @@ const getSelected = (items: { [key: string]: ContextItemEnriched }, prevSelected
 	);
 
 	const openKey: string | null | undefined = ext.context.globalState.get("open-local-repo");
+	ext.context.globalState.update("open-local-repo", null);
 	if (openKey) {
 		const selected = items[openKey];
 		if (selected?.org && selected?.project) {

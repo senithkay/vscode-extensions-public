@@ -77,7 +77,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
     const [showFunctionConfigForm, setShowFunctionConfigForm] = useState<boolean>(false);
     const [projectListeners, setProjectListeners] = useState<ProjectStructureArtifactResponse[]>([]);
 
-    const supportedServiceTypes = ["http", "ai.agent"];
+    const supportedServiceTypes = ["http", "ai"];
 
     useEffect(() => {
         fetchService();
@@ -106,7 +106,7 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
             .getBIDiagramRpcClient()
             .getProjectStructure()
             .then((res) => {
-                const listeners = res.directoryMap[DIRECTORY_MAP.LISTENERS];
+                const listeners = res.directoryMap[DIRECTORY_MAP.LISTENER];
                 if (listeners.length > 0) {
                     setProjectListeners(listeners);
                 }
@@ -218,15 +218,15 @@ export function AIAgentDesigner(props: AIAgentDesignerProps) {
                         {serviceModel && supportedServiceTypes.includes(serviceModel.moduleName) && (
                             <VSCodeButton
                                 appearance="secondary"
-                                title={serviceModel.moduleName === "ai.agent" ? "Chat with Agent" : "Try Service"}
+                                title={serviceModel.moduleName === "ai" ? "Chat with Agent" : "Try Service"}
                                 onClick={handleServiceTryIt}
                             >
                                 <Icon
-                                    name={serviceModel.moduleName === "ai.agent" ? "comment-discussion" : "play"}
+                                    name={serviceModel.moduleName === "ai" ? "comment-discussion" : "play"}
                                     isCodicon={true}
                                     sx={{ marginRight: 8, fontSize: 16 }}
                                 />{" "}
-                                {serviceModel.moduleName === "ai.agent" ? "Chat" : "Try It"}
+                                {serviceModel.moduleName === "ai" ? "Chat" : "Try It"}
                             </VSCodeButton>
                         )}
                     </>

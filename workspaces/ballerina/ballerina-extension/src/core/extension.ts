@@ -230,6 +230,8 @@ export class BallerinaExtension {
         });
 
         commands.registerCommand('ballerina.setup-ballerina', () => { // Install ballerina from central for new users. This should set the ballerina to system path
+            // Disable persistent sessions for the terminal
+            workspace.getConfiguration().update('terminal.integrated.enablePersistentSessions', false, ConfigurationTarget.Global);
             this.installBallerina();
         });
 
@@ -263,7 +265,7 @@ export class BallerinaExtension {
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion.split('-')[0];
-                this.biSupported = isSupportedSLVersion(this, 2201122);
+                this.biSupported = isSupportedSLVersion(this, 2201123); // Minimum supported version for BI
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
@@ -1330,7 +1332,7 @@ export class BallerinaExtension {
             if (selection === update) {
                 const terminal = window.createTerminal('Update Ballerina');
                 terminal.show();
-                terminal.sendText('sudo bal dist update');
+                terminal.sendText('bal dist update');
                 window.showInformationMessage('Ballerina update started. Please wait...');
             }
         });
@@ -1522,7 +1524,7 @@ export class BallerinaExtension {
     }
 
     public enableLSDebug(): boolean {
-        return this.overrideBallerinaHome() && <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
+        return <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
     }
 
     public enabledLiveReload(): boolean {

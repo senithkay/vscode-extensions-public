@@ -18,8 +18,6 @@ import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 import { CDAutomation, CDFunction, CDService, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
 import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
-import { GraphQLIcon } from "../../../resources/icons/nodes/GraphqlIcon";
-import { AgentIcon } from "../../../resources/icons/nodes/AgentIcon";
 type NodeStyleProp = {
     hovered: boolean;
     inactive?: boolean;
@@ -51,11 +49,6 @@ const BottomPortWidget = styled(PortWidget)`
 `;
 
 const FunctionPortWidget = styled(PortWidget)`
-    /* width: 8px;
-        height: 8px;
-        background-color: ${ThemeColors.PRIMARY};
-        border-radius: 50%;
-        margin-left: -5px; */
 `;
 
 const StyledText = styled.div`
@@ -69,9 +62,9 @@ const IconWrapper = styled.div`
         fill: ${ThemeColors.ON_SURFACE};
     }
     > div:first-child {
-        width: 32px;
-        height: 32px;
-        font-size: 28px;
+        width: 24px;
+        height: 24px;
+        font-size: 24px;
     }
 `;
 
@@ -193,8 +186,9 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                 return <TaskIcon />;
             case "service":
                 const serviceType = (model.node as CDService)?.type;
-                if (serviceType === "graphql:Service") {
-                    return <GraphQLIcon />;
+                const customIcon = getCustomEntryNodeIcon(serviceType);
+                if (customIcon) {
+                    return customIcon;
                 }
                 return <ImageWithFallback imageUrl={(model.node as CDService).icon} fallbackEl={<HttpIcon />} />;
             default:
@@ -248,7 +242,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const hasMoreFunctions = serviceFunctions.length > 3;
     const visibleFunctions = serviceFunctions.slice(0, hasMoreFunctions ? 2 : serviceFunctions.length);
 
-    if ((model.node as CDService)?.type === "agent:Service") {
+    if ((model.node as CDService)?.type === "ai:Service") {
         return (
             <Node>
                 <TopPortWidget port={model.getPort("in")!} engine={engine} />
@@ -384,4 +378,37 @@ function FunctionBox(props: { func: CDFunction | CDResourceFunction; model: Entr
             <FunctionPortWidget port={model.getPort(getEntryNodeFunctionPortName(func))!} engine={engine} />
         </FunctionBoxWrapper>
     );
+}
+
+export function getCustomEntryNodeIcon(type: string) {
+    let typePart = type;
+    if (type && type.includes(":")) {
+        const typeParts = type.split(":");
+        typePart = typeParts.at(0);
+    }
+
+    switch (typePart) {
+        case "tcp":
+            return <Icon name="bi-tcp" />;
+        case "kafka":
+            return <Icon name="bi-kafka" />;
+        case "rabbitmq":
+            return <Icon name="bi-rabbitmq" sx={{ color: "#f60" }} />;
+        case "nats":
+            return <Icon name="bi-nats" />;
+        case "mqtt":
+            return <Icon name="bi-mqtt" sx={{ color: "#606" }} />;
+        case "grpc":
+            return <Icon name="bi-grpc" />;
+        case "graphql":
+            return <Icon name="bi-graphql" sx={{ color: "#e535ab" }} />;
+        case "java.jms":
+            return <Icon name="bi-java" />;
+        case "trigger.github":
+            return <Icon name="bi-github" />;
+        case "http":
+            return <Icon name="bi-globe" />;
+        default:
+            return null;
+    }
 }

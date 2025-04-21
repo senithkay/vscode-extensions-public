@@ -16,6 +16,7 @@ import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
 import { promises as fsp } from 'fs';
 import os from 'os';
+import { readFile } from 'fs/promises';
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -34,23 +35,28 @@ export async function initVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
-export async function createProject(page: ExtendedPage, projectName: string, projectpath: string, addAdvancedConfig: boolean) {
+async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string, addAdvancedConfig: boolean) {
     console.log('Creating new project');
     await page.selectSidebarItem('Micro Integrator');
     const welcomePage = new Welcome(page);
     await welcomePage.init();
     await welcomePage.createNewProject();
+
     const createNewProjectForm = new Form(page.page, 'Project Creation Form');
     await createNewProjectForm.switchToFormView();
     await createNewProjectForm.fill({
         values: {
             'Project Name*': {
                 type: 'input',
-                value: projectName
+                value: projectName || 'testProject',
+            },
+            'Micro Integrator runtime version*': {
+                type: 'dropdown',
+                value: runtimeVersino || '4.4.0'
             },
             'Select Location': {
                 type: 'file',
-                value: projectpath
+                value: newProjectPath
             }
         }
     });
@@ -101,10 +107,18 @@ export async function toggleNotifications(disable: boolean) {
 
 }
 
-export function initTest(newProject: boolean = false, skipProjectCreation: boolean = false, cleanupAfter?: boolean) {
+export async function showNotifications() {
+    await page.executePaletteCommand("Notifications: Show Notifications");
+}
+
+export async function closeEditorGroup() {
+    await page.executePaletteCommand('Close Editor Group');
+}
+
+export function initTest(newProject: boolean = false, cleanupAfter?: boolean, projectName?: string, runtimeVersion?: string) {
     test.beforeAll(async ({ }, testInfo) => {
         console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);
-        if (!existsSync(path.join(newProjectPath, 'testProject')) || newProject) {
+        if (!existsSync(path.join(newProjectPath, projectName ?? 'testProject')) || newProject) {
             if (fs.existsSync(newProjectPath)) {
                 fs.rmSync(newProjectPath, { recursive: true });
             }
@@ -112,9 +126,7 @@ export function initTest(newProject: boolean = false, skipProjectCreation: boole
             console.log('Starting VSCode');
             await initVSCode();
             await toggleNotifications(true);
-            if (!skipProjectCreation) {
-                await createProject(page, 'testProject', newProjectPath, false);
-            }
+            await createProject(page, projectName, runtimeVersion);
         } else {
             console.log('Resuming VSCode');
             await resumeVSCode();
@@ -149,4 +161,28 @@ export async function copyFile(source: string, destination: string) {
         fs.rmSync(destination);
     }
     fs.copyFileSync(source, destination);
+}
+
+export async function waitUntilPomContains(page:Page, filePath: string, expectedText: string, timeout = 10000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+        const content = await readFile(filePath, 'utf8');
+        if (content.includes(expectedText)) {
+            return true;
+        }
+        await page.waitForTimeout(500);
+    }
+    throw new Error(`Timed out waiting for '${expectedText}' in pom.xml`);
+}
+
+export async function waitUntilPomNotContains(page:Page, filePath: string, expectedText: string, timeout = 10000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+        const content = await readFile(filePath, 'utf8');
+        if (!content.includes(expectedText)) {
+            return true;
+        }
+        await page.waitForTimeout(500);
+    }
+    throw new Error(`Timed out waiting for '${expectedText}' in pom.xml`);
 }

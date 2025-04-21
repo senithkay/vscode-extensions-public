@@ -54,6 +54,11 @@ export function parseResourcePath(input: string): ParseResult {
         return result;
     }
 
+    if (input.includes('//')) {
+        result.errors.push({ position: 0, message: 'cannot have two consecutive slashes (//)' });
+        return result;
+    }
+
     const segments = splitSegments(input);
     for (const segment of segments) {
         if (segment.value.startsWith('[') || segment.value.endsWith(']')) {
@@ -96,27 +101,30 @@ function processParam(
 ) {
     const content = segment.value.slice(1, -1);
 
-    if (isConstantLiteral(content)) {
-        result.segments.push({
-            type: 'const-param',
-            annots: [],
-            typeDescriptor: content,
-            paramName: content,
-            start: segment.start,
-            end: segment.end
-        });
-        return;
+    // split the content by spaces
+    const tokens = content.split(/\s+/);
+    let typeDescriptor = '';
+    let paramName = '';
+    if (tokens.length > 0) {
+        typeDescriptor = tokens[0];
     }
-
-    const tokenResult = tokenize(content, segment.start + 1);
-    result.errors.push(...tokenResult.errors);
-
-    const hasRest = tokenResult.tokens.some(t => t.value === '...');
-    if (hasRest) {
-        handleRestParam(tokenResult.tokens, segment, result);
-    } else {
-        handleRegularParam(tokenResult.tokens, segment, result);
+    if (tokens.length > 1) {
+        let paramNameStr = tokens[tokens.length - 1];
+        if (!paramNameStr.startsWith('...')) {
+            paramName = paramNameStr;
+            let paramToken = { value: paramName, start: segment.start + 1, end: segment.end - 1 };
+            validateParamName(paramToken, result);
+        }
     }
+    
+    result.segments.push({
+        type: 'param',
+        annots: [],
+        typeDescriptor,
+        paramName,
+        start: segment.start,
+        end: segment.end
+    });
 }
 
 function handleRegularParam(

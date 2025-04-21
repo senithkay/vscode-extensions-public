@@ -221,6 +221,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    HandleFileRequest,
+    HandleFileResponse,
     getAllDependenciesRequest,
     getSTRequest,
     getSTResponse,
@@ -256,12 +258,13 @@ import {
     DeployProjectResponse,
     CreateBallerinaModuleRequest,
     CreateBallerinaModuleResponse,
-    SCOPE
+    SCOPE,
+    DevantMetadata
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
-import { copy, remove } from 'fs-extra';
+import { copy, exists, remove } from 'fs-extra';
 import { isEqual, reject } from "lodash";
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
@@ -269,9 +272,9 @@ import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
-import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, extensions, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
-import { UnitTest } from "../../../../syntax-tree/lib/src";
+import { DiagramService, APIResource, NamedSequence, UnitTest, Proxy } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
@@ -301,6 +304,8 @@ import { compareVersions, filterConnectorVersion, generateInitialDependencies, g
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { checkForDevantExt } from "../../extension";
 import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
+import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
+import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 const AdmZip = require('adm-zip');
 
@@ -325,28 +330,113 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
         return new Promise((resolve) => {
-
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.artifactModel);
+            let content;
+            if (type == "API") {
+                content = this.readInputPayloadFile(name) ?? { type };
+                content[key] = { requests: params.payload };
+                content[key].defaultRequest = params.defaultPayload;
+            } else {
+                content = { type };
+                content.requests = params.payload;
+                content.defaultRequest = params.defaultPayload;
+            }
             const projectUri = StateMachine.context().projectUri!;
             const tryout = path.join(projectUri, ".tryout");
             if (!fs.existsSync(tryout)) {
                 fs.mkdirSync(tryout);
             }
-            fs.writeFileSync(path.join(tryout, "input.json"), params.payload);
+            fs.writeFileSync(path.join(tryout, name + ".json"), JSON.stringify(content, null, 2));
             resolve(true);
         });
     }
 
+    getResourceInfoToSavePayload(artifactModel: DiagramService) {
+        if (artifactModel.tag === 'resource') {
+            return {
+                name: (artifactModel as APIResource).api,
+                type: "API",
+                key: (artifactModel as APIResource).uriTemplate ?? (artifactModel as APIResource).urlMapping
+            }
+        } else if (artifactModel.tag === 'proxy') {
+            return {
+                name: (artifactModel as Proxy).name,
+                type: "PROXY",
+                key: (artifactModel as Proxy).name
+            }
+        } else {
+            return {
+                name: (artifactModel as NamedSequence).name,
+                type: "SEQUENCE",
+                key: (artifactModel as NamedSequence).name
+            }
+        }
+    }
+
     async getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return new Promise((resolve) => {
-            const projectUri = StateMachine.context().projectUri!;
-            const tryout = path.join(projectUri, ".tryout", "input.json");
-            if (fs.existsSync(tryout)) {
-                const payloads = JSON.parse(fs.readFileSync(tryout, "utf8"));
-                resolve({ payloads });
+            const { name, type, key } = this.getResourceInfoToSavePayload(params.artifactModel);
+            const allPayloads = this.readInputPayloadFile(name);
+            if (allPayloads) {
+                let defaultPayload;
+                let payloads;
+                if (type == "API") {
+                    payloads = allPayloads[key]?.requests ?? [];
+                    defaultPayload = allPayloads[key]?.defaultRequest ?? "";
+                } else {
+                    payloads = allPayloads.requests ?? [];
+                    defaultPayload = allPayloads.defaultRequest;
+                }
+                resolve({ payloads, defaultPayload });
             } else {
-                resolve({ payloads: [] })
+                resolve({ payloads: [], defaultPayload: "" });
             }
         });
+    }
+
+    async getAllInputDefaultPayloads(): Promise<Record<string, any>> {
+        const projectUri = StateMachine.context().projectUri!;
+        const tryoutFolderPath = path.join(projectUri, ".tryout");
+        const payloadMapByArtifact: Record<string, any> = {};
+
+        if (fs.existsSync(tryoutFolderPath)) {
+            const files = fs.readdirSync(tryoutFolderPath);
+
+            files.forEach((file) => {
+                const filePath = path.join(tryoutFolderPath, file);
+                if (fs.statSync(filePath).isFile()) {
+                    const fileContent = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+                    const fileNameWithoutExtension = path.basename(file, ".json");
+                    
+                    if (fileContent.type === "API") {
+                        const payloadMapByResource: Record<string, object> = {};
+                        Object.keys(fileContent).forEach((key) => {
+                            if (key.startsWith("/")) { // Select only API resources
+                                const defaultRequestName = fileContent[key].defaultRequest;
+                                const defaultRequest = fileContent[key].requests.find((request: any) => request.name === defaultRequestName);
+                                payloadMapByResource[key] = defaultRequest ? defaultRequest : null;
+                            }
+                        });
+                        payloadMapByArtifact[fileNameWithoutExtension] = payloadMapByResource;
+                    } else {
+                        const defaultRequestName = fileContent.defaultRequest;
+                        const defaultRequest = fileContent.requests.find((request: any) => request.name === defaultRequestName);
+                        payloadMapByArtifact[fileNameWithoutExtension] = defaultRequest ? defaultRequest : null;
+                    }
+                }
+            });
+        }
+
+        return payloadMapByArtifact;
+    }
+
+    readInputPayloadFile(name: string) {
+        const projectUri = StateMachine.context().projectUri!;
+        const tryout = path.join(projectUri, ".tryout", name + ".json");
+        if (fs.existsSync(tryout)) {
+            return JSON.parse(fs.readFileSync(tryout, "utf8"));
+        }
+        return null;
     }
 
     async tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
@@ -3211,6 +3301,57 @@ ${endpointAttributes}
 
 
     }
+
+    async handleFileWithFS(params: HandleFileRequest): Promise<HandleFileResponse> {
+        const { fileName, filePath, operation, content } = params;
+
+        if (!filePath) {
+            console.error("File path is undefined");
+            return { status: false, content: "File path is required" };
+        }
+
+        const isExist = fs.existsSync(filePath);
+
+        try {
+            switch (operation) {
+                case 'read':
+                    if (isExist) {
+                        const fileContent = fs.readFileSync(filePath, "utf-8");
+                        return { status: true, content: fileContent };
+                    } else {
+                        return { status: false, content: "File not found" };
+                    }
+
+                case 'write':
+                    if (content !== undefined) {
+                        await replaceFullContentToFile(filePath, content);
+                        window.showInformationMessage(`Written content to ${fileName} successfully.`);
+                        return { status: true, content : content };
+                    } else {
+                        console.error("File content is undefined");
+                        return { status: false, content: "File content is required for write operation" };
+                    }
+
+                case 'delete':
+                    if (isExist) {
+                        fs.unlinkSync(filePath);
+                        window.showInformationMessage(`Deleted ${fileName} successfully.`);
+                        return { status: true, content: "File deleted successfully" };
+                    } else {
+                        window.showInformationMessage(`File with name ${fileName} not found.`);
+                        return { status: false, content: "File not found" };
+                    }
+
+                default:
+                    console.error(`Invalid file operation: ${operation}`);
+                    return { status: false, content: "Invalid file operation" };
+            } 
+        } catch (error) {
+            console.error(`Error during file operation (${operation}) at ${filePath}:`, error);
+            return { status: false, content: `Error during file operation: ${(error as Error).message}` };
+        }
+    }
+        
     async highlightCode(params: HighlightCodeRequest) {
         const documentUri = StateMachine.context().documentUri;
         let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
@@ -3232,12 +3373,12 @@ ${endpointAttributes}
             throw new Error('No workspace is currently open');
         }
 
-        var rootPath = workspaceFolders[0].uri.fsPath;
-        rootPath += '/src/main/wso2mi/artifacts';
+        var workspaceDir = workspaceFolders[0].uri.fsPath;
+        const artifactDirPath = workspaceDir + '/src/main/wso2mi/artifacts';
         const fileContents: string[] = [];
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
         for (const folder of resourceFolders) {
-            const folderPath = path.join(rootPath, folder);
+            const folderPath = path.join(artifactDirPath, folder);
             // Check if the folder exists before reading its contents
             if (fs.existsSync(folderPath)) {
                 const files = await fs.promises.readdir(folderPath);
@@ -3253,7 +3394,7 @@ ${endpointAttributes}
                 }
             }
         }
-        return { context: fileContents };
+        return { context: fileContents, rootPath: workspaceDir };
     }
 
     async getProjectUuid(): Promise<GetProjectUuidResponse> {
@@ -3775,6 +3916,8 @@ ${endpointAttributes}
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
             await replaceFullContentToFile(filePath, content);
+            const classMediator = await vscode.workspace.openTextDocument(filePath);
+            await classMediator.save();
 
             await changeRootPomForClassMediator();
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -3813,13 +3956,14 @@ ${endpointAttributes}
         if (currentFile && !fs.lstatSync(currentFile).isDirectory()) {
             currentFileContent = fs.readFileSync(currentFile, 'utf8');
         }
-        var rootPath = workspaceFolders[0].uri.fsPath;
-        rootPath += '/src/main/wso2mi/artifacts';
+         
+        const workspaceDir = workspaceFolders[0].uri.fsPath;;
+        const artifactDirPath = workspaceDir + '/src/main/wso2mi/artifacts';
         const fileContents: string[] = [];
         fileContents.push(currentFileContent);
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
         for (const folder of resourceFolders) {
-            const folderPath = path.join(rootPath, folder);
+            const folderPath = path.join(artifactDirPath, folder);
             // Check if the folder exists before reading its contents
             if (fs.existsSync(folderPath)) {
                 const files = await fs.promises.readdir(folderPath);
@@ -3839,14 +3983,19 @@ ${endpointAttributes}
             }
         }
 
-        return { context: fileContents };
+        return { context: fileContents, rootPath: workspaceDir };
     }
 
     async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
-
         const config = vscode.workspace.getConfiguration('MI');
         const ROOT_URL = config.get('rootUrl') as string;
-        return { url: ROOT_URL };
+        const ENHANCED_ROOT_URL = config.get('enhancedRootUrl') as string;
+        const RUNTIME_THRESHOLD_VERSION = RUNTIME_VERSION_440;
+        const runtimeVersion = await getMIVersionFromPom();
+        
+        const isVersionThresholdReached = runtimeVersion ? compareVersions(runtimeVersion, RUNTIME_THRESHOLD_VERSION) : -1;
+
+        return isVersionThresholdReached < 0 ? { url: ROOT_URL } : { url: ENHANCED_ROOT_URL };
     }
 
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
@@ -4417,10 +4566,11 @@ ${keyValuesXML}`;
             if (!checkForDevantExt()) {
                 return;
             }
-            const params = {
+            const params: ICreateComponentCmdParams = {
                 buildPackLang: "microintegrator",
                 name: path.basename(StateMachine.context().projectUri!),
-                componentDir: StateMachine.context().projectUri
+                componentDir: StateMachine.context().projectUri,
+                extName: "Devant",
             };
 
             const langClient = StateMachine.context().langClient!;
@@ -4450,6 +4600,8 @@ ${keyValuesXML}`;
                 if (resp.length === 1) {
                     const type = resp[0]
                     integrationType = mapTypeToScope(type);
+                } else if (resp.length === 0) {
+                    window.showErrorMessage("You don't have any artifacts within this project. Please add an artifact and try again.");
                 } else {
                     // Show a quick pick to select deployment option
                     const selectedScope = await window.showQuickPick(resp, {
@@ -4465,15 +4617,52 @@ ${keyValuesXML}`;
                     return { success: false };
                 }
 
-                const paramsWithType = { ...params, integrationType };
+                const paramsWithType: ICreateComponentCmdParams = { ...params, integrationType: integrationType as DevantScopes, };
 
-                commands.executeCommand(COMMANDS.DEVAN_DEPLOY, paramsWithType);
+                commands.executeCommand(PlatformExtCommandIds.CreateNewComponent, paramsWithType);
                 resolve({ success: true });
 
             } else {
                 resolve({ success: false });
             }
         });
+    }
+
+    async getDevantMetadata(): Promise<DevantMetadata> {
+        let hasContextYaml = false;
+        let isLoggedIn = false;
+        let hasComponent = false;
+        let hasLocalChanges = false;
+        try {
+            const projectRoot = StateMachine.context().projectUri;
+            if(projectRoot){
+                const repoRoot = getRepoRoot(projectRoot);
+                if (repoRoot) {
+                    const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
+                    if (fs.existsSync(contextYamlPath)) {
+                        hasContextYaml = true;
+                    }
+                }
+
+                const platformExt = extensions.getExtension("wso2.wso2-platform");
+                if (!platformExt) {
+                    return { hasComponent: hasContextYaml, isLoggedIn: false };
+                }
+                const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
+                hasLocalChanges = await platformExtAPI.localRepoHasChanges(projectRoot);
+                isLoggedIn = platformExtAPI.isLoggedIn();
+                if (isLoggedIn) {
+                    const components = platformExtAPI.getDirectoryComponents(projectRoot);
+                    hasComponent = components.length > 0;
+                    return { isLoggedIn, hasComponent, hasLocalChanges };
+                }
+                return { isLoggedIn, hasComponent: hasContextYaml, hasLocalChanges };
+            }
+            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
+        } catch(err){
+            console.error("failed to call getDevantMetadata: ", err);
+            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
+        }
     }
 
     async exportProject(params: ExportProjectRequest): Promise<void> {
@@ -5320,6 +5509,18 @@ ${keyValuesXML}`;
     }
 }
 
+export function getRepoRoot(projectRoot: string): string | undefined {
+    // traverse up the directory tree until .git directory is found
+    const gitDir = path.join(projectRoot, ".git");
+    if (fs.existsSync(gitDir)) {
+        return projectRoot;
+    }
+    // path is root return undefined
+    if (projectRoot === path.parse(projectRoot).root) {
+        return undefined;
+    }
+    return getRepoRoot(path.join(projectRoot, ".."));
+}
 
 export async function askProjectPath() {
     return await window.showOpenDialog({

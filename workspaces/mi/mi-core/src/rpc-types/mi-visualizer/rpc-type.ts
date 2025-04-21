@@ -81,6 +81,7 @@ export const updateDependencies: RequestType<UpdateDependenciesRequest, boolean>
 export const updatePomValues: RequestType<UpdatePomValuesRequest, boolean> = { method: `${_preFix}/updatePomValues` };
 export const updateConfigFileValues: RequestType<UpdateConfigValuesRequest, boolean> = { method: `${_preFix}/updateConfigFileValues` };
 export const updateConnectorDependencies: RequestType<void, string> = { method: `${_preFix}/updateConnectorDependencies` };
+export const updateDependenciesFromOverview: RequestType<UpdateDependenciesRequest, boolean> = { method: `${_preFix}/updateDependenciesFromOverview` };
 export const getProjectSetupDetails: RequestType<void, SetupDetails> = { method: `${_preFix}/getProjectSetupDetails` };
 export const updateRuntimeVersionsInPom: RequestType<string, boolean> = { method: `${_preFix}/updateRuntimeVersionsInPom` };
 export const setPathsInWorkSpace: RequestType<SetPathRequest, PathDetailsResponse> = { method: `${_preFix}/setPathsInWorkSpace` };

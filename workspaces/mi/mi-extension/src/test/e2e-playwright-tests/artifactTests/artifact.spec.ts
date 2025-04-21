@@ -8,7 +8,7 @@
  */
 
 import { test } from '@playwright/test';
-import { initTest, page } from '../Utils';
+import { initTest, page, toggleNotifications } from '../Utils';
 import { Automation } from '../components/ArtifactTest/Automation';
 import { Endpoint } from '../components/ArtifactTest/Endpoint';
 import { Sequence } from '../components/ArtifactTest/Sequence';
@@ -23,6 +23,7 @@ import { Proxy } from '../components/ArtifactTest/Proxy';
 import { DataSource } from '../components/ArtifactTest/DataSource';
 import { DataService } from '../components/ArtifactTest/DataService';
 import { API } from '../components/ArtifactTest/APITests';
+import path from 'path';
 
 export default function createTests() {
   test.describe('Artifact Tests', async () => {
@@ -30,6 +31,7 @@ export default function createTests() {
 
     let currentTaskName: string = "TestTask";
     let automation: Automation;
+    let apiName: string;
     test('Automation tests', async ({ }, testInfo) => {
       const testAttempt = testInfo.retry + 1;
       await test.step('Add Automation', async () => {
@@ -43,6 +45,10 @@ export default function createTests() {
         console.log('Editing Automation');
         await automation.edit("NewTestTask" + testAttempt);
       });
+      await test.step('Create External Trigger', async () => {
+        console.log('Creating new External Trigger');
+        await automation.createExternalTrigger("TestExternalTrigger" + testAttempt);
+      });
     });
 
     test('API tests', async () => {
@@ -53,11 +59,13 @@ export default function createTests() {
         console.log('Creating new API');
         api = new API(page.page);
         await api.init();
-        await api.addAPI("TestAPI" + testAttempt, "/testAdd" + testAttempt);
+        apiName = "TestAPI" + testAttempt;
+        await api.addAPI(apiName, "/testAdd" + testAttempt);
       });
       await test.step('Edit API', async () => {
         console.log('Editing API');
-        await api.editAPI("NewTestAPI" + testAttempt, "/newtest" + testAttempt);
+        apiName = "NewTestAPI" + testAttempt;
+        await api.editAPI(apiName, "/newtest" + testAttempt);
       });
 
       await test.step('Add Resource', async () => {
@@ -67,6 +75,10 @@ export default function createTests() {
       await test.step('Edit Resource', async () => {
         console.log('Editing Resource');
         await api.editResource();
+      });
+      await test.step('Go to swagger view', async () => {
+        console.log('Navigating to swagger view');
+        await api.goToSwaggerView();
       });
       await test.step('Delete Resource', async () => {
         console.log('Deleting Resource');
@@ -112,75 +124,220 @@ export default function createTests() {
         console.log('Editing load balance Endpoint');
         await lb.editLoadBalanceEndpoint("loadBalanceEP" + testAttempt, "loadBalanceEndpoint" + testAttempt);
       });
+      await test.step('Add failover Endpoint', async () => {
+        console.log('Creating new failover Endpoint');
+        await lb.addFailoverEndpoint("failoverEP" + testAttempt);
+      });
+      await test.step('Edit failover Endpoint', async () => {
+        console.log('Editing failover Endpoint');
+        await lb.editFailoverEndpoint("failoverEP" + testAttempt, "newFailoverEP" + testAttempt);
+      });
+      await test.step('Add Recipient List Endpoint', async () => {
+        console.log('Creating new Recipient List Endpoint');
+        await lb.addRecipientListEndpoint("recipientListEP" + testAttempt);
+      });
+      await test.step('Edit Recipient List Endpoint', async () => {
+        console.log('Editing Recipient List Endpoint');
+        await lb.editRecipientListEndpoint("recipientListEP" + testAttempt, "newRecipientListEP" + testAttempt);
+      });
     });
 
-    test('Sequence tests', async () => {
+    test('Sequence Tests', async () => {
       let sequence: Sequence;
       const testAttempt = test.info().retry + 1;
-      await test.step('Add Sequence', async () => {
-        console.log('Creating new Sequence');
+      const sequenceName = "TestSequence" + testAttempt;
+      await test.step('Create Sequence', async () => {
+        console.log('Create Sequence');
         sequence = new Sequence(page.page);
         await sequence.init();
-        await sequence.add("seqEP" + testAttempt);
+        await sequence.createSequence(sequenceName);
       });
       await test.step('Edit Sequence', async () => {
-        console.log('Editing Sequence');
-        await sequence.edit("seqEP" + testAttempt, "newSeqEP" + testAttempt, currentTaskName);
+        console.log('Edit Sequence');
+        await sequence.editSequence(sequenceName, "TestSequenceEdited" + testAttempt);
+      });
+      await test.step('Create Sequence from Project Explorer', async () => {
+        console.log('Create Sequence from Project Explorer');
+        await sequence.createSequenceFromProjectExplorer("TestNewSequence" + testAttempt);
       });
     });
 
-    test('Add Class Mediator', async () => {
+    test('Class Mediator Tests', async () => {
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Class Mediator');
+      const className = "SampleClass" + testAttempt;
+      const classNameForExplorer = "SampleNewClass" + testAttempt;
       const classMediator = new ClassMediator(page.page);
       await classMediator.init();
-      await classMediator.add("org.wso2.sample" + testAttempt);
+      console.log('Create Class Mediator');
+      await classMediator.createClassMediator(className);
+      console.log('Open Class Mediator');
+      await classMediator.openClassMediator(className);
+      console.log('Create Class Mediator from Project Explorer');
+      await classMediator.createClassMediatorFromProjectExplorer(classNameForExplorer);
+      await classMediator.clear([className, classNameForExplorer]);
     });
 
-    test('Add Ballerina Module', async () => {
+    test('Ballerina Module Tests', async () => {
+      await toggleNotifications(false);
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Ballerina Module');
+      const ballerinaModuleName = "TestBallerinaModule" + testAttempt;
       const ballerinaModule = new BallerinaModule(page.page);
       await ballerinaModule.init();
-      await ballerinaModule.add("testBal" + testAttempt);
+      console.log('Create Ballerina Module');
+      await ballerinaModule.createBallerinaModule(ballerinaModuleName);
+      console.log('Build Ballerina Module from Editor View');
+      await ballerinaModule.openFromProjectExplorerAndBuild(ballerinaModuleName);
+      console.log('Build Ballerina Module from Mediator Palette');
+      await ballerinaModule.openFromMediatorPaletteAndBuild(ballerinaModuleName);
+      console.log('Create Ballerina Module from Project Explorer');
+      await ballerinaModule.createBallerinaModuleFromProjectExplorer("TestNewBallerinaModule" + testAttempt);
+      await toggleNotifications(true);
     });
 
-    test('Add Resource', async () => {
+    test('Registry Resource Tests', async () => {
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Resource');
-      const resource = new Resource(page.page);
-      await resource.init();
-      await resource.add("testResource" + testAttempt);
+      await test.step('Create new resource from artifacts', async () => {
+        console.log('Creating new resource from artifacts');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromArtifacts();
+        await resource.addFromTemplate({
+          name: 'testResource1' + testAttempt,
+          type: 'JSON File',
+          registryPath: 'json',
+        });
+      });
+
+      await test.step('Create new resource from side panel', async () => {
+        console.log('Creating new resource from side panel');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromSidePanel();
+        await resource.addFromTemplate({
+          name: 'testResource2' + testAttempt,
+          type: 'JSON File',
+          registryPath: 'json/testResource',
+        });
+      });
+
+      await test.step('Create new resource importing a file', async () => {
+        console.log('Creating new resource importing a file');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromArtifacts();
+        const filePath = path.join(__dirname, '..', 'data', 'new-project', 'testProject', 'testProject', 'src', 'main', 'wso2mi', 'resources', 'json', 'testResource1' + testAttempt + '.json');
+        await resource.addFromFileSystem({
+          filePath: filePath,
+          registryPath: 'newJson'
+        })
+      });
     });
 
-    test('Data related tests', async () => {
-      const testAttempt = test.info().retry + 1;
+    test('Message Store Tests', async () => {
       let ms: MessageStore;
-      await test.step('Add Message Store', async () => {
-        console.log('Creating new Message Store');
+      const testAttempt = test.info().retry + 1;
+      await test.step('InMemory Message Store Tests', async () => {
+        const msName = "TestInMemoryMessageStore" + testAttempt;
+        const msUpdatedName = "TestInMemoryMessageStoreEdited" + testAttempt;
         ms = new MessageStore(page.page);
-        await ms.init();
-        await ms.addInMemmoryMS("msgStore" + testAttempt);
+        console.log('Create InMemory Message Store');
+        await ms.createInMemoryMessageStore(msName);
+        console.log('Edit InMemory Message Store');
+        await ms.editInMemoryMessageStore(msName, msUpdatedName);
       });
-      await test.step('Edit Message Store', async () => {
-        console.log('Editing Message Store');
-        await ms.editInMemoryMS("msgStore" + testAttempt, "newMsgStore" + testAttempt);
+      await test.step('RabbitMQ Message Store Tests', async () => {
+        const msName = "TestRabbitMQMessageStore" + testAttempt;
+        const msUpdatedName = "TestRabbitMQMessageStoreEdited" + testAttempt;
+        ms = new MessageStore(page.page);
+        console.log('Create RabbitMQ Message Store');
+        await ms.createRabbitMQMessageStore(msName);
+        console.log('Edit RabbitMQ Message Store');
+        await ms.editRabbitMQMessageStore(msName, msUpdatedName);
       });
-
-      let msp: MessageProcessor;
-      await test.step('Add Message Processor', async () => {
+      await test.step('JMS Message Store Tests', async () => {
+        const msName = "TestJMSMessageStore" + testAttempt;
+        const msUpdatedName = "TestJMSMessageStoreEdited" + testAttempt;
+        ms = new MessageStore(page.page);
+        console.log('Create JMS Message Store');
+        await ms.createJMSMessageStore(msName);
+        console.log('Edit JMS Message Store');
+        await ms.editJMSMessageStore(msName, msUpdatedName);
+      });
+      await test.step('JDBC Message Store Tests', async () => {
+        const msName = "TestJDBCMessageStore" + testAttempt;
+        const msUpdatedName = "TestJDBCMessageStoreEdited" + testAttempt;
+        ms = new MessageStore(page.page);
+        console.log('Create JDBC Message Store');
+        await ms.createJDBCMessageStore(msName);
+        console.log('Edit JDBC Message Store');
+        await ms.editJDBCMessageStore(msName, msUpdatedName);
+      });
+      await test.step('Custom Message Store Tests', async () => {
+        const msName = "TestCustomMessageStore" + testAttempt;
+        const msUpdatedName = "TestCustomMessageStoreEdited" + testAttempt;
+        ms = new MessageStore(page.page);
+        console.log('Create Custom Message Store');
+        await ms.createCustomMessageStore(msName);
+        console.log('Edit Custom Message Store');
+        await ms.editCustomMessageStore(msName, msUpdatedName);
+      });
+      await test.step('Create Message Store from Project Explorer', async () => {
         const testAttempt = test.info().retry + 1;
-        console.log('Creating new Message Processor');
-        msp = new MessageProcessor(page.page);
-        await msp.init();
-        await msp.addMessageSamplingProcessor("msgProcessor" + testAttempt);
+        const msName = "TestMessageStore" + testAttempt;
+        console.log('Create Message Store from Project Explorer');
+        ms = new MessageStore(page.page);
+        await ms.createMessageStoreFromProjectExplorer(msName);
       });
-      await test.step('Edit Message Processor', async () => {
-        console.log('Editing Message Processor');
-        await msp.editMessageSamplingProcessor("msgProcessor" + testAttempt, "newMsgProcessor" + testAttempt);
-      });
+    });
 
+    test('Message Processor Tests', async () => {
+      let mp: MessageProcessor;
+      const testAttempt = test.info().retry + 1;
+      await test.step('Message Sampling Processor Tests', async () => {
+        const mpName = "TestMessageSamplingProcessor" + testAttempt;
+        const mpUpdatedName = "TestMessageSamplingProcessorEdited" + testAttempt;
+        mp = new MessageProcessor(page.page);
+        console.log('Create Message Sampling Processor');
+        await mp.createMessageSamplingProcessor(mpName);
+        console.log('Edit Message Sampling Processor');
+        await mp.editMessageSamplingProcessor(mpName, mpUpdatedName);
+      });
+      await test.step('Scheduled Message Forwarding Processor Tests', async () => {
+        const mpName = "TestScheduledMessageForwardingProcessor" + testAttempt;
+        const mpUpdatedName = "TestScheduledMessageForwardingProcessorEdited" + testAttempt;
+        mp = new MessageProcessor(page.page);
+        console.log('Create Scheduled Message Forwarding Processor');
+        await mp.createScheduledMessageForwardingProcessor(mpName);
+        console.log('Edit Scheduled Message Forwarding Processor');
+        await mp.editScheduledMessageForwardingProcessor(mpName, mpUpdatedName);
+      });
+      await test.step('Scheduled Failover Message Forwarding Processor Tests', async () => {
+        const mpName = "TestScheduledFailoverMessageForwardingProcessor" + testAttempt;
+        const mpUpdatedName = "TestScheduledFailoverMessageForwardingProcessorEdited" + testAttempt;
+        mp = new MessageProcessor(page.page);
+        console.log('Create Scheduled Failover Message Forwarding Processor');
+        await mp.createScheduledFailoverMessageForwardingProcessor(mpName);
+        console.log('Edit Scheduled Failover Message Forwarding Processor');
+        await mp.editScheduledFailoverMessageForwardingProcessor(mpName, mpUpdatedName);
+      });
+      await test.step('Custom Message Processor Tests', async () => {
+        const mpName = "TestCustomMessageProcessor" + testAttempt;
+        const mpUpdatedName = "TestCustomMessageProcessorEdited" + testAttempt;
+        mp = new MessageProcessor(page.page);
+        console.log('Create Custom Message Processor');
+        await mp.createCustomMessageProcessor(mpName);
+        console.log('Edit Custom Message Processor');
+        await mp.editCustomMessageProcessor(mpName, mpUpdatedName);
+      });
+      await test.step('Create Message Processor from Project Explorer', async () => {
+        const testAttempt = test.info().retry + 1;
+        const mpName = "TestMessageProcessor" + testAttempt;
+        console.log('Create Message Processor from Project Explorer');
+        mp = new MessageProcessor(page.page);
+        await mp.createMessageProcessorFromProjectExplorer(mpName);
+      });
+    });
+
+    test('Data Service Tests', async () => {
       let dataSource: DataSource;
+      const testAttempt = test.info().retry + 1;
       await test.step('Add Data Source', async () => {
         console.log('Creating new Data Source');
         dataSource = new DataSource(page.page);
@@ -190,6 +347,14 @@ export default function createTests() {
       await test.step('Edit Data Source', async () => {
         console.log('Editing Data Source');
         await dataSource.edit("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
+      });
+      await test.step('Add Data source from side panel', async () => {
+        console.log('Creating new Data Source from side panel');
+        await dataSource.addCustomDataSourceFromSidepanel("testDataSource" + testAttempt);
+      });
+      await test.step('Edit Data source from side panel', async () => {
+        console.log('Editing Data Source from side panel');
+        await dataSource.editCustomDataSource("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
       });
 
       await test.step('Add Data Service', async () => {
@@ -212,11 +377,27 @@ export default function createTests() {
         console.log('Creating new Local Entry');
         localEntry = new LocalEntry(page.page);
         await localEntry.init();
-        await localEntry.addLocalEntry("localEntry" + testAttempt);
+        await localEntry.addInlineTextLocalEntry("localEntry" + testAttempt);
       });
       await test.step('Edit Local Entry', async () => {
         console.log('Editing Local Entry');
-        await localEntry.editLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
+        await localEntry.editInlineTextLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
+      });
+      await test.step('Add XML Local Entry', async () => {
+        console.log('Creating new XML Local Entry');
+        await localEntry.addXmlLocalEntry("xmlLocalEntry" + testAttempt);
+      });
+      await test.step('Edit XML Local Entry', async () => {
+        console.log('Editing XML Local Entry');
+        await localEntry.editXmlLocalEntry("xmlLocalEntry" + testAttempt, "newXmlLocalEntry" + testAttempt);
+      });
+      await test.step('Add Source Url Local Entry from side panel', async () => {
+        console.log('Creating new Local Entry from side panel');
+        await localEntry.addSourceUrlLocalEntry("sourceUrlLocalEntry" + testAttempt);
+      });
+      await test.step('Edit Source Url Local Entry from side panel', async () => {
+        console.log('Editing Local Entry from side panel');
+        await localEntry.editSourceUrlLocalEntry("sourceUrlLocalEntry" + testAttempt, "newSourceUrlLocalEntry" + testAttempt);
       });
     });
 
@@ -247,6 +428,10 @@ export default function createTests() {
       await test.step('Edit Proxy Service', async () => {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
+      });
+      await test.step('Create Proxy Service from Project Explorer', async () => {
+        console.log('Creating new Proxy Service from Project Explorer');
+        await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
       });
     });
   });

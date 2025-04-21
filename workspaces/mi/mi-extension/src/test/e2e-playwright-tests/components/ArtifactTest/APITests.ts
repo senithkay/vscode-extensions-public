@@ -12,7 +12,7 @@ import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vsc
 import { AddArtifact } from "../AddArtifact";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
-import { copyFile } from "../../Utils";
+import { closeEditorGroup, copyFile } from "../../Utils";
 import path from "path";
 import os from "os";
 
@@ -131,6 +131,58 @@ export class API {
         await frame.getByRole('button', { name: 'Update' }).click();
     }
 
+    public async goToSwaggerView() {
+        const desWebView = await switchToIFrame('Service Designer', this._page);
+        if (!desWebView) {
+            throw new Error("Failed to switch to Service Designer iframe");
+        }
+        console.log("Switched to Service Designer iframe");
+        const serviceDesignerFrame = desWebView.locator('div#root');
+        await serviceDesignerFrame.getByRole('button', { name: ' OpenAPI Spec' }).click();
+        console.log("Clicked on OpenAPI Spec");
+        const webviewFrame = this._page.locator('iframe.webview.ready').nth(1);
+        await webviewFrame.waitFor();
+        console.log("Found webview frame");
+        const frame = webviewFrame.contentFrame();
+        if (!frame) {
+            throw new Error(`IFrame of Swagger View not found`);
+        }
+        const targetFrame = frame.locator(`iframe[title="Swagger View"]`);
+        console.log("Waiting for target frame");
+        await targetFrame.waitFor();
+        const swaggerView = targetFrame.contentFrame();
+        if (!swaggerView) {
+            throw new Error(`IFrame of Swagger View not found`);
+        }
+        console.log("Found swagger view frame");
+        const swaggerFrame = swaggerView.locator('div#root');
+        console.log("Waiting for swagger frame");
+        await swaggerFrame.waitFor();
+        const getRes = swaggerFrame.getByRole('button', { name: 'GET /', exact: true });
+        console.log("Waiting for GET resource button");
+        await getRes.waitFor();
+        console.log("GET resource button found");
+        await getRes.click();
+        console.log("Clicked on GET resource button");
+        await swaggerView.getByRole('button', { name: 'Try it out' }).click();
+        console.log("Clicked on try it out");
+        await swaggerView.getByRole('button', { name: 'Execute' }).click();
+        console.log("Clicked on execute");
+        closeEditorGroup();
+        const saveBtn = this._page.getByRole('button', { name: 'Save', exact: true });
+        await saveBtn.waitFor();
+        console.log("Waiting for save button");
+        await saveBtn.click();
+
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        await this._page.getByLabel('Open Service Designer').click();
+    }
+
     public async deleteResource() {
         const desWebView = await switchToIFrame('Service Designer', this._page);
         if (!desWebView) {
@@ -153,8 +205,10 @@ export class API {
         await this._page.getByLabel('Open Project Overview').click();
         console.log("Clicked on open project overview");
         await webview.locator('vscode-button > svg').first().click();
+        const deleteBtn = webview.getByText('Delete');
         console.log("Clicked on delete API");
-        await webview.getByText('Delete').click();
+        await deleteBtn.waitFor();
+        await deleteBtn.click();
         console.log("Clicked on delete");
     }
 

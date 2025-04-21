@@ -19,6 +19,8 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ProjectInformation } from "./ProjectInformation";
 import { ERROR_MESSAGES } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
 import { DeploymentOptions } from "./DeploymentStatus";
+import { useQuery } from "@tanstack/react-query";
+import { IOpenInConsoleCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export interface DevantComponentResponse {
     org: string;
@@ -103,7 +105,11 @@ export function Overview(props: OverviewProps) {
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [pomTimestamp, setPomTimestamp] = React.useState<number>(0);
     const [errors, setErrors] = React.useState({});
-    const [devantComponent, setDevantComponent] = useState<DevantComponentResponse | undefined>(undefined);
+    const { data: devantMetadata } = useQuery({
+        queryKey: ["devant-metadata", workspaces],
+        queryFn: () => rpcClient.getMiDiagramRpcClient().getDevantMetadata(),
+        refetchInterval: 5000
+    })
 
     useEffect(() => {
         const fetchWorkspaces = async () => {
@@ -169,8 +175,16 @@ export function Overview(props: OverviewProps) {
         rpcClient.getMiDiagramRpcClient().buildProject({ buildType: "capp" });
     };
 
-    const goToDevant = (devantComponent: DevantComponentResponse) => {
-        rpcClient.getMiVisualizerRpcClient().openExternal({ uri: `https://console.devant.dev/organizations/${devantComponent.org}` });
+    const goToDevant = () => {
+        rpcClient.getMiDiagramRpcClient().executeCommand({
+            commands: [
+                PlatformExtCommandIds.OpenInConsole, 
+                {
+                    extName:"Devant",
+                    componentFsPath: activeWorkspaces.fsPath,
+                    newComponentParams: { buildPackLang: "microintegrator" }
+                } as IOpenInConsoleCmdParams]
+        })
     };
 
     const handleDeploy = (params: DeployProjectRequest) => {
@@ -291,7 +305,7 @@ export function Overview(props: OverviewProps) {
                                 handleCAPPBuild={handleCappBuild}
                                 handleDeploy={handleDeploy}
                                 goToDevant={goToDevant}
-                                devantComponent={devantComponent} />
+                                devantMetadata={devantMetadata} />
                         </ProjectInfoColumn>
                         <ProjectInfoColumn style={{ marginTop: '10px' }}>
                             <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', opacity: 0.8 }}>
