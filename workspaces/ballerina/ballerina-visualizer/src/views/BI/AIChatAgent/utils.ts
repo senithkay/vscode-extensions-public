@@ -12,25 +12,6 @@ import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { cloneDeep } from "lodash";
 import { URI, Utils } from "vscode-uri";
 
-export const handleAgentOperations = {
-    getAgentConfig: (node: any) => {
-        if (!node || node.codedata?.node !== "AGENT_CALL") return null;
-
-        const properties = node.properties || {};
-        return {
-            name: properties.connection?.value || "Unknown Agent",
-            model: properties.model?.value || "gpt-3.5-turbo",
-            systemPrompt: properties.systemPrompt?.value || "",
-            tools: properties.tools?.value || [],
-        };
-    },
-
-    formatAgentData: (data: any) => {
-        // Format AIAgent specific data for display or API calls
-        return data;
-    },
-};
-
 export const getAgentFilePath = async (rpcClient: BallerinaRpcClient) => {
     // Get the agent file path and update the node
     const filePath = await rpcClient.getVisualizerLocation();
