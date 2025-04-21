@@ -40,17 +40,16 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ProgressRing, ProgressIndicator, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { applyModifications, textToModifications } from "../../../utils/utils";
 import { PanelManager, SidePanelView } from "./PanelManager";
-import {
-    findAgentNodeFromAgentCallNode,
-    findFlowNodeByModuleVarName,
-    findFunctionByName,
-    getAgentFilePath,
-    removeAgentNode,
-    removeToolFromAgentNode,
-    transformCategories,
-} from "./utils";
+import { findFunctionByName, transformCategories } from "./utils";
 import { ExpressionFormField, Category as PanelCategory } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
+import {
+    findFlowNodeByModuleVarName,
+    getAgentFilePath,
+    findAgentNodeFromAgentCallNode,
+    removeAgentNode,
+    removeToolFromAgentNode,
+} from "../AIChatAgent/utils";
 
 const Container = styled.div`
     width: 100%;
@@ -176,10 +175,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             const nodeStartLine = node.codedata.lineRange.startLine;
 
             // Check if the node's startLine matches the target startLine
-            return (
-                nodeStartLine.line === startLine.line &&
-                nodeStartLine.offset === startLine.offset
-            );
+            return nodeStartLine.line === startLine.line && nodeStartLine.offset === startLine.offset;
         };
 
         // Recursive function to search through nodes and their branches
@@ -274,7 +270,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 setShowProgressIndicator(false);
             });
 
-
         if (!fetchAiSuggestions) {
             return;
         }
@@ -349,11 +344,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true",
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
             searchKind: "NP_FUNCTION",
         };
@@ -384,11 +379,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0,
-                    includeAvailableFunctions: "true",
-                }
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                      includeAvailableFunctions: "true",
+                  }
                 : undefined,
             searchKind: "FUNCTION",
         };

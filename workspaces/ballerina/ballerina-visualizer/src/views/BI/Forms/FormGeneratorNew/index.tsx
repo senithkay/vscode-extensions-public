@@ -39,6 +39,7 @@ import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, The
 import {
     convertBalCompletion,
     convertToVisibleTypes,
+    filterUnsupportedDiagnostics,
     getImportsForFormFields,
     getInfoFromExpressionValue,
     removeDuplicateDiagnostics,
@@ -355,7 +356,10 @@ export function FormGeneratorNew(props: FormProps) {
                             },
                         });
 
-                        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                        let uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                        // HACK: filter unknown module and undefined type diagnostics for local connections
+                        uniqueDiagnostics = filterUnsupportedDiagnostics(uniqueDiagnostics);
+                        
                         setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
                     }
                 } catch (error) {
