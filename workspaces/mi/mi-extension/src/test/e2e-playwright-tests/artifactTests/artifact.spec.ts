@@ -361,12 +361,55 @@ export default function createTests() {
         console.log('Creating new Data Service');
         const dataService = new DataService(page.page);
         await dataService.init();
-        await dataService.add("testDataService" + testAttempt);
+        await dataService.addRDBMS("testDataService" + testAttempt);
       });
       await test.step('Edit Data Service', async () => {
         console.log('Editing Data Service');
         const dataService = new DataService(page.page);
-        await dataService.edit("testDataService" + testAttempt, "newTestDataService" + testAttempt);
+        await dataService.editRDBMS("testDataService" + testAttempt, "newTestDataService" + testAttempt);
+      });
+      await test.step('Add MongoDB Data Service', async () => {
+        console.log('Creating new MongoDB Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addMongoDB("testMongoDBDataService" + testAttempt);
+      });
+      await test.step('Edit MongoDB Data Service', async () => {
+        console.log('Editing MongoDB Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editMongoDB("testMongoDBDataService" + testAttempt, "newTestMongoDBDataService" + testAttempt);
+      });
+
+      await test.step('Add Cassanrda Data Service', async () => {
+        console.log('Editing Cassanrda Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addCassandraDB("testCassandraDB" + testAttempt);
+      });
+      await test.step('Edit Cassandra Data Service', async () => {
+        console.log('Editing Cassandra Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editCassandraDB("testCassandraDB" + testAttempt, "newTestCassandraDB" + testAttempt);
+      });
+
+      await test.step('Add CSV Data Service', async () => {
+        console.log('Editing Cassanrda Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addCsvDs("testCSVDs" + testAttempt);
+      });
+      await test.step('Edit CSV Data Service', async () => {
+        console.log('Editing CSV Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editCsvDs("testCSVDs" + testAttempt, "newTestCSVDs" + testAttempt);
+      });
+
+      await test.step('Add Carbon Data source', async () => {
+        console.log('Adding Carbon Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addCarbonDs("testCarbonDs" + testAttempt);
+      });
+      await test.step('Edit Carbon Data source', async () => {
+        console.log('Editing Carbon Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editCarbonDs("testCarbonDs" + testAttempt, "newTestCarbonDs" + testAttempt);
       });
     });
 
