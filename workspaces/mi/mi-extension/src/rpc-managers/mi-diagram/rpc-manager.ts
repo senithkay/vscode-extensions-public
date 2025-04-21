@@ -719,13 +719,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
             }
 
-            await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
-            await this.rangeFormat({ uri: documentUri, range: apiRange });
-
             if (sanitizedHandlersXmlData) {
                 await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
                 await this.rangeFormat({ uri: documentUri, range: handlersRange });
             }
+
+            await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
+            await this.rangeFormat({ uri: documentUri, range: apiRange });
 
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: documentUri });
