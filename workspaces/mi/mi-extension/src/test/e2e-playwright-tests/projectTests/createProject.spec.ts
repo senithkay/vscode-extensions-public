@@ -24,14 +24,14 @@ export default function createTests() {
 
         test("Create Project Tests", async () => {
             await test.step('Create New Project Tests', async () => {
-                await createProject(page, 'newProject', newProjectPath, false);
+                await createProject(page, 'newProject', '4.4.0');
                 assertFileContent(path.join(newProjectPath, 'newProject', 'pom.xml'), 
                 '<artifactId>newProject</artifactId>');
             });
 
             await test.step("Create New Project with Advanced Config Tests", async () => {
                 await page.executePaletteCommand("MI: Open MI Welcome");
-                await createProject(page, 'newProjectWithAdConfig', newProjectPath, true);
+                await createProject(page, 'newProjectWithAdConfig', '4.4.0', true);
                 assertFileContent(path.join(newProjectPath, 'newProjectWithAdConfig', 'pom.xml'), 
                 '<artifactId>test</artifactId>');
             });

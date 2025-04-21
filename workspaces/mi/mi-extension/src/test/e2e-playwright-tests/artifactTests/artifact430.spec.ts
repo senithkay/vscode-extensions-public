@@ -14,7 +14,7 @@ import { Registry } from '../components/ArtifactTest/Registry';
 
 export default function createTests() {
   test.describe('Artifact Tests', async () => {
-    initTest(true, true, 'testProject430', '4.3.0');
+    initTest(true, true, false, 'testProject430', '4.3.0');
 
     test('Registry Tests from 4.3.0 runtime', async () => {
       const testAttempt = test.info().retry + 1;
