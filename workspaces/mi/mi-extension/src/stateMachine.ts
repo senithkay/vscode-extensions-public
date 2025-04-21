@@ -364,7 +364,9 @@ const stateMachine = createMachine<MachineContext>({
                             await new Promise(resolve => setTimeout(resolve, 10));
                         }
                         if (setTitle) {
-                            webview.title = context.view!;
+                            const workspaces = vscode.workspace.workspaceFolders;
+                            const projectName = workspaces && workspaces.length > 1 ? path.basename(context.projectUri!) : '';
+                            webview.title = projectName ? `${context.view} - ${projectName}` : context.view!;
                         }
                     }
                     resolve(true);
@@ -410,7 +412,7 @@ const stateMachine = createMachine<MachineContext>({
                                     },
                                 });
                                 if (response?.syntaxTree) {
-                                    break; 
+                                    break;
                                 }
                                 await new Promise(resolve => setTimeout(resolve, 200));
                                 retryCount++;
@@ -511,7 +513,9 @@ const stateMachine = createMachine<MachineContext>({
                 // set webview title
                 const webview = webviews.get(context.projectUri!)?.getWebview();
                 if (webview) {
-                    webview.title = context.view!;
+                    const workspaces = vscode.workspace.workspaceFolders;
+                    const projectName = workspaces && workspaces.length > 1 ? path.basename(context.projectUri!) : '';
+                    webview.title = projectName ? `${context.view} - ${projectName}` : context.view!;
                 }
 
                 updateProjectExplorer(viewLocation);
