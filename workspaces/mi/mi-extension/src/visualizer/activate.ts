@@ -159,6 +159,7 @@ export function activateVisualizer(context: vscode.ExtensionContext, firstProjec
         // Handle the text change and diagram update with rpc notification
         vscode.workspace.onDidChangeTextDocument(async function (document) {
             const projectUri = vscode.workspace.getWorkspaceFolder(document.document.uri)?.uri.fsPath;
+            const artifactsDir = path.join(projectUri!, 'src', 'main', "wso2mi", "artifacts");
 
             if (!projectUri) {
                 return;
@@ -175,7 +176,7 @@ export function activateVisualizer(context: vscode.ExtensionContext, firstProjec
 
             if (webview?.getWebview()?.active || AiPanelWebview.currentPanel?.getWebview()?.active) {
                 await document.document.save();
-                if (!getStateMachine(projectUri).context().view?.endsWith('Form')) {
+                if (!getStateMachine(projectUri).context().view?.endsWith('Form') && document?.document?.uri?.fsPath?.includes(artifactsDir)) {
                     refreshDiagram(projectUri);
                 }
             }
@@ -249,6 +250,7 @@ export function activateVisualizer(context: vscode.ExtensionContext, firstProjec
 
         vscode.workspace.onDidSaveTextDocument(async function (document) {
             const projectUri = vscode.workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
+            const artifactsDir = path.join(projectUri!, 'src', 'main', "wso2mi", "artifacts");
 
             if (!projectUri) {
                 return;
@@ -297,7 +299,7 @@ export function activateVisualizer(context: vscode.ExtensionContext, firstProjec
                 }
             }
 
-            if (currentView !== 'Connector Store Form') {
+            if (currentView !== 'Connector Store Form' && document?.uri?.fsPath?.includes(artifactsDir)) {
                 refreshDiagram(projectUri!);
             }
         }, extension.context),
