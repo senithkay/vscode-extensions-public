@@ -230,7 +230,7 @@ export class Form {
     }
 
     public async getParamManagerWithNewCreateForm(field: string, frameName: string): Promise<ParamManagerWithNewCreateForm> {
-        return new ParamManagerWithNewCreateForm(this.container, field, frameName, this._page);
+        return new ParamManagerWithNewCreateForm(this.container, field, frameName, this.webview, this._page);
     }
 
     public async fillParamManager(props: ParamManagerValues, paramManagerLabel: string = "Add Parameter",

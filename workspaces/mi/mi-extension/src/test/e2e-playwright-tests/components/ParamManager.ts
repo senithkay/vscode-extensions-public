@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Locator, Page } from "@playwright/test";
+import { Frame, Locator, Page } from "@playwright/test";
 import { Form } from "./Form";
 
 export abstract class ParamManager {
@@ -111,7 +111,7 @@ export class DefaultParamManager extends ParamManager {
 
 export class ParamManagerWithNewCreateForm extends ParamManager {
 
-    constructor(protected container: Locator, protected field: string, private frameName: string, protected _page?: Page) {
+    constructor(protected container: Locator, protected field: string, private frameName: string, private webview: Frame, protected _page?: Page) {
         super(container, field, _page);
     }
 
@@ -130,7 +130,7 @@ export class ParamManagerWithNewCreateForm extends ParamManager {
         await paramManagerContainer.waitFor();
         const optionBtns = paramManagerContainer.locator('i[class="codicon codicon-ellipsis"]');
         await this.clickListItem(optionBtns, index);
-        const editIcon = await this.container.locator('..').getByRole('gridcell', { name: 'Edit' });
+        const editIcon = await this.webview.getByRole('gridcell', { name: 'Edit' });
         await editIcon.click();
         const form = new Form(this._page, this.frameName);
         await form.switchToFormView();
@@ -149,7 +149,7 @@ export class ParamManagerWithNewCreateForm extends ParamManager {
         await paramManagerContainer.waitFor();
         const optionBtns = paramManagerContainer.locator('i[class="codicon codicon-ellipsis"]');
         await this.clickListItem(optionBtns, index);
-        const deleteIcon = await this.container.locator('..').getByRole('gridcell', { name: 'Delete' });
+        const deleteIcon = await this.webview.getByRole('gridcell', { name: 'Delete' });
         await deleteIcon.click();
     }
 }
