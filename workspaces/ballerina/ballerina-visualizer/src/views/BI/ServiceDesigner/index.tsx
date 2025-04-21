@@ -91,14 +91,19 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             startLine: { line: position.startLine, offset: position.startColumn },
             endLine: { line: position.endLine, offset: position.endColumn },
         };
-        rpcClient
-            .getServiceDesignerRpcClient()
-            .getServiceModelFromCode({ filePath, codedata: { lineRange } })
-            .then((res) => {
-                console.log("Service Model: ", res.service);
-                setServiceModel(res.service);
-                setIsSaving(false);
-            });
+        try {
+            rpcClient
+                .getServiceDesignerRpcClient()
+                .getServiceModelFromCode({ filePath, codedata: { lineRange } })
+                .then((res) => {
+                    console.log("Service Model: ", res.service);
+                    setShowForm(false);
+                    setServiceModel(res.service);
+                    setIsSaving(false);
+                });
+        } catch (error) {
+            console.log("Error fetching service model: ", error);
+        }
         getProjectListeners();
     };
 
@@ -107,7 +112,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             .getBIDiagramRpcClient()
             .getProjectStructure()
             .then((res) => {
-                const listeners = res.directoryMap[DIRECTORY_MAP.LISTENERS];
+                const listeners = res.directoryMap[DIRECTORY_MAP.LISTENER];
                 if (listeners.length > 0) {
                     setProjectListeners(listeners);
                 }
@@ -206,21 +211,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         if (isNew) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
-                .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+                .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
         } else {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
-                .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+                .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
         }
         setIsNew(false);
-        handleNewFunctionClose();
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position,
-            },
-        });
     };
 
     const handleFunctionSubmit = async (value: FunctionModel) => {
@@ -242,13 +239,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         setIsNew(false);
         handleNewFunctionClose();
         handleFunctionConfigClose();
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position,
-            },
-        });
     };
 
     const handleFunctionConfigClose = () => {
@@ -307,6 +297,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         }
     };
 
+    const haveServiceTypeName = serviceModel?.properties["serviceTypeName"]?.value;
+
     return (
         <View>
             <TopNavigationBar />
@@ -335,7 +327,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     <Codicon name="add" sx={{ marginRight: 8 }} /> Function
                                 </VSCodeButton>
                             )}
-                        {serviceModel && serviceModel.moduleName === "http" && (
+                        {serviceModel && serviceModel.moduleName === "http" && !haveServiceTypeName && (
                             <VSCodeButton appearance="primary" title="Add Resource" onClick={handleNewResourceFunction}>
                                 <Codicon name="add" sx={{ marginRight: 8 }} /> Resource
                             </VSCodeButton>
@@ -347,11 +339,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 {!serviceModel && (
                     <LoadingContainer>
                         <LoadingRing message="Loading Service..." />
-                    </LoadingContainer>
-                )}
-                {isSaving && (
-                    <LoadingContainer>
-                        <LoadingRing message="Saving..." />
                     </LoadingContainer>
                 )}
                 {serviceModel && (
@@ -416,7 +403,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     <ResourceAccordion
                                         key={`${index}-${functionModel.name.value}`}
                                         functionModel={functionModel}
-                                        goToSource={() => {}}
+                                        goToSource={() => { }}
                                         onEditResource={handleFunctionEdit}
                                         onDeleteResource={handleFunctionDelete}
                                         onResourceImplement={handleOpenDiagram}
@@ -434,6 +421,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     >
                         <ResourceForm
                             model={functionModel}
+                            isSaving={isSaving}
                             onSave={handleResourceSubmit}
                             onClose={handleNewFunctionClose}
                         />

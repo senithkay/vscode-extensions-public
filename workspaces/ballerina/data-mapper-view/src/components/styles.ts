@@ -293,7 +293,7 @@ export const useUnionTypeNodeStyles = () => ({
     warningText: css({
         color:  'var(--vscode-errorForeground)',
         fontSize: '15px',
-        fontFamily: 'Droid Sans Mono',
-        fontWeight: 'normal'
+        fontWeight: 'normal',
+        marginBottom: '8px',
     }),
 });

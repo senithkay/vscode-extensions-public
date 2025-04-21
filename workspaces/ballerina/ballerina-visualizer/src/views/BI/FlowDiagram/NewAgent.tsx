@@ -19,7 +19,7 @@ import { cloneDeep } from "lodash";
 import { RelativeLoader } from "../../../components/RelativeLoader";
 
 const Container = styled.div`
-    padding: 16px 0 16px 16px;
+    padding: 16px;
     height: 100%;
 `;
 
@@ -50,6 +50,8 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
     const [savingForm, setSavingForm] = useState<boolean>(false);
 
     const agentFilePath = useRef<string>("");
+    const agentCallEndOfFile = useRef<LinePosition | null>(null);
+    const agentEndOfFile = useRef<LinePosition | null>(null);
 
     useEffect(() => {
         initPanel();
@@ -62,6 +64,17 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
         agentFilePath.current = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
         // fetch agent node
         await fetchAgentNode();
+        // get end of files
+        // main.bal last line
+        const endOfFile = await rpcClient.getBIDiagramRpcClient().getEndOfFile({ filePath: fileName });
+        console.log(">>> endOfFile", endOfFile);
+        agentCallEndOfFile.current = endOfFile;
+        // agent.bal file last line
+        const endOfAgentFile = await rpcClient
+            .getBIDiagramRpcClient()
+            .getEndOfFile({ filePath: agentFilePath.current });
+        console.log(">>> endOfAgentFile", endOfAgentFile);
+        agentEndOfFile.current = endOfAgentFile;
     };
 
     useEffect(() => {
@@ -90,7 +103,7 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
             .getAllModels({ agent: agentCodeData.object, filePath: agentFilePath.current });
         console.log(">>> allModels", allModels);
         // get openai model
-        const defaultModel = allModels.models.find((model) => model.object === "OpenAiModel");
+        const defaultModel = allModels.models.find((model) => model.object === "OpenAiProvider");
         if (!defaultModel) {
             console.log(">>> no default model found");
             return;
@@ -217,6 +230,7 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
         // update the agent call node
         const updatedAgentCallNode = cloneDeep(agentCallNode);
         updatedAgentCallNode.properties.query.value = rawData["query"];
+        updatedAgentCallNode.properties.sessionId.value = rawData["sessionId"];
         updatedAgentCallNode.properties.connection.value = agentVarName;
         updatedAgentCallNode.codedata.parentSymbol = agentVarName;
         // HACK: add line range
@@ -259,7 +273,10 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
             {!loading && (
                 <ConfigForm
                     formFields={formFields}
-                    filePath={agentFilePath.current}
+                    targetLineRange={{
+                        fileName: fileName,
+                        ...lineRange,
+                    }}
                     onSubmit={handleOnSave}
                     disableSaveButton={savingForm}
                 />

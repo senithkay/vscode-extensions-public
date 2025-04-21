@@ -9,7 +9,7 @@
 
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
-import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, type ContextItemEnriched, type IManageDirContextCmdParams } from "@wso2-enterprise/wso2-platform-core";
 import React, { type FC } from "react";
 import { Button } from "../../components/Button";
 import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";
@@ -49,7 +49,7 @@ export const ComponentsEmptyView: FC<Props> = ({ items, loading, selected }) => 
 							onClick={() =>
 								ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.ManageDirectoryContext, {
 									onlyShowSwitchProject: true,
-								})
+								} as IManageDirContextCmdParams)
 							}
 							title="Switch to different project context to manage the components of that project."
 						>

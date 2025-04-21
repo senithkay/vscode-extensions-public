@@ -11,9 +11,9 @@ import styled from "@emotion/styled";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useState } from "react";
-import { DevantComponentResponse } from ".";
-import { DeployProjectRequest } from "@wso2-enterprise/mi-core";
+import { DeployProjectRequest, DevantMetadata } from "@wso2-enterprise/mi-core";
 import { Colors } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 interface DeploymentOptionProps {
     title: string;
@@ -22,7 +22,12 @@ interface DeploymentOptionProps {
     isExpanded: boolean;
     onToggle: () => void;
     onDeploy: () => void;
-    learnMoreLink?: boolean;
+    learnMoreLink?: string;
+    secondaryAction?: {
+        description: string;
+        buttonText: string;
+        onClick: () => void;
+    }
 }
 
 const Title = styled(Typography)`
@@ -69,8 +74,15 @@ function DeploymentOption({
     isExpanded,
     onToggle,
     onDeploy,
-    learnMoreLink
+    learnMoreLink,
+    secondaryAction
 }: DeploymentOptionProps) {
+    const { rpcClient } = useVisualizerContext();
+
+    const openLearnMoreURL = () => {
+        rpcClient.getMiVisualizerRpcClient().openExternal({uri: learnMoreLink})
+    };
+
     return (
         <DeploymentOptionContainer
             isExpanded={isExpanded}
@@ -86,7 +98,9 @@ function DeploymentOption({
             <DeploymentBody isExpanded={isExpanded}>
                 <p style={{ marginTop: 8 }}>
                     {description}
-                    {learnMoreLink && <> <VSCodeLink>Learn more</VSCodeLink></>}
+                    {learnMoreLink && (
+                        <VSCodeLink onClick={openLearnMoreURL} style={{ marginLeft: '4px' }}>Learn more</VSCodeLink>
+                    )}
                 </p>
                 <Button appearance="secondary" onClick={(e: { stopPropagation: () => void; }) => {
                     e.stopPropagation();
@@ -94,6 +108,17 @@ function DeploymentOption({
                 }}>
                     {buttonText}
                 </Button>
+                {secondaryAction && (
+                    <>
+                        <p>{secondaryAction.description}</p>
+                        <Button appearance="primary" onClick={(e) => {
+                            e.stopPropagation();
+                            secondaryAction.onClick()
+                        }}>
+                            {secondaryAction.buttonText}
+                        </Button>
+                    </>
+                )}
             </DeploymentBody>
         </DeploymentOptionContainer>
     );
@@ -103,12 +128,13 @@ interface DeploymentOptionsProps {
     handleDockerBuild: () => void;
     handleCAPPBuild: () => void;
     handleDeploy: (params: DeployProjectRequest) => void;
-    goToDevant: (devantComponent: DevantComponentResponse) => void;
-    devantComponent: DevantComponentResponse | undefined;
+    goToDevant: () => void;
+    devantMetadata?: DevantMetadata;
 }
 
-export function DeploymentOptions({ handleDockerBuild, handleCAPPBuild, handleDeploy, goToDevant, devantComponent }: DeploymentOptionsProps) {
+export function DeploymentOptions({ handleDockerBuild, handleCAPPBuild, handleDeploy, goToDevant, devantMetadata }: DeploymentOptionsProps) {
     const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
+    const { rpcClient } = useVisualizerContext();
 
     const toggleOption = (option: string) => {
         setExpandedOptions(prev => {
@@ -126,29 +152,31 @@ export function DeploymentOptions({ handleDockerBuild, handleCAPPBuild, handleDe
         <div>
             <Title variant="h3">Deployment Options</Title>
 
-            {devantComponent == undefined &&
-                <DeploymentOption
-                    title="Deploy to Devant"
-                    description="Deploy your integration to the cloud using WSO2 Devant."
-                    buttonText="Deploy to Cloud"
-                    isExpanded={expandedOptions.has('cloud')}
-                    onToggle={() => toggleOption('cloud')}
-                    onDeploy={() => handleDeploy({})}
-                    learnMoreLink={true}
-                />
-            }
-
-            {devantComponent != undefined &&
-                <DeploymentOption
-                    title="Deployed in Devant"
-                    description="This integration is already deployed in Devant."
-                    buttonText="View in Devant"
-                    isExpanded={expandedOptions.has('devant')}
-                    onToggle={() => toggleOption('devant')}
-                    onDeploy={() => goToDevant(devantComponent)}
-                    learnMoreLink={true}
-                />
-            }
+            <DeploymentOption
+                title={devantMetadata?.hasComponent ? "Deployed in Devant" : "Deploy to Devant"}
+                description={
+                    devantMetadata?.hasComponent
+                        ? "This integration is already deployed in Devant."
+                        : "Deploy your integration to the cloud using Devant by WSO2."
+                }
+                buttonText={devantMetadata?.hasComponent ? "View in Devant" : "Deploy"}
+                isExpanded={expandedOptions.has("devant")}
+                onToggle={() => toggleOption("devant")}
+                onDeploy={devantMetadata?.hasComponent ? () => goToDevant() : () => handleDeploy({})}
+                learnMoreLink={"https://wso2.com/devant/docs"}
+                secondaryAction={
+                    devantMetadata?.hasComponent && devantMetadata?.hasLocalChanges
+                        ? {
+                                description: "To redeploy in Devant, please commit and push your changes.",
+                                buttonText: "Open Source Control",
+                                onClick: () =>
+                                    rpcClient
+                                        .getMiDiagramRpcClient()
+                                        .executeCommand({ commands: ["workbench.scm.focus"] }),
+                            }
+                        : undefined
+                }
+            />
 
             <DeploymentOption
                 title="Deploy with Docker"

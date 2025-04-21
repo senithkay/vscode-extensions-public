@@ -86,14 +86,14 @@ export class LetExpressionNode extends DataMapperNodeModel {
                                 const fields = type.fields;
                                 fields.forEach((subField) => {
                                     this.numberOfFields += 1 + this.addPortsForInputRecordField(
-                                        subField, "OUT", varName.value, LET_EXPRESSION_SOURCE_PORT_PREFIX,
+                                        subField, "OUT", varName.value, varName.value,
                                         LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort, this.context.collapsedFields,
                                         parentPort.collapsed
                                     );
                                 });
                             } else {
                                 this.numberOfFields += this.addPortsForInputRecordField(
-                                    type, "OUT", varName.value, LET_EXPRESSION_SOURCE_PORT_PREFIX,
+                                    type, "OUT", varName.value, varName.value,
                                     LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort, this.context.collapsedFields,
                                     parentPort.collapsed
                                 );

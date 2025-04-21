@@ -14,6 +14,7 @@ import {
     ArrowProps,
     HelperPaneBodyProps,
     HelperPaneCategoryItemProps,
+    HelperPaneCollapsibleSectionProps,
     HelperPaneCompletionItemProps,
     HelperPaneFooterProps,
     HelperPaneHeaderProps,
@@ -257,6 +258,21 @@ const LoadingItem = styled.div`
         100% {
             background: var(--vscode-editor-inactiveSelectionBackground);
         }
+    }
+`;
+
+const CollapsibleSectionTitle = styled.div`
+    display: flex;
+    align-items: center;
+    padding-block: 8px;
+    cursor: pointer;
+
+    & p {
+        color: var(--vscode-button-background);
+    }
+
+    & p:hover {
+        color: var(--vscode-button-hoverBackground);
     }
 `;
 
@@ -596,6 +612,26 @@ const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, labelSx, o
     );
 };
 
+const CollapsibleSection: React.FC<HelperPaneCollapsibleSectionProps> = ({
+    title,
+    titleSx,
+    defaultCollapsed = false,
+    children,
+}) => {
+    const [isCollapsed, setIsCollapsed] = useState<boolean>(defaultCollapsed);
+
+    return (
+        <>
+            <CollapsibleSectionTitle onClick={() => setIsCollapsed(!isCollapsed)}>
+                <Typography variant="body3" sx={{ fontStyle: "italic", ...titleSx }}>
+                    {isCollapsed ? "Show " : "Hide "}{title}
+                </Typography>
+            </CollapsibleSectionTitle>
+            {!isCollapsed && children}
+        </>
+    );
+};
+
 const SubSection: React.FC<HelperPaneSectionProps> = ({
     title,
     columns = 1,
@@ -706,6 +742,7 @@ const HelperPane: React.FC<HelperPaneProps> & {
     Body: typeof Body;
     Section: typeof Section;
     SubSection: typeof SubSection;
+    CollapsibleSection: typeof CollapsibleSection;
     CategoryItem: typeof CategoryItem;
     CompletionItem: typeof CompletionItem;
     Footer: typeof Footer;
@@ -730,6 +767,7 @@ HelperPane.Header = Header;
 HelperPane.Body = Body;
 HelperPane.Section = Section;
 HelperPane.SubSection = SubSection;
+HelperPane.CollapsibleSection = CollapsibleSection;
 HelperPane.CategoryItem = CategoryItem;
 HelperPane.CompletionItem = CompletionItem;
 HelperPane.Footer = Footer;

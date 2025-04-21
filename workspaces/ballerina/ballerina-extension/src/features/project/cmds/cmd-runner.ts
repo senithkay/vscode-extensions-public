@@ -41,7 +41,6 @@ export enum PALETTE_COMMANDS {
     SHOW_SOURCE = 'ballerina.show.source',
     SHOW_ARCHITECTURE_VIEW = 'ballerina.view.architectureView',
     SHOW_EXAMPLES = 'ballerina.showExamples',
-    SHOW_CELL_VIEW = 'ballerina.view.cellView',
     REFRESH_SHOW_ARCHITECTURE_VIEW = "ballerina.view.architectureView.refresh",
     RUN_CONFIG = 'ballerina.project.run.config',
     CONFIG_CREATE_COMMAND = 'ballerina.project.config.create',

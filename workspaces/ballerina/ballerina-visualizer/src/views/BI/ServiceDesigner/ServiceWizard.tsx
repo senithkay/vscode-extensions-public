@@ -14,10 +14,11 @@ import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import ListenerConfigForm from './Forms/ListenerConfigForm';
 import ServiceConfigForm from './Forms/ServiceConfigForm';
-import { LoadingContainer } from '../../styles';
+import { LoadingContainer, LoadingOverlayContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
 import { TopNavigationBar } from '../../../components/TopNavigationBar';
 import { LoadingRing } from '../../../components/Loader';
+import { isBetaModule } from '../ComponentListView/componentListUtils';
 
 const Container = styled.div`
     display: "flex";
@@ -32,6 +33,11 @@ const StepperContainer = styled.div`
     margin-bottom: 20px;
 `;
 
+interface WizardHeaderInfo {
+    title: string;
+    moduleName: string;
+}
+
 export interface ServiceWizardProps {
     type: string;
 }
@@ -42,7 +48,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     const [step, setStep] = useState<number>(0);
 
-    const [title, setTitle] = useState(undefined);
+    const [headerInfo, setHeaderInfo] = useState<WizardHeaderInfo>(undefined);
     const [listenerModel, setListenerModel] = useState<ListenerModel>(undefined);
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [listeners, setListeners] = useState<ListenersResponse>(undefined);
@@ -52,13 +58,17 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     const [saving, setSaving] = useState<boolean>(false);
     const [existingListener, setExistingListener] = useState<string>(undefined);
+    const [pullingModules, setPullingModules] = useState<boolean>(false);
 
     useEffect(() => {
         rpcClient.getServiceDesignerRpcClient()
-        .getServiceModel({ filePath: "", moduleName: type, listenerName: "" })
-        .then(res => {
-            setTitle(res.service.displayName || res.service.name);
-        });
+            .getServiceModel({ filePath: "", moduleName: type, listenerName: "" })
+            .then(res => {
+                setHeaderInfo({
+                    title: res.service.displayName || res.service.name,
+                    moduleName: res.service.moduleName
+                });
+            });
         rpcClient.getServiceDesignerRpcClient().getListeners({ filePath: "", moduleName: type }).then(res => {
             console.log("Existing Listeners: ", res);
             setExisting(res.hasListeners);
@@ -82,7 +92,14 @@ export function ServiceWizard(props: ServiceWizardProps) {
         setSaving(true);
         let listenerName;
         if (value) {
+            // Set a timeout to show step 2 after 3 seconds
+            const timeoutId = setTimeout(() => {
+                setPullingModules(true);
+            }, 3000);
             await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener: value });
+            // Clear the timeout if the operation completed before 3 seconds
+            clearTimeout(timeoutId);
+            setPullingModules(false);
             if (value.properties['name'].value) {
                 listenerName = value.properties['name'].value;
             }
@@ -104,13 +121,6 @@ export function ServiceWizard(props: ServiceWizardProps) {
     const handleServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position
-            },
-        });
     }
 
     const onBack = () => {
@@ -131,7 +141,12 @@ export function ServiceWizard(props: ServiceWizardProps) {
     return (
         <View>
             <TopNavigationBar />
-            {title && <TitleBar title={title}/>}
+            {headerInfo && (
+                <TitleBar
+                    title={headerInfo.title}
+                    isBetaFeature={isBetaModule(headerInfo.moduleName)}
+                />
+            )}
             <ViewContent>
                 {!listenerModel && !listeners &&
                     <LoadingContainer>
@@ -145,25 +160,20 @@ export function ServiceWizard(props: ServiceWizardProps) {
                                 <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />
                             </StepperContainer>
                         }
-                        {step === 0 && !saving &&
+                        {step === 0 &&
                             <>
-                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Create" : undefined} />
+                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={saving ? "Creating" : (listeners?.hasListeners ? "Create" : undefined)} isSaving={saving} />
                             </>
                         }
-                        {step === 0 && saving &&
-                            <LoadingContainer>
-                                <LoadingRing message="Saving listener..." />
-                            </LoadingContainer>
-                        }
-                        {step === 1 && !saving &&
+                        {step === 1 &&
                             <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={"Create"} />
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={saving ? "Creating" : "Create"} isSaving={saving} />
                             </>
                         }
-                        {step === 1 && saving &&
-                            <LoadingContainer>
-                                <LoadingRing message="Saving service..." />
-                            </LoadingContainer>
+                        {pullingModules &&
+                            <LoadingOverlayContainer>
+                                <LoadingRing message="Pulling the required modules..." />
+                            </LoadingOverlayContainer>
                         }
                     </Container>
                 }

@@ -14,7 +14,10 @@ import {
     FormExpressionEditor,
     FormExpressionEditorRef,
     HelperPaneHeight,
+    Icon,
     RequiredFormInput,
+    ThemeColors,
+    Tooltip,
     Typography
 } from "@wso2-enterprise/ui-toolkit";
 import { FormField } from "../Form/types";
@@ -23,6 +26,7 @@ import { Controller } from "react-hook-form";
 import { S } from "./ExpressionEditor";
 import { sanitizeType } from "./utils";
 import { debounce } from "lodash";
+import styled from "@emotion/styled";
 
 interface TypeEditorProps {
     field: FormField;
@@ -32,14 +36,47 @@ interface TypeEditorProps {
     autoFocus?: boolean;
 }
 
-const getDefaultCompletion = () => (
-    <S.TitleContainer>
-        <Codicon name="add" />
-        <Typography variant="body3" sx={{ fontWeight: 600 }}>
-            Add Type
-        </Typography>
-    </S.TitleContainer>
-);
+const Ribbon = styled.div({
+    backgroundColor: ThemeColors.PRIMARY,
+    opacity: 0.6,
+    width: '24px',
+    height: `calc(100% - 6.5px)`,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    borderTopLeftRadius: '2px',
+    borderBottomLeftRadius: '2px',
+    borderRight: 'none',
+    marginTop: '3.75px',
+    paddingTop: '6px',
+    cursor: 'pointer'
+});
+
+const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
+    return (
+        <Tooltip content="Add Type" containerSx={{ cursor: 'default' }}>
+            <Ribbon onClick={onClick}>
+                <Icon name="bi-type" sx={{ 
+                    color: ThemeColors.ON_PRIMARY, 
+                    fontSize: '12px', 
+                    width: '12px', 
+                    height: '12px'
+                }} />
+            </Ribbon>
+        </Tooltip>
+    );
+};
+
+const getDefaultCompletion = (newType: string) => {
+    return (
+        <S.TitleContainer>
+            <Codicon name="add" />
+            <Typography variant="body3" sx={{ fontWeight: 600 }}>
+                Add Type: {newType}
+            </Typography>
+        </S.TitleContainer>
+    )
+}
 
 export function TypeEditor(props: TypeEditorProps) {
     const { field, openRecordEditor, handleOnFieldFocus, handleOnTypeChange, autoFocus } = props;
@@ -47,6 +84,7 @@ export function TypeEditor(props: TypeEditorProps) {
     const { control } = form;
     const {
         types,
+        referenceTypes,
         helperPaneOrigin: typeHelperOrigin,
         helperPaneHeight: typeHelperHeight,
         retrieveVisibleTypes,
@@ -71,10 +109,7 @@ export function TypeEditor(props: TypeEditorProps) {
         setFocused(true);
         // Trigger actions on focus
         await onFocus?.();
-        await retrieveVisibleTypes(value, value.length, field.valueTypeConstraint as string);
-        if (openRecordEditor) {
-            setShowDefaultCompletion(true);
-        }
+        await retrieveVisibleTypes(value, value.length, true);
         handleOnFieldFocus?.(field.key);
     };
 
@@ -89,7 +124,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCompletionSelect = async (value: string) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(value);
+        await onCompletionItemSelect?.(value, field.key);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -118,19 +153,29 @@ export function TypeEditor(props: TypeEditorProps) {
         setIsTypeHelperOpen(isOpen);
     };
 
+    const toggleTypeHelperPaneState = () => {
+        if (!isTypeHelperOpen) {
+            exprRef.current?.focus();
+        } else {
+            handleChangeTypeHelperState(false);
+        }
+    };
+
     const handleGetTypeHelper = (
         value: string,
         onChange: (value: string, updatedCursorPosition: number) => void,
         helperPaneHeight: HelperPaneHeight
     ) => {
         return getTypeHelper(
+            field.key,
             typeBrowserRef,
             value,
             cursorPositionRef.current,
             isTypeHelperOpen,
             onChange,
             handleChangeTypeHelperState,
-            helperPaneHeight
+            helperPaneHeight,
+            handleCancel
         );
     }
 
@@ -190,27 +235,44 @@ export function TypeEditor(props: TypeEditorProps) {
                             ref={exprRef}
                             anchorRef={typeBrowserRef}
                             name={name}
+                            startAdornment={<EditorRibbon onClick={toggleTypeHelperPaneState} />}
                             completions={types}
                             showDefaultCompletion={showDefaultCompletion}
-                            getDefaultCompletion={getDefaultCompletion}
+                            getDefaultCompletion={() => getDefaultCompletion(value)}
                             value={value}
-                            onChange={async (value: string, updatedCursorPosition: number) => {
-                                onChange(value);
-                                debouncedTypeEdit(value);
+                            onChange={async (updatedValue: string, updatedCursorPosition: number) => {
+                                if (updatedValue === value) {
+                                    return;
+                                }
+
+                                onChange(updatedValue);
+                                debouncedTypeEdit(updatedValue);
                                 cursorPositionRef.current = updatedCursorPosition;
 
-                                // Retrieve visible types
-                                await retrieveVisibleTypes(value, updatedCursorPosition, field.valueTypeConstraint as string);
+                                // Set show default completion
+                                const typeExists = referenceTypes.find((type) => type.label === updatedValue);
+                                const validTypeForCreation = updatedValue.match(/^[a-zA-Z_'][a-zA-Z0-9_]*$/);
+                                if (updatedValue && !typeExists && validTypeForCreation) {
+                                    setShowDefaultCompletion(true);
+                                } else {
+                                    setShowDefaultCompletion(false);
+                                }
+
+                                // Retrieve types
+                                await retrieveVisibleTypes(
+                                    updatedValue,
+                                    updatedCursorPosition
+                                );
                             }}
                             onCompletionSelect={handleCompletionSelect}
                             onDefaultCompletionSelect={handleDefaultCompletionSelect}
                             onFocus={() => handleFocus(value)}
+                            enableExIcon={false}
                             isHelperPaneOpen={isTypeHelperOpen}
                             changeHelperPaneState={handleChangeTypeHelperState}
                             getHelperPane={handleGetTypeHelper}
                             helperPaneOrigin={typeHelperOrigin}
                             helperPaneHeight={typeHelperHeight}
-                            expressionEditorIconName="bi-type"
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={handleCancel}

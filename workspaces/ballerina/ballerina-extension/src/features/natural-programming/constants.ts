@@ -24,16 +24,17 @@ export const PROGRESS_BAR_MESSAGE_FOR_DRIFT = "Checking the drift between code a
 export const PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN = "Fetching and saving access token for natural functions";
 export const WARNING_MESSAGE = "You need to sign up for Ballerina Copilot to detect drift between code and documentation.";
 export const WARNING_MESSAGE_DEFAULT = "Failed to detect drift between code and documentation. Please try again";
-export const WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND = "You need to log in for Ballerina Copilot to get an access token";
 export const LACK_OF_API_DOCUMENTATION_WARNING = "lacks api documentation";
-export const LACK_OF_API_DOCUMENTATION_WARNING_2 = "does not have any api documentation";
+export const DOES_NOT_HAVE_ANY_API_DOCUMENTATION = "does not have any api documentation";
 export const NO_DOCUMENTATION_WARNING = "no documentation found";
 export const MISSING_README_FILE_WARNING = "missing readme";
-export const MISSING_README_FILE_WARNING_2 = "readme documentation is missing";
+export const README_DOCUMENTATION_IS_MISSING = "readme documentation is missing";
 export const MISSING_REQUIREMENT_FILE = "requirement specification is missing";
 export const MISSING_API_DOCS = "missing api documentation";
-export const MISSING_API_DOCS_2 = "api documentation is missing";
+export const API_DOCUMENTATION_IS_MISSING = "api documentation is missing";
 export const MONITERED_EXTENSIONS = [
     ".bal", ".md", ".txt", ".pdf", ".docx"
 ];
 export const CONFIG_FILE_NAME = "Config.toml";
+export const DEFAULT_MODULE = "DEFAULT_MODULE";
+export const ERROR_NO_BALLERINA_SOURCES = "No Ballerina sources";

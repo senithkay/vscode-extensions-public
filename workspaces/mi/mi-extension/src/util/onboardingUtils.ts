@@ -13,6 +13,7 @@ import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterpr
 import { parseStringPromise } from 'xml2js';
 import { LATEST_CAR_PLUGIN_VERSION } from './templates';
 import { runCommand } from '../test-explorer/runner';
+import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
 // Add Latest MI version as the first element in the array
 export const supportedJavaVersionsForMI: { [key: string]: string } = {
@@ -610,51 +611,163 @@ export async function updateRuntimeVersionsInPom(version: string): Promise<void>
         throw new Error('pom.xml not found.');
     }
     const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
-    let xml = pomContent.getText();
+    const originalXml = pomContent.getText();
 
-    const propertyTag = `   <project.runtime.version>${version}</project.runtime.version>\n`;
+    const parser = new XMLParser({
+        ignoreAttributes: false,
+        preserveOrder: true,
+        commentPropName: "#comment"
+    });
+    const parsedXml = parser.parse(originalXml);
 
-    if (xml.includes('<properties>')) {
-        // Check if the property already exists
-        const propertyRegex = /<project\.runtime\.version>.*?<\/project\.runtime\.version>/s;
-        if (propertyRegex.test(xml)) {
-            // Replace the existing property value
-            xml = xml.replace(propertyRegex, propertyTag.trim());
+    createTagIfNotFound(parsedXml, "project.properties");
+    updatePomXml(parsedXml, "project.properties.{project.runtime.version}", version);
+    updatePomXml(parsedXml, "project.properties.{car.plugin.version}", LATEST_CAR_PLUGIN_VERSION);
+    updatePomXml(parsedXml, "project.properties.{dockerfile.base.image}", "wso2/wso2mi:${project.runtime.version}");
+    updatePomXml(parsedXml, "project.profiles.profile.build.plugins.plugin[artifactId=vscode-car-plugin].version", "${car.plugin.version}");
+    updatePomXml(parsedXml, "project.profiles.profile.build.plugins.plugin[artifactId=mi-container-config-mapper].executions.execution[id=config-mapper-parser].configuration.miVersion", "${project.runtime.version}");
+
+    const builder = new XMLBuilder({
+        ignoreAttributes: false,
+        format: true,
+        preserveOrder: true,
+        commentPropName: "#comment",
+        indentBy: "    "
+    });
+
+    const updatedXml = builder.build(parsedXml);
+
+    await fs.promises.writeFile(pomFiles[0].fsPath, updatedXml);
+}
+
+function createTagIfNotFound(parsedXml: any[], path: string) {
+    const pathParts = path.split('.');
+    let currentNode = parsedXml;
+    let parentNode = null as any;
+
+    for (const part of pathParts) {
+        if (Array.isArray(currentNode)) {
+            // If currentNode is an array, find the first object with the property
+            const foundNode = currentNode.find((node: any) => node[part]);
+            if (foundNode) {
+                parentNode = currentNode;
+                currentNode = foundNode[part];
+            } else {
+                // Create a new object and push it to the array
+                const newNode = { [part]: [] };
+                currentNode.push(newNode);
+                parentNode = currentNode;
+                currentNode = newNode[part];
+            }
+        }
+    }
+}
+
+/**
+ * Updates values in a parsed XML object using path notation
+ * 
+ * @param parsedXml - The parsed XML object (array-based structure from XMLParser with preserveOrder:true)
+ * @param path - Path with special notation:
+ *   - Regular nested elements: "project.properties"
+ *   - Properties with dots in name: "project.properties.{project.runtime.version}"
+ *   - Conditional selection: "plugin[artifactId=vscode-car-plugin]"
+ * @param value - The new value to set
+ * @param createIfNotFound - Whether to create the last node if not found (default: true)
+ */
+function updatePomXml(parsedXml: any[], path: string, value: string, createIfNotFound = true): void {
+    // Parse the path parts, handling the special curly brace syntax for properties with dots
+    const pathParts = extractPathParts();
+
+    traverseWithPath(parsedXml, 0);
+
+    function extractPathParts() {
+        const pathParts = [] as any[];
+        let currentPart = '';
+        let inCurlyBraces = false;
+
+        // Parse the path, handling the curly brace notation
+        for (let i = 0; i < path.length; i++) {
+            const char = path[i];
+
+            if (char === '{' && !inCurlyBraces) {
+                // Start of curly brace section
+                inCurlyBraces = true;
+                if (currentPart) {
+                    pathParts.push(currentPart);
+                    currentPart = '';
+                }
+            } else if (char === '}' && inCurlyBraces) {
+                // End of curly brace section
+                inCurlyBraces = false;
+                pathParts.push(currentPart);
+                currentPart = '';
+            } else if (char === '.' && !inCurlyBraces) {
+                // Path separator (only outside curly braces)
+                if (currentPart) {
+                    pathParts.push(currentPart);
+                    currentPart = '';
+                }
+            } else {
+                // Regular character
+                currentPart += char;
+            }
+        }
+
+        // Add the last part if there is one
+        if (currentPart) {
+            pathParts.push(currentPart);
+        }
+        return pathParts;
+    }
+
+    function traverseWithPath(currentNodes: any[], currentPathIndex: number): void {
+        if (currentPathIndex >= pathParts.length) {
+            return;
+        }
+        const currentPathPart = pathParts[currentPathIndex];
+
+        // For the last path part, update the value
+        if (currentPathIndex === pathParts.length - 1 && currentPathPart) {
+            let updated = false;
+            for (const node of currentNodes) {
+                if (Array.isArray(node[currentPathPart])) {
+                    if (node[currentPathPart].length > 0) {
+                        node[currentPathPart][0]["#text"] = value;
+                    } else {
+                        node[currentPathPart].push({ "#text": value });
+                    }
+                    updated = true;
+                }
+            }
+            // If node not found, add it
+            if (createIfNotFound && !updated) {
+                const newNode = { [currentPathPart]: [{ "#text": value }] };
+                currentNodes.push(newNode);
+            }
         } else {
-            // Insert the new property before the closing </properties> tag
-            xml = xml.replace(/(<\/properties>\s<\/project>)/, `${propertyTag}$1`);
-        }
-    } else {
-        // Insert a new <properties> section after the <project> tag
-        const propertiesSection = `  <properties>\n${propertyTag}  \n</properties>\n`;
-        xml = xml.replace(/(<project[^>]*>)/, `$1\n${propertiesSection}`);
-    }
-
-    const dockerImageTag = "<dockerfile.base.image>wso2/wso2mi:${project.runtime.version}</dockerfile.base.image>";
-    const miVersionTag = "<miVersion>${project.runtime.version}</miVersion>";
-    const dockerImageRegex = /<dockerfile\.base\.image>.*?<\/dockerfile\.base\.image>/s;
-    if (dockerImageRegex.test(xml)) {
-        xml = xml.replace(dockerImageRegex, dockerImageTag);
-    }
-
-    const miVersionRegex = /<miVersion>.*?<\/miVersion>/s;
-    if (miVersionRegex.test(xml)) {
-        xml = xml.replace(miVersionRegex, miVersionTag);
-    }
-    const carPropertyTag = `<car.plugin.version>${LATEST_CAR_PLUGIN_VERSION}</car.plugin.version>`;
-
-    const singleCarPluginRegex = /<car\.plugin\.version>.*?<\/car\.plugin\.version>/s;
-    if (singleCarPluginRegex.test(xml)) {
-        xml = xml.replace(singleCarPluginRegex, carPropertyTag);
-    } else {
-        const multipleCarPluginRegex = /<plugin>[\s\S]*?vscode-car-plugin[\s\S]*?<version>(.*?)<\/version>[\s\S]*?<\/plugin>/g;
-        let match: RegExpExecArray | null;
-        while ((match = multipleCarPluginRegex.exec(xml)) !== null) {
-            const versionTag = match[1];
-            xml = xml.replace(versionTag, LATEST_CAR_PLUGIN_VERSION);
+            const conditionMatch = currentPathPart.match(/^(.+)\[(.+)=(.+)\]$/);
+            if (conditionMatch) {
+                const [_, elementName, conditionProp, conditionValue] = conditionMatch;
+                // Find all nodes with this element name that match the condition
+                for (const node of currentNodes) {
+                    if (Array.isArray(node[elementName])) {
+                        for (const element of node[elementName]) {
+                            if (typeof element[conditionProp] === 'object' &&
+                                element[conditionProp][0]?.["#text"] === conditionValue) {
+                                traverseWithPath(node[elementName], currentPathIndex + 1);
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (const node of currentNodes) {
+                    if (Array.isArray(node[currentPathPart])) {
+                        traverseWithPath(node[currentPathPart], currentPathIndex + 1);
+                    }
+                }
+            }
         }
     }
-    await fs.promises.writeFile(pomFiles[0].fsPath, xml);
 }
 
 function getJavaFromGlobalOrEnv(miVersion: string): string | undefined {
