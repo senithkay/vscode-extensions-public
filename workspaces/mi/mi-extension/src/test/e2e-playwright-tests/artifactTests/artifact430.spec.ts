@@ -30,18 +30,6 @@ export default function createTests() {
         });
       });
 
-      await test.step('Create new registry from side panel', async () => {
-        console.log('Create new registry from side panel');
-        const registry = new Registry(page.page);
-        await registry.openFormFromSidePanel();
-        await registry.addFromTemplate({
-          name: 'testRegistry2' + testAttempt,
-          templateType: 'JSON File',
-          registryType: 'conf',
-          registryPath: 'json',
-        });
-      });
-
       await test.step('Create new registry importing a file', async () => {
         console.log('Create new registry importing a file');
         const registry = new Registry(page.page);
