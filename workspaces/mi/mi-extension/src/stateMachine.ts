@@ -398,11 +398,34 @@ const stateMachine = createMachine<MachineContext>({
                 }
                 if (context.documentUri) {
                     try {
-                        const response = await langClient.getSyntaxTree({
-                            documentIdentifier: {
-                                uri: context.documentUri!
-                            },
-                        });
+                        let retryCount = 0;
+                        const maxRetries = 3;
+                        let response;
+
+                        while (retryCount < maxRetries) {
+                            try {
+                                response = await langClient.getSyntaxTree({
+                                    documentIdentifier: {
+                                        uri: context.documentUri!
+                                    },
+                                });
+                                if (response?.syntaxTree) {
+                                    break; 
+                                }
+                                await new Promise(resolve => setTimeout(resolve, 200));
+                                retryCount++;
+                            } catch (error) {
+                                retryCount++;
+                                console.log(`Attempt ${retryCount} failed to get syntax tree:`, error);
+                                if (retryCount >= maxRetries) {
+                                    console.error(`Failed to get syntax tree after ${maxRetries} attempts:`, error);
+                                    throw error;
+                                }
+                                // Wait before retrying
+                                await new Promise(resolve => setTimeout(resolve, 500));
+                            }
+                        }
+
                         if (response?.syntaxTree) {
                             const node: SyntaxTreeMi = response.syntaxTree;
                             switch (true) {
