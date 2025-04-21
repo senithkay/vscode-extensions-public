@@ -9,12 +9,12 @@
 
 import React, { createRef, useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { MachineStateValue, AIMachineStateValue, SwaggerData, VisualizerLocation, Platform } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, AIMachineStateValue, SwaggerData, VisualizerLocation } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { AIPanel } from "./views/AIPanel";
-import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBoundary, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { WelcomePanel } from "./WelcomePanel";
 import { DisabledView } from "./views/Disabled";
 import { RuntimeServicePanel } from "./RuntimeServicesPanel";
@@ -49,6 +49,7 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
     const errorBoundaryRef = createRef<any>();
     const [state, setState] = React.useState<MachineStateValue | AIMachineStateValue>('initialize');
     const [visualizerState, setVisualizerState] = useState<VisualizerLocation>();
+    const [currentView, setCurrentView] = useState<string | undefined>(undefined);
 
     const handleResetError = () => {
         if (errorBoundaryRef.current) {
@@ -56,10 +57,34 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
         }
     };
 
+    const goHome = () => {
+        rpcClient.getMiVisualizerRpcClient().goHome();
+    };
+
     rpcClient?.onStateChanged((newState: MachineStateValue | AIMachineStateValue) => {
         if (state === newState) {
             return;
         }
+
+        // Set the current view based on the state
+        if (typeof newState === 'object') {
+            if ('ready' in newState && newState.ready === "viewReady") {
+                setCurrentView('main');
+            } else if ('newProject' in newState && newState.newProject === "viewReady") {
+                setCurrentView('welcome');
+            } else if ('environmentSetup' in newState && newState.environmentSetup === "viewReady") {
+                setCurrentView('environmentSetup');
+            } else if (currentView === 'main') {
+                return setCurrentView('updating');
+            } else {
+                setCurrentView('loading');
+            }
+        } else if (newState === 'disabled') {
+            setCurrentView('disabled');
+        } else if (currentView !== 'main') {
+            setCurrentView('loading');
+        }
+
         rpcClient.getVisualizerState().then((initialState) => {
             setState(newState);
             setVisualizerState(initialState);
@@ -73,74 +98,80 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
                 setState(context.state);
             });
         }
-    }, []);
+    }, [rpcClient]);
 
-    const goHome = () => {
-        rpcClient.getMiVisualizerRpcClient().goHome();
-    };
 
-    return (
+    const VisualizerComponent = React.memo(({ state, visualizerState }: { state: MachineStateValue, visualizerState: VisualizerLocation }) => {
+        switch (currentView) {
+            case 'main':
+                return <MainPanel visualizerState={visualizerState} />;
+            case 'welcome':
+                return <WelcomePanel machineView={visualizerState.view} />;
+            case 'environmentSetup':
+                return <EnvironmentSetup />;
+            case 'disabled':
+                return <DisabledView />;
+            case 'loading':
+            default:
+                return (
+                    <LoaderWrapper>
+                        <ProgressRing />
+                    </LoaderWrapper>
+                );
+        }
+    });
+
+    const AiVisualizerComponent = React.memo(({ state }: { state: AIMachineStateValue }) => {
+        if (state !== 'Initialize') {
+            return <AIPanel />;
+        } else {
+            return (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            );
+        }
+    });
+
+    const RuntimeServicesComponent = React.memo(() => {
+        return <RuntimeServicePanel />;
+    });
+
+    const SwaggerComponent = React.memo(({ data }: { data: SwaggerData }) => {
+        if (!data) {
+            return (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            );
+        }
+        return <SwaggerPanel swaggerData={data} />;
+    });
+
+    const MainComponent = React.useMemo(() => (
         <ErrorBoundary goHome={goHome} errorMsg="An error occurred in the MI Diagram" issueUrl={gitIssueUrl} ref={errorBoundaryRef}>
             {(() => {
                 switch (mode) {
                     case MODES.VISUALIZER:
-                        return <VisualizerComponent state={state as MachineStateValue} visualizerState={visualizerState} />
+                        return <VisualizerComponent state={state as MachineStateValue} visualizerState={visualizerState} />;
                     case MODES.AI:
-                        return <AiVisualizerComponent state={state as AIMachineStateValue} />
+                        return <AiVisualizerComponent state={state as AIMachineStateValue} />;
                     case MODES.RUNTIME_SERVICES:
-                        return <RuntimeServicesComponent />
+                        return <RuntimeServicesComponent />;
                     case MODES.SWAGGER:
-                        return <SwaggerComponent data={swaggerData} />
+                        return <SwaggerComponent data={swaggerData} />;
                 }
             })()}
         </ErrorBoundary>
+    ), [mode, state, visualizerState, swaggerData]);
+
+    return (
+        <React.Fragment>
+            {currentView === 'updating' && (
+                <ProgressIndicator />
+            )}
+            {MainComponent}
+        </React.Fragment>
     );
+
 };
-
-const VisualizerComponent = React.memo(({ state, visualizerState }: { state: MachineStateValue, visualizerState: VisualizerLocation }) => {
-    switch (true) {
-        case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
-            return <MainPanel visualizerState={visualizerState} />;
-        case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
-            console.log('Rendering WelcomePanel');
-            return <WelcomePanel machineView={visualizerState.view} />;
-        case typeof state === 'object' && 'environmentSetup' in state && state.environmentSetup === "viewReady":
-            return <EnvironmentSetup />
-        case state === 'disabled':
-            return <DisabledView />
-        default:
-            return (
-                <LoaderWrapper>
-                    <ProgressRing />
-                </LoaderWrapper>
-            );
-    }
-});
-
-const AiVisualizerComponent = React.memo(({ state }: { state: AIMachineStateValue }) => {
-    switch (true) {
-        case state !== 'Initialize':
-            return <AIPanel />;
-        default:
-            return (
-                <LoaderWrapper>
-                    <ProgressRing />
-                </LoaderWrapper>
-            );
-    }
-});
-
-const RuntimeServicesComponent = () => {
-    return <RuntimeServicePanel />;
-}
-
-const SwaggerComponent = React.memo(({ data }: { data: SwaggerData }) => {
-    if (!data) {
-        return (
-            <LoaderWrapper>
-                <ProgressRing />
-            </LoaderWrapper>
-        );
-    }
-    return <SwaggerPanel swaggerData={data} />;
-});
