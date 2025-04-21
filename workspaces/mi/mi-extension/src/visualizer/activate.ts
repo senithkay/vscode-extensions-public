@@ -200,17 +200,51 @@ export function activateVisualizer(context: vscode.ExtensionContext, firstProjec
         }, extension.context),
 
         vscode.workspace.onDidDeleteFiles(async function (event) {
-            // refreshDiagram(false);
+            // Group files by project URI to handle multiple deletions efficiently
+            const projectsToRefresh = new Map<string, { needsOverviewOpen: boolean }>();
 
             event.files.forEach(file => {
                 const filePath = file;
                 const projectUri = vscode.workspace.getWorkspaceFolder(filePath)?.uri.fsPath;
-                const apiDir = path.join(projectUri!, 'src', 'main', "wso2mi", "artifacts", "apis");
-                if (filePath.fsPath?.includes(apiDir)) {
-                    deleteSwagger(filePath.fsPath);
+
+                if (projectUri) {
+                    // Initialize project entry if not exists
+                    if (!projectsToRefresh.has(projectUri)) {
+                        projectsToRefresh.set(projectUri, { needsOverviewOpen: false });
+                    }
+
+                    const projectInfo = projectsToRefresh.get(projectUri)!;
+
+                    // Handle API file deletion
+                    const apiDir = path.join(projectUri, 'src', 'main', "wso2mi", "artifacts", "apis");
+                    if (filePath.fsPath?.includes(apiDir)) {
+                        deleteSwagger(filePath.fsPath);
+                    }
+
+                    removeFromHistory(filePath.fsPath);
+
+                    // Check if we need to open overview for this project
+                    const currentLocation = getStateMachine(projectUri).context();
+                    if (currentLocation.documentUri === filePath.fsPath) {
+                        projectInfo.needsOverviewOpen = true;
+                    }
                 }
-                removeFromHistory(filePath.fsPath);
             });
+
+            // Process each affected project once
+            projectsToRefresh.forEach((info, projectUri) => {
+                if (info.needsOverviewOpen) {
+                    openView(EVENT_TYPE.REPLACE_VIEW, { view: MACHINE_VIEW.Overview, projectUri });
+                } else {
+                    const currentView = getStateMachine(projectUri).context().view;
+                    if (currentView === MACHINE_VIEW.Overview) {
+                        refreshUI(projectUri);
+                    }
+                }
+            });
+
+            await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+
         }, extension.context),
 
         vscode.workspace.onDidSaveTextDocument(async function (document) {

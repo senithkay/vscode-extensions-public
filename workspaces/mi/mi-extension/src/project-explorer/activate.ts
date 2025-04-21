@@ -401,16 +401,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						try {
 							await vscode.workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
 							window.showInformationMessage(`${item.label} has been deleted.`);
-							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-
-							const workspace = vscode.workspace.getWorkspaceFolder(Uri.parse(fileUri));
-							if (workspace) {
-								const currentLocation = getStateMachine(workspace.uri.fsPath).context();
-								if (currentLocation.documentUri === fileUri) {
-									openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-								}
-							}
-							removeFromHistory(fileUri.fsPath);
 
 							if (item.contextValue === 'api') {
 								deleteSwagger(fileUri);
@@ -440,15 +430,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 							// delete the file and the residing folder
 							await deleteDataMapperResources(fileUri);
 							window.showInformationMessage(`${item.label} has been deleted.`);
-							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-							const workspace = vscode.workspace.getWorkspaceFolder(Uri.parse(fileUri));
-							if (workspace) {
-								const currentLocation = getStateMachine(workspace.uri.fsPath).context();
-								if (currentLocation.documentUri === fileUri) {
-									openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-								}
-							}
-							removeFromHistory(fileUri.fsPath);
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
 						}
@@ -559,8 +540,13 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		}
 		if (file) {
 			const projectUri = workspace.getWorkspaceFolder(Uri.file(file))?.uri?.fsPath;
-			if (projectUri && getStateMachine(projectUri).context()?.view === MACHINE_VIEW.Overview) {
-				refreshUI(projectUri);
+			if (projectUri) {
+				const currentLocation = getStateMachine(projectUri).context();
+				if (currentLocation.documentUri === file) {
+                    openView(EVENT_TYPE.REPLACE_VIEW, { view: MACHINE_VIEW.Overview, projectUri });
+				} else if (currentLocation?.view === MACHINE_VIEW.Overview) {
+					refreshUI(projectUri);
+				}
 			}
 		}
 	});
