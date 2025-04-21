@@ -17,7 +17,7 @@ import { ServiceDesignerRpcManager } from "../rpc-managers/service-designer/rpc-
 import { injectAgent, injectAgentCode, injectImportIfMissing } from "./source-utils";
 import { tmpdir } from "os";
 
-export async function buildProjectArtifactsStructure(projectDir: string, langClient: ExtendedLangClient): Promise<ProjectStructureResponse> {
+export async function buildProjectArtifactsStructure(projectDir: string, langClient: ExtendedLangClient, isUpdate: boolean = false): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
         projectName: "",
         directoryMap: {
@@ -40,37 +40,10 @@ export async function buildProjectArtifactsStructure(projectDir: string, langCli
         traverseComponents(designArtifacts.artifacts, result);
         await populateLocalConnectors(projectDir, result);
     }
-    return result;
-}
-
-export async function forceUpdateProjectArtifacts() {
-    return new Promise(async (resolve) => {
-        const result: ProjectStructureResponse = {
-            projectName: "",
-            directoryMap: {
-                [DIRECTORY_MAP.AUTOMATION]: [],
-                [DIRECTORY_MAP.SERVICE]: [],
-                [DIRECTORY_MAP.LISTENER]: [],
-                [DIRECTORY_MAP.FUNCTION]: [],
-                [DIRECTORY_MAP.CONNECTION]: [],
-                [DIRECTORY_MAP.TYPE]: [],
-                [DIRECTORY_MAP.CONFIGURABLE]: [],
-                [DIRECTORY_MAP.DATA_MAPPER]: [],
-                [DIRECTORY_MAP.NP_FUNCTION]: [],
-                [DIRECTORY_MAP.AGENTS]: [],
-                [DIRECTORY_MAP.LOCAL_CONNECTORS]: [],
-            }
-        };
-        const langClient = StateMachine.context().langClient;
-        const projectDir = StateMachine.context().projectUri;
-        const designArtifacts = await langClient.getProjectArtifacts({ projectPath: projectDir });
-        if (designArtifacts?.artifacts) {
-            traverseComponents(designArtifacts.artifacts, result);
-            await populateLocalConnectors(projectDir, result);
-        }
+    if (isUpdate) {
         StateMachine.updateProjectStructure({ ...result }, true);
-        resolve(true);
-    });
+    }
+    return result;
 }
 
 export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotification) {
