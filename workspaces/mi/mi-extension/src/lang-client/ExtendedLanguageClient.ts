@@ -142,12 +142,12 @@ export interface ArtifactType {
 
 export class ExtendedLanguageClient extends LanguageClient {
 
-    constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
+    constructor(id: string, name: string, private projectUri: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
         super(id, name, serverOptions, clientOptions);
 
         this.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
             // Notify the visualizer
-            RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
+            RPCLayer._messengers.get(this.projectUri)?.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
         });
     }
 
@@ -350,14 +350,12 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/getOverviewPageDetails');
     }
 
-    async getSequencePath(projectUri: string, sequenceName: string): Promise<string | undefined> {
+    async getSequencePath(sequenceName: string): Promise<string | undefined> {
         return new Promise(async (resolve) => {
-            if (!!projectUri) {
-                const resp = await this.getProjectStructure(projectUri);
-                const sequences = resp.directoryMap.src.main.wso2mi.artifacts.sequences;
-                const match = sequences.find((sequence: any) => sequence.name === sequenceName);
-                resolve(match ? match.path : undefined);
-            }
+            const resp = await this.getProjectStructure(this.projectUri);
+            const sequences = resp.directoryMap.src.main.wso2mi.artifacts.sequences;
+            const match = sequences.find((sequence: any) => sequence.name === sequenceName);
+            resolve(match ? match.path : undefined);
 
             resolve(undefined);
         });

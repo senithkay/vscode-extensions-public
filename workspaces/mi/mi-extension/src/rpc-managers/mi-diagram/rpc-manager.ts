@@ -3441,7 +3441,7 @@ ${endpointAttributes}
                             };
 
                             // Notify the visualizer
-                            RPCLayer._messenger.sendNotification(
+                            RPCLayer._messengers.get(this.projectUri)?.sendNotification(
                                 onDownloadProgress,
                                 { type: 'webview', webviewType: VisualizerWebview.viewType },
                                 {
@@ -5020,7 +5020,7 @@ ${keyValuesXML}`;
             requireHeader: ['origin', 'x-requested-with']
         }).listen(port, 'localhost');
 
-        RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
+        RPCLayer._messengers.get(this.projectUri)?.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
 
         return { generatedSwagger: generatedSwagger }; // TODO: refactor rpc function with void
     }

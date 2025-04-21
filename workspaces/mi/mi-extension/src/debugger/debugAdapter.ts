@@ -283,7 +283,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     checkServerReadiness().then(() => {
                                         openRuntimeServicesWebview(this.projectUri);
                                         extension.isServerStarted = true;
-                                        RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
+                                        RPCLayer._messengers.get(this.projectUri)?.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
 
                                         response.success = true;
                                         this.sendResponse(response);
@@ -296,7 +296,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
                                         openRuntimeServicesWebview(this.projectUri);
                                         extension.isServerStarted = true;
-                                        RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
+                                        RPCLayer._messengers.get(this.projectUri)?.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
                                         response.success = true;
                                         this.sendResponse(response);
                                     }).catch(error => {
@@ -348,7 +348,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
         DebuggerConfig.resetCappandLibs();
         extension.isServerStarted = false;
-        RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
+        RPCLayer._messengers.get(this.projectUri)?.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, args: DebugProtocol.LaunchRequestArguments) {

@@ -172,7 +172,7 @@ async function isMISetup(projectUri: string, miVersion: string): Promise<boolean
             .then((selection) => {
                 if (selection) {
                     if (selection === downloadOption) {
-                        downloadMI(miVersion).then((miPath) => {
+                        downloadMI(projectUri, miVersion).then((miPath) => {
                             if (miPath) {
                                 setPathsInWorkSpace({ projectUri, type: 'MI', path: miPath });
                             }
@@ -263,7 +263,7 @@ async function isJavaSetup(projectUri: string, miVersion: string): Promise<boole
             .then((selection) => {
                 if (selection) {
                     if (selection === downloadOption) {
-                        downloadJavaFromMI(miVersion).then((javaPath) => {
+                        downloadJavaFromMI(projectUri, miVersion).then((javaPath) => {
                             if (javaPath) {
                                 setPathsInWorkSpace({ projectUri, type: 'JAVA', path: javaPath });
                             }
@@ -340,7 +340,7 @@ export function getSupportedMIVersionsHigherThan(version: string): string[] {
     return Object.keys(supportedJavaVersionsForMI);
 }
 
-export async function downloadJavaFromMI(miVersion: string): Promise<string> {
+export async function downloadJavaFromMI(projectUri: string, miVersion: string): Promise<string> {
     interface AdoptiumApiResponse {
         binaries: {
             package: {
@@ -411,7 +411,7 @@ export async function downloadJavaFromMI(miVersion: string): Promise<string> {
             osType === 'Windows_NT' ? `${releaseName}.zip` : `${releaseName}.tar.gz`
         );
 
-        await downloadWithProgress(downloadUrl, javaDownloadPath, 'Downloading Java');
+        await downloadWithProgress(projectUri, downloadUrl, javaDownloadPath, 'Downloading Java');
         await extractWithProgress(javaDownloadPath, javaPath, 'Extracting Java');
 
         if (osType === 'Darwin') {
@@ -428,7 +428,7 @@ export async function downloadJavaFromMI(miVersion: string): Promise<string> {
     }
 }
 
-export async function downloadMI(miVersion: string): Promise<string> {
+export async function downloadMI(projectUri: string, miVersion: string): Promise<string> {
     const miPath = path.join(CACHED_FOLDER, 'micro-integrator');
 
     try {
@@ -440,7 +440,7 @@ export async function downloadMI(miVersion: string): Promise<string> {
         const miDownloadPath = path.join(miPath, zipName!);
 
         if (!fs.existsSync(miDownloadPath)) {
-            await downloadWithProgress(miDownloadUrls[miVersion], miDownloadPath, 'Downloading Micro Integrator');
+            await downloadWithProgress(projectUri, miDownloadUrls[miVersion], miDownloadPath, 'Downloading Micro Integrator');
         } else {
             vscode.window.showInformationMessage('Micro Integrator already downloaded.');
         }

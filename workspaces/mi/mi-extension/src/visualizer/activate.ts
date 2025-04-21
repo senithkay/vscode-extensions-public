@@ -275,7 +275,7 @@ export function activateVisualizer(context: vscode.ExtensionContext, firstProjec
                 return;
             }
 
-            RPCLayer._messenger.sendNotification(
+            RPCLayer._messengers.get(projectUri)?.sendNotification(
                 onDocumentSave,
                 { type: 'webview', webviewType: VisualizerWebview.viewType },
                 { uri: document.uri.toString() }

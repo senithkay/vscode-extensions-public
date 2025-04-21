@@ -460,7 +460,7 @@ const stateMachine = createMachine<MachineContext>({
                                     const task: Task = node.task as Task;
                                     viewLocation.view = MACHINE_VIEW.TaskView;
                                     const sequenceName = task.property.find((p) => { return p.name === 'sequenceName' })?.value
-                                    const sequencePath = await langClient.getSequencePath(context.projectUri!, sequenceName ? sequenceName : "");
+                                    const sequencePath = await langClient.getSequencePath(sequenceName ? sequenceName : "");
                                     if (sequencePath) {
                                         const sequence = await langClient.getSyntaxTree({ documentIdentifier: { uri: sequencePath } });
                                         task.sequence = sequence.syntaxTree.sequence;
@@ -482,7 +482,7 @@ const stateMachine = createMachine<MachineContext>({
                                     const inboundEndpoint: InboundEndpoint = node.inboundEndpoint as InboundEndpoint;
                                     viewLocation.view = MACHINE_VIEW.InboundEPView;
                                     const epSequenceName = inboundEndpoint.sequence;
-                                    const sequenceURI = await langClient.getSequencePath(context.projectUri!, epSequenceName ? epSequenceName : "");
+                                    const sequenceURI = await langClient.getSequencePath(epSequenceName ? epSequenceName : "");
                                     if (sequenceURI) {
                                         const sequence = await langClient.getSyntaxTree({ documentIdentifier: { uri: sequenceURI } });
                                         inboundEndpoint.sequenceModel = sequence.syntaxTree.sequence;

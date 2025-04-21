@@ -276,7 +276,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
-        handleOpenFile(params.zipFileName, url);
+        handleOpenFile(this.projectUri, params.zipFileName, url);
     }
 
     async addConfigurable(params: AddConfigurableRequest): Promise<void> {
@@ -496,11 +496,11 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
     async downloadJavaFromMI(miVersion: string): Promise<string> {
-        const javaPath = await downloadJavaFromMI(miVersion);
+        const javaPath = await downloadJavaFromMI(this.projectUri, miVersion);
         return javaPath;
     }
     async downloadMI(miVersion: string): Promise<string> {
-        const miPath = await downloadMI(miVersion);
+        const miPath = await downloadMI(this.projectUri, miVersion);
         return miPath;
     }
     async getSupportedMIVersionsHigherThan(miVersion: string): Promise<string[]> {

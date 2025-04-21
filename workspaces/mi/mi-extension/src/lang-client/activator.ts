@@ -246,7 +246,7 @@ export class MILanguageClient {
                 };
 
                 // Create the language client and start the client.
-                this.languageClient = new ExtendedLanguageClient('synapseXML', 'Synapse Language Server',
+                this.languageClient = new ExtendedLanguageClient('synapseXML', 'Synapse Language Server', this.projectUri,
                     serverOptions, clientOptions);
                 await this.languageClient.start();
 

@@ -25,7 +25,6 @@ const os = require('os')
 const platform = getPlatform();
 
 export class RPCLayer {
-    static _messenger: Messenger = new Messenger();
     static _messengers: Map<string, Messenger> = new Map();
 
     static create(webViewPanel: WebviewPanel, projectUri: string): void {
