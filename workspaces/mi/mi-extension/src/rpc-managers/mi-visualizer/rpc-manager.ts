@@ -61,7 +61,7 @@ import * as os from 'os';
 import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
-import { getStateMachine, navigate, openView } from "../../stateMachine";
+import { getStateMachine, navigate, openView, refreshUI } from "../../stateMachine";
 import { goToSource, handleOpenFile, appendContent, selectFolderDialog } from "../../util/fileOperations";
 import { openPopupView } from "../../stateMachinePopup";
 import { SwaggerServer } from "../../swagger/server";
@@ -600,6 +600,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         if (success) {
             const document = await workspace.openTextDocument(pomPath);
             await document.save();
+            if (getStateMachine(this.projectUri).context().view === MACHINE_VIEW.Overview) {
+                refreshUI(this.projectUri);
+            }
         } else {
             throw new Error("Failed to apply edits to pom.xml");
         }
