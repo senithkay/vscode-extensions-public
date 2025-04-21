@@ -237,234 +237,181 @@ function ensureFileExists(targetFile: string) {
     }
 }
 
+/**
+ * Maps an ARTIFACT_TYPE category key and a specific artifact to the corresponding DIRECTORY_MAP key and a default icon.
+ * Note: The icon returned here is a base icon; `getEntryValue` might assign a more specific icon later based on the module.
+ * @param artifact The specific artifact being processed. Used to differentiate between AUTOMATION and SERVICE within EntryPoints.
+ * @param artifactCategoryKey The category key from ARTIFACT_TYPE (e.g., ARTIFACT_TYPE.EntryPoints).
+ * @returns An object containing the DIRECTORY_MAP key and a base icon string, or null if the category is unhandled.
+ */
+function getDirectoryMapKeyAndIcon(artifact: BaseArtifact, artifactCategoryKey: string): { mapKey: DIRECTORY_MAP; icon: string } | null {
+    switch (artifactCategoryKey) {
+        case ARTIFACT_TYPE.EntryPoints:
+            // EntryPoints can be either AUTOMATION or SERVICE type artifacts.
+            // We use the artifact's ID as per the original logic to distinguish.
+            if (artifact.id === "automation") {
+                // Check the type for consistency, although original code relied on ID.
+                if (artifact.type === DIRECTORY_MAP.AUTOMATION) {
+                    return { mapKey: DIRECTORY_MAP.AUTOMATION, icon: "task" };
+                } else {
+                    console.warn(`Artifact with id 'automation' has unexpected type: ${artifact.type}`);
+                    // Fallback based on ID, but log a warning.
+                     return { mapKey: DIRECTORY_MAP.AUTOMATION, icon: "task" };
+                }
+            } else {
+                 // Assume it's a service if not automation.
+                 // Add a type check for robustness.
+                 if (artifact.type === DIRECTORY_MAP.SERVICE) {
+                    return { mapKey: DIRECTORY_MAP.SERVICE, icon: "http-service" };
+                 } else {
+                    console.warn(`EntryPoint artifact (id: ${artifact.id}) has unexpected type: ${artifact.type}. Assuming SERVICE.`);
+                    // Fallback based on non-automation ID.
+                    return { mapKey: DIRECTORY_MAP.SERVICE, icon: "http-service" };
+                 }
+            }
+        case ARTIFACT_TYPE.Listeners:
+            return { mapKey: DIRECTORY_MAP.LISTENER, icon: "http-service" }; // Base icon, getEntryValue might refine
+        case ARTIFACT_TYPE.Functions:
+            return { mapKey: DIRECTORY_MAP.FUNCTION, icon: "function" };
+        case ARTIFACT_TYPE.DataMappers:
+            return { mapKey: DIRECTORY_MAP.DATA_MAPPER, icon: "dataMapper" };
+        case ARTIFACT_TYPE.Connections:
+            return { mapKey: DIRECTORY_MAP.CONNECTION, icon: "connection" };
+        case ARTIFACT_TYPE.Types:
+            return { mapKey: DIRECTORY_MAP.TYPE, icon: "type" };
+        case ARTIFACT_TYPE.Configurations:
+            return { mapKey: DIRECTORY_MAP.CONFIGURABLE, icon: "config" };
+        case ARTIFACT_TYPE.NaturalFunctions:
+            return { mapKey: DIRECTORY_MAP.NP_FUNCTION, icon: "function" };
+        default:
+            console.warn(`Unhandled artifact category key: ${artifactCategoryKey}`);
+            return null;
+    }
+}
+
+/**
+ * Processes a single artifact deletion.
+ * @param artifact The artifact to delete.
+ * @param artifactCategoryKey The category key (from ARTIFACT_TYPE).
+ * @param projectStructure The project structure to modify.
+ */
+function processDeletion(artifact: BaseArtifact, artifactCategoryKey: string, projectStructure: ProjectStructureResponse): void {
+    const mapping = getDirectoryMapKeyAndIcon(artifact, artifactCategoryKey);
+    if (mapping) {
+        projectStructure.directoryMap[mapping.mapKey] =
+            projectStructure.directoryMap[mapping.mapKey]?.filter(value => value.id !== artifact.id) ?? [];
+    } else {
+        console.error(`Could not determine directory map key for deletion of artifact ${artifact.id} in category ${artifactCategoryKey}`);
+    }
+}
+
+/**
+ * Processes a single artifact addition.
+ * @param artifact The artifact to add.
+ * @param artifactCategoryKey The category key (from ARTIFACT_TYPE).
+ * @param projectStructure The project structure to modify.
+ * @returns A promise resolving to the potentially relevant visualization entry, or undefined.
+ */
+async function processAddition(artifact: BaseArtifact, artifactCategoryKey: string, projectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse | undefined> {
+    const mapping = getDirectoryMapKeyAndIcon(artifact, artifactCategoryKey);
+    if (mapping) {
+        try {
+            const entryValue = await getEntryValue(artifact, mapping.icon);
+            // Ensure the array exists before pushing
+            if (!projectStructure.directoryMap[mapping.mapKey]) {
+                projectStructure.directoryMap[mapping.mapKey] = [];
+            }
+            projectStructure.directoryMap[mapping.mapKey]?.push(entryValue);
+            return findTempDataEntry(mapping.mapKey, entryValue);
+        } catch (error) {
+            console.error(`Error processing addition for artifact ${artifact.id} in category ${artifactCategoryKey}:`, error);
+            return undefined;
+        }
+    } else {
+         console.error(`Could not determine directory map key for addition of artifact ${artifact.id} in category ${artifactCategoryKey}`);
+         return undefined;
+    }
+}
+
+/**
+ * Processes a single artifact update.
+ * @param artifact The artifact to update.
+ * @param artifactCategoryKey The category key (from ARTIFACT_TYPE).
+ * @param projectStructure The project structure to modify.
+ * @returns A promise resolving to the potentially relevant visualization entry, or undefined.
+ */
+async function processUpdate(artifact: BaseArtifact, artifactCategoryKey: string, projectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse | undefined> {
+    const mapping = getDirectoryMapKeyAndIcon(artifact, artifactCategoryKey);
+    if (mapping) {
+         try {
+            const entryValue = await getEntryValue(artifact, mapping.icon);
+             // Ensure the array exists
+            if (!projectStructure.directoryMap[mapping.mapKey]) {
+                projectStructure.directoryMap[mapping.mapKey] = [];
+            }
+            const index = projectStructure.directoryMap[mapping.mapKey]?.findIndex(value => value.id === artifact.id);
+            if (index !== undefined && index !== -1) {
+                projectStructure.directoryMap[mapping.mapKey][index] = entryValue;
+            } else {
+                // Artifact not found for update, add it instead (matches original logic)
+                console.warn(`Artifact ${artifact.id} not found for update in ${mapping.mapKey}, adding it instead.`);
+                projectStructure.directoryMap[mapping.mapKey]?.push(entryValue);
+            }
+            return findTempDataEntry(mapping.mapKey, entryValue);
+        } catch (error) {
+            console.error(`Error processing update for artifact ${artifact.id} in category ${artifactCategoryKey}:`, error);
+            return undefined;
+        }
+    } else {
+        console.error(`Could not determine directory map key for update of artifact ${artifact.id} in category ${artifactCategoryKey}`);
+        return undefined;
+    }
+}
 
 async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentProjectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse | undefined> {
     let entryLocation: ProjectStructureArtifactResponse | undefined;
-    for (const [key, directoryMaps] of Object.entries(publishedArtifacts)) { // key will be Entry Points, Listeners, Functions, etc as Directory Map
-        for (const [actionKey, actionArtifacts] of Object.entries(directoryMaps)) { // actionKey will be deletions, creations, updates and actionsArtifacts will be the list of artifacts
-            switch (actionKey) {
-                case "deletions":
-                    for (const [index, baseArtifact] of Object.entries(actionArtifacts)) {
-                        handleDeletions(baseArtifact, key, currentProjectStructure);
-                    }
-                    break;
-                case "additions":
-                    for (const [index, baseArtifact] of Object.entries(actionArtifacts)) {
-                        const createdLocation = await handleCreations(baseArtifact, key, currentProjectStructure);
-                        if (createdLocation) {
-                            entryLocation = createdLocation;
-                        }
-                    }
-                    break;
-                case "updates":
-                    for (const [index, baseArtifact] of Object.entries(actionArtifacts)) {
-                        const updatedLocation = await handleUpdates(baseArtifact, key, currentProjectStructure);
-                        if (updatedLocation) {
-                            entryLocation = updatedLocation;
-                        }
-                    }
-                    break;
+    const promises: Promise<ProjectStructureArtifactResponse | undefined>[] = [];
+
+    // Iterate through each artifact category (e.g., EntryPoints, Listeners)
+    for (const [artifactCategoryKey, actionMap] of Object.entries(publishedArtifacts)) {
+        // Process Deletions first (synchronous)
+        if (actionMap.deletions) {
+            for (const artifact of Object.values(actionMap.deletions) as BaseArtifact[]) {
+                 processDeletion(artifact, artifactCategoryKey, currentProjectStructure);
+            }
+        }
+
+        // Process Additions (asynchronous)
+        if (actionMap.additions) {
+            for (const artifact of Object.values(actionMap.additions) as BaseArtifact[]) {
+                promises.push(processAddition(artifact, artifactCategoryKey, currentProjectStructure));
+            }
+        }
+
+        // Process Updates (asynchronous)
+        if (actionMap.updates) {
+             for (const artifact of Object.values(actionMap.updates) as BaseArtifact[]) {
+                promises.push(processUpdate(artifact, artifactCategoryKey, currentProjectStructure));
             }
         }
     }
+
+    // Wait for all additions and updates to complete
+    const results = await Promise.all(promises);
+
+    // Find the last relevant entry location from the results
+    // The original code overwrites entryLocation, so we mimic that by taking the last non-undefined result.
+    for (const result of results) {
+        if (result) {
+            entryLocation = result;
+        }
+    }
+
     return entryLocation;
 }
 
-// Handle deletions
-function handleDeletions(artifact: BaseArtifact, key: string, currentProjectStructure: ProjectStructureResponse) {
-    switch (key) {
-        case ARTIFACT_TYPE.EntryPoints:
-            if (artifact.id === "automation") {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION] = currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].filter(value => value.id !== artifact.id);
-            } else {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE] = currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].filter(value => value.id !== artifact.id);
-            }
-            break;
-        case ARTIFACT_TYPE.Listeners:
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER] = currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].filter(value => value.id !== artifact.id);
-            break;
-        case ARTIFACT_TYPE.Functions:
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION] = currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION].filter(value => value.id !== artifact.id);
-            break;
-        case ARTIFACT_TYPE.DataMappers:
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER] = currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER].filter(value => value.id !== artifact.id);
-            break;
-        case ARTIFACT_TYPE.Connections:
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION] = currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION].filter(value => value.id !== artifact.id);
-            break;
-        case ARTIFACT_TYPE.Types:
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE] = currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE].filter(value => value.id !== artifact.id);
-            break;
-        case ARTIFACT_TYPE.Configurations:
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE] = currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE].filter(value => value.id !== artifact.id);
-            break;
-        case ARTIFACT_TYPE.NaturalFunctions:
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION] = currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION].filter(value => value.id !== artifact.id);
-            break;
-        default:
-            break;
-    }
-
-}
-//Handle creations
-async function handleCreations(artifact: BaseArtifact, key: string, currentProjectStructure: ProjectStructureResponse) {
-    let visualizeEntry: ProjectStructureArtifactResponse;
-    switch (key) {
-        case ARTIFACT_TYPE.EntryPoints:
-            if (artifact.id === "automation") {
-                const entryValue = await getEntryValue(artifact, "task");
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].push(entryValue);
-                visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.AUTOMATION, entryValue);
-            } else {
-                const entryValue = await getEntryValue(artifact, "http-service");
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].push(entryValue);
-                visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.SERVICE, entryValue);
-            }
-            break;
-        case ARTIFACT_TYPE.Listeners:
-            const listenerValue = await getEntryValue(artifact, "http-service");
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].push(listenerValue);
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.LISTENER, listenerValue);
-            break;
-        case ARTIFACT_TYPE.Functions:
-            const functionValue = await getEntryValue(artifact, "function");
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION].push(functionValue);
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.FUNCTION, functionValue);
-            break;
-        case ARTIFACT_TYPE.DataMappers:
-            const dataMapperValue = await getEntryValue(artifact, "dataMapper");
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER].push(dataMapperValue);
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.DATA_MAPPER, dataMapperValue);
-            break;
-        case ARTIFACT_TYPE.Connections:
-            const connectionValue = await getEntryValue(artifact, "connection");
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION].push(connectionValue);
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.CONNECTION, connectionValue);
-            break;
-        case ARTIFACT_TYPE.Types:
-            const typeValue = await getEntryValue(artifact, "type");
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE].push(typeValue);
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.TYPE, typeValue);
-            break;
-        case ARTIFACT_TYPE.Configurations:
-            const configurableValue = await getEntryValue(artifact, "config");
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE].push(configurableValue);
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.CONFIGURABLE, configurableValue);
-            break;
-        case ARTIFACT_TYPE.NaturalFunctions:
-            const npFunctionValue = await getEntryValue(artifact, "function");
-            currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION].push(npFunctionValue);
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.NP_FUNCTION, npFunctionValue);
-            break;
-        default:
-            break;
-    }
-    return visualizeEntry;
-}
-
-//Handle updates
-async function handleUpdates(artifact: BaseArtifact, key: string, currentProjectStructure: ProjectStructureResponse) {
-    let visualizeEntry: ProjectStructureArtifactResponse;
-    switch (key) {
-        case ARTIFACT_TYPE.EntryPoints:
-            if (artifact.id === "automation") {
-                const entryValue = await getEntryValue(artifact, "task");
-                const index = currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].findIndex(value => value.id === artifact.id);
-                if (index !== -1) {
-                    currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION][index] = entryValue;
-                } else {
-                    currentProjectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].push(entryValue);
-                }
-                visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.AUTOMATION, entryValue);
-            } else {
-                const entryValue = await getEntryValue(artifact, "http-service");
-                const index = currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].findIndex(value => value.id === artifact.id);
-                if (index !== -1) {
-                    currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE][index] = entryValue;
-                } else {
-                    currentProjectStructure.directoryMap[DIRECTORY_MAP.SERVICE].push(entryValue);
-                }
-                visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.SERVICE, entryValue);
-            }
-            break;
-        case ARTIFACT_TYPE.Listeners:
-            const listenerValue = await getEntryValue(artifact, "http-service");
-            const listenerValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].findIndex(value => value.id === artifact.id);
-            if (listenerValueIndex !== -1) {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER][listenerValueIndex] = listenerValue;
-            } else {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.LISTENER].push(listenerValue);
-            }
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.LISTENER, listenerValue);
-            break;
-        case ARTIFACT_TYPE.Functions:
-            const functionValue = await getEntryValue(artifact, "function");
-            const functionValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION].findIndex(value => value.id === artifact.id);
-            if (functionValueIndex !== -1) {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION][functionValueIndex] = functionValue;
-            } else {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.FUNCTION].push(functionValue);
-            }
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.FUNCTION, functionValue);
-            break;
-        case ARTIFACT_TYPE.DataMappers:
-            const dataMapperValue = await getEntryValue(artifact, "dataMapper");
-            const dataMapperValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER].findIndex(value => value.id === artifact.id);
-            if (dataMapperValueIndex !== -1) {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER][dataMapperValueIndex] = dataMapperValue;
-            } else {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.DATA_MAPPER].push(dataMapperValue);
-            }
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.DATA_MAPPER, dataMapperValue);
-            break;
-        case ARTIFACT_TYPE.Connections:
-            const connectionValue = await getEntryValue(artifact, "connection");
-            const connectionValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION].findIndex(value => value.id === artifact.id);
-            if (connectionValueIndex !== -1) {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION][connectionValueIndex] = connectionValue;
-            } else {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.CONNECTION].push(connectionValue);
-            }
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.CONNECTION, connectionValue);
-            break;
-        case ARTIFACT_TYPE.Types:
-            const typeValue = await getEntryValue(artifact, "type");
-            const typeValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE].findIndex(value => value.id === artifact.id);
-            if (typeValueIndex !== -1) {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE][typeValueIndex] = typeValue;
-            } else {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.TYPE].push(typeValue);
-            }
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.TYPE, typeValue);
-            break;
-        case ARTIFACT_TYPE.Configurations:
-            const configurableValue = await getEntryValue(artifact, "config");
-            const configurableValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE].findIndex(value => value.id === artifact.id);
-            if (configurableValueIndex !== -1) {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE][configurableValueIndex] = configurableValue;
-            } else {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.CONFIGURABLE].push(configurableValue);
-            }
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.CONFIGURABLE, configurableValue);
-            break;
-        case ARTIFACT_TYPE.NaturalFunctions:
-            const npFunctionValue = await getEntryValue(artifact, "function");
-            const npFunctionValueIndex = currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION].findIndex(value => value.id === artifact.id);
-            if (npFunctionValueIndex !== -1) {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION][npFunctionValueIndex] = npFunctionValue;
-            } else {
-                currentProjectStructure.directoryMap[DIRECTORY_MAP.NP_FUNCTION].push(npFunctionValue);
-            }
-            visualizeEntry = await findTempDataEntry(DIRECTORY_MAP.NP_FUNCTION, npFunctionValue);
-            break;
-        default:
-            break;
-    }
-    return visualizeEntry;
-}
-
 // Find the tempData Entry
-async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStructureArtifactResponse) {
+async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStructureArtifactResponse): Promise<ProjectStructureArtifactResponse | undefined> {
     let selectedEntry: ProjectStructureArtifactResponse;
     switch (mapType) {
         case DIRECTORY_MAP.SERVICE:
