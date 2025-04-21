@@ -27,11 +27,11 @@ export default function createTests() {
     let dmName: string = "dm1";
 
     initTest();
-    // test.beforeAll(setupDataMapper);
+    test.beforeAll(setupDataMapper);
 
-    // test('Basic Mappings', testBasicMappings);
+    test('Basic Mappings', testBasicMappings);
     test('Array Mappings', testArrayMappings);
-    // test('Import Options', testImportOptions);
+    test('Import Options', testImportOptions);
 
     async function setupDataMapper() {
       const testAttempt = test.info().retry + 1;
@@ -263,7 +263,7 @@ export default function createTests() {
 
       console.log('Testing Array Mappings - Part 1');
 
-      overwriteTsFile(dmName, 'array/init1.ts');
+      overwriteTsFile(dmName, 'reset.ts');
 
       const projectExplorer = new ProjectExplorer(page.page);
       await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', dmName], true);
@@ -271,14 +271,14 @@ export default function createTests() {
       await dm.init();
       const dmWebView = dm.getWebView();
 
-      // console.log('- Load input schemas from JSON data');
-      // await dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
+      console.log('- Load input schemas from JSON data');
+      await dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
 
-      // console.log('- Load output schemas from JSON schema');
-      // await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out1.schema.json');
+      console.log('- Load output schemas from JSON schema');
+      await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out1.schema.json');
 
-      // // #PAUSE_POINT
-      // expect(dm.verifyTsFileContent('array/init1.ts')).toBeTruthy();
+      // #PAUSE_POINT
+      expect(dm.verifyTsFileContent('array/init1.ts')).toBeTruthy();
 
 
       console.log('- Test direct');
