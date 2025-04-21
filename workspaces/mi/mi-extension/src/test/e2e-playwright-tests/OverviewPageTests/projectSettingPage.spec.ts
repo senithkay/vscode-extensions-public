@@ -40,7 +40,6 @@ export default function createTests() {
             await test.step('Add Other Dependencies', async () => {
                 const overviewPage = new Overview(page.page);
                 await waitUntilPomNotContains(page.page, pomFilePath, '<artifactId>mysql-connector-java</artifactId>');
-                await page.page.reload();
                 await overviewPage.init();
                 await overviewPage.addOtherDependencies();
                 await waitUntilPomContains(page.page, pomFilePath, '<artifactId>mysql-connector-java</artifactId>')
@@ -49,7 +48,6 @@ export default function createTests() {
             await test.step('Update Other Dependencies', async () => {
                 const overviewPage = new Overview(page.page);
                 await waitUntilPomNotContains(page.page, pomFilePath, '<artifactId>mysql-connector--java</artifactId>');
-                await page.page.reload();
                 await overviewPage.init();
                 await overviewPage.editOtherDependencies();
                 await waitUntilPomContains(page.page, pomFilePath, '<artifactId>mysql-connector--java</artifactId>');
@@ -57,7 +55,6 @@ export default function createTests() {
 
             await test.step('Delete Other Dependencies', async () => {
                 const overviewPage = new Overview(page.page);
-                await page.page.reload();
                 await overviewPage.init();
                 await overviewPage.deleteOtherDependencies();
                 await waitUntilPomNotContains(page.page, pomFilePath, '<artifactId>mysql-connector--java</artifactId>');
@@ -67,7 +64,6 @@ export default function createTests() {
                 await waitUntilPomNotContains(page.page, pomFilePath,
                     '<artifactId>mi-connector-amazonsqs</artifactId>');
                 const overviewPage = new Overview(page.page);
-                await page.page.reload();
                 await overviewPage.init();
                 await overviewPage.addConnectorDependencies();
                 await waitUntilPomContains(page.page, pomFilePath, '<artifactId>mi-connector-amazonsqs</artifactId>');
@@ -76,7 +72,6 @@ export default function createTests() {
             await test.step('Update Connector Dependencies', async () => {
                 await waitUntilPomNotContains(page.page, pomFilePath, '<artifactId>mi-connector--amazonsqs</artifactId>');
                 const overviewPage = new Overview(page.page);
-                await page.page.reload();
                 await overviewPage.init();
                 await overviewPage.editConnectorDependencies();
                 await waitUntilPomContains(page.page, pomFilePath, '<artifactId>mi-connector--amazonsqs</artifactId>');
@@ -84,7 +79,6 @@ export default function createTests() {
 
             await test.step('Delete Connector Dependencies', async () => {
                 const overviewPage = new Overview(page.page);
-                await page.page.reload();
                 await overviewPage.init();
                 await overviewPage.deleteConnectorDependencies();
                 await waitUntilPomNotContains(page.page, pomFilePath, '<artifactId>mi-connector--amazonsqs</artifactId>');
