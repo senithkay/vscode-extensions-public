@@ -13,7 +13,9 @@ import path from 'path';
 import { Registry } from '../components/ArtifactTest/Registry';
 
 export default function createTests() {
-  test.describe('Artifact Tests', async () => {
+  test.describe('4.3.0 Project Tests', {
+    tag: '@group2',
+  }, async () => {
     initTest(true, true, 'testProject430', '4.3.0');
 
     test('Registry Tests from 4.3.0 runtime', async () => {

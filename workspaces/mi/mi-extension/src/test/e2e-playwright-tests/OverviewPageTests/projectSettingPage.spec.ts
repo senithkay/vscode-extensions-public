@@ -10,14 +10,16 @@
 import { test } from '@playwright/test';
 import { Overview } from '../components/Overview';
 import path from "path";
-import { initTest, page, waitUntilPomContains, waitUntilPomNotContains} from '../Utils';
+import { initTest, page, waitUntilPomContains, waitUntilPomNotContains } from '../Utils';
 const dataFolder = path.join(__dirname, '..', 'data');
 export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
 export const pomFilePath = path.join(newProjectPath, 'testProject', 'pom.xml');
 export const configFilePath = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties');
 
 export default function createTests() {
-    test.describe(async () => {
+    test.describe("Project Settings tests", {
+        tag: '@group2',
+    }, async () => {
         initTest();
 
         test('Project Summary Page Tests', async ({ }) => {
@@ -105,6 +107,6 @@ export default function createTests() {
                 await overviewPage.deleteConfig();
                 await waitUntilPomNotContains(page.page, configFilePath, 'test_name:cert');
             });
-        });    
+        });
     });
 }
