@@ -4376,7 +4376,7 @@ ${keyValuesXML}`;
             const projectDir = workspace.getWorkspaceFolder(Uri.file(filePath))?.uri.fsPath;
             const artifactXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
             if (!fs.existsSync(artifactXMLPath)) {
-                resolve(false);
+                return resolve(false);
             }
             const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
             const artifactXMLData = parser.parse(artifactXML);
