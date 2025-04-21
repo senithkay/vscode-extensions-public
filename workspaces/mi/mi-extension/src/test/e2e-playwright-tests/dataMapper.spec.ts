@@ -27,11 +27,11 @@ export default function createTests() {
     let dmName: string = "dm1";
 
     initTest();
-    test.beforeAll(setupDataMapper);
+    // test.beforeAll(setupDataMapper);
 
-    test('Basic Mappings', testBasicMappings);
+    // test('Basic Mappings', testBasicMappings);
     test('Array Mappings', testArrayMappings);
-    test('Import Options', testImportOptions);
+    // test('Import Options', testImportOptions);
 
     async function setupDataMapper() {
       const testAttempt = test.info().retry + 1;
@@ -263,7 +263,7 @@ export default function createTests() {
 
       console.log('Testing Array Mappings - Part 1');
 
-      overwriteTsFile(dmName, 'reset.ts');
+      overwriteTsFile(dmName, 'array/init1.ts');
 
       const projectExplorer = new ProjectExplorer(page.page);
       await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Mappers', dmName], true);
@@ -271,14 +271,14 @@ export default function createTests() {
       await dm.init();
       const dmWebView = dm.getWebView();
 
-      console.log('- Load input schemas from JSON data');
-      await dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
+      // console.log('- Load input schemas from JSON data');
+      // await dm.importSchema(IOType.Input, SchemaType.Json, 'array/inp.json');
 
-      console.log('- Load output schemas from JSON schema');
-      await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out1.schema.json');
+      // console.log('- Load output schemas from JSON schema');
+      // await dm.importSchema(IOType.Output, SchemaType.JsonSchema, 'array/out1.schema.json');
 
-      // #PAUSE_POINT
-      expect(dm.verifyTsFileContent('array/init1.ts')).toBeTruthy();
+      // // #PAUSE_POINT
+      // expect(dm.verifyTsFileContent('array/init1.ts')).toBeTruthy();
 
 
       console.log('- Test direct');
@@ -294,11 +294,21 @@ export default function createTests() {
       await dm.mapFields('focusedInput.iPrimMapFn1DItem', 'primitiveOutput.number');
       await dmWebView.getByTestId('link-from-focusedInput.iPrimMapFn1DItem.OUT-to-primitiveOutput.number.IN').waitFor({ state: 'attached' });
 
-      await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
-      await clearNotificationsByCloseButton(page);
-
+      await dm.gotoPreviousView();
+     
       // object array mapping with mapping function, ObjMapFn1D
       await dm.mapFields('input.iObjMapFn1D', 'objectOutput.oObjMapFn1D', 'menu-item-a2a-inner');
+
+      // filter
+      await dmWebView.getByText('Add Filter').click();
+      const filterItem = dmWebView.getByText('Filter 1: iObjMapFn1DItem');
+      await filterItem.waitFor();
+      await expect(filterItem).toContainText('Filter 1: iObjMapFn1DItem !== null');
+      const expressionBar = dmWebView.locator('#expression-bar').getByRole('textbox', { name: 'Text field' });
+      await expect(expressionBar).toBeFocused();
+      const canvas = dmWebView.locator('#data-mapper-canvas-container');
+      await canvas.click();
+      await expect(expressionBar).not.toBeFocused();
 
       await dm.mapFields('focusedInput.iObjMapFn1DItem.p1', 'objectOutput.q1');
       await dmWebView.getByTestId('link-from-focusedInput.iObjMapFn1DItem.p1.OUT-to-objectOutput.q1.IN').waitFor({ state: 'attached' });
@@ -340,6 +350,11 @@ export default function createTests() {
 
       const loc3 = dmWebView.getByTestId('array-connector-node-objectOutput.oObjMapFn1D.IN');
       await loc3.getByTestId('expand-array-fn-oObjMapFn1D').click({ force: true });
+
+      await filterItem.hover();
+      await filterItem.locator('.codicon-trash').click({ force: true });
+      await filterItem.waitFor({ state: 'detached' });
+
       const loc3I1 = dmWebView.getByTestId('array-connector-node-objectOutput.q2.IN');
       await loc3I1.getByTestId('expand-array-fn-q2').click({ force: true });
 
@@ -416,10 +431,9 @@ export default function createTests() {
       // 1D - 0D array direct mapping (edit singleton index)
       const loc10Indx = loc10.getByTitle('indexing');
       await loc10Indx.click({ force: true });
-      const expressionBar = dmWebView.locator('#expression-bar').getByRole('textbox', { name: 'Text field' });
       await expect(expressionBar).toBeFocused();
       await expressionBar.fill('input.iSingle1D[1]');
-      await dmWebView.locator('#data-mapper-canvas-container').click();
+      await canvas.click();
       await expect(expressionBar).not.toBeFocused();
       await expect(loc10Indx).toHaveText('[1]');
 

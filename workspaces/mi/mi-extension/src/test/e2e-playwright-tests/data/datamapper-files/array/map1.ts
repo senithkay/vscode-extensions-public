@@ -46,6 +46,7 @@ export function mapFunction(input: Root): OutputRoot {
         oPrimMapFn1D: input.iPrimMapFn1D
             .map((iPrimMapFn1DItem) => { return iPrimMapFn1DItem }),
         oObjMapFn1D: input.iObjMapFn1D
+            .filter(iObjMapFn1DItem => iObjMapFn1DItem !== null)
             .map((iObjMapFn1DItem) => {
                 return {
                     q1: iObjMapFn1DItem.p1,
