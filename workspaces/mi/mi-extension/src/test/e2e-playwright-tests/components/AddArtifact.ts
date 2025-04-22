@@ -25,14 +25,14 @@ export class AddArtifact {
     }
 
     public async add(artifactType: string) {
-        const createIntegrationSection = this.webView.locator('h3:text("Create an Integration")').locator('..');
+        const createIntegrationSection = this.webView.locator('div#artifacts');
         await createIntegrationSection.waitFor({ state: 'visible' });
         
         const viewMoreBtn = createIntegrationSection.locator('p:text("View More")').locator('..');
         await viewMoreBtn.waitFor({ state: 'visible' });
         await viewMoreBtn.click();
         
-        const btn = createIntegrationSection.locator(`div#${artifactType}`);
+        const btn = createIntegrationSection.locator(`div[id="${artifactType}"]`);
         await btn.waitFor({ state: 'visible' });
         await btn.click();
     }

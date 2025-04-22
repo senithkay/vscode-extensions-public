@@ -299,7 +299,7 @@ export function AddArtifactView() {
                             </ItemRow>
                         </AIPanel>
                     </AddPanel>
-                    <AddPanel>
+                    <AddPanel id="artifacts">
                         <Typography variant="h3" sx={{ margin: 0 }}>
                             Create an Integration
                         </Typography>
