@@ -164,7 +164,7 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
             entryValue.icon = getCustomEntryNodeIcon(artifact.module);
             if (artifact.module === "ai") {
                 entryValue.resources = [];
-                const aiResourceLocation = Object.values(artifact.children)[0]?.location;
+                const aiResourceLocation = Object.values(artifact.children).find(child => child.type === DIRECTORY_MAP.RESOURCE)?.location;
                 entryValue.position = {
                     endColumn: aiResourceLocation.endLine.offset,
                     endLine: aiResourceLocation.endLine.line,
@@ -184,7 +184,8 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
                 // Get the children of the service
                 const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
                 const remoteFunctions = await getComponents(artifact.children, DIRECTORY_MAP.REMOTE, icon, artifact.module);
-                entryValue.resources = [...resourceFunctions, ...remoteFunctions];
+                const privateFunctions = await getComponents(artifact.children, DIRECTORY_MAP.FUNCTION, icon, artifact.module);
+                entryValue.resources = [...resourceFunctions, ...remoteFunctions, ...privateFunctions];
             }
             break;
         case DIRECTORY_MAP.LISTENER:

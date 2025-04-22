@@ -112,7 +112,7 @@ const RATE_LIMIT_ERROR = ` Cause: Your usage limit has been exceeded. This shoul
 const UPDATE_CHAT_SUMMARY_FAILED = `Failed to update the chat summary.`
 
 // Define constants for command keys
-export const COMMAND_GENERATE = "/generate";
+export const COMMAND_CODE = "/code";
 export const COMMAND_SCAFFOLD = "/scaffold";
 export const COMMAND_NATURAL_PROGRAMMING = "/natural-programming (experimental)";
 export const COMMAND_TESTS = "/tests";
@@ -141,7 +141,7 @@ const TEMPLATE_HEALTHCARE: string[] = [];
 const TEMPLATE_OPENAPI: string[] = [];
 
 const DEFAULT_MENU_COMMANDS = [
-    { command: COMMAND_GENERATE + " write a hello world http service" },
+    { command: COMMAND_CODE + " write a hello world http service" },
     { command: COMMAND_DOCUMENTATION + " how to write a concurrent application?" },
 ];
 
@@ -155,7 +155,7 @@ const TEMPLATE_NATURAL_PROGRAMMING: string[] = [];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
-    [COMMAND_GENERATE, TEMPLATE_GENERATE],
+    [COMMAND_CODE, TEMPLATE_GENERATE],
     [COMMAND_TESTS, TEMPLATE_TESTS],
     [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
     [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
@@ -169,7 +169,7 @@ const commandToTemplate = new Map<string, string[]>([
 //TODO: Need to see if mime checking is the way to go, .sql and .graphql returns empty here.
 export const getFileTypesForCommand = (command: string): string[] => {
     switch (command) {
-        case COMMAND_GENERATE:
+        case COMMAND_CODE:
         case COMMAND_TESTS:
             return [
                 "text/plain",
@@ -293,7 +293,7 @@ export function AIChat() {
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
                         const command =
-                            initPrompt.exists && initPrompt.text === "datamap" ? COMMAND_DATAMAP : COMMAND_GENERATE;
+                            initPrompt.exists && initPrompt.text === "datamap" ? COMMAND_DATAMAP : COMMAND_CODE;
 
                         let template = commandToTemplate.get(command)?.[1];
 
@@ -304,7 +304,7 @@ export function AIChat() {
                         if (initPrompt.exists) {
                             setUserInput(template ? command + " " + template : command);
                         } else {
-                            setUserInput("/generate ")
+                            setUserInput(COMMAND_CODE + " ")
                         }
                     });
                 rpcClient
@@ -497,7 +497,7 @@ export function AIChat() {
             { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
         ]);
         await handleSendQuery(content);
-        setUserInput("/generate ");
+        setUserInput(COMMAND_CODE + " ");
     }
 
     function getUserMessage(content: [string, AttachmentResult[]]): string {
@@ -582,7 +582,7 @@ export function AIChat() {
                             break;
                         }
                     }
-                    case COMMAND_GENERATE: {
+                    case COMMAND_CODE: {
                         await processCodeGeneration(
                             token,
                             [
@@ -655,7 +655,7 @@ export function AIChat() {
                 if (messageBody.trim() === "") {
                     throw new Error("Error: Query is empty. Please enter a valid query");
                 }
-                if (commandKey === COMMAND_GENERATE) {
+                if (commandKey === COMMAND_CODE) {
                     await processCodeGeneration(
                         token,
                         [messageBody, attachments, CodeGenerationType.CODE_GENERATION],
@@ -816,7 +816,7 @@ export function AIChat() {
 
     async function loadMentions(command: string, template: string): Promise<string[]> {
         switch (command) {
-            case COMMAND_GENERATE: {
+            case COMMAND_CODE: {
                 return [];
             }
             case COMMAND_TESTS: {
@@ -956,7 +956,7 @@ export function AIChat() {
                     console.log("Initial Diagnostics : ", diagnostics);
                     currentDiagnosticsRef.current = diagnostics;
                 } catch (error) {
-                    // Add this catch block because `Add to Integration` button not appear for `/generate`
+                    // Add this catch block because `Add to Integration` button not appear for `/code`
                     // Related issue: https://github.com/wso2-enterprise/vscode-extensions/issues/5065
                     console.log("A critical error occurred while post processing the response: ", error);
                     diagnostics = [];

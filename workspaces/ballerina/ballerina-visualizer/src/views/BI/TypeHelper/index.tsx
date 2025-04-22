@@ -50,6 +50,7 @@ type TypeHelperProps = {
     changeTypeHelperState: (isOpen: boolean) => void;
     updateImports: (key: string, imports: {[key: string]: string}) => void;
     onTypeCreate: (typeName: string) => void;
+    onCloseCompletions?: () => void;
 };
 
 const TypeHelperEl = (props: TypeHelperProps) => {
@@ -65,7 +66,8 @@ const TypeHelperEl = (props: TypeHelperProps) => {
         changeTypeHelperState,
         typeBrowserRef,
         updateImports,
-        onTypeCreate
+        onTypeCreate,
+        onCloseCompletions
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -247,6 +249,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                 onTypeItemClick={handleTypeItemClick}
                 onClose={handleTypeHelperClose}
                 onTypeCreate={handleTypeCreate}
+                onCloseCompletions={onCloseCompletions}
             />
             {isAddingType && createPortal(
                 <>

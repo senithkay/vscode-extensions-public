@@ -24,26 +24,20 @@ const SearchMsg = styled.div`
 
 type TypeBrowserProps = {
     typeBrowserRef: RefObject<HTMLDivElement>;
-    currentType: string;
-    currentCursorPosition: number;
     loadingTypeBrowser: boolean;
     typeBrowserTypes: TypeHelperCategory[];
     onSearchTypeBrowser: (searchText: string) => void;
     onTypeItemClick: (item: TypeHelperItem) => Promise<void>;
-    onChange: (newType: string, newCursorPosition: number) => void;
     onClose: () => void;
 };
 
 export const TypeBrowser = (props: TypeBrowserProps) => {
     const {
         typeBrowserRef,
-        currentType,
-        currentCursorPosition,
         loadingTypeBrowser,
         typeBrowserTypes,
         onSearchTypeBrowser,
         onTypeItemClick,
-        onChange,
         onClose
     } = props;
 
