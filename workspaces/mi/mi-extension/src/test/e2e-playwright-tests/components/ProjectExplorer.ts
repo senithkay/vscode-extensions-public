@@ -12,8 +12,8 @@ import { Locator, Page } from "@playwright/test";
 export class ProjectExplorer {
     private explorer!: Locator;
 
-    constructor(page: Page) {
-        this.explorer = page.getByRole('tree').locator('div').first();
+    constructor(private page: Page) {
+        this.explorer = this.page.getByRole('tree').locator('div').first();
     }
 
     public async findItem(path: string[], click: boolean = false) {
@@ -46,6 +46,7 @@ export class ProjectExplorer {
         await projectExplorerRoot.hover();
         const locator = this.explorer.getByLabel('Open Project Overview');
         await locator.waitFor();
+        await this.page.waitForTimeout(500); // To fix intermittent issues
         await locator.click();
     }
 
@@ -56,6 +57,7 @@ export class ProjectExplorer {
         await projectExplorerRoot.hover();
         const locator = this.explorer.getByLabel('Add Artifact');
         await locator.waitFor();
+        await this.page.waitForTimeout(500); // To fix intermittent issues
         await locator.click();
     }
 
@@ -72,10 +74,10 @@ export class ProjectExplorer {
             }
 
             if (i === path.length - 1) {
-                await currentItem.click();
-
-                const plusBtn = currentItem.locator('div.actions');
+                await currentItem.hover();
+                const plusBtn = currentItem.locator('div.monaco-action-bar').locator('a[aria-label^="Add"]')
                 await plusBtn.waitFor();
+                await this.page.waitForTimeout(500); // To fix intermittent issues
                 await plusBtn.click();
             }
         }
