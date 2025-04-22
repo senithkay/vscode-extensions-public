@@ -227,7 +227,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                                 hasError
                                     ? ThemeColors.ERROR
                                     : isHovered && !disabled
-                                    ? ThemeColors.PRIMARY
+                                    ? ThemeColors.HIGHLIGHT
                                     : ThemeColors.OUTLINE_VARIANT
                             }
                             strokeWidth={NODE_BORDER_WIDTH}

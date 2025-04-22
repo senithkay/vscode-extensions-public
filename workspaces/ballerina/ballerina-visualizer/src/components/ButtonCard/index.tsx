@@ -24,7 +24,7 @@ const Card = styled.div<{ active?: boolean; appearance?: ButtonCardAppearance, d
     cursor: ${(props: { disabled: boolean }) => (props.disabled ? 'not-allowed' : 'pointer')};;
     &:hover {
         background-color: ${ThemeColors.PRIMARY_CONTAINER};
-        border: 1px solid ${ThemeColors.PRIMARY};
+        border: 1px solid ${ThemeColors.HIGHLIGHT};
     };
 `;
 
