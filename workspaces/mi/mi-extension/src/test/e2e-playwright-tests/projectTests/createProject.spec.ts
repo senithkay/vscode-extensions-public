@@ -19,10 +19,12 @@ const dataFolder = path.join( __dirname, '..', 'data');
 export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
 
 export default function createTests() {
-    test.describe(async () => {
+    test.describe("Create Project Tests", {
+        tag: '@group2'
+    }, async () => {
         initTest(true, true, true);
 
-        test("Create Project Tests", async () => {
+        test("Create Project Test", async () => {
             await test.step('Create New Project Tests', async () => {
                 await createProject(page, 'newProject', '4.4.0');
                 assertFileContent(path.join(newProjectPath, 'newProject', 'pom.xml'), 
