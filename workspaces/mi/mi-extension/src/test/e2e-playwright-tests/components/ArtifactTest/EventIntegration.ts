@@ -44,8 +44,6 @@ export class EventIntegration {
         if (!httpEPWebview) {
             throw new Error("Failed to switch to Http Endpoint Form iframe");
         }
-        const httpEPFrame = httpEPWebview.locator('div#root');
-        this._page.pause();
     }
 
     public async edit() {

@@ -586,7 +586,7 @@ export const TokenEditor = ({
 
     const handleSelectionChange = () => {
         const selection = window.getSelection();
-        if (!selection) return;
+        if (!selection || selection?.type === "None") return;
         const range = selection.getRangeAt(0);
 
         // if (range.startContainer.contains(textAreaRef.current)) {
