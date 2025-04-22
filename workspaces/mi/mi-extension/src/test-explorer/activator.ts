@@ -14,22 +14,26 @@ import { createTestsForAllFiles, testFileMatchPattern } from "./discover";
 import { getProjectName, getProjectRoot, startWatchingWorkspace } from "./helper";
 import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse } from "@wso2-enterprise/mi-core";
 import { COMMANDS } from "../constants";
-import { StateMachine, openView } from '../stateMachine';
+import { openView } from '../stateMachine';
 import { activateMockServiceTreeView } from "./mock-services/activator";
 import { TagRange, TestCase, UnitTest } from "../../../syntax-tree/lib/src";
-import { ExtendedLanguageClient } from "../lang-client/ExtendedLanguageClient";
 import { normalize } from "upath";
+import { MILanguageClient } from "../lang-client/activator";
 
 export let testController: TestController;
 const testDirNodes: string[] = [];
 const testSuiteNodes: string[] = [];
 const testCaseNodes: string[] = [];
-let langClient: ExtendedLanguageClient;
 
-export async function activateTestExplorer(extensionContext: ExtensionContext, lsClient: ExtendedLanguageClient) {
+let isTestExplorerActive = false;
+export async function activateTestExplorer(extensionContext: ExtensionContext) {
+    if (isTestExplorerActive) {
+        return;
+    }
+    isTestExplorerActive = true;
+
     testController = tests.createTestController('synapse-tests', 'Synapse Tests');
     extensionContext.subscriptions.push(testController);
-    langClient = lsClient;
 
     // create test profiles to display.
     testController.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
@@ -43,24 +47,18 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
     // search for all the tests.
     startWatchingWorkspace(testFileMatchPattern, createTestsForAllFiles);
 
-    commands.registerCommand(COMMANDS.ADD_TEST_SUITE, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuite });
+    commands.registerCommand(COMMANDS.ADD_TEST_SUITE, (args: any) => {
+        const projectUri = getProjectRoot(Uri.parse(args?.id));
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuite, projectUri });
         console.log('Add Test suite');
     });
 
     commands.registerCommand(COMMANDS.EDIT_TEST_SUITE, (entry: TestItem) => {
-        if (!langClient || !entry?.id) {
-            return;
-        }
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuite, documentUri: entry.id });
         console.log('Update Test suite');
     });
 
     commands.registerCommand(COMMANDS.ADD_TEST_CASE, async (entry: TestItem) => {
-        if (!langClient) {
-            window.showErrorMessage('Language client is not initialized');
-            return;
-        }
         const id = entry?.id;
         if (!id || id.split('.xml/').length < 1) {
             window.showErrorMessage('Test suite id is not available');
@@ -79,10 +77,6 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
     });
 
     commands.registerCommand(COMMANDS.EDIT_TEST_CASE, async (entry: TestItem) => {
-        if (!langClient) {
-            window.showErrorMessage('Language client is not initialized');
-            return;
-        }
         const id = entry?.id;
         if (!id || id.split('.xml/').length < 1) {
             window.showErrorMessage('Test case id is not available');
@@ -90,7 +84,8 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
         }
         const fileUri = `${id.split('.xml/')[0]}.xml`;
         const testCaseName = id.split('.xml/')[1];
-        const st = await langClient.getSyntaxTree({
+        const langClient = await MILanguageClient.getInstance(getProjectRoot(Uri.parse(fileUri))!);
+        const st = await langClient?.languageClient?.getSyntaxTree({
             documentIdentifier: {
                 uri: fileUri
             },
@@ -145,7 +140,9 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
  */
 export async function createTests(uri: Uri) {
     const projectRoot = getProjectRoot(uri);
-    const projectName = getProjectName(uri);
+    const langClient = await MILanguageClient.getInstance(projectRoot!);
+    const projectDetails = await langClient?.languageClient?.getProjectDetails();
+    const projectName = projectDetails?.primaryDetails?.projectName?.value ?? getProjectName(uri);
 
     if (!testController || !projectRoot || !projectName) {
         return;
@@ -199,7 +196,7 @@ export async function createTests(uri: Uri) {
 
         let node;
         if (i < relativePath.length - 1) {
-            node = createTestItem(testController, currentPath, level, true);
+            node = createTestItem(testController, currentPath, i === 0 ? projectName : level, true);
             await setStateforTestDirs(currentPath);
         } else {
             node = createTestItem(testController, currentPath, level.split(".xml")[0], false);
@@ -216,13 +213,15 @@ export async function createTests(uri: Uri) {
 }
 
 async function getTestCaseNamesAndTestSuiteType(uri: Uri) {
-    const projectUri = StateMachine.context().projectUri;
+    const projectUri = getProjectRoot(uri);
 
     if (!projectUri) {
-        window.showErrorMessage('Project URI is not available');
+        window.showErrorMessage('Workspace is not available');
         return;
     }
-    const st = await langClient.getSyntaxTree({
+
+    const langClient = await MILanguageClient.getInstance(projectUri);
+    const st = await langClient?.languageClient?.getSyntaxTree({
         documentIdentifier: {
             uri: uri.fsPath
         },
@@ -234,7 +233,7 @@ async function getTestCaseNamesAndTestSuiteType(uri: Uri) {
     const unitTestST: UnitTest = st?.syntaxTree["unit-test"];
     const testArtifact = unitTestST?.unitTestArtifacts?.testArtifact?.artifact?.textNode;
 
-    const projectStructure = await langClient.getProjectStructure(projectUri);
+    const projectStructure = await langClient.languageClient!.getProjectStructure(projectUri);
 
     const artifacts = projectStructure.directoryMap.src?.main?.wso2mi?.artifacts;
     const apis = artifacts?.apis?.map((api: ProjectStructureArtifactResponse) => { return { name: api.name, path: api.path.split(projectUri)[1], type: "Api" } });
@@ -265,10 +264,10 @@ async function getTestCaseNamesAndTestSuiteType(uri: Uri) {
 
 async function getTestCases(uri: Uri) {
     const testCases: TestCase[] = [];
-    if (!langClient) {
-        throw new Error('Language client is not initialized');
-    }
-    const st = await langClient.getSyntaxTree({
+    const projectRoot = getProjectRoot(uri);
+    const langClient = await MILanguageClient.getInstance(projectRoot!);
+
+    const st = await langClient?.languageClient?.getSyntaxTree({
         documentIdentifier: {
             uri: uri.fsPath
         },

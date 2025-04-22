@@ -17,7 +17,7 @@ import ConfigForm from "./ConfigForm";
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep } from "lodash";
 import { RelativeLoader } from "../../../components/RelativeLoader";
-import { findAgentNodeFromAgentCallNode, getAgentFilePath } from "./utils";
+import { getAgentFilePath } from "./utils";
 
 const Container = styled.div`
     padding: 16px;
@@ -139,6 +139,7 @@ export function ModelConfig(props: ModelConfigProps): JSX.Element {
         // use same variable name for model fields
         if (selectedModel?.properties.variable) {
             nodeProperties.variable.value = selectedModel?.properties.variable.value;
+            nodeProperties.variable.hidden = true;
         } else {
             console.error("Already assigned model node variable not found", selectedModel);
         }

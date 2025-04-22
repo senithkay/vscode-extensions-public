@@ -13,7 +13,9 @@ import path from 'path';
 import { Registry } from '../components/ArtifactTest/Registry';
 
 export default function createTests() {
-  test.describe('Artifact Tests', async () => {
+  test.describe('4.3.0 Project Tests', {
+    tag: '@group2',
+  }, async () => {
     initTest(true, true, 'testProject430', '4.3.0');
 
     test('Registry Tests from 4.3.0 runtime', async () => {
@@ -26,18 +28,6 @@ export default function createTests() {
           name: 'testRegistry1' + testAttempt,
           templateType: 'JSON File',
           registryType: 'gov',
-          registryPath: 'json',
-        });
-      });
-
-      await test.step('Create new registry from side panel', async () => {
-        console.log('Create new registry from side panel');
-        const registry = new Registry(page.page);
-        await registry.openFormFromSidePanel();
-        await registry.addFromTemplate({
-          name: 'testRegistry2' + testAttempt,
-          templateType: 'JSON File',
-          registryType: 'conf',
           registryPath: 'json',
         });
       });

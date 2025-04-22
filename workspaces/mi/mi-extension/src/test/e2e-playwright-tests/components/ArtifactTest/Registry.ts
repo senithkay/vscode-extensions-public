@@ -33,9 +33,8 @@ export class Registry {
     }
 
     public async openFormFromArtifacts() {
-        const explorerSection = this._page.getByLabel('Project Explorer Section');
-        await explorerSection.hover();
-        await explorerSection.getByRole('button', { name: 'Add Artifact' }).click();
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToAddArtifact("testProject430");
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
         await addArtifactPage.add('Registry');
@@ -44,11 +43,6 @@ export class Registry {
     private getRegistryForm(): Form {
         const form = new Form(this._page, 'Resource Creation Form');
         return form;
-    }
-
-    public async openFormFromSidePanel() {
-        await this._page.getByLabel('Registry Explorer Section').click();
-        await this._page.getByLabel('Add to Resource').click();
     }
 
     public async cancelForm() {

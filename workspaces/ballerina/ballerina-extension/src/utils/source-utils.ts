@@ -26,7 +26,7 @@ export async function injectImportIfMissing(importStatement: string, filePath: s
 
 export async function injectAgent(name: string, projectUri: string) {
     const agentCode = `
-final ai:OpenAiProvider _${name}Model = check new ("", ai:GPT_3_5_TURBO_0613);
+final ai:OpenAiProvider _${name}Model = check new ("", ai:GPT_4O);
 final ai:Agent _${name}Agent = check new (systemPrompt = {role: "", instructions: string \`\`},
     model = _${name}Model,
     tools = []

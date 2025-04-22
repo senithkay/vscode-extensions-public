@@ -11,10 +11,10 @@ import * as net from 'net';
 import * as vscode from 'vscode';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import { StateMachine, refreshUI } from '../stateMachine';
+import { getStateMachine, refreshUI } from '../stateMachine';
 import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, TemplateBreakpoint, StepOverBreakpointResponse } from '@wso2-enterprise/mi-core';
 import { checkServerReadiness, isADiagramView } from './debugHelper';
-import { VisualizerWebview } from '../visualizer/webview';
+import { webviews } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
 import { reject } from 'lodash';
 import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
@@ -59,7 +59,7 @@ export class Debugger extends EventEmitter {
 
     private currentDebugpoint: DebugProtocol.Breakpoint | undefined;
 
-    constructor(commandPort: number, eventPort: number, host: string) {
+    constructor(commandPort: number, eventPort: number, host: string, private projectUri: string) {
         super();
         this.commandPort = commandPort;
         this.eventPort = eventPort;
@@ -72,7 +72,13 @@ export class Debugger extends EventEmitter {
 
     public async createRuntimeBreakpoints(path: string, breakpoints: DebugProtocol.SourceBreakpoint[]) {
         try {
-            const langClient = StateMachine.context().langClient!;
+            const workspace = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(path));
+            if (!workspace) {
+                logDebug(`No workspace found for path: ${path}`, ERROR_LOG);
+                return;
+            }
+            const projectUri = workspace.uri.fsPath;
+            const langClient = getStateMachine(projectUri).context().langClient!;
             const breakpointPerFile: RuntimeBreakpoint[] = [];
             // To maintain the valid and invalid breakpoints in the vscode
             const vscodeBreakpointsPerFile: RuntimeBreakpoint[] = [];
@@ -170,7 +176,13 @@ export class Debugger extends EventEmitter {
 
     public async createStepOverBreakpoint(path: string, breakpoints: DebugProtocol.SourceBreakpoint[]): Promise<void> {
         try {
-            const langClient = StateMachine.context().langClient!;
+            const workspace = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(path));
+            if (!workspace) {
+                logDebug(`No workspace found for path: ${path}`, ERROR_LOG);
+                return;
+            }
+            const projectUri = workspace.uri.fsPath;
+            const langClient = getStateMachine(projectUri).context().langClient!;
             const stepOverBreakpoints: RuntimeBreakpoint[] = [];
             if (path) {
                 // create BreakpointPosition array
@@ -251,7 +263,13 @@ export class Debugger extends EventEmitter {
     }
 
     public async getBreakpointInformation(breakpoints: RuntimeBreakpoint[], filePath: string): Promise<BreakpointInfo[]> {
-        const langClient = StateMachine.context().langClient!;
+        const workspace = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(filePath));
+        if (!workspace) {
+            logDebug(`No workspace found for path: ${filePath}`, ERROR_LOG);
+            throw new Error(`No workspace found for path: ${filePath}`);
+        }
+        const projectUri = workspace.uri.fsPath;
+        const langClient = getStateMachine(projectUri).context().langClient!;
         // create BreakpointPosition[] array
         const breakpointPositions = breakpoints.map((breakpoint) => {
             return { line: breakpoint.line, column: breakpoint?.column };
@@ -269,8 +287,11 @@ export class Debugger extends EventEmitter {
 
     public async getNextMediatorBreakpoint(): Promise<StepOverBreakpointResponse> {
         try {
+            const langClient = getStateMachine(this.projectUri).context().langClient;
+            if (!langClient) {
+                throw new Error('Language client is not initialized');
+            }
             const currentBreakpoint = this.getCurrentBreakpoint();
-            const langClient = StateMachine.context().langClient!;
             const stepOverBreakpoint: StepOverBreakpointResponse = await langClient.getStepOverBreakpoint(
                 { filePath: this.getCurrentFilePath(), breakpoint: { line: currentBreakpoint?.line || 0, column: currentBreakpoint?.column } });
             // check if the stepOverBreakpoint is present in the runtimeVscodeBreakpointMap's value
@@ -433,9 +454,10 @@ export class Debugger extends EventEmitter {
                         }
                         // clear the stepOverBreakpointMap
                         this.stepOverBreakpointMap.clear();
+                        const webviewPanel = webviews.get(this.projectUri);
 
-                        if (VisualizerWebview.currentPanel?.getWebview()?.visible && isADiagramView()) {
-                            refreshUI();
+                        if (webviewPanel && webviewPanel?.getWebview()?.visible && isADiagramView(this.projectUri)) {
+                            refreshUI(this.projectUri);
                         }
                         extension.webviewReveal = false;
                     }
