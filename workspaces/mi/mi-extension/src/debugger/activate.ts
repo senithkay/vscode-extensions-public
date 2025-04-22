@@ -200,8 +200,8 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     });
 
 
-    context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async (args:any) => {
-		const webview = [...webviews.values()].find(webview => webview.getWebview()?.active);
+    context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async (args: any) => {
+        const webview = [...webviews.values()].find(webview => webview.getWebview()?.active);
 
         if (webview && webview?.getProjectUri()) {
             const projectUri = webview.getProjectUri();
@@ -289,10 +289,12 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.debug.onDidChangeBreakpoints((session) => {
         const projectUri = vscode.workspace.getWorkspaceFolder(((session.added[0] || session.changed[0] || session.removed[0]) as any)?.location.uri);
         if (projectUri) {
-            const context = getStateMachine(projectUri.uri.fsPath).context();
+            if (webviews.get(projectUri.uri.fsPath)) {
+                const context = getStateMachine(projectUri.uri.fsPath).context();
 
-            if (context?.view == MACHINE_VIEW.ResourceView) {
-                refreshUI(projectUri.uri.fsPath);
+                if (context?.view == MACHINE_VIEW.ResourceView) {
+                    refreshUI(projectUri.uri.fsPath);
+                }
             }
         }
     }));
