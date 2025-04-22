@@ -126,8 +126,12 @@ export class DataMapper {
             await menuItem.click();
             await menuItem.waitFor({ state: 'detached' });
         } else {
-            await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
-            await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
+            try {
+                await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
+            } catch (error) {}
+            try {
+                await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
+            } catch (error) {}
         }
         
     }
