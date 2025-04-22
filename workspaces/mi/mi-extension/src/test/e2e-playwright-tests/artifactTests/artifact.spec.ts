@@ -26,7 +26,9 @@ import { API } from '../components/ArtifactTest/APITests';
 import path from 'path';
 
 export default function createTests() {
-  test.describe('Artifact Tests', async () => {
+  test.describe('Artifact Tests', {
+    tag: '@group1',
+  }, async () => {
     initTest();
 
     let currentTaskName: string = "TestTask";

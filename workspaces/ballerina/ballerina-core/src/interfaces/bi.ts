@@ -48,7 +48,6 @@ export type FlowNode = {
     isActiveBreakpoint?: boolean;
 };
 
-
 export type FunctionNode = {
     id: string;
     metadata: Metadata;
@@ -74,7 +73,7 @@ export type Metadata = {
         memory?: MemoryData;
         agent?: AgentData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
-    }
+    };
 };
 
 export type ToolData = {
@@ -82,21 +81,21 @@ export type ToolData = {
     description?: string;
     path?: string;
     type?: string;
-}
+};
 
 export type AgentData = {
     role?: string;
     instructions?: string;
-}
+};
 
 export type MemoryData = {
     name: string;
     type: string;
-}
+};
 
 export type Imports = {
     [prefix: string]: string;
-}
+};
 
 export type Property = {
     metadata: Metadata;
@@ -126,7 +125,7 @@ export type RecordTypeField = {
     key: string;
     property: Property;
     recordTypeMembers: PropertyTypeMemberInfo[];
-}
+};
 
 export type Diagnostic = {
     hasDiagnostics: boolean;
@@ -177,11 +176,11 @@ export type ViewState = {
     y: number;
     lw: number; // left width from center
     rw: number; // right width from center
-    h: number;  // height
+    h: number; // height
     // container view state
-    clw: number; // container left width from center 
+    clw: number; // container left width from center
     crw: number; // container right width from center
-    ch: number;  // container height
+    ch: number; // container height
     // flow start node
     startNodeId?: string;
     // is top level node
@@ -196,21 +195,21 @@ export type TargetMetadata = {
 };
 
 export enum DIRECTORY_MAP {
-    SERVICE = "SERVICE",
-    AUTOMATION = "AUTOMATION",
-    RESOURCE = "RESOURCE",
-    REMOTE = "REMOTE",
-    FUNCTION = "FUNCTION",
-    NP_FUNCTION = "NP_FUNCTION",
-    DATA_MAPPER = "DATA_MAPPER",
-    LISTENER = "LISTENER",
-    CONFIGURABLE = "CONFIGURABLE",
-    TYPE = "TYPE",
-    CONNECTION = "CONNECTION",
-    VARIABLE = "VARIABLE",
-    CONNECTOR = "CONNECTOR",
     AGENTS = "agents",
+    AUTOMATION = "AUTOMATION",
+    CONFIGURABLE = "CONFIGURABLE",
+    CONNECTION = "CONNECTION",
+    CONNECTOR = "CONNECTOR",
+    DATA_MAPPER = "DATA_MAPPER",
+    FUNCTION = "FUNCTION",
+    LISTENER = "LISTENER",
     LOCAL_CONNECTORS = "localConnectors",
+    NP_FUNCTION = "NP_FUNCTION",
+    REMOTE = "REMOTE",
+    RESOURCE = "RESOURCE",
+    SERVICE = "SERVICE",
+    TYPE = "TYPE",
+    VARIABLE = "VARIABLE",
 }
 
 export enum FUNCTION_TYPE {
@@ -263,34 +262,37 @@ export type AvailableNode = {
 export type DiagramLabel = "On Fail" | "Body";
 
 export type NodePropertyKey =
-    | "method"
-    | "path"
-    | "condition"
+    | "agentType"
+    | "checkError"
     | "client"
-    | "targetType"
-    | "variable"
-    | "type"
-    | "expression"
-    | "msg"
-    | "statement"
-    | "comment"
-    | "connection"
     | "collection"
-    | "view"
-    | "variable"
+    | "comment"
+    | "condition"
+    | "connection"
     | "defaultable"
-    | "scope"
-    | "parameters"
-    | "model"
-    | "tools"
-    | "query"
-    | "functionName"
-    | "systemPrompt"
-    | "prompt"
     | "enableModelContext"
+    | "expression"
+    | "functionName"
+    | "maxIter"
     | "memory"
+    | "method"
+    | "model"
+    | "msg"
+    | "parameters"
+    | "path"
+    | "prompt"
+    | "query"
+    | "scope"
     | "sessionId"
-    | "size";
+    | "size"
+    | "statement"
+    | "systemPrompt"
+    | "targetType"
+    | "tools"
+    | "type"
+    | "variable"
+    | "verbose"
+    | "view";
 
 export type BranchKind = "block" | "worker";
 
@@ -299,61 +301,60 @@ export type Repeatable = "ONE_OR_MORE" | "ZERO_OR_ONE" | "ONE" | "ZERO_OR_MORE";
 export type Scope = "module" | "local" | "object";
 
 export type NodeKind =
-    | "EMPTY"
+    | "ACTION_OR_EXPRESSION"
+    | "AGENT"
+    | "AGENT_CALL"
+    | "ASSIGN"
+    | "AUTOMATION"
+    | "BODY"
+    | "BREAK"
+    | "CLASS"
+    | "CLASS_INIT"
+    | "COMMENT"
+    | "COMMIT"
+    | "CONDITIONAL"
+    | "CONFIG_VARIABLE"
+    | "CONTINUE"
+    | "DATA_MAPPER_CALL"
+    | "DATA_MAPPER_DEFINITION"
     | "DRAFT"
+    | "ELSE"
+    | "EMPTY"
+    | "ERROR_HANDLER"
     | "EVENT_START"
+    | "EXPRESSION"
+    | "FAIL"
+    | "FOREACH"
+    | "FORK"
+    | "FUNCTION"
+    | "FUNCTION_CALL"
+    | "FUNCTION_DEFINITION"
     | "IF"
+    | "INCLUDED_FIELD"
+    | "LOCK"
+    | "LV_EXPRESSION"
+    | "NEW_CONNECTION"
+    | "NEW_DATA"
+    | "NP_FUNCTION"
+    | "NP_FUNCTION_CALL"
+    | "NP_FUNCTION_DEFINITION"
+    | "ON_FAILURE"
+    | "PANIC"
+    | "PARALLEL_FLOW"
+    | "RAW_TEMPLATE"
     | "REMOTE_ACTION_CALL"
     | "RESOURCE_ACTION_CALL"
     | "RETURN"
-    | "EXPRESSION"
-    | "LV_EXPRESSION"
-    | "ACTION_OR_EXPRESSION"
-    | "RAW_TEMPLATE"
-    | "ERROR_HANDLER"
-    | "WHILE"
-    | "FOREACH"
-    | "CONTINUE"
-    | "BREAK"
-    | "PANIC"
+    | "RETRY"
+    | "ROLLBACK"
     | "START"
     | "STOP"
     | "TRANSACTION"
-    | "LOCK"
-    | "FAIL"
-    | "CONDITIONAL"
-    | "ELSE"
-    | "ON_FAILURE"
-    | "BODY"
-    | "VARIABLE"
-    | "NEW_DATA"
     | "UPDATE_DATA"
-    | "NEW_CONNECTION"
-    | "COMMENT"
-    | "FUNCTION"
-    | "FUNCTION_CALL"
-    | "NP_FUNCTION_CALL"
-    | "NP_FUNCTION"
-    | "NP_FUNCTION_DEFINITION"
-    | "ASSIGN"
-    | "DATA_MAPPER_DEFINITION"
-    | "DATA_MAPPER_CALL"
-    | "FORK"
-    | "WORKER"
+    | "VARIABLE"
     | "WAIT"
-    | "START"
-    | "COMMIT"
-    | "ROLLBACK"
-    | "FAIL"
-    | "RETRY"
-    | "CLASS"
-    | "AGENT"
-    | "AGENT_CALL"
-    | "FUNCTION_DEFINITION"
-    | "AUTOMATION"
-    | "CONFIG_VARIABLE"
-    | "CLASS_INIT"
-    | "PARALLEL_FLOW";
+    | "WHILE"
+    | "WORKER";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];
@@ -402,4 +403,4 @@ export type ConfigVariable = {
 export type FormDiagnostics = {
     key: string;
     diagnostics: VSCodeDiagnostic[];
-}
+};

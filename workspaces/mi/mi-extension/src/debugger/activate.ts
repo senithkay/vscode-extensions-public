@@ -8,17 +8,20 @@
  */
 
 import * as vscode from 'vscode';
-import { CancellationToken, DebugConfiguration, ProviderResult, WorkspaceFolder } from 'vscode';
+import { CancellationToken, DebugConfiguration, ProviderResult, Uri, WorkspaceFolder } from 'vscode';
 import { MiDebugAdapter } from './debugAdapter';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { executeBuildTask, getServerPath } from './debugHelper';
 import { getDockerTask } from './tasks';
-import { refreshUI } from '../stateMachine';
+import { getStateMachine, refreshUI } from '../stateMachine';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SELECTED_SERVER_PATH, SELECTED_JAVA_HOME } from './constants';
 import { buildBallerinaModule, setPathsInWorkSpace, verifyJavaHomePath, verifyMIPath } from '../util/onboardingUtils';
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { askForProject } from '../util/workspace';
+import { webviews } from '../visualizer/webview';
 
 
 class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
@@ -39,23 +42,34 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 
 export function activateDebugger(context: vscode.ExtensionContext) {
 
-    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async (shouldCopyTarget?: boolean, postBuildTask?: Function) => {
-        getServerPath().then(async (serverPath) => {
+    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async (projectUri?: string, shouldCopyTarget?: boolean, postBuildTask?: Function) => {
+        if (!projectUri) {
+            projectUri = await askForProject();
+        }
+        getServerPath(projectUri).then(async (serverPath) => {
             if (!serverPath) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
             }
-            await executeBuildTask(serverPath, shouldCopyTarget, postBuildTask);
+            await executeBuildTask(projectUri!, serverPath, shouldCopyTarget, postBuildTask);
         });
     });
 
-    vscode.commands.registerCommand(COMMANDS.CREATE_DOCKER_IMAGE, async () => {
-        const dockerTask = getDockerTask();
+    vscode.commands.registerCommand(COMMANDS.CREATE_DOCKER_IMAGE, async (projectUri?: string) => {
+        if (!projectUri) {
+            projectUri = await askForProject();
+        }
+        const dockerTask = getDockerTask(projectUri);
         await vscode.tasks.executeTask(dockerTask);
     });
 
     // Register command to change the Micro Integrator server path
     vscode.commands.registerCommand(COMMANDS.CHANGE_SERVER_PATH, async () => {
+        const projectUri = await askForProject();
+        if (!projectUri) {
+            return;
+        }
+
         const addServerOptionLabel = "Add Micro Integrator Server";
         const currentServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
         const quickPickItems: vscode.QuickPickItem[] = [];
@@ -100,7 +114,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
             const verifiedServerPath = verifyMIPath(selectedServerPath);
             if (verifiedServerPath) {
                 await extension.context.globalState.update(SELECTED_SERVER_PATH, verifiedServerPath);
-                await setPathsInWorkSpace({ type: 'MI', path: verifiedServerPath });
+                await setPathsInWorkSpace({ projectUri, type: 'MI', path: verifiedServerPath });
                 return true;
             } else {
                 vscode.window.showErrorMessage('Invalid Micro Integrator Server path or unsupported Micro Integrator version.');
@@ -112,6 +126,11 @@ export function activateDebugger(context: vscode.ExtensionContext) {
 
     // Register command to change the Java Home path
     vscode.commands.registerCommand(COMMANDS.CHANGE_JAVA_HOME, async () => {
+        const projectUri = await askForProject();
+        if (!projectUri) {
+            return;
+        }
+
         try {
             const setJavaOptionLabel = "Set Java Home Path";
             const currentJavaHomePath: string | undefined = extension.context.globalState.get(SELECTED_JAVA_HOME);
@@ -164,7 +183,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                 const verifiedJavaHomePath = verifyJavaHomePath(selectedJavaHomePath);
                 if (verifiedJavaHomePath) {
                     await extension.context.globalState.update(SELECTED_JAVA_HOME, verifiedJavaHomePath);
-                    await setPathsInWorkSpace({ type: 'JAVA', path: verifiedJavaHomePath });
+                    await setPathsInWorkSpace({ projectUri, type: 'JAVA', path: verifiedJavaHomePath });
                     return true;
                 } else {
                     vscode.window.showErrorMessage('Invalid Java Home path or unsupported Java version. Java 11 or later is required.');
@@ -181,18 +200,18 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     });
 
 
-    context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async () => {
+    context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async (args:any) => {
+		const webview = [...webviews.values()].find(webview => webview.getWebview()?.active);
 
-        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-
-        if (workspaceFolder) {
-            const launchJsonPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'launch.json');
-            const envPath = path.join(workspaceFolder.uri.fsPath, '.env');
+        if (webview && webview?.getProjectUri()) {
+            const projectUri = webview.getProjectUri();
+            const launchJsonPath = path.join(projectUri, '.vscode', 'launch.json');
+            const envPath = path.join(projectUri, '.env');
             let config: vscode.DebugConfiguration | undefined = undefined;
 
             if (fs.existsSync(launchJsonPath)) {
                 // Read the configurations from launch.json
-                const configurations = vscode.workspace.getConfiguration('launch', workspaceFolder.uri);
+                const configurations = vscode.workspace.getConfiguration('launch', Uri.parse(projectUri));
                 const allConfigs = configurations.get<vscode.DebugConfiguration[]>('configurations');
 
                 if (allConfigs) {
@@ -268,7 +287,14 @@ export function activateDebugger(context: vscode.ExtensionContext) {
 
     // Listener to support reflect breakpoint changes in diagram when debugger is inactive
     context.subscriptions.push(vscode.debug.onDidChangeBreakpoints((session) => {
-        refreshUI();
+        const projectUri = vscode.workspace.getWorkspaceFolder(((session.added[0] || session.changed[0] || session.removed[0]) as any)?.location.uri);
+        if (projectUri) {
+            const context = getStateMachine(projectUri.uri.fsPath).context();
+
+            if (context?.view == MACHINE_VIEW.ResourceView) {
+                refreshUI(projectUri.uri.fsPath);
+            }
+        }
     }));
 
     const factory = new InlineDebugAdapterFactory();
@@ -277,7 +303,8 @@ export function activateDebugger(context: vscode.ExtensionContext) {
 
 class InlineDebugAdapterFactory implements vscode.DebugAdapterDescriptorFactory {
 
-    createDebugAdapterDescriptor(_session: vscode.DebugSession): ProviderResult<vscode.DebugAdapterDescriptor> {
-        return new vscode.DebugAdapterInlineImplementation(new MiDebugAdapter());
+    createDebugAdapterDescriptor(session: vscode.DebugSession): ProviderResult<vscode.DebugAdapterDescriptor> {
+        const workspaceFolder = session.workspaceFolder;
+        return new vscode.DebugAdapterInlineImplementation(new MiDebugAdapter(workspaceFolder?.uri?.fsPath!));
     }
 }

@@ -16,7 +16,6 @@ import {
     MACHINE_VIEW,
     ServiceModel,
     FunctionModel,
-    STModification,
     DIRECTORY_MAP,
     ProjectStructureArtifactResponse,
     PropertyModel,

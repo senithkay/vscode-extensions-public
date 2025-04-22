@@ -32,6 +32,11 @@ enum Nature {
 
 export async function importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
     const { source, directory, open } = params;
+    const projectUri = workspace.getWorkspaceFolder(Uri.file(source))?.uri?.fsPath;
+    if (!projectUri) {
+        window.showErrorMessage('Please select a valid project directory');
+        throw new Error('Invalid project directory');
+    }
 
     const projectUuid = uuidv4();
 
@@ -98,7 +103,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
         copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
 
         console.log("Created project structure for project: " + projectName);
-        await migrateConfigs(path.join(source, ".backup"), directory);
+        await migrateConfigs(projectUri, path.join(source, ".backup"), directory);
 
         window.showInformationMessage(`Successfully imported ${projectName} project`);
 
@@ -138,7 +143,7 @@ export function getProjectDetails(filePath: string) {
     return { projectName, groupId, artifactId, version, runtimeVersion };
 }
 
-export async function migrateConfigs(source: string, target: string) {
+export async function migrateConfigs(projectUri: string, source: string, target: string) {
     // determine the project type here
     const projectType = determineProjectType(source);
     let hasClassMediatorModule = false;
@@ -160,7 +165,7 @@ export async function migrateConfigs(source: string, target: string) {
         });
     }
     if (hasClassMediatorModule) {
-        await changeRootPomForClassMediator();
+        await changeRootPomForClassMediator(projectUri);
     }
 }
 

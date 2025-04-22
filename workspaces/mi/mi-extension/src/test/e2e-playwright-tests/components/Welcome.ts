@@ -48,7 +48,6 @@ export class Welcome {
             return true;
         }
         if (iframeTitle !== MACHINE_VIEW.SETUP_ENVIRONMENT) {
-            await this.page.page.pause();
             throw new Error(`Invalid IFrame: ${iframeTitle}`);
         }
 
