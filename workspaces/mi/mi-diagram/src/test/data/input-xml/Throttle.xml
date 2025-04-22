@@ -23,6 +23,36 @@
 				<onAccept></onAccept>
 				<onReject></onReject>
 			</throttle>
+			<throttle description="" id="ss" onAccept="throttle-onAcceptSeq">
+				<onReject>
+					<log category="INFO" logMessageID="false" logFullPayload="false">
+						<message></message>
+					</log>
+				</onReject>
+			</throttle>
+			<throttle description="" id="ss" onReject="throttle-onRejectSeq">
+				<onAccept>
+					<log category="INFO" logMessageID="false" logFullPayload="false">
+						<message></message>
+					</log>
+				</onAccept>
+			</throttle>
+			<throttle description="" id="ss" onAccept="throttle-onAcceptSeq">
+				<onReject>
+				</onReject>
+			</throttle>
+			<throttle description="" id="ss" onReject="throttle-onRejectSeq">
+				<onAccept>
+				</onAccept>
+			</throttle>
+			<throttle description="" id="ss">
+				<onAccept>
+				</onAccept>
+				<onReject>
+				</onReject>
+			</throttle>
+			<throttle description="" id="ss" onAccept="throttle-onAcceptSeq" onReject="throttle-onRejectSeq">
+			</throttle>
 		</inSequence>
 		<faultSequence>
 		</faultSequence>

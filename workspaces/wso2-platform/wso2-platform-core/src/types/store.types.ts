@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { CommitHistory, ComponentKind, Environment, Organization, Project, UserInfo } from "./common.types";
+import type { CommitHistory, ComponentKind, Environment, ExtensionName, Organization, Project, UserInfo } from "./common.types";
 
 export interface DataCacheState {
 	orgs?: {
@@ -35,7 +35,7 @@ export interface AuthState {
 }
 
 export interface WebviewState {
-	extensionName: "WSO2" | "Choreo" | "Devant";
+	extensionName: ExtensionName;
 	choreoEnv: string;
 	openedComponentKey: string;
 	componentViews: {
@@ -86,7 +86,10 @@ export interface ContextStoreState {
 export interface LocationStoreState {
 	projectLocations: {
 		[projectKey: string]: {
-			[fsPath: string]: ContextStoreComponentState[];
+			[fsPath: string]: {
+				contextItem?: ContextItemEnriched;
+				components?: ContextStoreComponentState[];
+			};
 		};
 	};
 }

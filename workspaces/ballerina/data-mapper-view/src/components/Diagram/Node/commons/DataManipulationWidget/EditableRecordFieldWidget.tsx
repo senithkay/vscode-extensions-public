@@ -272,8 +272,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             const isConnectedViaQueryExpr = hasValue && STKindChecker.isQueryExpression(specificField.valueExpr);
             const isInitializedRecord = isRecord && hasValue && !connectedViaLink;
             const isInitializedArray = isArray && hasValue && !connectedViaLink;
+            const isEmptyArray = isArray && portIn.editableRecordField?.elements?.length === 0;
 
-            if (isConnectedViaQueryExpr || isInitializedRecord || isInitializedArray) {
+            if (isConnectedViaQueryExpr || isInitializedRecord || (isInitializedArray && !isEmptyArray)) {
                 portIn?.setDescendantHasValue();
                 setIsDisabled(true);
             }

@@ -8,12 +8,10 @@
  */
 
 import { useEffect, useState } from 'react';
-import { EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel } from '@wso2-enterprise/ballerina-core';
-import { Stepper, View, ViewContent, TextField, Button } from '@wso2-enterprise/ui-toolkit';
+import { ListenerModel } from '@wso2-enterprise/ballerina-core';
+import { View, ViewContent, TextField, Button } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import ListenerConfigForm from '../ServiceDesigner/Forms/ListenerConfigForm';
-import ServiceConfigForm from '../ServiceDesigner/Forms/ServiceConfigForm';
 import { LoadingContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
 import { TopNavigationBar } from '../../../components/TopNavigationBar';
@@ -52,8 +50,8 @@ export interface AIChatAgentWizardProps {
 }
 
 export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
-    // module name for ai.agent
-    const type = "ai.agent";
+    // module name for ai agent
+    const type = "ai";
     const { rpcClient } = useRpcContext();
     const [agentName, setAgentName] = useState<string>("");
     const [nameError, setNameError] = useState<string>("");
@@ -63,6 +61,7 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
     const steps = [
         { label: "Creating Agent", description: "Creating the AI chat agent" },
         { label: "Initializing", description: "Setting up the agent configuration" },
+        { label: "Pulling Modules", description: "Pulling the required modules" },
         { label: "Creating Listener", description: "Configuring the service listener" },
         { label: "Creating Service", description: "Setting up the AI chat service" },
         { label: "Completing", description: "Finalizing the agent setup" }
@@ -105,9 +104,15 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
             listener.properties['listenOn'].value = "check http:getDefaultListener()";
 
             setCurrentStep(1);
+            // Set a timeout to show step 2 after 3 seconds
+            const timeoutId = setTimeout(() => {
+                setCurrentStep(2);
+            }, 3000);
             await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener });
+            // Clear the timeout if the operation completed before 3 seconds
+            clearTimeout(timeoutId);
 
-            setCurrentStep(2);
+            setCurrentStep(3);
             // Update the service name and create the service
             await rpcClient.getServiceDesignerRpcClient().getServiceModel({
                 filePath: "",
@@ -124,21 +129,11 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                     filePath: "",
                     service: res.service
                 }).then((res) => {
-                    setTimeout(() => {
-                        rpcClient.getVisualizerRpcClient().openView({
-                            type: EVENT_TYPE.OPEN_VIEW,
-                            location: {
-                                documentUri: res.filePath,
-                                position: res.position
-                            },
-                        });
-                    }, 1000);
-                    setCurrentStep(3);
-                    setIsCreating(false);
+                    setCurrentStep(4);
                 });
             });
 
-            setCurrentStep(3);
+            setCurrentStep(5);
         } catch (error) {
             console.error("Error creating AI Chat Agent:", error);
             setIsCreating(false);
@@ -188,7 +183,6 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                                         >
                                             {isCreating ? 'Creating...' : 'Create'}
                                         </Button>
-                                        <Button appearance="secondary">Cancel</Button>
                                     </ButtonContainer>
                                 </FormFields>
                             </FormContainer>

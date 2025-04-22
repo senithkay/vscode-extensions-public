@@ -11,12 +11,12 @@
 import { MiDiagramRpcManager } from "../rpc-managers/mi-diagram/rpc-manager";
 import { MiVisualizerRpcManager } from "../rpc-managers/mi-visualizer/rpc-manager";
 import { Project, QuoteKind } from "ts-morph";
-import { StateMachine } from "../stateMachine";
 import { getSources } from "./dataMapper";
+import { getStateMachine } from "../stateMachine";
 
-export async function fetchBackendUrl() {
+export async function fetchBackendUrl(projectUri: string) {
     try {
-        let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
+        let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager(projectUri);
         const { url } = await miDiagramRpcManager.getBackendRootUrl();
         return url;
         // Do something with backendRootUri
@@ -26,8 +26,8 @@ export async function fetchBackendUrl() {
     }
 }
 
-export function openSignInView() {
-    let miDiagramRpcClient: MiDiagramRpcManager = new MiDiagramRpcManager();
+export function openSignInView(projectUri: string) {
+    let miDiagramRpcClient: MiDiagramRpcManager = new MiDiagramRpcManager(projectUri);
     miDiagramRpcClient.executeCommand({ commands: ["MI.openAiPanel"] })
         .catch(error => {
             console.error('Failed to open sign-in view:', error);
@@ -35,9 +35,9 @@ export function openSignInView() {
 }
 
 // Function to read the TypeScript file which contains the schema interfaces to be mapped
-export function readTSFile(): string {
+export function readTSFile(projectUri: string): string {
     //sourcePath is the path of the TypeScript file which contains the schema interfaces to be mapped
-    const sourcePath = StateMachine.context().dataMapperProps?.filePath;
+    const sourcePath = getStateMachine(projectUri).context().dataMapperProps?.filePath;
     // Check if sourcePath is defined
     if (sourcePath) {
         try {
@@ -97,8 +97,8 @@ export async function makeRequest(url: string, token: string, tsContent: string)
     return response.json();
 }
 
-function showNotification(message: string, options: string[] = []) {
-    let miVisualizerRpcClient: MiVisualizerRpcManager = new MiVisualizerRpcManager();
+function showNotification(projectUri: string, message: string, options: string[] = []) {
+    let miVisualizerRpcClient: MiVisualizerRpcManager = new MiVisualizerRpcManager(projectUri);
     miVisualizerRpcClient.retrieveContext({
         key: "showDmLandingMessage",
         contextType: "workspace"
@@ -122,12 +122,12 @@ function showNotification(message: string, options: string[] = []) {
 }
 
 // Then use it:
-export function showMappingEndNotification() {
+export function showMappingEndNotification(projectUri: string) {
     const message = "Please note that automated mapping is powered by AI, and mistakes or surprises are inevitable. \n\nIt is recommended to confirm generated mappings using the </> TS file.";
-    showNotification(message, ["Don't show this again"]);
+    showNotification(projectUri, message, ["Don't show this again"]);
 }
 
-export function showSignedOutNotification() {
+export function showSignedOutNotification(projectUri: string) {
     const message = "Account not found. \n\n Please sign in and try again.";
-    showNotification(message);
+    showNotification(projectUri, message);
 }

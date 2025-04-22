@@ -104,12 +104,30 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 	}, [subPath]);
 
 	const {
+		isFetching: isFetchingRepoAccess,
+		data: isRepoAuthorizedResp,
+		refetch: refetchRepoAccess,
+	} = useQuery({
+		queryKey: ["git-repo-access", { repo: repoUrl, orgId: organization?.id, provider }],
+		queryFn: () =>
+			ChoreoWebViewAPI.getInstance()
+				.getChoreoRpcClient()
+				.isRepoAuthorized({
+					repoUrl: repoUrl,
+					orgId: organization.id.toString(),
+					credRef: provider !== GitProvider.GITHUB ? credential : "",
+				}),
+		enabled: !!repoUrl && !!provider && (provider !== GitProvider.GITHUB ? !!credential : true),
+		refetchOnWindowFocus: true,
+	});
+
+	const {
 		isLoading: isLoadingBranches,
 		data: branches = [],
 		refetch: refetchBranches,
 		isFetching: isFetchingBranches,
-	} = useGetGitBranches(repoUrl, organization, provider !== GitProvider.GITHUB ? credential : "", {
-		enabled: !!repoUrl && !!provider && (provider !== GitProvider.GITHUB ? !!credential : true),
+	} = useGetGitBranches(repoUrl, organization, provider === GitProvider.GITHUB ? "" : credential, isRepoAuthorizedResp?.isAccessible, {
+		enabled: !!repoUrl && !!provider && (provider === GitProvider.GITHUB ? !!isRepoAuthorizedResp?.isAccessible : !!credential),
 		refetchOnWindowFocus: true,
 	});
 
@@ -126,26 +144,6 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 			}
 		}
 	}, [branches, gitData]);
-
-	const {
-		isLoading: isLoadingRepoAccess,
-		isFetching: isFetchingRepoAccess,
-		data: isRepoAuthorizedResp,
-		refetch: refetchRepoAccess,
-	} = useQuery({
-		queryKey: ["git-repo-access", { repo: repoUrl, orgId: organization?.id, provider }],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance()
-				.getChoreoRpcClient()
-				.isRepoAuthorized({
-					repoUrl: repoUrl,
-					orgId: organization.id.toString(),
-					credRef: provider !== GitProvider.GITHUB ? credential : "",
-				}),
-		enabled: !!repoUrl && !!provider && (provider !== GitProvider.GITHUB ? !!credential : true),
-		keepPreviousData: true,
-		refetchOnWindowFocus: true,
-	});
 
 	const onSubmitForm: SubmitHandler<ComponentFormGenDetailsType> = () => onNextClick();
 
@@ -188,7 +186,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		onInvalidRepoRefreshing = isFetchingGitCred;
 	}
 
-	if (!invalidRepoMsg && repoUrl && !isLoadingRepoAccess && !isRepoAuthorizedResp?.isAccessible && provider) {
+	if (!invalidRepoMsg && repoUrl && !isRepoAuthorizedResp?.isAccessible && provider) {
 		if (provider === GitProvider.GITHUB) {
 			if (isRepoAuthorizedResp?.retrievedRepos) {
 				invalidRepoMsg = (
@@ -233,7 +231,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 					key="gen-details-name"
 					required
 					name="name"
-					placeholder="component-name"
+					placeholder={extensionName === "Devant" ? "integration-name" : "component-name"}
 					control={form.control}
 					wrapClassName="col-span-full"
 				/>
@@ -270,7 +268,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 						loading={isLoadingGitCred}
 					/>
 				)}
-				{!invalidRepoMsg && branches?.length > 0 && (
+				{!invalidRepoMsg && (
 					<Dropdown
 						label="Branch"
 						key="gen-details-branch"
@@ -279,6 +277,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 						control={form.control}
 						items={branches}
 						loading={isLoadingBranches}
+						disabled={branches?.length === 0}
 					/>
 				)}
 				{invalidRepoMsg && (
@@ -304,7 +303,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 			</div>
 
 			<div className="flex justify-end gap-3 pt-6 pb-2">
-				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={!!invalidRepoMsg}>
+				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={!!invalidRepoMsg || branches?.length === 0}>
 					Next
 				</Button>
 			</div>

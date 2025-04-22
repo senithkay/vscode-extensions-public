@@ -18,7 +18,9 @@ import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { ProjectExplorer } from '../components/ProjectExplorer';
 
 export default function createTests() {
-    test.describe(async () => {
+    test.describe("Inbound Ep Tests", {
+        tag: '@group2',
+    }, async () => {
         initTest();
 
         test("Inbuilt Inbound EP Tests", async ({ }, testInfo) => {

@@ -13,10 +13,10 @@ import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, M
 import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
-import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { compareVersions } from '../util/onboardingUtils';
 import { debounce } from 'lodash';
+import { MILanguageClient } from '../lang-client/activator';
 
 let extensionContext: vscode.ExtensionContext;
 export class ProjectExplorerEntry extends vscode.TreeItem {
@@ -51,25 +51,14 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void>
 		= this._onDidChangeTreeData.event;
 
-	private _refreshRequestId: number = 0;
-
-	refresh = debounce(async (langClient: ExtendedLanguageClient) => {
-		const currentRequestId = ++this._refreshRequestId;
-
+	refresh = debounce(async () => {
 		return window.withProgress({
 			location: { viewId: 'MI.project-explorer' },
 			title: 'Loading project structure'
 		}, async () => {
 			try {
-				// Only continue if this is still the most recent request
-				if (currentRequestId === this._refreshRequestId) {
-					const newData = await getProjectStructureData(langClient);
-					// Final check to ensure this is still the latest request
-					if (currentRequestId === this._refreshRequestId) {
-						this._data = newData;
-						this._onDidChangeTreeData.fire();
-					}
-				}
+				this._data = await getProjectStructureData();
+				this._onDidChangeTreeData.fire();
 			} catch (err) {
 				console.error(err);
 			}
@@ -125,24 +114,23 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	}
 }
 
-async function getProjectStructureData(langClient: ExtendedLanguageClient): Promise<ProjectExplorerEntry[]> {
+async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
 	if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
 		const data: ProjectExplorerEntry[] = [];
-		if (!!langClient) {
-			const workspaceFolders = vscode.workspace.workspaceFolders;
-			for (const workspace of workspaceFolders) {
-				const rootPath = workspace.uri.fsPath;
+		const workspaceFolders = vscode.workspace.workspaceFolders;
+		for (const workspace of workspaceFolders) {
+			const rootPath = workspace.uri.fsPath;
 
-				const resp = await langClient.getProjectExplorerModel(rootPath);
-				const projectDetailsRes = await langClient?.getProjectDetails();
-				const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
-				const projectTree = generateTreeData(workspace, resp, runtimeVersion);
+			const langClient = await MILanguageClient.getInstance(rootPath);
+			const resp = await langClient?.languageClient?.getProjectExplorerModel(rootPath);
+			const projectDetailsRes = await langClient?.languageClient?.getProjectDetails();
+			const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+			const projectTree = generateTreeData(workspace, resp, runtimeVersion);
 
-				if (projectTree && projectTree.children && projectTree.children.length > 0) {
-					data.push(projectTree);
-				}
-			};
-		}
+			if (projectTree) {
+				data.push(projectTree);
+			}
+		};
 		vscode.commands.executeCommand('setContext', 'projectOpened', true);
 		if (data.length > 0) {
 			vscode.commands.executeCommand('setContext', 'MI.showAddArtifact', false);

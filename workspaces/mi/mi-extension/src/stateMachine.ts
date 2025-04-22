@@ -15,23 +15,21 @@ import {
     webviewReady
 } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
-import { VisualizerWebview } from './visualizer/webview';
+import { VisualizerWebview, webviews } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
 import { COMMANDS } from './constants';
 import { activateProjectExplorer } from './project-explorer/activate';
-import { StateMachineAI } from './ai-panel/aiMachine';
-import { getFunctionIOTypes, getSources } from './util/dataMapper';
-import { StateMachinePopup } from './stateMachinePopup';
 import { MockService, STNode, UnitTest, Task, InboundEndpoint } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
-import { deriveConfigName } from './util/dataMapper';
+import { deriveConfigName, getSources } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
 import { DMProject } from './datamapper/DMProject';
 import { setupEnvironment } from './util/onboardingUtils';
-import { MiDiagramRpcManager } from './rpc-managers/mi-diagram/rpc-manager';
+import { getPopupStateMachine } from './stateMachinePopup';
+import { askForProject } from './util/workspace';
 const fs = require('fs');
 
 interface MachineContext extends VisualizerLocation {
@@ -44,6 +42,7 @@ const stateMachine = createMachine<MachineContext>({
     initial: 'initialize',
     predictableActionArguments: true,
     context: {
+        projectUri: "",
         langClient: null,
         errors: [],
         view: MACHINE_VIEW.Welcome
@@ -52,7 +51,7 @@ const stateMachine = createMachine<MachineContext>({
         initialize: {
             invoke: {
                 id: 'checkProject',
-                src: checkIfMiProject,
+                src: (context) => checkIfMiProject(context.projectUri),
                 onDone: [
                     {
                         target: 'environmentSetup',
@@ -185,7 +184,7 @@ const stateMachine = createMachine<MachineContext>({
                     invoke: {
                         src: 'updateStack',
                         onDone: {
-                            target: "viewNavigated"
+                            target: "viewReady"
                         }
                     }
                 },
@@ -193,20 +192,12 @@ const stateMachine = createMachine<MachineContext>({
                     invoke: {
                         src: 'findView',
                         onDone: {
-                            target: "viewNavigated",
+                            target: "viewReady",
                             actions: assign({
                                 stNode: (context, event) => event.data.stNode,
                                 diagnostics: (context, event) => event.data.diagnostics,
                                 dataMapperProps: (context, event) => event.data?.dataMapperProps
                             })
-                        }
-                    }
-                },
-                viewNavigated: {
-                    invoke: {
-                        src: 'updateAIView',
-                        onDone: {
-                            target: "viewReady"
                         }
                     }
                 },
@@ -218,7 +209,7 @@ const stateMachine = createMachine<MachineContext>({
                                 view: (context, event) => event.viewLocation.view,
                                 identifier: (context, event) => event.viewLocation.identifier,
                                 documentUri: (context, event) => event.viewLocation.documentUri,
-                                projectUri: (context, event) => event.viewLocation.projectUri,
+                                projectUri: (context, event) => context.projectUri,
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
                                 customProps: (context, event) => event.viewLocation.customProps,
@@ -256,19 +247,9 @@ const stateMachine = createMachine<MachineContext>({
                                 customProps: (context, event) => event.viewLocation.customProps,
                                 dataMapperProps: (context, event) => event.viewLocation.dataMapperProps
                             })
-                        },
-                        FILE_EDIT: {
-                            target: "viewEditing"
                         }
                     }
-                },
-                viewEditing: {
-                    on: {
-                        EDIT_DONE: {
-                            target: "viewReady"
-                        }
-                    }
-                },
+                }
             }
         },
         disabled: {
@@ -282,6 +263,7 @@ const stateMachine = createMachine<MachineContext>({
                 viewLoading: {
                     invoke: {
                         src: 'openWebPanel',
+                        data: (context, event) => ({ context, event, setTitle: true }),
                         onDone: {
                             target: 'viewReady'
                         }
@@ -339,16 +321,13 @@ const stateMachine = createMachine<MachineContext>({
                 log("Waiting for LS to be ready " + new Date().toLocaleTimeString());
                 try {
                     vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
-                    const instance = await MILanguageClient.getInstance(extension.context);
+                    const instance = await MILanguageClient.getInstance(context.projectUri!);
                     const errors = instance.getErrors();
                     if (errors.length) {
                         return reject(errors);
                     }
                     const ls = instance.languageClient;
                     vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
-                    // Activate the AI Panel State machine after LS is loaded.
-                    StateMachineAI.initialize();
-                    StateMachinePopup.initialize();
 
                     resolve(ls);
                     log("LS is ready " + new Date().toLocaleTimeString());
@@ -358,22 +337,37 @@ const stateMachine = createMachine<MachineContext>({
                 }
             });
         },
-        openWebPanel: (context, event) => {
+        openWebPanel: (context, event, setTitle) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise(async (resolve, reject) => {
-                if (!VisualizerWebview.currentPanel) {
-                    VisualizerWebview.currentPanel = new VisualizerWebview(context.view!, extension.webviewReveal);
-                    RPCLayer._messenger.onNotification(webviewReady, () => {
-                        resolve(true);
-                    });
-                } else {
-                    const webview = VisualizerWebview.currentPanel!.getWebview();
-                    webview?.reveal(ViewColumn.Active);
+                if (!context?.projectUri) {
+                    return reject(new Error("Project URI is not defined"));
+                }
+                if (!webviews.has(context.projectUri)) {
+                    const panel = new VisualizerWebview(context.view!, context.projectUri, extension.webviewReveal);
+                    webviews.set(context.projectUri!, panel);
 
-                    // wait until webview is ready
-                    const start = Date.now();
-                    while (!webview?.visible && Date.now() - start < 5000) {
-                        await new Promise(resolve => setTimeout(resolve, 10));
+                    const messenger = RPCLayer._messengers.get(context.projectUri);
+                    if (messenger) {
+                        messenger.onNotification(webviewReady, () => {
+                            resolve(true);
+                        });
+                    }
+                } else {
+                    const webview = webviews.get(context.projectUri)?.getWebview();
+                    if (webview) {
+                        webview.reveal(ViewColumn.Active);
+
+                        // wait until webview is ready
+                        const start = Date.now();
+                        while (!webview.visible && Date.now() - start < 5000) {
+                            await new Promise(resolve => setTimeout(resolve, 10));
+                        }
+                        if (setTitle) {
+                            const workspaces = vscode.workspace.workspaceFolders;
+                            const projectName = workspaces && workspaces.length > 1 ? path.basename(context.projectUri!) : '';
+                            webview.title = projectName ? `${context.view} - ${projectName}` : context.view!;
+                        }
                     }
                     resolve(true);
                 }
@@ -381,7 +375,7 @@ const stateMachine = createMachine<MachineContext>({
         },
         findView: (context, event): Promise<VisualizerLocation> => {
             return new Promise(async (resolve, reject) => {
-                const langClient = StateMachine.context().langClient!;
+                const langClient = context.langClient!;
                 const viewLocation = context;
 
                 if (context.view?.includes("Form") && !context.view.includes("Test") && !context.view.includes("Mock")) {
@@ -406,11 +400,34 @@ const stateMachine = createMachine<MachineContext>({
                 }
                 if (context.documentUri) {
                     try {
-                        const response = await langClient.getSyntaxTree({
-                            documentIdentifier: {
-                                uri: context.documentUri!
-                            },
-                        });
+                        let retryCount = 0;
+                        const maxRetries = 3;
+                        let response;
+
+                        while (retryCount < maxRetries) {
+                            try {
+                                response = await langClient.getSyntaxTree({
+                                    documentIdentifier: {
+                                        uri: context.documentUri!
+                                    },
+                                });
+                                if (response?.syntaxTree) {
+                                    break;
+                                }
+                                await new Promise(resolve => setTimeout(resolve, 200));
+                                retryCount++;
+                            } catch (error) {
+                                retryCount++;
+                                console.log(`Attempt ${retryCount} failed to get syntax tree:`, error);
+                                if (retryCount >= maxRetries) {
+                                    console.error(`Failed to get syntax tree after ${maxRetries} attempts:`, error);
+                                    throw error;
+                                }
+                                // Wait before retrying
+                                await new Promise(resolve => setTimeout(resolve, 500));
+                            }
+                        }
+
                         if (response?.syntaxTree) {
                             const node: SyntaxTreeMi = response.syntaxTree;
                             switch (true) {
@@ -492,6 +509,15 @@ const stateMachine = createMachine<MachineContext>({
                         viewLocation.diagnostics = res.diagnostics;
                     }
                 }
+
+                // set webview title
+                const webview = webviews.get(context.projectUri!)?.getWebview();
+                if (webview) {
+                    const workspaces = vscode.workspace.workspaceFolders;
+                    const projectName = workspaces && workspaces.length > 1 ? path.basename(context.projectUri!) : '';
+                    webview.title = projectName ? `${context.view} - ${projectName}` : context.view!;
+                }
+
                 updateProjectExplorer(viewLocation);
                 resolve(viewLocation);
             });
@@ -519,7 +545,7 @@ const stateMachine = createMachine<MachineContext>({
                         history.push(newEntry);
                     }
                 }
-                StateMachinePopup.resetState();
+                getPopupStateMachine(context.projectUri!).resetState();
                 resolve(true);
             });
         },
@@ -530,8 +556,9 @@ const stateMachine = createMachine<MachineContext>({
         },
         activateOtherFeatures: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                await activateProjectExplorer(extension.context, context.langClient!);
-                await activateTestExplorer(extension.context, context.langClient!);
+                const ls = await MILanguageClient.getInstance(context.projectUri!);
+                await activateProjectExplorer(extension.context, ls.languageClient!);
+                await activateTestExplorer(extension.context);
                 resolve(true);
             });
         },
@@ -553,47 +580,125 @@ const stateMachine = createMachine<MachineContext>({
 
 
 // Create a service to interpret the machine
-export const stateService = interpret(stateMachine);
+const stateMachines: Map<string, any> = new Map();
 
-// Define your API as functions
-export const StateMachine = {
-    initialize: () => stateService.start(),
-    service: () => { return stateService; },
-    context: () => { return stateService.getSnapshot().context; },
-    state: () => { return stateService.getSnapshot().value as MachineStateValue; },
-    sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
+export const getStateMachine = (projectUri: string): {
+    service: () => any;
+    context: () => MachineContext;
+    state: () => MachineStateValue;
+    sendEvent: (eventType: EVENT_TYPE) => void;
+} => {
+    let stateService;
+    if (!stateMachines.has(projectUri)) {
+        // check if provided project is a valid workspace
+        const workspaces = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(projectUri));
+        if (!workspaces) {
+            console.warn('No workspace folder is open.');
+        }
+        stateService = interpret(stateMachine.withContext({
+            projectUri: projectUri,
+            langClient: null,
+            errors: [],
+            view: MACHINE_VIEW.Welcome
+        })).start();
+        stateMachines.set(projectUri, stateService);
+    }
+    stateService = stateMachines.get(projectUri);
+
+    return {
+        service: () => {
+            const service = stateService;
+            return service;
+        },
+        context: () => { return stateService.getSnapshot().context; },
+        state: () => { return stateService.getSnapshot().value as MachineStateValue; },
+        sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
+    };
+};
+
+export const deleteStateMachine = (projectUri: string) => {
+    if (stateMachines.has(projectUri)) {
+        const stateService = stateMachines.get(projectUri);
+        stateService.stop();
+        stateMachines.delete(projectUri);
+    }
 };
 
 export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     if (viewLocation?.documentUri) {
         viewLocation.documentUri = viewLocation.documentUri.startsWith("file") ? fileURLToPath(viewLocation.documentUri) : Uri.file(viewLocation.documentUri).fsPath;
     }
-    // Set the projectUri If undefined.
-    if (!viewLocation?.projectUri && vscode.workspace.workspaceFolders) {
-        viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
-    }
     updateProjectExplorer(viewLocation);
-    stateService.send({ type: type, viewLocation: viewLocation });
+
+    if (viewLocation?.projectUri) {
+        if (!webviews.has(viewLocation.projectUri)) {
+            const panel = new VisualizerWebview(viewLocation.view!, viewLocation.projectUri, extension.webviewReveal);
+            webviews.set(viewLocation.projectUri!, panel);
+        } else {
+            const webview = webviews.get(viewLocation.projectUri)?.getWebview();
+            webview?.reveal(ViewColumn.Active);
+        }
+
+        const stateMachine = getStateMachine(viewLocation?.projectUri);
+        const state = stateMachine.state();
+        if (state === 'initialize') {
+            const listener = (state) => {
+                if (state?.value?.ready === "viewReady") {
+                    stateMachine.service().send({ type: type, viewLocation: viewLocation });
+                    stateMachine.service().off(listener);
+                }
+            };
+            stateMachine.service().onTransition(listener);
+        } else {
+            stateMachine.service().send({ type: type, viewLocation: viewLocation });
+        }
+    } else {
+        const workspaces = vscode.workspace.workspaceFolders;
+        if (!workspaces || workspaces.length === 0) {
+            vscode.window.showErrorMessage('No workspace folder is open.');
+            return;
+        }
+
+        if (workspaces.length > 1) {
+            askForPrj();
+            async function askForPrj() {
+                const projectUri = await askForProject();
+                if (projectUri) {
+                    const stateMachine = getStateMachine(projectUri);
+                    stateMachine.service().send({ type: type, viewLocation: viewLocation });
+                }
+            }
+        }
+
+        viewLocation!.projectUri = workspaces[0].uri.fsPath;
+        const stateMachine = getStateMachine(workspaces[0].uri.fsPath);
+        return stateMachine.service().send({ type: type, viewLocation: viewLocation });
+    }
 }
 
-export function navigate(entry?: HistoryEntry) {
+export function navigate(projectUri: string, entry?: HistoryEntry) {
     const historyStack = history.get();
+    const stateMachine = getStateMachine(projectUri);
     if (historyStack.length === 0) {
         if (entry) {
             history.push({ location: entry.location });
-            stateService.send({ type: "NAVIGATE", viewLocation: entry!.location });
+            stateMachine.service().send({ type: "NAVIGATE", viewLocation: entry!.location });
         } else {
             history.push({ location: { view: MACHINE_VIEW.Overview } });
-            stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+            stateMachine.service().send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
         }
     } else {
         const location = entry ? entry.location : historyStack[historyStack.length - 1].location;
-        stateService.send({ type: "NAVIGATE", viewLocation: location });
+        stateMachine.service().send({ type: "NAVIGATE", viewLocation: location });
     }
 }
 
-export function refreshUI() {
-    const context = StateMachine.context();
+export function refreshUI(projectUri: string) {
+    const stateMachine = getStateMachine(projectUri);
+    const context = stateMachine?.context();
+    if (!context) {
+        return;
+    }
     const location = {
         view: context?.view,
         documentUri: context?.documentUri,
@@ -601,64 +706,50 @@ export function refreshUI() {
         identifier: context?.identifier,
         dataMapperProps: context?.dataMapperProps
     };
-    stateService.send({ type: "NAVIGATE", viewLocation: location });
+    getStateMachine(projectUri).service().send({ type: "NAVIGATE", viewLocation: location });
 }
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (location && location.documentUri) {
-        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(location.documentUri));
+        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(location.documentUri))?.uri?.fsPath;
 
         const relativePath = vscode.workspace.asRelativePath(location.documentUri);
         const isTestFile = relativePath.startsWith(`src${path.sep}test${path.sep}`);
         if (isTestFile) {
             vscode.commands.executeCommand(COMMANDS.REVEAL_TEST_PANE);
         } else if (projectRoot && !extension.preserveActivity) {
-            location.projectUri = projectRoot.uri.fsPath;
-            if (!StateMachine.context().isOldProject) {
+            location.projectUri = projectRoot;
+            if (!getStateMachine(projectRoot).context().isOldProject) {
                 vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
             }
         }
     }
-    const webview = VisualizerWebview.currentPanel?.getWebview();
-    if (webview) {
-        if (location && location.view) {
-            webview.title = location.view;
-            let icon: string = findViewIcon(location.view);
-            webview.iconPath = {
-                light: Uri.file(path.join(extension.context.extensionPath, 'assets', `light-${icon}.svg`)),
-                dark: Uri.file(path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)),
-            };;
-        }
-    } else if (location?.view) {
-        VisualizerWebview.currentPanel = new VisualizerWebview(location?.view, extension.webviewReveal);
-    }
 }
 
-async function checkIfMiProject() {
-    log('Detecting project ' + new Date().toLocaleTimeString());
+async function checkIfMiProject(projectUri) {
+    log(`Detecting project in ${projectUri} - ${new Date().toLocaleTimeString()}`);
 
     let isProject = false, isOldProject = false, displayOverview = true, view = MACHINE_VIEW.Overview, isEnvironmentSetUp = false;
-    let projectUri = '';
     const customProps: any = {};
     try {
         // Check for pom.xml files excluding node_modules directory
-        const pomFiles = await vscode.workspace.findFiles('pom.xml', '**/node_modules/**', 1);
-        if (pomFiles.length > 0) {
-            const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
-            if (pomContent.getText().includes('<projectType>integration-project</projectType>')) {
-                isProject = true;
-                log("MI project detected");
+        const pomFilePath = path.join(projectUri, 'pom.xml');
+        if (fs.existsSync(pomFilePath)) {
+            const pomContent = await fs.promises.readFile(pomFilePath, 'utf-8');
+            isProject = pomContent.includes('<projectType>integration-project</projectType>');
+            if (isProject) {
+                log("MI project detected in " + projectUri);
             }
         }
 
         // If not found, check for .project files
         if (!isProject) {
-            const projectFiles = await vscode.workspace.findFiles('.project', '**/node_modules/**', 1);
-            if (projectFiles.length > 0) {
-                const projectContent = await vscode.workspace.openTextDocument(projectFiles[0]);
-                if (projectContent.getText().includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
+            const projectPath = path.join(projectUri, '.project');
+            if (fs.existsSync(projectPath)) {
+                const projectContent = await fs.promises.readFile(projectPath, 'utf-8');
+                if (projectContent.includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
                     isOldProject = true;
-                    log("Integration Studio project detected");
+                    log("Integration Studio project detected in " + projectUri);
                 }
             }
         }
@@ -669,9 +760,9 @@ async function checkIfMiProject() {
 
     if (isProject) {
         // Check if the project is empty
-        const files = await vscode.workspace.findFiles('src/main/wso2mi/artifacts/*/*.xml', '**/node_modules/**', 1);
+        const files = await vscode.workspace.findFiles(new vscode.RelativePattern(projectUri, "src/main/wso2mi/artifacts/*/*.xml"), '**/node_modules/**', 1);
         if (files.length === 0) {
-            const config = vscode.workspace.getConfiguration('MI', vscode.workspace.workspaceFolders?.[0].uri);
+            const config = vscode.workspace.getConfiguration('MI', projectUri);
             const scope = config.get<string>("Scope");
             switch (scope) {
                 case "integration-as-api":
@@ -691,12 +782,10 @@ async function checkIfMiProject() {
             }
         }
 
-        projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
         vscode.commands.executeCommand('setContext', 'MI.projectType', 'miProject'); // for command enablements
         await extension.context.workspaceState.update('projectType', 'miProject');
     } else if (isOldProject) {
-        projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
         displayOverview = displayState === undefined ? true : displayState;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
@@ -706,7 +795,7 @@ async function checkIfMiProject() {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
     }
 
-    if (projectUri) {
+    if (isProject || isOldProject) {
         isEnvironmentSetUp = await setupEnvironment(projectUri, isOldProject);
         if (!isEnvironmentSetUp) {
             vscode.commands.executeCommand('setContext', 'MI.status', 'notSetUp');
@@ -715,31 +804,7 @@ async function checkIfMiProject() {
         log(`Current workspace path: ${projectUri}`);
     }
 
-    // Register Project Creation command in any of the above cases
-    if (!(await vscode.commands.getCommands()).includes(COMMANDS.CREATE_PROJECT_COMMAND)) {
-        vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, async (args) => {
-            if (args && args.name && args.path && args.scope) {
-                const rpcManager = new MiDiagramRpcManager();
-                if (rpcManager) {
-                    await rpcManager.createProject(
-                        {
-                            directory: path.dirname(args.path),
-                            name: path.basename(args.path),
-                            open: false,
-                            miVersion: "4.4.0"
-                        }
-                    );
-                    await createSettingsFile(args);
-                    vscode.commands.executeCommand('workbench.action.closeFolder');
-                }
-            } else {
-                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
-                log('Create New Project');
-            }
-        });
-    }
-
-    log('Project detection completed ' + new Date().toLocaleTimeString());
+    log(`Project detection completed for path: ${projectUri} at ${new Date().toLocaleTimeString()}`);
     return {
         isProject,
         isOldProject,
@@ -749,23 +814,6 @@ async function checkIfMiProject() {
         customProps,
         isEnvironmentSetUp
     };
-}
-
-async function createSettingsFile(args) {
-    const projectPath = args.path;
-    const settingsPath = path.join(projectPath, '.vscode', 'settings.json');
-    try {
-        const vscodeDir = path.join(projectPath, '.vscode');
-        if (!fs.existsSync(vscodeDir)) {
-            fs.mkdirSync(vscodeDir);
-        }
-        const settings = {
-            "MI.Scope": args.scope
-        };
-        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
-    } catch (error: any) {
-        vscode.window.showErrorMessage(`Failed to create settings file: ${error.message}`);
-    }
 }
 
 function findViewIcon(view) {

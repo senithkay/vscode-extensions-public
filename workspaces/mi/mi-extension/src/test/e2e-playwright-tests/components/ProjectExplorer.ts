@@ -31,6 +31,8 @@ export class ProjectExplorer {
             } else {
                 if (click) {
                     await currentItem.click();
+                } else {
+                    await currentItem.hover();
                 }
             }
         }
@@ -43,6 +45,16 @@ export class ProjectExplorer {
         await projectExplorerRoot.waitFor();
         await projectExplorerRoot.hover();
         const locator = this.explorer.getByLabel('Open Project Overview');
+        await locator.waitFor();
+        await locator.click();
+    }
+
+    public async goToAddArtifact(projectName: string) {
+        // wait for 1s
+        const projectExplorerRoot = this.explorer.locator(`div[role="treeitem"][aria-label="Project ${projectName}"]`);
+        await projectExplorerRoot.waitFor();
+        await projectExplorerRoot.hover();
+        const locator = this.explorer.getByLabel('Add Artifact');
         await locator.waitFor();
         await locator.click();
     }
@@ -61,7 +73,7 @@ export class ProjectExplorer {
 
             if (i === path.length - 1) {
                 await currentItem.click();
-                
+
                 const plusBtn = currentItem.locator('div.actions');
                 await plusBtn.waitFor();
                 await plusBtn.click();

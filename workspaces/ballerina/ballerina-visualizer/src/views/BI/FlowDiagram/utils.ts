@@ -7,17 +7,51 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Category, AvailableNode, FlowNode, ProjectComponentsResponse, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { cloneDeep } from "lodash";
+import { Category, AvailableNode, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { URI, Utils } from "vscode-uri";
 
+// Filter out connections where name starts with _ and module is "ai" or "ai.agent"
+export const filterConnections = (categories: Category[]): Category[] => {
+    return categories.map((category) => {
+        if (category.metadata.label === "Connections") {
+            const filteredItems = category.items.filter((item) => {
+                if ("metadata" in item && "items" in item && item.items.length > 0 && "codedata" in item.items.at(0)) {
+                    const name = item.metadata.label || "";
+                    const module = (item.items.at(0) as AvailableNode)?.codedata.module || "";
+
+                    // Filter out items where name starts with _ and module is "ai" or "ai.agent"
+                    return !(name.startsWith("_") && (module === "ai" || module === "ai.agent"));
+                }
+                return true;
+            });
+
+            return {
+                ...category,
+                items: filteredItems,
+            };
+        }
+        return category;
+    });
+};
+
 export const transformCategories = (categories: Category[]): Category[] => {
+    // First filter connections
+    let filteredCategories = filterConnections(categories);
+
     // filter out some categories that are not supported in the diagram
     // TODO: these categories should be supported in the future
-    const notSupportedCategories = ["PARALLEL_FLOW", "LOCK", "START", "TRANSACTION", "COMMIT", "ROLLBACK", "RETRY"];
+    const notSupportedCategories = [
+        "PARALLEL_FLOW",
+        "LOCK",
+        "START",
+        "TRANSACTION",
+        "COMMIT",
+        "ROLLBACK",
+        "RETRY",
+        "NP_FUNCTION",
+    ];
 
-    let filteredCategories = categories.map((category) => ({
+    filteredCategories = filteredCategories.map((category) => ({
         ...category,
         items: category?.items?.filter(
             (item) => !("codedata" in item) || !notSupportedCategories.includes((item as AvailableNode).codedata?.node)
@@ -37,19 +71,18 @@ export const transformCategories = (categories: Category[]): Category[] => {
         // HACK: update agent call node until LS update with the new agent node
         agentCallNode.codedata.object = "Agent";
         agentCallNode.codedata.parentSymbol = "";
-        agentCallNode.codedata.version = agentCallNode.codedata.version || "0.7.16";
     } else {
         // TODO: this should remove once LS update with the new agent node
         // add new item
         statementCategory.items.push({
             codedata: {
-                module: "ai.agent",
+                module: "ai",
                 node: "AGENT_CALL",
                 object: "Agent",
                 org: "ballerinax",
                 parentSymbol: "",
                 symbol: "run",
-                version: "0.7.16",
+                version: "1.0.0",
             },
             enabled: true,
             metadata: {
@@ -62,126 +95,17 @@ export const transformCategories = (categories: Category[]): Category[] => {
     return filteredCategories;
 };
 
-export const handleAgentOperations = {
-    getAgentConfig: (node: any) => {
-        if (!node || node.codedata?.node !== "AGENT_CALL") return null;
-
-        const properties = node.properties || {};
-        return {
-            name: properties.connection?.value || "Unknown Agent",
-            model: properties.model?.value || "gpt-3.5-turbo",
-            systemPrompt: properties.systemPrompt?.value || "",
-            tools: properties.tools?.value || [],
-        };
-    },
-
-    formatAgentData: (data: any) => {
-        // Format AIAgent specific data for display or API calls
-        return data;
-    },
-};
-
-export const getAgentFilePath = async (rpcClient: BallerinaRpcClient) => {
-    // Get the agent file path and update the node
-    const filePath = await rpcClient.getVisualizerLocation();
-    // Create the agent file path
-    const agentFilePath = Utils.joinPath(URI.file(filePath.projectUri), "agents.bal").fsPath;
-    return agentFilePath;
-};
-
-export const findAgentNodeFromAgentCallNode = async (agentCallNode: FlowNode, rpcClient: BallerinaRpcClient) => {
-    if (!agentCallNode || agentCallNode.codedata?.node !== "AGENT_CALL") return null;
-    // get all module nodes
-    const moduleNodes = await rpcClient.getBIDiagramRpcClient().getModuleNodes();
-    console.log(">>> module nodes", moduleNodes);
-    // get agent name
-    const agentName = agentCallNode.properties.connection.value;
-    // get agent node
-    const agentNode = moduleNodes.flowModel.connections.find((node) => node.properties.variable.value === agentName);
-    if (!agentNode) {
-        console.error("Agent node not found");
-        return;
-    }
-    return agentNode;
-};
-
-export const removeToolFromAgentNode = async (agentNode: FlowNode, toolName: string) => {
-    if (!agentNode || agentNode.codedata?.node !== "AGENT") return null;
-    // clone the node to avoid modifying the original
-    const updatedAgentNode = cloneDeep(agentNode);
-    let toolsValue = updatedAgentNode.properties.tools.value;
-    // remove new lines from the tools value
-    toolsValue = toolsValue.toString().replace(/\n/g, "");
-    // Remove the tool from the tools array
-    if (typeof toolsValue === "string") {
-        if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-            // Parse the tools string
-            const toolsString = toolsValue.substring(1, toolsValue.length - 1);
-            let existingTools = toolsString.split(",").map((t) => t.trim());
-            // Remove the tool
-            existingTools = existingTools.filter((t) => t !== toolName);
-            // Update the tools value
-            toolsValue = `[${existingTools.join(", ")}]`;
-        }
-    } else {
-        console.error("Tools value is not a string", toolsValue);
-        return agentNode;
-    }
-    // update the node
-    updatedAgentNode.properties.tools.value = toolsValue;
-    updatedAgentNode.codedata.isNew = false;
-    return updatedAgentNode;
-};
-
-export const addToolToAgentNode = async (agentNode: FlowNode, toolName: string) => {
-    if (!agentNode || agentNode.codedata?.node !== "AGENT") return null;
-    // clone the node to avoid modifying the original
-    const updatedAgentNode = cloneDeep(agentNode);
-    let toolsValue = updatedAgentNode.properties.tools.value;
-    // remove new lines from the tools value
-    toolsValue = toolsValue.toString().replace(/\n/g, "");
-    if (typeof toolsValue === "string") {
-        if (toolsValue === "[]") {
-            toolsValue = `[${toolName}]`;
-        } else if (toolsValue.startsWith("[") && toolsValue.endsWith("]")) {
-            const toolsString = toolsValue.substring(1, toolsValue.length - 1);
-            const existingTools = toolsString.split(",").map((t) => t.trim());
-
-            if (!existingTools.includes(toolName)) {
-                toolsValue = toolsValue.substring(0, toolsValue.length - 1);
-                if (toolsValue.length > 1) {
-                    toolsValue += ", ";
-                }
-                toolsValue += toolName + "]";
-            }
-        } else {
-            toolsValue = `[${toolName}]`;
-        }
-    } else {
-        console.error("Tools value is not a string", toolsValue);
-        return agentNode;
-    }
-    // update the node
-    updatedAgentNode.properties.tools.value = toolsValue;
-    updatedAgentNode.codedata.isNew = false;
-    return updatedAgentNode;
-};
-
 export const findFunctionByName = (components: BallerinaProjectComponents, functionName: string) => {
-    // Iterate through packages
     for (const pkg of components.packages) {
-        // Iterate through modules in each package
         for (const module of pkg.modules) {
-            // Search through functions
-            const foundFunction = module.functions.find(
-                (func: any) => func.name === functionName
-            );
+            const foundFunction = module.functions.find((func: any) => func.name === functionName);
             if (foundFunction) {
-                // update file path to include package path
-                foundFunction.filePath = Utils.joinPath(URI.file(pkg.filePath), foundFunction.filePath).fsPath;
+                const pkgUri = URI.parse(pkg.filePath);
+                const joinedUri = Utils.joinPath(pkgUri, foundFunction.filePath);
+                foundFunction.filePath = joinedUri.fsPath;
                 return foundFunction;
             }
         }
     }
     return null;
-}
+};

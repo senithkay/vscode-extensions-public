@@ -15,6 +15,7 @@ import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW, SHARED_COMMANDS } from '@wso2-en
 import { ViewColumn } from 'vscode';
 import { ballerinaExtInstance } from '../../core';
 import { isSupportedSLVersion } from '../../utils';
+import { forceUpdateProjectArtifacts } from '../../utils/project-artifacts';
 
 export function activateSubscriptions() {
     const context = extension.context;
@@ -37,13 +38,25 @@ export function activateSubscriptions() {
 
     // <------------- Shared Commands ------------>
     context.subscriptions.push(
-        vscode.commands.registerCommand(SHARED_COMMANDS.SHOW_VISUALIZER, (path: vscode.Uri, position, resetHistory = false) => {
+        vscode.commands.registerCommand(SHARED_COMMANDS.SHOW_VISUALIZER, (path: string, position, resetHistory = false) => {
             if (StateMachine.langClient() && StateMachine.context().isBISupported) { // This is added since we can't fetch new diagram data without bi supported ballerina version
-                openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor?.document.uri.fsPath, position: position }, resetHistory);
+                openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path || vscode.window.activeTextEditor?.document.uri.fsPath, position: position }, resetHistory);
             } else {
                 openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BallerinaUpdateView }); // Redirect user to the ballerina update available page
             }
 
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.GET_STATE_CONTEXT, () => {
+            return StateMachine.context();
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.FORCE_UPDATE_PROJECT_ARTIFACTS, () => {
+            return forceUpdateProjectArtifacts();
         })
     );
 

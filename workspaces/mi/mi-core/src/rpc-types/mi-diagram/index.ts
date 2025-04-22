@@ -40,6 +40,8 @@ import {
     AIUserInput,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    HandleFileRequest,
+    HandleFileResponse,
     CreateLocalEntryRequest,
     CreateLocalEntryResponse,
     FileDirResponse,
@@ -135,7 +137,8 @@ import {
     GetSelectiveArtifactsResponse,
     GetBackendRootUrlResponse,
     RegistryArtifactNamesResponse,
-    ListRegistryArtifactsRequest, RangeFormatRequest,
+    ListRegistryArtifactsRequest,
+    RangeFormatRequest,
     MigrateProjectRequest,
     MigrateProjectResponse,
     DownloadConnectorResponse,
@@ -235,7 +238,8 @@ import {
     LocalInboundConnectorsResponse,
     BuildProjectRequest,
     DeployProjectRequest,
-    DeployProjectResponse
+    DeployProjectResponse,
+    DevantMetadata
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -305,6 +309,7 @@ export interface MiDiagramAPI {
     migrateProject: (params: MigrateProjectRequest) => Promise<MigrateProjectResponse>;
     getAIResponse: (params: AIUserInput) => Promise<string>;
     writeContentToFile: (params: WriteContentToFileRequest) => Promise<WriteContentToFileResponse>;
+    handleFileWithFS: (params: HandleFileRequest) => Promise<HandleFileResponse>;
     highlightCode: (params: HighlightCodeRequest) => void;
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
@@ -356,6 +361,7 @@ export interface MiDiagramAPI {
     getAllAPIcontexts: () => Promise<APIContextsResponse>;
     buildProject: (params: BuildProjectRequest) => void;
     deployProject: (params: DeployProjectRequest) => Promise<DeployProjectResponse>;
+    getDevantMetadata: () => Promise<DevantMetadata>;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;

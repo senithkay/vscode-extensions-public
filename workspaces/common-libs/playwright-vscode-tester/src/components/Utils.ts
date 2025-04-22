@@ -27,6 +27,7 @@ export async function switchToIFrame(
     }
     const childFrame = await targetFrame.contentFrame();
     await childFrame?.waitForLoadState();
+    await page.waitForTimeout(2000); // To fix intermittent issues since VSCode is not using network calls to load the webview
     return childFrame;
 }
 

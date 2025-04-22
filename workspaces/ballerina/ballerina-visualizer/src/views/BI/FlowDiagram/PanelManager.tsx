@@ -13,14 +13,15 @@ import { InlineDataMapper } from "../../InlineDataMapper";
 import { HelperView } from "../HelperView";
 import FormGenerator from "../Forms/FormGenerator";
 import { getContainerTitle } from "../../../utils/bi";
-import { ModelConfig } from "./ModelConfig";
-import { ToolConfig } from "./ToolConfig";
-import { AgentConfig } from "./AgentConfig";
-import { NewAgent } from "./NewAgent";
-import { AddTool } from "./AddTool";
+import { ModelConfig } from "../AIChatAgent/ModelConfig";
+import { ToolConfig } from "../AIChatAgent/ToolConfig";
+import { AgentConfig } from "../AIChatAgent/AgentConfig";
+import { NewAgent } from "../AIChatAgent/NewAgent";
+import { AddTool } from "../AIChatAgent/AddTool";
 import { useEffect, useState } from "react";
-import { NewTool } from "./NewTool";
+import { NewTool } from "../AIChatAgent/NewTool";
 import styled from "@emotion/styled";
+import { MemoryManagerConfig } from "../AIChatAgent/MemoryManagerConfig";
 
 const Container = styled.div`
     display: flex;
@@ -39,6 +40,7 @@ export enum SidePanelView {
     NEW_TOOL = "NEW_TOOL",
     AGENT_TOOL = "AGENT_TOOL",
     AGENT_MODEL = "AGENT_MODEL",
+    AGENT_MEMORY_MANAGER = "AGENT_MEMORY_MANAGER",
     AGENT_CONFIG = "AGENT_CONFIG",
 }
 
@@ -192,6 +194,9 @@ export function PanelManager(props: PanelManagerProps) {
             case SidePanelView.AGENT_CONFIG:
                 return <AgentConfig agentCallNode={selectedNode} fileName={fileName} onSave={onClose} />;
 
+            case SidePanelView.AGENT_MEMORY_MANAGER:
+                return <MemoryManagerConfig agentCallNode={selectedNode} onSave={onClose} />;
+
             case SidePanelView.FUNCTION_LIST:
                 return (
                     <NodeList
@@ -201,22 +206,24 @@ export function PanelManager(props: PanelManagerProps) {
                         onAddFunction={onAddFunction}
                         onClose={onClose}
                         title={"Functions"}
+                        searchPlaceholder={"Search library functions"}
                         onBack={onBack}
                     />
                 );
 
-            case SidePanelView.NP_FUNCTION_LIST:
-                return (
-                    <NodeList
-                        categories={categories}
-                        onSelect={onSelectNode}
-                        onSearchTextChange={(searchText) => onSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
-                        onAddFunction={onAddNPFunction}
-                        onClose={onClose}
-                        title={"Natural Functions"}
-                        onBack={onBack}
-                    />
-                );
+            // TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314
+            // case SidePanelView.NP_FUNCTION_LIST:
+            //     return (
+            //         <NodeList
+            //             categories={categories}
+            //             onSelect={onSelectNode}
+            //             onSearchTextChange={(searchText) => onSearchNpFunction(searchText, FUNCTION_TYPE.REGULAR)}
+            //             onAddFunction={onAddNPFunction}
+            //             onClose={onClose}
+            //             title={"Natural Functions"}
+            //             onBack={onBack}
+            //         />
+            //     );
 
             case SidePanelView.DATA_MAPPER_LIST:
                 return (

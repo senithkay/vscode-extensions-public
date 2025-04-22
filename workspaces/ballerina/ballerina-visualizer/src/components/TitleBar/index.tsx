@@ -28,6 +28,8 @@ const LeftContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1;
+    width: 100%;
 `;
 
 const RightContainer = styled.div`
@@ -47,6 +49,10 @@ const Title = styled.h2`
     font-size: 20px;
     font-weight: 600;
     color: var(--vscode-foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: fit-content;
 `;
 
 const SubTitle = styled.span`
@@ -82,7 +88,6 @@ const BetaSVGWrapper = styled.span`
     margin-top: 2px;
 `;
 
-
 interface TitleBarProps {
     title: string;
     subtitle?: string;
@@ -90,10 +95,11 @@ interface TitleBarProps {
     actions?: ReactNode;
     hideBack?: boolean;
     onBack?: () => void; // Override back functionality
+    isBetaFeature?: boolean;
 }
 
 export function TitleBar(props: TitleBarProps) {
-    const { title, subtitle, subtitleElement, actions, hideBack, onBack } = props;
+    const { title, subtitle, subtitleElement, actions, hideBack, onBack, isBetaFeature } = props;
     const { rpcClient } = useRpcContext();
 
     const handleBackButtonClick = () => {
@@ -117,6 +123,11 @@ export function TitleBar(props: TitleBarProps) {
                     {subtitle && <SubTitle>{subtitle}</SubTitle>}
                     {subtitleElement && subtitleElement}
                 </TitleSection>
+                {isBetaFeature && (
+                    <BetaSVGWrapper>
+                        <BetaSVG width={45} height={18} />
+                    </BetaSVGWrapper>
+                )}
             </LeftContainer>
             <RightContainer>{actions && <ActionsContainer>{actions}</ActionsContainer>}</RightContainer>
         </TitleBarContainer>
