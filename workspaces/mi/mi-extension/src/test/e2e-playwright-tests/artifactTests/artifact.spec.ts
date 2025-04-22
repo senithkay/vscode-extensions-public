@@ -416,6 +416,39 @@ export default function createTests() {
         console.log('Editing Template');
         await template.editTemplate("tempEP" + testAttempt, "newTempEP" + testAttempt);
       });
+      await test.step('Add Default EP Template', async () => {
+        console.log('Creating new Default EP Template');
+        await template.addDefaultEPTemplate("defaultEPTemp" + testAttempt);
+      });
+      await test.step('Edit Default EP Template', async () => {
+        console.log('Editing Default EP Template');
+        await template.editDefaultEPTemplate("defaultEPTemp" + testAttempt, "newDefaultEPTemp" + testAttempt);
+      });
+      await test.step('Add HTTP endpoint Template', async () => {
+        console.log('Creating new HTTP endpoint Template');
+        await template.addHTTPEPTemplate("httpEPTemp" + testAttempt);
+      });
+      await test.step('Edit HTTP endpoint Template', async () => {
+        console.log('Editing HTTP endpoint Template');
+        await template.editHTTPEPTemplate("httpEPTemp" + testAttempt, "newHttpEPTemp" + testAttempt);
+      });
+      await test.step('Add WSDL endpoint Template', async () => {
+        console.log('Creating new WSDL endpoint Template');
+        await template.addWSDLEPTemplate("wsdlEPTemp" + testAttempt);
+      });
+      await test.step('Edit WSDL endpoint Template', async () => {
+        console.log('Editing WSDL endpoint Template');
+        await template.editWSDLEPTemplate("wsdlEPTemp" + testAttempt, "newWsdlEPTemp" + testAttempt);
+      });
+      await test.step('Add Sequence Template', async () => {
+        console.log('Creating new Sequence Template');
+        await template.addSequenceTemplate("sequenceTemp" + testAttempt);
+      });
+      // TODO: Uncomment this when the edit sequence template issue is fixed
+      // await test.step('Edit Sequence Template', async () => {
+      //   console.log('Editing Sequence Template');
+      //   await template.editSequenceTemplate("sequenceTemp" + testAttempt, "newSequenceTemp" + testAttempt);
+      // })
     });
 
     test('Proxy tests', async () => {
@@ -431,6 +464,7 @@ export default function createTests() {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
       });
+
       await test.step('Create Proxy Service from Project Explorer', async () => {
         console.log('Creating new Proxy Service from Project Explorer');
         await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
