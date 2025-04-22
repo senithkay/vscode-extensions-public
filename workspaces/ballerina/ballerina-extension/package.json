@@ -205,7 +205,10 @@
                     "ballerina.enableSequenceDiagramView": {
                         "type": "boolean",
                         "default": true,
-                        "description": "Enable the experimental Sequence Diagram View."
+                        "description": "Enable the experimental Sequence Diagram View.",
+                        "tags": [
+                            "experimental"
+                        ]
                     },
                     "ballerina.enableAiSuggestions": {
                         "type": "boolean",
