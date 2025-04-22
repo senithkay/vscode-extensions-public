@@ -305,18 +305,21 @@ export function AddArtifactView() {
                         </Typography>
                         <HorizontalCardContainer>
                             <Card
+                                id="API"
                                 icon="APIResource"
                                 title="API"
                                 description="Create a HTTP Service with a defined interface."
                                 onClick={() => handleClick("apis")}
                             />
                             <Card
+                                id="Automation"
                                 icon="task"
                                 title="Automation"
                                 description="Create a task to run at scheduled intervals."
                                 onClick={() => handleClick("tasks")}
                             />
                             <Card
+                                id="Event Integration"
                                 icon="inbound-endpoint"
                                 title="Event Integration"
                                 description="Create an event listener to handle and mediate incoming event messages."
@@ -334,18 +337,21 @@ export function AddArtifactView() {
                                 </Typography>
                                 <HorizontalCardContainer>
                                     <Card
+                                        id="Endpoint"
                                         icon="endpoint"
                                         title="Endpoint"
                                         description="Define communication endpoint configurations."
                                         onClick={() => handleClick("endpoints")}
                                     />
                                     <Card
+                                        id="Sequence"
                                         icon="Sequence"
                                         title="Sequence"
                                         description="Configure reusable mediation sequences."
                                         onClick={() => handleClick("sequences")}
                                     />
                                     <Card
+                                        id="Class Mediator"
                                         icon="file-code"
                                         isCodicon
                                         title="Class Mediator"
@@ -353,6 +359,7 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("classMediators")}
                                     />
                                     <Card
+                                        id="Ballerina Module"
                                         icon="file-code"
                                         isCodicon
                                         title="Ballerina Module"
@@ -360,36 +367,42 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("ballerinaModule")}
                                     />
                                     <Card
+                                        id={isResourceContentVisible ? "Resource" : "Registry"}
                                         icon="registry"
                                         title={isResourceContentVisible ? "Resource" : "Registry"}
                                         description="Manage shared resources and configurations."
                                         onClick={() => handleClick("resources")}
                                     />
                                     <Card
+                                        id="Message Processor"
                                         icon="message-processor"
                                         title="Message Processor"
                                         description="Define processing logic for messages."
                                         onClick={() => handleClick("messageProcessors")}
                                     />
                                     <Card
+                                        id="Template"
                                         icon="template"
                                         title="Template"
                                         description="Create reusable message transformation templates."
                                         onClick={() => handleClick("templates")}
                                     />
                                     <Card
+                                        id="Message Store"
                                         icon="message-store"
                                         title="Message Store"
                                         description="Store and manage messages locally."
                                         onClick={() => handleClick("messageStores")}
                                     />
                                     <Card
+                                        id="Local Entry"
                                         icon="local-entry"
                                         title="Local Entry"
                                         description="Define local resource entries for reuse."
                                         onClick={() => handleClick("localEntries")}
                                     />
                                     <Card
+                                        id="Connections"
                                         isCodicon={true}
                                         icon="vm-connect"
                                         title="Connections"
@@ -397,6 +410,7 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("connections")}
                                     />
                                     <Card
+                                        id="Proxy"
                                         icon="arrow-swap"
                                         isCodicon
                                         title="Proxy"
@@ -404,12 +418,14 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("proxyServices")}
                                     />
                                     <Card
+                                        id="Data Service"
                                         icon="data-service"
                                         title="Data Service"
                                         description="Create a data service and expose database resources via APIs."
                                         onClick={() => handleClick("dataServices")}
                                     />
                                     <Card
+                                        id="Data Source"
                                         icon="data-source"
                                         title="Data Source"
                                         description="Create a data source and connect with a database."
