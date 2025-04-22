@@ -38,7 +38,7 @@ export class Welcome {
     }
 
     public async waitUntilDeattached() {
-        await this.page.page.waitForSelector('iframe.webview.ready', { state: 'detached' });
+        await this.page.page.waitForSelector('iframe.webview.ready', { state: 'detached', timeout: 10000 });
     }
 
     public async setupEnvironment() {

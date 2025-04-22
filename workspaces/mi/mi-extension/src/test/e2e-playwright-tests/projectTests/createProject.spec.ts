@@ -12,30 +12,24 @@ import { Welcome } from "./../components/Welcome";
 import { Api } from "./../components/ArtifactTest/Api";
 import { ProjectExplorer } from "./../components/ProjectExplorer";
 import { Overview } from "./../components/Overview";
-import { assertFileContent, initTest } from '../Utils';
-import { createProject, page} from '../Utils';
+import { createProject, page, waitUntilPomContains, initTest} from '../Utils';
 import path from "path";
+import fs from 'fs';
 const dataFolder = path.join( __dirname, '..', 'data');
+
 export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
 
 export default function createTests() {
     test.describe("Create Project Tests", {
         tag: '@group2'
     }, async () => {
-        initTest(true, true, true);
+        initTest(true, true, false);
 
-        test("Create Project Test", async () => {
+        test("Create Project Tests", async () => {
             await test.step('Create New Project Tests', async () => {
                 await createProject(page, 'newProject', '4.4.0');
-                assertFileContent(path.join(newProjectPath, 'newProject', 'pom.xml'), 
+                await waitUntilPomContains(page.page, path.join(newProjectPath, 'newProject', 'pom.xml'), 
                 '<artifactId>newProject</artifactId>');
-            });
-
-            await test.step("Create New Project with Advanced Config Tests", async () => {
-                await page.executePaletteCommand("MI: Open MI Welcome");
-                await createProject(page, 'newProjectWithAdConfig', '4.4.0', true);
-                assertFileContent(path.join(newProjectPath, 'newProjectWithAdConfig', 'pom.xml'), 
-                '<artifactId>test</artifactId>');
             });
 
             await test.step("Create New Project from Sample", async () => {
@@ -62,11 +56,18 @@ export default function createTests() {
                 const api = new Api(page.page);
                 await api.init();
                 await api.add('helloWorld');
-                const projectExplorer = new ProjectExplorer(page.page);
-                await projectExplorer.goToOverview("newProject");
                 const overview = new Overview(page.page);
-                await overview.init();
+                await overview.init("newProject");
                 await overview.diagramRenderingForApi('helloWorld');
+            });
+
+            await test.step("Create New Project with Advanced Config Tests", async () => {
+                fs.rmSync(newProjectPath, { recursive: true });
+                await page.page.reload();
+                await page.executePaletteCommand("MI: Open MI Welcome");
+                await createProject(page, 'newProjectWithAdConfig', '4.4.0', true);
+                await waitUntilPomContains(page.page, path.join(newProjectPath, 'newProject', 'newProjectWithAdConfig', 'pom.xml'), 
+                '<artifactId>test</artifactId>');
             });
         });
     });

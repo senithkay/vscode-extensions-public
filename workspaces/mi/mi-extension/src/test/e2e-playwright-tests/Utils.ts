@@ -66,8 +66,8 @@ export async function createProject(page: ExtendedPage, projectName?: string, ru
             throw new Error("Failed to switch to Project Creation Form iframe");
         }
         await webView.locator('vscode-button[title="Expand"]').click();
-        await webView.getByRole('textbox', { name: 'Artifact Id*' }).click();
-        await webView.getByRole('textbox', { name: 'Artifact Id*' }).fill('');
+        // await webView.getByRole('textbox', { name: 'Artifact Id*' }).click();
+        // await webView.getByRole('textbox', { name: 'Artifact Id*' }).fill('');
         await webView.getByRole('textbox', { name: 'Artifact Id*' }).fill('test');
     }
     await createNewProjectForm.submit();
@@ -144,16 +144,6 @@ export function initTest(newProject: boolean = false, skipProjectCreation: boole
         }
         console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}, Attempt: ${testInfo.retry + 1}`);
     });
-}
-
-export async function assertFileContent(filePath: string, expectedValue: string) {
-    try {
-        let fileContent = await fsp.readFile(filePath, 'utf8');
-        expect(fileContent).toContain(expectedValue);
-    } catch (error) {
-        console.error('Error reading the file:', error);
-        throw error;
-    }
 }
 
 export async function copyFile(source: string, destination: string) {
