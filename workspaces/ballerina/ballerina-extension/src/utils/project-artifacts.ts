@@ -256,18 +256,18 @@ function getDirectoryMapKeyAndIcon(artifact: BaseArtifact, artifactCategoryKey: 
                 } else {
                     console.warn(`Artifact with id 'automation' has unexpected type: ${artifact.type}`);
                     // Fallback based on ID, but log a warning.
-                     return { mapKey: DIRECTORY_MAP.AUTOMATION, icon: "task" };
+                    return { mapKey: DIRECTORY_MAP.AUTOMATION, icon: "task" };
                 }
             } else {
-                 // Assume it's a service if not automation.
-                 // Add a type check for robustness.
-                 if (artifact.type === DIRECTORY_MAP.SERVICE) {
+                // Assume it's a service if not automation.
+                // Add a type check for robustness.
+                if (artifact.type === DIRECTORY_MAP.SERVICE) {
                     return { mapKey: DIRECTORY_MAP.SERVICE, icon: "http-service" };
-                 } else {
+                } else {
                     console.warn(`EntryPoint artifact (id: ${artifact.id}) has unexpected type: ${artifact.type}. Assuming SERVICE.`);
                     // Fallback based on non-automation ID.
                     return { mapKey: DIRECTORY_MAP.SERVICE, icon: "http-service" };
-                 }
+                }
             }
         case ARTIFACT_TYPE.Listeners:
             return { mapKey: DIRECTORY_MAP.LISTENER, icon: "http-service" }; // Base icon, getEntryValue might refine
@@ -328,8 +328,8 @@ async function processAddition(artifact: BaseArtifact, artifactCategoryKey: stri
             return undefined;
         }
     } else {
-         console.error(`Could not determine directory map key for addition of artifact ${artifact.id} in category ${artifactCategoryKey}`);
-         return undefined;
+        console.error(`Could not determine directory map key for addition of artifact ${artifact.id} in category ${artifactCategoryKey}`);
+        return undefined;
     }
 }
 
@@ -343,9 +343,9 @@ async function processAddition(artifact: BaseArtifact, artifactCategoryKey: stri
 async function processUpdate(artifact: BaseArtifact, artifactCategoryKey: string, projectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse | undefined> {
     const mapping = getDirectoryMapKeyAndIcon(artifact, artifactCategoryKey);
     if (mapping) {
-         try {
+        try {
             const entryValue = await getEntryValue(artifact, mapping.icon);
-             // Ensure the array exists
+            // Ensure the array exists
             if (!projectStructure.directoryMap[mapping.mapKey]) {
                 projectStructure.directoryMap[mapping.mapKey] = [];
             }
@@ -377,7 +377,7 @@ async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentP
         // Process Deletions first (synchronous)
         if (actionMap.deletions) {
             for (const artifact of Object.values(actionMap.deletions) as BaseArtifact[]) {
-                 processDeletion(artifact, artifactCategoryKey, currentProjectStructure);
+                processDeletion(artifact, artifactCategoryKey, currentProjectStructure);
             }
         }
 
@@ -390,7 +390,7 @@ async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentP
 
         // Process Updates (asynchronous)
         if (actionMap.updates) {
-             for (const artifact of Object.values(actionMap.updates) as BaseArtifact[]) {
+            for (const artifact of Object.values(actionMap.updates) as BaseArtifact[]) {
                 promises.push(processUpdate(artifact, artifactCategoryKey, currentProjectStructure));
             }
         }
@@ -432,8 +432,8 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
                 }
             } else {
                 const resources = entryValue.resources;
-                // Check from current identifier
-                const identifier = StateMachine.context().identifier;
+                // Check from current identifier or temp data identifier
+                const identifier = StateMachine.context().tempData?.identifier || StateMachine.context().identifier;
                 if (resources.length > 0) {
                     for (const resource of resources) {
                         if (resource.id === identifier) {
@@ -445,8 +445,8 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
             }
             break;
         case DIRECTORY_MAP.AUTOMATION:
-            // Check from current identifier
-            const automationIdentifier = StateMachine.context().identifier;
+            // Check from current identifier or temp data identifier
+            const automationIdentifier = StateMachine.context().tempData?.identifier || StateMachine.context().identifier;
             if (automationIdentifier && automationIdentifier === "Automation") {
                 selectedEntry = entryValue;
                 break;
@@ -463,8 +463,8 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
             break;
         case DIRECTORY_MAP.FUNCTION:
         case DIRECTORY_MAP.DATA_MAPPER:
-            // Check from current identifier
-            const identifier = StateMachine.context().identifier;
+            // Check from current identifier or temp data identifier
+            const identifier = StateMachine.context().tempData?.identifier || StateMachine.context().identifier;
             if (identifier) {
                 if (entryValue.context === identifier) {
                     selectedEntry = entryValue;
@@ -487,7 +487,7 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
         case DIRECTORY_MAP.LOCAL_CONNECTORS:
         case DIRECTORY_MAP.LISTENER:
             // Check if the created entry matched the properties of the temp identifier
-            const tempIdentifier = StateMachine.context().tempData?.identifier;
+            const tempIdentifier = StateMachine.context().tempData?.identifier || StateMachine.context().identifier;
             if (tempIdentifier) {
                 if (entryValue.name === tempIdentifier) {
                     selectedEntry = entryValue;
