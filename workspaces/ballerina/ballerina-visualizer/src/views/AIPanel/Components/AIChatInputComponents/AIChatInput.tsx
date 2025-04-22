@@ -14,7 +14,7 @@ import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import {
     COMMAND_DATAMAP,
-    COMMAND_GENERATE,
+    COMMAND_CODE,
     COMMAND_TESTS,
     COMMAND_TYPECREATOR,
     COMMAND_NATURAL_PROGRAMMING,
@@ -575,7 +575,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
             case COMMAND_TYPECREATOR:
                 attachmentHandler = new DataMapperAttachment(activeCommand);
                 break;
-            case COMMAND_GENERATE:
+            case COMMAND_CODE:
             case COMMAND_NATURAL_PROGRAMMING:
                 attachmentHandler = new GenerateAttachment(activeCommand);
                 break;
