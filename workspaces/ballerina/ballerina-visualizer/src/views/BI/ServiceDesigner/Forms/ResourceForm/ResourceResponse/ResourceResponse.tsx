@@ -151,7 +151,7 @@ export function ResourceResponse(props: ResourceParamProps) {
             }
             {!editModel &&
                 <AdvancedParamTitleWrapper>
-                    <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Advanced Parameters</Typography>
+                    <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Advanced Response</Typography>
                     <LinkButton sx={{ marginTop: 12, marginLeft: 8 }} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
                 </AdvancedParamTitleWrapper>
             }

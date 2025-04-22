@@ -10,7 +10,7 @@
 import { ChoreoComponentSubType, ChoreoComponentType, ComponentDisplayType, DevantScopes, GitProvider } from "./enums";
 import type { ComponentKind, ComponentKindSource, Organization, Project } from "./types/common.types";
 
-export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");
+export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-").replace(/_/g, "-");
 
 export const getShortenedHash = (hash: string) => hash?.substring(0, 8);
 

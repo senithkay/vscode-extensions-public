@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -24,6 +24,7 @@ import {
     GenerateTypesFromRecordRequest,
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
+    GetModuleDirParams,
     InitialPrompt,
     LLMDiagnostics,
     NotifyAIMappingsRequest,
@@ -32,7 +33,6 @@ import {
     ProjectDiagnostics,
     ProjectSource,
     RequirementSpecification,
-    SourceFile,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
@@ -50,6 +50,7 @@ import {
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getContentFromFile,
     getDriftDiagnosticContents,
     getFileExists,
     getFromDocumentation,
@@ -57,6 +58,7 @@ import {
     getGeneratedTests,
     getInitialPrompt,
     getMappingsFromRecord,
+    getModuleDirectory,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
@@ -68,7 +70,9 @@ import {
     getTestDiagnostics,
     getThemeKind,
     getTypesFromRecord,
+    handleChatSummaryError,
     isCopilotSignedIn,
+    isNaturalProgrammingDirectoryExists,
     isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
@@ -83,7 +87,6 @@ import {
     promptWSO2AILogout,
     readDeveloperMdFile,
     refreshAccessToken,
-    refreshFile,
     showSignInAlert,
     stopAIMappings,
     updateDevelopmentDocument,
@@ -196,10 +199,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
     }
 
-    refreshFile(params: SourceFile): void {
-        return this._messenger.sendNotification(refreshFile, HOST_EXTENSION, params);
-    }
-
     getGeneratedTests(params: TestGenerationRequest): Promise<TestGenerationResponse> {
         return this._messenger.sendRequest(getGeneratedTests, HOST_EXTENSION, params);
     }
@@ -292,8 +291,16 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
     }
 
-    addChatSummary(filepathAndSummary: AIChatSummary): void {
-        return this._messenger.sendNotification(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    addChatSummary(filepathAndSummary: AIChatSummary): Promise<boolean> {
+        return this._messenger.sendRequest(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    }
+
+    handleChatSummaryError(message: string): void {
+        return this._messenger.sendNotification(handleChatSummaryError, HOST_EXTENSION, message);
+    }
+
+    isNaturalProgrammingDirectoryExists(projectPath: string): Promise<boolean> {
+        return this._messenger.sendRequest(isNaturalProgrammingDirectoryExists, HOST_EXTENSION, projectPath);
     }
 
     readDeveloperMdFile(directoryPath: string): Promise<string> {
@@ -310,5 +317,13 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     createTestDirecoryIfNotExists(directoryPath: string): void {
         return this._messenger.sendNotification(createTestDirecoryIfNotExists, HOST_EXTENSION, directoryPath);
+    }
+
+    getModuleDirectory(params: GetModuleDirParams): Promise<string> {
+        return this._messenger.sendRequest(getModuleDirectory, HOST_EXTENSION, params);
+    }
+
+    getContentFromFile(content: GetFromFileRequest): Promise<string> {
+        return this._messenger.sendRequest(getContentFromFile, HOST_EXTENSION, content);
     }
 }

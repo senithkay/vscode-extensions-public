@@ -205,6 +205,7 @@ interface NodeListProps {
     onAddFunction?: () => void;
     onBack?: () => void;
     onClose?: () => void;
+    searchPlaceholder?: string;
 }
 
 export function NodeList(props: NodeListProps) {
@@ -218,6 +219,7 @@ export function NodeList(props: NodeListProps) {
         onAddFunction,
         onBack,
         onClose,
+        searchPlaceholder
     } = props;
 
     const [searchText, setSearchText] = useState<string>("");
@@ -509,7 +511,7 @@ export function NodeList(props: NodeListProps) {
                     <S.Row>
                         <S.StyledSearchInput
                             value={searchText}
-                            placeholder="Search"
+                            placeholder={searchPlaceholder || "Search"} 
                             autoFocus={true}
                             onChange={handleOnSearch}
                             size={60}

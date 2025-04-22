@@ -51,10 +51,8 @@ export const COMMANDS = {
     OPEN_DSS_SERVICE_DESIGNER: "MI.project-explorer.open-dss-service-designer",
     ADD_MEDIATOR: "MI.addMediator",
     REFRESH_COMMAND: 'MI.project-explorer.refresh',
-    REFRESH_REGISTRY_COMMAND: 'MI.registry-explorer.refresh',
     ADD_COMMAND: 'MI.project-explorer.add',
     ADD_ARTIFACT_COMMAND: 'MI.project-explorer.add.artifact',
-    ADD_TO_REGISTRY_COMMAND: 'MI.registry-explorer.add',
     ADD_API_COMMAND: 'MI.project-explorer.add-api',
     ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
     ADD_ENDPOINT_COMMAND: 'MI.project-explorer.add-endpoint',
@@ -104,9 +102,6 @@ export const COMMANDS = {
     EDIT_MOCK_SERVICE: 'MI.test.edit.mock-service',
     OPEN_RUNTIME_VIEW: 'MI.Open-runtime-service-view',
     REVEAL_TEST_PANE: 'MI.mock-services.focus',
-
-    DEVAN_DEPLOY: 'wso2.wso2-platform.create.component',
-    DEVAN_OPEN_COMPONENT: 'wso2.wso2-platform.open.component.src',
 
     BI_EXTENSION: 'WSO2.ballerina-integrator',
     BI_OPEN_COMMAND: 'ballerina.open.bi.welcome',

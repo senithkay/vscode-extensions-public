@@ -102,6 +102,39 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
         getServiceClassModel();
     }, [type]);
 
+    useEffect(() => {
+        rpcClient.onProjectContentUpdated((state: boolean) => {
+            console.log(">>> ServiceClassDesigner: project content updated", state);
+            getServiceClassModel();
+        });
+    }, [rpcClient]);
+
+    useEffect(() => {
+        if (isNew) {
+            return;
+        }
+        if (serviceClassModel) {
+            if (editingVariable && editingVariable.codedata?.lineRange) {
+                const variable = serviceClassModel.fields.find(field =>
+                    field.codedata.lineRange.startLine.line === editingVariable.codedata.lineRange.startLine.line &&
+                    field.codedata.lineRange.startLine.offset === editingVariable.codedata.lineRange.startLine.offset
+                );
+                if (variable) {
+                    setEditingVariable(variable);
+                }
+            }
+
+            if (editingFunction && editingFunction.codedata?.lineRange) {
+                const func = serviceClassModel.functions.find(f =>
+                    f.codedata.lineRange.startLine.line === editingFunction.codedata.lineRange.startLine.line &&
+                    f.codedata.lineRange.startLine.offset === editingFunction.codedata.lineRange.startLine.offset
+                );
+                if (func) {
+                    setEditingFunction(func);
+                }
+            }
+        }
+    }, [serviceClassModel]);
 
     const getServiceClassModel = async () => {
         if (!type) return;

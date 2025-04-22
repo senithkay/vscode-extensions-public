@@ -106,6 +106,7 @@ export interface ButtonCardProps {
     onClick: () => void;
     disabled?: boolean;
     tooltip?: string;
+    isBeta?: boolean;
 }
 
 export function ButtonCard(props: ButtonCardProps) {
@@ -119,7 +120,8 @@ export function ButtonCard(props: ButtonCardProps) {
         truncate: explicitTruncate,
         onClick,
         disabled,
-        tooltip
+        tooltip,
+        isBeta
     } = props;
 
     // Apply truncation by default for small appearance if not explicitly set
@@ -141,6 +143,7 @@ export function ButtonCard(props: ButtonCardProps) {
                             truncate={truncate}
                         >
                             {title}
+                            {isBeta && <BetaSVG />}
                         </Title>
                         {description && <Description truncate={truncate}>{description}</Description>}
                     </ContentContainer>

@@ -17,19 +17,21 @@ import { Overview } from '../components/Overview';
 import { Diagram } from './../components/Diagram';
 
 export default function createTests() {
-  test.describe(async () => {
+  test.describe("Log Mediator Tests", {
+    tag: '@group2',
+  }, async () => {
     initTest();
 
-    test("Log Mediator Tests", async ({}, testInfo) => {
+    test("Log Mediator Tests", async ({ }, testInfo) => {
       const testAttempt = testInfo.retry + 1;
       await test.step('Create new API', async () => {
         // wait until window reload
         const { title: iframeTitle } = await page.getCurrentWebview();
 
         if (iframeTitle === MACHINE_VIEW.Overview) {
-            const overviewPage = new Overview(page.page);
-            await overviewPage.init();
-            await overviewPage.goToAddArtifact();
+          const overviewPage = new Overview(page.page);
+          await overviewPage.init();
+          await overviewPage.goToAddArtifact();
         }
 
         const addArtifactPage = new AddArtifact(page.page);

@@ -19,6 +19,8 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ProjectInformation } from "./ProjectInformation";
 import { ERROR_MESSAGES } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
 import { DeploymentOptions } from "./DeploymentStatus";
+import { useQuery } from "@tanstack/react-query";
+import { IOpenInConsoleCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 
 export interface DevantComponentResponse {
     org: string;
@@ -96,22 +98,35 @@ interface OverviewProps {
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useVisualizerContext();
     const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
-    const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
-    const [selected, setSelected] = React.useState<string>("");
+    const [activeWorkspace, setActiveWorkspace] = React.useState<WorkspaceFolder>(undefined);
+    // const [selected, setSelected] = React.useState<string>("");
     const [projectOverview, setProjectOverview] = React.useState<ProjectOverviewResponse>(undefined);
     const [readmeContent, setReadmeContent] = React.useState<string>("");
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [pomTimestamp, setPomTimestamp] = React.useState<number>(0);
     const [errors, setErrors] = React.useState({});
-    const [devantComponent, setDevantComponent] = useState<DevantComponentResponse | undefined>(undefined);
+    const { data: devantMetadata } = useQuery({
+        queryKey: ["devant-metadata", workspaces],
+        queryFn: () => rpcClient.getMiDiagramRpcClient().getDevantMetadata(),
+        refetchInterval: 5000
+    })
 
     useEffect(() => {
         const fetchWorkspaces = async () => {
             try {
+                const machineState = await rpcClient.getVisualizerState();
+                const { projectUri } = machineState;
                 const response = await rpcClient.getMiVisualizerRpcClient().getWorkspaces();
                 setWorkspaces(response.workspaces);
-                setActiveWorkspaces(response.workspaces[0]);
-                changeWorkspace(response.workspaces[0].fsPath);
+                setActiveWorkspace(response.workspaces.find((workspace) => workspace.fsPath === projectUri));
+
+                rpcClient.getMiVisualizerRpcClient().getProjectOverview({}).then((response) => {
+                    setProjectOverview(response);
+                }).catch((error) => {
+                    console.error('Error getting project settings:', error);
+                    setProjectOverview(undefined);
+                    setErrors({ ...errors, projectOverview: ERROR_MESSAGES.ERROR_LOADING_PROJECT_OVERVIEW });
+                });
 
             } catch (error) {
                 console.error('Error fetching workspaces:', error);
@@ -130,18 +145,6 @@ export function Overview(props: OverviewProps) {
         fetchWorkspaces();
     }, []);
 
-    useEffect(() => {
-        if (workspaces && selected) {
-            rpcClient.getMiVisualizerRpcClient().getProjectOverview({ documentUri: selected }).then((response) => {
-                setProjectOverview(response);
-            }).catch((error) => {
-                console.error('Error getting project settings:', error);
-                setProjectOverview(undefined);
-                setErrors({ ...errors, projectOverview: ERROR_MESSAGES.ERROR_LOADING_PROJECT_OVERVIEW });
-            });
-        }
-    }, [selected, props]);
-
     async function getReadmeContent() {
         try {
             const readme = await rpcClient.getMiVisualizerRpcClient().getReadmeContent();
@@ -151,13 +154,9 @@ export function Overview(props: OverviewProps) {
         }
     }
 
-    const changeWorkspace = (fsPath: string) => {
-        setSelected(fsPath);
-    }
-
     const handleExport = async () => {
         await rpcClient.getMiDiagramRpcClient().exportProject({
-            projectPath: activeWorkspaces.fsPath,
+            projectPath: activeWorkspace.fsPath,
         });
     }
 
@@ -169,8 +168,16 @@ export function Overview(props: OverviewProps) {
         rpcClient.getMiDiagramRpcClient().buildProject({ buildType: "capp" });
     };
 
-    const goToDevant = (devantComponent: DevantComponentResponse) => {
-        rpcClient.getMiVisualizerRpcClient().openExternal({ uri: `https://console.devant.dev/organizations/${devantComponent.org}` });
+    const goToDevant = () => {
+        rpcClient.getMiDiagramRpcClient().executeCommand({
+            commands: [
+                PlatformExtCommandIds.OpenInConsole,
+                {
+                    extName: "Devant",
+                    componentFsPath: activeWorkspace.fsPath,
+                    newComponentParams: { buildPackLang: "microintegrator" }
+                } as IOpenInConsoleCmdParams]
+        })
     };
 
     const handleDeploy = (params: DeployProjectRequest) => {
@@ -202,7 +209,7 @@ export function Overview(props: OverviewProps) {
         <div style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 30px)', padding: '10px 0' }}>
             <div style={{ padding: '0 16px' }}>
                 <ViewHeader
-                    title={"Project: " + activeWorkspaces?.name}
+                    title={"Project: " + activeWorkspace?.name}
                     icon="project"
                     iconSx={{ fontSize: "18px", color: "#0066cc" }}
                 >
@@ -239,7 +246,7 @@ export function Overview(props: OverviewProps) {
                                 {projectOverview ? (
                                     projectOverview.connections.length > 0 || projectOverview.entrypoints?.length > 0 ? (
                                         <ComponentDiagram
-                                            projectName={activeWorkspaces.name}
+                                            projectName={activeWorkspace.name}
                                             projectStructure={projectOverview}
                                         />
                                     ) : (
@@ -291,7 +298,7 @@ export function Overview(props: OverviewProps) {
                                 handleCAPPBuild={handleCappBuild}
                                 handleDeploy={handleDeploy}
                                 goToDevant={goToDevant}
-                                devantComponent={devantComponent} />
+                                devantMetadata={devantMetadata} />
                         </ProjectInfoColumn>
                         <ProjectInfoColumn style={{ marginTop: '10px' }}>
                             <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', opacity: 0.8 }}>

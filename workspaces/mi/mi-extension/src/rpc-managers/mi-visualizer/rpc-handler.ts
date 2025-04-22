@@ -67,13 +67,14 @@ import {
     setPathsInWorkSpace,
     selectFolder,
     SetPathRequest,
-    updateLegacyExpressionSupport
+    updateLegacyExpressionSupport, 
+    updateDependenciesFromOverview
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
 
-export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
-    const rpcManger = new MiVisualizerRpcManager();
+export function registerMiVisualizerRpcHandlers(messenger: Messenger, projectUri: string): void {
+    const rpcManger = new MiVisualizerRpcManager(projectUri);
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
     messenger.onRequest(getProjectOverview, (args: ProjectStructureRequest) => rpcManger.getProjectOverview(args));
@@ -108,6 +109,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updatePomValues, (args: UpdatePomValuesRequest) => rpcManger.updatePomValues(args));
     messenger.onRequest(updateConfigFileValues, (args: UpdateConfigValuesRequest) => rpcManger.updateConfigFileValues(args));
     messenger.onRequest(updateConnectorDependencies, () => rpcManger.updateConnectorDependencies());
+    messenger.onRequest(updateDependenciesFromOverview, (args: UpdateDependenciesRequest) => rpcManger.updateDependenciesFromOverview(args));
     messenger.onRequest(importOpenAPISpec, (args: ImportOpenAPISpecRequest) => rpcManger.importOpenAPISpec(args));
     messenger.onRequest(getProjectSetupDetails, () => rpcManger.getProjectSetupDetails());
     messenger.onRequest(updateRuntimeVersionsInPom, (args: string) => rpcManger.updateRuntimeVersionsInPom(args));

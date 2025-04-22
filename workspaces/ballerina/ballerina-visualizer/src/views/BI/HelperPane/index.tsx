@@ -17,6 +17,7 @@ import { LineRange } from '@wso2-enterprise/ballerina-core';
 import { RecordTypeField } from '@wso2-enterprise/ballerina-core';
 
 export type HelperPaneProps = {
+    fieldKey: string;
     fileName: string;
     targetLineRange: LineRange;
     exprRef: RefObject<FormExpressionEditorRef>;
@@ -27,9 +28,12 @@ export type HelperPaneProps = {
     onChange: (value: string, updatedCursorPosition: number) => void;
     helperPaneHeight: HelperPaneHeight;
     recordTypeField?: RecordTypeField;
+    updateImports: (key: string, imports: {[key: string]: string}) => void;
+    isAssignIdentifier?: boolean;
 };
 
 const HelperPaneEl = ({
+    fieldKey,
     fileName,
     targetLineRange,
     exprRef,
@@ -39,7 +43,9 @@ const HelperPaneEl = ({
     currentValue,
     onChange,
     helperPaneHeight,
-    recordTypeField
+    recordTypeField,
+    updateImports,
+    isAssignIdentifier
 }: HelperPaneProps) => {
     const handleChange = (value: string, isRecordConfigureChange?: boolean) => {
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -68,16 +74,20 @@ const HelperPaneEl = ({
             <HelperPane.Body>
                 <HelperPane.Panels sx={recordTypeField ? { gap: "15px" } : undefined}>
                     {/* Tabs for the helper pane */}
-                    {recordTypeField && (
+                    {!isAssignIdentifier && recordTypeField && (
                         <HelperPane.PanelTab id={0} title="Construct Record" />
                     )}
-                    <HelperPane.PanelTab id={recordTypeField ? 1 : 0} title="Suggestions" />
-                    <HelperPane.PanelTab id={recordTypeField ? 2 : 1} title="Functions" />
-                    <HelperPane.PanelTab id={recordTypeField ? 3 : 2} title="Configurables" />
-
+                    <HelperPane.PanelTab id={isAssignIdentifier ? 0 : (recordTypeField ? 1 : 0)} title="Suggestions" />
+                    {!isAssignIdentifier && (
+                        <HelperPane.PanelTab id={recordTypeField ? 2 : 1} title="Functions" />
+                    )}
+                    
+                    {!isAssignIdentifier && (
+                        <HelperPane.PanelTab id={recordTypeField ? 3 : 2} title="Configurables" />
+                    )}
 
                     {/* Panels for the helper pane */}
-                    {recordTypeField && (
+                    {!isAssignIdentifier && recordTypeField && (
                         <HelperPane.PanelView id={0}>
                             <ConfigureRecordPage
                                 fileName={fileName}
@@ -85,10 +95,11 @@ const HelperPaneEl = ({
                                 onChange={handleChange}
                                 currentValue={currentValue}
                                 recordTypeField={recordTypeField}
+                                onClose={onClose}
                             />
                         </HelperPane.PanelView>
                     )}
-                    <HelperPane.PanelView id={recordTypeField ? 1 : 0}>
+                    <HelperPane.PanelView id={isAssignIdentifier ? 0 : (recordTypeField ? 1 : 0)}>
                         <SuggestionsPage
                             fileName={fileName}
                             targetLineRange={targetLineRange}
@@ -96,22 +107,26 @@ const HelperPaneEl = ({
                             onChange={handleChange}
                         />
                     </HelperPane.PanelView>
-                    <HelperPane.PanelView id={recordTypeField ? 2 : 1}>
-                        <FunctionsPage
-                            anchorRef={anchorRef}
-                            fileName={fileName}
-                            targetLineRange={targetLineRange}
-                            onClose={onClose}
-                            onChange={handleChange}
-                        />
-                    </HelperPane.PanelView>
-                    <HelperPane.PanelView id={recordTypeField ? 3 : 2}>
-                        <ConfigurablePage
-                            fileName={fileName}
-                            targetLineRange={targetLineRange}
-                            onChange={handleChange}
-                        />
-                    </HelperPane.PanelView>
+                    {!isAssignIdentifier && (
+                        <HelperPane.PanelView id={recordTypeField ? 2 : 1}>
+                            <FunctionsPage
+                                fieldKey={fieldKey}
+                                anchorRef={anchorRef}
+                                fileName={fileName}
+                                targetLineRange={targetLineRange}
+                                onClose={onClose}
+                                onChange={handleChange}
+                                updateImports={updateImports}
+                            />
+                        </HelperPane.PanelView>
+                    )}
+                    {!isAssignIdentifier && (
+                        <HelperPane.PanelView id={recordTypeField ? 3 : 2}>
+                            <ConfigurablePage
+                                onChange={handleChange}
+                            />
+                        </HelperPane.PanelView>
+                    )}
                 </HelperPane.Panels>
             </HelperPane.Body>
         </HelperPane>
@@ -121,6 +136,7 @@ const HelperPaneEl = ({
 /**
  * Function to render the helper pane for the expression editor
  * 
+ * @param fieldKey Key of the field
  * @param fileName File name of the expression editor
  * @param targetLineRange Modified line range of the expression editor
  * @param exprRef Ref object of the expression editor
@@ -131,10 +147,13 @@ const HelperPaneEl = ({
  * @param onChange Function to handle changes in the expression editor
  * @param helperPaneHeight Height of the helper pane
  * @param recordTypeField Record type field
+ * @param updateImports Function to update the import statements of the expression editor
+ * @param isAssignIdentifier Boolean indicating whether the expression is an assignment LV_EXPRESSION
  * @returns JSX.Element Helper pane element
  */
 export const getHelperPane = (props: HelperPaneProps) => {
     const {
+        fieldKey,
         fileName,
         targetLineRange,
         exprRef,
@@ -144,11 +163,14 @@ export const getHelperPane = (props: HelperPaneProps) => {
         currentValue,
         onChange,
         helperPaneHeight,
-        recordTypeField
+        recordTypeField,
+        updateImports,
+        isAssignIdentifier
     } = props;
 
     return (
         <HelperPaneEl
+            fieldKey={fieldKey}
             fileName={fileName}
             targetLineRange={targetLineRange}
             exprRef={exprRef}
@@ -159,6 +181,8 @@ export const getHelperPane = (props: HelperPaneProps) => {
             onChange={onChange}
             helperPaneHeight={helperPaneHeight}
             recordTypeField={recordTypeField}
+            updateImports={updateImports}
+            isAssignIdentifier={isAssignIdentifier}
         />
     );
 };

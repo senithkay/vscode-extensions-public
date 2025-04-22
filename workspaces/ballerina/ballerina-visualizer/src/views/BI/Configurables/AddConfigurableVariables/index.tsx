@@ -44,6 +44,7 @@ export function AddForm(props: ConfigFormProps) {
         },
         "codedata": {
             "node": "CONFIG_VARIABLE",
+            "isNew": true,
             "lineRange": {
                 "fileName": "config.bal",
                 "startLine": {

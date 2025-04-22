@@ -7,23 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, ComponentViewDrawers, getComponentKey } from "@wso2-enterprise/wso2-platform-core";
+import { CommandIds, ComponentViewDrawers, type ICreateDependencyParams, getComponentKey } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ViewColumn, commands, window } from "vscode";
+import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
-import { getUserInfoForCmd } from "./cmd-utils";
+import { getUserInfoForCmd, isRpcActive, setExtensionName } from "./cmd-utils";
 import { getComponentStateOfPath } from "./view-comp-dependency-cmd";
 
 export function createComponentDependencyCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.CreateComponentDependency, async (params: { componentFsPath?: string; isCodeLens?: boolean }) => {
+		commands.registerCommand(CommandIds.CreateComponentDependency, async (params: ICreateDependencyParams) => {
+			setExtensionName(params?.extName);
 			try {
-				const userInfo = await getUserInfoForCmd("create component dependency");
+				isRpcActive(ext);
+				const extensionName = webviewStateStore.getState().state.extensionName;
+				const userInfo = await getUserInfoForCmd(`create dependency`);
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;
 					if (!selected?.org || !selected.project) {
-						const extensionName = webviewStateStore.getState().state.extensionName;
 						window.showInformationMessage(`This directory has not yet been linked to a ${extensionName} project`, "Link Directory").then((res) => {
 							if (res === "Link Directory") {
 								commands.executeCommand(CommandIds.CreateDirectoryContext);
@@ -35,18 +38,23 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 					const components = contextStore.getState().state.components;
 
 					if (components?.length === 0) {
-						window.showInformationMessage("No components available within the project directory", "Create Component").then((res) => {
-							if (res === "Create Component") {
-								commands.executeCommand(CommandIds.CreateNewComponent);
-							}
-						});
+						window
+							.showInformationMessage(
+								`No ${extensionName === "Devant" ? "integrations" : "components"} available within the project directory`,
+								`Create ${extensionName === "Devant" ? "Integration" : "Component"}`,
+							)
+							.then((res) => {
+								if (res === "Create Component" || res === "Create Integration") {
+									commands.executeCommand(CommandIds.CreateNewComponent);
+								}
+							});
 						return;
 					}
 
 					const component = await getComponentStateOfPath(params?.componentFsPath, components);
 
 					if (!component?.component) {
-						throw new Error("Failed to select component");
+						throw new Error(`Failed to select ${extensionName === "Devant" ? "integration" : "component"}`);
 					}
 
 					showComponentDetailsView(
@@ -64,8 +72,8 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 						.onOpenComponentDrawer(getComponentKey(selected.org, selected.project, component.component), ComponentViewDrawers.CreateConnection);
 				}
 			} catch (err: any) {
-				console.error("Failed to create component dependency", err);
-				window.showErrorMessage(err?.message || "Failed to create component dependency");
+				console.error("Failed to create dependency", err);
+				window.showErrorMessage(err?.message || "Failed to create dependency");
 			}
 		}),
 	);

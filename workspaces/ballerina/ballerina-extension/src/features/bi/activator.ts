@@ -11,7 +11,7 @@ import {
     BI_COMMANDS,
     BIDeleteByComponentInfoRequest,
     ComponentInfo,
-    DIRECTORY_SUB_TYPE,
+    DIRECTORY_MAP,
     EVENT_TYPE,
     FlowNode,
     FOCUS_FLOW_DIAGRAM_VIEW,
@@ -85,25 +85,12 @@ export function activate(context: BallerinaExtension) {
     commands.registerCommand(BI_COMMANDS.DELETE_COMPONENT, async (item: any) => {
         console.log(">>> delete component", item);
 
-        if (item.contextValue === DIRECTORY_SUB_TYPE.CONNECTION) {
+        if (item.contextValue === DIRECTORY_MAP.CONNECTION) {
             await handleConnectionDeletion(item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.FUNCTION
-            || item.contextValue === DIRECTORY_SUB_TYPE.DATA_MAPPER) {
-            await handleComponentDeletion('functions', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.TYPE) {
-            await handleComponentDeletion('records', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.SERVICE) {
-            await handleComponentDeletion('services', item.tooltip, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.LISTENER) {
-            await handleComponentDeletion('listeners', item.tooltip, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.AUTOMATION) {
-            await handleComponentDeletion('automations', item.tooltip, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.CONFIGURATION) {
-            await handleComponentDeletion('configurableVariables', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.NATURAL_FUNCTION) {
-            await handleComponentDeletion('naturalFunctions', item.label, item.info);
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.LOCAL_CONNECTORS) {
+        } else if (item.contextValue === DIRECTORY_MAP.LOCAL_CONNECTORS) {
             await handleLocalModuleDeletion(item.label, item.info);
+        } else {
+            await handleComponentDeletion(item.contextValue, item.label, item.info);
         }
     });
 
@@ -169,18 +156,27 @@ const findBallerinaFiles = (dir: string, fileList: string[] = []): string[] => {
 
 const handleComponentDeletion = async (componentType: string, itemLabel: string, filePath: string) => {
     const rpcClient = new BiDiagramRpcManager();
+    const componentCategory = StateMachine.context().projectStructure.directoryMap[componentType];
 
-    rpcClient.getProjectComponents().then((response) => {
-        console.log("====>>> projectComponents", { projectComponents: response });
-        response.components.packages.forEach((pkg) => {
-            pkg.modules.forEach((module) => {
-                module[componentType].forEach((component) => {
-                    if (component.name === itemLabel) {
-                        deleteComponent(component, rpcClient, filePath);
-                    }
-                });
-            });
-        });
+    if (!componentCategory) {
+        console.error(`Component type ${componentType} not found in project structure`);
+        return;
+    }
+
+    componentCategory.forEach((component) => {
+        if (component.name === itemLabel) {
+            const componentInfo: ComponentInfo = {
+                name: component.name,
+                filePath: component.path,
+                startLine: component.position.startLine,
+                startColumn: component.position.startColumn,
+                endLine: component.position.endLine,
+                endColumn: component.position.endColumn,
+                resources: component?.resources
+            };
+
+            deleteComponent(componentInfo, rpcClient, filePath);
+        }
     });
 };
 

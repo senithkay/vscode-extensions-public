@@ -10,12 +10,13 @@
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Typography, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { ListenerModel, LineRange, RecordTypeField, PropertyModel, PropertyTypeMemberInfo, Property } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
 import FormGeneratorNew from "../../Forms/FormGeneratorNew";
 import { FormHeader } from "../../../../components/FormHeader";
+import { getImportsForProperty } from "../../../../utils/bi";
 
 const Container = styled.div`
     /* padding: 0 20px 20px; */
@@ -44,6 +45,7 @@ const LoadingContainer = styled.div`
 interface ListenerConfigFormProps {
     listenerModel: ListenerModel;
     onSubmit?: (data: ListenerModel) => void;
+    isSaving?: boolean;
     onBack?: () => void;
     formSubmitText?: string;
 }
@@ -52,7 +54,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [listenerFields, setListenerFields] = useState<FormField[]>([]);
-    const { listenerModel, onSubmit, onBack, formSubmitText = "Next" } = props;
+    const { listenerModel, onSubmit, onBack, formSubmitText = "Next", isSaving } = props;
     const [filePath, setFilePath] = useState<string>('');
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
@@ -73,7 +75,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                     },
                     valueType: property?.valueType || 'string',
                     diagnostics: {
-                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0, 
+                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0,
                         diagnostics: property.diagnostics
                     }
                 } as Property,
@@ -86,11 +88,12 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [listenerModel]);
 
-    const handleListenerSubmit = async (data: FormValues) => {
+    const handleListenerSubmit = async (data: FormValues, formImports: FormImports) => {
         listenerFields.forEach(val => {
             if (data[val.key]) {
                 val.value = data[val.key]
             }
+            val.imports = getImportsForProperty(val.key, formImports);
         })
         const response = updateConfig(listenerFields, listenerModel);
         onSubmit(response);
@@ -139,6 +142,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                                     fields={listenerFields}
                                     onSubmit={handleListenerSubmit}
                                     onBack={onBack}
+                                    isSaving={isSaving}
                                     submitText={formSubmitText}
                                     recordTypeFields={recordTypeFields}
                                 />
