@@ -42,7 +42,7 @@ export const Arrow = styled.div<ArrowProps>`
     position: absolute;
     height: ${ARROW_HEIGHT}px;
     width: ${ARROW_HEIGHT}px;
-    background-color: var(--vscode-menu-background);
+    background-color: var(--vscode-dropdown-background);
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 
     ${(props: ArrowProps) => props.origin === "left" && `
@@ -133,7 +133,7 @@ const LibraryBrowserContainer = styled.div`
     flex-direction: column;
     padding: 16px;
     border-radius: 8px;
-    background-color: var(--vscode-menu-background);
+    background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
     z-index: 3002;
 `;
@@ -343,7 +343,7 @@ const DropdownBody = styled.div<{ helperPaneHeight: HelperPaneHeight; sx?: CSSPr
     padding: 8px;
     border-radius: 2px;
     color: var(--input-foreground);
-    background-color: var(--vscode-menu-background);
+    background-color: var(--vscode-dropdown-background);
     ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
 
