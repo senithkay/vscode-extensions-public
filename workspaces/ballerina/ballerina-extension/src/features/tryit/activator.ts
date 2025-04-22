@@ -106,7 +106,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
                 }
             } else {
                 const quickPickItems = services.map(service => ({
-                    label: `'${service.basePath}' on ${service.listener}`,
+                    label: `'${service.basePath}' on ${service.listener.name}`,
                     description: `HTTP Service`,
                     service
                 }));
