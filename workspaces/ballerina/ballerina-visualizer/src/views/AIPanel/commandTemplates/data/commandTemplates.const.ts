@@ -15,7 +15,7 @@ export const WILDCARD_TEMPLATE_ID = 'wildcard';
 
 // All command templates are defined here.
 export const commandTemplates = {
-    [Command.Generate]: [
+    [Command.Code]: [
         {
             id: WILDCARD_TEMPLATE_ID,
             text: '',
@@ -165,7 +165,7 @@ export const NATURAL_PROGRAMMING_TEMPLATES: TemplateDefinition[] = [
 export const suggestedCommandTemplates: InputContent[] = [
     {
         type: 'command-template',
-        command: Command.Generate,
+        command: Command.Code,
         templateId: WILDCARD_TEMPLATE_ID,
         text: 'write a hello world http service',
     },

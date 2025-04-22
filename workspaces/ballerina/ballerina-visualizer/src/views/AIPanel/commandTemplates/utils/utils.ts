@@ -60,6 +60,19 @@ export const upsertTemplate = (commandTemplates: CommandTemplates, command: Comm
     }
 }
 
+export const removeTemplate = (
+    commandTemplates: CommandTemplates,
+    command: Command,
+    templateId: string
+) => {
+    const templates = commandTemplates[command] as unknown as TemplateDefinition[];
+
+    const index = templates.findIndex(t => t.id === templateId);
+    if (index !== -1) {
+        templates.splice(index, 1);
+    }
+};
+
 export const injectTags = (
     command: Command,
     templateId: string,

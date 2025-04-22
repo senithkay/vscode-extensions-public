@@ -23,7 +23,7 @@ export type PlaceholderTagMap = {
 
 // NOTE: if the placeholders are known at compiletime, define here, otherwise inject at runtime.
 export const placeholderTags: PlaceholderTagMap = {
-    [Command.Generate]: {
+    [Command.Code]: {
         'wildcard': {},
         'generate-code': {
             usecase: [],

@@ -23,6 +23,7 @@ type FooterProps = {
     aiChatInputRef: React.RefObject<AIChatInputRef>;
     tagOptions: TagOptions;
     attachmentOptions: AttachmentOptions;
+    inputPlaceholder: string;
     onSend: (content: { input: Input[]; attachments: Attachment[] }) => Promise<void>;
     onStop: () => void;
     isLoading: boolean;
@@ -32,6 +33,7 @@ const Footer: React.FC<FooterProps> = ({
     aiChatInputRef,
     tagOptions,
     attachmentOptions,
+    inputPlaceholder,
     onSend,
     onStop,
     isLoading,
@@ -43,6 +45,7 @@ const Footer: React.FC<FooterProps> = ({
                 initialCommandTemplate={commandTemplates}
                 tagOptions={tagOptions}
                 attachmentOptions={attachmentOptions}
+                placeholder={inputPlaceholder}
                 onSend={onSend}
                 onStop={onStop}
                 isLoading={isLoading}

@@ -36,7 +36,6 @@ export const useFooterLogic = ({
     };
 
     const injectPlaceholderTags = async (command: Command, templateId: string): Promise<void> => {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
         switch (command) {
             case Command.Tests:
                 switch (templateId) {

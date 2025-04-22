@@ -8,7 +8,7 @@
  */
 
 export enum Command {
-    Generate = '/generate',
+    Code = '/code',
     Tests = '/tests',
     DataMap = '/datamap',
     TypeCreator = '/typecreator',

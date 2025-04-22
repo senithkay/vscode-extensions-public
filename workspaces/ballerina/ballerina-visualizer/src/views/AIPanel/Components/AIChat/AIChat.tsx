@@ -20,6 +20,7 @@ import {
     ImportStatement,
     DiagnosticEntry,
     ExistingFunction,
+    InitialPrompt,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -52,9 +53,14 @@ import {
     NATURAL_PROGRAMMING_TEMPLATES,
     WILDCARD_TEMPLATE_ID,
 } from "../../commandTemplates/data/commandTemplates.const";
-import { Tag } from "../../commandTemplates/models/tag.model";
 import { placeholderTags } from "../../commandTemplates/data/placeholderTags.const";
-import { getTemplateById, getTemplateTextById, injectTags, upsertTemplate } from "../../commandTemplates/utils/utils";
+import {
+    getTemplateById,
+    getTemplateTextById,
+    injectTags,
+    removeTemplate,
+    upsertTemplate,
+} from "../../commandTemplates/utils/utils";
 import { Command } from "../../commandTemplates/models/command.enum";
 import { acceptResolver, handleAttachmentSelection } from "../../utils/attachment/attachmentManager";
 import { abortFetchWithAuth, fetchWithAuth } from "../../utils/networkUtils";
@@ -129,7 +135,6 @@ const GENERATE_CODE_AGAINST_THE_PROVIDED_REQUIREMENTS_TRIMMED = GENERATE_CODE_AG
 
 export function AIChat() {
     const { rpcClient } = useRpcContext();
-    const [userInput, setUserInput] = useState("");
     const [messages, setMessages] = useState<Array<{ role: string; content: string; type: string }>>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
@@ -157,14 +162,29 @@ export function AIChat() {
         rpcClient,
     });
 
-    // Initialize the AIChatInput component with the default command template
-    useEffect(function insertInitialInputContent() {
-        aiChatInputRef.current?.setInputContent({
-            type: "command-template",
-            command: Command.Generate,
-            templateId: WILDCARD_TEMPLATE_ID,
-        });
-    }, []);
+    /**
+     * Effect: Initialize the component with initial prompts
+     */
+    // useEffect(function initializeWithInitialPrompts() {
+    //     rpcClient
+    //         .getAiPanelRpcClient()
+    //         .getInitialPrompt()
+    //         .then((initPrompt: InitialPrompt) => {
+    //             const command = initPrompt.exists && initPrompt.text === "datamap" ? Command.DataMap : Command.Code;
+
+    //             let template = commandToTemplate.get(command)?.[1];
+
+    //             if (template && initPrompt.dataMappingFunctionName) {
+    //                 template = template.replace("<functionname>", initPrompt.dataMappingFunctionName);
+    //             }
+
+    //             if (initPrompt.exists) {
+    //                 setUserInput(template ? command + " " + template : command);
+    //             } else {
+    //                 setUserInput("/generate ");
+    //             }
+    //         });
+    // }, []);
     /* REFACTORED CODE END [2] */
 
     let codeSegmentRendered = false;
@@ -209,25 +229,6 @@ export function AIChat() {
 
                 const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
                 const storedChatArray = localStorage.getItem(localStorageFile);
-                // rpcClient
-                //     .getAiPanelRpcClient()
-                //     .getInitialPrompt()
-                //     .then((initPrompt: InitialPrompt) => {
-                //         const command =
-                //             initPrompt.exists && initPrompt.text === "datamap" ? COMMAND_DATAMAP : COMMAND_GENERATE;
-
-                //         let template = commandToTemplate.get(command)?.[1];
-
-                //         if (template && initPrompt.dataMappingFunctionName) {
-                //             template = template.replace("<functionname>", initPrompt.dataMappingFunctionName);
-                //         }
-
-                //         if (initPrompt.exists) {
-                //             setUserInput(template ? command + " " + template : command);
-                //         } else {
-                //             setUserInput("/generate ");
-                //         }
-                //     });
                 rpcClient
                     .getAiPanelRpcClient()
                     .getAiPanelState()
@@ -283,6 +284,7 @@ export function AIChat() {
                 Command.NaturalProgramming,
                 getTemplateById("generate-test-from-requirements", NATURAL_PROGRAMMING_TEMPLATES)
             );
+            removeTemplate(commandTemplates, Command.NaturalProgramming, "generate-code-from-following-requirements");
         } else {
             upsertTemplate(
                 commandTemplates,
@@ -299,6 +301,7 @@ export function AIChat() {
                 Command.NaturalProgramming,
                 getTemplateById("generate-test-from-requirements", NATURAL_PROGRAMMING_TEMPLATES)
             );
+            removeTemplate(commandTemplates, Command.NaturalProgramming, "generate-code-from-requirements");
         }
     }
 
@@ -342,24 +345,6 @@ export function AIChat() {
                 });
         }
     }, [rpcClient]);
-
-    function getStatusText(status: number) {
-        switch (status) {
-            case 400:
-                return "Bad Request";
-            case 401:
-                return "Unauthorized";
-            case 403:
-                return "Forbidden";
-            case 404:
-                return "Not Found";
-            case 429:
-                return "Token Count Exceeded";
-            // Add more status codes as needed
-            default:
-                return "";
-        }
-    }
 
     async function handleSendQuery(content: { input: Input[]; attachments: Attachment[] }) {
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
@@ -457,6 +442,7 @@ export function AIChat() {
         } else if ("command" in parsedInput) {
             switch (parsedInput.command) {
                 case Command.NaturalProgramming: {
+                    let useCase = "";
                     switch (parsedInput.templateId) {
                         case "code-doc-drift-check":
                             await processLLMDiagnostics(token, attachments, inputText);
@@ -467,34 +453,44 @@ export function AIChat() {
                                 content: parsedInput.placeholderValues.requirements,
                             });
                             setIsReqFileExists(true);
+
+                            useCase = parsedInput.placeholderValues.requirements;
+                            await processCodeGeneration(
+                                token,
+                                [useCase, attachments, CodeGenerationType.CODE_FOR_USER_REQUIREMENT],
+                                inputText
+                            );
                             break;
                         case "generate-test-from-requirements":
                             rpcClient.getAiPanelRpcClient().createTestDirecoryIfNotExists(chatLocation);
+
+                            useCase = getTemplateTextById(
+                                commandTemplates,
+                                Command.NaturalProgramming,
+                                "generate-test-from-requirements"
+                            );
+                            await processCodeGeneration(
+                                token,
+                                [useCase, attachments, CodeGenerationType.TESTS_FOR_USER_REQUIREMENT],
+                                inputText
+                            );
                             break;
                         case "generate-code-from-requirements":
-                            // await processCodeGeneration(
-                            //     token,
-                            //     [
-                            //         parameters.inputRecord.length === 1 && parameters.inputRecord[0] !== undefined
-                            //             ? parameters.inputRecord[0]
-                            //             : messageBody,
-                            //         attachments,
-                            //         isContentIncludedInMessageBody(
-                            //             messageBody,
-                            //             GENERATE_CODE_AGAINST_THE_REQUIREMENT
-                            //         ) || isRequirementsTemplateExists
-                            //             ? CodeGenerationType.CODE_FOR_USER_REQUIREMENT
-                            //             : isTestGenerationTemplateExists
-                            //             ? CodeGenerationType.TESTS_FOR_USER_REQUIREMENT
-                            //             : CodeGenerationType.CODE_GENERATION,
-                            //     ],
-                            //     message
-                            // );
+                            useCase = getTemplateTextById(
+                                commandTemplates,
+                                Command.NaturalProgramming,
+                                "generate-code-from-requirements"
+                            );
+                            await processCodeGeneration(
+                                token,
+                                [useCase, attachments, CodeGenerationType.CODE_FOR_USER_REQUIREMENT],
+                                inputText
+                            );
                             break;
                     }
                     break;
                 }
-                case Command.Generate: {
+                case Command.Code: {
                     let useCase = "";
                     switch (parsedInput.templateId) {
                         case WILDCARD_TEMPLATE_ID:
@@ -2604,6 +2600,7 @@ export function AIChat() {
                     acceptResolver: acceptResolver,
                     handleAttachmentSelection: handleAttachmentSelection,
                 }}
+                inputPlaceholder="Describe your integration..."
                 onSend={handleSend}
                 onStop={handleStop}
                 isLoading={isLoading}

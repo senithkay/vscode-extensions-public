@@ -121,13 +121,14 @@ interface AIChatInputProps {
     initialCommandTemplate: CommandTemplates;
     tagOptions: TagOptions;
     attachmentOptions: AttachmentOptions;
+    placeholder: string;
     onSend: (content: { input: Input[]; attachments: Attachment[] }) => Promise<void>;
     onStop: () => void;
     isLoading: boolean;
 }
 
 const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
-    ({ initialCommandTemplate, tagOptions, attachmentOptions, onSend, onStop, isLoading }, ref) => {
+    ({ initialCommandTemplate, tagOptions, attachmentOptions, placeholder, onSend, onStop, isLoading }, ref) => {
         const [inputValue, setInputValue] = useState<{
             text: string;
             [key: string]: any;
@@ -259,16 +260,12 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                         default:
                             break;
                     }
+                    inputRef.current.focus();
                 }
 
                 if (isUpdatedCommand && updatedTemplate) {
-                    function isTemplateObj(obj: any): obj is { templateId: string; text: string } {
-                        return (
-                            typeof obj === "object" &&
-                            obj !== null &&
-                            typeof obj.templateId === "string" &&
-                            typeof obj.text === "string"
-                        );
+                    function isTemplateObj(obj: any): obj is { templateId: string; text?: string } {
+                        return typeof obj === "object" && obj !== null && typeof obj.templateId === "string";
                     }
                     if (isTemplateObj(updatedTemplate)) {
                         const { templateId, text } = updatedTemplate;
@@ -277,7 +274,6 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                         );
 
                         if (template) {
-                            console.log(template);
                             if (template.id === WILDCARD_TEMPLATE_ID) {
                                 inputRef.current?.insertTextAtCursor({ text: text || "" });
                             } else {
@@ -307,6 +303,15 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             },
             [activeSuggestionIndex]
         );
+
+        /**
+         * Effect: Focus the input field when the component mounts.
+         */
+        useEffect(() => {
+            if (inputRef.current) {
+                inputRef.current.focus();
+            }
+        }, []);
 
         const setInputContent = (input: InputContent) => {
             requestAnimationFrame(async () => {
@@ -459,7 +464,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                             onChange={setInputValue}
                             onKeyDown={handleKeyDown}
                             onBlur={() => completeSuggestionSelection()}
-                            placeholder="Describe your integration..."
+                            placeholder={placeholder}
                             onPostDOMUpdate={executeOnPostDOMUpdate}
                         />
                         {/* Attachments Display */}

@@ -253,5 +253,3 @@ async function checkAiStatus() {
         resolve(true);
     });
 }
-
-

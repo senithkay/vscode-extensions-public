@@ -41,7 +41,6 @@ export const fetchWithAuth = async ({
         const decoded = jwtDecode<JwtPayload>(token);
         const now = Math.floor(Date.now() / 1000);
         if (decoded.exp && decoded.exp < now) {
-            console.log("Token expired. Refreshing...");
             finalToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
         }
     } catch (err) {
@@ -62,7 +61,6 @@ export const fetchWithAuth = async ({
     let response = await makeRequest(finalToken);
 
     if (response.status === 401) {
-        console.log("401 received. Refreshing token...");
         finalToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
         if (finalToken) {
             response = await makeRequest(finalToken);
