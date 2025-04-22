@@ -444,16 +444,21 @@ export class BallerinaExtension {
         return new Promise((resolve, reject) => {
             // Use exec for regular commands
             const childProcess = exec(command, { maxBuffer: 1024 * 1024 });
-
+            let percentage = 0;
             childProcess.stdout.on('data', (data) => {
                 const output = data.toString();
                 console.log('Command output:', output);
 
                 progressStep++;
-                let percentage = Math.min(progressStep * 10, 90);
+
+                // Extract version and download percentage if present
+                const downloadMatch = output.match(/Downloading\s+(\d+\.\d+\.\d+)\s+(\d+)%/);
+                const message = downloadMatch ? `Downloading ${downloadMatch[1]}` : `${output.trim()}`;
+                // Use the extracted percentage if available, otherwise calculate based on steps
+                percentage = downloadMatch && parseInt(downloadMatch[2], 10);
 
                 res = {
-                    message: `Executing: ${output.trim()}`,
+                    message: message,
                     percentage: percentage,
                     success: false,
                     step: progressStep

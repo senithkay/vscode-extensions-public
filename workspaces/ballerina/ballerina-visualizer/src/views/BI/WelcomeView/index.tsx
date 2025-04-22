@@ -114,6 +114,35 @@ const OptionTitle = styled.div`
   margin-bottom: 8px;
 `;
 
+const StepDescriptionContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ProgressBarWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+`;
+
+const ProgressBarContainer = styled.div`
+  width: 100%;
+  height: 4px;
+  background-color: var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3));
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+`;
+
+const ProgressIndicator = styled.div<{ percentage: number }>`
+  position: absolute;
+  width: ${(props: { percentage: number }) => `${props.percentage}%`};
+  height: 100%;
+  background-color: var(--vscode-progressBar-background);
+  border-radius: 2px;
+  animation: progressAnimation 1.5s infinite ease-in-out;
+`;
+
 type WelcomeViewProps = {
     isBISupported: boolean;
 };
@@ -178,66 +207,59 @@ export function WelcomeView(props: WelcomeViewProps) {
                 </Row>
                 <Row>
                     <Column>
-                        <StepTitle>Create Your First Integration</StepTitle>
-                        <StepDescription>
-                            Ready to build? Start a new integration project using our intuitive graphical designer.
-                        </StepDescription>
                         {props.isBISupported &&
-                            <StyledButton disabled={!props.isBISupported} appearance="primary" onClick={() => goToCreateProject()}>
-                                <ButtonContent>
-                                    <Codicon name="add" iconSx={{ fontSize: 16 }} />
-                                    Create New Integration
-                                </ButtonContent>
-                            </StyledButton>
-                        }
-                        {!props.isBISupported &&
-                            <Option>
-                                <OptionTitle>Update to Ballerina 2201.12.3</OptionTitle>
+                            <>
+                                <StepTitle>Create Your First Integration</StepTitle>
                                 <StepDescription>
-                                    Your current Ballerina distribution is not supported. Please update to version 2201.12.3 or above.
+                                    Ready to build? Start a new integration project using our intuitive graphical designer.
                                 </StepDescription>
-                                <StyledButton appearance="primary" onClick={updateBallerina} disabled={isLoading}>
+                                <StyledButton disabled={!props.isBISupported} appearance="primary" onClick={() => goToCreateProject()}>
                                     <ButtonContent>
-                                        Update Now
+                                        <Codicon name="add" iconSx={{ fontSize: 16 }} />
+                                        Create New Integration
                                     </ButtonContent>
                                 </StyledButton>
+                            </>
+                        }
+                        {!props.isBISupported &&
+                            <>
+                                <Option>
+                                    <OptionTitle>Update to latest Ballerina distribution</OptionTitle>
+                                    <StepDescription>
+                                        Your current Ballerina distribution is not supported. Please update to version 2201.12.3 or above.
+                                    </StepDescription>
+                                    <StyledButton appearance="primary" onClick={updateBallerina} disabled={isLoading}>
+                                        <ButtonContent>
+                                            Update Now
+                                        </ButtonContent>
+                                    </StyledButton>
 
-                                {isLoading && (
-                                    <div style={{ marginTop: 10 }}>
-                                        {!progress && <StepDescription>
-                                            Updating Ballerina... This may take a few minutes.
-                                        </StepDescription>
-                                        }
-                                        {progress && (
-                                            <>
-                                                <StepDescription>{progress.message}</StepDescription>
-                                                <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
-                                                    <div style={{
-                                                        width: '100%',
-                                                        height: '4px',
-                                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                                        borderRadius: '2px',
-                                                        overflow: 'hidden',
-                                                        position: 'relative'
-                                                    }}>
-                                                        <div style={{
-                                                            position: 'absolute',
-                                                            width: `${progress.percentage}%`,
-                                                            height: '100%',
-                                                            backgroundColor: '#4a86e8',
-                                                            borderRadius: '2px',
-                                                            animation: 'progressAnimation 1.5s infinite ease-in-out'
-                                                        }} />
-                                                    </div>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-                                <StepDescription style={{ marginTop: 10 }}>
-                                    <strong>Please restart VS Code after updating the Ballerina distribution.</strong>
-                                </StepDescription>
-                            </Option>
+                                    {isLoading && (
+                                        <div style={{ marginTop: 10 }}>
+                                            {!progress && <StepDescription>
+                                                Updating Ballerina... This may take a few minutes.
+                                            </StepDescription>
+                                            }
+                                            {progress && (
+                                                <>
+                                                    <StepDescriptionContainer>
+                                                        <StepDescription>{progress.message}</StepDescription>
+                                                        <StepDescription>{progress.percentage || 0}%</StepDescription>
+                                                    </StepDescriptionContainer>
+                                                    <ProgressBarWrapper>
+                                                        <ProgressBarContainer>
+                                                            <ProgressIndicator percentage={progress.percentage} />
+                                                        </ProgressBarContainer>
+                                                    </ProgressBarWrapper>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                    <StepDescription style={{ marginTop: 10 }}>
+                                        Please restart VS Code after updating the Ballerina distribution
+                                    </StepDescription>
+                                </Option>
+                            </>
                         }
                     </Column>
                 </Row>
