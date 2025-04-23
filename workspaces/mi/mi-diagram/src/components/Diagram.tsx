@@ -460,9 +460,9 @@ export function Diagram(props: DiagramProps) {
             return;
         }
         const defaultStyle = (canvas.childNodes[0] as any).getAttribute('style');
-        (canvas.childNodes[0] as any).style = "transform: translate(0px, 0px) scale(1);";
-        (canvas.childNodes[1] as any).style = "transform: translate(0px, 0px) scale(1);";
-        const width = data.dimensions.l + data.dimensions.r + 20;
+        (canvas.childNodes[0] as any).style = "transform: translate(20px, 0px) scale(1);";
+        (canvas.childNodes[1] as any).style = "transform: translate(20px, 0px) scale(1);";
+        const width = data.dimensions.l + data.dimensions.r + 40;
         const style = window.getComputedStyle(document.body);
         const backgroundColor = style.getPropertyValue('--vscode-editor-background');
 
