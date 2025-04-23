@@ -17,7 +17,9 @@ import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { Overview } from '../components/Overview';
 
 export default function createTests() {
-    test.describe(async () => {
+    test.describe("Connection Tests", {
+        tag: '@group2',
+    }, async () => {
         initTest();
 
         test("Connection Tests", async ({ }, testInfo) => {
@@ -35,7 +37,7 @@ export default function createTests() {
 
                 const addArtifactPage = new AddArtifact(page.page);
                 await addArtifactPage.init();
-                await addArtifactPage.add('Connection');
+                await addArtifactPage.add('Connections');
 
                 const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
                 await connectorStore.init();
@@ -142,7 +144,7 @@ export default function createTests() {
 
                 const addArtifactPage = new AddArtifact(page.page);
                 await addArtifactPage.init();
-                await addArtifactPage.add('Connection');
+                await addArtifactPage.add('Connections');
 
                 const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
                 await connectorStore.init();
@@ -177,7 +179,7 @@ export default function createTests() {
                 await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "bookservice_connection" + testAttempt]);
 
                 console.log('Connection tests completed');
-                });
+            });
         });
     });
 }

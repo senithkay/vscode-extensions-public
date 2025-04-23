@@ -7,12 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { DiagramEngine } from "@projectstorm/react-diagrams";
 import styled from "@emotion/styled";
 
-import { OverlayLayerModel } from "./OverlayLayerModel";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../resources/constants";
 
 export interface NodeLayerWidgetProps {
 }
@@ -29,7 +26,7 @@ const Container = styled.div`
     backdrop-filter: blur(5px);
     background-color: rgba(0, 0, 0, 0.1);
     pointer-events: auto;
-    z-index: 1000;
+    z-index: 3000;
 `;
 
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {

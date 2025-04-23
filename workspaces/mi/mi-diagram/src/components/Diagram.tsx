@@ -34,6 +34,7 @@ import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 import { debounce } from "lodash";
+import { OverlayLayerAlertWidget } from "./OverlayLoader/OverlayLayerAlertWidget";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -429,6 +430,7 @@ export function Diagram(props: DiagramProps) {
                     setSidePanelState,
                 }}>
                     {isLoading && <OverlayLayerWidget />}
+                    {sidePanelState.alertMessage && <OverlayLayerAlertWidget />}
 
                     {/* controls */}
                     <S.ControlsContainer>

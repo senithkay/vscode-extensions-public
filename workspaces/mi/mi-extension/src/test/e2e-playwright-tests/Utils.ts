@@ -128,7 +128,7 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean, pr
         if (cleanupAfter && fs.existsSync(newProjectPath)) {
             fs.rmSync(newProjectPath, { recursive: true });
         }
-        console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}`);
+        console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}, Attempt: ${testInfo.retry + 1}`);
     });
 }
 
@@ -141,7 +141,7 @@ export async function copyFile(source: string, destination: string) {
     fs.copyFileSync(source, destination);
 }
 
-export async function waitUntilPomContains(page:Page, filePath: string, expectedText: string, timeout = 10000) {
+export async function waitUntilPomContains(page: Page, filePath: string, expectedText: string, timeout = 10000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
         const content = await readFile(filePath, 'utf8');
@@ -153,7 +153,7 @@ export async function waitUntilPomContains(page:Page, filePath: string, expected
     throw new Error(`Timed out waiting for '${expectedText}' in pom.xml`);
 }
 
-export async function waitUntilPomNotContains(page:Page, filePath: string, expectedText: string, timeout = 10000) {
+export async function waitUntilPomNotContains(page: Page, filePath: string, expectedText: string, timeout = 10000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
         const content = await readFile(filePath, 'utf8');

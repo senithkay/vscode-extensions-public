@@ -10,11 +10,11 @@
 import { cloneDeep } from "lodash";
 import { COMMANDS, SWAGGER_PATH_TEMPLATE, SWAGGER_REL_DIR } from "../constants";
 import { SwaggerFromAPIResponse } from "@wso2-enterprise/mi-core";
-import { StateMachine } from "../stateMachine";
 import { workspace, window } from "vscode";
 import path from "path";
 import * as vscode from 'vscode';
 import { deleteRegistryResource } from "./fileOperations";
+import { getStateMachine } from "../stateMachine";
 
 const fs = require('fs');
 
@@ -278,11 +278,15 @@ export const getResourceInfo = (props: SwaggerUtilProps): ResourceInfoResponse =
 
 export function generateSwagger(apiPath: string): Promise<SwaggerFromAPIResponse> {
     return new Promise(async (resolve) => {
-        const langClient = StateMachine.context().langClient!;
+        const projectUri = workspace.getWorkspaceFolder(vscode.Uri.file(apiPath))?.uri.fsPath;
+        if (!projectUri) {
+            return;
+        }
+        const langClient = getStateMachine(projectUri).context().langClient!;
         const response = await langClient.swaggerFromAPI({ apiPath: apiPath });
         const generatedSwagger = response.swagger;
-        const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
-        const dirPath = path.join(workspacePath, SWAGGER_REL_DIR);
+
+        const dirPath = path.join(projectUri, SWAGGER_REL_DIR);
         const swaggerPath = path.join(dirPath, path.basename(apiPath, path.extname(apiPath)) + '.yaml');
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
@@ -293,7 +297,10 @@ export function generateSwagger(apiPath: string): Promise<SwaggerFromAPIResponse
 }
 
 export function deleteSwagger(apiPath: string) {
-    const projectRoot = StateMachine.context().projectUri!;
+    const projectRoot = workspace.getWorkspaceFolder(vscode.Uri.file(apiPath))?.uri.fsPath;
+    if (!projectRoot) {
+        return;
+    }
     const swaggerDir = path.join(projectRoot!, SWAGGER_REL_DIR);
     const swaggerFilePath = path.join(swaggerDir, path.basename(apiPath, path.extname(apiPath)) + '.yaml');
     if (fs.existsSync(swaggerFilePath)) {
