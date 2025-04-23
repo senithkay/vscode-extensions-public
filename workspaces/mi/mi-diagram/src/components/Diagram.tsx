@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel, NodeModel } from "@projectstorm/react-diagrams";
 import {
     traversNode,
     STNode,
@@ -212,8 +212,8 @@ export function Diagram(props: DiagramProps) {
         updateDiagramData(flows);
 
         rpcClient?.getVisualizerState().then((state) => {
-            if (state && state.identifier !== undefined && state.identifier !== "") {
-                setDiagramViewStateKey(`diagramViewState-${props.documentUri}-${state.identifier}`);
+            if (state && state.documentUri !== undefined && state.documentUri !== "") {
+                setDiagramViewStateKey(`diagramViewState-${props.documentUri}-${state.identifier ?? ""}`);
             }
         });
 
@@ -281,7 +281,7 @@ export function Diagram(props: DiagramProps) {
                 };
                 canvasWidth = Math.max(canvasWidth, dimensions.width);
                 canvasHeight = Math.max(canvasHeight, dimensions.height);
-                initDiagram(newModel, dataItem.engine, dimensions);
+                initDiagram(nodes, newModel, dataItem.engine, dimensions);
             });
         });
         setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
@@ -320,7 +320,7 @@ export function Diagram(props: DiagramProps) {
     };
 
 
-    const initDiagram = (diagramModel: DiagramModel, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
+    const initDiagram = (nodes: NodeModel[], diagramModel: DiagramModel, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
         const scroll = scrollRef?.current as any;
         const offsetWidth = scroll ? scroll.clientWidth : dimensions.width;
         const diagramZero = -(dimensions.width / 2) + dimensions.l;
@@ -336,12 +336,33 @@ export function Diagram(props: DiagramProps) {
                     centerDiagram(false, diagramEngine, dimensions);
                 });
                 centerDiagram(false, diagramEngine, dimensions);
+
+                const storedScrollPosition = localStorage.getItem(diagramViewStateKey);
+                if (!storedScrollPosition) {
+                    const startNode = nodes[0];
+                    scrollIntoNode(startNode);
+                }
+
                 setTimeout(() => {
                     setIsLoading(false);
                 }, 150);
             }
         }, 150);
     };
+
+    const scrollIntoNode = (node: NodeModel) => {
+        const id = node?.getID();
+
+        const element = document.querySelector(`[data-nodeid="${id}"]`);
+
+        if (element) {
+            element.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+                inline: "center"
+            });
+        }
+    }
 
     const centerDiagram = async (animate = false, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
         if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
@@ -392,7 +413,7 @@ export function Diagram(props: DiagramProps) {
         }
     };
 
-    const zoom = (type: "in" | "out" | "reset") => {
+    const zoom = async (type: "in" | "out" | "reset") => {
         const diagramEngine = isFaultFlow ? diagramData.fault.engine : diagramData.flow.engine;
         const model = diagramEngine.getModel();
         const scroll = scrollRef?.current as any;
@@ -400,9 +421,11 @@ export function Diagram(props: DiagramProps) {
         if (type === 'reset') {
             const dimensions = isFaultFlow ? diagramData.fault.dimensions : diagramData.flow.dimensions;
             model.setZoomLevel(100);
-            centerDiagram(false, diagramEngine, dimensions);
+            await centerDiagram(false, diagramEngine, dimensions);
             diagramEngine.repaintCanvas();
-            scroll.scrollLeft = scroll?.clientWidth > dimensions.width ? 0 : (scroll?.clientWidth / 2 - dimensions.l / 2);
+
+            const startNode = model.getNodes()?.[0]
+            scrollIntoNode(startNode);
             return;
         }
 
