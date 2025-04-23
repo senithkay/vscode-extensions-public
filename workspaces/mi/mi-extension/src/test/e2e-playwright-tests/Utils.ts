@@ -20,7 +20,7 @@ export const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
 const vscodeVersion = 'latest';
 export const resourcesFolder = path.join(__dirname, '..', 'test-resources');
-export const newProjectPath = path.join(dataFolder, 'new-projects');
+export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
 export let vscode: ElectronApplication | undefined;
 export let page: ExtendedPage;
 
