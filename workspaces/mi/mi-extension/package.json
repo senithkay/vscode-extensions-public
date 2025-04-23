@@ -951,7 +951,7 @@
     "vscode-messenger-common": "^0.4.5",
     "@wso2-enterprise/mi-core": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
-    "@playwright/test": "~1.46.0",
+    "@playwright/test": "~1.52.0",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "vscode-extension-tester": "~5.9.1",
     "vscode-languageclient": "^8.0.2",

@@ -61,7 +61,6 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 				this._onDidChangeTreeData.fire();
 			} catch (err) {
 				console.error(err);
-				this._data = [];
 			}
 		});
 	}, 300);

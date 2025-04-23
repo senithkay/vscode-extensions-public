@@ -332,6 +332,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                                             null
                                         ) : (
                                             <Card
+                                                id={connector.name}
                                                 data-testid={connector.name}
                                                 key={connector.name}
                                                 icon="inbound-endpoint"
@@ -343,6 +344,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                                     ))}
                                     {storeConnectors && storeConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
                                         <Card
+                                            id={connector.connectorName}
                                             key={connector.connectorName}
                                             icon="inbound-endpoint"
                                             title={connector.connectorName}

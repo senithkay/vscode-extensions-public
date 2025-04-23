@@ -37,7 +37,7 @@ export default function createTests() {
 
                 const addArtifactPage = new AddArtifact(page.page);
                 await addArtifactPage.init();
-                await addArtifactPage.add('Connection');
+                await addArtifactPage.add('Connections');
 
                 const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
                 await connectorStore.init();
@@ -144,7 +144,7 @@ export default function createTests() {
 
                 const addArtifactPage = new AddArtifact(page.page);
                 await addArtifactPage.init();
-                await addArtifactPage.add('Connection');
+                await addArtifactPage.add('Connections');
 
                 const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
                 await connectorStore.init();
