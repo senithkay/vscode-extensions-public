@@ -18,7 +18,9 @@ import { Overview } from '../components/Overview';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
 export default function createTests() {
-  test.describe(async () => {
+  test.describe("Connector Tests", {
+    tag: '@group2',
+  }, async () => {
     initTest();
 
     test("Connector Tests", async ({ }, testInfo) => {

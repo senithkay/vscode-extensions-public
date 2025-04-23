@@ -11,8 +11,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import * as os from "os";
 import { join } from "path";
 import * as path from "path";
-import { getGitRemotes, initGit } from "@wso2-enterprise/git-vscode";
-import type { IFileStatus } from "@wso2-enterprise/git-vscode/lib/git";
 import {
 	ChoreoComponentType,
 	type ComponentConfigYamlContent,
@@ -26,6 +24,9 @@ import {
 } from "@wso2-enterprise/wso2-platform-core";
 import * as yaml from "js-yaml";
 import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
+import type { IFileStatus } from "./git/git";
+import { initGit } from "./git/main";
+import { getGitRemotes } from "./git/util";
 import { getLogger } from "./logger/logger";
 
 export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
@@ -185,6 +186,15 @@ export const saveFile = async (
 	return "";
 };
 
+export const isSamePath = (parent: string, sub: string): boolean => {
+	const normalizedParent = getNormalizedPath(parent).toLowerCase();
+	const normalizedSub = getNormalizedPath(sub).toLowerCase();
+	if (normalizedParent === normalizedSub) {
+		return true;
+	}
+	return false;
+};
+
 export const isSubpath = (parent: string, sub: string): boolean => {
 	const normalizedParent = getNormalizedPath(parent).toLowerCase();
 	const normalizedSub = getNormalizedPath(sub).toLowerCase();
@@ -199,7 +209,7 @@ export const isSubpath = (parent: string, sub: string): boolean => {
 export const getSubPath = (subPath: string, parentPath: string): string | null => {
 	const normalizedParent = getNormalizedPath(parentPath);
 	const normalizedSub = getNormalizedPath(subPath);
-	if (normalizedParent === normalizedSub) {
+	if (normalizedParent.toLocaleLowerCase() === normalizedSub.toLocaleLowerCase()) {
 		return ".";
 	}
 

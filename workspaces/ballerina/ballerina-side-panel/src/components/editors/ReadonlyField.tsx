@@ -9,7 +9,7 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { Button, Icon, RequiredFormInput } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, RequiredFormInput, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { capitalize } from "./utils";
 import styled from "@emotion/styled";
 
@@ -49,7 +49,6 @@ const InputContainer = styled.div`
     border: calc(var(--border-width)* 1px) solid var(--dropdown-border);
     height: calc(var(--input-height)* 1px);
     min-width: var(--input-min-width);
-    width: calc(100% - 34px);
     padding: 0 calc(var(--design-unit) * 2px + 1px);
     margin-top: 10px;
 `;
@@ -91,9 +90,11 @@ export function ReadonlyField(props: ReadonlyFieldProps) {
             {field.documentation && <Description>{field.documentation}</Description>}
             <InputContainer>
                 <Value>{field.value}</Value>
-                <StyledButton appearance="icon" tooltip="Read only" disabled>
-                    <Icon name="bi-lock" sx={{ fontSize: 16, width: 16, height: 16}} />
-                </StyledButton>
+                <Tooltip content="Read only field">
+                    <StyledButton appearance="icon" disabled>
+                        <Icon name="bi-lock" sx={{ fontSize: 16, width: 16, height: 16}} />
+                    </StyledButton>
+                </Tooltip>
             </InputContainer>
         </Container>
     );

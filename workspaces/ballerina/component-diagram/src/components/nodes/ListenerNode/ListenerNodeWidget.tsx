@@ -165,7 +165,10 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
 
     const menuItems: Item[] = [
         { id: "edit", label: "Edit", onClick: () => handleOnClick() },
-        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
+
+        ...((!model.node.attachedServices || model.node.attachedServices.length === 0)
+            ? [{ id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }]
+            : [])
     ];
 
     return (

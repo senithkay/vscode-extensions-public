@@ -12,8 +12,10 @@ import connectionTests from './connectorTests/connection.spec';
 import connectorTests from './connectorTests/connector.spec';
 import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 import artifactTests from './artifactTests/artifact.spec';
+import artifact430Tests from './artifactTests/artifact430.spec';
 import logMediatorTests from './mediatorTests/log.spec';
 import cacheMediatorTests from './mediatorTests/cache.spec';
+import overviewPageTests from './OverviewPageTests/projectSettingPage.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
@@ -29,11 +31,13 @@ test.beforeAll(async () => {
 });
 
 test.describe(artifactTests);
+test.describe(overviewPageTests);
 test.describe(connectionTests);
 test.describe(connectorTests);
 test.describe(inboundEpTests);
 test.describe(logMediatorTests);
 test.describe(cacheMediatorTests);
+test.describe(artifact430Tests);
 
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);

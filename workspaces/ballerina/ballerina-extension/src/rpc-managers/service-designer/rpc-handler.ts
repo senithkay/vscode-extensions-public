@@ -17,7 +17,6 @@ import {
     ListenerModelRequest,
     ListenerSourceCodeRequest,
     ListenersRequest,
-    RecordSTRequest,
     ServiceModelFromCodeRequest,
     ServiceModelRequest,
     ServiceSourceCodeRequest,
@@ -32,7 +31,6 @@ import {
     getListenerModel,
     getListenerModelFromCode,
     getListeners,
-    getRecordST,
     getServiceModel,
     getServiceModelFromCode,
     getTriggerModels,
@@ -45,7 +43,6 @@ import { ServiceDesignerRpcManager } from "./rpc-manager";
 
 export function registerServiceDesignerRpcHandlers(messenger: Messenger) {
     const rpcManger = new ServiceDesignerRpcManager();
-    messenger.onRequest(getRecordST, (args: RecordSTRequest) => rpcManger.getRecordST(args));
     messenger.onRequest(exportOASFile, (args: ExportOASRequest) => rpcManger.exportOASFile(args));
     messenger.onRequest(getTriggerModels, (args: TriggerModelsRequest) => rpcManger.getTriggerModels(args));
     messenger.onRequest(getListeners, (args: ListenersRequest) => rpcManger.getListeners(args));

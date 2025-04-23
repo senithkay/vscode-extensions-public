@@ -23,8 +23,6 @@ import {
     ListenerSourceCodeRequest,
     ListenersRequest,
     ListenersResponse,
-    RecordSTRequest,
-    RecordSTResponse,
     ServiceDesignerAPI,
     ServiceModelFromCodeRequest,
     ServiceModelFromCodeResponse,
@@ -44,7 +42,6 @@ import {
     getListenerModel,
     getListenerModelFromCode,
     getListeners,
-    getRecordST,
     getServiceModel,
     getServiceModelFromCode,
     getTriggerModels,
@@ -60,10 +57,6 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
 
     constructor(messenger: Messenger) {
         this._messenger = messenger;
-    }
-
-    getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
-        return this._messenger.sendRequest(getRecordST, HOST_EXTENSION, params);
     }
 
     exportOASFile(params: ExportOASRequest): Promise<ExportOASResponse> {

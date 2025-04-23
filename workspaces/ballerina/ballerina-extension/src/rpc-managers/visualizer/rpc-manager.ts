@@ -16,10 +16,12 @@ import {
     MACHINE_VIEW,
     PopupVisualizerLocation,
     VisualizerLocation,
-    EVENT_TYPE
+    EVENT_TYPE,
+    SHARED_COMMANDS
 } from "@wso2-enterprise/ballerina-core";
 import { history, openView, undoRedoManager, updateView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
+import { commands } from "vscode";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -49,7 +51,7 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     goHome(): void {
         history.clear();
-        updateView();
+        commands.executeCommand(SHARED_COMMANDS.FORCE_UPDATE_PROJECT_ARTIFACTS);
     }
 
     goSelected(index: number): void {

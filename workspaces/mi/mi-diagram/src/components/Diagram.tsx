@@ -36,6 +36,7 @@ import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 import { debounce } from "lodash";
 import { Navigator } from "./Navigator/Navigator";
 import path from "path";
+import { OverlayLayerAlertWidget } from "./OverlayLoader/OverlayLayerAlertWidget";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -507,6 +508,7 @@ export function Diagram(props: DiagramProps) {
                     setSidePanelState,
                 }}>
                     {isLoading && <OverlayLayerWidget />}
+                    {sidePanelState.alertMessage && <OverlayLayerAlertWidget />}
 
                     {/* controls */}
                     <S.ControlsContainer>
@@ -561,7 +563,7 @@ export function Diagram(props: DiagramProps) {
                             clearSidePanelState(sidePanelState);
                         }}
                     >
-                        <SidePanelList nodePosition={sidePanelState.nodeRange} trailingSpace={sidePanelState.trailingSpace} documentUri={props.documentUri} />
+                        <SidePanelList nodePosition={sidePanelState.nodeRange} trailingSpace={sidePanelState.trailingSpace} documentUri={props.documentUri} artifactModel={props.model} />
                     </SidePanel>
                 </SidePanelProvider>
             </S.Container >

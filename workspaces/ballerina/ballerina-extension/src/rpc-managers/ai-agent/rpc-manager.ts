@@ -24,6 +24,8 @@ import {
     AgentTool,
     AgentToolRequest,
     FlowNode,
+    MemoryManagersRequest,
+    MemoryManagersResponse,
     NodePosition,
     STModification,
     SyntaxTree,
@@ -58,6 +60,18 @@ export class AiAgentRpcManager implements AIAgentAPI {
             const context = StateMachine.context();
             try {
                 const res: AINodesResponse = await context.langClient.getAllModels(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async getAllMemoryManagers(params: MemoryManagersRequest): Promise<MemoryManagersResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: MemoryManagersResponse = await context.langClient.getAllMemoryManagers(params);
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -416,6 +430,5 @@ export class AiAgentRpcManager implements AIAgentAPI {
             console.log(">>> error updating source", error);
         }
     }
-
 }
 

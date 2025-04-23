@@ -9,13 +9,16 @@
 
 import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, commands, window } from "vscode";
+import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
 import { authStore } from "../stores/auth-store";
+import { isRpcActive } from "./cmd-utils";
 
 export function signOutCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.SignOut, async () => {
 			try {
+				isRpcActive(ext);
 				getLogger().debug("Signing out from WSO2 Platform");
 				authStore.getState().logout();
 				window.showInformationMessage("Successfully signed out from WSO2 Platform!");

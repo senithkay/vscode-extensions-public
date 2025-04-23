@@ -7,10 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Type, Member } from "@wso2-enterprise/ballerina-core";
+import { IdentifierField } from "./IdentifierField";
 
 namespace S {
     export const Container = styled.div`
@@ -21,7 +22,7 @@ namespace S {
     export const MemberRow = styled.div`
         display: flex;
         gap: 8px;
-        justify-content: space-between;
+        justify-content: flex-start;
         margin-bottom: 8px;
     `;
 
@@ -68,15 +69,75 @@ namespace S {
         padding: 8px;
         border-radius: 4px;
     `;
+
+    export const ValidationMessage = styled.div`
+        color: var(--vscode-errorForeground);
+        font-size: 12px;
+        margin-top: 8px;
+    `;
 }
 
 interface EnumEditorProps {
     type: Type;
     onChange: (type: Type) => void;
+    onValidationError?: (isError: boolean) => void;
 }
 
-export function EnumEditor({ type, onChange }: EnumEditorProps) {
+export function EnumEditor({ type, onChange, onValidationError }: EnumEditorProps) {
     const [expandedFunctions, setExpandedFunctions] = useState<number[]>([]);
+    const [notEnoughMembers, setNotEnoughMembers] = useState<boolean>(false);
+    const [fieldValidationErrors, setFieldValidationErrors] = useState<Record<string, boolean>>({});
+
+    // Initialize with at least one member if none exist
+    useEffect(() => {
+        let shouldUpdateType = false;
+        let updatedMembers: Member[] = [...(type.members || [])];
+
+        if (!type.members || type.members.length < 1) {
+            shouldUpdateType = true;
+
+            updatedMembers.push({
+                kind: "ENUM_MEMBER",
+                name: "",
+                type: "string",
+                refs: []
+            });
+        }
+
+        // Update the validation state
+        setNotEnoughMembers(updatedMembers.length < 1);
+        validateAllErrors(updatedMembers.length < 1);
+
+        // Only update the type if we made changes
+        if (shouldUpdateType) {
+            onChange({
+                ...type,
+                members: updatedMembers
+            });
+        }
+    }, [type.members?.length]);
+
+    // Validate that there is at least one member
+    const validateMemberCount = (count: number) => {
+        const notEnough = count < 1;
+        setNotEnoughMembers(notEnough);
+        validateAllErrors(notEnough);
+    };
+
+    const onFieldValidation = (key: string | number, hasError: boolean) => {
+        setFieldValidationErrors(prev => {
+            const newErrors = { ...prev, [key]: hasError };
+            onValidationError?.(Object.values(newErrors).some(error => error) || notEnoughMembers);
+            return newErrors;
+        });
+    };
+
+    // Combine all validation errors and notify parent
+    const validateAllErrors = (notEnoughMembersError: boolean) => {
+        const hasFieldErrors = Object.values(fieldValidationErrors).some(error => error);
+        const hasAnyError = notEnoughMembersError || hasFieldErrors;
+        onValidationError?.(hasAnyError);
+    };
 
     const toggleFunctionExpand = (index: number) => {
         setExpandedFunctions(prev =>
@@ -94,10 +155,13 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
             refs: []
         };
 
+        const updatedMembers = [...type.members, newMember];
         onChange({
             ...type,
-            members: [...type.members, newMember]
+            members: updatedMembers
         });
+
+        validateMemberCount(updatedMembers.length);
     };
 
     const updateMember = (index: number, name: string) => {
@@ -119,6 +183,8 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
             ...type,
             members: updatedMembers
         });
+
+        validateMemberCount(updatedMembers.length);
     };
 
     const handleMemberDefaultValueChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,6 +200,7 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
         });
     };
 
+
     return (
         <S.Container>
             <S.Header>
@@ -144,20 +211,37 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
             </S.Header>
             {type.members.map((member, index) => (
                 <>
-                    <S.MemberRow key={index}>
+                    <S.MemberRow>
                         <S.ExpandIconButton
                             appearance="icon"
                             onClick={() => toggleFunctionExpand(index)}
                         >
                             <Codicon name={expandedFunctions.includes(index) ? "chevron-down" : "chevron-right"} />
                         </S.ExpandIconButton>
-                        <TextField
-                            value={member.name}
-                            onChange={(e) => updateMember(index, e.target.value)}
-                            placeholder="Enum member name"
-                            sx={{ flexGrow: 1 }}
-                        />
-                        <Button appearance="icon" onClick={() => deleteMember(index)}><Codicon name="trash" /></Button>
+                        <div style={{ flexGrow: 1 }}>
+                            <IdentifierField
+                                value={member.name}
+                                onChange={(value) => updateMember(index, value)}
+                                placeholder="Enum member name"
+                                rootType={type}
+                                autoFocus={index === 0}
+                                onValidationError={(hasError) => onFieldValidation(index, hasError)}
+                            />
+                        </div>
+                        <Button
+                            appearance="icon"
+                            onClick={() => deleteMember(index)}
+                            disabled={type.members.length <= 1}
+                            tooltip={type.members.length <= 1 ? "Enum must have at least one member" : "Remove member"}
+
+                        >
+                            <Codicon
+                                name="trash"
+                                sx={{
+                                    cursor: type.members.length <= 1 ? "not-allowed" : "pointer"
+                                }}
+                            />
+                        </Button>
                     </S.MemberRow>
                     {expandedFunctions.includes(index) && (
                         <S.ConstantExpressionContainer>
@@ -171,6 +255,11 @@ export function EnumEditor({ type, onChange }: EnumEditorProps) {
                     )}
                 </>
             ))}
+            {notEnoughMembers && type.members.length < 1 && (
+                <S.ValidationMessage>
+                    Enum type must have at least one member
+                </S.ValidationMessage>
+            )}
         </S.Container>
     );
 } 

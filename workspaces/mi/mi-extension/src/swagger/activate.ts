@@ -7,14 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as vscode from 'vscode';
 import { SwaggerWebview } from './webview';
 import { SwaggerData } from '@wso2-enterprise/mi-core';
 
-export async function openSwaggerWebview(swaggerData: SwaggerData) {
-    if (!SwaggerWebview.currentPanel) {
-        SwaggerWebview.currentPanel = new SwaggerWebview(swaggerData);
+export async function openSwaggerWebview(projectUri: string, swaggerData: SwaggerData) {
+    if (!SwaggerWebview.webviews.has(projectUri)) {
+        const webview = new SwaggerWebview(swaggerData, projectUri);
+        SwaggerWebview.webviews.set(projectUri, webview);
     } else {
-        SwaggerWebview.currentPanel!.getWebview()?.reveal();
+        const webview = SwaggerWebview.webviews.get(projectUri);
+        if (webview) {
+            webview.getWebview()?.reveal();
+        }
     }
 }

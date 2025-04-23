@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { History } from "@wso2-enterprise/mi-core";
-import { navigate, StateMachine } from "../stateMachine";
+import { getStateMachine, refreshUI } from "../stateMachine";
+import { Uri, workspace } from "vscode";
 
 export let history: History;
 
@@ -16,6 +17,10 @@ export function activate() {
 }
 
 export function removeFromHistory(fileUri: string, identifier?: string) {
+    const projectUri = workspace.getWorkspaceFolder(Uri.file(fileUri))?.uri.fsPath;
+    if (!projectUri) {
+        return;
+    }
     const historyStack = history.get();
     const newHistory = historyStack.filter((location) => {
         if (identifier !== undefined) {
@@ -28,8 +33,9 @@ export function removeFromHistory(fileUri: string, identifier?: string) {
         history.push(location);
     });
 
-    const context = StateMachine.context();
+    const stateMachine = getStateMachine(projectUri);
+    const context = stateMachine.context();
     if (context.documentUri === fileUri && (identifier !== undefined ? context.identifier?.toString() === identifier.toString() : true)) {
-        navigate();
+        refreshUI(projectUri);
     }
 }

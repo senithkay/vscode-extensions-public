@@ -7,48 +7,48 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import * as os from "os";
 import * as path from "path";
-import { join } from "path";
-import { getGitRoot } from "@wso2-enterprise/git-vscode";
 import {
 	ChoreoBuildPackNames,
 	ChoreoComponentType,
 	CommandIds,
 	DevantScopes,
-	type ICreateComponentParams,
+	type ExtensionName,
+	type ICreateComponentCmdParams,
 	type SubmitComponentCreateReq,
 	type WorkspaceConfig,
+	getComponentKindRepoSource,
 	getComponentTypeText,
 	getIntegrationScopeText,
 	getTypeOfIntegrationType,
+	parseGitURL,
 } from "@wso2-enterprise/wso2-platform-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
+import { getGitRemotes, getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
-import { convertFsPathToUriPath, delay, getSubPath, goTosource, isSubpath, openDirectory } from "../utils";
+import { convertFsPathToUriPath, isSamePath, isSubpath, openDirectory } from "../utils";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView, type IComponentCreateFormParams } from "../webviews/ComponentFormView";
-import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import { getUserInfoForCmd, isRpcActive, selectOrg, selectProjectWithCreateNew, setExtensionName } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
 
 let componentWizard: ComponentFormView;
 
 export function createNewComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentParams) => {
+		commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentCmdParams) => {
+			setExtensionName(params?.extName);
+			const extName = webviewStateStore.getState().state.extensionName;
 			try {
-				let isIntegration = false;
-				if (params?.buildPackLang === ChoreoBuildPackNames.Ballerina || params?.buildPackLang === ChoreoBuildPackNames.MicroIntegrator) {
-					isIntegration = true;
-					webviewStateStore.getState().setExtensionName("Devant");
-				}
-				const userInfo = await getUserInfoForCmd("create a component");
+				isRpcActive(ext);
+				const userInfo = await getUserInfoForCmd(`create ${extName === "Devant" ? "an integration" : "a component"}`);
 				if (userInfo) {
 					const selected = contextStore.getState().state.selected;
 					let selectedProject = selected?.project;
@@ -60,7 +60,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						const createdProjectRes = await selectProjectWithCreateNew(
 							selectedOrg,
 							`Loading projects from '${selectedOrg.name}'`,
-							`Select the project from '${selectedOrg.name}', to create the component in`,
+							`Select the project from '${selectedOrg.name}', to create the ${extName === "Devant" ? "integration" : "component"} in`,
 						);
 						selectedProject = createdProjectRes.selectedProject;
 					}
@@ -70,7 +70,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					let selectedType: string | undefined = undefined;
 					let selectedSubType: string | undefined = undefined;
 
-					if (isIntegration) {
+					if (extName === "Devant") {
 						componentTypes.push(
 							DevantScopes.AUTOMATION,
 							DevantScopes.AI_AGENT,
@@ -90,28 +90,24 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							ChoreoComponentType.WebApplication,
 							ChoreoComponentType.ScheduledTask,
 							ChoreoComponentType.ManualTrigger,
+							ChoreoComponentType.ApiProxy,
 						);
-						const isProxyCreateEnabled = workspace.getConfiguration().get<boolean>("WSO2.WSO2-Platform.FeaturePreview.ProxyCreation");
-						if (isProxyCreateEnabled) {
-							componentTypes.push(ChoreoComponentType.ApiProxy);
-						}
 						if (params?.type && componentTypes.includes(params.type)) {
 							selectedType = params?.type;
 						}
 					}
 
 					if (!selectedType) {
-						// todo: change these options if isIntegration
 						const typeQuickPicks: (QuickPickItem & { value: string })[] = componentTypes.map((item) => ({
-							label: isIntegration ? getIntegrationScopeText(item) : getComponentTypeText(item),
+							label: extName === "Devant" ? getIntegrationScopeText(item) : getComponentTypeText(item),
 							value: item,
 						}));
 
 						const selectedTypePick = await window.showQuickPick(typeQuickPicks, {
-							title: `Select ${isIntegration ? "Integration" : "Component"} Type`,
+							title: `Select ${extName === "Devant" ? "Integration" : "Component"} Type`,
 						});
 						if (selectedTypePick?.value) {
-							if (isIntegration) {
+							if (extName === "Devant") {
 								const intType = getTypeOfIntegrationType(selectedTypePick?.value);
 								selectedType = intType.type;
 								selectedSubType = intType.subType;
@@ -122,7 +118,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					}
 
 					if (!selectedType) {
-						throw new Error("Component type is required");
+						throw new Error(`${extName === "Devant" ? "Integration" : "Component"} type is required`);
 					}
 
 					let selectedUri: Uri;
@@ -141,15 +137,79 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							canSelectFolders: true,
 							canSelectFiles: false,
 							canSelectMany: false,
-							title: "Select component directory",
+							title: `Select ${extName === "Devant" ? "integration" : "component"} directory`,
 							defaultUri: defaultUri,
 						});
 						if (!supPathUri || supPathUri.length === 0) {
-							throw new Error("Component directory selection is required");
+							throw new Error(`${extName === "Devant" ? "Integration" : "Component"} directory selection is required`);
 						}
 						selectedUri = supPathUri[0];
 					}
 					const dirName = path.basename(selectedUri.fsPath);
+
+					const components = await window.withProgress(
+						{
+							title: `Fetching ${extName === "Devant" ? "integrations" : "components"} of project ${selectedProject.name}...`,
+							location: ProgressLocation.Notification,
+						},
+						() =>
+							ext.clients.rpcClient.getComponentList({
+								orgId: selectedOrg?.id?.toString()!,
+								orgHandle: selectedOrg?.handle!,
+								projectId: selectedProject?.id!,
+								projectHandle: selectedProject?.handler!,
+							}),
+					);
+					dataCacheStore.getState().setComponents(selectedOrg.handle, selectedProject.handler, components);
+
+					let gitRoot: string | undefined;
+					try {
+						gitRoot = await getGitRoot(context, selectedUri.fsPath);
+					} catch (err) {
+						// ignore error
+					}
+
+					// check if user already has a component in the same path
+					let componentAlreadyExists = false;
+					for (const componentItem of components) {
+						if (gitRoot) {
+							const remotes = await getGitRemotes(ext.context, gitRoot);
+							const repoUrl = getComponentKindRepoSource(componentItem.spec.source).repo;
+							const parsedRepoUrl = parseGitURL(repoUrl);
+							if (parsedRepoUrl) {
+								const [repoOrg, repoName, repoProvider] = parsedRepoUrl;
+								const hasMatchingRemote = remotes.some((remoteItem) => {
+									const parsedRemoteUrl = parseGitURL(remoteItem.fetchUrl);
+									if (parsedRemoteUrl) {
+										const [repoRemoteOrg, repoRemoteName, repoRemoteProvider] = parsedRemoteUrl;
+										return repoOrg === repoRemoteOrg && repoName === repoRemoteName && repoRemoteProvider === repoProvider;
+									}
+								});
+
+								if (hasMatchingRemote) {
+									const subPathDir = path.join(gitRoot, getComponentKindRepoSource(componentItem.spec.source)?.path);
+									if (isSamePath(subPathDir, selectedUri.fsPath)) {
+										componentAlreadyExists = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+
+					if (componentAlreadyExists && gitRoot && selectedProject && selectedOrg) {
+						const resp = await window.showInformationMessage(
+							`${extName === "Devant" ? "An integration" : "A component"} for the selected directory already exists within you project(${selectedProject?.name}). Do you want to proceed and create another ${extName === "Devant" ? "integration" : "component"}?`,
+							{ modal: true },
+							"Proceed",
+						);
+						if (resp !== "Proceed") {
+							const projectCache = dataCacheStore.getState().getProjects(selectedOrg?.handle);
+							updateContextFile(gitRoot, authStore.getState().state.userInfo!, selectedProject, selectedOrg, projectCache);
+							contextStore.getState().refreshState();
+							return;
+						}
+					}
 
 					const isWithinWorkspace = workspace.workspaceFolders?.some((item) => isSubpath(item.uri?.fsPath, selectedUri?.fsPath));
 
@@ -172,12 +232,6 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						componentWizard = new ComponentFormView(ext.context.extensionUri, createCompParams);
 						componentWizard.getWebview()?.reveal();
 					} else {
-						let gitRoot: string | undefined;
-						try {
-							gitRoot = await getGitRoot(context, selectedUri.fsPath);
-						} catch (err) {
-							// ignore error
-						}
 						// TODO: check this on windows
 						openDirectory(gitRoot || selectedUri.path, "Where do you want to open the selected directory?", () => {
 							ext.context.globalState.update("create-comp-params", JSON.stringify(createCompParams));
@@ -185,7 +239,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					}
 				}
 			} catch (err: any) {
-				console.error("Failed to create component", err);
+				console.error(`Failed to create ${extName === "Devant" ? "integration" : "component"}`, err);
 				window.showErrorMessage(err?.message || "Failed to create component");
 			}
 		}),
@@ -199,7 +253,7 @@ export const continueCreateComponent = () => {
 		ext.context.globalState.update("create-comp-params", null);
 		const createCompParams: IComponentCreateFormParams = JSON.parse(compParams);
 		if (createCompParams?.extensionName) {
-			webviewStateStore.getState().setExtensionName(createCompParams?.extensionName as "WSO2" | "Choreo" | "Devant");
+			webviewStateStore.getState().setExtensionName(createCompParams?.extensionName as ExtensionName);
 		}
 		componentWizard = new ComponentFormView(ext.context.extensionUri, createCompParams);
 		componentWizard.getWebview()?.reveal();
@@ -210,7 +264,7 @@ export const submitCreateComponentHandler = async ({ createParams, org, project 
 	const extensionName = webviewStateStore.getState().state?.extensionName;
 	const createdComponent = await window.withProgress(
 		{
-			title: `Creating new component ${createParams.displayName}...`,
+			title: `Creating new ${extensionName === "Devant" ? "integration" : "component"} ${createParams.displayName}...`,
 			location: ProgressLocation.Notification,
 		},
 		() => ext.clients.rpcClient.createComponent(createParams),
@@ -268,6 +322,7 @@ export const submitCreateComponentHandler = async ({ createParams, org, project 
 			const projectCache = dataCacheStore.getState().getProjects(org.handle);
 			if (gitRoot) {
 				updateContextFile(gitRoot, authStore.getState().state.userInfo!, project, org, projectCache);
+				contextStore.getState().refreshState();
 			}
 		} catch (err) {
 			console.error("Failed to get git details of ", createParams.componentDir);

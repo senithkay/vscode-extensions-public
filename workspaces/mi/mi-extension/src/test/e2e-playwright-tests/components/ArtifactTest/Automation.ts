@@ -10,6 +10,7 @@
 import { Frame, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { AddArtifact } from "../AddArtifact";
+import { ProjectExplorer } from "../ProjectExplorer";
 
 export class Automation {
     private webView!: Frame;
@@ -50,5 +51,26 @@ export class Automation {
         await frame.getByRole('textbox', { name: 'Cron*' }).click();
         await frame.getByRole('textbox', { name: 'Cron*' }).fill('* * * * * ? *');
         await frame.getByTestId('create-task-button').click();
+    }
+
+    public async createExternalTrigger(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+        await projectExplorer.findItem(['Project testProject', 'Automations'], true);
+        await this._page.getByLabel('Add Scheduled Task').click();
+        const webView = await switchToIFrame('Task Form', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Task Form iframe");
+        }
+        const frame = webView.locator('div#root');
+        await frame.getByLabel('External Trigger').click();
+        await frame.getByRole('textbox', { name: 'Name*' }).fill(name);
+        await frame.getByRole('heading', { name: 'Advanced Configuration' }).click();
+        await frame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
+        await frame.getByText('SEQUENCE TestTask1Sequence').click();
+        await frame.getByLabel('Enable tracing').click();
+        await frame.getByLabel('Enable statistics').click();
+        await frame.getByRole('button', { name: 'Create' }).click();
     }
 }
