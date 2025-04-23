@@ -154,15 +154,6 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
                 window.showTextDocument(Uri.parse(location.uri.toString()), { selection: location.range });
             }
         });
-        // Handle pull module progress notifications
-        langClient.onNotification('$/progress', (params: any) => {
-            if (params.token && params.token.startsWith('pull-module')) {
-                extension.hasPullModuleNotification = true;
-                if (params.value.kind === 'report') {
-                    extension.hasPullModuleResolved = true;
-                }
-            }
-        });
         isPluginStartup = false;
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
