@@ -402,7 +402,8 @@ import {
     CreateBallerinaModuleResponse,
     buildBallerinaModule,
     DevantMetadata,
-    getDevantMetadata
+    getDevantMetadata,
+    UpdateMediatorResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -1030,7 +1031,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getMediator, HOST_EXTENSION, params);
     }
 
-    updateMediator(params: UpdateMediatorRequest): Promise<void> {
+    updateMediator(params: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
         return this._messenger.sendRequest(updateMediator, HOST_EXTENSION, params);
     }
 

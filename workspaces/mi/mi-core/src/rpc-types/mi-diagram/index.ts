@@ -239,7 +239,8 @@ import {
     BuildProjectRequest,
     DeployProjectRequest,
     DeployProjectResponse,
-    DevantMetadata
+    DevantMetadata,
+    UpdateMediatorResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -396,7 +397,7 @@ export interface MiDiagramAPI {
     getMediatorInputOutputSchema: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
-    updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
+    updateMediator: (param: UpdateMediatorRequest) => Promise<UpdateMediatorResponse>;
     getLocalInboundConnectors: () => Promise<LocalInboundConnectorsResponse>;
     getConnectionSchema: (param: GetConnectionSchemaRequest) => Promise<GetConnectionSchemaResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
