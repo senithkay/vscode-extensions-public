@@ -128,6 +128,7 @@ export class BallerinaExtension {
     private ballerinaCmd: string;
     public ballerinaVersion: string;
     public biSupported: boolean;
+    public isNPSupported: boolean;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
@@ -154,6 +155,7 @@ export class BallerinaExtension {
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
         this.biSupported = false;
+        this.isNPSupported = false;
         this.isPersist = false;
         this.ballerinaUserHomeName = '.ballerina';
         this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
@@ -266,6 +268,7 @@ export class BallerinaExtension {
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion.split('-')[0];
                 this.biSupported = isSupportedSLVersion(this, 2201123); // Minimum supported version for BI
+                this.isNPSupported = isSupportedSLVersion(this, 2201130) && this.enabledExperimentalFeatures(); // Minimum supported requirements for NP
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
