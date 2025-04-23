@@ -76,8 +76,24 @@ function onBeforeInit(langClient: ExtendedLangClient) {
         }
     }
 
+    class NaturalProgrammingFeature implements StaticFeature {
+        getState(): FeatureState {
+            throw new Error('Method not implemented.');
+        }
+        fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
+        dispose(): void {
+        }
+        fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
+            capabilities.experimental = capabilities.experimental || { introspection: false, showTextDocument: false };
+            capabilities.experimental.experimentalCompilation = ballerinaExtInstance.enabledExperimentalFeatures();
+        }
+        initialize(_capabilities: ServerCapabilities, _documentSelector: DocumentSelector | undefined): void {
+        }
+    }
+
     langClient.registerFeature(new TraceLogsFeature());
     langClient.registerFeature(new ShowFileFeature());
+    langClient.registerFeature(new NaturalProgrammingFeature());
 }
 
 export async function activate(context: ExtensionContext) {
