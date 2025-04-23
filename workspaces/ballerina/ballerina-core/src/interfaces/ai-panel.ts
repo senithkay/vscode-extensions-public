@@ -21,26 +21,25 @@ export enum Command {
 export enum TemplateId {
     // Shared
     Wildcard = 'wildcard',
-  
+
     // Command.Code
     GenerateCode = 'generate-code',
     GenerateFromReadme = 'generate-from-readme',
-  
+
     // Command.Tests
     TestsForService = 'tests-for-service',
     TestsForFunction = 'tests-for-function',
-  
+
     // Command.DataMap
     MappingsForRecords = 'mappings-for-records',
     MappingsForFunction = 'mappings-for-function',
-  
+
     // Command.TypeCreator
     TypesForAttached = 'types-for-attached',
-  
+
     // Command.NaturalProgramming
     CodeDocDriftCheck = 'code-doc-drift-check',
     GenerateCodeFromRequirements = 'generate-code-from-requirements',
     GenerateTestFromRequirements = 'generate-test-from-requirements',
     GenerateCodeFromFollowingRequirements = 'generate-code-from-following-requirements',
-  }
-  
+}
