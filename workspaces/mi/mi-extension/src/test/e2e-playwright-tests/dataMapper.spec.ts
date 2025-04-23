@@ -23,7 +23,9 @@ import { Overview } from './components/Overview';
 
 export default function createTests() {
 
-  test.describe('Data Mapper Tests', () => {
+  test.describe('Data Mapper Tests', {
+    tag: '@group2',
+  }, async () => {
     let dmName: string = "dm1";
 
     initTest();
