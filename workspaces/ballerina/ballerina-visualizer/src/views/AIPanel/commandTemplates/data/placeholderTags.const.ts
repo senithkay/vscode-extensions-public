@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Command } from '../models/command.enum';
+import { Command } from '@wso2-enterprise/ballerina-core';
 import { Tag } from '../models/tag.model';
 import { commandTemplates } from './commandTemplates.const';
 

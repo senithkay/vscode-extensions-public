@@ -18,16 +18,15 @@ import React, {
 } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
+import { AIPanelPrompt, Attachment, AttachmentStatus, Command, TemplateId } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "../AttachmentBox";
 import { StyledInputComponent, StyledInputRef } from "./StyledInput";
 import { AttachmentOptions, useAttachments } from "./hooks/useAttachments";
 import { Suggestion, SuggestionType, useCommands } from "./hooks/useCommands";
 import { ChatBadgeType } from "../ChatBadge";
-import { Input, InputContent } from "./utils/inputUtils";
+import { Input } from "./utils/inputUtils";
 import SuggestionsList from "./SuggestionsList";
-import { Command } from "../../commandTemplates/models/command.enum";
-import { CommandTemplates, WILDCARD_TEMPLATE_ID } from "../../commandTemplates/data/commandTemplates.const";
+import { CommandTemplates } from "../../commandTemplates/data/commandTemplates.const";
 import { Tag } from "../../commandTemplates/models/tag.model";
 import { getFirstOccurringPlaceholder, matchCommandTemplate } from "./utils/utils";
 import { getAllCommands, getTags, getTemplateDefinitionsByCommand } from "../../commandTemplates/utils/utils";
@@ -114,7 +113,7 @@ export interface TagOptions {
 }
 
 export type AIChatInputRef = {
-    setInputContent: (input: InputContent) => void;
+    setInputContent: (input: AIPanelPrompt) => void;
 };
 
 interface AIChatInputProps {
@@ -207,7 +206,8 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                 const html = inputRef.current.ref.current.innerHTML;
                 const templateInserted = inputValue.templateInserted || false;
                 const tagInserted = inputValue.tagInserted || false;
-                const initialContent = (inputValue.initialContent as InputContent) || null;
+                const tagParams = inputValue.tagParams || null;
+                const initialContent = (inputValue.initialContent as AIPanelPrompt) || null;
                 const isUpdatedCommand = inputValue.updatedCommand || false;
                 const updatedTemplate = inputValue.updatedTemplate || null;
                 const currentCursorPosition = inputRef.current.getCursorPosition();
@@ -230,13 +230,25 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                         getTemplateDefinitionsByCommand(initialCommandTemplate, activeCommand)
                     );
                     if (matchResult) {
-                        const { match, template } = matchResult;
+                        const { template } = matchResult;
                         const placeholderDefs = template.placeholders;
                         const firstPlaceholderDef = getFirstOccurringPlaceholder(templateQuery, placeholderDefs);
                         if (firstPlaceholderDef) {
                             const tags = getTags(activeCommand, template.id, firstPlaceholderDef.id);
-                            if (tags && tags.length > 0) {
-                                inputRef.current.replaceTextWith(firstPlaceholderDef.text, "@");
+                            if (tags?.length) {
+                                const tagValue = tagParams?.[firstPlaceholderDef.id];
+                                const matchedTag = tagValue && tags.find((tag) => tag.value === tagValue);
+                                if (matchedTag) {
+                                    inputRef.current.replaceTextWithBadge(firstPlaceholderDef.text, {
+                                        displayText: matchedTag.display,
+                                        rawValue: matchedTag.value,
+                                        badgeType: ChatBadgeType.Tag,
+                                        suffixText: "",
+                                        tagInserted: true,
+                                    });
+                                } else {
+                                    inputRef.current.replaceTextWithText(firstPlaceholderDef.text, "@");
+                                }
                             } else {
                                 inputRef.current.selectText(firstPlaceholderDef.text);
                             }
@@ -250,7 +262,11 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                             inputRef.current.setCursorToPosition(inputRef.current.ref.current, 0);
                             insertCommand(initialContent.command, " ", {
                                 updatedCommand: true,
-                                updatedTemplate: { templateId: initialContent.templateId, text: initialContent.text },
+                                updatedTemplate: {
+                                    templateId: initialContent.templateId,
+                                    text: initialContent.text,
+                                    params: initialContent.params,
+                                },
                             });
                             setActiveCommand(initialContent.command);
                             break;
@@ -264,21 +280,35 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                 }
 
                 if (isUpdatedCommand && updatedTemplate) {
-                    function isTemplateObj(obj: any): obj is { templateId: string; text?: string } {
+                    function isTemplateObj(
+                        obj: any
+                    ): obj is { templateId: string; text?: string; params?: Map<string, string> } {
                         return typeof obj === "object" && obj !== null && typeof obj.templateId === "string";
                     }
                     if (isTemplateObj(updatedTemplate)) {
-                        const { templateId, text } = updatedTemplate;
+                        const { templateId, text, params } = updatedTemplate;
                         const template = getTemplateDefinitionsByCommand(initialCommandTemplate, activeCommand).find(
                             (template) => template.id === templateId
                         );
 
                         if (template) {
-                            if (template.id === WILDCARD_TEMPLATE_ID) {
+                            if (template.id === TemplateId.Wildcard) {
                                 inputRef.current?.insertTextAtCursor({ text: text || "" });
                             } else {
-                                inputRef.current?.insertTextAtCursor({ text: template.text, templateInserted: true });
-                                await tagOptions.injectPlaceholderTags(activeCommand, template.id);
+                                if (params) {
+                                    await tagOptions.injectPlaceholderTags(activeCommand, template.id);
+                                    inputRef.current?.insertTextAtCursor({
+                                        text: template.text,
+                                        templateInserted: true,
+                                        tagParams: params,
+                                    });
+                                } else {
+                                    inputRef.current?.insertTextAtCursor({
+                                        text: template.text,
+                                        templateInserted: true,
+                                    });
+                                    await tagOptions.injectPlaceholderTags(activeCommand, template.id);
+                                }
                                 setPlaceholderTagsRefreshKey((prev) => prev + 1);
                             }
                         }
@@ -313,7 +343,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             }
         }, []);
 
-        const setInputContent = (input: InputContent) => {
+        const setInputContent = (input: AIPanelPrompt) => {
             requestAnimationFrame(async () => {
                 cleanChatInput(input);
             });
@@ -331,6 +361,19 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             });
             setActiveCommand(command);
             fileInputRef.current.accept = attachmentOptions.acceptResolver(command);
+        };
+
+        /**
+         * Inserts a tag badge at the current cursor position in the input field.
+         */
+        const insertTag = (displayText: string, rawValue: string, additionalProps?: { [key: string]: any }) => {
+            inputRef.current?.insertBadgeAtCursor({
+                displayText: displayText,
+                rawValue: rawValue,
+                badgeType: ChatBadgeType.Tag,
+                suffixText: "",
+                ...additionalProps,
+            });
         };
 
         /**
@@ -355,11 +398,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
 
             // insert the selected suggestion (Tag)
             if (suggestion.type === SuggestionType.Tag) {
-                inputRef.current?.insertBadgeAtCursor({
-                    displayText: suggestion.text,
-                    rawValue: suggestion.rawValue,
-                    badgeType: ChatBadgeType.Tag,
-                    suffixText: "",
+                insertTag(suggestion.text, suggestion.rawValue, {
                     tagInserted: true,
                 });
             }
@@ -416,7 +455,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
         /**
          * Clears the chat input and attachments after sending
          */
-        const cleanChatInput = (initialContent?: InputContent) => {
+        const cleanChatInput = (initialContent?: AIPanelPrompt) => {
             setInputValue({ text: "", initialContent: initialContent });
             removeAllAttachments();
         };

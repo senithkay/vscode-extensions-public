@@ -541,7 +541,7 @@ export function Overview(props: ComponentDiagramProps) {
         // Fetching the backend root URI
         rpcClient
             .getAiPanelRpcClient()
-            .getBackendURL()
+            .getBackendUrl()
             .then((res) => {
                 backendRootUri.current = res;
             });

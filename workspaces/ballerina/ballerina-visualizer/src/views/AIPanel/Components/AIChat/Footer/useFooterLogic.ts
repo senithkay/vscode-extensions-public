@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { Command } from "@wso2-enterprise/ballerina-core";
 import { Tag } from "../../../commandTemplates/models/tag.model";
-import { Command } from "../../../commandTemplates/models/command.enum";
 import { injectTags } from "../../../commandTemplates/utils/utils";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 

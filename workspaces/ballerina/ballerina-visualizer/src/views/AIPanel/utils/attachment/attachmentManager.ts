@@ -13,8 +13,7 @@
  */
 import { ChangeEvent } from "react";
 import { DataMapperAttachment } from "./dataMapperAttachment";
-import { Attachment } from "@wso2-enterprise/ballerina-core";
-import { Command } from "../../commandTemplates/models/command.enum";
+import { Attachment, Command } from "@wso2-enterprise/ballerina-core";
 import { GeneralAttachment } from "./generalAttachment";
 
 /**

@@ -8,12 +8,12 @@
  */
 
 import { useState } from "react";
-import { Command } from "../../../commandTemplates/models/command.enum";
 import { getAllCommands, getTags, getTemplateDefinitionsByCommand } from "../../../commandTemplates/utils/utils";
-import { CommandTemplates, WILDCARD_TEMPLATE_ID } from "../../../commandTemplates/data/commandTemplates.const";
+import { CommandTemplates } from "../../../commandTemplates/data/commandTemplates.const";
 import { Tag } from "../../../commandTemplates/models/tag.model";
 import { matchCommandTemplate } from "../utils/utils"
 import { PlaceholderTagMap } from "../../../commandTemplates/data/placeholderTags.const";
+import { Command, TemplateId } from "@wso2-enterprise/ballerina-core";
 
 export enum SuggestionType {
     Command = "command",
@@ -67,7 +67,7 @@ export function useCommands({ commandTemplate }: UseCommandsParams) {
             if (templateQuery.startsWith(" ")) {
                 const filterText = templateQuery.slice(1);
                 filtered = templates.filter((template) => {
-                    return (template.text.toLowerCase().startsWith(filterText) && template.id !== WILDCARD_TEMPLATE_ID);
+                    return (template.text.toLowerCase().startsWith(filterText) && template.id !== TemplateId.Wildcard);
                 }).map((template) => ({
                     text: template.text,
                     type: SuggestionType.Template,

@@ -10,6 +10,15 @@
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { AIMachineStateValue } from "../../state-machine-types";
+import { Command, TemplateId } from "../../interfaces/ai-panel";
+
+// ==================================
+// General Interfaces
+// ==================================
+export type AIPanelPrompt =
+    | { type: 'command-template'; command: Command; templateId: TemplateId; text?: string; params?: Map<string, string>; }
+    | { type: 'text'; text: string }
+    | undefined;
 
 export type ErrorCode = {
     code: number;
@@ -55,12 +64,6 @@ export interface ProjectDiagnostics {
 export interface DiagnosticEntry {
     line?: number;
     message: string;
-}
-
-export interface InitialPrompt {
-    exists: boolean;
-    text: string;
-    dataMappingFunctionName?: string;
 }
 
 export interface AIVisualizerState {

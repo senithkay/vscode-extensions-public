@@ -8,21 +8,19 @@
  */
 
 import { InputContent } from "../../components/AIChatInput/utils/inputUtils";
-import { Command } from "../models/command.enum";
 import { TemplateDefinition } from "../models/template.model";
-
-export const WILDCARD_TEMPLATE_ID = 'wildcard';
+import { Command, TemplateId } from "@wso2-enterprise/ballerina-core/";
 
 // All command templates are defined here.
 export const commandTemplates = {
     [Command.Code]: [
         {
-            id: WILDCARD_TEMPLATE_ID,
+            id: TemplateId.Wildcard,
             text: '',
             placeholders: [],
         },
         {
-            id: 'generate-code',
+            id: TemplateId.GenerateCode,
             text: 'generate code for the use-case: <usecase>',
             placeholders: [
                 {
@@ -33,14 +31,14 @@ export const commandTemplates = {
             ],
         },
         {
-            id: 'generate-from-readme',
+            id: TemplateId.GenerateFromReadme,
             text: 'generate an integration according to the given Readme file',
             placeholders: [],
         },
     ],
     [Command.Tests]: [
         {
-            id: 'tests-for-service',
+            id: TemplateId.TestsForService,
             text: 'generate tests for <servicename> service',
             placeholders: [
                 {
@@ -51,7 +49,7 @@ export const commandTemplates = {
             ],
         },
         {
-            id: 'tests-for-function',
+            id: TemplateId.TestsForFunction,
             text: 'generate tests for resource <method(space)path> function',
             placeholders: [
                 {
@@ -64,7 +62,7 @@ export const commandTemplates = {
     ],
     [Command.DataMap]: [
         {
-            id: 'mappings-for-records',
+            id: TemplateId.MappingsForRecords,
             text: 'generate mappings using input as <recordname(s)> and output as <recordname> using the <functionname> function',
             placeholders: [
                 {
@@ -85,7 +83,7 @@ export const commandTemplates = {
             ],
         },
         {
-            id: 'mappings-for-function',
+            id: TemplateId.MappingsForFunction,
             text: 'generate mappings for the <functionname> function',
             placeholders: [
                 {
@@ -98,21 +96,21 @@ export const commandTemplates = {
     ],
     [Command.TypeCreator]: [
         {
-            id: 'types-for-attached',
+            id: TemplateId.TypesForAttached,
             text: 'generate types using the attatched file',
             placeholders: []
         }
     ],
     [Command.Healthcare]: [
         {
-            id: WILDCARD_TEMPLATE_ID,
+            id: TemplateId.Wildcard,
             text: '',
             placeholders: [],
         },
     ],
     [Command.Ask]: [
         {
-            id: WILDCARD_TEMPLATE_ID,
+            id: TemplateId.Wildcard,
             text: '',
             placeholders: [],
         },
@@ -122,7 +120,7 @@ export const commandTemplates = {
     ],
     [Command.OpenAPI]: [
         {
-            id: WILDCARD_TEMPLATE_ID,
+            id: TemplateId.Wildcard,
             text: '',
             placeholders: [],
         },
@@ -134,22 +132,22 @@ export type CommandTemplates = typeof commandTemplates;
 // Natural Programming templates
 export const NATURAL_PROGRAMMING_TEMPLATES: TemplateDefinition[] = [
     {
-        id: 'code-doc-drift-check',
+        id: TemplateId.CodeDocDriftCheck,
         text: 'Check drift between code and documentation',
         placeholders: [],
     },
     {
-        id: 'generate-code-from-requirements',
+        id: TemplateId.GenerateCodeFromRequirements,
         text: 'Generate code based on the requirements',
         placeholders: [],
     },
     {
-        id: 'generate-test-from-requirements',
+        id: TemplateId.GenerateTestFromRequirements,
         text: 'Generate tests against the requirements',
         placeholders: [],
     },
     {
-        id: 'generate-code-from-following-requirements',
+        id: TemplateId.GenerateCodeFromFollowingRequirements,
         text: 'Generate code based on the following requirements: <requirements>',
         placeholders: [
             {
@@ -166,13 +164,13 @@ export const suggestedCommandTemplates: InputContent[] = [
     {
         type: 'command-template',
         command: Command.Code,
-        templateId: WILDCARD_TEMPLATE_ID,
+        templateId: TemplateId.Wildcard,
         text: 'write a hello world http service',
     },
     {
         type: 'command-template',
         command: Command.Ask,
-        templateId: WILDCARD_TEMPLATE_ID,
+        templateId: TemplateId.Wildcard,
         text: 'how to write a concurrent application?',
     },
 ];

@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandTemplates, WILDCARD_TEMPLATE_ID } from "../../../commandTemplates/data/commandTemplates.const";
-import { Command } from "../../../commandTemplates/models/command.enum";
+import { Command, TemplateId } from "@wso2-enterprise/ballerina-core";
+import { CommandTemplates } from "../../../commandTemplates/data/commandTemplates.const";
 import { getTemplateDefinitionsByCommand } from "../../../commandTemplates/utils/utils";
 import { ChatBadgeType } from "../../ChatBadge";
 import { SYSTEM_BADGE_SECRET } from "../constants";
@@ -39,15 +39,6 @@ interface TagBadgeInput extends BaseBadgeInput {
 }
 
 type BadgeInput = CommandBadgeInput | TagBadgeInput;
-
-
-// ==================================
-// Represents AIChatInput's Actual Content (Command + Template + Text)
-// ==================================
-export type InputContent =
-    | { type: 'command-template'; command: Command; templateId: string; text?: string }
-    | { type: 'text'; text: string };
-
 
 // ==================================
 // Input Parsing Utils
@@ -99,7 +90,7 @@ export function parseInput(inputs: Input[], commandTemplates: CommandTemplates):
 
     // Templates for command
     const templateDefinitions = getTemplateDefinitionsByCommand(commandTemplates, command);
-    const isWildcardTemplate = templateDefinitions.some(t => t.id === WILDCARD_TEMPLATE_ID);
+    const isWildcardTemplate = templateDefinitions.some(t => t.id === TemplateId.Wildcard);
     const textInputLeadingTrimmed = textInput.replace(/^\s+/, '');
     const matches = matchCommandTemplate(textInputLeadingTrimmed, templateDefinitions);
 
@@ -107,7 +98,7 @@ export function parseInput(inputs: Input[], commandTemplates: CommandTemplates):
         if (isWildcardTemplate) {
             return {
                 command,
-                templateId: WILDCARD_TEMPLATE_ID,
+                templateId: TemplateId.Wildcard,
                 text: textInputLeadingTrimmed,
             };
         }

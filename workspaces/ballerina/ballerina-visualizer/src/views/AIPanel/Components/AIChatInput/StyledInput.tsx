@@ -79,7 +79,17 @@ export interface StyledInputRef {
     isCursorNextToDiv: () => boolean;
     selectText: (text: string) => void;
     insertTextAtCursor: (params: { text: string; [key: string]: any }) => void;
-    replaceTextWith: (targetText: string, replacementText: string) => void;
+    replaceTextWithText: (targetText: string, replacementText: string) => void;
+    replaceTextWithBadge: (
+        targetText: string,
+        replacementBadge: {
+            displayText: string;
+            rawValue?: string;
+            badgeType?: ChatBadgeType;
+            suffixText?: string;
+            [key: string]: any;
+        }
+    ) => void;
     insertBadgeAtCursor: (params: {
         displayText: string;
         rawValue?: string;
@@ -143,7 +153,7 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
             [onChange, removeOverlapAtCursor]
         );
 
-        const handleReplaceTextWith = useCallback(
+        const handleReplaceTextWithText = useCallback(
             (targetText: string, replacementText: string) => {
                 if (!divRef.current) return;
                 replaceTextWith(divRef.current, targetText, replacementText, (val) => {
@@ -152,6 +162,50 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
                 });
             },
             [onChange]
+        );
+
+        const handleReplaceTextWithBadge = useCallback(
+            (
+                targetText: string,
+                {
+                    displayText,
+                    rawValue,
+                    badgeType,
+                    suffixText,
+                    ...rest
+                }: {
+                    displayText: string;
+                    rawValue?: string;
+                    badgeType?: ChatBadgeType;
+                    suffixText?: string;
+                    [key: string]: any;
+                }
+            ) => {
+                if (!divRef.current || !displayText) return;
+
+                replaceTextWith(divRef.current, targetText, "", () => {
+                    if (!divRef.current) return;
+
+                    const badgeHTML = ReactDOMServer.renderToStaticMarkup(
+                        <ChatBadge badgeType={badgeType} rawValue={rawValue ?? displayText}>
+                            {displayText}
+                        </ChatBadge>
+                    );
+
+                    insertHTMLWithSuffixAtCursor(divRef.current, {
+                        html: badgeHTML,
+                        suffixText,
+                        removeOverlapAtCursor,
+                        overlapText: displayText,
+                        onChange: (val) => {
+                            setInternalContent(val.text);
+                            onChange?.(val);
+                        },
+                        extraParams: rest,
+                    });
+                });
+            },
+            [onChange, removeOverlapAtCursor]
         );
 
         const handleInsertBadgeAtCursor = useCallback(
@@ -172,7 +226,11 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
                 if (!displayText) return;
 
                 // Convert <Badge> into an HTML string using ReactDOMServer
-                const badgeHTML = ReactDOMServer.renderToStaticMarkup(<ChatBadge badgeType={badgeType} rawValue={rawValue ?? displayText}>{displayText}</ChatBadge>);
+                const badgeHTML = ReactDOMServer.renderToStaticMarkup(
+                    <ChatBadge badgeType={badgeType} rawValue={rawValue ?? displayText}>
+                        {displayText}
+                    </ChatBadge>
+                );
 
                 // Now we call the utility to insert that HTML + optional suffix
                 insertHTMLWithSuffixAtCursor(divRef.current, {
@@ -210,7 +268,8 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
                 isCursorNextToDiv: handleIsCursorNextToDiv,
                 selectText: handleSelectText,
                 insertTextAtCursor: handleInsertTextAtCursor,
-                replaceTextWith: handleReplaceTextWith,
+                replaceTextWithText: handleReplaceTextWithText,
+                replaceTextWithBadge: handleReplaceTextWithBadge,
                 insertBadgeAtCursor: handleInsertBadgeAtCursor,
                 isPrevElementBadge: handleIsPrevElementBadge,
                 getContentAsInputList: handleGetContentAsInputList,
@@ -223,7 +282,8 @@ export const StyledInputComponent = forwardRef<StyledInputRef, StyledInputProps>
                 handleIsCursorNextToDiv,
                 handleSelectText,
                 handleInsertTextAtCursor,
-                handleReplaceTextWith,
+                handleReplaceTextWithText,
+                handleReplaceTextWithBadge,
                 handleInsertBadgeAtCursor,
                 handleIsPrevElementBadge,
                 getContentAsInputList,

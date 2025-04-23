@@ -20,7 +20,9 @@ import {
     ImportStatement,
     DiagnosticEntry,
     ExistingFunction,
-    InitialPrompt,
+    AIPanelPrompt,
+    Command,
+    TemplateId,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -48,11 +50,7 @@ import MarkdownRenderer from "../MarkdownRenderer";
 import { CodeSection } from "../CodeSection";
 import ErrorBox from "../ErrorBox";
 import { Input, parseInput, stringifyInputArrayWithBadges } from "../AIChatInput/utils/inputUtils";
-import {
-    commandTemplates,
-    NATURAL_PROGRAMMING_TEMPLATES,
-    WILDCARD_TEMPLATE_ID,
-} from "../../commandTemplates/data/commandTemplates.const";
+import { commandTemplates, NATURAL_PROGRAMMING_TEMPLATES } from "../../commandTemplates/data/commandTemplates.const";
 import { placeholderTags } from "../../commandTemplates/data/placeholderTags.const";
 import {
     getTemplateById,
@@ -61,7 +59,6 @@ import {
     removeTemplate,
     upsertTemplate,
 } from "../../commandTemplates/utils/utils";
-import { Command } from "../../commandTemplates/models/command.enum";
 import { acceptResolver, handleAttachmentSelection } from "../../utils/attachment/attachmentManager";
 import { abortFetchWithAuth, fetchWithAuth } from "../../utils/networkUtils";
 import { SYSTEM_ERROR_SECRET } from "../AIChatInput/constants";
@@ -165,26 +162,16 @@ export function AIChat() {
     /**
      * Effect: Initialize the component with initial prompts
      */
-    // useEffect(function initializeWithInitialPrompts() {
-    //     rpcClient
-    //         .getAiPanelRpcClient()
-    //         .getInitialPrompt()
-    //         .then((initPrompt: InitialPrompt) => {
-    //             const command = initPrompt.exists && initPrompt.text === "datamap" ? Command.DataMap : Command.Code;
-
-    //             let template = commandToTemplate.get(command)?.[1];
-
-    //             if (template && initPrompt.dataMappingFunctionName) {
-    //                 template = template.replace("<functionname>", initPrompt.dataMappingFunctionName);
-    //             }
-
-    //             if (initPrompt.exists) {
-    //                 setUserInput(template ? command + " " + template : command);
-    //             } else {
-    //                 setUserInput("/generate ");
-    //             }
-    //         });
-    // }, []);
+    useEffect(function initializeWithInitialPrompts() {
+        rpcClient
+            .getAiPanelRpcClient()
+            .getDefaultPrompt()
+            .then((defaultPrompt: AIPanelPrompt) => {
+                if (defaultPrompt) {
+                    aiChatInputRef.current?.setInputContent(defaultPrompt);
+                }
+            });
+    }, []);
     /* REFACTORED CODE END [2] */
 
     let codeSegmentRendered = false;
@@ -194,7 +181,7 @@ export function AIChat() {
 
     async function fetchBackendUrl() {
         try {
-            backendRootUri = await rpcClient.getAiPanelRpcClient().getBackendURL();
+            backendRootUri = await rpcClient.getAiPanelRpcClient().getBackendUrl();
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
             setIsReqFileExists(
                 chatLocation != null &&
@@ -493,7 +480,7 @@ export function AIChat() {
                 case Command.Code: {
                     let useCase = "";
                     switch (parsedInput.templateId) {
-                        case WILDCARD_TEMPLATE_ID:
+                        case TemplateId.Wildcard:
                             useCase = parsedInput.text;
                             break;
                         case "generate-code":
@@ -580,7 +567,7 @@ export function AIChat() {
                 }
                 case Command.Healthcare: {
                     switch (parsedInput.templateId) {
-                        case WILDCARD_TEMPLATE_ID:
+                        case TemplateId.Wildcard:
                             await processHealthcareCodeGeneration(token, parsedInput.text, inputText);
                             break;
                     }
@@ -588,7 +575,7 @@ export function AIChat() {
                 }
                 case Command.Ask: {
                     switch (parsedInput.templateId) {
-                        case WILDCARD_TEMPLATE_ID:
+                        case TemplateId.Wildcard:
                             await findInDocumentation(token, parsedInput.text, inputText);
                             break;
                     }
@@ -596,7 +583,7 @@ export function AIChat() {
                 }
                 case Command.OpenAPI: {
                     switch (parsedInput.templateId) {
-                        case WILDCARD_TEMPLATE_ID:
+                        case TemplateId.Wildcard:
                             await findInDocumentation(token, parsedInput.text, inputText);
                             await processOpenAPICodeGeneration(token, parsedInput.text, inputText);
                             break;

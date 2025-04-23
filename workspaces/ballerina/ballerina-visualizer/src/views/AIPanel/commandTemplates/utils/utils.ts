@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { Command } from "@wso2-enterprise/ballerina-core";
 import { CommandTemplates } from "../data/commandTemplates.const";
 import { placeholderTags } from "../data/placeholderTags.const";
-import { Command } from "../models/command.enum";
 import { PlaceholderDefinition } from "../models/placeholder.model";
 import { Tag } from "../models/tag.model";
 import { TemplateDefinition } from "../models/template.model";

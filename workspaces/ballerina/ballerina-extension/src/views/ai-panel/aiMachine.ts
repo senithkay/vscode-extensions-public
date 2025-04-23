@@ -10,7 +10,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/ballerina-core';
+import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens, AIPanelPrompt } from '@wso2-enterprise/ballerina-core';
 import { AiPanelWebview } from './webview';
 import { getAuthUrl, getLogoutUrl } from './auth';
 import { extension } from '../../BalExtensionContext';
@@ -227,8 +227,8 @@ export const StateMachineAI = {
     sendEvent: (eventType: AI_EVENT_TYPE) => { aiStateService.send({ type: eventType }); }
 };
 
-export function openAIWebview(initialPrompt?: string) {
-    extension.initialPrompt = typeof initialPrompt === 'string' ? initialPrompt : undefined;
+export function openAIWebview(defaultprompt?: AIPanelPrompt) {
+    extension.aiChatDefaultPrompt = defaultprompt;
     if (!AiPanelWebview.currentPanel) {
         AiPanelWebview.currentPanel = new AiPanelWebview();
     } else {

@@ -8,9 +8,10 @@
  */
 
 import { PlaceholderDefinition } from './placeholder.model';
+import { TemplateId } from '@wso2-enterprise/ballerina-core';
 
 export interface TemplateDefinition {
-    id: string;
+    id: TemplateId;
     text: string;
     placeholders: PlaceholderDefinition[];
 }
