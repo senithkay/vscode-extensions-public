@@ -28,7 +28,7 @@ const SearchStyle = {
     marginLeft: '10px',
     marginBottom: '10px',
     marginTop: '10px',
-    width: '267px',
+    width: '270px',
 
     '& > vscode-text-field': {
         width: '100%',
