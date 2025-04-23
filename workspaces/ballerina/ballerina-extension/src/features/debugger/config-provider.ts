@@ -694,6 +694,10 @@ class BIRunAdapter extends LoggingDebugSession {
             buildCommand = `${buildCommand} -- ${programArgs.join(' ')}`;
         }
 
+        if (ballerinaExtInstance.enabledExperimentalFeatures()) {
+            buildCommand = `${buildCommand} --experimental`;
+        }
+
         // Get Ballerina home path from settings
         const config = workspace.getConfiguration('ballerina');
         const ballerinaHome = config.get<string>('home');
