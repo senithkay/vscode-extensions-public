@@ -56,6 +56,7 @@ import fs from 'fs';
 import path from 'path';
 import { RPCLayer } from "../RPCLayer";
 import { VisualizerWebview } from "../views/visualizer/webview";
+import _ from "lodash";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -287,6 +288,8 @@ export class BallerinaExtension {
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
                     this.clientOptions, this, false);
 
+                _onBeforeInit(this.langClient);
+                
                 await this.langClient.start();
 
                 // Following was put in to handle server startup failures.
