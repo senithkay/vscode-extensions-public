@@ -26,7 +26,7 @@ export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject'
 export let vscode: ElectronApplication | undefined;
 export let page: ExtendedPage;
 
-export async function initVSCode() {
+async function initVSCode() {
     if (vscode && page) {
         await page.executePaletteCommand('Reload Window');
     } else {
