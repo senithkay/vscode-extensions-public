@@ -7,9 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { InputContent } from "../../components/AIChatInput/utils/inputUtils";
 import { TemplateDefinition } from "../models/template.model";
-import { Command, TemplateId } from "@wso2-enterprise/ballerina-core/";
+import { AIPanelPrompt, Command, TemplateId } from "@wso2-enterprise/ballerina-core/";
 
 // All command templates are defined here.
 export const commandTemplates = {
@@ -160,7 +159,7 @@ export const NATURAL_PROGRAMMING_TEMPLATES: TemplateDefinition[] = [
 ];
 
 // Suggested command templates are defined here.
-export const suggestedCommandTemplates: InputContent[] = [
+export const suggestedCommandTemplates: AIPanelPrompt[] = [
     {
         type: 'command-template',
         command: Command.Code,

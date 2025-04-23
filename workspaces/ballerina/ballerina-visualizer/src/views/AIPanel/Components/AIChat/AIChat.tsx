@@ -2591,6 +2591,7 @@ export function AIChat() {
                 onSend={handleSend}
                 onStop={handleStop}
                 isLoading={isLoading}
+                showSuggestedCommands={Array.isArray(otherMessages) && otherMessages.length === 0}
             />
         </AIChatView>
     );
