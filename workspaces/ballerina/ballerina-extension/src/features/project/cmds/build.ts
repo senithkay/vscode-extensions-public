@@ -31,12 +31,19 @@ export function activateBuildCommand() {
             const currentProject = ballerinaExtInstance.getDocumentContext().isActiveDiagram() ? await
                 getCurrentBallerinaProject(ballerinaExtInstance.getDocumentContext().getLatestDocument()?.toString())
                 : await getCurrentBallerinaProject();
+
+            let balCommand = BALLERINA_COMMANDS.BUILD;
+
+            if (ballerinaExtInstance.enabledExperimentalFeatures()) {
+                balCommand = BALLERINA_COMMANDS.BUILD_WITH_EXPERIMENTAL;
+            }
+
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
-                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
+                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), balCommand,
                     currentProject.path!);
             } else {
                 runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(),
-                    BALLERINA_COMMANDS.BUILD, getCurrentBallerinaFile());
+                    balCommand, getCurrentBallerinaFile());
             }
 
         } catch (error) {

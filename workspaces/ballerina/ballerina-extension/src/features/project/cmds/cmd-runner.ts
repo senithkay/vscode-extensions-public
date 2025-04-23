@@ -52,6 +52,7 @@ export enum PALETTE_COMMANDS {
 export enum BALLERINA_COMMANDS {
     TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", RUN_WITH_WATCH = "run --watch", DOC = "doc",
     ADD = "add", OTHER = "other", PACK = "pack", RUN_WITH_EXPERIMENTAL = "run --experimental",
+    BUILD_WITH_EXPERIMENTAL = "build --experimental",
 }
 
 export enum PROJECT_TYPE {
