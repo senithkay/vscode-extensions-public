@@ -66,27 +66,8 @@ export function addTerminalHandlers() {
 						cliCommand += ` --component ${selectedComp.metadata?.handler}`;
 					}
 				}
-				if (!e.name?.includes("--env")) {
-					const envs = dataCacheStore
-						.getState()
-						.getEnvs(contextStore.getState().state?.selected?.orgHandle!, contextStore.getState().state?.selected?.projectHandle!);
-					const nonCriticalEnvs = envs.filter((item) => !item.critical);
-					if (nonCriticalEnvs.length > 0) {
-						let selectedEnv: Environment | undefined = undefined;
-						if (nonCriticalEnvs.length === 1) {
-							selectedEnv = nonCriticalEnvs[0];
-						} else {
-							window.showErrorMessage("Pease add you Choreo project environment name as choreo.env to your launch configuration");
-							return;
-							// TODO: also show a button to open docs
-						}
-						if (selectedEnv) {
-							cliCommand += ` --env ${selectedEnv.name}`;
-						}
-					}
-				}
 				await commands.executeCommand("workbench.action.terminal.sendSequence", {
-					text: `export CHOREO_ENV=${workspace.getConfiguration().get("Advanced.ChoreoEnvironment")} && ${rpcPath} ${cliCommand}\r\n`,
+					text: `export CHOREO_ENV=${workspace.getConfiguration().get("Advanced.ChoreoEnvironment")} && "${rpcPath}" ${cliCommand}\r\n`,
 				});
 				await delay(2000)
 				e.show()
