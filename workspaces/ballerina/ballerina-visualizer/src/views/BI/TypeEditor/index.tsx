@@ -35,10 +35,11 @@ type FormTypeEditorProps = {
     newType: boolean;
     newTypeValue?: string;
     isGraphql?: boolean;
+    onCloseCompletions?: () => void;
 };
 
 export const FormTypeEditor = (props: FormTypeEditorProps) => {
-    const { type, onTypeChange, newType, newTypeValue, isGraphql } = props;
+    const { type, onTypeChange, newType, newTypeValue, isGraphql, onCloseCompletions } = props;
     const { rpcClient } = useRpcContext();
 
     const [filePath, setFilePath] = useState<string | undefined>(undefined);
@@ -220,7 +221,8 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                         typeBrowserTypes: filteredTypeBrowserTypes,
                         onSearchTypeHelper: handleSearchTypeHelper,
                         onSearchTypeBrowser: handleSearchTypeBrowser,
-                        onTypeItemClick: handleTypeItemClick
+                        onTypeItemClick: handleTypeItemClick,
+                        onCloseCompletions: onCloseCompletions
                     }}
                 />
             )}

@@ -13,15 +13,15 @@ import { InlineDataMapper } from "../../InlineDataMapper";
 import { HelperView } from "../HelperView";
 import FormGenerator from "../Forms/FormGenerator";
 import { getContainerTitle } from "../../../utils/bi";
-import { ModelConfig } from "./ModelConfig";
-import { ToolConfig } from "./ToolConfig";
-import { AgentConfig } from "./AgentConfig";
-import { NewAgent } from "./NewAgent";
-import { AddTool } from "./AddTool";
+import { ModelConfig } from "../AIChatAgent/ModelConfig";
+import { ToolConfig } from "../AIChatAgent/ToolConfig";
+import { AgentConfig } from "../AIChatAgent/AgentConfig";
+import { NewAgent } from "../AIChatAgent/NewAgent";
+import { AddTool } from "../AIChatAgent/AddTool";
 import { useEffect, useState } from "react";
-import { NewTool } from "./NewTool";
+import { NewTool } from "../AIChatAgent/NewTool";
 import styled from "@emotion/styled";
-import { MemoryManagerConfig } from "./MemoryManagerConfig";
+import { MemoryManagerConfig } from "../AIChatAgent/MemoryManagerConfig";
 
 const Container = styled.div`
     display: flex;

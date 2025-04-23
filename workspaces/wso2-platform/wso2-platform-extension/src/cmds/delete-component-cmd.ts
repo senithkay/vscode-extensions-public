@@ -21,10 +21,11 @@ export function deleteComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.DeleteComponent, async (params: IDeleteComponentCmdParams) => {
 			setExtensionName(params?.extName);
+			const extName = webviewStateStore.getState().state.extensionName;
 			try {
 				isRpcActive(ext);
 				const extensionName = webviewStateStore.getState().state.extensionName;
-				const userInfo = await getUserInfoForCmd("delete a component");
+				const userInfo = await getUserInfoForCmd(`delete ${extName === "Devant" ? "an integration" : "a component"}`);
 				if (userInfo) {
 					let selectedOrg = params?.organization;
 					let selectedProject = params?.project;
@@ -55,19 +56,19 @@ export function deleteComponentCommand(context: ExtensionContext) {
 						(await selectComponent(
 							selectedOrg,
 							selectedProject,
-							`Loading components from '${selectedProject.name}'`,
-							`Select component from '${selectedProject.name}' to delete`,
+							`Loading ${extName === "Devant" ? "integrations" : "components"} from '${selectedProject.name}'`,
+							`Select ${extName === "Devant" ? "integration" : "component"} from '${selectedProject.name}' to delete`,
 						));
 
 					const accepted = await window.showInformationMessage(
-						`Are you sure you want to delete this ${extensionName} component? This action will not affect any local files and will only delete the component created in ${extensionName}. Please note that this action is not reversible.`,
+						`Are you sure you want to delete this ${extensionName} ${extName === "Devant" ? "integration" : "component"}? This action will not affect any local files and will only delete the ${extName === "Devant" ? "integration" : "component"} created in ${extensionName}. Please note that this action is not reversible.`,
 						{ modal: true },
 						"Delete",
 					);
 					if (accepted === "Delete") {
 						await window.withProgress(
 							{
-								title: `Deleting component ${selectedComponent.metadata.displayName}...`,
+								title: `Deleting ${extName === "Devant" ? "integration" : "component"} ${selectedComponent.metadata.displayName}...`,
 								location: ProgressLocation.Notification,
 							},
 							async () => {
@@ -95,14 +96,16 @@ export function deleteComponentCommand(context: ExtensionContext) {
 
 								contextStore.getState().refreshState();
 
-								window.showInformationMessage(`Component ${selectedComponent.metadata.displayName} has been successfully deleted`);
+								window.showInformationMessage(
+									`${extName === "Devant" ? "Integration" : "Component"} ${selectedComponent.metadata.displayName} has been successfully deleted`,
+								);
 							},
 						);
 					}
 				}
 			} catch (err: any) {
-				console.error("Failed to delete component", err);
-				window.showErrorMessage(err?.message || "Failed to delete component");
+				console.error(`Failed to delete ${extName === "Devant" ? "integration" : "component"}`, err);
+				window.showErrorMessage(err?.message || `Failed to delete ${extName === "Devant" ? "integration" : "component"}`);
 			}
 		}),
 	);

@@ -96,7 +96,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 handleOnTypeChange={handleOnTypeChange}
             />
         );
-    } else if (!field.items && (field.type === "EXPRESSION" || field.type === "LV_EXPRESSION") && field.editable) {
+    } else if (!field.items && (field.type === "EXPRESSION" || field.type === "LV_EXPRESSION" || field.type == "ACTION_OR_EXPRESSION") && field.editable) {
         // Expression field is a inline expression editor
         return (
             <ContextAwareExpressionEditor

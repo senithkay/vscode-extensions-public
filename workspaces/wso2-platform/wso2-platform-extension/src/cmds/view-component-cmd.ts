@@ -13,6 +13,7 @@ import { CommandIds, type IViewComponentDetailsCmdParams, getComponentKindRepoSo
 import { type ExtensionContext, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
+import { webviewStateStore } from "../stores/webview-state-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { getUserInfoForCmd, isRpcActive, selectComponent, selectOrg, selectProject, setExtensionName } from "./cmd-utils";
 
@@ -20,9 +21,10 @@ export function viewComponentCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.ViewComponent, async (params: IViewComponentDetailsCmdParams) => {
 			setExtensionName(params?.extName);
+			const extName = webviewStateStore.getState().state?.extensionName;
 			try {
 				isRpcActive(ext);
-				const userInfo = await getUserInfoForCmd("view component details");
+				const userInfo = await getUserInfoForCmd(`view ${extName === "Devant" ? "integration" : "component"} details`);
 				if (userInfo) {
 					let selectedOrg = params?.organization;
 					let selectedProject = params?.project;
@@ -53,8 +55,8 @@ export function viewComponentCommand(context: ExtensionContext) {
 						(await selectComponent(
 							selectedOrg,
 							selectedProject,
-							`Loading components from '${selectedProject.name}'`,
-							`Select component from '${selectedProject.name}' to view`,
+							`Loading ${extName === "Devant" ? "integrations" : "components"} from '${selectedProject.name}...'`,
+							`Select ${extName === "Devant" ? "integration" : "component"} from '${selectedProject.name}' to view`,
 						));
 
 					let matchingPath: string = params?.componentPath;
@@ -78,8 +80,8 @@ export function viewComponentCommand(context: ExtensionContext) {
 					showComponentDetailsView(selectedOrg, selectedProject, selectedComponent, matchingPath);
 				}
 			} catch (err: any) {
-				console.error("Failed to create component", err);
-				window.showErrorMessage(err?.message || "Failed to create component");
+				console.error(`Failed to view ${extName === "Devant" ? "integration" : "component"}`, err);
+				window.showErrorMessage(err?.message || `Failed to view ${extName === "Devant" ? "integration" : "component"}`);
 			}
 		}),
 	);
