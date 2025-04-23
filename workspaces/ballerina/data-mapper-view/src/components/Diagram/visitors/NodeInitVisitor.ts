@@ -63,6 +63,7 @@ import {
     getTypeOfOutput,
     isComplexExpression,
     isFnBodyQueryExpr,
+    isIndexedExpression,
     isSelectClauseQueryExpr
 } from "../utils/dm-utils";
 import { constructTypeFromSTNode } from "../utils/type-utils";
@@ -196,7 +197,9 @@ export class NodeInitVisitor implements Visitor {
                             );
                         }
 
-                        if (isComplexExpression(selectClause.expression)){
+                        if (isComplexExpression(selectClause.expression)
+                            || isIndexedExpression(selectClause.expression)
+                        ) {
                             const inputNodes = getInputNodes(selectClause);
                             const linkConnectorNode = new LinkConnectorNode(
                                 this.context,
@@ -618,7 +621,7 @@ export class NodeInitVisitor implements Visitor {
                             node
                         );
                     }
-                    if (isComplexExpression(selectClause.expression)){
+                    if (isComplexExpression(selectClause.expression) || isIndexedExpression(selectClause.expression)) {
                         const inputNodes = getInputNodes(selectClause);
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
@@ -796,8 +799,13 @@ export class NodeInitVisitor implements Visitor {
             const inputNodes = getInputNodes(innerExpr);
             valueExpr = STKindChecker.isCheckExpression(innerExpr) ? innerExpr.expression : innerExpr;
             const fnDefForFnCall = STKindChecker.isFunctionCall(valueExpr) && getFnDefForFnCall(valueExpr);
-            if (inputNodes.length > 1
-                || (inputNodes.length === 1 && (isComplexExpression(valueExpr) || fnDefForFnCall))) {
+
+            if (inputNodes.length > 1 ||
+                (inputNodes.length === 1 &&
+                    (isComplexExpression(valueExpr) || fnDefForFnCall)
+                ) ||
+                isIndexedExpression(valueExpr)
+            ) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
@@ -823,8 +831,12 @@ export class NodeInitVisitor implements Visitor {
                     const inputNodes = getInputNodes(innerExpr);
                     innerExpr = STKindChecker.isCheckExpression(innerExpr) ? innerExpr.expression : innerExpr;
                     const fnDefForFnCall = STKindChecker.isFunctionCall(innerExpr) && getFnDefForFnCall(innerExpr);
-                    if (inputNodes.length > 1
-                        || (inputNodes.length === 1 && (isComplexExpression(innerExpr) || fnDefForFnCall))) {
+                    if (inputNodes.length > 1 ||
+                        (inputNodes.length === 1 &&
+                            (isComplexExpression(innerExpr) || fnDefForFnCall)
+                        ) ||
+                        isIndexedExpression(innerExpr)
+                    ) {
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
                             innerExpr,
@@ -847,9 +859,10 @@ export class NodeInitVisitor implements Visitor {
         const innerExpr = getInnermostExpressionBody(node.expression);
         if (this.isWithinQuery === 0
             && !STKindChecker.isMappingConstructor(innerExpr)
-            && !STKindChecker.isListConstructor(innerExpr)) {
+            && !STKindChecker.isListConstructor(innerExpr)
+        ) {
             const inputNodes = getInputNodes(innerExpr);
-            if (inputNodes.length > 1) {
+            if (inputNodes.length > 1 || isIndexedExpression(innerExpr)) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     innerExpr,
@@ -869,9 +882,11 @@ export class NodeInitVisitor implements Visitor {
             const innerExpr = getInnermostExpressionBody((node as SelectClause).expression);
             if (this.isWithinQuery === 0
                 && !STKindChecker.isMappingConstructor(innerExpr)
-                && !STKindChecker.isListConstructor(innerExpr)) {
+                && !STKindChecker.isListConstructor(innerExpr)
+            ) {
                 const inputNodes = getInputNodes(innerExpr);
-                if (inputNodes.length > 1) {
+
+                if (inputNodes.length > 1 || isIndexedExpression(innerExpr)) {
                     const linkConnectorNode = new LinkConnectorNode(
                         this.context,
                         innerExpr,
@@ -893,7 +908,8 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isExplicitAnonymousFunctionExpression(parent))
         {
             const inputNodes = getInputNodes(expr);
-            if (inputNodes.length > 1) {
+
+            if (inputNodes.length > 1 || isIndexedExpression(expr)) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node.expression,
