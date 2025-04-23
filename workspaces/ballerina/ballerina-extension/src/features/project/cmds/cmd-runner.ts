@@ -51,7 +51,7 @@ export enum PALETTE_COMMANDS {
 
 export enum BALLERINA_COMMANDS {
     TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", RUN_WITH_WATCH = "run --watch", DOC = "doc",
-    ADD = "add", OTHER = "other", PACK = "pack"
+    ADD = "add", OTHER = "other", PACK = "pack", RUN_WITH_EXPERIMENTAL = "run --experimental",
 }
 
 export enum PROJECT_TYPE {
@@ -180,6 +180,10 @@ export function createTerminal(path: string, env? : { [key: string]:string }): v
 }
 
 export function getRunCommand(): BALLERINA_COMMANDS {
-    return ballerinaExtInstance.enabledLiveReload() ?
-        BALLERINA_COMMANDS.RUN_WITH_WATCH : BALLERINA_COMMANDS.RUN;
+    if (ballerinaExtInstance.enabledExperimentalFeatures()) {
+        return BALLERINA_COMMANDS.RUN_WITH_EXPERIMENTAL;
+    } else if (ballerinaExtInstance.enabledLiveReload()) {
+        return BALLERINA_COMMANDS.RUN_WITH_WATCH;
+    }
+    return BALLERINA_COMMANDS.RUN;
 }
