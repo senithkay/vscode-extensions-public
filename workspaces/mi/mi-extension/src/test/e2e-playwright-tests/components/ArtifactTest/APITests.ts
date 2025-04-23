@@ -12,7 +12,8 @@ import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vsc
 import { AddArtifact } from "../AddArtifact";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
-import { closeEditorGroup, copyFile } from "../../Utils";
+import { closeEditorGroup, copyFile, page } from "../../Utils";
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import path from "path";
 import os from "os";
 
@@ -22,17 +23,28 @@ export class API {
     constructor(private _page: Page) {
     }
 
-    public async init() {
+    public async init(projectName: string = "testProject") {
         console.log("API init");
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        console.log("Navigated to project overview");
+        let iframeTitle;
 
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        console.log("Initialized overview page");
-        await overviewPage.goToAddArtifact();
-        console.log("Navigated to add artifact");
+        try {
+            const webview = await page.getCurrentWebview();
+            iframeTitle = webview.title;
+        } catch (error) {
+            console.error("Error retrieving iframe title:", error);
+            iframeTitle = null;
+        }                         
+        if (iframeTitle != MACHINE_VIEW.ADD_ARTIFACT) {
+            const projectExplorer = new ProjectExplorer(this._page);
+            await projectExplorer.goToOverview(projectName);
+            console.log("Navigated to project overview");
+
+            const overviewPage = new Overview(this._page);
+            await overviewPage.init();
+            console.log("Initialized overview page");
+            await overviewPage.goToAddArtifact();
+            console.log("Navigated to add artifact");
+        }
 
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();

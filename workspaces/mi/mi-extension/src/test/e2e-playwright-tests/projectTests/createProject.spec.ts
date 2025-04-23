@@ -9,7 +9,7 @@
 
 import { test } from '@playwright/test';
 import { Welcome } from "./../components/Welcome";
-import { Api } from "./../components/ArtifactTest/Api";
+import { API } from "./../components/ArtifactTest/APITests";
 import { ProjectExplorer } from "./../components/ProjectExplorer";
 import { Overview } from "./../components/Overview";
 import { createProject, page, waitUntilPomContains, initTest} from '../Utils';
@@ -53,9 +53,9 @@ export default function createTests() {
                 const addArtifactSelector = '.tab-label:has-text("Add Artifact")';
                 await page.page.waitForSelector(addArtifactSelector, { state: 'visible' });
                 await page.page.waitForSelector(addArtifactSelector, { state: 'attached' });
-                const api = new Api(page.page);
-                await api.init();
-                await api.add('helloWorld');
+                const api = new API(page.page);
+                await api.init('newProject');
+                await api.addAPI('helloWorld', '/helloWorld');
                 const overview = new Overview(page.page);
                 await overview.init("newProject");
                 await overview.diagramRenderingForApi('helloWorld');
