@@ -259,7 +259,8 @@ import {
     CreateBallerinaModuleRequest,
     CreateBallerinaModuleResponse,
     SCOPE,
-    DevantMetadata
+    DevantMetadata,
+    UpdateMediatorResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -5270,7 +5271,7 @@ ${keyValuesXML}`;
         });
     }
 
-    async updateMediator(param: UpdateMediatorRequest): Promise<void> {
+    async updateMediator(param: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
         return new Promise(async (resolve) => {
             const langClient = getStateMachine(this.projectUri).context().langClient!;
             let response = await langClient.generateSynapseConfig(param);
@@ -5290,6 +5291,7 @@ ${keyValuesXML}`;
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
+            resolve(response);
         });
     }
 

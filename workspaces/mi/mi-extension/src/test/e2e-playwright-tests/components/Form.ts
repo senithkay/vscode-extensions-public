@@ -161,10 +161,16 @@ export class Form {
                     case 'radio': {
                         const checkbox = this.container.locator(`vscode-radio[aria-label="${key}"]`);
                         await checkbox.waitFor();
+                        const isChecked = await checkbox.isChecked();
+                        // .check is having a intermittent issue: https://github.com/microsoft/playwright/issues/13470
                         if (data.value === 'checked') {
-                            await checkbox.check();
+                            if (!isChecked) {
+                                await checkbox.click();
+                            }
                         } else {
-                            await checkbox.uncheck();
+                            if (isChecked) {
+                                await checkbox.click();
+                            }
                         }
                         break;
                     }

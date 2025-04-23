@@ -240,7 +240,8 @@ import {
     CreateBallerinaModuleRequest,
     HandleFileRequest,
     HandleFileResponse,
-    DevantMetadata
+    DevantMetadata,
+    UpdateMediatorResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -399,7 +400,7 @@ export const getInputPayloads: RequestType<GetPayloadsRequest, GetPayloadsRespon
 export const getAllInputDefaultPayloads: RequestType<void, Record<string, unknown>> = { method: `${_preFix}/getOutputPayloads` };
 export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
 export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
-export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };
+export const updateMediator: RequestType<UpdateMediatorRequest, UpdateMediatorResponse> = { method: `${_preFix}/updateMediator` };
 export const getLocalInboundConnectors: RequestType<void, LocalInboundConnectorsResponse> = { method: `${_preFix}/getLocalInboundConnectors` };
 export const getConnectionSchema: RequestType<GetConnectionSchemaRequest, GetConnectionSchemaResponse> = { method: `${_preFix}/getConnectionSchema` };
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
