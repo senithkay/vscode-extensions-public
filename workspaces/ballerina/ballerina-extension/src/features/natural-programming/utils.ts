@@ -550,7 +550,7 @@ function findFileCaseInsensitive(directory, fileName) {
 }
 
 export function addDefaultModelConfigForNaturalFunctions(projectPath: string, token: string, backendUrl: string) {
-    const targetTable = '[ballerinax.np.defaultModelConfig]';
+    const targetTable = '[ballerina.np.defaultModelConfig]';
     const urlLine = `url = "${backendUrl}"`;
     const accessTokenLine = `accessToken = "${token}"`;
     const configFilePath = findFileCaseInsensitive(projectPath, CONFIG_FILE_NAME);
