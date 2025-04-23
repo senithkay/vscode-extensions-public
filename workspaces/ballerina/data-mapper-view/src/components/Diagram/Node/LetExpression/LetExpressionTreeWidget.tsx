@@ -73,7 +73,7 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
             {letVarDeclItems.length > 0 ? (
                 <TreeContainer data-testid={"local-variables-node"}>
                     <LocalVarsHeader>
-                        <HeaderText>Local Variables</HeaderText>
+                        <HeaderText>Sub Mappings</HeaderText>
                         {!isWithinQuery && (
                             <Button
                                 appearance="icon"
