@@ -24,7 +24,7 @@ import { StateMachine } from "../../stateMachine";
 import { BiDiagramRpcManager } from "../../rpc-managers/bi-diagram/rpc-manager";
 import { readFileSync, readdirSync, statSync } from "fs";
 import path from "path";
-import { isPositionEqual } from "../../utils/history/util";
+import { isPositionEqual, isPositionWithinDeletedComponent } from "../../utils/history/util";
 import { startDebugging } from "../editor-support/codelens-provider";
 
 const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
@@ -247,10 +247,10 @@ function isComponentOpenInDiagram(component: ComponentInfo) {
         endLine: component.endLine,
         endColumn: component.endColumn
     };
-    const componentFilePath = path.join(StateMachine.context().projectUri, component.filePath);
-
-    return isFilePathsEqual(openedComponentFilePath, componentFilePath)
-        && isPositionEqual(openedCompoentPosition, componentPosition);
+    const componentFilePath = component.filePath;
+    const isWithinDeletedComponent = isPositionWithinDeletedComponent(openedCompoentPosition, componentPosition);
+    const areFilePathsEqual = isFilePathsEqual(openedComponentFilePath, componentFilePath);
+    return isWithinDeletedComponent && areFilePathsEqual;
 }
 
 function isFlowNodeOpenInDiagram(connector: FlowNode) {
