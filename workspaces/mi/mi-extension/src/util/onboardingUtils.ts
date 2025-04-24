@@ -26,6 +26,7 @@ export const supportedJavaVersionsForMI: { [key: string]: string } = {
 export const LATEST_MI_VERSION = "4.4.0";
 const COMPATIBLE_JDK_VERSION = "11";
 const miDownloadUrls: { [key: string]: string } = {
+    '4.4.0-UPDATED': 'https://mi-distribution.wso2.com/4.4.0/wso2mi-4.4.0-UPDATED.zip',
     '4.4.0': 'https://mi-distribution.wso2.com/4.4.0/wso2mi-4.4.0.zip',
     '4.3.0': 'https://mi-distribution.wso2.com/4.3.0/wso2mi-4.3.0.zip'
 };
@@ -52,6 +53,10 @@ export async function setupEnvironment(projectUri: string, isOldProject: boolean
         const isMISet = await isMISetup(miVersionFromPom);
         const isJavaSet = await isJavaSetup(miVersionFromPom);
 
+        if (isMISet && isJavaSet) {
+            const isUpdateRequested = await isServerUpdateRequested();
+            return !isUpdateRequested;
+        }
         return isMISet && isJavaSet;
     } catch (error) {
         console.error('Error setting up environment:', error);
@@ -59,6 +64,24 @@ export async function setupEnvironment(projectUri: string, isOldProject: boolean
         return false;
     }
 }
+
+export async function isMIUpToDate(): Promise<boolean> {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (workspaceFolder) {
+        const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+        const currentServerPath = config.get<string>(SELECTED_SERVER_PATH);
+        if (currentServerPath) {
+            const currentMIVersion = getMIVersion(currentServerPath);
+            if (currentMIVersion) {
+                const latestUpdateVersion = await fetchLatestMIVersion(currentMIVersion);
+                const currentUpdateVersion = getCurrentUpdateVersion(currentServerPath);
+                return compareVersions(latestUpdateVersion, currentUpdateVersion) <= 0;
+            }
+        }
+    }
+    return false;
+}
+
 export async function getProjectSetupDetails(): Promise<SetupDetails> {
     const miVersion = await getMIVersionFromPom();
     if (!miVersion) {
@@ -436,19 +459,19 @@ export async function downloadJavaFromMI(miVersion: string): Promise<string> {
     }
 }
 
-export async function downloadMI(miVersion: string): Promise<string> {
+export async function downloadMI(miVersion: string, isUpdatedPack?: boolean): Promise<string> {
     const miPath = path.join(CACHED_FOLDER, 'micro-integrator');
 
     try {
         if (!fs.existsSync(miPath)) {
             fs.mkdirSync(miPath, { recursive: true });
         }
-        const zipName = miDownloadUrls[miVersion].split('/').pop();
-
+        const miDownloadUrl = isUpdatedPack ? miDownloadUrls[miVersion + '-UPDATED'] : miDownloadUrls[miVersion];
+        const zipName = miDownloadUrl.split('/').pop();
         const miDownloadPath = path.join(miPath, zipName!);
 
         if (!fs.existsSync(miDownloadPath)) {
-            await downloadWithProgress(miDownloadUrls[miVersion], miDownloadPath, 'Downloading Micro Integrator');
+            await downloadWithProgress(miDownloadUrl, miDownloadPath, 'Downloading Micro Integrator');
         } else {
             vscode.window.showInformationMessage('Micro Integrator already downloaded.');
         }
@@ -457,6 +480,10 @@ export async function downloadMI(miVersion: string): Promise<string> {
         return getLatestMIPathFromCache(miVersion)?.path!;
 
     } catch (error) {
+        if ((error as Error).message?.includes('Error while extracting the archive')) {
+            vscode.window.showWarningMessage('The Micro Integrator archive is invalid. Attempting to redownload the Micro Integrator.');
+            return downloadMI(miVersion, isUpdatedPack);
+        }
         throw new Error('Failed to download Micro Integrator.');
     }
 }
@@ -596,7 +623,12 @@ async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise
         if (validServerPath) {
             const miVersion = getMIVersion(validServerPath);
             if (projectMiVersion === miVersion) {
-                response.miDetails = { status: "valid", path: validServerPath, version: miVersion };
+                let status: "valid" | "valid-not-updated" | "mismatch" | "not-valid" = "valid";
+                if (miVersion === "4.4.0") {
+                    const isUpdatedPack = await isMIUpToDate();
+                    status = isUpdatedPack ? "valid" : "valid-not-updated";
+                }
+                response.miDetails = { status: status, path: validServerPath, version: miVersion };
             } else if (miVersion && isCompatibleMIVersion(miVersion, projectMiVersion)) {
                 response.miDetails = { status: "mismatch", path: validServerPath, version: miVersion! };
             }
@@ -1060,10 +1092,14 @@ function getCurrentUpdateVersion(miPath: string): string {
     return '0';
 }
 
-export async function checkForUpdatesAndUpdate(): Promise<void> {
+export async function isServerUpdateRequested(): Promise<boolean> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (workspaceFolder) {
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+        const isUpdatedDisabled = config.get<boolean>('suppressServerUpdateNotification');
+        if (isUpdatedDisabled) {
+            return false;
+        }
         const currentServerPath = config.get<string>(SELECTED_SERVER_PATH);
         if (currentServerPath) {
             const currentMIVersion = getMIVersion(currentServerPath);
@@ -1085,22 +1121,24 @@ export async function checkForUpdatesAndUpdate(): Promise<void> {
                             }
                         });
                     } else {
-                        const updateOption = 'Download and Update';
-                        const cancelOption = 'Skip Update';
-                        vscode.window.showWarningMessage(
-                            'A new version of Micro Integrator is available. Would you like to download and update now?',
-                            updateOption,
-                            cancelOption
-                        ).then((selection) => {
-                            if (selection === updateOption) {
-                                updateMI(currentMIVersion, latestUpdateVersion);
-                            }
-                        });
+                        const selection = await vscode.window.showInformationMessage(
+                            'A new version of Micro Integrator is available. Would you like to proceed with the update now?',
+                            { modal: true },
+                            "Yes",
+                            "Don't Ask Again"
+                        );
+                        if (selection === "Yes") {
+                            return true;
+                        } else if (selection === "Don't Ask Again") {
+                            const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+                            config.update('suppressServerUpdateNotification', true, vscode.ConfigurationTarget.Workspace);
+                        }
                     }
                 }
             }
         }
     }
+    return false;
 }
 
 function getLatestMIPathFromCache(miVersion: string): { path: string, version: string } | null {

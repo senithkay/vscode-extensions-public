@@ -404,7 +404,7 @@ export interface ReadmeContentResponse {
 }
 export interface PathDetailsResponse {
     path?: string;
-    status: "valid" | "mismatch" | "not-valid";
+    status: "valid" | "valid-not-updated" | "mismatch" | "not-valid";
     version?: string;
 }
 export interface SetPathRequest {
@@ -418,4 +418,9 @@ export interface SetupDetails {
     javaDetails: PathDetailsResponse;
     showDownloadButtons?: boolean;
     recommendedVersions?: { miVersion: string, javaVersion: string }
+}
+
+export interface DownloadMIRequest {
+    version: string;
+    isUpdatedPack: boolean;
 }
