@@ -163,7 +163,7 @@ export class DataService {
         }
         await dssWebView.getByRole('textbox', { name: 'Data Service Name*' }).fill(newName);
         await dssWebView.getByRole('textbox', { name: 'Description' }).fill('New Test Mongo');
-        await dssWebView.locator('.css-nzw7gs > .css-pk5gz1 > .codicon').click();
+        await frame.locator('#table-edit-icon').click();
         const form = new Form(this._page, "Data Service Form", frame);
         await form.switchToFormView();
         await form.fill({
@@ -300,7 +300,7 @@ export class DataService {
         await dssWebView.getByRole('textbox', { name: 'Data Service Name*' }).fill(newName);
         await dssWebView.getByRole('textbox', { name: 'Description' }).fill('New Test Cassandra');
         
-        await dssWebView.locator('.css-nzw7gs > .css-pk5gz1 > .codicon').click();
+        await frame.locator('#table-edit-icon').click();
         const form = new Form(this._page, "Data Service Form", frame);
         await form.switchToFormView();
         await form.fill({
@@ -421,7 +421,7 @@ export class DataService {
         await dssWebView.getByRole('textbox', { name: 'Data Service Name*' }).fill(newName);
         await dssWebView.getByRole('textbox', { name: 'Description' }).fill('New Test CSV');
         
-        await dssWebView.locator('.css-nzw7gs > .css-pk5gz1 > .codicon').click();
+        await frame.locator('#table-edit-icon').click();
         const form = new Form(this._page, "Data Service Form", frame);
         await form.switchToFormView();
         await form.fill({
@@ -521,7 +521,7 @@ export class DataService {
         await dssWebView.getByRole('textbox', { name: 'Data Service Name*' }).fill(newName);
         await dssWebView.getByRole('textbox', { name: 'Description' }).fill('New Test CSV');
         
-        await dssWebView.locator('.css-nzw7gs > .css-pk5gz1 > .codicon').click();
+        await frame.locator('#table-edit-icon').click();
         const form = new Form(this._page, "Data Service Form", frame);
         await form.switchToFormView();
         await form.fill({
