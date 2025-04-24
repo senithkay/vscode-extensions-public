@@ -245,7 +245,7 @@ export default function createTests() {
         const form = await mediator.getEditForm();
 
         // add first param
-        const paramManager = await form.getDefaultParamManager('Policy Entries');
+        const paramManager = await form.getDefaultParamManager('policyEntries');
         let paramManagerForm = await paramManager.getAddNewForm();
         await paramManagerForm.fill({
           values: {
@@ -313,7 +313,7 @@ export default function createTests() {
         const mediator = await diagram.getMediator("throttle", 0, "condition");
         await mediator.click();
         const form = await mediator.getEditForm();
-        const paramManager = await form.getDefaultParamManager('Policy Entries');
+        const paramManager = await form.getDefaultParamManager('policyEntries');
         const paramEditForm = await paramManager.getEditForm(1);
         await paramEditForm.fill({
           values: {
@@ -333,7 +333,7 @@ export default function createTests() {
         const mediator = await diagram.getMediator("throttle", 0, "condition");
         await mediator.click();
         const form = await mediator.getEditForm();
-        const paramManager = await form.getDefaultParamManager('Policy Entries');
+        const paramManager = await form.getDefaultParamManager('policyEntries');
         await paramManager.deleteParam(2);
         await form.submit('Update');
       });
