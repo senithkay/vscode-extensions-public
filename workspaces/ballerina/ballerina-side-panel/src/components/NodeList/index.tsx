@@ -118,7 +118,7 @@ namespace S {
                 enabled &&
                 `
                 background-color: ${ThemeColors.PRIMARY_CONTAINER};
-                border: 1px solid ${ThemeColors.PRIMARY};
+                border: 1px solid ${ThemeColors.HIGHLIGHT};
             `}
         }
     `;
