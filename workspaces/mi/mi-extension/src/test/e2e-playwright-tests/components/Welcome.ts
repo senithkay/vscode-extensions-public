@@ -29,8 +29,16 @@ export class Welcome {
         await btn.click();
     }
 
+    public async createNewProjectFromSample(projectName: string, path: string) {
+        await this.container.getByText(projectName).click();
+        await this.page.page.getByLabel('input').fill('');
+        await this.page.page.getByLabel('input').fill(path);
+        await this.page.page.getByRole('button', { name: 'Select Folder' }).click();
+        await this.page.page.getByRole('button', { name: 'This Window' }).click();
+    }
+
     public async waitUntilDeattached() {
-        await this.page.page.waitForSelector('iframe.webview.ready', { state: 'detached' });
+        await this.page.page.waitForSelector('iframe.webview.ready', { state: 'detached', timeout: 10000 });
     }
 
     public async setupEnvironment() {

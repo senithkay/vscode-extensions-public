@@ -7,14 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtendedPage, startVSCode } from "@wso2-enterprise/playwright-vscode-tester";
+import { ExtendedPage, startVSCode, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { Form } from "./components/Form";
 import { Welcome } from "./components/Welcome";
 import path from "path";
-import { ElectronApplication, Page } from "@playwright/test";
+import { ElectronApplication, expect } from "@playwright/test";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
+import { promises as fsp } from 'fs';
 import { readFile } from 'fs/promises';
+import { Page } from "@playwright/test";
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -33,7 +35,7 @@ async function initVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
-async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string) {
+export async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string, addAdvancedConfig: boolean = false) {
     console.log('Creating new project');
     await page.selectSidebarItem('Micro Integrator');
     const welcomePage = new Welcome(page);
@@ -58,6 +60,14 @@ async function createProject(page: ExtendedPage, projectName?: string, runtimeVe
             }
         }
     });
+    if (addAdvancedConfig) {
+        const webView = await switchToIFrame('Project Creation Form', page.page);
+        if (!webView) {
+            throw new Error("Failed to switch to Project Creation Form iframe");
+        }
+        await webView.locator('vscode-button[title="Expand"]').click();
+        await webView.getByRole('textbox', { name: 'Artifact Id*' }).fill('test');
+    }
     await createNewProjectForm.submit();
     await welcomePage.waitUntilDeattached();
     console.log('Project created');
@@ -103,7 +113,7 @@ export async function closeEditorGroup() {
     await page.executePaletteCommand('Close Editor Group');
 }
 
-export function initTest(newProject: boolean = false, cleanupAfter?: boolean, projectName?: string, runtimeVersion?: string) {
+export function initTest(newProject: boolean = false, skipProjectCreation: boolean = false, cleanupAfter?: boolean, projectName?: string, runtimeVersion?: string) {
     test.beforeAll(async ({ }, testInfo) => {
         console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);
         if (!existsSync(path.join(newProjectPath, projectName ?? 'testProject')) || newProject) {
@@ -114,7 +124,9 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean, pr
             console.log('Starting VSCode');
             await initVSCode();
             await toggleNotifications(true);
-            await createProject(page, projectName, runtimeVersion);
+            if (!skipProjectCreation) {
+                await createProject(page, projectName, runtimeVersion);
+            }
         } else {
             console.log('Resuming VSCode');
             await resumeVSCode();
