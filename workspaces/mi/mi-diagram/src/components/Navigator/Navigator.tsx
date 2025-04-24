@@ -14,7 +14,7 @@ import { StartNodeModel } from "../nodes/StartNode/StartNodeModel";
 import { EmptyNodeModel } from "../nodes/EmptyNode/EmptyNodeModel";
 import { EndNodeModel } from "../nodes/EndNode/EndNodeModel";
 import { getNodeDescription } from "../../utils/node";
-import { STNode, Tool } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Connector, STNode, Tool } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ConditionNodeModel } from "../nodes/ConditionNode/ConditionNodeModel";
 import { NodeLinkModel } from "../NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../nodes/MediatorNode/MediatorNodeModel";
@@ -23,6 +23,7 @@ import { getMediatorIconsFromFont } from "../../resources/icons/mediatorIcons/ic
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import { ConnectorIcons } from "../Diagram";
+import { FirstCharToUpperCase } from "../../utils/commons";
 
 const SearchStyle = {
     marginLeft: '10px',
@@ -146,13 +147,15 @@ export function Navigator(props: NavigatorProps) {
                 const mediatorNode = ((node.stNode as Tool).mediator ?? node.stNode) as STNode;
                 const fullContent = `${node.mediatorName}`;
                 const maxLength = 50;
-                const nodeContent = fullContent.length > maxLength
+                let nodeContent = fullContent.length > maxLength
                     ? `${fullContent.substring(0, maxLength)}...`
                     : fullContent;
                 let nodeIcon = getMediatorIconsFromFont(mediatorNode.tag);
 
                 if (node.stNode.tag.includes('.')) {
                     nodeIcon = <div style={{ width: '25px', height: '25px'}}><img src={connectorIcons[node.stNode.connectorName].connectorIcon} alt="Icon" /></div>;
+                    const operation = (((node.stNode as Tool).mediator ?? node.stNode) as Connector).method;
+                    nodeContent = FirstCharToUpperCase(operation);
                 }
 
                 const nodeId = (node as any).id;
