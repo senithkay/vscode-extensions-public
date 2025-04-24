@@ -7,15 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, {
-    useState,
-    useRef,
-    KeyboardEvent,
-    useEffect,
-    useLayoutEffect,
-    useImperativeHandle,
-    forwardRef,
-} from "react";
+import { useState, useRef, KeyboardEvent, useEffect, useLayoutEffect, useImperativeHandle, forwardRef } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { AIPanelPrompt, Attachment, AttachmentStatus, Command, TemplateId } from "@wso2-enterprise/ballerina-core";
@@ -109,7 +101,7 @@ const ActionButton = styled.button`
 export interface TagOptions {
     placeholderTags: PlaceholderTagMap;
     loadGeneralTags: () => Promise<Tag[]>;
-    injectPlaceholderTags: (command: Command, templateId: string) => Promise<void>;
+    injectPlaceholderTags: () => Promise<void>;
 }
 
 export type AIChatInputRef = {
@@ -135,12 +127,13 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             text: "",
         });
         const [generalTags, setGeneralTags] = useState<Tag[]>([]);
-        const [placeholderTagsRefreshKey, setPlaceholderTagsRefreshKey] = useState<number>(0);
+        const [isTagInitDone, setIsTagInitDone] = useState(false);
 
         // refs
         const inputRef = useRef<StyledInputRef>(null);
         const containerRef = useRef<HTMLDivElement>(null);
         const activeSuggestionRef = useRef<HTMLLIElement | null>(null);
+        const pendingInputContentRef = useRef<AIPanelPrompt | null>(null);
 
         useImperativeHandle(ref, () => ({
             setInputContent,
@@ -172,15 +165,16 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
         });
 
         /**
-         * Effect: Initialize general tags on mount
+         * Effect: Initialize general tags and placeholder tags on mount
          */
         useEffect(() => {
-            const fetchGeneralTags = async () => {
-                const generalTags = await tagOptions.loadGeneralTags();
-                setGeneralTags(generalTags);
+            const initTags = async () => {
+                await tagOptions.loadGeneralTags().then(setGeneralTags);
+                await tagOptions.injectPlaceholderTags();
+                setIsTagInitDone(true);
             };
 
-            fetchGeneralTags();
+            initTags();
         }, []);
 
         /**
@@ -203,7 +197,6 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
         useLayoutEffect(() => {
             const id = requestAnimationFrame(async () => {
                 const text = inputRef.current.ref.current.innerText;
-                const html = inputRef.current.ref.current.innerHTML;
                 const templateInserted = inputValue.templateInserted || false;
                 const tagInserted = inputValue.tagInserted || false;
                 const tagParams = inputValue.tagParams || null;
@@ -212,16 +205,14 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                 const updatedTemplate = inputValue.updatedTemplate || null;
                 const currentCursorPosition = inputRef.current.getCursorPosition();
                 const isCursorNextToDiv = inputRef.current.isCursorNextToDiv();
-                handleSuggestionOnTextChange(
-                    initialCommandTemplate,
-                    tagOptions.placeholderTags,
+                handleSuggestionOnTextChange({
+                    commandTemplate: initialCommandTemplate,
                     isCursorNextToDiv,
                     text,
-                    html,
-                    templateInserted,
+                    calledOnSuggestionInsertion: templateInserted,
                     currentCursorPosition,
-                    generalTags
-                );
+                    generalTags,
+                });
 
                 if (activeCommand && (templateInserted || tagInserted)) {
                     const templateQuery = text.substring(activeCommand.length + 1);
@@ -296,7 +287,6 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                                 inputRef.current?.insertTextAtCursor({ text: text || "" });
                             } else {
                                 if (params) {
-                                    await tagOptions.injectPlaceholderTags(activeCommand, template.id);
                                     inputRef.current?.insertTextAtCursor({
                                         text: template.text,
                                         templateInserted: true,
@@ -307,9 +297,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                                         text: template.text,
                                         templateInserted: true,
                                     });
-                                    await tagOptions.injectPlaceholderTags(activeCommand, template.id);
                                 }
-                                setPlaceholderTagsRefreshKey((prev) => prev + 1);
                             }
                         }
                     }
@@ -317,7 +305,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             });
 
             return () => cancelAnimationFrame(id);
-        }, [inputValue, placeholderTagsRefreshKey]);
+        }, [inputValue]);
 
         /**
          * Effect: If the user navigates suggestions with keyboard, keep the active suggestion visible.
@@ -343,8 +331,25 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             }
         }, []);
 
+        /**
+         * Effect: Insert pending input content if available.
+         */
+        useEffect(() => {
+            if (isTagInitDone && pendingInputContentRef.current) {
+                requestAnimationFrame(() => {
+                    cleanChatInput(pendingInputContentRef.current!);
+                    pendingInputContentRef.current = null;
+                });
+            }
+        }, [isTagInitDone]);
+
         const setInputContent = (input: AIPanelPrompt) => {
-            requestAnimationFrame(async () => {
+            if (!isTagInitDone) {
+                pendingInputContentRef.current = input;
+                return;
+            }
+
+            requestAnimationFrame(() => {
                 cleanChatInput(input);
             });
         };
@@ -390,10 +395,6 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             // insert the selected suggestion (Template)
             if (suggestion.type === SuggestionType.Template) {
                 inputRef.current?.insertTextAtCursor({ text: suggestion.text, templateInserted: true });
-
-                // load placeholder tags
-                await tagOptions.injectPlaceholderTags(activeCommand, suggestion.templateId);
-                setPlaceholderTagsRefreshKey((prev) => prev + 1);
             }
 
             // insert the selected suggestion (Tag)

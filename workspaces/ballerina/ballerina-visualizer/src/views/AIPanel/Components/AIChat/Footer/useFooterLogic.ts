@@ -35,91 +35,55 @@ export const useFooterLogic = ({
         ];
     };
 
-    const injectPlaceholderTags = async (command: Command, templateId: string): Promise<void> => {
-        switch (command) {
-            case Command.Tests:
-                switch (templateId) {
-                    case "tests-for-service":
-                        const serviceNames = (await rpcClient.getAiPanelRpcClient().getServiceNames()).mentions;
-                        injectTags(
-                            command,
-                            templateId,
-                            "servicename",
-                            serviceNames.map((serviceName) => {
-                                return {
-                                    display: `@${serviceName}`,
-                                    value: serviceName,
-                                    kind: "placeholder-specific",
-                                };
-                            })
-                        );
-                        break;
-                    case "tests-for-function":
-                        const resourceNames = (await rpcClient.getAiPanelRpcClient().getResourceMethodAndPaths())
-                            .mentions;
-                        injectTags(
-                            command,
-                            templateId,
-                            "methodPath",
-                            resourceNames.map((resourceName) => {
-                                return {
-                                    display: `@${resourceName}`,
-                                    value: resourceName,
-                                    kind: "placeholder-specific",
-                                };
-                            })
-                        );
-                        break;
-                }
-                break;
-            case Command.DataMap:
-                switch (templateId) {
-                    case "mappings-for-records":
-                        const recordNames = (await rpcClient.getBIDiagramRpcClient().getRecordNames()).mentions;
-                        injectTags(
-                            command,
-                            templateId,
-                            "inputRecords",
-                            recordNames.map((recordName) => {
-                                return {
-                                    display: `@${recordName}`,
-                                    value: recordName,
-                                    kind: "placeholder-specific",
-                                };
-                            })
-                        );
-                        injectTags(
-                            command,
-                            templateId,
-                            "outputRecord",
-                            recordNames.map((recordName) => {
-                                return {
-                                    display: `@${recordName}`,
-                                    value: recordName,
-                                    kind: "placeholder-specific",
-                                };
-                            })
-                        );
-                        break;
-                    case "mappings-for-function":
-                        const functionNames = (await rpcClient.getBIDiagramRpcClient().getFunctionNames()).mentions;
-                        injectTags(
-                            command,
-                            templateId,
-                            "functionName",
-                            functionNames.map((functionName) => {
-                                return {
-                                    display: `@${functionName}`,
-                                    value: functionName,
-                                    kind: "placeholder-specific",
-                                };
-                            })
-                        );
-                        break;
-                }
-                break;
-        }
+    const injectPlaceholderTags = async (): Promise<void> => {
+        // === Command.Tests ===
+        const serviceNames = (await rpcClient.getAiPanelRpcClient().getServiceNames()).mentions;
+        injectTags(
+            Command.Tests,
+            "tests-for-service",
+            "servicename",
+            serviceNames.map((serviceName) => ({
+                display: `@${serviceName}`,
+                value: serviceName,
+                kind: "placeholder-specific",
+            }))
+        );
+
+        const resourceNames = (await rpcClient.getAiPanelRpcClient().getResourceMethodAndPaths()).mentions;
+        injectTags(
+            Command.Tests,
+            "tests-for-function",
+            "methodPath",
+            resourceNames.map((resourceName) => ({
+                display: `@${resourceName}`,
+                value: resourceName,
+                kind: "placeholder-specific",
+            }))
+        );
+
+        // === Command.DataMap ===
+        const recordNames = (await rpcClient.getBIDiagramRpcClient().getRecordNames()).mentions;
+        const recordTags: Tag[] = recordNames.map((recordName) => ({
+            display: `@${recordName}`,
+            value: recordName,
+            kind: "placeholder-specific",
+        }));
+        injectTags(Command.DataMap, "mappings-for-records", "inputRecords", recordTags);
+        injectTags(Command.DataMap, "mappings-for-records", "outputRecord", recordTags);
+
+        const functionNames = (await rpcClient.getBIDiagramRpcClient().getFunctionNames()).mentions;
+        injectTags(
+            Command.DataMap,
+            "mappings-for-function",
+            "functionName",
+            functionNames.map((functionName) => ({
+                display: `@${functionName}`,
+                value: functionName,
+                kind: "placeholder-specific",
+            }))
+        );
     };
+
 
     return {
         loadGeneralTags,

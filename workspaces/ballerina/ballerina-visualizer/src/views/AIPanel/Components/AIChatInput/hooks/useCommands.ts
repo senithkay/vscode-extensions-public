@@ -48,13 +48,29 @@ interface UseCommandsParams {
     commandTemplate: CommandTemplates;
 }
 
+type SuggestionHandlerParams = {
+    commandTemplate: CommandTemplates;
+    isCursorNextToDiv: boolean;
+    text: string;
+    calledOnSuggestionInsertion: boolean;
+    currentCursorPosition: number;
+    generalTags: Tag[];
+};
+
 export function useCommands({ commandTemplate }: UseCommandsParams) {
     const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>([]);
     const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
     const [activeSuggestionValue, setActiveSuggestionValue] = useState<string | null>(null);
     const [activeCommand, setActiveCommand] = useState<Command | null>(null);
 
-    const handleSuggestionOnTextChange = (commandTemplate: CommandTemplates, placeholderTags: PlaceholderTagMap, isCursorNextToDiv: boolean, text: string, html: string, calledOnSuggestionInsertion: boolean, currentCursorPosition: number, generalTags: Tag[]) => {
+    const handleSuggestionOnTextChange = ({
+        commandTemplate,
+        isCursorNextToDiv,
+        text,
+        calledOnSuggestionInsertion,
+        currentCursorPosition,
+        generalTags,
+    }: SuggestionHandlerParams) => {
         let filtered: Suggestion[] = [];
 
         // If the command is selected, we have to show the templates
