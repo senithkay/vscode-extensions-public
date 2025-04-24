@@ -51,6 +51,7 @@ import {
     UpdateConfigValuesRequest,
     ImportOpenAPISpecRequest,
     PathDetailsResponse,
+    DownloadMIRequest,
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
@@ -506,8 +507,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         const javaPath = await downloadJavaFromMI(miVersion);
         return javaPath;
     }
-    async downloadMI(miVersion: string): Promise<string> {
-        const miPath = await downloadMI(miVersion);
+    async downloadMI(params: DownloadMIRequest): Promise<string> {
+        const miPath = await downloadMI(params.version, params.isUpdatedPack);
         return miPath;
     }
     async getSupportedMIVersionsHigherThan(miVersion: string): Promise<string[]> {
