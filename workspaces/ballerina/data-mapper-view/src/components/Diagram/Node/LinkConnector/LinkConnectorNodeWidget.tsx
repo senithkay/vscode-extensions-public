@@ -11,13 +11,13 @@ import * as React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { HistoryEntry, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
-import { FunctionCall, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { FunctionCall, NodePosition, SpecificField, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import classnames from "classnames";
 
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
-import { getCollectClauseActions, getFieldLabel, getMappedFnNames } from '../../utils/dm-utils';
+import { genArrayElementAccessExpr, getCollectClauseActions, getFieldLabel, getMappedFnNames, hasFieldAccessExpression } from '../../utils/dm-utils';
 
 import { LinkConnectorNode } from './LinkConnectorNode';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -41,6 +41,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const diagnostic = hasError ? node.diagnostics[0] : null;
     const fnDef = node.fnDefForFnCall;
     const isTnfFunctionCall = fnDef && fnDef.isExprBodiedFn;
+    const hasFieldAccessExpr = hasFieldAccessExpression(node.valueNode);
     const connectedViaCollectClause = context?.selection.selectedST?.mappingType
         && context.selection.selectedST.mappingType === QueryExprMappingType.A2SWithCollect;
 
@@ -148,13 +149,24 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                     </Button>
                 )}
                 {aggrFnConfigurations !== null && aggrFnConfigurations}
-                <Button
-                    appearance="icon"
-                    onClick={onClickEdit}
-                    data-testid={`link-connector-edit-${node?.value}`}
-                >
-                    <Codicon name="code" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
-                </Button>
+                {hasFieldAccessExpr ? (
+                    <Button
+                        appearance="icon"
+                        onClick={onClickEdit}
+                        data-testid={`link-connector-indexing-${node?.value}`}
+                        tooltip='indexing'
+                    >
+                        {genArrayElementAccessExpr(node.valueNode)}
+                    </Button>
+                ) : (
+                    <Button
+                        appearance="icon"
+                        onClick={onClickEdit}
+                        data-testid={`link-connector-edit-${node?.value}`}
+                    >
+                        <Codicon name="code" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                    </Button>
+                )}
                 {deleteInProgress ? (
                     <div className={classnames(classes.element, classes.loadingContainer)}>
                         {loadingScreen}
