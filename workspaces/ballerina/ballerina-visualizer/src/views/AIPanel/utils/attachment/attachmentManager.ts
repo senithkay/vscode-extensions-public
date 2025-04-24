@@ -7,10 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-/**
- * Central place for command-based attachment logic and helper functions
- * (previously defined directly inside AIChat).
- */
 import { ChangeEvent } from "react";
 import { DataMapperAttachment } from "./dataMapperAttachment";
 import { Attachment, Command } from "@wso2-enterprise/ballerina-core";

@@ -12,7 +12,7 @@ import { AIMachineStateValue } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
-import { AIChat } from './components/AIChat/AIChat';
+import AIChat from './components/AIChat';
 import { SignInToCopilotMessage } from './SignInWindow';
 import { WaitingForLoginMessage } from './WaitingForSignIn';
 import { DisabledWindow } from './DisabledWindow';
