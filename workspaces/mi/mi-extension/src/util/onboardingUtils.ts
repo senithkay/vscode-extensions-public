@@ -1125,11 +1125,11 @@ export async function isServerUpdateRequested(): Promise<boolean> {
                             'A new version of the Micro Integrator is available. Would you like to update now?',
                             { modal: true },
                             "Yes",
-                            "Don't Ask Again"
+                            "No, Don't Ask Again"
                         );
                         if (selection === "Yes") {
                             return true;
-                        } else if (selection === "Don't Ask Again") {
+                        } else if (selection === "No, Don't Ask Again") {
                             const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
                             config.update('suppressServerUpdateNotification', true, vscode.ConfigurationTarget.Workspace);
                         }
