@@ -66,8 +66,6 @@ export async function createProject(page: ExtendedPage, projectName?: string, ru
             throw new Error("Failed to switch to Project Creation Form iframe");
         }
         await webView.locator('vscode-button[title="Expand"]').click();
-        // await webView.getByRole('textbox', { name: 'Artifact Id*' }).click();
-        // await webView.getByRole('textbox', { name: 'Artifact Id*' }).fill('');
         await webView.getByRole('textbox', { name: 'Artifact Id*' }).fill('test');
     }
     await createNewProjectForm.submit();
