@@ -84,7 +84,6 @@ export const useFooterLogic = ({
         );
     };
 
-
     return {
         loadGeneralTags,
         injectPlaceholderTags,
