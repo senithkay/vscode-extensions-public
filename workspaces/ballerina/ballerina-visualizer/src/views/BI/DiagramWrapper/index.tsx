@@ -43,7 +43,7 @@ const LeftElementsWrapper = styled.div`
 
 const AccessorType = styled.span`
     background-color: ${ThemeColors.SURFACE_BRIGHT};
-    color: ${ThemeColors.BADGE};
+    color: ${ThemeColors.ON_SURFACE};
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
