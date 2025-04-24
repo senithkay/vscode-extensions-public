@@ -714,52 +714,56 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 sx={{ zIndex: 99 }}
                 {...register("artifact")}
             ></Dropdown>
-            <Controller
-                name="supportiveArtifacts"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                    <ParamManager
-                        paramConfigs={value as ParamConfig}
-                        addParamText="Add Supportive Artifact"
-                        readonly={false}
-                        onChange={(values) => {
-                            values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                const property: ParamValue[] = param.paramValues;
-                                param.key = index + 1;
-                                param.value = (property[0]?.value as any)?.value ?? property[0]?.value;
-                                param.icon = 'query';
+            <div id="parameterManager-SupportiveArtifacts">
+                <Controller
+                    name="supportiveArtifacts"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                        <ParamManager
+                            paramConfigs={value as ParamConfig}
+                            addParamText="Add Supportive Artifact"
+                            readonly={false}
+                            onChange={(values) => {
+                                values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                    const property: ParamValue[] = param.paramValues;
+                                    param.key = index + 1;
+                                    param.value = (property[0]?.value as any)?.value ?? property[0]?.value;
+                                    param.icon = 'query';
 
-                                return param;
-                            });
-                            onChange(values);
-                        }}
-                    />
-                )}
-            />
-            <Controller
-                name="registryResources"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                    <ParamManager
-                        paramConfigs={value as ParamConfig}
-                        addParamText="Add Registry Resources"
-                        readonly={false}
-                        onChange={(values) => {
-                            values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                const property: ParamValue[] = param.paramValues;
-                                param.key = index + 1;
-                                param.value = (property[0]?.value as any)?.value ?? property[0]?.value;
-                                param.icon = 'query';
+                                    return param;
+                                });
+                                onChange(values);
+                            }}
+                        />
+                    )}
+                />
+            </div>
+            <div id="parameterManager-RegistryResources">
+                <Controller
+                    name="registryResources"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                        <ParamManager
+                            paramConfigs={value as ParamConfig}
+                            addParamText="Add Registry Resources"
+                            readonly={false}
+                            onChange={(values) => {
+                                values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                    const property: ParamValue[] = param.paramValues;
+                                    param.key = index + 1;
+                                    param.value = (property[0]?.value as any)?.value ?? property[0]?.value;
+                                    param.icon = 'query';
 
-                                return param;
-                            });
-                            onChange(values);
-                        }}
-                    />
-                )}
-            />
+                                    return param;
+                                });
+                                onChange(values);
+                            }}
+                        />
+                    )}
+                />
+            </div>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+            <ComponentCard id="parameterManager-TestCases" sx={cardStyle} disbaleHoverEffect>
                 <FormGroup title="Test cases" isCollapsed={false}>
                     <Button appearance="secondary" onClick={openAddTestCase}>Add test case</Button>
 
@@ -782,7 +786,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 </FormGroup>
             </ComponentCard>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+            <ComponentCard id="parameterManager-MockServices" sx={cardStyle} disbaleHoverEffect>
                 <FormGroup title="Mock services" isCollapsed={false}>
                     <Button appearance="secondary" onClick={openMockService}>Add mock service</Button>
 
