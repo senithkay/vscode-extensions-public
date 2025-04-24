@@ -1122,7 +1122,7 @@ export async function isServerUpdateRequested(): Promise<boolean> {
                         });
                     } else {
                         const selection = await vscode.window.showInformationMessage(
-                            'A new version of Micro Integrator is available. Would you like to proceed with the update now?',
+                            'A new version of the Micro Integrator is available. Would you like to update now?',
                             { modal: true },
                             "Yes",
                             "Don't Ask Again"
