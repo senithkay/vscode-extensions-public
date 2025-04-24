@@ -15,6 +15,7 @@ import { DownloadProgressData, EVENT_TYPE, PathDetailsResponse } from "@wso2-ent
 import { ButtonWithDescription, DownloadComponent, RuntimeStatus, Row, Column, StepDescription } from "./Components";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EULALicenseForm } from "./EULALicense";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     display: flex;
@@ -60,9 +61,25 @@ const StepContainer = styled.div`
     gap: 20px;
 `;
 
+const LoadingContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+    z-index: 1000;
+`;
+
 
 export const EnvironmentSetup = () => {
     const { rpcClient } = useVisualizerContext();
+    const [isLoading, setIsLoading] = useState(true);
     const [recommendedVersions, setRecommendedVersions] = useState<{ miVersion: string, javaVersion: string }>({ miVersion: "", javaVersion: "" });
     const [miVersionStatus, setMiVersionStatus] = useState<"valid" | "valid-not-updated" | "missing" | "not-valid">("not-valid");
     const [isJavaDownloading, setIsJavaDownloading] = useState(false);
@@ -98,6 +115,7 @@ export const EnvironmentSetup = () => {
                 setSupportedMIVersions(supportedMIVersions);
                 setSelectedRuntimeVersion(supportedMIVersions[0].value);
             }
+            setIsLoading(false);
         };
         fetchMIVersionAndSetup();
     }, [rpcClient]);
@@ -310,6 +328,14 @@ export const EnvironmentSetup = () => {
         } else {
             return `Micro Integrator ${recommendedVersions.miVersion} is not setup.`;
         }
+    }
+
+    if (isLoading) {
+        return (<div>
+            <LoadingContainer>
+                <ProgressRing />
+            </LoadingContainer>
+        </div>)
     }
 
     if (showLicense) {
