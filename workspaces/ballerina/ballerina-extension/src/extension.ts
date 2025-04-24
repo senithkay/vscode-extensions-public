@@ -76,7 +76,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
         }
     }
 
-    class NaturalProgrammingFeature implements StaticFeature {
+    class ExperimentalLanguageFeatures implements StaticFeature {
         getState(): FeatureState {
             throw new Error('Method not implemented.');
         }
@@ -85,7 +85,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
         }
         fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
             capabilities.experimental = capabilities.experimental || { introspection: false, showTextDocument: false };
-            capabilities.experimental.experimentalCompilation = ballerinaExtInstance.enabledExperimentalFeatures();
+            capabilities.experimental.experimentalLanguageFeatures = ballerinaExtInstance.enabledExperimentalFeatures();
         }
         initialize(_capabilities: ServerCapabilities, _documentSelector: DocumentSelector | undefined): void {
         }
@@ -93,7 +93,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 
     langClient.registerFeature(new TraceLogsFeature());
     langClient.registerFeature(new ShowFileFeature());
-    langClient.registerFeature(new NaturalProgrammingFeature());
+    langClient.registerFeature(new ExperimentalLanguageFeatures());
 }
 
 export async function activate(context: ExtensionContext) {
