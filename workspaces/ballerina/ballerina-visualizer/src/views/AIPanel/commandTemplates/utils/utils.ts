@@ -87,6 +87,12 @@ export const injectTags = (
 
     const placeholderTagsList = templateMap[placeholderId as keyof typeof templateMap] as Tag[];
 
+    for (let i = placeholderTagsList.length - 1; i >= 0; i--) {
+        if (placeholderTagsList[i].injected) {
+            placeholderTagsList.splice(i, 1);
+        }
+    }
+
     const existingValues = new Set(placeholderTagsList.map(tag => tag.value));
 
     const newTags = tags.filter(tag => !existingValues.has(tag.value));

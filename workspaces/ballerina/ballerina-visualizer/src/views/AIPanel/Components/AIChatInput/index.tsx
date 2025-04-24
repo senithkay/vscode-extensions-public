@@ -259,7 +259,6 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                                     params: initialContent.params,
                                 },
                             });
-                            setActiveCommand(initialContent.command);
                             break;
                         case "text":
                             inputRef.current?.insertTextAtCursor({ text: initialContent.text });
@@ -357,7 +356,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
         /**
          * Inserts a command badge at the current cursor position in the input field.
          */
-        const insertCommand = (command: Command, suffix: string, additionalProps?: { [key: string]: any }) => {
+        const insertCommand = async (command: Command, suffix: string, additionalProps?: { [key: string]: any }) => {
             inputRef.current?.insertBadgeAtCursor({
                 displayText: command,
                 badgeType: ChatBadgeType.Command,
@@ -366,6 +365,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             });
             setActiveCommand(command);
             fileInputRef.current.accept = attachmentOptions.acceptResolver(command);
+            await tagOptions.injectPlaceholderTags();
         };
 
         /**

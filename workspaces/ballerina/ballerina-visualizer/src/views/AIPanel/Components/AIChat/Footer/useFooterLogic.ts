@@ -45,6 +45,7 @@ export const useFooterLogic = ({
             serviceNames.map((serviceName) => ({
                 display: `@${serviceName}`,
                 value: serviceName,
+                injected: true,
                 kind: "placeholder-specific",
             }))
         );
@@ -57,6 +58,7 @@ export const useFooterLogic = ({
             resourceNames.map((resourceName) => ({
                 display: `@${resourceName}`,
                 value: resourceName,
+                injected: true,
                 kind: "placeholder-specific",
             }))
         );
@@ -66,6 +68,7 @@ export const useFooterLogic = ({
         const recordTags: Tag[] = recordNames.map((recordName) => ({
             display: `@${recordName}`,
             value: recordName,
+            injected: true,
             kind: "placeholder-specific",
         }));
         injectTags(Command.DataMap, "mappings-for-records", "inputRecords", recordTags);
@@ -79,6 +82,7 @@ export const useFooterLogic = ({
             functionNames.map((functionName) => ({
                 display: `@${functionName}`,
                 value: functionName,
+                injected: true,
                 kind: "placeholder-specific",
             }))
         );

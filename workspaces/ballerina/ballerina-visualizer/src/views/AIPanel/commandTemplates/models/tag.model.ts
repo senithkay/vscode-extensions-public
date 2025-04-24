@@ -10,5 +10,6 @@
 export interface Tag {
     display: string;
     value: string;
+    injected?: boolean;
     kind?: 'general' | 'placeholder-specific' | 'template-specific';
 }
