@@ -6,7 +6,8 @@ All notable changes to the "micro-integrator" extension will be documented in th
 
 ### New Features
 
-Added: Add option to download the diagram as a image
+Added: Add option to download the diagram as a image  
+Added: Add support to update MI Server ([#1056](https://github.com/wso2/mi-vscode/issues/1056))
 
 ### Fixed
 
