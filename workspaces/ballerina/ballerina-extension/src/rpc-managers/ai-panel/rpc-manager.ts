@@ -69,7 +69,7 @@ import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
+import { PARSING_ERROR, NOT_LOGGED_IN, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import {
     DEVELOPMENT_DOCUMENT,
     NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
@@ -262,7 +262,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const logged = await isLoggedin();
 
         if (!logged) {
-            return { error: UNAUTHORIZED };
+            await handleLogin();
+            return { error: NOT_LOGGED_IN };
         }
 
         let { filePath, position } = params;

@@ -19,7 +19,7 @@ import {
     INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY,
     PARSING_ERROR,
     TIMEOUT,
-    UNAUTHORIZED,
+    NOT_LOGGED_IN,
     USER_ABORTED,
     SERVER_ERROR,
     TOO_MANY_REQUESTS,
@@ -1333,7 +1333,7 @@ export async function getDatamapperCode(parameterDefinitions: ErrorCode | Parame
     try {
         const accessToken = await getAccessToken().catch((error) => {
             console.error(error);
-            return UNAUTHORIZED;
+            return NOT_LOGGED_IN;
         });
         let response = await sendDatamapperRequest(parameterDefinitions, accessToken);
         if (isErrorCode(response)) {
