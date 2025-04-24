@@ -9,7 +9,7 @@
 
 import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
 import { Terminal, window, workspace } from "vscode";
-import { isWindows } from "../../../utils";
+import { isSupportedSLVersion, isWindows } from "../../../utils";
 import { ballerinaExtInstance } from "../../../core";
 
 
@@ -51,7 +51,8 @@ export enum PALETTE_COMMANDS {
 
 export enum BALLERINA_COMMANDS {
     TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", RUN_WITH_WATCH = "run --watch", DOC = "doc",
-    ADD = "add", OTHER = "other", PACK = "pack"
+    ADD = "add", OTHER = "other", PACK = "pack", RUN_WITH_EXPERIMENTAL = "run --experimental",
+    BUILD_WITH_EXPERIMENTAL = "build --experimental",
 }
 
 export enum PROJECT_TYPE {
@@ -180,6 +181,10 @@ export function createTerminal(path: string, env? : { [key: string]:string }): v
 }
 
 export function getRunCommand(): BALLERINA_COMMANDS {
-    return ballerinaExtInstance.enabledLiveReload() ?
-        BALLERINA_COMMANDS.RUN_WITH_WATCH : BALLERINA_COMMANDS.RUN;
+    if (isSupportedSLVersion(ballerinaExtInstance, 2201130) && ballerinaExtInstance.enabledExperimentalFeatures()) {
+        return BALLERINA_COMMANDS.RUN_WITH_EXPERIMENTAL;
+    } else if (ballerinaExtInstance.enabledLiveReload()) {
+        return BALLERINA_COMMANDS.RUN_WITH_WATCH;
+    }
+    return BALLERINA_COMMANDS.RUN;
 }
