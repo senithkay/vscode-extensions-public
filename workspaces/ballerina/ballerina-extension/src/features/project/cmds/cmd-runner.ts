@@ -9,7 +9,7 @@
 
 import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
 import { Terminal, window, workspace } from "vscode";
-import { isWindows } from "../../../utils";
+import { isSupportedSLVersion, isWindows } from "../../../utils";
 import { ballerinaExtInstance } from "../../../core";
 
 
@@ -181,7 +181,7 @@ export function createTerminal(path: string, env? : { [key: string]:string }): v
 }
 
 export function getRunCommand(): BALLERINA_COMMANDS {
-    if (ballerinaExtInstance.enabledExperimentalFeatures()) {
+    if (isSupportedSLVersion(ballerinaExtInstance, 2201130) && ballerinaExtInstance.enabledExperimentalFeatures()) {
         return BALLERINA_COMMANDS.RUN_WITH_EXPERIMENTAL;
     } else if (ballerinaExtInstance.enabledLiveReload()) {
         return BALLERINA_COMMANDS.RUN_WITH_WATCH;

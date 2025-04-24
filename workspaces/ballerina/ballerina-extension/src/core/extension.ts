@@ -56,7 +56,6 @@ import fs from 'fs';
 import path from 'path';
 import { RPCLayer } from "../RPCLayer";
 import { VisualizerWebview } from "../views/visualizer/webview";
-import _ from "lodash";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
