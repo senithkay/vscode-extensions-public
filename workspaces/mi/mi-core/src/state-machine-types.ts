@@ -80,6 +80,7 @@ export enum MACHINE_VIEW {
     ManageDependencies = "Manage Dependencies",
     ManageConfigurables = "Manage Configurables",
     ProjectInformationForm = "Project Information Form",
+    SETUP_ENVIRONMENT = "Setup Environment",
 }
 
 export enum AI_MACHINE_VIEW {
@@ -115,8 +116,6 @@ export enum EVENT_TYPE {
     OPEN_VIEW = "OPEN_VIEW",
     REPLACE_VIEW = "REPLACE_VIEW",
     CLEAR_PROMPT = "CLEAR_PROMPT",
-    FILE_EDIT = "FILE_EDIT",
-    EDIT_DONE = "EDIT_DONE",
     REFRESH_ENVIRONMENT = "REFRESH_ENVIRONMENT",
 }
 

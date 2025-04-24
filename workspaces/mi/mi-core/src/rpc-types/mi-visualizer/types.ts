@@ -408,6 +408,7 @@ export interface PathDetailsResponse {
     version?: string;
 }
 export interface SetPathRequest {
+    projectUri: string;
     type: "JAVA" | "MI";
     path: string;
 }

@@ -11,12 +11,14 @@ const test_1 = require("@playwright/test");
  */
 exports.default = (0, test_1.defineConfig)({
     testDir: './src/test/e2e-playwright-tests',
+    testMatch: 'test.list.ts',
     /* Run tests in files in parallel */
     fullyParallel: false,
     /* Fail the build on CI if you accidentally left test.only in the source code. */
     forbidOnly: !!process.env.CI,
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
+    maxFailures: 10,
     /* Opt out of parallel tests on CI. */
     workers: 1,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */

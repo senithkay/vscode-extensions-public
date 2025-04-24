@@ -1,0 +1,145 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { Locator, Page } from "@playwright/test";
+import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ProjectExplorer } from "../ProjectExplorer";
+import { Overview } from "../Overview";
+import { AddArtifact } from "../AddArtifact";
+import { Form } from "../Form";
+import { page } from "../../Utils";
+
+export class Sequence {
+
+    constructor(private _page: Page) {
+    }
+
+    public async init() {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        await overviewPage.goToAddArtifact();
+
+        const addArtifactPage = new AddArtifact(this._page);
+        await addArtifactPage.init();
+        await addArtifactPage.add('Sequence');
+    }
+
+    public async createSequenceFromProjectExplorer(sequenceName: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Sequences'], true);
+        await this._page.getByLabel('Add Sequence').click();
+        const seqWebview = await switchToIFrame('Sequence Form', this._page);
+        if (!seqWebview) {
+            throw new Error("Failed to switch to Sequence Form iframe");
+        }
+
+        await seqWebview.getByRole('heading', { name: 'Advanced Configuration' }).click();
+        const sequenceForm = new Form(page.page, 'Sequence Form');
+        await sequenceForm.switchToFormView();
+        await sequenceForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: sequenceName,
+                },
+                'Enable statistics': {
+                    type: 'checkbox',
+                    value: 'checked',
+                },
+                'Enable tracing': {
+                    type: 'checkbox',
+                    value: 'checked',
+                },
+                'On Error Sequence': {
+                    type: 'combo',
+                    value: 'TestSequenceEdited',
+                    additionalProps: { hasMultipleValue: true }
+                }
+            }
+        });
+        await sequenceForm.submit();
+
+        await projectExplorer.goToOverview("testProject");
+        const overview = await switchToIFrame('Project Overview', this._page);
+        if (!overview) {
+            throw new Error("Failed to switch to project overview iframe");
+        }
+    }
+
+    public async createSequence(sequenceName: string, isPopUp?: boolean) {
+        let sequenceFrame: Locator;
+        if (isPopUp) {
+            const seqWebview = await switchToIFrame('Resource View', this._page);
+            if (!seqWebview) {
+                throw new Error("Failed to switch to Resource Form iframe");
+            }
+            sequenceFrame = seqWebview.locator('#popUpPanel');
+        } else {
+            const seqWebview = await switchToIFrame('Sequence Form', this._page);
+            if (!seqWebview) {
+                throw new Error("Failed to switch to Sequence Form iframe");
+            }
+            sequenceFrame = seqWebview.locator('div#root');
+        }
+  
+        await sequenceFrame.waitFor();
+        await sequenceFrame.getByRole('textbox', { name: 'Name*' }).fill(sequenceName);
+        await sequenceFrame.getByTestId('create-button').click();
+
+        if (!isPopUp) {
+            const projectExplorer = new ProjectExplorer(this._page);
+            await projectExplorer.goToOverview("testProject");
+            const overview = await switchToIFrame('Project Overview', this._page);
+            if (!overview) {
+                throw new Error("Failed to switch to project overview iframe");
+            }
+        }
+    }
+
+    public async editSequence(sequenceName: string, sequenceUpdatedName: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Sequences', sequenceName], true);
+        const seqWebview = await switchToIFrame('Sequence View', this._page);
+        if (!seqWebview) {
+            throw new Error("Failed to switch to Sequence View iframe");
+        }
+
+        const frame = seqWebview.locator('div#root');
+        await frame.getByTestId('edit-button').click();
+        const sequenceForm = new Form(page.page, 'Sequence View');
+        await sequenceForm.switchToFormView();
+        await sequenceForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: sequenceUpdatedName,
+                },
+                'Enable statistics': {
+                    type: 'checkbox',
+                    value: 'checked',
+                },
+                'Enable tracing': {
+                    type: 'checkbox',
+                    value: 'checked',
+                }
+            }
+        });
+        await sequenceForm.submit("Update");
+
+        const overview = await switchToIFrame('Project Overview', this._page);
+        if (!overview) {
+            throw new Error("Failed to switch to project overview iframe");
+        }
+    }
+}
