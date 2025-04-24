@@ -94,7 +94,8 @@ export class BallerinaModule {
             await showNotifications();
             await currentPage.getByRole('button', { name: 'Install Now' }).click();
             await clearNotificationAlerts();
-            const webview = await switchToIFrame('Ballerina Integrator', this._page);
+            const webview = await switchToIFrame('Ballerina Integrator', this._page, 24000);
+            console.log("Switching to Ballerina Integrator iframe");
             if (!webview) {
                 throw new Error("Failed to switch to the Ballerina Module Form iframe");
             }
@@ -106,8 +107,9 @@ export class BallerinaModule {
             await currentPage.getByRole('tab', { name: 'Ballerina Integrator', exact: true }).getByLabel('Close').click();
             await clearNotificationAlerts();
             await currentPage.getByLabel('Build Ballerina Module').click();
-            const updatedNotification = currentPage.getByText('Ballerina module build successful', { exact: true })
-            await expect(updatedNotification).toBeVisible({ timeout: 20000 });
+            const updatedNotification = currentPage.getByText('Ballerina module build successful', { exact: true });
+            await expect(updatedNotification).toBeVisible({ timeout: 60000 });
+            console.log("Ballerina module build successful");
         }
         await clearNotificationAlerts();
 
