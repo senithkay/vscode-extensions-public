@@ -549,8 +549,10 @@ function findFileCaseInsensitive(directory, fileName) {
     return path.join(directory, file);
 }
 
-export function addDefaultModelConfigForNaturalFunctions(projectPath: string, token: string, backendUrl: string) {
-    const targetTable = '[ballerina.np.defaultModelConfig]';
+export function addDefaultModelConfigForNaturalFunctions(
+                projectPath: string, token: string, backendUrl: string, isNaturalFunctionsAvailableInBallerinaOrg: boolean) {
+    const moduleOrg = isNaturalFunctionsAvailableInBallerinaOrg ? "ballerina" : "ballerinax";
+    const targetTable = `[${moduleOrg}.np.defaultModelConfig]`;
     const urlLine = `url = "${backendUrl}"`;
     const accessTokenLine = `accessToken = "${token}"`;
     const configFilePath = findFileCaseInsensitive(projectPath, CONFIG_FILE_NAME);
@@ -689,7 +691,7 @@ async function showNoBallerinaSourceWarningMessage() {
     return await vscode.window.showWarningMessage(ERROR_NO_BALLERINA_SOURCES);
 }
 
-export async function addConfigFile(configPath: string) {
+export async function addConfigFile(configPath: string, isNaturalFunctionsAvailableInBallerinaOrg: boolean) {
     await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
@@ -704,7 +706,7 @@ export async function addConfigFile(configPath: string) {
                     return;
                 }
 
-                addDefaultModelConfigForNaturalFunctions(configPath, token, await getBackendURL());
+                addDefaultModelConfigForNaturalFunctions(configPath, token, await getBackendURL(), isNaturalFunctionsAvailableInBallerinaOrg);
             } catch (error) {
                 handleLogin();
                 return;
