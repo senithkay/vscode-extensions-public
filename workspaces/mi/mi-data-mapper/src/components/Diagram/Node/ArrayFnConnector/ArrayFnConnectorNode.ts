@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMDiagnostic, DMType } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
 import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression, PropertyAssignment, SyntaxKind } from "ts-morph";
 
@@ -31,6 +31,7 @@ import { FocusedInputNode } from "../FocusedInput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 import { SubMappingNode } from "../SubMapping";
 import { useDMSearchStore } from "../../../../store/store";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 
 export const ARRAY_FUNCTION_CONNECTOR_NODE_TYPE = "array-function-connector-node";
 const NODE_ID = "array-function-connector-node";
@@ -47,6 +48,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
     public outPort: IntermediatePortModel;
 
     public targetFieldFQN: string;
+    public diagnostics: DMDiagnostic[];
     public hidden: boolean;
     public hasInitialized: boolean;
 
@@ -61,6 +63,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
             context,
             ARRAY_FUNCTION_CONNECTOR_NODE_TYPE
         );
+        this.diagnostics = filterDiagnosticsForNode(context.diagnostics, parentNode);
     }
 
     initPorts(): void {
@@ -206,7 +209,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         if (!this.hidden) {
             // Create links from "IN" ports and back tracing the inputs
             if (this.sourcePort && this.inPort) {
-                const link = new DataMapperLinkModel(undefined, undefined, true);
+                const link = new DataMapperLinkModel(undefined, this.diagnostics, true);
                 link.setSourcePort(this.sourcePort);
                 link.setTargetPort(this.inPort);
                 this.sourcePort.addLinkedPort(this.inPort);
@@ -227,7 +230,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
             }
 
             if (this.outPort && this.targetPort) {
-                const link = new DataMapperLinkModel(undefined, undefined, true);
+                const link = new DataMapperLinkModel(undefined, this.diagnostics, true);
                 link.setSourcePort(this.outPort);
                 link.setTargetPort(this.targetPort);
                 link.registerListener({
@@ -246,7 +249,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
             }
         } else {
             if (this.sourcePort && this.targetPort) {
-                const link = new DataMapperLinkModel(undefined, undefined, true);
+                const link = new DataMapperLinkModel(undefined, this.diagnostics, true);
                 link.setSourcePort(this.sourcePort);
                 link.setTargetPort(this.targetPort);
                 this.sourcePort.addLinkedPort(this.targetPort);
