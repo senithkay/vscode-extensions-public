@@ -26,7 +26,7 @@ export const WarningBanner = (props: WarningBannerProps) => {
     return (
         <div className={classNames(classes.warningContainer, className)} data-testid="warning-banner">
             <div className={classes.warningIcon}>
-                <Codicon iconSx={{ fontSize: 25 }} name="warning" />
+                <Codicon iconSx={{ fontSize: 40 }} sx={{ height: 40, width: 40 }} name="warning" />
             </div>
             <div data-test-id={testId} className={classes.warningBody} >
                 {(typeof message === 'string' ? <p>{message}</p> : (message))}
