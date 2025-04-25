@@ -40,7 +40,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
 
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
 
-    const deleteLink = async () => {
+    const onClickDelete = async () => {
         setDeleteInProgress(true);
         await node.deleteLink();
         setDeleteInProgress(false);
@@ -93,7 +93,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                                     <Button
                                         appearance="icon"
                                         tooltip="Delete"
-                                        onClick={deleteLink} data-testid={`delete-query-${node?.targetFieldFQN}`}
+                                        onClick={onClickDelete} data-testid={`delete-query-${node?.targetFieldFQN}`}
                                     >
                                         <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
                                     </Button>
