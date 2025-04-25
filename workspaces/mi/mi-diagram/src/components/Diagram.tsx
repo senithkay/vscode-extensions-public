@@ -118,26 +118,6 @@ export function Diagram(props: DiagramProps) {
         updateScrollPosition(e);
     };
 
-    useEffect(() => {
-        if (!diagramViewStateKey || diagramViewStateKey === "") {
-            return
-        }
-        const storedScrollPosition = localStorage.getItem(diagramViewStateKey);
-        const scroll = scrollRef?.current as any;
-        if (storedScrollPosition) {
-            const { scrollPosition: prevScrollPosition, scrollPositionX: prevScrollPositionX } = JSON.parse(storedScrollPosition);
-            if (scrollRef.current && 'scrollTop' in scrollRef.current && prevScrollPosition !== undefined) {
-                scroll.scrollTop = prevScrollPosition;
-            }
-            if (scrollRef.current && 'scrollLeft' in scrollRef.current && prevScrollPosition !== undefined) {
-                scroll.scrollLeft = prevScrollPositionX;
-            } else {
-                scroll.scrollLeft = scroll?.clientWidth > diagramData.flow.dimensions.width ? 0 : (scroll?.clientWidth / 2 - diagramData.flow.dimensions.l / 2);
-            }
-        }
-    }, [diagramViewStateKey, canvasDimensions]);
-
-
     const [diagramData, setDiagramData] = useState({
         flow: {
             engine: generateEngine(),
@@ -160,6 +140,36 @@ export function Diagram(props: DiagramProps) {
             }
         }
     });
+
+    useEffect(() => {
+        const flow = isFaultFlow ? diagramData.fault : diagramData.flow;
+        const model = flow?.engine?.getModel();
+
+        if (!model) {
+            return;
+        }
+
+        if (!diagramViewStateKey || diagramViewStateKey === "") {
+            const startNode = model.getNodes()?.[0];
+            if (!startNode) {
+                return;
+            }
+            return scrollIntoNode(startNode);
+        }
+        const storedScrollPosition = localStorage.getItem(diagramViewStateKey);
+        const scroll = scrollRef?.current as any;
+        if (storedScrollPosition) {
+            const { scrollPosition: prevScrollPosition, scrollPositionX: prevScrollPositionX } = JSON.parse(storedScrollPosition);
+            if (scrollRef.current && 'scrollTop' in scrollRef.current && prevScrollPosition !== undefined) {
+                scroll.scrollTop = prevScrollPosition;
+            }
+            if (scrollRef.current && 'scrollLeft' in scrollRef.current && prevScrollPosition !== undefined) {
+                scroll.scrollLeft = prevScrollPositionX;
+            } else {
+                scroll.scrollLeft = scroll?.clientWidth > flow.dimensions.width ? 0 : (scroll?.clientWidth / 2 - flow.dimensions.l / 2);
+            }
+        }
+    }, [diagramViewStateKey, canvasDimensions, diagramData]);
 
     const [sidePanelState, setSidePanelState] = useState(DefaultSidePanelState);
 
@@ -281,7 +291,7 @@ export function Diagram(props: DiagramProps) {
                 };
                 canvasWidth = Math.max(canvasWidth, dimensions.width);
                 canvasHeight = Math.max(canvasHeight, dimensions.height);
-                initDiagram(nodes, newModel, dataItem.engine, dimensions);
+                initDiagram(newModel, dataItem.engine, dimensions);
             });
         });
         setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
@@ -320,11 +330,11 @@ export function Diagram(props: DiagramProps) {
     };
 
 
-    const initDiagram = (nodes: NodeModel[], diagramModel: DiagramModel, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
+    const initDiagram = (diagramModel: DiagramModel, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
         const scroll = scrollRef?.current as any;
         const offsetWidth = scroll ? scroll.clientWidth : dimensions.width;
         const diagramZero = -(dimensions.width / 2) + dimensions.l;
-        const centerX = (offsetWidth - dimensions.width) / 2;
+        const centerX = (offsetWidth - dimensions.width) / 2 - CANVAS_PADDING;;
         diagramEngine.getModel().setOffsetX(offsetWidth >= dimensions.width ? centerX : diagramZero);
         diagramEngine.getModel().setGridSize(50);
         diagramEngine.setModel(diagramModel);
@@ -336,12 +346,6 @@ export function Diagram(props: DiagramProps) {
                     centerDiagram(false, diagramEngine, dimensions);
                 });
                 centerDiagram(false, diagramEngine, dimensions);
-
-                const storedScrollPosition = localStorage.getItem(diagramViewStateKey);
-                if (!storedScrollPosition) {
-                    const startNode = nodes[0];
-                    scrollIntoNode(startNode);
-                }
 
                 setTimeout(() => {
                     setIsLoading(false);
