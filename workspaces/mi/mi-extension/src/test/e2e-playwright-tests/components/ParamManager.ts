@@ -47,7 +47,7 @@ export class SimpleParamManager extends ParamManager {
     }
 
     public async getEditForm(index: number): Promise<Form> {
-        const paramManagerContainer = this.container.locator(`#parameterManager${this.field}`);
+        const paramManagerContainer = this.container.locator(`#parameterManager-${this.field}`);
         await paramManagerContainer.waitFor();
         const editBtns = paramManagerContainer.locator('#paramEdit');
         await this.clickListItem(editBtns, index);
@@ -62,7 +62,7 @@ export class SimpleParamManager extends ParamManager {
     }
 
     public async deleteParam(index: number = 0): Promise<void> {
-        const paramManagerContainer = this.container.locator(`#parameterManager${this.field}`);
+        const paramManagerContainer = this.container.locator(`#parameterManager-${this.field}`);
         await paramManagerContainer.waitFor();
         const trashBtns = paramManagerContainer.locator('#paramTrash');
         await this.clickListItem(trashBtns, index);
