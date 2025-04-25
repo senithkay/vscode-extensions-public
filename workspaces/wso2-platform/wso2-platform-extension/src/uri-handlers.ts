@@ -61,12 +61,17 @@ export function activateURIHandlers() {
 									const clientId = extName === "Devant" ? choreoEnvConfig.getDevantAsguadeoClientId() : undefined;
 									const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode, orgId, callbackUrl, clientId);
 									if (userInfo) {
-										await delay(1000);
+										if(contextStore?.getState().state?.selected){
+											const includesOrg = userInfo.organizations?.some(item=>item.handle === contextStore?.getState().state?.selected?.orgHandle)
+											if(!includesOrg){
+												contextStore.getState().resetState()
+											}
+										}
 										authStore.getState().loginSuccess(userInfo);
 										window.showInformationMessage(`Successfully signed into ${extName}`);
 									}
 								} catch (error: any) {
-									if (!(error instanceof ResponseError) || error.code !== ErrorCode.NoOrgsAvailable) {
+									if (!(error instanceof ResponseError) || ![ErrorCode.NoOrgsAvailable, ErrorCode.NoAccountAvailable].includes(error.code)) {
 										window.showErrorMessage("Sign in failed. Please check the logs for more details.");
 									}
 									getLogger().error(`WSO2 Platform sign in Failed: ${error.message}`);
@@ -157,12 +162,13 @@ export const cloneOrOpenDir = async (
 		const componentCache = dataCacheStore?.getState().getComponents(org.handle, project.handler);
 		let matchingComp = componentCache?.find((item) => item.metadata.name === componentName);
 		if (!matchingComp) {
-			matchingComp = await window.withProgress({ title: "Fetching component details...", location: ProgressLocation.Notification }, () =>
-				ext.clients.rpcClient.getComponentItem({ componentName, orgId: org.id.toString(), projectHandle: project.handler }),
+			matchingComp = await window.withProgress(
+				{ title: `Fetching ${extName === "Devant" ? "integration" : "component"} details...`, location: ProgressLocation.Notification },
+				() => ext.clients.rpcClient.getComponentItem({ componentName, orgId: org.id.toString(), projectHandle: project.handler }),
 			);
 		}
 		if (!matchingComp) {
-			window.showErrorMessage(`Failed to find component matching ${componentName}`);
+			window.showErrorMessage(`Failed to find ${extName === "Devant" ? "integration" : "component"} matching ${componentName}`);
 			return;
 		}
 
@@ -226,6 +232,7 @@ export const cloneOrOpenDir = async (
 };
 
 const switchContextAndOpenDir = async (selectedPath: string, org: Organization, project: Project, componentName?: string | null) => {
+	const extName = webviewStateStore.getState().state.extensionName;
 	const gitRoot = await getGitRoot(ext.context, selectedPath);
 	if (!gitRoot) {
 		window.showErrorMessage(`Failed to find Git root of ${selectedPath}`);
@@ -240,7 +247,9 @@ const switchContextAndOpenDir = async (selectedPath: string, org: Organization, 
 			contextStore.getState().state?.selected?.orgHandle === org.handle &&
 			contextStore.getState().state?.selected?.projectHandle === project.handler
 		) {
-			window.showInformationMessage(`You are already within the ${componentName ? "component" : "project"} directory`);
+			window.showInformationMessage(
+				`You are already within the ${componentName ? (extName === "Devant" ? "integration" : "component") : "project"} directory`,
+			);
 		} else {
 			const matching = contextStore.getState().state.items[getContextKey(org, project)];
 			if (matching) {
@@ -270,13 +279,18 @@ const switchContextAndOpenDir = async (selectedPath: string, org: Organization, 
 };
 
 const openProjectDirectory = async (openingPath: string, isComponent = false) => {
-	openDirectory(openingPath, `Where do you want to open the ${isComponent ? "component" : "project"} directory ${openingPath} ?`);
+	const extName = webviewStateStore.getState().state.extensionName;
+	openDirectory(
+		openingPath,
+		`Where do you want to open the ${isComponent ? (extName === "Devant" ? "integration" : "component") : "project"} directory ${openingPath} ?`,
+	);
 };
 
 const cloneOrOpenDirectory = (organization: Organization, project: Project, componentName = "") => {
+	const extName = webviewStateStore.getState().state.extensionName;
 	window
 		.showInformationMessage(
-			`Unable to find a local clone of the ${componentName ? "component" : "project"} directory.`,
+			`Unable to find a local clone of the ${componentName ? (extName === "Devant" ? "integration" : "component") : "project"} directory.`,
 			{ modal: true },
 			"Clone Repository",
 			"Open Directory",

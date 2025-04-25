@@ -25,7 +25,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon, ProgressRing, Button, Icon, Divider, CheckBox, ProgressIndicator, Overlay } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
+import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/components/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from "react-markdown";
@@ -541,7 +541,7 @@ export function Overview(props: ComponentDiagramProps) {
         // Fetching the backend root URI
         rpcClient
             .getAiPanelRpcClient()
-            .getBackendURL()
+            .getBackendUrl()
             .then((res) => {
                 backendRootUri.current = res;
             });
@@ -579,7 +579,7 @@ export function Overview(props: ComponentDiagramProps) {
             if (segment.isCode) {
                 let code = segment.text;
                 let file = segment.fileName;
-                rpcClient.getAiPanelRpcClient().addToProject({ content: code, filePath: file });
+                rpcClient.getAiPanelRpcClient().addToProject({ content: code, filePath: file, isTestCode: false });
             }
         });
     }, [responseText]);

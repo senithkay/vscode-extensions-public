@@ -3009,6 +3009,20 @@ ${endpointAttributes}
         });
     }
 
+    async getEULALicense(): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            const licensePath = extension.context.asAbsolutePath(path.join('resources', 'MI_LICENSE.txt'));
+
+            try {
+                const licenseText = fs.readFileSync(licensePath, 'utf-8');
+                resolve(licenseText);
+            } catch (err) {
+                vscode.window.showErrorMessage('Failed to load license file.');
+                reject(err);
+            }
+        });
+    }
+
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
             const projectUuid = uuidv4();

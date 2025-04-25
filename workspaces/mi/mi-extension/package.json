@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "2.1.4",
+  "version": "2.1.6",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -164,6 +164,12 @@
             "type": "string",
             "default": "",
             "description": "Devant project scope",
+            "scope": "resource"
+          },
+          "MI.suppressServerUpdateNotification": {
+            "type": "boolean",
+            "default": false,
+            "description": "Don't show server update notification",
             "scope": "resource"
           }
         }

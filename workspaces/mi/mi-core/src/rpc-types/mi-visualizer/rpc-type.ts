@@ -40,6 +40,7 @@ import {
     SetupDetails,
     SetPathRequest,
     PathDetailsResponse,
+    DownloadMIRequest,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -74,7 +75,7 @@ export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { meth
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
 
 export const downloadJavaFromMI: RequestType<string, string> = { method: `${_preFix}/downloadJavaFromMI` };
-export const downloadMI: RequestType<string, string> = { method: `${_preFix}/downloadMI` };
+export const downloadMI: RequestType<DownloadMIRequest, string> = { method: `${_preFix}/downloadMI` };
 export const getSupportedMIVersionsHigherThan: RequestType<string, string[]> = { method: `${_preFix}/getSupportedMIVersionsHigherThan` };
 export const getProjectDetails: RequestType<void, ProjectDetailsResponse> = { method: `${_preFix}/getProjectDetails` };
 export const updateDependencies: RequestType<UpdateDependenciesRequest, boolean> = { method: `${_preFix}/updateDependencies` };

@@ -14,6 +14,7 @@ import React from 'react';
 import { AutoMapError } from './AutoMapError';
 import { ErrorNodeKind, RenderingError } from './RenderingError';
 import { WarningBanner } from '../Warning/DataMapperWarning';
+import { DataMapperInputParam, DataMapperOutputParam } from '../ConfigPanel/InputParamsPanel/types';
 
 // Function to render WarningBanner with error message
 const renderWarningBanner = (classes: any, message: React.ReactNode) => (
@@ -34,7 +35,10 @@ const renderErrorMessage = (classes: any, errorMessage: React.ReactNode) => (
 );
 
 // Component to render error based on error kind
-export const IOErrorComponent: React.FC<{ errorKind: ErrorNodeKind; classes: any }> = ({ errorKind, classes }) => {
+export const IOErrorComponent: React.FC<{
+    errorKind: ErrorNodeKind;
+    classes: any
+}> = ({ errorKind, classes }) => {
     if (errorKind) {
         const errorMessage = <RenderingError errorNodeKind={errorKind} />;
         return renderErrorMessage(classes, renderWarningBanner(classes, errorMessage));
@@ -43,10 +47,37 @@ export const IOErrorComponent: React.FC<{ errorKind: ErrorNodeKind; classes: any
 };
 
 // Component to render auto map error
-export const AutoMapErrorComponent: React.FC<{ autoMapError: AutoMapError; classes: any }> = ({ autoMapError, classes }) => {
+export const AutoMapErrorComponent: React.FC<{
+    autoMapError: AutoMapError;
+    classes: any
+}> = ({ autoMapError, classes }) => {
     if (autoMapError) {
         const errorMessage = <AutoMapError {...autoMapError} />;
         return renderErrorMessage(classes, renderWarningBanner(classes, errorMessage));
     }
     return null;
+};
+
+// Component to render error for unsupported IO
+export const UnsupportedIOErrorComponent: React.FC<{
+    inputs: DataMapperInputParam[];
+    output: DataMapperOutputParam;
+    classes: any;
+}> = ({ inputs, output, classes }) => {
+    const hasInvalidInputs = inputs.some(input => input.isUnsupported);
+    const hasInvalidOutput = output.isUnsupported;
+
+    let errorMsg = `The Data Mapper does not support the selected `;
+    if (hasInvalidInputs) {
+        errorMsg += 'input type(s)';
+    }
+    if (hasInvalidOutput) {
+        errorMsg += `${hasInvalidInputs ? ' and output type.' : 'output type.'}`;
+    } else {
+        errorMsg += '.';
+    }
+    errorMsg += ' Please ensure you are using compatible Record Types or Primitive Types.';
+
+    const errorMessage = <p>{errorMsg}</p>;
+    return renderErrorMessage( classes, renderWarningBanner(classes, errorMessage));
 };

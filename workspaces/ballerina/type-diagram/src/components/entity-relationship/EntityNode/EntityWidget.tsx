@@ -36,7 +36,7 @@ const HighlightedButton = styled.div`
     border-radius: 5px;
     cursor: pointer;
     &:hover {
-        border: 1px solid ${ThemeColors.PRIMARY};
+        border: 1px solid ${ThemeColors.HIGHLIGHT};
         background-color: ${ThemeColors.PRIMARY_CONTAINER};
     }
 `;

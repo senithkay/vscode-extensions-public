@@ -64,11 +64,12 @@ const RUNTIME_CONFIG = {
 
 interface RuntimeStatusProps {
     type: 'JAVA' | 'MI';
-    pathDetails: { status: 'valid' | 'mismatch' | 'not-valid'; version?: string; path?: string };
+    pathDetails: { status: 'valid' | 'valid-not-updated' | 'mismatch' | 'not-valid'; version?: string; path?: string };
     recommendedVersion: string;
     showInlineDownloadButton: boolean;
     handleDownload: () => void;
     isDownloading: boolean;
+    children?: React.ReactNode;
 }
 interface DownloadComponentProps {
     title: string;
@@ -98,6 +99,7 @@ const RuntimeStatus: React.FC<RuntimeStatusProps> = ({
     showInlineDownloadButton,
     handleDownload,
     isDownloading,
+    children,
 }) => {
     const config = RUNTIME_CONFIG[type];
 
@@ -109,6 +111,14 @@ const RuntimeStatus: React.FC<RuntimeStatusProps> = ({
                     title: `${config.name} is setup.`,
                     description: `${config.name} is already setup.`,
                     showDownload: false,
+                    showVersion: false,
+                };
+            case 'valid-not-updated':
+                return {
+                    isValid: true,
+                    title: `${config.name} is setup.`,
+                    description: `${config.name} is already setup.`,
+                    showDownload: true,
                     showVersion: false,
                 };
             case 'mismatch':
@@ -143,15 +153,25 @@ const RuntimeStatus: React.FC<RuntimeStatusProps> = ({
                     {getIcon(isValid, false, { cursor: 'default' })}
                 </IconContainer>
                 <Column>
-                    <StepTitle color={isValid && pathDetails?.status === 'valid' ? VSCodeColors.PRIMARY : undefined}>
+                    <StepTitle color={isValid && (pathDetails?.status === 'valid' || pathDetails?.status === 'valid-not-updated') ? VSCodeColors.PRIMARY : undefined}>
                         {title}
                     </StepTitle>
-                    <StepDescription color={isValid && pathDetails?.status === 'valid' ? VSCodeColors.PRIMARY : undefined}>
+                    <StepDescription color={isValid && (pathDetails?.status === 'valid' || pathDetails?.status === 'valid-not-updated') ? VSCodeColors.PRIMARY : undefined}>
                         {description}
                     </StepDescription>
                     {pathDetails?.path && (
-                        <StepDescription color={isValid && pathDetails?.status === 'valid' ? VSCodeColors.PRIMARY : undefined}>
+                        <StepDescription color={isValid && (pathDetails?.status === 'valid' || pathDetails?.status === 'valid-not-updated') ? VSCodeColors.PRIMARY : undefined}>
                             {config.pathLabel}: {pathDetails.path}
+                        </StepDescription>
+                    )}
+                    {pathDetails.status === 'valid-not-updated' && (
+                        <StepDescription color={isValid && pathDetails?.status === 'valid-not-updated' ? VSCodeColors.PRIMARY : undefined}>
+                            New update available!
+                        </StepDescription>
+                    )}
+                    {children && (
+                        <StepDescription color={isValid && pathDetails?.status === 'valid-not-updated' ? VSCodeColors.PRIMARY : undefined}>
+                            {children}
                         </StepDescription>
                     )}
                 </Column>
@@ -161,7 +181,7 @@ const RuntimeStatus: React.FC<RuntimeStatusProps> = ({
                     onClick={handleDownload}
                     disabled={isDownloading}
                 >
-                    Download {config.name} {showVersion ?? (recommendedVersion)}
+                    {pathDetails?.status === 'valid-not-updated' ? 'Update' : 'Download'} {config.name} {showVersion ?? (recommendedVersion)}
                 </Button>
             )}
         </SpaceBetweenRow>

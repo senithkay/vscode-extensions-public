@@ -107,16 +107,6 @@ export function BallerinaUpdateView() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [showUpdateButton, setShowUpdateButton] = useState(false);
-
-  useEffect(() => {
-    rpcClient.getVisualizerLocation().then((value) => {
-      if (value.metadata?.distributionSetBy === "setByBI") {
-        setShowUpdateButton(true);
-      }
-    });
-  }, []);
-
   const updateBallerina = () => {
     rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina"] });
   };
@@ -149,13 +139,11 @@ export function BallerinaUpdateView() {
                 <StepDescription>
                   Experience the complete suite of visual development tools by updating to the latest version.
                 </StepDescription>
-                {showUpdateButton &&
-                  <StyledButton appearance="primary" onClick={updateBallerina}>
-                    <ButtonContent>
-                      Update Now
-                    </ButtonContent>
-                  </StyledButton>
-                }
+                <StyledButton appearance="primary" onClick={updateBallerina}>
+                  <ButtonContent>
+                    Update Now
+                  </ButtonContent>
+                </StyledButton>
                 <StepDescription style={{ marginTop: 10 }}>
                   <strong>Please restart VS Code after updating the Ballerina distribution.</strong>
                 </StepDescription>

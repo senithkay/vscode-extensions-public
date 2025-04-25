@@ -230,6 +230,7 @@ const EnvItem: FC<{
 	const [isDeploymentInProgress, setDeploymentInProgress] = useState(false);
 	const webviewState = useExtWebviewContext();
 	const choreoEnv = webviewState?.choreoEnv;
+	const extName = webviewState.extensionName;
 	const [isTestPanelOpen, setTestPanelOpen] = useState(false);
 	const [isEndpointsPanelOpen, setIsEndpointsPanelOpen] = useState(false);
 
@@ -480,7 +481,7 @@ const EnvItem: FC<{
 												<VSCodeLink
 													className={classNames("text-vsc-foreground", activePublicEndpoints.length === 0 && "cursor-not-allowed opacity-50")}
 													onClick={activePublicEndpoints.length > 0 ? () => setTestPanelOpen(true) : undefined}
-													title="View OpenAPI console to test the deployed component"
+													title={`View OpenAPI console to test the deployed ${extName === "Devant" ? "integration" : "component"}`}
 												>
 													OpenAPI Console
 												</VSCodeLink>
@@ -493,7 +494,7 @@ const EnvItem: FC<{
 										<VSCodeLink
 											className="text-vsc-foreground"
 											onClick={() => selectLogType()}
-											title={`View ${getLogTypeLabel(componentType)} of your deployed component`}
+											title={`View ${getLogTypeLabel(componentType)} of your deployed ${extName === "Devant" ? "integration" : "component"}`}
 										>
 											{getLogTypeLabel(componentType)}
 										</VSCodeLink>
@@ -543,6 +544,7 @@ const ProxyEnvItem: FC<{
 	const latestApiVersion = component?.apiVersions?.find((item) => item.latest);
 	const webviewState = useExtWebviewContext();
 	const choreoEnv = webviewState?.choreoEnv;
+	const extName = webviewState?.extensionName;
 
 	const {
 		data: proxyDeploymentData,
@@ -699,7 +701,11 @@ const ProxyEnvItem: FC<{
 								)}
 								{proxyDeploymentData && (
 									<GridColumnItem label="Observability">
-										<VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()} title="View Gateway of your deployed component">
+										<VSCodeLink
+											className="text-vsc-foreground"
+											onClick={() => selectLogType()}
+											title={`View Gateway of your deployed ${extName === "Devant" ? "integration" : "component"}`}
+										>
 											Gateway Logs
 										</VSCodeLink>
 									</GridColumnItem>
@@ -852,6 +858,8 @@ const DeployButton: FC<{
 	const [selectedBuild, setSelectedBuild] = useState<BuildKind>();
 	const isDeployed = !!deploymentStatus || !!proxyDeploymentData;
 	const buildId = promotion?.prevProxyDeploymentData?.build?.id || promotion?.prevDeploymentStatus?.build?.buildId;
+	const webviewState = useExtWebviewContext();
+	const extName = webviewState?.extensionName;
 
 	// can deploy if type is truthy & (disabled or approved)
 	const showRequestToPromote =
@@ -912,7 +920,7 @@ const DeployButton: FC<{
 		},
 		onSuccess: () => {
 			ChoreoWebViewAPI.getInstance().showInfoMsg(
-				`Deployment of component ${component.metadata.displayName} for the ${env?.name} environment has been successfully triggered`,
+				`Deployment of ${extName === "Devant" ? "integration" : "component"} ${component.metadata.displayName} for the ${env?.name} environment has been successfully triggered`,
 			);
 		},
 		onSettled: () => {

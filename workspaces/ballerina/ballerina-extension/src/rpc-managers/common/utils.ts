@@ -71,7 +71,7 @@ export async function askFilePath() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         filters: {
-            'Files': ['yaml', 'json']
+            'Files': ['yaml', 'json', 'yml']
         },
         title: "Select a file",
     });

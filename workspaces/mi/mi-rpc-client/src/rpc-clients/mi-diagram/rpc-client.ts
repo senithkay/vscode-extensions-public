@@ -320,6 +320,7 @@ import {
     MarkAsDefaultSequenceRequest,
     markAsDefaultSequence,
     getSubFolderNames,
+    getEULALicense,
     GetSubFoldersResponse,
     GetSubFoldersRequest,
     downloadInboundConnector,
@@ -1056,5 +1057,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     saveConfig(params: SaveConfigRequest): Promise<SaveConfigResponse> {
         return this._messenger.sendRequest(saveConfig, HOST_EXTENSION, params);
+    }
+
+    getEULALicense(): Promise<string> {
+        return this._messenger.sendRequest(getEULALicense, HOST_EXTENSION);
     }
 }

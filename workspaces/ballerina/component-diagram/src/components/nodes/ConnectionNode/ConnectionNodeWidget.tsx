@@ -47,7 +47,7 @@ const Circle = styled.div<NodeStyleProp>`
     width: ${CON_NODE_HEIGHT}px;
     height: ${CON_NODE_HEIGHT}px;
     border: ${NODE_BORDER_WIDTH}px solid
-        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.HIGHLIGHT : ThemeColors.OUTLINE_VARIANT)};
     border-radius: 50%;
     background-color: ${ThemeColors.SURFACE_DIM};
     color: ${ThemeColors.ON_SURFACE};
@@ -84,7 +84,7 @@ const Title = styled(StyledText)<NodeStyleProp>`
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: "GilmerMedium";
-    color: ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE)};
+    color: ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.HIGHLIGHT : ThemeColors.ON_SURFACE)};
     opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
 `;
 

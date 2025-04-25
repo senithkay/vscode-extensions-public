@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel, NodeModel } from "@projectstorm/react-diagrams";
 import {
     traversNode,
     STNode,
@@ -34,6 +34,7 @@ import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 import { debounce } from "lodash";
+import { toJpeg } from "html-to-image";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -78,6 +79,18 @@ namespace S {
         padding: 10px 9px 12px 5px;
         position: fixed;
         margin-top: 20px;
+        width: 20px;
+        right: 20px;
+        background-color: var(--vscode-editor-background);
+        border: 1px solid var(--vscode-tree-indentGuidesStroke);
+        border-radius: 4px;
+        z-index: 1;
+    `;
+    export const DownloadBtnContainer = styled.div`
+        padding: 5px 9px 5px 5px;
+        position: fixed;
+        margin-top: 130px;
+        width: 20px;
         right: 20px;
         background-color: var(--vscode-editor-background);
         border: 1px solid var(--vscode-tree-indentGuidesStroke);
@@ -91,6 +104,7 @@ export function Diagram(props: DiagramProps) {
     const { rpcClient, isLoading, setIsLoading } = useVisualizerContext();
     const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
     const [diagramViewStateKey, setDiagramViewStateKey] = useState("");
+    const [isDownloading, setIsDownloading] = useState(false);
     const scrollRef = useRef();
 
     const updateScrollPosition = debounce((e: any) => {
@@ -198,8 +212,8 @@ export function Diagram(props: DiagramProps) {
         updateDiagramData(flows);
 
         rpcClient?.getVisualizerState().then((state) => {
-            if (state && state.identifier !== undefined && state.identifier !== "") {
-                setDiagramViewStateKey(`diagramViewState-${props.documentUri}-${state.identifier}`);
+            if (state && state.documentUri !== undefined && state.documentUri !== "") {
+                setDiagramViewStateKey(`diagramViewState-${props.documentUri}-${state.identifier ?? ""}`);
             }
         });
 
@@ -267,7 +281,7 @@ export function Diagram(props: DiagramProps) {
                 };
                 canvasWidth = Math.max(canvasWidth, dimensions.width);
                 canvasHeight = Math.max(canvasHeight, dimensions.height);
-                initDiagram(newModel, dataItem.engine, dimensions);
+                initDiagram(nodes, newModel, dataItem.engine, dimensions);
             });
         });
         setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
@@ -306,7 +320,7 @@ export function Diagram(props: DiagramProps) {
     };
 
 
-    const initDiagram = (diagramModel: DiagramModel, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
+    const initDiagram = (nodes: NodeModel[], diagramModel: DiagramModel, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
         const scroll = scrollRef?.current as any;
         const offsetWidth = scroll ? scroll.clientWidth : dimensions.width;
         const diagramZero = -(dimensions.width / 2) + dimensions.l;
@@ -322,12 +336,33 @@ export function Diagram(props: DiagramProps) {
                     centerDiagram(false, diagramEngine, dimensions);
                 });
                 centerDiagram(false, diagramEngine, dimensions);
+
+                const storedScrollPosition = localStorage.getItem(diagramViewStateKey);
+                if (!storedScrollPosition) {
+                    const startNode = nodes[0];
+                    scrollIntoNode(startNode);
+                }
+
                 setTimeout(() => {
                     setIsLoading(false);
                 }, 150);
             }
         }, 150);
     };
+
+    const scrollIntoNode = (node: NodeModel) => {
+        const id = node?.getID();
+
+        const element = document.querySelector(`[data-nodeid="${id}"]`);
+
+        if (element) {
+            element.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+                inline: "center"
+            });
+        }
+    }
 
     const centerDiagram = async (animate = false, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
         if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
@@ -378,7 +413,7 @@ export function Diagram(props: DiagramProps) {
         }
     };
 
-    const zoom = (type: "in" | "out" | "reset") => {
+    const zoom = async (type: "in" | "out" | "reset") => {
         const diagramEngine = isFaultFlow ? diagramData.fault.engine : diagramData.flow.engine;
         const model = diagramEngine.getModel();
         const scroll = scrollRef?.current as any;
@@ -386,9 +421,11 @@ export function Diagram(props: DiagramProps) {
         if (type === 'reset') {
             const dimensions = isFaultFlow ? diagramData.fault.dimensions : diagramData.flow.dimensions;
             model.setZoomLevel(100);
-            centerDiagram(false, diagramEngine, dimensions);
+            await centerDiagram(false, diagramEngine, dimensions);
             diagramEngine.repaintCanvas();
-            scroll.scrollLeft = scroll?.clientWidth > dimensions.width ? 0 : (scroll?.clientWidth / 2 - dimensions.l / 2);
+
+            const startNode = model.getNodes()?.[0]
+            scrollIntoNode(startNode);
             return;
         }
 
@@ -413,6 +450,47 @@ export function Diagram(props: DiagramProps) {
 
         diagramEngine.repaintCanvas();
     }
+
+    const downloadDiagram = () => {
+        setIsDownloading(true);
+        const data = isFaultFlow ? diagramData.fault : diagramData.flow;
+        const canvas: HTMLDivElement = data.engine.getCanvas();
+        if (!canvas) {
+            setIsDownloading(false);
+            return;
+        }
+        const defaultStyle = (canvas.childNodes[0] as any).getAttribute('style');
+        (canvas.childNodes[0] as any).style = "transform: translate(20px, 0px) scale(1);";
+        (canvas.childNodes[1] as any).style = "transform: translate(20px, 0px) scale(1);";
+        const width = data.dimensions.l + data.dimensions.r + 40;
+        const style = window.getComputedStyle(document.body);
+        const backgroundColor = style.getPropertyValue('--vscode-editor-background');
+
+        setTimeout(() => {
+            toJpeg(canvas, {
+                cacheBust: true,
+                quality: 1,
+                pixelRatio: 100,
+                width: width,
+                height: canvasDimensions.height,
+                backgroundColor
+            })
+                .then((dataUrl: string) => {
+                    const link = document.createElement('a');
+                    link.download = `MI-${model.tag}-diagram.jpeg`;
+                    link.href = dataUrl;
+                    link.click();
+                })
+                .catch((err: { message: any; }) => {
+                    console.error('Error generating diagram image:', err.message);
+                }).finally(() => {
+                    (canvas.childNodes[0] as any).style = defaultStyle;
+                    (canvas.childNodes[1] as any).style = defaultStyle;
+                    setIsDownloading(false);
+                });
+        }, 0);
+    }
+
     const handleClose = () => {
         setSidePanelState({
             ...sidePanelState,
@@ -423,25 +501,32 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
+            {/* controls */}
+            <S.ControlsContainer>
+                <Button appearance="icon" onClick={() => zoom('in')} tooltip="Zoom In" sx={{ marginBottom: '3px' }}>
+                    <Codicon name='plus' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
+                </Button>
+                <Button appearance="icon" onClick={() => zoom('out')} tooltip="Zoom Out" sx={{ marginBottom: '3px' }}>
+                    <Codicon name='dash' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
+                </Button>
+                <Button appearance="icon" onClick={() => zoom('reset')} tooltip="Reset Zoom">
+                    <Codicon name='layout-centered' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
+                </Button>
+            </S.ControlsContainer>
+            <S.DownloadBtnContainer>
+                <Button appearance="icon" onClick={() => downloadDiagram()} tooltip="Download diagram as a image" sx={{ marginBottom: '3px' }}>
+                    <Codicon name='desktop-download' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
+                </Button>
+            </S.DownloadBtnContainer>
+
             <S.Container ref={scrollRef} onScroll={handleScroll} data-testid={"diagram-container"}>
                 <SidePanelProvider value={{
                     ...sidePanelState,
                     setSidePanelState,
                 }}>
                     {isLoading && <OverlayLayerWidget />}
+                    {isDownloading && <OverlayLayerWidget isDownloading />}
 
-                    {/* controls */}
-                    <S.ControlsContainer>
-                        <Button appearance="icon" onClick={() => zoom('in')} tooltip="Zoom In" sx={{ marginBottom: '3px' }}>
-                            <Codicon name='plus' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
-                        </Button>
-                        <Button appearance="icon" onClick={() => zoom('out')} tooltip="Zoom Out" sx={{ marginBottom: '3px' }}>
-                            <Codicon name='dash' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
-                        </Button>
-                        <Button appearance="icon" onClick={() => zoom('reset')} tooltip="Reset Zoom">
-                            <Codicon name='layout-centered' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
-                        </Button>
-                    </S.ControlsContainer>
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
                         <DiagramCanvas height={canvasDimensions.height} width={canvasDimensions.width} type="flow">

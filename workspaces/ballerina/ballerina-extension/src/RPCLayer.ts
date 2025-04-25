@@ -25,6 +25,7 @@ import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler'
 import { AiPanelWebview } from './views/ai-panel/webview';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import path from 'path';
+import * as fs from 'fs';
 import { StateMachinePopup } from './stateMachinePopup';
 import { registerAiAgentRpcHandlers } from './rpc-managers/ai-agent/rpc-handler';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
@@ -112,8 +113,7 @@ async function getContext(): Promise<VisualizerLocation> {
                 haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
-                target: context.metadata?.target,
-                distributionSetBy: ballerinaExtInstance.ballerinaHome.includes("ballerina-home") ? "setByBI" : "setByUser"
+                target: context.metadata?.target
             },
             scope: context.scope,
         });

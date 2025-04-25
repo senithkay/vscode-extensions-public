@@ -305,7 +305,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					<ComponentFormEndpointsSection
 						{...props}
 						key="endpoints-step"
-						componentName={name || "component"}
+						componentName={name || extensionName === "Devant" ? "integration" : "component"}
 						onNextClick={(data) => submitEndpoints(data.endpoints as Endpoint[])}
 						onBackClick={() => setStepIndex(stepIndex - 1)}
 						isSaving={isSubmittingEndpoints}
