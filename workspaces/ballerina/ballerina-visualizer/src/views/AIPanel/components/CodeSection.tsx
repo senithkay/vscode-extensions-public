@@ -13,7 +13,7 @@ import styled from "@emotion/styled";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { Spinner } from "./ProgressTextSegment";
 import { Collapse } from "react-collapse";
-import { SegmentType, splitContent } from "../AIChat";
+import { SegmentType, splitContent } from "./AIChat";
 
 interface CodeSectionProps {
     codeSegments: CodeSegmentProps[];

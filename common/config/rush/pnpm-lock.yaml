@@ -885,6 +885,7 @@ importers:
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-react-refresh: ^0.4.4
       highlight.js: ^11.9.0
+      jwt-decode: ^4.0.0
       lodash: ~4.17.21
       lodash.debounce: ^4.0.8
       react: ^18.2.0
@@ -934,6 +935,7 @@ importers:
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       '@wso2-enterprise/wso2-platform-core': link:../../wso2-platform/wso2-platform-core
       highlight.js: 11.11.1
+      jwt-decode: 4.0.0
       lodash: 4.17.21
       lodash.debounce: 4.0.8
       react: 18.2.0
@@ -46176,6 +46178,11 @@ packages:
   /jwt-decode/3.1.2:
     resolution: {integrity: sha512-UfpWE/VZn0iP50d8cz9NrZLM9lSWhcJ+0Gt/nm4by88UL+J1SiKN8/5dkjMmbEzwL2CAe+67GsegCbIKtbp75A==}
     dev: true
+
+  /jwt-decode/4.0.0:
+    resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
+    engines: {node: '>=18'}
+    dev: false
 
   /keytar/7.9.0:
     resolution: {integrity: sha512-VPD8mtVtm5JNtA2AErl6Chp06JBfy7diFQ7TQQhdpWOl6MrCRB+eRbvAZUsbGQS9kiMq0coJsy0W0vHpDCkWsQ==}

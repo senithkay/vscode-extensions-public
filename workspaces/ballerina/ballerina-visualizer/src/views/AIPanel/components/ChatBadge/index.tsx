@@ -9,11 +9,18 @@
 
 import React from "react";
 
-interface BadgeProps {
-    children: React.ReactNode;
+export enum ChatBadgeType {
+    Command = "command",
+    Tag = "tag",
 }
 
-const Badge: React.FC<BadgeProps> = ({ children }) => {
+interface ChatBadgeProps {
+    children: React.ReactNode;
+    rawValue?: string;
+    badgeType: ChatBadgeType;
+}
+
+const ChatBadge: React.FC<ChatBadgeProps> = ({ children, rawValue, badgeType }) => {
     return (
         <div
             contentEditable={false}
@@ -28,10 +35,12 @@ const Badge: React.FC<BadgeProps> = ({ children }) => {
                 fontFamily: "'Source Code Pro', monospace",
                 marginRight: "2px",
             }}
+            data-raw-value={rawValue ?? children}
+            data-badge-type={badgeType}
         >
             {children}
         </div>
     );
 };
 
-export default Badge;
+export default ChatBadge;

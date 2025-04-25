@@ -127,9 +127,9 @@ const AttachmentBox: React.FC<AttachmentBoxProps> = ({
             <Filename status={status}>{fileName}</Filename>
             {status !== AttachmentStatus.Success && (
                 <ErrorMessage>
-                    {status === AttachmentStatus.FileSizeError && "Too Large"}
-                    {status === AttachmentStatus.FileFormatError && "Invalid Type"}
-                    {status === AttachmentStatus.Unknown && "Unknown"}
+                    {status === AttachmentStatus.FileSizeExceeded && "Too Large"}
+                    {status === AttachmentStatus.UnsupportedFileFormat && "Invalid Type"}
+                    {status === AttachmentStatus.UnknownError && "Unknown"}
                 </ErrorMessage>
             )}
             {!readOnly && (
