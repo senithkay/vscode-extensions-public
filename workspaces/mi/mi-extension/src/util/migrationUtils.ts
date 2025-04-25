@@ -28,7 +28,8 @@ enum Nature {
     CONNECTOR,
     REGISTRY,
     CLASS,
-    LEGACY
+    LEGACY,
+    DISTRIBUTION
 }
 
 export async function importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
@@ -182,6 +183,76 @@ export async function migrateConfigs(source: string, target: string) {
     }
 }
 
+function traverseAndIdentifyBuildArtifactsPoms(directoryPath: string): string[] {
+    const pomFiles: string[] = [];
+    const buildArtifactsPath = path.join(directoryPath, 'build-artifacts');
+
+    if (fs.existsSync(buildArtifactsPath) && fs.statSync(buildArtifactsPath).isDirectory()) {
+        const subDirectories = fs.readdirSync(buildArtifactsPath, { withFileTypes: true })
+            .filter(item => item.isDirectory())
+            .map(item => path.join(buildArtifactsPath, item.name));
+
+        subDirectories.forEach(subDir => {
+            collectPomFilesRecursively(subDir, pomFiles);
+        });
+    }
+
+    return pomFiles;
+}
+
+function collectPomFilesRecursively(directoryPath: string, pomFiles: string[]) {
+    const items = fs.readdirSync(directoryPath, { withFileTypes: true });
+    items.forEach(item => {
+        const itemPath = path.join(directoryPath, item.name);
+        if (item.isDirectory()) {
+            collectPomFilesRecursively(itemPath, pomFiles);
+        } else if (item.name === 'pom.xml') {
+            pomFiles.push(itemPath);
+        }
+    });
+}
+
+function getPomIdentifierStr(groupId: string, artifactId: string, version: string): string {
+    return `${groupId}:${artifactId}:${version}`;
+}
+
+function derivePomIdentifier(identifierStr: string): { groupId: string, artifactId: string, version: string } | null {
+    const parts = identifierStr.split(':');
+    if (parts.length === 3) {
+        return {
+            groupId: parts[0],
+            artifactId: parts[1],
+            version: parts[2]
+        };
+    }
+    return null;
+}
+
+function getPomIdentifier(pomFilePath: string): string | null {
+    if (!fs.existsSync(pomFilePath)) {
+        return null;
+    }
+    const pomContent = fs.readFileSync(pomFilePath, 'utf-8');
+    let groupId: string | undefined;
+    let artifactId: string | undefined;
+    let version: string | undefined;
+
+    parseString(pomContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
+        if (err) {
+            console.error('Error parsing pom.xml:', err);
+            return;
+        }
+        groupId = result?.project?.groupId;
+        artifactId = result?.project?.artifactId;
+        version = result?.project?.version;
+    });
+
+    if (groupId && artifactId && version) {
+        return `${groupId}:${artifactId}:${version}`;
+    }
+    return null;
+}
+
 function determineProjectType(source: string): Nature | undefined {
     const rootMetaDataFilePath = path.join(source, '.project');
     let configType;
@@ -224,6 +295,9 @@ function determineProjectType(source: string): Nature | undefined {
                     case 'org.eclipse.m2e.core.maven2Nature':
                         configType = Nature.LEGACY;
                         break;
+                    case 'org.wso2.developerstudio.eclipse.distribution.project.nature':
+                        configType = Nature.DISTRIBUTION;
+                        break;
                 }
             }
         });
@@ -253,7 +327,6 @@ function copyConfigsToNewProjectStructure(nature: Nature, source: string, target
         case Nature.CLASS:
             processClassMediators(source, target);
             break;
-
     }
 }
 
@@ -570,7 +643,7 @@ function moveFiles(sourcePath: string, destinationPath: string) {
 }
 
 function deleteEmptyFoldersInPath(basePath: string): void {
-    
+
     if (!fs.existsSync(basePath)) {
         return;
     }
