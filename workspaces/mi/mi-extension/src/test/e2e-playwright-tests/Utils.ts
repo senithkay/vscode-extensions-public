@@ -7,14 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtendedPage, startVSCode } from "@wso2-enterprise/playwright-vscode-tester";
+import { ExtendedPage, startVSCode, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { Form } from "./components/Form";
 import { Welcome } from "./components/Welcome";
 import path from "path";
-import { ElectronApplication, Page } from "@playwright/test";
+import { ElectronApplication, expect } from "@playwright/test";
 import { test } from '@playwright/test';
 import fs, { existsSync } from 'fs';
-import os from 'os';
+import { promises as fsp } from 'fs';
+import { readFile } from 'fs/promises';
+import { Page } from "@playwright/test";
 
 const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
@@ -33,7 +35,7 @@ async function initVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
-async function createProject(page: ExtendedPage) {
+export async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string, addAdvancedConfig: boolean = false) {
     console.log('Creating new project');
     await page.selectSidebarItem('Micro Integrator');
     const welcomePage = new Welcome(page);
@@ -46,7 +48,11 @@ async function createProject(page: ExtendedPage) {
         values: {
             'Project Name*': {
                 type: 'input',
-                value: 'testProject'
+                value: projectName || 'testProject',
+            },
+            'Micro Integrator runtime version*': {
+                type: 'dropdown',
+                value: runtimeVersino || '4.4.0'
             },
             'Select Location': {
                 type: 'file',
@@ -54,6 +60,14 @@ async function createProject(page: ExtendedPage) {
             }
         }
     });
+    if (addAdvancedConfig) {
+        const webView = await switchToIFrame('Project Creation Form', page.page);
+        if (!webView) {
+            throw new Error("Failed to switch to Project Creation Form iframe");
+        }
+        await webView.locator('vscode-button[title="Expand"]').click();
+        await webView.getByRole('textbox', { name: 'Artifact Id*' }).fill('test');
+    }
     await createNewProjectForm.submit();
     await welcomePage.waitUntilDeattached();
     console.log('Project created');
@@ -91,10 +105,18 @@ export async function toggleNotifications(disable: boolean) {
 
 }
 
-export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
+export async function showNotifications() {
+    await page.executePaletteCommand("Notifications: Show Notifications");
+}
+
+export async function closeEditorGroup() {
+    await page.executePaletteCommand('Close Editor Group');
+}
+
+export function initTest(newProject: boolean = false, skipProjectCreation: boolean = false, cleanupAfter?: boolean, projectName?: string, runtimeVersion?: string) {
     test.beforeAll(async ({ }, testInfo) => {
         console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);
-        if (!existsSync(path.join(newProjectPath, 'testProject')) || newProject) {
+        if (!existsSync(path.join(newProjectPath, projectName ?? 'testProject')) || newProject) {
             if (fs.existsSync(newProjectPath)) {
                 fs.rmSync(newProjectPath, { recursive: true });
             }
@@ -102,7 +124,9 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
             console.log('Starting VSCode');
             await initVSCode();
             await toggleNotifications(true);
-            await createProject(page);
+            if (!skipProjectCreation) {
+                await createProject(page, projectName, runtimeVersion);
+            }
         } else {
             console.log('Resuming VSCode');
             await resumeVSCode();
@@ -116,7 +140,7 @@ export function initTest(newProject: boolean = false, cleanupAfter?: boolean) {
         if (cleanupAfter && fs.existsSync(newProjectPath)) {
             fs.rmSync(newProjectPath, { recursive: true });
         }
-        console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}`);
+        console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}, Attempt: ${testInfo.retry + 1}`);
     });
 }
 
@@ -127,4 +151,28 @@ export async function copyFile(source: string, destination: string) {
         fs.rmSync(destination);
     }
     fs.copyFileSync(source, destination);
+}
+
+export async function waitUntilPomContains(page: Page, filePath: string, expectedText: string, timeout = 10000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+        const content = await readFile(filePath, 'utf8');
+        if (content.includes(expectedText)) {
+            return true;
+        }
+        await page.waitForTimeout(500);
+    }
+    throw new Error(`Timed out waiting for '${expectedText}' in pom.xml`);
+}
+
+export async function waitUntilPomNotContains(page: Page, filePath: string, expectedText: string, timeout = 10000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+        const content = await readFile(filePath, 'utf8');
+        if (!content.includes(expectedText)) {
+            return true;
+        }
+        await page.waitForTimeout(500);
+    }
+    throw new Error(`Timed out waiting for '${expectedText}' in pom.xml`);
 }

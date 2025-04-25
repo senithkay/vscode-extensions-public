@@ -11,6 +11,8 @@ import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
+import { Overview } from "../Overview";
+import { Form } from "../Form";
 
 export class DataSource {
 
@@ -18,6 +20,13 @@ export class DataSource {
     }
 
     public async init() {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        await overviewPage.goToAddArtifact();
+
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
         await addArtifactPage.add('Data Source');
@@ -60,5 +69,76 @@ export class DataSource {
         await frame.getByRole('button', { name: 'Next' }).click();
         await frame.getByLabel('Continue without any database').click();
         await frame.getByRole('button', { name: 'Update' }).click();
+    }
+
+    public async addCustomDataSourceFromSidepanel(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Sources'], true);
+        await this._page.getByLabel('Add Data Source').click();
+        const form = new Form(this._page, 'Data Source Creation Form');
+        await form.switchToFormView();
+        const webView = await form.getWebview();
+        await form.fill({
+            values: {
+                'Datasource Name*': {
+                    type: 'input',
+                    value: name,
+                },
+                'Datasource Type': {
+                    type: 'dropdown',
+                    value: 'Custom',
+                },
+                'Custom Datasource Type*': {
+                    type: 'input',
+                    value: 'CustomType',
+                },
+                'Custom Configuration *': {
+                    type: 'textarea',
+                    value: 'CustomConfig',
+                },
+                'Description': {
+                    type: 'input',
+                    value: 'Test Ds',
+                },
+            }
+        });
+        await form.submit('Create');
+        console.log("Created custom data source");
+    }
+
+    public async editCustomDataSource(prevName: string, newName: string) {
+        console.log("Editing custom data source with previous name: " + prevName + " and new name: " + newName);
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Data Sources', prevName], true);
+
+        const form = new Form(this._page, 'Data Source Creation Form');
+        await form.switchToFormView();
+        const webView = await form.getWebview();
+        const frame = webView.locator('div#root');
+        await form.fill({
+            values: {
+                'Datasource Name*': {
+                    type: 'input',
+                    value: newName,
+                },
+                'Custom Datasource Type*': {
+                    type: 'input',
+                    value: 'NewCustomType',
+                },
+                'Custom Configuration *': {
+                    type: 'textarea',
+                    value: 'CustomConfig2',
+                },
+                'Description': {
+                    type: 'input',
+                    value: 'New Test Ds',
+                },
+            }
+        });
+        await form.submit('Update');
+        console.log("Updated custom data source");
     }
 }

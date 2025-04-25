@@ -13,6 +13,8 @@ import { Position, Range, Uri, window, workspace, WorkspaceEdit } from "vscode";
 import * as os from 'os';
 import { TextEdit } from "@wso2-enterprise/ballerina-core";
 
+export const BALLERINA_INTEGRATOR_ISSUES_URL = "https://github.com/wso2/product-ballerina-integrator/issues";
+
 export function getUpdatedSource(
     statement: string,
     currentFileContent: string,

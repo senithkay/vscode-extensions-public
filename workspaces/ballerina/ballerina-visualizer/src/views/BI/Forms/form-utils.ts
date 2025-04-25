@@ -8,7 +8,7 @@
  */
 
 import { FlowNode, LineRange } from "@wso2-enterprise/ballerina-core";
-import { FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 
 import { updateNodeProperties } from "../../../utils/bi";
@@ -35,15 +35,20 @@ export function processFormData(data: FormValues): FormValues {
     return data;
 }
 
-export function updateNodeWithProperties(node: FlowNode, updatedNode: FlowNode, data: FormValues): FlowNode {
+export function updateNodeWithProperties(
+    node: FlowNode,
+    updatedNode: FlowNode,
+    data: FormValues,
+    formImports: FormImports
+): FlowNode {
     const newNode = { ...updatedNode };
 
     if (node.branches?.at(0)?.properties) {
         // branch properties
-        newNode.branches[0].properties = updateNodeProperties(data, node.branches[0].properties);
+        newNode.branches[0].properties = updateNodeProperties(data, node.branches[0].properties, formImports);
     } else if (node.properties) {
         // node properties
-        newNode.properties = updateNodeProperties(data, node.properties);
+        newNode.properties = updateNodeProperties(data, node.properties, formImports);
     } else {
         console.error(">>> Error updating source code. No properties found");
     }

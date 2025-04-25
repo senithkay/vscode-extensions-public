@@ -8,7 +8,7 @@
  */
 
 import { test } from '@playwright/test';
-import { initTest, page } from '../Utils';
+import { initTest, page, toggleNotifications } from '../Utils';
 import { Automation } from '../components/ArtifactTest/Automation';
 import { Endpoint } from '../components/ArtifactTest/Endpoint';
 import { Sequence } from '../components/ArtifactTest/Sequence';
@@ -22,19 +22,20 @@ import { Template } from '../components/ArtifactTest/Template';
 import { Proxy } from '../components/ArtifactTest/Proxy';
 import { DataSource } from '../components/ArtifactTest/DataSource';
 import { DataService } from '../components/ArtifactTest/DataService';
-import { API } from '../components/ArtifactTest/API';
+import { API } from '../components/ArtifactTest/APITests';
 import { EventIntegration } from '../components/ArtifactTest/EventIntegration';
 import { ImportArtifact } from '../components/ImportArtifact';
-import path from "path";
+import path from 'path';
 const filePath = path.join( __dirname, '..', 'components', 'ArtifactTest', 'data', 'importApi_v1.0.0.xml');
 
 export default function createTests() {
   test.describe('Artifact Tests', async () => {
     initTest();
-    let currentTaskName: string = "TestTask";
 
+    let currentTaskName: string = "TestTask";
+    let automation: Automation;
+    let apiName: string;
     test('Automation tests', async ({ }, testInfo) => {
-      let automation: Automation;
       const testAttempt = testInfo.retry + 1;
       await test.step('Add Automation', async () => {
         console.log('Creating new Automation');
@@ -49,7 +50,11 @@ export default function createTests() {
       });
       await test.step('Edit Automation', async () => {
         console.log('Editing Automation');
-        await automation.edit("TestTask" + testAttempt, "NewTestTask" + testAttempt);
+        await automation.edit("NewTestTask" + testAttempt);
+      });
+      await test.step('Create External Trigger', async () => {
+        console.log('Creating new External Trigger');
+        await automation.createExternalTrigger("TestExternalTrigger" + testAttempt);
       });
     });
 
@@ -61,15 +66,17 @@ export default function createTests() {
         console.log('Creating new API');
         api = new API(page.page);
         await api.init();
-        await api.add("TestAPI" + testAttempt, "/testAdd" + testAttempt);
+        apiName = "TestAPI" + testAttempt;
+        await api.addAPI(apiName, "/testAdd" + testAttempt);
       });
       await test.step('Open Diagram View for API', async () => {
-        console.log('Opening Diagram View for API');
-        await api.openDiagramView("TestAPI" + testAttempt);
-      });
+          console.log('Opening Diagram View for API');
+          await api.openDiagramView("TestAPI" + testAttempt);
+        });
       await test.step('Edit API', async () => {
         console.log('Editing API');
-        await api.edit("TestAPI" + testAttempt, "NewTestAPI" + testAttempt, "/newtest" + testAttempt);
+        apiName = "NewTestAPI" + testAttempt;
+        await api.editAPI(apiName, "/newtest" + testAttempt);
       });
 
       await test.step('Add Resource', async () => {
@@ -80,13 +87,17 @@ export default function createTests() {
         console.log('Editing Resource');
         await api.editResource();
       });
+      await test.step('Go to swagger view', async () => {
+        console.log('Navigating to swagger view');
+        await api.goToSwaggerView();
+      });
       await test.step('Delete Resource', async () => {
         console.log('Deleting Resource');
         await api.deleteResource();
       });
       await test.step('Delete API', async () => {
         console.log('Deleting API');
-        await api.delete();
+        await api.deleteAPI();
       });
 
       await test.step('Create WSDL from file', async () => {
@@ -123,6 +134,22 @@ export default function createTests() {
       await test.step('Edit load balance Endpoint', async () => {
         console.log('Editing load balance Endpoint');
         await lb.editLoadBalanceEndpoint("loadBalanceEP" + testAttempt, "loadBalanceEndpoint" + testAttempt);
+      });
+      await test.step('Add failover Endpoint', async () => {
+        console.log('Creating new failover Endpoint');
+        await lb.addFailoverEndpoint("failoverEP" + testAttempt);
+      });
+      await test.step('Edit failover Endpoint', async () => {
+        console.log('Editing failover Endpoint');
+        await lb.editFailoverEndpoint("failoverEP" + testAttempt, "newFailoverEP" + testAttempt);
+      });
+      await test.step('Add Recipient List Endpoint', async () => {
+        console.log('Creating new Recipient List Endpoint');
+        await lb.addRecipientListEndpoint("recipientListEP" + testAttempt);
+      });
+      await test.step('Edit Recipient List Endpoint', async () => {
+        console.log('Editing Recipient List Endpoint');
+        await lb.editRecipientListEndpoint("recipientListEP" + testAttempt, "newRecipientListEP" + testAttempt);
       });
     });
 
@@ -186,20 +213,57 @@ export default function createTests() {
       await classMediator.clear([className, classNameForExplorer]);
     });
 
-    test('Add Ballerina Module', async () => {
+    test('Ballerina Module Tests', async () => {
+      await toggleNotifications(false);
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Ballerina Module');
+      const ballerinaModuleName = "TestBallerinaModule" + testAttempt;
       const ballerinaModule = new BallerinaModule(page.page);
       await ballerinaModule.init();
-      await ballerinaModule.add("testBal" + testAttempt);
+      console.log('Create Ballerina Module');
+      await ballerinaModule.createBallerinaModule(ballerinaModuleName);
+      console.log('Build Ballerina Module from Editor View');
+      await ballerinaModule.openFromProjectExplorerAndBuild(ballerinaModuleName);
+      console.log('Build Ballerina Module from Mediator Palette');
+      await ballerinaModule.openFromMediatorPaletteAndBuild(ballerinaModuleName);
+      console.log('Create Ballerina Module from Project Explorer');
+      await ballerinaModule.createBallerinaModuleFromProjectExplorer("TestNewBallerinaModule" + testAttempt);
+      await toggleNotifications(true);
     });
 
-    test('Add Resource', async () => {
+    test('Registry Resource Tests', async () => {
       const testAttempt = test.info().retry + 1;
-      console.log('Creating new Resource');
-      const resource = new Resource(page.page);
-      await resource.init();
-      await resource.add("testResource" + testAttempt);
+      await test.step('Create new resource from artifacts', async () => {
+        console.log('Creating new resource from artifacts');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromArtifacts();
+        await resource.addFromTemplate({
+          name: 'testResource1' + testAttempt,
+          type: 'JSON File',
+          registryPath: 'json',
+        });
+      });
+
+      await test.step('Create new resource from side panel', async () => {
+        console.log('Creating new resource from side panel');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromSidePanel();
+        await resource.addFromTemplate({
+          name: 'testResource2' + testAttempt,
+          type: 'JSON File',
+          registryPath: 'json/testResource',
+        });
+      });
+
+      await test.step('Create new resource importing a file', async () => {
+        console.log('Creating new resource importing a file');
+        const resource = new Resource(page.page);
+        await resource.openNewFormFromArtifacts();
+        const filePath = path.join(__dirname, '..', 'data', 'new-project', 'testProject', 'testProject', 'src', 'main', 'wso2mi', 'resources', 'json', 'testResource1' + testAttempt + '.json');
+        await resource.addFromFileSystem({
+          filePath: filePath,
+          registryPath: 'newJson'
+        })
+      });
     });
 
     test('Message Store Tests', async () => {
@@ -320,17 +384,68 @@ export default function createTests() {
         console.log('Editing Data Source');
         await dataSource.edit("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
       });
+      await test.step('Add Data source from side panel', async () => {
+        console.log('Creating new Data Source from side panel');
+        await dataSource.addCustomDataSourceFromSidepanel("testDataSource" + testAttempt);
+      });
+      await test.step('Edit Data source from side panel', async () => {
+        console.log('Editing Data Source from side panel');
+        await dataSource.editCustomDataSource("testDataSource" + testAttempt, "newTestDataSource" + testAttempt);
+      });
 
       await test.step('Add Data Service', async () => {
         console.log('Creating new Data Service');
         const dataService = new DataService(page.page);
         await dataService.init();
-        await dataService.add("testDataService" + testAttempt);
+        await dataService.addRDBMS("testDataService" + testAttempt);
       });
       await test.step('Edit Data Service', async () => {
         console.log('Editing Data Service');
         const dataService = new DataService(page.page);
-        await dataService.edit("testDataService" + testAttempt, "newTestDataService" + testAttempt);
+        await dataService.editRDBMS("testDataService" + testAttempt, "newTestDataService" + testAttempt);
+      });
+      await test.step('Add MongoDB Data Service', async () => {
+        console.log('Creating new MongoDB Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addMongoDB("testMongoDBDataService" + testAttempt);
+      });
+      await test.step('Edit MongoDB Data Service', async () => {
+        console.log('Editing MongoDB Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editMongoDB("testMongoDBDataService" + testAttempt, "newTestMongoDBDataService" + testAttempt);
+      });
+
+      await test.step('Add Cassanrda Data Service', async () => {
+        console.log('Editing Cassanrda Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addCassandraDB("testCassandraDB" + testAttempt);
+      });
+      await test.step('Edit Cassandra Data Service', async () => {
+        console.log('Editing Cassandra Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editCassandraDB("testCassandraDB" + testAttempt, "newTestCassandraDB" + testAttempt);
+      });
+
+      await test.step('Add CSV Data Service', async () => {
+        console.log('Editing Cassanrda Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addCsvDs("testCSVDs" + testAttempt);
+      });
+      await test.step('Edit CSV Data Service', async () => {
+        console.log('Editing CSV Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editCsvDs("testCSVDs" + testAttempt, "newTestCSVDs" + testAttempt);
+      });
+
+      await test.step('Add Carbon Data source', async () => {
+        console.log('Adding Carbon Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addCarbonDs("testCarbonDs" + testAttempt);
+      });
+      await test.step('Edit Carbon Data source', async () => {
+        console.log('Editing Carbon Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editCarbonDs("testCarbonDs" + testAttempt, "newTestCarbonDs" + testAttempt);
       });
     });
 
@@ -341,11 +456,27 @@ export default function createTests() {
         console.log('Creating new Local Entry');
         localEntry = new LocalEntry(page.page);
         await localEntry.init();
-        await localEntry.addLocalEntry("localEntry" + testAttempt);
+        await localEntry.addInlineTextLocalEntry("localEntry" + testAttempt);
       });
       await test.step('Edit Local Entry', async () => {
         console.log('Editing Local Entry');
-        await localEntry.editLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
+        await localEntry.editInlineTextLocalEntry("localEntry" + testAttempt, "newLocalEntry" + testAttempt);
+      });
+      await test.step('Add XML Local Entry', async () => {
+        console.log('Creating new XML Local Entry');
+        await localEntry.addXmlLocalEntry("xmlLocalEntry" + testAttempt);
+      });
+      await test.step('Edit XML Local Entry', async () => {
+        console.log('Editing XML Local Entry');
+        await localEntry.editXmlLocalEntry("xmlLocalEntry" + testAttempt, "newXmlLocalEntry" + testAttempt);
+      });
+      await test.step('Add Source Url Local Entry from side panel', async () => {
+        console.log('Creating new Local Entry from side panel');
+        await localEntry.addSourceUrlLocalEntry("sourceUrlLocalEntry" + testAttempt);
+      });
+      await test.step('Edit Source Url Local Entry from side panel', async () => {
+        console.log('Editing Local Entry from side panel');
+        await localEntry.editSourceUrlLocalEntry("sourceUrlLocalEntry" + testAttempt, "newSourceUrlLocalEntry" + testAttempt);
       });
     });
 
@@ -362,6 +493,39 @@ export default function createTests() {
         console.log('Editing Template');
         await template.editTemplate("tempEP" + testAttempt, "newTempEP" + testAttempt);
       });
+      await test.step('Add Default EP Template', async () => {
+        console.log('Creating new Default EP Template');
+        await template.addDefaultEPTemplate("defaultEPTemp" + testAttempt);
+      });
+      await test.step('Edit Default EP Template', async () => {
+        console.log('Editing Default EP Template');
+        await template.editDefaultEPTemplate("defaultEPTemp" + testAttempt, "newDefaultEPTemp" + testAttempt);
+      });
+      await test.step('Add HTTP endpoint Template', async () => {
+        console.log('Creating new HTTP endpoint Template');
+        await template.addHTTPEPTemplate("httpEPTemp" + testAttempt);
+      });
+      await test.step('Edit HTTP endpoint Template', async () => {
+        console.log('Editing HTTP endpoint Template');
+        await template.editHTTPEPTemplate("httpEPTemp" + testAttempt, "newHttpEPTemp" + testAttempt);
+      });
+      await test.step('Add WSDL endpoint Template', async () => {
+        console.log('Creating new WSDL endpoint Template');
+        await template.addWSDLEPTemplate("wsdlEPTemp" + testAttempt);
+      });
+      await test.step('Edit WSDL endpoint Template', async () => {
+        console.log('Editing WSDL endpoint Template');
+        await template.editWSDLEPTemplate("wsdlEPTemp" + testAttempt, "newWsdlEPTemp" + testAttempt);
+      });
+      await test.step('Add Sequence Template', async () => {
+        console.log('Creating new Sequence Template');
+        await template.addSequenceTemplate("sequenceTemp" + testAttempt);
+      });
+      // TODO: Uncomment this when the edit sequence template issue is fixed
+      // await test.step('Edit Sequence Template', async () => {
+      //   console.log('Editing Sequence Template');
+      //   await template.editSequenceTemplate("sequenceTemp" + testAttempt, "newSequenceTemp" + testAttempt);
+      // })
     });
 
     test('Proxy tests', async () => {
@@ -381,8 +545,13 @@ export default function createTests() {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
       });
+
+      await test.step('Create Proxy Service from Project Explorer', async () => {
+        console.log('Creating new Proxy Service from Project Explorer');
+        await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
+      });
     });
-      
+
     test ('Import Artifact', async () => {
       await test.step('Import API Artifact', async () => {
         const importArtifact = new ImportArtifact(page.page);

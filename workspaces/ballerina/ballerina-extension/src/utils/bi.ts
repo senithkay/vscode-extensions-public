@@ -143,6 +143,20 @@ version = "0.1.0"
 }
 `;
 
+    const gitignoreContent = `
+# Ballerina generates this directory during the compilation of a package.
+# It contains compiler-generated artifacts and the final executable if this is an application package.
+target/
+
+# Ballerina maintains the compiler-generated source code here.
+# Remove this if you want to commit generated sources.
+generated/
+
+# Contains configuration values used during development time.
+# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+Config.toml
+`;
+
     // Create Ballerina.toml file
     const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
     writeBallerinaFileDidOpen(ballerinaTomlPath, ballerinaTomlContent);
@@ -189,6 +203,10 @@ version = "0.1.0"
     const settingsPath = path.join(vscodeDir, 'settings.json');
     fs.writeFileSync(settingsPath, settingsJsonContent);
 
+    // Create .gitignore file
+    const gitignorePath = path.join(projectRoot, '.gitignore');
+    fs.writeFileSync(gitignorePath, gitignoreContent.trim());
+
     console.log(`BI project created successfully at ${projectRoot}`);
     commands.executeCommand('vscode.openFolder', Uri.file(path.resolve(projectRoot)));
 }
@@ -212,7 +230,6 @@ export async function createBIAutomation(params: ComponentRequest): Promise<Crea
         }
         openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position });
         history.clear();
-        commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
     });
 }
@@ -237,7 +254,6 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
         });
         openView(EVENT_TYPE.OPEN_VIEW, { documentUri: targetFile, position: targetPosition });
         history.clear();
-        commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
     });
 }

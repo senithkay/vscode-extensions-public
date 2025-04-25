@@ -107,6 +107,7 @@ import {
     UpdateTestSuiteRequest,
     UpdateWsdlEndpointRequest,
     WriteContentToFileRequest,
+    HandleFileRequest,
     addDBDriver,
     addDriverToLib,
     applyEdit,
@@ -249,10 +250,12 @@ import {
     updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile,
+    handleFileWithFS,
     tryOutMediator,
     MediatorTryOutRequest,
     saveInputPayload,
     getInputPayloads,
+    getAllInputDefaultPayloads,
     SavePayloadRequest,
     GetPayloadsRequest,
     getMediatorInputOutputSchema,
@@ -278,13 +281,14 @@ import {
     BuildProjectRequest,
     deployProject,
     DeployProjectRequest,
-    CreateBallerinaModuleRequest
+    CreateBallerinaModuleRequest,
+    getDevantMetadata
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
 
-export function registerMiDiagramRpcHandlers(messenger: Messenger) {
-    const rpcManger = new MiDiagramRpcManager();
+export function registerMiDiagramRpcHandlers(messenger: Messenger, projectUri: string): void {
+    const rpcManger = new MiDiagramRpcManager(projectUri);
     messenger.onRequest(executeCommand, (args: CommandsRequest) => rpcManger.executeCommand(args));
     messenger.onNotification(showErrorMessage, (args: ShowErrorMessageRequest) => rpcManger.showErrorMessage(args));
     messenger.onRequest(getSyntaxTree, (args: getSTRequest) => rpcManger.getSyntaxTree(args));
@@ -351,6 +355,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(migrateProject, (args: MigrateProjectRequest) => rpcManger.migrateProject(args));
     messenger.onRequest(getAIResponse, (args: AIUserInput) => rpcManger.getAIResponse(args));
     messenger.onRequest(writeContentToFile, (args: WriteContentToFileRequest) => rpcManger.writeContentToFile(args));
+    messenger.onRequest(handleFileWithFS, (args: HandleFileRequest) => rpcManger.handleFileWithFS(args));
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
     messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
@@ -402,6 +407,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts());
     messenger.onNotification(buildProject, (args: BuildProjectRequest) => rpcManger.buildProject(args));
     messenger.onRequest(deployProject, (args: DeployProjectRequest) => rpcManger.deployProject(args));
+    messenger.onRequest(getDevantMetadata, () => rpcManger.getDevantMetadata());
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
@@ -429,15 +435,16 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(modifyDBDriver, (args: AddDriverRequest) => rpcManger.modifyDBDriver(args));
     messenger.onRequest(generateDSSQueries, (args: ExtendedDSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
-    messenger.onRequest(tryOutMediator, (args:MediatorTryOutRequest) => rpcManger.tryOutMediator(args));
-    messenger.onRequest(getMediatorInputOutputSchema, (args:MediatorTryOutRequest) => rpcManger.getMediatorInputOutputSchema(args));
-    messenger.onRequest(saveInputPayload, (args:SavePayloadRequest) => rpcManger.saveInputPayload(args));
-    messenger.onRequest(getInputPayloads, (args:GetPayloadsRequest) => rpcManger.getInputPayloads(args));
+    messenger.onRequest(tryOutMediator, (args: MediatorTryOutRequest) => rpcManger.tryOutMediator(args));
+    messenger.onRequest(getMediatorInputOutputSchema, (args: MediatorTryOutRequest) => rpcManger.getMediatorInputOutputSchema(args));
+    messenger.onRequest(saveInputPayload, (args: SavePayloadRequest) => rpcManger.saveInputPayload(args));
+    messenger.onRequest(getInputPayloads, (args: GetPayloadsRequest) => rpcManger.getInputPayloads(args));
+    messenger.onRequest(getAllInputDefaultPayloads, () => rpcManger.getAllInputDefaultPayloads());
     messenger.onRequest(getMediators, (args: GetMediatorsRequest) => rpcManger.getMediators(args));
     messenger.onRequest(getMediator, (args: GetMediatorRequest) => rpcManger.getMediator(args));
     messenger.onRequest(getLocalInboundConnectors, () => rpcManger.getLocalInboundConnectors());
     messenger.onRequest(getConnectionSchema, (args: GetConnectionSchemaRequest) => rpcManger.getConnectionSchema(args));
-    messenger.onNotification(updateMediator, (args: UpdateMediatorRequest) => rpcManger.updateMediator(args));
+    messenger.onRequest(updateMediator, (args: UpdateMediatorRequest) => rpcManger.updateMediator(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
     messenger.onRequest(getHelperPaneInfo, (args: GetHelperPaneInfoRequest) => rpcManger.getHelperPaneInfo(args));
     messenger.onRequest(testConnectorConnection, (args: TestConnectorConnectionRequest) => rpcManger.testConnectorConnection(args));

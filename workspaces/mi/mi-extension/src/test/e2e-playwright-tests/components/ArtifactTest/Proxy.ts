@@ -11,7 +11,7 @@ import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
-import { page } from "./../../Utils";
+import { Overview } from "../Overview";
 
 export class Proxy {
 
@@ -19,6 +19,13 @@ export class Proxy {
     }
 
     public async init() {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+
+        const overviewPage = new Overview(this._page);
+        await overviewPage.init();
+        await overviewPage.goToAddArtifact();
+
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
         await addArtifactPage.add('Proxy');
@@ -56,10 +63,26 @@ export class Proxy {
         await frame.getByRole('button', { name: 'Update' }).click();
     }
 
+    public async createProxyServiceFormSidepanel(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services'], true);
+        await this._page.getByLabel('Add Proxy Service').click();
+        const proxyWebView = await switchToIFrame('Proxy Service Form', this._page);
+        if (!proxyWebView) {
+            throw new Error("Failed to switch to Proxy Service Form iframe");
+        }
+        const proxyFrame = proxyWebView.locator('div#root');
+        await proxyFrame.getByRole('textbox', { name: 'Proxy Service Name*' }).fill(name);
+        await proxyFrame.getByLabel('rabbitmq').click();
+        await proxyFrame.getByRole('button', { name: 'Create' }).click();
+    }
+
     public async openDiagramView(name: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services']);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', name], true);
         const isExpanded = await this._page.locator('a').filter({ hasText: name }).first().isVisible();
         if (isExpanded === false) {
             await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', name], true);

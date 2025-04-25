@@ -18,19 +18,21 @@ import { Overview } from '../components/Overview';
 import { Sequence } from '../components/ArtifactTest/Sequence';
 
 export default function createTests() {
-  test.describe(async () => {
+  test.describe("Cache Mediator Tests", {
+    tag: '@group2',
+  }, async () => {
     initTest();
 
-    test("Cache Mediator Tests", async ({}, testInfo) => {
+    test("Cache Mediator Tests", async ({ }, testInfo) => {
       const testAttempt = testInfo.retry + 1;
       await test.step('Create new API for Cache Mediator', async () => {
         // wait until window reload
         const { title: iframeTitle } = await page.getCurrentWebview();
 
         if (iframeTitle === MACHINE_VIEW.Overview) {
-            const overviewPage = new Overview(page.page);
-            await overviewPage.init();
-            await overviewPage.goToAddArtifact();
+          const overviewPage = new Overview(page.page);
+          await overviewPage.init();
+          await overviewPage.goToAddArtifact();
         }
 
         const addArtifactPage = new AddArtifact(page.page);
@@ -72,7 +74,7 @@ export default function createTests() {
       await test.step('Add add mediators to inner sequence in cache mediator', async () => {
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
-        await diagram.addMediator('Log', { values: {}}, 1)
+        await diagram.addMediator('Log', { values: {} }, 1)
         await diagram.getMediator('log');
       });
 
@@ -91,64 +93,64 @@ export default function createTests() {
         await diagram.addMediator('Cache', {
           values: {
             'Cache Mediator Implementation': {
-                type: 'combo',
-                value: 'Default',
+              type: 'combo',
+              value: 'Default',
             },
             'Cache Type': {
-                type: 'combo',
-                value: 'FINDER',
+              type: 'combo',
+              value: 'FINDER',
             },
             'Cache Timeout(S)': {
-                type: 'input',
-                value: '240',
+              type: 'input',
+              value: '240',
             },
             'Max Message Size(bytes)': {
-                type: 'input',
-                value: '4000',
+              type: 'input',
+              value: '4000',
             },
             'Max Entry Count*': {
               type: 'input',
-                value: '2000',
+              value: '2000',
             },
             'Sequence Type': {
-                type: 'combo',
-                value: 'ANONYMOUS',
+              type: 'combo',
+              value: 'ANONYMOUS',
             },
             'Cache Protocol Type': {
-                type: 'combo',
-                value: 'HTTP',
+              type: 'combo',
+              value: 'HTTP',
             },
             'Cache Protocol Methods': {
-                type: 'input',
-                value: '400',
+              type: 'input',
+              value: '400',
             },
             'Headers To Exclude In Hash': {
-                type: 'input',
-                value: 'application/xml',
+              type: 'input',
+              value: 'application/xml',
             },
             'Headers To Include In Hash': {
-                type: 'input',
-                value: 'application/json',
+              type: 'input',
+              value: 'application/json',
             },
             'Response Codes': {
-                type: 'input',
-                value: '303',
+              type: 'input',
+              value: '303',
             },
             'Enable Cache Control': {
-                type: 'checkbox',
-                value: 'checked',
+              type: 'checkbox',
+              value: 'checked',
             },
             'Include Age Header': {
-                type: 'checkbox',
-                value: 'checked',
+              type: 'checkbox',
+              value: 'checked',
             },
             'Hash Generator': {
-                type: 'input',
-                value: 'org.wso2.carbon.mediator.cache.digest.HttpRequestHashGenerator',
+              type: 'input',
+              value: 'org.wso2.carbon.mediator.cache.digest.HttpRequestHashGenerator',
             },
             'Description': {
-                type: 'input',
-                value: 'cache mediator',
+              type: 'input',
+              value: 'cache mediator',
             },
           }
         });
@@ -162,33 +164,14 @@ export default function createTests() {
         await mediator.edit({
           values: {
             'Cache Mediator Implementation': {
-                type: 'combo',
-                value: '611 Compatible',
-            },
-            'Id': {
-                type: 'input',
-                value: 'id1',
+              type: 'combo',
+              value: '611 Compatible',
             },
             'Description': {
-                type: 'input',
-                value: 'cache mediator edited',
+              type: 'input',
+              value: 'cache mediator edited',
             },
           }
-        });
-        await diagram.getMediator('cache', 0, 'group');
-      });
-
-      await test.step('Enable sequence key field', async () => {
-        const diagram = new Diagram(page.page, 'Resource');
-        await diagram.init();
-        await diagram.addMediator('Cache', {
-          values: {
-            'Sequence Type': {
-                type: 'combo',
-                value: 'REGISTRY_REFERENCE',
-            },
-          },
-          enabledFields: ['Sequence Key']
         });
         await diagram.getMediator('cache', 0, 'group');
       });
@@ -203,13 +186,12 @@ export default function createTests() {
         await sidePanel.selectMediator('Cache');
         const form = await sidePanel.getForm();
         await form.fill({
-            values: {
-                'Sequence Type': {
-                    type: 'combo',
-                    value: 'REGISTRY_REFERENCE',
-                }
-            },
-            enabledFields: ['Sequence Key']
+          values: {
+            'Sequence Type': {
+              type: 'combo',
+              value: 'REGISTRY_REFERENCE',
+            }
+          }
         });
         await form.clickAddNewForField('Sequence Key');
         const sequence = new Sequence(page.page);
@@ -222,18 +204,17 @@ export default function createTests() {
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         await diagram.addMediator('Cache', {
-            values: {
-              'Sequence Type': {
-                  type: 'combo',
-                  value: 'REGISTRY_REFERENCE',
-              },
-              'Sequence Key': {
-                    type: 'combo',
-                    value: 'cacheSeq1',
-                }
+          values: {
+            'Sequence Type': {
+              type: 'combo',
+              value: 'REGISTRY_REFERENCE',
+            },
+            'Sequence Key': {
+              type: 'combo',
+              value: 'cacheSeq1',
             }
-          });
-        await diagram.getMediator("cache", 1, "group");
+          }
+        });
       });
 
       await test.step('Navigate to new sequence creating page when editing cache mediator', async () => {
@@ -241,21 +222,19 @@ export default function createTests() {
         await diagram.init();
         const mediator = await diagram.getMediator("cache", 0, "group");
         await mediator.click();
-        const form = await mediator.getEditForm()        
+        const form = await mediator.getEditForm()
         await form.fill({
-            values: {
-                'Sequence Type': {
-                    type: 'combo',
-                    value: 'REGISTRY_REFERENCE',
-                }
-            },
-            enabledFields: ['Sequence Key']
+          values: {
+            'Sequence Type': {
+              type: 'combo',
+              value: 'REGISTRY_REFERENCE',
+            }
+          }
         });
         await form.clickAddNewForField('Sequence Key');
         const sequence = new Sequence(page.page);
         await sequence.createSequence('cacheSeq2', true);
         await form.submit("Update");
-        await diagram.getMediator("cache", 0, "group");
       });
     });
   });

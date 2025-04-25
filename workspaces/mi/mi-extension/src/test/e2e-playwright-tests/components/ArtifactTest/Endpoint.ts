@@ -102,8 +102,6 @@ export class Endpoint {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints', prevName], true);
-        // await this._page.locator('#list_id_4_4').getByLabel('Endpoints').locator('div').filter({ hasText: 'Endpoints' }).click();
-        // await this._page.getByRole('treeitem', { name: 'loadBalanceEP' }).locator('a').click();
         const lbEPWebview = await switchToIFrame('Load Balance Endpoint Form', this._page);
         if (!lbEPWebview) {
             throw new Error("Failed to switch to load balance Endpoint Form iframe");
@@ -118,5 +116,97 @@ export class Endpoint {
         if (!overview) {
             throw new Error("Failed to switch to Endpoint Form iframe");
         }
+    }
+
+    public async addFailoverEndpoint(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints'], true);
+        await this._page.getByLabel('Add Endpoint').click();
+        const epWebview = await switchToIFrame('Endpoint Form', this._page);
+        if (!epWebview) {
+            throw new Error("Failed to switch to Endpoint Form iframe");
+        }
+        const epFrame = epWebview.locator('div#root');
+        await epFrame.getByText('Failover Endpoint').click();
+        const foEPWebview = await switchToIFrame('Failover Endpoint Form', this._page);
+        if (!foEPWebview) {
+            throw new Error("Failed to switch to Failover Endpoint Form iframe");
+        }
+        const foEPFrame = foEPWebview.locator('div#root');
+        await foEPFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
+        await foEPFrame.locator('slot').filter({ hasText: /^False$/ }).click();
+        await foEPFrame.getByLabel('True').click();
+        await foEPFrame.getByRole('button', { name: 'Add new Endpoint' }).click();
+        await foEPFrame.getByRole('textbox').first().fill('<endpoint name="test" xmlns="http://ws.apache.org/ns/synapse"></endpoint>');
+        await foEPFrame.locator('.css-1qy2g5i > .codicon').click();
+        await foEPFrame.getByRole('textbox', { name: 'Description' }).fill('Description');
+        await foEPFrame.getByText('Add Parameter').click();
+        await foEPFrame.locator('#txt-field-0').getByPlaceholder('parameter_key').fill('testProperty');
+        await foEPFrame.getByRole('textbox', { name: 'Value*' }).first().fill('testValue');
+        await foEPFrame.locator('slot').filter({ hasText: /^default$/ }).click();
+        await foEPFrame.getByLabel('transport').click();
+        await foEPFrame.getByRole('button', { name: 'Create' }).click();
+    }
+
+    public async editFailoverEndpoint(prevName: string, newName: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints', prevName], true);
+        const foEPWebview = await switchToIFrame('Failover Endpoint Form', this._page);
+        if (!foEPWebview) {
+            throw new Error("Failed to switch to Failover Endpoint Form iframe");
+        }
+        const foEPFrame = foEPWebview.locator('div#root');
+        await foEPFrame.getByRole('textbox', { name: 'Name*' }).fill(newName);
+        await foEPFrame.locator('slot').filter({ hasText: /^True$/ }).click();
+        await foEPFrame.getByLabel('False').click();        
+        await foEPFrame.getByRole('button', { name: 'Save Changes' }).click();
+    }
+
+    public async addRecipientListEndpoint(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints'], true);
+        await this._page.getByLabel('Add Endpoint').click();
+        const epWebview = await switchToIFrame('Endpoint Form', this._page);
+        if (!epWebview) {
+            throw new Error("Failed to switch to Endpoint Form iframe");
+        }
+        const epFrame = epWebview.locator('div#root');
+        await epFrame.getByText('View More').click();
+        await epFrame.getByText('Recipient List Endpoint').click();
+        const rlEPWebview = await switchToIFrame('Recipient Endpoint Form', this._page);
+        if (!rlEPWebview) {
+            throw new Error("Failed to switch to Recipient Endpoint Form iframe");
+        }
+        const rlEPFrame = rlEPWebview.locator('div#root');
+        await rlEPFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
+        await rlEPFrame.getByRole('button', { name: 'Add new Endpoint' }).click();
+        await rlEPFrame.getByRole('textbox').first().fill('<endpoint name="test" xmlns="http://ws.apache.org/ns/synapse"></endpoint>');
+        await rlEPFrame.locator('.css-1qy2g5i > .codicon').click();
+
+        await rlEPFrame.getByText('Add Parameter').click();
+        await rlEPFrame.locator('#txt-field-0').getByPlaceholder('parameter_key').fill('testProperty');
+        await rlEPFrame.getByRole('textbox', { name: 'Value*' }).first().fill('testValue');
+        await rlEPFrame.locator('slot').filter({ hasText: /^default$/ }).click();
+        await rlEPFrame.getByLabel('axis2', { exact: true }).click();
+        await rlEPFrame.getByText('Save').click();
+        await rlEPFrame.getByText('Create').click();
+    }
+
+    public async editRecipientListEndpoint(prevName: string, newName: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Endpoints', prevName], true);
+        const rlEPWebview = await switchToIFrame('Recipient Endpoint Form', this._page);
+        if (!rlEPWebview) {
+            throw new Error("Failed to switch to Recipient Endpoint Form iframe");
+        }
+        const rlEPFrame = rlEPWebview.locator('div#root');
+        await rlEPFrame.getByRole('textbox', { name: 'Name*' }).fill(newName);
+        await rlEPFrame.getByRole('textbox', { name: 'Description' }).fill('Description');
+        await rlEPFrame.getByRole('textbox').first().fill('<endpoint name="test2" xmlns="http://ws.apache.org/ns/synapse"></endpoint>');
+        await rlEPFrame.getByRole('button', { name: 'Save Changes' }).click();
     }
 }

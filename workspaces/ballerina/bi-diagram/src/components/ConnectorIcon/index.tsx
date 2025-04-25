@@ -10,6 +10,7 @@
 import React, { CSSProperties } from "react";
 import { ApiIcon, DatabaseIcon, HttpIcon } from "../../resources";
 import { FlowNode } from "../../utils/types";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 interface ConnectorIconProps {
     node?: FlowNode;
@@ -55,6 +56,11 @@ export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
         );
     } else if (url && fallbackIcon) {
         return <div style={mergedIconStyle} className={className}>{fallbackIcon}</div>;
+    }
+
+     // use custom icon for http
+     if (node?.metadata?.icon && node?.metadata?.icon.includes("ballerina_http_")) {
+        return <div style={mergedIconStyle} className={className}><Icon name="bi-globe" sx={{ width: 24, height: 24, fontSize: 24 }} /></div>;
     }
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];

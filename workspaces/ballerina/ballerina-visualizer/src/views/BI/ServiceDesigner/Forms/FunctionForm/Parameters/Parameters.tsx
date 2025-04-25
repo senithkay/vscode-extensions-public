@@ -20,6 +20,7 @@ export interface ParametersProps {
     parameters: ParameterModel[];
     onChange?: (parameters: ParameterModel[]) => void,
     readonly?: boolean;
+    canAddParameters?: boolean;
 }
 
 const AddButtonWrapper = styled.div`
@@ -28,7 +29,7 @@ const AddButtonWrapper = styled.div`
 
 
 export function Parameters(props: ParametersProps) {
-    const { parameters, readonly, onChange } = props;
+    const { parameters, readonly, onChange, canAddParameters = true } = props;
 
     const enabledParameters = parameters.filter(param => param.enabled);
 
@@ -65,7 +66,7 @@ export function Parameters(props: ParametersProps) {
             {enabledParameters.map((param: ParameterModel, index) => (
                 <ParamItem
                     key={index}
-                    readonly={readonly}
+                    readonly={!canAddParameters}
                     param={param}
                     onDelete={onDelete}
                     onEditClick={onEdit}
@@ -79,13 +80,14 @@ export function Parameters(props: ParametersProps) {
                     onCancel={onParamEditCancel}
                 />
             }
-            <AddButtonWrapper >
-                <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" } || editModel && { opacity: 0.5, pointerEvents: 'none' }} onClick={editModel ? undefined : (!readonly && onAddParamClick)}>
-                    <Codicon name="add" />
-                    <>Add Parameter</>
-                </LinkButton>
-            </AddButtonWrapper>
-
+            {canAddParameters &&
+                <AddButtonWrapper >
+                    <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" } || editModel && { opacity: 0.5, pointerEvents: 'none' }} onClick={editModel ? undefined : (!readonly && onAddParamClick)}>
+                        <Codicon name="add" />
+                        <>Add Parameter</>
+                    </LinkButton>
+                </AddButtonWrapper>
+            }
         </div >
     );
 }

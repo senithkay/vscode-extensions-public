@@ -11,7 +11,7 @@ import { test } from '@playwright/test';
 import { ProjectExplorer } from "../components/ProjectExplorer";
 import { EventIntegration } from "../components/ArtifactTest/EventIntegration";
 import { Overview } from '../components/Overview';
-import { API } from '../components/ArtifactTest/API';
+import { API } from '../components/ArtifactTest/APITests';
 import { Automation } from "../components/ArtifactTest/Automation";
 import { initTest, page} from '../Utils';
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -18,11 +18,11 @@ import {
     GenerateMappingsRequest,
     GenerateTypesFromRecordRequest,
     GetFromFileRequest,
+    GetModuleDirParams,
     NotifyAIMappingsRequest,
     PostProcessRequest,
     ProjectSource,
     RequirementSpecification,
-    SourceFile,
     TestGenerationRequest,
     TestGenerationResponse,
     abortTestGeneration,
@@ -39,6 +39,7 @@ import {
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getContentFromFile,
     getDriftDiagnosticContents,
     getFileExists,
     getFromDocumentation,
@@ -46,6 +47,7 @@ import {
     getGeneratedTests,
     getInitialPrompt,
     getMappingsFromRecord,
+    getModuleDirectory,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
@@ -57,7 +59,9 @@ import {
     getTestDiagnostics,
     getThemeKind,
     getTypesFromRecord,
+    handleChatSummaryError,
     isCopilotSignedIn,
+    isNaturalProgrammingDirectoryExists,
     isRequirementsSpecificationFileExist,
     isWSO2AISignedIn,
     login,
@@ -72,7 +76,6 @@ import {
     promptWSO2AILogout,
     readDeveloperMdFile,
     refreshAccessToken,
-    refreshFile,
     showSignInAlert,
     stopAIMappings,
     updateDevelopmentDocument,
@@ -108,7 +111,6 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(checkSyntaxError, (args: ProjectSource) => rpcManger.checkSyntaxError(args));
     messenger.onRequest(getInitialPrompt, () => rpcManger.getInitialPrompt());
     messenger.onNotification(clearInitialPrompt, () => rpcManger.clearInitialPrompt());
-    messenger.onNotification(refreshFile, (args: SourceFile) => rpcManger.refreshFile(args));
     messenger.onRequest(getGeneratedTests, (args: TestGenerationRequest) => rpcManger.getGeneratedTests(args));
     messenger.onRequest(getTestDiagnostics, (args: TestGenerationResponse) => rpcManger.getTestDiagnostics(args));
     messenger.onRequest(getServiceSourceForName, (args: string) => rpcManger.getServiceSourceForName(args));
@@ -132,9 +134,13 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));
     messenger.onRequest(isRequirementsSpecificationFileExist, (args: string) => rpcManger.isRequirementsSpecificationFileExist(args));
     messenger.onRequest(getDriftDiagnosticContents, (args: string) => rpcManger.getDriftDiagnosticContents(args));
-    messenger.onNotification(addChatSummary, (args: AIChatSummary) => rpcManger.addChatSummary(args));
+    messenger.onRequest(addChatSummary, (args: AIChatSummary) => rpcManger.addChatSummary(args));
+    messenger.onNotification(handleChatSummaryError, (args: string) => rpcManger.handleChatSummaryError(args));
+    messenger.onRequest(isNaturalProgrammingDirectoryExists, (args: string) => rpcManger.isNaturalProgrammingDirectoryExists(args));
     messenger.onRequest(readDeveloperMdFile, (args: string) => rpcManger.readDeveloperMdFile(args));
     messenger.onNotification(updateDevelopmentDocument, (args: DeveloperDocument) => rpcManger.updateDevelopmentDocument(args));
     messenger.onNotification(updateRequirementSpecification, (args: RequirementSpecification) => rpcManger.updateRequirementSpecification(args));
     messenger.onNotification(createTestDirecoryIfNotExists, (args: string) => rpcManger.createTestDirecoryIfNotExists(args));
+    messenger.onRequest(getModuleDirectory, (args: GetModuleDirParams) => rpcManger.getModuleDirectory(args));
+    messenger.onRequest(getContentFromFile, (args: GetFromFileRequest) => rpcManger.getContentFromFile(args));
 }

@@ -11,126 +11,50 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import {Uri, ViewColumn, workspace} from 'vscode';
+import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
-import { debounce } from 'lodash';
-import { refreshUI, StateMachine } from '../stateMachine';
-import { MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/mi-core';
-import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
-import { AiPanelWebview } from '../ai-panel/webview';
-import { removeFromHistory } from './../history/activator';
-import { deleteSwagger, generateSwagger } from '../util/swagger';
+import { deleteStateMachine, getStateMachine } from '../stateMachine';
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { refreshDiagram } from './activate';
+import { MILanguageClient } from '../lang-client/activator';
+import { deletePopupStateMachine } from '../stateMachinePopup';
 
+export const webviews: Map<string, VisualizerWebview> = new Map();
 export class VisualizerWebview {
-    public static currentPanel: VisualizerWebview | undefined;
+    // public static currentPanel: VisualizerWebview | undefined;
     public static readonly viewType = 'micro-integrator.visualizer';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
+    private beside: boolean;
+    private projectUri: string;
 
-    constructor(view: MACHINE_VIEW, beside: boolean = false) {
-        this._panel = VisualizerWebview.createWebview(view, beside);
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+    constructor(view: MACHINE_VIEW, projectUri: string, beside: boolean = false) {
+        this.projectUri = projectUri;
+        this.beside = beside;
+        this._panel = this.createWebview(view, beside);
+        this._panel.onDidDispose(async () => await this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
-        RPCLayer.create(this._panel);
-
-        // Handle the text change and diagram update with rpc notification
-        const refreshDiagram = debounce(async (refreshDiagram: boolean = true) => {
-            if (this.getWebview()) {
-                if (!StateMachine.context().isOldProject) {
-                    await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
-                }
-                if (refreshDiagram) {
-                    refreshUI();
-                }
-            }
-        }, 500);
-
-        vscode.workspace.onDidChangeTextDocument(async function (document) {
-            if (!REFRESH_ENABLED_DOCUMENTS.includes(document.document.languageId)) {
-                return;
-            }
-            if (VisualizerWebview.currentPanel?.getWebview()?.active || AiPanelWebview.currentPanel?.getWebview()?.active) {
-                await document.document.save();
-                if (!StateMachine.context().view?.endsWith('Form')) {
-                    refreshDiagram();
-                }
-            }
-        }, extension.context);
-
-        vscode.workspace.onDidDeleteFiles(async function (event) {
-            const projectRoot = StateMachine.context().projectUri!;
-            refreshDiagram(false);
-
-            const apiDir = path.join(projectRoot, 'src', 'main', "wso2mi", "artifacts", "apis");
-            event.files.forEach(file => {
-                const filePath = file?.fsPath;
-                if (filePath?.includes(apiDir)) {
-                    deleteSwagger(filePath);
-                }
-                removeFromHistory(filePath);
-            });
-        }, extension.context);
-
-        vscode.workspace.onDidSaveTextDocument(async function (document) {
-            const projectUri = StateMachine.context().projectUri!;
-            const currentView = StateMachine.context().view;
-            if (SWAGGER_LANG_ID === document.languageId) {
-                // Check if the saved document is a swagger file
-                const relativePath = vscode.workspace.asRelativePath(document.uri);
-                if (path.dirname(relativePath) === SWAGGER_REL_DIR) {
-                    VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
-                }
-            } else if (!REFRESH_ENABLED_DOCUMENTS.includes(document.languageId)) {
-                return;
-            }
-
-            const mockServicesDir = path.join(projectUri!, 'src', 'test', 'resources', 'mock-services');
-            if (document.uri.toString().includes(mockServicesDir) && currentView == MACHINE_VIEW.TestSuite) {
-                return;
-            }
-
-            RPCLayer._messenger.sendNotification(
-                onDocumentSave,
-                { type: 'webview', webviewType: VisualizerWebview.viewType },
-                { uri: document.uri.toString() }
-            );
-
-            // Generate Swagger file for API files
-            const apiDir = path.join(projectUri!, 'src', 'main', "wso2mi", "artifacts", "apis");
-            if (document?.uri.fsPath.includes(apiDir)) {
-                const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
-                const dirPath = path.join(workspacePath, SWAGGER_REL_DIR);
-                const swaggerOriginalPath = path.join(dirPath, path.basename(document.uri.fsPath, path.extname(document.uri.fsPath)) + '_original.yaml');
-                const swaggerPath = path.join(dirPath, path.basename(document.uri.fsPath, path.extname(document.uri.fsPath)) + '.yaml');
-                if (fs.readFileSync(document.uri.fsPath, 'utf-8').split('\n').length > 3) {
-                    if (fs.existsSync(swaggerOriginalPath)) {
-                        fs.copyFileSync(swaggerOriginalPath, swaggerPath);
-                        fs.rmSync(swaggerOriginalPath);
-                    } else {
-                        generateSwagger(document.uri.fsPath);
-                    }
-                }
-            }
-
-            if (currentView !== 'Connector Store Form') {
-                refreshDiagram();
-            }
-        }, extension.context);
+        RPCLayer.create(this._panel, projectUri);
 
         this._panel.onDidChangeViewState(() => {
             // Enable the Run and Build Project, Open AI Panel commands when the webview is active
             vscode.commands.executeCommand('setContext', 'isVisualizerActive', this._panel?.active);
 
-            if (this._panel?.active && StateMachine.context().view === MACHINE_VIEW.DataMapperView) {
-                refreshDiagram();
+            if (this._panel?.active && getStateMachine(projectUri).context().view === MACHINE_VIEW.DataMapperView) {
+                refreshDiagram(projectUri);
             }
         });
     }
 
-    private static createWebview(view: MACHINE_VIEW, beside: boolean): vscode.WebviewPanel {
+    private createWebview(view: MACHINE_VIEW, beside: boolean): vscode.WebviewPanel {
         let title: string = view ?? 'Design View';
+        const workspaces = vscode.workspace.workspaceFolders;
+        const projectName = workspaces && workspaces.length > 1 ? path.basename(this.projectUri) : '';
+        if (projectName) {
+            title = `${title} - ${projectName}`;
+        }
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
             title,
@@ -152,6 +76,14 @@ export class VisualizerWebview {
 
     public getWebview(): vscode.WebviewPanel | undefined {
         return this._panel;
+    }
+
+    public getProjectUri(): string {
+        return this.projectUri;
+    }
+
+    public isBeside(): boolean {
+        return this.beside;
     }
 
     public getIconPath(iconPath: string, name: string): string | undefined {
@@ -221,8 +153,12 @@ export class VisualizerWebview {
       `;
     }
 
-    public dispose() {
-        VisualizerWebview.currentPanel = undefined;
+    public async dispose() {
+        webviews.delete(this.projectUri);
+        deleteStateMachine(this.projectUri);
+        deletePopupStateMachine(this.projectUri);
+        RPCLayer._messengers.delete(this.projectUri);
+        await MILanguageClient.stopInstance(this.projectUri);
         this._panel?.dispose();
 
         while (this._disposables.length) {

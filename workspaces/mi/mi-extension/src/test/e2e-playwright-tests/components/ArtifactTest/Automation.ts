@@ -19,9 +19,9 @@ export class Automation {
     }
 
     public async init() {
-        const artifact = new AddArtifact(this._page);
-        await artifact.init();
-        await artifact.add('Automation');
+        const overviewPage = new AddArtifact(this._page);
+        await overviewPage.init();
+        await overviewPage.add('Automation');
         const webView = await switchToIFrame('Task Form', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Task Form iframe");
@@ -38,10 +38,7 @@ export class Automation {
         await frame.getByTestId('create-task-button').click();
     }
 
-    public async edit(name: string, newName: string) {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Automations', name], true);
+    public async edit(name: string) {
         const webView = await switchToIFrame('Task View', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Task View iframe");
@@ -49,11 +46,32 @@ export class Automation {
         const frame = webView.locator('div#root');
         await frame.getByTestId('edit-button').click();
         await frame.getByRole('textbox', { name: 'Task Name*' }).click();
-        await frame.getByRole('textbox', { name: 'Task Name*' }).fill(newName);
+        await frame.getByRole('textbox', { name: 'Task Name*' }).fill(name);
         await frame.getByLabel('Cron').click();
         await frame.getByRole('textbox', { name: 'Cron*' }).click();
         await frame.getByRole('textbox', { name: 'Cron*' }).fill('* * * * * ? *');
         await frame.getByTestId('create-task-button').click();
+    }
+
+    public async createExternalTrigger(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        console.log("Navigated to project overview");
+        await projectExplorer.findItem(['Project testProject', 'Automations'], true);
+        await this._page.getByLabel('Add Scheduled Task').click();
+        const webView = await switchToIFrame('Task Form', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Task Form iframe");
+        }
+        const frame = webView.locator('div#root');
+        await frame.getByLabel('External Trigger').click();
+        await frame.getByRole('textbox', { name: 'Name*' }).fill(name);
+        await frame.getByRole('heading', { name: 'Advanced Configuration' }).click();
+        await frame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
+        await frame.getByText('SEQUENCE TestTask1Sequence').click();
+        await frame.getByLabel('Enable tracing').click();
+        await frame.getByLabel('Enable statistics').click();
+        await frame.getByRole('button', { name: 'Create' }).click();
     }
 
     public async openDiagramView(name: string) {

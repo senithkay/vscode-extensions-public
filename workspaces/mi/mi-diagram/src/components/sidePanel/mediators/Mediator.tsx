@@ -11,7 +11,7 @@ import React from "react";
 import { VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
 import { Icon, PanelContent, Typography } from "@wso2-enterprise/ui-toolkit";
 import { MediatorForm } from "./Form";
-import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { DiagramService, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import TryOutView from "../tryout/Tryout";
 import { useForm } from "react-hook-form";
 import { Colors } from "../../../resources/constants";
@@ -25,15 +25,17 @@ interface MediatorPageProps {
     documentUri: string;
     isUpdate: boolean;
     showForm: boolean;
+    artifactModel: DiagramService;
 }
 export function MediatorPage(props: MediatorPageProps) {
-    const { mediatorData, connectorData, mediatorType, documentUri, nodeRange, isUpdate, showForm } = props;
+    const { mediatorData, connectorData, mediatorType, documentUri, nodeRange, isUpdate, showForm, artifactModel } = props;
     const [activeTab, setActiveTab] = React.useState("form");
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { dirtyFields, errors } } = useForm<any>({
         defaultValues: {
         }
     });
     const canTryOut = (mediatorData || connectorData?.form)?.canTryOut;
+    const isTryoutSupported = (artifactModel.tag === 'resource' || artifactModel.tag === 'sequence'); // Allow tryout for APIs and sequences only
 
     const onChangeTab = (tabId: string) => {
         if (activeTab === tabId) {
@@ -105,10 +107,12 @@ export function MediatorPage(props: MediatorPageProps) {
                         mediatorType={mediatorType}
                         getValues={getValues}
                         isActive={activeTab === "tryout" || !showForm}
+                        artifactModel={props.artifactModel}
+                        isTryoutSupported={isTryoutSupported}
                     />}
-                    {((mediatorData || connectorData) && !canTryOut) && (
+                    {isTryoutSupported && ((mediatorData || connectorData) && !canTryOut) && (
                         <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <Icon name="warning" isCodicon /> Please update your MI runtime to the latest version to use the tryout feature.
+                            <Icon name="warning" isCodicon /> Please update your MI runtime to the latest version to use the Try-Out feature.
                         </Typography>
                     )}
                 </PanelContent>

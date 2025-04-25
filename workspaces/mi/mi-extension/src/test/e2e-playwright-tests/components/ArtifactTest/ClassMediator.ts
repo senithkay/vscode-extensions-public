@@ -11,6 +11,7 @@ import { Page } from "@playwright/test";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { AddArtifact } from "../AddArtifact";
+import { page } from "../../Utils";
 
 export class ClassMediator {
 
@@ -26,8 +27,8 @@ export class ClassMediator {
     public async createClassMediatorFromProjectExplorer(className: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Class Mediators'], true);
-        await this._page.getByLabel('Add Class Mediator').click();
+        await projectExplorer.addArtifact(['Project testProject', 'Other Artifacts', 'Class Mediators']);
+
         const cmWebview = await switchToIFrame('ClassMediator Creation Form', this._page);
         if (!cmWebview) {
             throw new Error("Failed to switch to Class Mediator Form iframe");
@@ -52,8 +53,8 @@ export class ClassMediator {
     public async openClassMediator(className: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Class Mediators', `${className}.java (org.wso2.sample)`], true);
-        await this._page.getByRole('tab', { name: 'Micro Integrator' }).locator('a').click();
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Class Mediators', `${className}.java (org.wso2.sample)`], true);
+        await page.selectSidebarItem('Micro Integrator');
         await projectExplorer.goToOverview("testProject");
     }
 

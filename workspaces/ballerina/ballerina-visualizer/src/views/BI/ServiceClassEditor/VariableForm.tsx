@@ -8,9 +8,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { FieldType, LineRange, Type } from '@wso2-enterprise/ballerina-core';
+import { FieldType, LineRange, PropertyModel, Type } from '@wso2-enterprise/ballerina-core';
 import { FormGeneratorNew } from '../Forms/FormGeneratorNew';
-import { FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { FormField, FormImports, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { getImportsForProperty } from '../../../utils/bi';
 
 interface VariableFormProps {
     model: FieldType;
@@ -38,6 +39,7 @@ export function VariableForm(props: VariableFormProps) {
                 enabled: model.name.enabled,
                 documentation: model.name.metadata?.description,
                 value: model?.name.value || '',
+                valueType: model.name?.valueType,
                 valueTypeConstraint: model.name?.valueTypeConstraint || '',
                 lineRange: model?.name?.codedata?.lineRange
             },
@@ -51,6 +53,7 @@ export function VariableForm(props: VariableFormProps) {
                 enabled: model.type.enabled,
                 documentation: model.type.metadata?.description,
                 value: model?.type.value || '',
+                valueType: model.type?.valueType,
                 valueTypeConstraint: model.type?.valueTypeConstraint || ''
             },
             {
@@ -58,23 +61,32 @@ export function VariableForm(props: VariableFormProps) {
                 label: 'Default Value',
                 type: 'EXPRESSION',
                 optional: true, // TODO: need to fix for LS
-                editable: model.defaultValue?.editable || false,
-                advanced: model.defaultValue?.advanced || false,
-                enabled: model.defaultValue?.enabled ?? true,
-                documentation: model.defaultValue?.metadata?.description,
-                value: model?.defaultValue?.value || '',
-                valueTypeConstraint: model.defaultValue?.valueTypeConstraint || ''
+                editable: (model.defaultValue as PropertyModel)?.editable || false,
+                advanced: (model.defaultValue as PropertyModel)?.advanced || false,
+                enabled: (model.defaultValue as PropertyModel)?.enabled ?? true,
+                documentation: (model.defaultValue as PropertyModel)?.metadata?.description,
+                value: (model.defaultValue as PropertyModel)?.value || '',
+                valueType: (model.defaultValue as PropertyModel)?.valueType,
+                valueTypeConstraint: (model.defaultValue as PropertyModel)?.valueTypeConstraint || ''
             }
         ];
         setFields(initialFields);
     }, [model]);
 
-    const handleVariableSave = (data: FormValues) => {
+    const handleVariableSave = (data: FormValues, formImports: FormImports) => {
         const updatedVariable: FieldType = {
             ...model,
             name: { ...model.name, value: data.name },
-            type: { ...model.type, value: data.returnType },
-            defaultValue: { ...model.defaultValue, value: data.expression }
+            type: {
+                ...model.type,
+                value: data.returnType,
+                imports: getImportsForProperty('returnType', formImports)
+            },
+            defaultValue: {
+                ...(model.defaultValue as PropertyModel),
+                value: data.expression,
+                imports: getImportsForProperty('expression', formImports)
+            }
         };
         onSave(updatedVariable);
     };
@@ -90,6 +102,7 @@ export function VariableForm(props: VariableFormProps) {
                     onBack={onClose}
                     submitText="Save"
                     isGraphqlEditor={isGraphqlEditor}
+                    helperPaneSide="left"
                 />
             )}
         </>

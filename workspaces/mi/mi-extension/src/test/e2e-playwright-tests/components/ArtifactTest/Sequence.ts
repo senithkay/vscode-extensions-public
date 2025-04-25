@@ -28,7 +28,7 @@ export class Sequence {
     public async createSequenceFromProjectExplorer(sequenceName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Sequences'], true);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Sequences'], true);
         await this._page.getByLabel('Add Sequence').click();
         const seqWebview = await switchToIFrame('Sequence Form', this._page);
         if (!seqWebview) {
@@ -101,7 +101,7 @@ export class Sequence {
     public async editSequence(sequenceName: string, sequenceUpdatedName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        await projectExplorer.findItem(['Project testProject', 'Sequences', sequenceName], true);
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Sequences', sequenceName], true);
         const seqWebview = await switchToIFrame('Sequence View', this._page);
         if (!seqWebview) {
             throw new Error("Failed to switch to Sequence View iframe");

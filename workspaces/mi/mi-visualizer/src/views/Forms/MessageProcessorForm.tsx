@@ -155,7 +155,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
     });
 
     const { rpcClient } = useVisualizerContext();
-    const [hasCustomProperties, setHasCustomProperties] = useState("No");
+    const [hasCustomProperties, setHasCustomProperties] = useState(false);
     const [isNewMessageProcessor, setIsNewMessageProcessor] = useState(!props.path.endsWith(".xml"));
     const [savedMPName, setSavedMPName] = useState<string>("");
     const [artifactNames, setArtifactNames] = useState([]);
@@ -223,7 +223,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 reset(existingMessageProcessor);
                 setSavedMPName(existingMessageProcessor.messageProcessorName);
                 setValue('processorState', existingMessageProcessor.processorState ? "Activate" : "Deactivate");
-                setHasCustomProperties(existingMessageProcessor.properties.length > 0 ? "Yes" : "No");
+                setHasCustomProperties(existingMessageProcessor.properties.length > 0 ? true : false);
                 setType(existingMessageProcessor.messageProcessorType);
             } else {
                 paramConfigs.paramValues = [];
@@ -244,7 +244,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
             paramConfigs.paramValues = [];
             setParams(paramConfigs);
         }
-        setHasCustomProperties(event.target.value);
+        setHasCustomProperties(event.target.value === "Yes" ? true : false);
     };
 
     const handlePropertiesOnChange = (params: any) => {
@@ -263,9 +263,11 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
     const handleCreateMessageProcessor = async (values: any) => {
 
         let customProperties: any = [];
-        params.paramValues.map((param: any) => {
-            customProperties.push({ key: param.paramValues[0].value, value: param.paramValues[1].value });
-        })
+        if (hasCustomProperties) {
+            params.paramValues.map((param: any) => {
+                customProperties.push({ key: param.paramValues[0].value, value: param.paramValues[1].value });
+            });
+        }
 
         const messageProcessorRequest: CreateMessageProcessorRequest = {
             ...values,
@@ -506,11 +508,11 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             label="Require Custom Properties"
                             options={[{ content: "Yes", value: "Yes" }, { content: "No", value: "No" }]}
                             onChange={handleSetCustomProperties}
-                            value={hasCustomProperties}
+                            value={hasCustomProperties ? "Yes" : "No"}
                         />
                     )}
 
-                    {(hasCustomProperties === "Yes" || type === "Custom Message Processor") && (
+                    {(hasCustomProperties || type === "Custom Message Processor") && (
                         <>
                             <span>Parameters</span>
                             <ParamManager

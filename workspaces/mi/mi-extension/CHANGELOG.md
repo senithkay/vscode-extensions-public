@@ -2,6 +2,23 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.1.5] - 2025-04-11
+
+### Improvements
+
+- UI Improvements to the MI Copilot for Enhanced User Experience
+
+## [2.1.4] - 2025-04-04
+
+### Fixed
+
+Fixed: Dependency Deletion Issue When Updating Version of Dependency ([#981](https://github.com/wso2/mi-vscode/issues/981))  
+Fixed: Support Start Node Payload Configuration for Each Resource ([#982](https://github.com/wso2/mi-vscode/issues/982))  
+### Improvements
+
+Improved: Add option to provide path params and query params in `TryOut` ([#653](https://github.com/wso2/mi-vscode/issues/653))  
+Improved: Enhance Tryout Feature with Broader Content Type Support ([#827](https://github.com/wso2/mi-vscode/issues/827))  
+
 ## [2.1.3] - 2025-03-27
 
 ### Fixed

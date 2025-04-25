@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AvailableNode, Category, Item, VisibleTypeItem } from '@wso2-enterprise/ballerina-core';
+import { AvailableNode, Category, functionKinds, Item, VisibleTypeItem } from '@wso2-enterprise/ballerina-core';
 import type { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
 import { COMPLETION_ITEM_KIND, convertCompletionItemKind } from '@wso2-enterprise/ui-toolkit';
 import { getFunctionItemKind } from '../../../utils/bi';
@@ -21,6 +21,7 @@ const TYPE_CATEGORY_ORDER = [
     { label: "Error Types", sortText: "4"},
     { label: "Behaviour Types", sortText: "5"},
     { label: "Other Types", sortText: "6"},
+    { label: "Used Variable Types", sortText: "7"},
 ] as const;
 
 /**
@@ -77,6 +78,60 @@ export const filterOperators = (operators: TypeHelperOperator[], searchText: str
 const isCategoryType = (item: Item): item is Category => {
     return !(item as AvailableNode)?.codedata;
 }
+
+export const getImportedTypes = (types: Category[]) => {
+    const categories: TypeHelperCategory[] = [];
+
+    for (const category of types) {
+        if (category.items.length === 0) {
+            continue;
+        }
+        
+        const categoryKind = getFunctionItemKind(category.metadata.label);
+        if (categoryKind !== functionKinds.IMPORTED) {
+            continue;
+        }
+
+        const items: TypeHelperItem[] = [];
+        const subCategories: TypeHelperCategory[] = [];
+        for (const categoryItem of category.items) {
+            if (isCategoryType(categoryItem)) {
+                if (categoryItem.items.length === 0) {
+                    continue;
+                }
+
+                subCategories.push({
+                    category: categoryItem.metadata.label,
+                    items: categoryItem.items.map((item) => ({
+                        name: item.metadata.label,
+                        insertText: item.metadata.label,
+                        type: COMPLETION_ITEM_KIND.TypeParameter,
+                        codedata: (item as AvailableNode).codedata,
+                        kind: categoryKind
+                    }))
+                });
+            } else {
+                items.push({
+                    name: categoryItem.metadata.label,
+                    insertText: categoryItem.metadata.label,
+                    type: COMPLETION_ITEM_KIND.TypeParameter,
+                    codedata: categoryItem.codedata,
+                    kind: categoryKind
+                });
+            }
+        }
+
+        const categoryItem: TypeHelperCategory = {
+            category: category.metadata.label,
+            subCategory: subCategories,
+            items: items
+        }
+
+        categories.push(categoryItem);
+    }
+
+    return categories;
+};
 
 export const getTypeBrowserTypes = (types: Category[]) => {
     const categories: TypeHelperCategory[] = [];

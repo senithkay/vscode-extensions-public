@@ -11,8 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { Codicon, Dropdown, LinkButton, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { PropertyModel } from '@wso2-enterprise/ballerina-core';
-import { isConstantLiteral, parseResourcePath, SegmentParam } from '../Utils/ResourcePathParser';
-import { string } from 'yup';
+import { parseResourcePath, SegmentParam } from '../Utils/ResourcePathParser';
 
 const verbs = [
 	{
@@ -39,6 +38,11 @@ const verbs = [
 		content: 'PATCH',
 		id: 'PATCH',
 		value: 'PATCH'
+	},
+	{
+		content: 'DEFAULT',
+		id: 'DEFAULT',
+		value: 'DEFAULT'
 	}
 ];
 
@@ -65,7 +69,6 @@ export function ResourcePath(props: ResourcePathProps) {
 
 	const [inputValue, setInputValue] = useState('');
 	const [resourcePathErrors, setResourcePathErrors] = useState<string>("");
-	const allowedPathParamTypes = ['string', 'int', 'float', 'boolean', 'decimal'];
 
 	useEffect(() => {
 		const resourePathStr = path.value ? path.value : "";
@@ -102,12 +105,6 @@ export function ResourcePath(props: ResourcePathProps) {
 					return;
 				}
 				allPathParams.push(paramName);
-				const paramType = param.typeDescriptor;
-				if (paramType && !(allowedPathParamTypes.includes(paramType) || isConstantLiteral(paramType))) {
-					onError(true);
-					setResourcePathErrors(`Unsupported path parameter type: ${paramType}`);
-					return;
-				}
 			}
 		}
 		setResourcePathErrors("");
@@ -120,7 +117,7 @@ export function ResourcePath(props: ResourcePathProps) {
 		onChange(method, { ...path, value });
 	};
 
-	
+
 	return (
 		<>
 			<PathContainer>

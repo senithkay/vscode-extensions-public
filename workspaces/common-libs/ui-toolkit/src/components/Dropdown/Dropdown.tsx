@@ -111,7 +111,7 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                             {description}
                         </Description>
                     )}
-                    <VSCodeDropdown ref={ref} id={id} style={sx} {...rest} onChange={handleValueChange}>
+                    <VSCodeDropdown ref={ref} id={id} aria-label={`${label}${isRequired ? "*" : ""}`} style={sx} {...rest} onChange={handleValueChange}>
                         {items?.map((item: OptionProps) => (
                             <VSCodeOption key={item?.id} value={item.value}>
                                 {item?.content || item.value}

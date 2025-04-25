@@ -60,14 +60,6 @@ export function MediatorForm(props: MediatorFormProps) {
                 });
             }
         }
-        rpcClient.getMiDiagramRpcClient().updateMediator({
-            mediatorType: mediatorType,
-            values: values as Record<string, any>,
-            oldValues: sidePanelContext.formValues as Record<string, any>,
-            dirtyFields: Object.keys(dirtyFields),
-            documentUri,
-            range
-        });
 
         if (mediatorData.onSubmit) {
             switch (mediatorData.onSubmit) {
@@ -81,7 +73,26 @@ export function MediatorForm(props: MediatorFormProps) {
             }
         }
 
-        clearSidePanelState(sidePanelContext);
+        const edits = await rpcClient.getMiDiagramRpcClient().updateMediator({
+            mediatorType: mediatorType,
+            values: values as Record<string, any>,
+            oldValues: sidePanelContext.formValues as Record<string, any>,
+            dirtyFields: Object.keys(dirtyFields),
+            documentUri,
+            range
+        });
+
+        if (edits.textEdits.length > 0) {
+            clearSidePanelState(sidePanelContext);
+        } else {
+            setTimeout(() => {
+                setDiagramLoading(false);
+                sidePanelContext.setSidePanelState((prevState: SidePanelContext) => ({
+                    ...prevState,
+                    alertMessage: `${prevState.isEditing ? "Error updating mediator" : "Error adding mediator"}. Please try again.`,
+                }));
+            }, 3000);
+        }
     }
 
     const handleOnClose = () => {
