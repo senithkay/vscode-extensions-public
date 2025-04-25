@@ -194,6 +194,20 @@ export class Form {
         await addNewBtn.click();
     }
 
+    public async clickExBtnForField(field: string) {
+        const parentDiv = this.container.locator(`#keylookup${field}`);
+        await parentDiv.waitFor();
+        const exBtn = parentDiv.getByRole('heading', { name: 'EX' });
+        await exBtn.click();
+    }
+
+    public async clickPencilBtnForField(field: string) {
+        const parentDiv = this.container.locator(`#keylookup${field}`);
+        await parentDiv.waitFor();
+        const pencilBtn = parentDiv.locator('a');
+        await pencilBtn.click();
+    }
+
     public async getInputValue(key: string) {
         const input = this.container.locator(`vscode-text-field[aria-label="${key}"]`);
         return await input.getAttribute('current-value');

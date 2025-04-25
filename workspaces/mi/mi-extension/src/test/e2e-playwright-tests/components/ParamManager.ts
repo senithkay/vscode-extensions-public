@@ -19,6 +19,8 @@ export abstract class ParamManager {
 
     public abstract getEditForm(index: number): Promise<Form>;
 
+    public abstract getParamsCount(): Promise<number>;
+
     public abstract deleteParam(index: number): Promise<void>;
 
     protected async clickListItem(items: Locator, index: number): Promise<void> {
@@ -45,15 +47,22 @@ export class SimpleParamManager extends ParamManager {
     }
 
     public async getEditForm(index: number): Promise<Form> {
-        const paramManagerContainer = this.container.locator(`#parameterManager${this.field}`);
+        const paramManagerContainer = this.container.locator(`#parameterManager-${this.field}`);
         await paramManagerContainer.waitFor();
         const editBtns = paramManagerContainer.locator('#paramEdit');
         await this.clickListItem(editBtns, index);
         return new Form(undefined, undefined, this.container.locator('#parameterManagerForm'));
     }
 
+    public async getParamsCount(): Promise<number> {
+        const paramManagerContainer = this.container.locator(`div:text("${this.addBtnName}")`).locator('../../..');
+        await paramManagerContainer.waitFor();
+        const editBtns = paramManagerContainer.locator('#paramEdit');
+        return await editBtns.count();
+    }
+
     public async deleteParam(index: number = 0): Promise<void> {
-        const paramManagerContainer = this.container.locator(`#parameterManager${this.field}`);
+        const paramManagerContainer = this.container.locator(`#parameterManager-${this.field}`);
         await paramManagerContainer.waitFor();
         const trashBtns = paramManagerContainer.locator('#paramTrash');
         await this.clickListItem(trashBtns, index);
@@ -83,6 +92,13 @@ export class DefaultParamManager extends ParamManager {
         const editBtns = paramManagerContainer.locator('#paramEdit');
         await this.clickListItem(editBtns, index);
         return new Form(undefined, undefined, this.container.locator('#parameterManagerForm'));
+    }
+
+    public async getParamsCount(): Promise<number> {
+        const paramManagerContainer = this.container.locator(`h3:text("${this.field}")`).locator('../..');
+        await paramManagerContainer.waitFor();
+        const editBtns = paramManagerContainer.locator('#paramEdit');
+        return await editBtns.count();
     }
 
     public async deleteParam(index: number = 0): Promise<void> {
@@ -119,6 +135,13 @@ export class ParamManagerWithNewCreateForm extends ParamManager {
         const form = new Form(this._page, this.frameName);
         await form.switchToFormView();
         return form;
+    }
+
+    public async getParamsCount(): Promise<number> {
+        const paramManagerContainer = this.container.locator(`h3:text("${this.field}")`).locator('../..');
+        await paramManagerContainer.waitFor();
+        const optionBtns = paramManagerContainer.locator('i[class="codicon codicon-ellipsis"]');
+        return await optionBtns.count();
     }
 
     public async deleteParam(index: number = 0): Promise<void> {
