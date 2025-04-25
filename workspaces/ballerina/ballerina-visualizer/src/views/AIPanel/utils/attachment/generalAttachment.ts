@@ -8,8 +8,8 @@
  */
 
 import { BaseAttachment } from "./baseAttachment";
-import { Command } from "../../commandTemplates/models/command.enum";
 import { getFileTypesForCommand } from "./attachmentManager";
+import { Command } from "@wso2-enterprise/ballerina-core";
 
 /**
  * GeneralAttachment uses the default file reading strategy (plain text).

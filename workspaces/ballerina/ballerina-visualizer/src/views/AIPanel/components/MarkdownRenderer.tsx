@@ -132,9 +132,10 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
         badge: ({ node, children }: any) => {
             const propsMap = node?.properties || {};
             const isSystemBadge = propsMap.dataSystem === "true" && propsMap.dataAuth === SYSTEM_BADGE_SECRET;
+            const badgeType = propsMap.dataType;
 
             if (isSystemBadge) {
-                return <Badge>{children}</Badge>;
+                return <Badge badgeType={badgeType}>{children}</Badge>;
             }
 
             const start = node?.position?.start?.offset;

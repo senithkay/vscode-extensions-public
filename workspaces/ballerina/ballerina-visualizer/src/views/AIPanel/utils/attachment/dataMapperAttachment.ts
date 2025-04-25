@@ -8,8 +8,8 @@
  */
 
 import { BaseAttachment } from "./baseAttachment";
-import { Command } from "../../commandTemplates/models/command.enum";
 import { getFileTypesForCommand } from "./attachmentManager";
+import { Command } from "@wso2-enterprise/ballerina-core";
 
 /**
  * DataMapperAttachment overrides how the file is read. Instead of plain text,
