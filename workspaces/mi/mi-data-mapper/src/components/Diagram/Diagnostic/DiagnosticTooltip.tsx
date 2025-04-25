@@ -19,12 +19,13 @@ interface Props {
     diagnostic: DMDiagnostic;
     value?: string
     onClick?: () => void;
+    editButtonText?: string;
 }
 
 export const DiagnosticTooltipID = "data-mapper-diagnostic-tooltip";
 
 export function DiagnosticTooltip(props: Partial<Props>) {
-    const { diagnostic, value, children, onClick } = props;
+    const { diagnostic, value, children, onClick, editButtonText } = props;
     const classes = useStyles();
     const source = diagnostic.source || value;
     const diagnosticMsg = diagnostic.messageText;
@@ -46,7 +47,7 @@ export function DiagnosticTooltip(props: Partial<Props>) {
                     onClick={onClick}
                 >
                     <Codicon name="tools" sx={{ marginRight: "8px" }} />
-                    <span className={classes.editButtonText}>Fix by editing expression</span>
+                    <span className={classes.editButtonText}>{editButtonText || "Fix by editing expression"}</span>
                 </Button>
             </div>
         </>
