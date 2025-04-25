@@ -278,6 +278,10 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         }
     }
 
+    public hasError(): boolean {
+        return this.diagnostics.length > 0;
+    }
+
     public async deleteLink(): Promise<void> {
         const dmNode = this.getModel().getNodes().find(node =>
             node instanceof ObjectOutputNode || node instanceof ArrayOutputNode

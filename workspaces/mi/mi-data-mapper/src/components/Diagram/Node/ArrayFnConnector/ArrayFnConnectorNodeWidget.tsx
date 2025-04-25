@@ -18,6 +18,7 @@ import { DataMapperPortWidget, InputOutputPortModel } from '../../Port';
 import { expandArrayFn, genArrayElementAccessRepr, hasElementAccessExpression } from '../../utils/common-utils';
 import { useDMExpressionBarStore } from "../../../../store/store";
 import { PropertyAssignment } from 'ts-morph';
+import { DiagnosticWidget } from '../../Diagnostic/DiagnosticWidget';
 
 export interface ArrayFnConnectorNodeWidgetWidgetProps {
     node: ArrayFnConnectorNode;
@@ -28,9 +29,10 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const { node, engine } = props;
     const { context, sourcePort, targetPort, inPort, outPort, hidden } = node;
     
+    const diagnostic = node.hasError() ? node.diagnostics[0] : null;
     const isValueNodeForgotten = node.parentNode.wasForgotten();
     const hasElementAccessExpr = !isValueNodeForgotten && hasElementAccessExpression(node.parentNode);
-
+    const value = !isValueNodeForgotten && node.value.getText();
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
@@ -47,6 +49,10 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const onClickEdit = () => {
         const targetPort = node.targetPort;
         setExprBarFocusedPort(targetPort as InputOutputPortModel);
+    };
+
+    const onClickExpand = () => {
+        expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context);
     };
 
     const loadingScreen = (
@@ -78,7 +84,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                                     </Button>) : (<Button
                                         appearance="icon"
                                         tooltip="Map array elements"
-                                        onClick={()=> expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context)}
+                                        onClick={onClickExpand}
                                         data-testid={`expand-array-fn-${node?.targetFieldFQN}`}
                                     >
                                         <Codicon name="export" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
@@ -93,6 +99,15 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                                     </Button>
                                 </>
 
+                        )}
+                        {diagnostic && (
+                            <DiagnosticWidget
+                                diagnostic={diagnostic}
+                                value={value}
+                                onClick={onClickExpand}
+                                btnSx={{ margin: "0 2px" }}
+                                editButtonText={"Fix by editing inner mappings"}
+                            />
                         )}
                         <DataMapperPortWidget engine={engine} port={outPort} />
                     </div>
