@@ -200,7 +200,8 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                 const templateInserted = inputValue.templateInserted || false;
                 const tagInserted = inputValue.tagInserted || false;
                 const tagParams = inputValue.tagParams || null;
-                const initialContent = (inputValue.initialContent as AIPanelPrompt) || null;
+                // updatedContent, updatedCommand and updatedTemplate is set when a text/command_template is inserted
+                const updatedContent = (inputValue.updatedContent as AIPanelPrompt) || null;
                 const isUpdatedCommand = inputValue.updatedCommand || false;
                 const updatedTemplate = inputValue.updatedTemplate || null;
                 const currentCursorPosition = inputRef.current.getCursorPosition();
@@ -209,7 +210,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                     commandTemplate: initialCommandTemplate,
                     isCursorNextToDiv,
                     text,
-                    calledOnSuggestionInsertion: templateInserted,
+                    calledOnSuggestionInsertion: templateInserted || isUpdatedCommand,
                     currentCursorPosition,
                     generalTags,
                 });
@@ -247,21 +248,21 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
                     }
                 }
 
-                if (initialContent) {
-                    switch (initialContent.type) {
+                if (updatedContent) {
+                    switch (updatedContent.type) {
                         case "command-template":
                             inputRef.current.setCursorToPosition(inputRef.current.ref.current, 0);
-                            insertCommand(initialContent.command, " ", {
+                            insertCommand(updatedContent.command, " ", {
                                 updatedCommand: true,
                                 updatedTemplate: {
-                                    templateId: initialContent.templateId,
-                                    text: initialContent.text,
-                                    params: initialContent.params,
+                                    templateId: updatedContent.templateId,
+                                    text: updatedContent.text,
+                                    params: updatedContent.params,
                                 },
                             });
                             break;
                         case "text":
-                            inputRef.current?.insertTextAtCursor({ text: initialContent.text });
+                            inputRef.current?.insertTextAtCursor({ text: updatedContent.text });
                             break;
                         default:
                             break;
@@ -336,7 +337,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
         useEffect(() => {
             if (isTagInitDone && pendingInputContentRef.current) {
                 requestAnimationFrame(() => {
-                    cleanChatInput(pendingInputContentRef.current!);
+                    updateChatInputWithContent(pendingInputContentRef.current!);
                     pendingInputContentRef.current = null;
                 });
             }
@@ -349,7 +350,7 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
             }
 
             requestAnimationFrame(() => {
-                cleanChatInput(input);
+                updateChatInputWithContent(input);
             });
         };
 
@@ -454,10 +455,18 @@ const AIChatInput = forwardRef<AIChatInputRef, AIChatInputProps>(
         };
 
         /**
+         * Clears the chat input, attachments and update with new content
+         */
+        const updateChatInputWithContent = (content: AIPanelPrompt) => {
+            setInputValue({ text: "", updatedContent: content });
+            removeAllAttachments();
+        };
+
+        /**
          * Clears the chat input and attachments after sending
          */
-        const cleanChatInput = (initialContent?: AIPanelPrompt) => {
-            setInputValue({ text: "", initialContent: initialContent });
+        const cleanChatInput = () => {
+            setInputValue({ text: "" });
             removeAllAttachments();
         };
 
