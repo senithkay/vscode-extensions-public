@@ -26,7 +26,7 @@ import { clearSidePanelState, DefaultSidePanelState, SidePanelProvider } from ".
 import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import styled from "@emotion/styled";
-import { Colors, NODE_GAP, SIDE_PANEL_WIDTH } from "../resources/constants";
+import { CANVAS_PADDING, Colors, NODE_GAP, SIDE_PANEL_WIDTH } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -298,7 +298,7 @@ export function Diagram(props: DiagramProps) {
         const dimensions = sizingVisitor.getdiagramDimensions();
 
         // run position visitor
-        const positionVisitor = new PositionVisitor(dimensions.width);
+        const positionVisitor = new PositionVisitor(dimensions.l || dimensions.width / 2);
         traversNode(model, positionVisitor);
         const height = positionVisitor.getSequenceHeight();
         dimensions.height = NODE_GAP.START_Y + height + NODE_GAP.END_Y;
@@ -405,7 +405,7 @@ export function Diagram(props: DiagramProps) {
                 const scroll = scrollRef?.current as any;
                 const offsetWidth = scroll ? scroll.clientWidth : dimensions.width;
                 const diagramZero = -(dimensions.width / 2) + dimensions.l;
-                const centerX = (offsetWidth - dimensions.width) / 2;
+                const centerX = (offsetWidth - dimensions.width) / 2 - CANVAS_PADDING;
                 diagramEngine.getModel().setOffsetX((dimensions.width >= offsetWidth || dimensions.l > offsetWidth / 2 || dimensions.r > offsetWidth / 2) ? diagramZero : centerX);
                 diagramEngine.getModel().setOffsetY(0);
                 diagramEngine.repaintCanvas();
