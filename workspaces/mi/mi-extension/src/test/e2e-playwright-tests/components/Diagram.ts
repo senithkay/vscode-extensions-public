@@ -206,8 +206,12 @@ class Mediator {
         await form.updateMediator(props);
     }
 
-    public async delete() {
-        await this.mediatotNode.getByRole("img").click();
+    public async delete(isConditionalMediator = false) {
+        if (isConditionalMediator) {
+            await this.mediatotNode.locator('vscode-button').getByRole("img").click();
+        } else {
+            await this.mediatotNode.getByRole("img").click();
+        }
         await this.container.getByText('Delete').click();
         await this.mediatotNode.waitFor({ state: 'detached' });
     }

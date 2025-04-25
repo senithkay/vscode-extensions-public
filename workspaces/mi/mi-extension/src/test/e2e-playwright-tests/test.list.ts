@@ -12,10 +12,12 @@ import connectionTests from './connectorTests/connection.spec';
 import connectorTests from './connectorTests/connector.spec';
 import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 import artifactTests from './artifactTests/artifact.spec';
+import createProjectTests from './projectTests/createProject.spec';
+import artifact430Tests from './artifactTests/artifact430.spec';
 import logMediatorTests from './mediatorTests/log.spec';
-import openEntryPointArtifact from './overviewPageTests/openEntryPointArtifact.spec'
 import cacheMediatorTests from './mediatorTests/cache.spec';
-
+import throttleMediatorTests from './mediatorTests/throttle.spec';
+import overviewPageTests from './overviewPageTests/projectSettingPage.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
@@ -30,13 +32,16 @@ test.beforeAll(async () => {
     console.log('>>> Starting test suite');
 });
 
+test.describe(createProjectTests);
 test.describe(artifactTests);
-test.describe(openEntryPointArtifact);
+test.describe(overviewPageTests);
 test.describe(connectionTests);
 test.describe(connectorTests);
 test.describe(inboundEpTests);
 test.describe(logMediatorTests);
 test.describe(cacheMediatorTests);
+test.describe(throttleMediatorTests);
+test.describe(artifact430Tests);
 
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);

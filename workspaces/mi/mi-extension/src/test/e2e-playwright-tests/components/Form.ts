@@ -9,6 +9,7 @@
 
 import { Frame, Locator, Page, expect } from "@playwright/test";
 import { getVsCodeButton, getWebviewInput, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { DefaultParamManager, SimpleParamManager, ParamManagerWithNewCreateForm } from "./ParamManager";
 
 export interface FormFillProps {
     values: {
@@ -196,6 +197,19 @@ export class Form {
     public async getInputValue(key: string) {
         const input = this.container.locator(`vscode-text-field[aria-label="${key}"]`);
         return await input.getAttribute('current-value');
+    }
+
+    public async getDefaultParamManager(field: string, btnName?: string): Promise<DefaultParamManager> {
+        return new DefaultParamManager(this.container, field, btnName, this._page);
+    }
+
+    public async getSimpleParamManager(field: string): Promise<SimpleParamManager> {
+        const btnName = `Add ${field}`;
+        return new SimpleParamManager(this.container, field, btnName, this._page);
+    }
+
+    public async getParamManagerWithNewCreateForm(field: string, frameName: string): Promise<ParamManagerWithNewCreateForm> {
+        return new ParamManagerWithNewCreateForm(this.container, field, frameName, this._page);
     }
 
     public async fillParamManager(props: ParamManagerValues, paramManagerLabel: string = "Add Parameter",
