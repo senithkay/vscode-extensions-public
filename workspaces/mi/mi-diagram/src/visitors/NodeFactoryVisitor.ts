@@ -678,6 +678,7 @@ export class NodeFactoryVisitor implements Visitor {
             const toolsList = tools?.tools;
             if (tools) {
                 if (toolsList?.length > 0) {
+                    this.parents.push(node);
                     for (let i = 0; i < toolsList.length; i++) {
                         const toolNode = toolsList[i];
                         const isConnector = toolNode.mediator?.connectorName !== undefined;
@@ -687,6 +688,7 @@ export class NodeFactoryVisitor implements Visitor {
                             this.createNodeAndLinks({ node: toolNode, name: toolNode.mediator.tag, dontLink: true });
                         }
                     }
+                    this.parents.pop();
                 }
                 this.createNodeAndLinks(({ node: tools, name: node.tag, type: NodeTypes.PLUS_NODE, dontLink: true, data: { type: "OpenSidePanel" } }));
             }
