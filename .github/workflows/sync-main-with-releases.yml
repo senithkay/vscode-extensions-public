@@ -29,11 +29,8 @@ jobs:
           
           # Create a temporary branch from main
           TEMP_BRANCH="sync/main-${RELEASE_BRANCH}-$(date +%s)"
-          git checkout main
+          git checkout $RELEASE_BRANCH
           git checkout -b $TEMP_BRANCH
-          
-          # Pull changes from release branch
-          git pull --no-edit origin $RELEASE_BRANCH
 
           # Push changes to the temporary branch
           git push origin $TEMP_BRANCH
