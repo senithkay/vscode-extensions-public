@@ -10,7 +10,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { css, Global } from "@emotion/react";
-import { Colors } from "../resources/constants";
+import { CANVAS_PADDING, Colors } from "../resources/constants";
 
 export interface DiagramCanvasProps {
     color?: string;
@@ -25,7 +25,7 @@ namespace S {
     export const Container = styled.div<{ color: string; background: string; width: number; height: number; }>`
         background-size: 50px 50px;
         display: flex;
-        padding: 0 20px;
+        padding: 0 ${CANVAS_PADDING}px;
         min-height: ${(props: any) => props.height || 0}px;
         min-width: ${(props: any) => props.width ? props.width + "px" : "100%"};
 
