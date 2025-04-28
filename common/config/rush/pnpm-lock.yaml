@@ -885,7 +885,6 @@ importers:
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-react-refresh: ^0.4.4
       highlight.js: ^11.9.0
-      jwt-decode: ^4.0.0
       lodash: ~4.17.21
       lodash.debounce: ^4.0.8
       react: ^18.2.0
@@ -935,7 +934,6 @@ importers:
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       '@wso2-enterprise/wso2-platform-core': link:../../wso2-platform/wso2-platform-core
       highlight.js: 11.11.1
-      jwt-decode: 4.0.0
       lodash: 4.17.21
       lodash.debounce: 4.0.8
       react: 18.2.0
