@@ -9,11 +9,13 @@
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
 import { Button } from "@wso2-enterprise/ui-toolkit";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Wrapper = styled.div`
   max-width: 660px;
   margin: 80px 120px;
+  height: calc(100vh - 160px);
+  overflow-y: auto;
 `;
 
 const Headline = styled.div`
@@ -142,6 +144,9 @@ export function BallerinaUpdateView() {
                     Update Now
                   </ButtonContent>
                 </StyledButton>
+                <StepDescription style={{ marginTop: 10 }}>
+                  <strong>Please restart VS Code after updating the Ballerina distribution.</strong>
+                </StepDescription>
               </Option>
 
               <Option>

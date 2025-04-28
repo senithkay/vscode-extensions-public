@@ -373,8 +373,12 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			.getComponents(org.handle, project.handler)
 			?.find((item) => item.metadata?.id === params.marketplaceItem?.component?.componentId);
 		if (!component) {
+			const extName = webviewStateStore.getState().state?.extensionName;
 			const components = await window.withProgress(
-				{ title: `Fetching components of project ${project.name}...`, location: ProgressLocation.Notification },
+				{
+					title: `Fetching ${extName === "Devant" ? "integrations" : "components"} of project ${project.name}...`,
+					location: ProgressLocation.Notification,
+				},
 				() =>
 					ext.clients.rpcClient.getComponentList({
 						orgHandle: org.handle,

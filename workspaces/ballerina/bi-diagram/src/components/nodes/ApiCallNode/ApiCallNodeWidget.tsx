@@ -56,7 +56,7 @@ export namespace NodeStyles {
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
         border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
         border-color: ${(props: NodeStyleProp) =>
-            props.hasError ? ThemeColors.ERROR : props.hovered && !props.disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT};
+            props.hasError ? ThemeColors.ERROR : props.hovered && !props.disabled ? ThemeColors.HIGHLIGHT : ThemeColors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${(props: NodeStyleProp) =>
             props?.isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM};
@@ -349,7 +349,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     cy="24"
                     r="22"
                     fill={ThemeColors.SURFACE_DIM}
-                    stroke={isCircleHovered && !disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT}
+                    stroke={isCircleHovered && !disabled ? ThemeColors.HIGHLIGHT : ThemeColors.OUTLINE_VARIANT}
                     strokeWidth={1.5}
                     strokeDasharray={disabled ? "5 5" : "none"}
                     opacity={disabled ? 0.7 : 1}
@@ -375,7 +375,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     x2="57"
                     y2="25"
                     style={{
-                        stroke: disabled ? ThemeColors.ON_SURFACE : isBoxHovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE,
+                        stroke: disabled ? ThemeColors.ON_SURFACE : isBoxHovered ? ThemeColors.HIGHLIGHT : ThemeColors.ON_SURFACE,
                         strokeWidth: 1.5,
                         markerEnd: `url(#${model.node.id}-arrow-head)`,
                     }}
@@ -392,7 +392,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     >
                         <polygon
                             points="0,4 0,0 4,2"
-                            fill={disabled ? ThemeColors.ON_SURFACE : isBoxHovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE}
+                            fill={disabled ? ThemeColors.ON_SURFACE : isBoxHovered ? ThemeColors.HIGHLIGHT : ThemeColors.ON_SURFACE}
                         ></polygon>
                     </marker>
                 </defs>

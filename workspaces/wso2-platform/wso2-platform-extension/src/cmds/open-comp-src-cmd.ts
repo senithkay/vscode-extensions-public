@@ -20,15 +20,9 @@ export function openCompSrcCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(CommandIds.OpenCompSrcDir, async (params: IOpenCompSrcCmdParams) => {
 			setExtensionName(params?.extName);
+			const extName = webviewStateStore.getState().state.extensionName;
 			try {
 				isRpcActive(ext);
-				if (
-					params?.technology === ChoreoBuildPackNames.Ballerina ||
-					params?.technology === ChoreoBuildPackNames.MicroIntegrator ||
-					params?.technology === "mi"
-				) {
-					webviewStateStore.getState().setExtensionName("Devant");
-				}
 				const userInfo = await getUserInfoForCmd("clone project repository");
 				if (userInfo) {
 					let selectedOrg: Organization;
@@ -94,8 +88,8 @@ export function openCompSrcCommand(context: ExtensionContext) {
 					);
 				}
 			} catch (err: any) {
-				console.error("Failed to open project/component", err);
-				window.showErrorMessage(err?.message || "Failed to open project/component");
+				console.error(`Failed to open project/${extName === "Devant" ? "integration" : "component"}`, err);
+				window.showErrorMessage(err?.message || `Failed to open project/${extName === "Devant" ? "integration" : "component"}`);
 			}
 		}),
 	);

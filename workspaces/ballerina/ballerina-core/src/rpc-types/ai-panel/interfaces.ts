@@ -10,6 +10,15 @@
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { AIMachineStateValue } from "../../state-machine-types";
+import { Command, TemplateId } from "../../interfaces/ai-panel";
+
+// ==================================
+// General Interfaces
+// ==================================
+export type AIPanelPrompt =
+    | { type: 'command-template'; command: Command; templateId: TemplateId; text?: string; params?: Map<string, string>; }
+    | { type: 'text'; text: string }
+    | undefined;
 
 export type ErrorCode = {
     code: number;
@@ -39,8 +48,8 @@ export interface ProjectModule {
 }
 
 export interface SourceFile {
-    filePath : string;
-    content : string;
+    filePath: string;
+    content: string;
 }
 
 export interface GetModuleDirParams {
@@ -54,13 +63,7 @@ export interface ProjectDiagnostics {
 
 export interface DiagnosticEntry {
     line?: number;
-    message : string;
-}
-
-export interface InitialPrompt {
-    exists: boolean;
-    text: string;
-    dataMappingFunctionName?: string;
+    message: string;
 }
 
 export interface AIVisualizerState {
@@ -84,7 +87,7 @@ export interface DeleteFromProjectRequest {
 export interface GenerateMappingsRequest {
     position: NodePosition;
     filePath: string;
-    file?: AttachmentResult;
+    file?: Attachment;
 }
 
 export interface GenerateMappingsResponse {
@@ -159,26 +162,13 @@ export interface GenerateMappingsFromRecordRequest {
     functionName: string;
     imports: { moduleName: string; alias?: string }[];
     inputNames?: string[];
-    attachment?: AttachmentResult[]
+    attachment?: Attachment[]
 }
 
 export interface GenerateTypesFromRecordRequest {
     backendUri: string;
     token: string;
-    attachment?: AttachmentResult[]
-}
-
-export interface AttachmentResult {
-    name: string;
-    content?: string;
-    status: AttachmentStatus;
-}
-
-export enum AttachmentStatus {
-    Success = "Success",
-    FileSizeError = "FileSizeError",
-    FileFormatError = "FileFormatError",
-    Unknown = "Unknown"
+    attachment?: Attachment[]
 }
 
 export interface GenerateMappingFromRecordResponse {
@@ -187,7 +177,7 @@ export interface GenerateMappingFromRecordResponse {
 export interface GenerateTypesFromRecordResponse {
     typesCode: string;
 }
-export interface MappingParameters{
+export interface MappingParameters {
     inputRecord: string[];
     outputRecord: string,
     functionName?: string;
@@ -229,8 +219,25 @@ export interface LLMDiagnostics {
 }
 
 export interface ExistingFunction {
-    name: string; 
-    filePath: string; 
-    startLine: number; 
+    name: string;
+    filePath: string;
+    startLine: number;
     endLine: number;
+}
+
+// ==================================
+// Attachment-Related Interfaces
+// ==================================
+export interface Attachment {
+    name: string;
+    path?: string
+    content?: string;
+    status: AttachmentStatus;
+}
+
+export enum AttachmentStatus {
+    Success = "Success",
+    FileSizeExceeded = "FileSizeExceeded",
+    UnsupportedFileFormat = "UnsupportedFileFormat",
+    UnknownError = "UnknownError",
 }

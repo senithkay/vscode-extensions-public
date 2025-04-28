@@ -7,15 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { DiagramEngine } from "@projectstorm/react-diagrams";
 import styled from "@emotion/styled";
 
-import { OverlayLayerModel } from "./OverlayLayerModel";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../resources/constants";
-
-export interface NodeLayerWidgetProps {
-}
 
 const Container = styled.div`
     display: flex;
@@ -32,14 +26,20 @@ const Container = styled.div`
     z-index: 1000;
 `;
 
-export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
-    render() {
-        return (
-            <div data-testid={"loading-overlay"}>
-                <Container>
+interface OverlayLayerProps {
+    isDownloading?: boolean;
+}
+export function OverlayLayerWidget(props: OverlayLayerProps) {
+    const { isDownloading } = props;
+    return (
+        <div data-testid={"loading-overlay"}>
+            <Container>
+                {isDownloading ? (
+                    <p>Generating Image...</p>
+                ) : (
                     <ProgressRing />
-                </Container>
-            </div>
-        );
-    }
+                )}
+            </Container>
+        </div>
+    );
 }

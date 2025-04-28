@@ -204,20 +204,22 @@ export function ResourceAccordion(params: ResourceAccordionProps) {
                     </MethodBox>
                     <MethodPath>{functionModel.name.value}</MethodPath>
                 </MethodSection>
-                <ButtonSection>
-                    <>
-                        {onEditResource! && (
-                            <Button appearance="icon" tooltip="Edit FunctionModel" onClick={handleEditResource} disabled={!functionModel.editable}>
-                                <Icon name="editIcon" sx={{ marginTop: 3.5 }} />
-                            </Button>
-                        )}
-                        {onDeleteResource! && (
-                            <Button appearance="icon" tooltip="Delete FunctionModel" onClick={handleDeleteResource} disabled={!functionModel.editable}>
-                                <Codicon name="trash" />
-                            </Button>
-                        )}
-                    </>
-                </ButtonSection>
+                {functionModel.editable &&
+                    <ButtonSection>
+                        <>
+                            {onEditResource! && (
+                                <Button appearance="icon" tooltip="Edit FunctionModel" onClick={handleEditResource} disabled={!functionModel.editable}>
+                                    <Icon name="editIcon" sx={{ marginTop: 3.5 }} />
+                                </Button>
+                            )}
+                            {onDeleteResource! && (
+                                <Button appearance="icon" tooltip="Delete FunctionModel" onClick={handleDeleteResource} disabled={!functionModel.editable}>
+                                    <Codicon name="trash" />
+                                </Button>
+                            )}
+                        </>
+                    </ButtonSection>
+                }
             </AccordionHeader>
             <Confirm
                 isOpen={isConfirmOpen}

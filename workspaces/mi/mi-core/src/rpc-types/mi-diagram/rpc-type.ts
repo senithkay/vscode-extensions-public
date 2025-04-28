@@ -406,3 +406,4 @@ export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest,
 export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperPaneInfoResponse> = { method: `${_preFix}/getHelperPaneInfo` };
 export const testConnectorConnection: RequestType<TestConnectorConnectionRequest, TestConnectorConnectionResponse> = { method: `${_preFix}/testConnectorConnection` };
 export const saveConfig: RequestType<SaveConfigRequest, SaveConfigResponse> = { method: `${_preFix}/saveConfig` };
+export const getEULALicense: RequestType<void, string> = { method: `${_preFix}/getEULALicense` };

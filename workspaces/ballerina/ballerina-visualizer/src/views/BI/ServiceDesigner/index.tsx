@@ -346,7 +346,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         <InfoContainer>
                             {Object.keys(serviceModel.properties).map(
                                 (key, index) =>
-                                    serviceModel.properties[key].value && (
+                                    serviceModel.properties[key].value &&
+                                    serviceModel.properties[key].codedata.type !== "ANNOTATION_ATTACHMENT" && (
                                         <InfoSection>
                                             <Icon
                                                 name={findIcon(serviceModel.properties[key].metadata.label)}

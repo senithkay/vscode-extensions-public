@@ -14,6 +14,7 @@ export enum ErrorNodeKind {
     Input,
     Output,
     Intermediate,
+    UnsupportedIO,
     Other
 }
 

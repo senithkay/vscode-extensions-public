@@ -77,8 +77,9 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
     // Current project structure
     const currentProjectStructure: ProjectStructureResponse = StateMachine.context().projectStructure;
     if (publishedArtifacts && currentProjectStructure) {
-        const tmpUri = URI.file(tmpdir()).toString();
-        if (publishedArtifacts.uri.includes(tmpUri)) {
+        const tmpUri = URI.file(tmpdir());
+        const publishedArtifactsUri = URI.parse(publishedArtifacts.uri);
+        if (publishedArtifactsUri.path.toLowerCase().includes(tmpUri.path.toLowerCase())) {
             // Skip the temp dirs
             return;
         }
@@ -86,7 +87,7 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
         StateMachine.setReadyMode();
         // Skip if the user is in diagram view
         const currentView = StateMachine.context().view;
-        const skipOpeningViews = [MACHINE_VIEW.BIDiagram, MACHINE_VIEW.ServiceDesigner, MACHINE_VIEW.GraphQLDiagram];
+        const skipOpeningViews = [MACHINE_VIEW.BIDiagram, MACHINE_VIEW.ServiceDesigner, MACHINE_VIEW.GraphQLDiagram, MACHINE_VIEW.DataMapper];
         if (entryLocation) {
             const location: VisualizerLocation = {
                 documentUri: entryLocation?.path,
@@ -163,7 +164,7 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
             entryValue.icon = getCustomEntryNodeIcon(artifact.module);
             if (artifact.module === "ai") {
                 entryValue.resources = [];
-                const aiResourceLocation = Object.values(artifact.children)[0]?.location;
+                const aiResourceLocation = Object.values(artifact.children).find(child => child.type === DIRECTORY_MAP.RESOURCE)?.location;
                 entryValue.position = {
                     endColumn: aiResourceLocation.endLine.offset,
                     endLine: aiResourceLocation.endLine.line,
@@ -183,7 +184,8 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
                 // Get the children of the service
                 const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
                 const remoteFunctions = await getComponents(artifact.children, DIRECTORY_MAP.REMOTE, icon, artifact.module);
-                entryValue.resources = [...resourceFunctions, ...remoteFunctions];
+                const privateFunctions = await getComponents(artifact.children, DIRECTORY_MAP.FUNCTION, icon, artifact.module);
+                entryValue.resources = [...resourceFunctions, ...remoteFunctions, ...privateFunctions];
             }
             break;
         case DIRECTORY_MAP.LISTENER:

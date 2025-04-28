@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
-import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import React, { useEffect, useState } from "react";
+import { MACHINE_VIEW, EVENT_TYPE, DownloadProgress } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
@@ -17,6 +17,8 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 const Wrapper = styled.div`
     max-width: 660px;
     margin: 80px 120px;
+    height: calc(100vh - 160px);
+    overflow-y: auto;
 `;
 
 const Headline = styled.div`
@@ -112,6 +114,35 @@ const OptionTitle = styled.div`
   margin-bottom: 8px;
 `;
 
+const StepDescriptionContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ProgressBarWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+`;
+
+const ProgressBarContainer = styled.div`
+  width: 100%;
+  height: 4px;
+  background-color: var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3));
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+`;
+
+const ProgressIndicator = styled.div<{ percentage: number }>`
+  position: absolute;
+  width: ${(props: { percentage: number }) => `${props.percentage}%`};
+  height: 100%;
+  background-color: var(--vscode-progressBar-background);
+  border-radius: 2px;
+  animation: progressAnimation 1.5s infinite ease-in-out;
+`;
+
 type WelcomeViewProps = {
     isBISupported: boolean;
 };
@@ -119,6 +150,8 @@ type WelcomeViewProps = {
 
 export function WelcomeView(props: WelcomeViewProps) {
     const { rpcClient } = useRpcContext();
+    const [isLoading, setIsLoading] = useState(false);
+    const [progress, setProgress] = useState<DownloadProgress>(null);
 
     const goToCreateProject = () => {
         rpcClient.getVisualizerRpcClient().openView({
@@ -142,8 +175,14 @@ export function WelcomeView(props: WelcomeViewProps) {
     };
 
     const updateBallerina = () => {
-        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina"] })
+        setIsLoading(true);
+        rpcClient.getCommonRpcClient().executeCommand({ commands: ["ballerina.update-ballerina-visually"] });
     };
+
+    rpcClient?.onDownloadProgress((response: DownloadProgress) => {
+        setIsLoading(true);
+        setProgress(response);
+    });
 
     return (
         <Wrapper>
@@ -168,30 +207,59 @@ export function WelcomeView(props: WelcomeViewProps) {
                 </Row>
                 <Row>
                     <Column>
-                        <StepTitle>Create Your First Integration</StepTitle>
-                        <StepDescription>
-                            Ready to build? Start a new integration project using our intuitive graphical designer.
-                        </StepDescription>
                         {props.isBISupported &&
-                            <StyledButton disabled={!props.isBISupported} appearance="primary" onClick={() => goToCreateProject()}>
-                                <ButtonContent>
-                                    <Codicon name="add" iconSx={{ fontSize: 16 }} />
-                                    Create New Integration
-                                </ButtonContent>
-                            </StyledButton>
-                        }
-                        {!props.isBISupported &&
-                            <Option>
-                                <OptionTitle>Update to Ballerina 2201.12.3</OptionTitle>
+                            <>
+                                <StepTitle>Create Your First Integration</StepTitle>
                                 <StepDescription>
-                                    Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.
+                                    Ready to build? Start a new integration project using our intuitive graphical designer.
                                 </StepDescription>
-                                <StyledButton appearance="primary" onClick={updateBallerina}>
+                                <StyledButton disabled={!props.isBISupported} appearance="primary" onClick={() => goToCreateProject()}>
                                     <ButtonContent>
-                                        Update Now
+                                        <Codicon name="add" iconSx={{ fontSize: 16 }} />
+                                        Create New Integration
                                     </ButtonContent>
                                 </StyledButton>
-                            </Option>
+                            </>
+                        }
+                        {!props.isBISupported &&
+                            <>
+                                <Option>
+                                    <OptionTitle>Update to latest Ballerina distribution</OptionTitle>
+                                    <StepDescription>
+                                        Your current Ballerina distribution is not supported. Please update to version 2201.12.3 or above.
+                                    </StepDescription>
+                                    <StyledButton appearance="primary" onClick={updateBallerina} disabled={isLoading}>
+                                        <ButtonContent>
+                                            Update Now
+                                        </ButtonContent>
+                                    </StyledButton>
+
+                                    {isLoading && (
+                                        <div style={{ marginTop: 10 }}>
+                                            {!progress && <StepDescription>
+                                                Updating Ballerina... This may take a few minutes.
+                                            </StepDescription>
+                                            }
+                                            {progress && (
+                                                <>
+                                                    <StepDescriptionContainer>
+                                                        <StepDescription>{progress.message}</StepDescription>
+                                                        <StepDescription>{progress.percentage || 0}%</StepDescription>
+                                                    </StepDescriptionContainer>
+                                                    <ProgressBarWrapper>
+                                                        <ProgressBarContainer>
+                                                            <ProgressIndicator percentage={progress.percentage} />
+                                                        </ProgressBarContainer>
+                                                    </ProgressBarWrapper>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                    <StepDescription style={{ marginTop: 10 }}>
+                                        Please restart VS Code after updating the Ballerina distribution
+                                    </StepDescription>
+                                </Option>
+                            </>
                         }
                     </Column>
                 </Row>

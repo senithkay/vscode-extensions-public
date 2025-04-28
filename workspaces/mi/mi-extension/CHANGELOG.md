@@ -2,6 +2,19 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.1.6] - 2025-04-24
+
+### New Features
+
+Added: Add option to download the diagram as a image  
+Added: Add support to update MI Server ([#1056](https://github.com/wso2/mi-vscode/issues/1056))
+
+### Fixed
+
+Fixed: Table type values not parsing into Synapse XML in MI Inbound Endpoint form ([#1054](https://github.com/wso2/mi-vscode/issues/1054))  
+Fixed: Update connector form submit buttons for consistency ([#1048](https://github.com/wso2/mi-vscode/issues/1048))
+Fixed: Show all available modules in listing
+
 ## [2.1.5] - 2025-04-11
 
 ### Improvements

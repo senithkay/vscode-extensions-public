@@ -33,7 +33,7 @@ import {
     TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException,
     CMP_NOTEBOOK, TM_EVENT_START_NOTEBOOK_DEBUG
 } from '../telemetry';
-import { log, debug as debugLog } from "../../utils";
+import { log, debug as debugLog, isSupportedSLVersion } from "../../utils";
 import { decimal, ExecutableOptions } from 'vscode-languageclient/node';
 import { BAL_NOTEBOOK, getTempFile, NOTEBOOK_CELL_SCHEME } from '../../views/notebook';
 import fileUriToPath from 'file-uri-to-path';
@@ -692,6 +692,10 @@ class BIRunAdapter extends LoggingDebugSession {
         const programArgs = (args as any).programArgs;
         if (programArgs && programArgs.length > 0) {
             buildCommand = `${buildCommand} -- ${programArgs.join(' ')}`;
+        }
+
+        if (isSupportedSLVersion(ballerinaExtInstance, 2201130) && ballerinaExtInstance.enabledExperimentalFeatures()) {
+            buildCommand = `${buildCommand} --experimental`;
         }
 
         // Get Ballerina home path from settings

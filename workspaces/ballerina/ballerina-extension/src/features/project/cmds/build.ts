@@ -16,6 +16,7 @@ import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, MESSAGE
     from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrenDirectoryPath, getCurrentBallerinaFile }
     from "../../../utils/project-utils";
+import { isSupportedSLVersion } from "../../../utils";
 
 export function activateBuildCommand() {
     // register run project build handler
@@ -31,12 +32,19 @@ export function activateBuildCommand() {
             const currentProject = ballerinaExtInstance.getDocumentContext().isActiveDiagram() ? await
                 getCurrentBallerinaProject(ballerinaExtInstance.getDocumentContext().getLatestDocument()?.toString())
                 : await getCurrentBallerinaProject();
+
+            let balCommand = BALLERINA_COMMANDS.BUILD;
+
+            if (isSupportedSLVersion(ballerinaExtInstance, 2201130) && ballerinaExtInstance.enabledExperimentalFeatures()) {
+                balCommand = BALLERINA_COMMANDS.BUILD_WITH_EXPERIMENTAL;
+            }
+
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
-                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.BUILD,
+                runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), balCommand,
                     currentProject.path!);
             } else {
                 runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(),
-                    BALLERINA_COMMANDS.BUILD, getCurrentBallerinaFile());
+                    balCommand, getCurrentBallerinaFile());
             }
 
         } catch (error) {

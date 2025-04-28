@@ -210,7 +210,7 @@ import {
     ArtifactsNotification
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
-import { debug } from "../utils";
+import { debug, handlePullModuleProgress } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../features/telemetry";
 import { DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 import { updateProjectArtifacts } from "../utils/project-artifacts";
@@ -812,6 +812,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async resolveMissingDependencies(req: SyntaxTreeParams): Promise<SyntaxTree | NOT_SUPPORTED_TYPE> {
+        handlePullModuleProgress();
         return this.sendRequest(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES, req);
     }
 
