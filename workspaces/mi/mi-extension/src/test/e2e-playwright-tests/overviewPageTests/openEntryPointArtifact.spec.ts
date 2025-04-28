@@ -28,7 +28,7 @@ export default function createTests() {
                 await overview.goToAddArtifact();
                 const api = new API(page.page);
                 await api.init();
-                await api.add('helloWorld', "/helloWorld");
+                await api.addAPI('helloWorld', "/helloWorld");
                 const explorer = new ProjectExplorer(page.page);
                 await explorer.goToOverview("testProject");
                 const overviewPage = new Overview(page.page);
