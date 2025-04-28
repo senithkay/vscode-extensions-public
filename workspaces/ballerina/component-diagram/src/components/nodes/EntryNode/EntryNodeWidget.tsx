@@ -74,7 +74,7 @@ const Title = styled(StyledText) <NodeStyleProp>`
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: "GilmerMedium";
-    color: ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE)};
+    color: ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.HIGHLIGHT : ThemeColors.ON_SURFACE)};
     opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
 `;
 
@@ -105,7 +105,7 @@ const Box = styled.div<NodeStyleProp>`
     width: 100%;
 
     border: ${NODE_BORDER_WIDTH}px solid
-        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.HIGHLIGHT : ThemeColors.OUTLINE_VARIANT)};
     border-radius: 8px;
     background-color: ${ThemeColors.SURFACE_DIM};
 
@@ -136,7 +136,7 @@ const StyledServiceBox = styled(ServiceBox) <NodeStyleProp>`
     padding: 0 12px;
 
     border: ${NODE_BORDER_WIDTH}px solid
-        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.HIGHLIGHT : ThemeColors.OUTLINE_VARIANT)};
     border-radius: 8px;
     background-color: ${ThemeColors.SURFACE_DIM};
 `;
@@ -153,7 +153,7 @@ const ViewAllButton = styled(FunctionBoxWrapper)`
     font-family: "GilmerMedium";
     font-size: 14px;
     &:hover {
-        border: 1px solid ${ThemeColors.PRIMARY};
+        border: 1px solid ${ThemeColors.HIGHLIGHT};
         border-radius: 8px;
     }
 `;

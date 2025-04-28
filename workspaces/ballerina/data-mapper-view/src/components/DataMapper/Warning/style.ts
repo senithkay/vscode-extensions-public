@@ -26,11 +26,13 @@ export const useStyles = () => ({
     warningIcon: css({
         display: 'flex',
         alignItems: 'center',
-        position: 'absolute',
-        top: '50%',
-        color: 'var(--vscode-editorWarning-foreground)'
+        color: 'var(--vscode-editorWarning-foreground)',
     }),
     warningBody: css({
-        marginLeft: 35
+        marginLeft: 10,
+        fontSize: 14,
+        lineHeight: 1.5,
+        fontWeight: 300,
+        opacity: 0.8
     })
 });

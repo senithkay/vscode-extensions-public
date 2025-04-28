@@ -28,24 +28,23 @@ export enum DefaultColors {
     OUTLINE_VARIANT = "#a8a8a8",
 
     ERROR = "#ED2633",
-    BADGE = "#5567D5",
+
     DEBUGGER_BREAKPOINT_BACKGROUND = "#ffcc004d",
 }
 
 export enum VSCodeColors {
-    PRIMARY = "var(--vscode-button-background)",
+    PRIMARY = "var(--vscode-contrastBorder, var(--vscode-button-background))",
     ON_PRIMARY = "var(--vscode-button-foreground)",
     PRIMARY_CONTAINER = "var(--vscode-sideBar-background)",
 
-    SECONDARY = "var(--vscode-editorLightBulb-foreground)",
+    SECONDARY = "var(--vscode-contrastActiveBorder, var(--vscode-editorLightBulb-foreground))",
     ON_SECONDARY = "var(--vscode-button-foreground)",
     SECONDARY_CONTAINER = "var(--vscode-sideBar-background)",
-    SECONDARY_BUTTON = "var(--vscode-button-secondaryBackground)",
 
     SURFACE_BRIGHT = "var(--vscode-editor-background)",
     SURFACE = "var(--vscode-sideBar-background)",
     SURFACE_DIM = "var(--vscode-menu-background)",
-    SURFACE_DIM_2 = "var(--vscode-tab-unfocusedInactiveBackground)",
+    SURFACE_DIM_2 = "var(--vscode-tab-unfocusedInactiveBackground, var(--vscode-editor-background))",
     ON_SURFACE = "var(--vscode-foreground)",
     ON_SURFACE_VARIANT = "var(--vscode-descriptionForeground)",
     SURFACE_CONTAINER = "var(--vscode-editor-inactiveSelectionBackground)",
@@ -54,7 +53,8 @@ export enum VSCodeColors {
     OUTLINE_VARIANT = "var(--vscode-dropdown-border)",
 
     ERROR = "var(--vscode-errorForeground)",
-    BADGE = "var(--vscode-badge-foreground)",
+
+    HIGHLIGHT = "var(--vscode-contrastActiveBorder, var(--vscode-button-background))",
 }
 
 export const ThemeColors = {
@@ -65,7 +65,6 @@ export const ThemeColors = {
     SECONDARY: VSCodeColors.SECONDARY || DefaultColors.SECONDARY,
     ON_SECONDARY: VSCodeColors.ON_SECONDARY || DefaultColors.ON_SECONDARY,
     SECONDARY_CONTAINER: VSCodeColors.SECONDARY_CONTAINER || DefaultColors.SECONDARY_CONTAINER,
-    SECONDARY_BUTTON: VSCodeColors.SECONDARY_BUTTON || DefaultColors.SECONDARY,
 
     SURFACE_BRIGHT: VSCodeColors.SURFACE_BRIGHT || DefaultColors.SURFACE_BRIGHT,
     SURFACE: VSCodeColors.SURFACE || DefaultColors.SURFACE,
@@ -79,6 +78,8 @@ export const ThemeColors = {
     OUTLINE_VARIANT: VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
-    BADGE: VSCodeColors.BADGE,
+
+    HIGHLIGHT: VSCodeColors.HIGHLIGHT,
+
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 };

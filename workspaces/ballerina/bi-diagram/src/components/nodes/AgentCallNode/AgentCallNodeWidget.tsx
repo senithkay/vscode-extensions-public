@@ -71,7 +71,7 @@ export namespace NodeStyles {
             props.hasError
                 ? ThemeColors.ERROR
                 : props.hovered && !props.disabled
-                ? ThemeColors.PRIMARY
+                ? ThemeColors.HIGHLIGHT
                 : ThemeColors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${(props: NodeStyleProp) =>
@@ -253,7 +253,7 @@ export namespace NodeStyles {
         cursor: pointer;
         &:hover {
             background-color: ${ThemeColors.SURFACE_BRIGHT};
-            border-color: ${ThemeColors.PRIMARY};
+            border-color: ${ThemeColors.HIGHLIGHT};
         }
     `;
 
@@ -265,7 +265,7 @@ export namespace NodeStyles {
         background-color: transparent;
         color: ${ThemeColors.ON_SURFACE};
         &:hover {
-            border-color: ${ThemeColors.PRIMARY};
+            border-color: ${ThemeColors.HIGHLIGHT};
         }
     `;
 
@@ -638,7 +638,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         css={css`
                             cursor: pointer;
                             &:hover {
-                                stroke: ${ThemeColors.PRIMARY};
+                                stroke: ${ThemeColors.HIGHLIGHT};
                             }
                         `}
                     />
@@ -677,13 +677,13 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         css={css`
                             cursor: pointer;
                             &:hover circle {
-                                stroke: ${ThemeColors.PRIMARY};
+                                stroke: ${ThemeColors.HIGHLIGHT};
                             }
                             &:hover foreignObject .connector-icon path {
-                                fill: ${ThemeColors.PRIMARY};
+                                fill: ${ThemeColors.HIGHLIGHT};
                             }
                             &:hover text {
-                                fill: ${ThemeColors.PRIMARY};
+                                fill: ${ThemeColors.HIGHLIGHT};
                             }
                             &:hover .tool-tooltip {
                                 opacity: 1;
@@ -866,7 +866,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         css={css`
                             cursor: pointer;
                             &:hover path:last-of-type {
-                                fill: ${ThemeColors.PRIMARY};
+                                fill: ${ThemeColors.HIGHLIGHT};
                             }
                             &:hover + .custom-tooltip {
                                 opacity: 1;

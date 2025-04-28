@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon, FormActions } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
@@ -46,10 +46,11 @@ interface AddConnectorProps {
     watch: any;
     getValues: any;
     dirtyFields: any;
+    isUpdate?: boolean;
 }
 
 const AddConnector = (props: AddConnectorProps) => {
-    const { formData, nodePosition, control, errors, setValue, reset, watch, getValues, dirtyFields, handleSubmit, documentUri } = props;
+    const { formData, nodePosition, control, errors, setValue, reset, watch, getValues, dirtyFields, handleSubmit, isUpdate, documentUri } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -191,6 +192,10 @@ const AddConnector = (props: AddConnectorProps) => {
                 setValue(name ?? 'configKey', data.recentIdentifier);
             }
         });
+    }
+
+    const handleOnClose = () => {
+        sidePanelContext.pageStack.length > 1 ? sidepanelGoBack(sidePanelContext) : clearSidePanelState(sidePanelContext);
     }
 
     const onClick = async (values: any) => {
@@ -349,14 +354,20 @@ const AddConnector = (props: AddConnectorProps) => {
                             ignoreFields={props.connectionName ? ["configRef"] : []}
                             addNewConnection={addNewConnection}
                             range={props.nodePosition} />
-                        <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                        <FormActions>
+                            <Button
+                                appearance="secondary"
+                                onClick={handleOnClose}
+                            >
+                                Cancel
+                            </Button>
                             <Button
                                 appearance="primary"
                                 onClick={handleSubmit(onClick)}
                             >
-                                Submit
+                                {isUpdate ? "Update" : "Add"}
                             </Button>
-                        </div>
+                        </FormActions>
                     </>
             }
         </FormContainer>
