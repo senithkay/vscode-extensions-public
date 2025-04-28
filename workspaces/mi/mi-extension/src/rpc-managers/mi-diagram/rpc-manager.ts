@@ -259,7 +259,8 @@ import {
     CreateBallerinaModuleRequest,
     CreateBallerinaModuleResponse,
     SCOPE,
-    DevantMetadata
+    DevantMetadata,
+    DependencyDetails
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -306,6 +307,7 @@ import { checkForDevantExt } from "../../extension";
 import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
 import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
 import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
 
 const AdmZip = require('adm-zip');
 
@@ -3196,10 +3198,36 @@ ${endpointAttributes}
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         const fetchConnectors = async (name) => {
-            const data = await this.getStoreConnectorJSON();
-            const connector = data?.outboundConnectors?.find(connector => connector.name === name);
+            const runtimeVersion = await getMIVersionFromPom();
+
+                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+                const connectorStoreData = await connectorStoreResponse.json();
+            
+            const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
+            const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
+        
             if (connector) {
-                return connector.download_url;
+                const rpcClient = new MiVisualizerRpcManager();
+                console.log("Connector found - ", connector);
+                const updateDependencies = async () => {
+                    const dependencies: DependencyDetails[] = [{
+                        groupId: connector.mavenGroupId,
+                        artifact: connector.mavenArtifactId,
+                        version: connector.version.tagName,
+                        type: "zip"
+                    }];
+                    
+
+                    
+                    await rpcClient.updateDependencies({
+                        dependencies
+                    });
+                }
+    
+                await updateDependencies();
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const response = await rpcClient.updateConnectorDependencies();
             } else {
                 console.error("Connector not found");
                 return null;
@@ -3277,8 +3305,7 @@ ${endpointAttributes}
                     const tagParts = connectorMatch[1].split('.');
                     const connectorName = tagParts[0];
                     console.log('Connector name:', connectorName);
-                    const download_url = await fetchConnectors(connectorName);
-                    this.downloadConnector({ url: download_url });
+                    await fetchConnectors(connectorName);
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
