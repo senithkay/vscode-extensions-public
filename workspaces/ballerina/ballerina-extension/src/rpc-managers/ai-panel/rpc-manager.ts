@@ -11,13 +11,13 @@
 import {
     AIChatSummary,
     AIPanelAPI,
+    AIPanelPrompt,
     AIVisualizerState,
     AI_EVENT_TYPE,
     AddToProjectRequest,
     BIModuleNodesRequest,
     BISourceCodeResponse,
     Command,
-    AIPanelPrompt,
     DeleteFromProjectRequest,
     DeveloperDocument,
     DiagnosticEntry,
@@ -66,10 +66,10 @@ import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccess
 import { BACKEND_URL, closeAllBallerinaFiles } from "../../features/ai/utils";
 import { getLLMDiagnosticArrayAsString, handleChatSummaryFailure } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
-import { loginGithubCopilot } from "../../utils/ai/auth";
+import { getAccessToken, getRefreshedAccessToken, loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { PARSING_ERROR, NOT_LOGGED_IN, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
+import { NOT_LOGGED_IN, PARSING_ERROR, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import {
     DEVELOPMENT_DOCUMENT,
     NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
@@ -78,7 +78,7 @@ import {
     REQ_KEY, TEST_DIR_NAME
 } from "./constants";
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
-import { handleLogin, handleStop, isErrorCode, isLoggedin, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
+import { handleLogin, handleStop, isErrorCode, isLoggedin, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
 
 export let hasStopped: boolean = false;
@@ -97,42 +97,37 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getProjectUuid(): Promise<string> {
-        // ADD YOUR IMPLEMENTATION HERE
         return new Promise(async (resolve) => {
-            console.log("Implementing getProjectUuid");
             // Check if there is at least one workspace folder
             if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
-                console.error("No workspace folder is open.");
                 resolve("");
                 return;
             }
 
-            // Use the path of the first workspace folder
-            const workspaceFolderPath = workspace.workspaceFolders[0].uri.fsPath;
+            try {
+                const workspaceFolderPath = workspace.workspaceFolders[0].uri.fsPath;
 
-            // Create a hash of the workspace folder path
-            const hash = crypto.createHash('sha256');
-            hash.update(workspaceFolderPath);
-            const hashedWorkspaceFolderPath = hash.digest('hex');
+                const hash = crypto.createHash('sha256')
+                    .update(workspaceFolderPath)
+                    .digest('hex');
 
-            console.log("Workspace folder path hashed successfully.");
-            resolve(hashedWorkspaceFolderPath);
+                resolve(hash);
+            } catch (error) {
+                resolve("");
+            }
         });
     }
 
     async getAccessToken(): Promise<string> {
-        // return new Promise(async (resolve) => {
-        //     resolve(StateMachineAI.context().token as string);
-        // });
         return new Promise(async (resolve) => {
-            const token = await extension.context.secrets.get('BallerinaAIUser');
-            resolve(token as string);
+            const accessToken = getAccessToken();
+            resolve(accessToken);
         });
     }
 
-    async getRefreshToken(): Promise<string> {
+    async getRefreshedAccessToken(): Promise<string> {
         return new Promise(async (resolve) => {
-            const token = await refreshAccessToken();
+            const token = await getRefreshedAccessToken();
             resolve(token);
         });
     }
@@ -150,11 +145,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
     async logout(): Promise<void> {
         StateMachineAI.service().send(AI_EVENT_TYPE.LOGOUT);
-    }
-
-    async getAIVisualizerState(): Promise<AIVisualizerState> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
     }
 
     async getAiPanelState(): Promise<AIVisualizerState> {
@@ -688,10 +678,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return response.toString();
     }
 
-    async openSettings(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.SETUP);
-    }
-
     async openChat(): Promise<void> {
         StateMachineAI.service().send(AI_EVENT_TYPE.CHAT);
     }
@@ -715,20 +701,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return false;
     }
 
-    async isWSO2AISignedIn(): Promise<boolean> {
-        const token = await extension.context.secrets.get('BallerinaAIUser');
-        if (token && token !== '') {
-            return true;
-        }
-        return false;
-    }
-
     async showSignInAlert(): Promise<boolean> {
         const resp = await extension.context.secrets.get('LOGIN_ALERT_SHOWN');
         if (resp === 'true') {
             return false;
         }
-        const isWso2Signed = await this.isWSO2AISignedIn();
+        const isWso2Signed = await this.isCopilotSignedIn();
 
         if (isWso2Signed) {
             return false;

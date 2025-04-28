@@ -20,6 +20,10 @@ export type AIPanelPrompt =
     | { type: 'text'; text: string }
     | undefined;
 
+export interface AIVisualizerState {
+    state: AIMachineStateValue;
+}
+
 export type ErrorCode = {
     code: number;
     message: string;
@@ -66,13 +70,6 @@ export interface DiagnosticEntry {
     message: string;
 }
 
-export interface AIVisualizerState {
-    state: AIMachineStateValue;
-}
-
-export interface AIVisualizerState {
-    state: AIMachineStateValue;
-}
 export interface AddToProjectRequest {
     filePath: string;
     content: string;

@@ -10,17 +10,12 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
+import React, { createRef, useEffect } from "react";
 import styled from "@emotion/styled";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import {
-    AIChatView,
-
-} from './styles'
-
+import { AIChatView } from "./styles";
 
 const Container = styled.div`
     display: flex;
@@ -57,76 +52,43 @@ const Row = styled.div`
     gap: 4px;
 `;
 
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-`;
-
-const CardGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    width: 100%;
-`;
-export const SettingsPanel = (props: { showProjectHeader?: boolean }) => {
+export const SettingsPanel = (props: { onClose: () => void }) => {
     const { rpcClient } = useRpcContext();
-    const { showProjectHeader } = props;
 
     const [copilotAuthorized, setCopilotAuthorized] = React.useState(false);
-    const [wso2AILoggedIn, setWso2AILoggedIn] = React.useState(false);
 
-    async function handleChat() {
-        await rpcClient.getAiPanelRpcClient().openChat();
-    }
+    const messagesEndRef = createRef<HTMLDivElement>();
 
-    async function handleWSO2Login() {
-        await rpcClient.getAiPanelRpcClient().login();
-        // setWso2AILoggedIn(true);
-    }
+    useEffect(() => {
+        isCopilotAuthorized().then((authorized) => {
+            setCopilotAuthorized(authorized);
+        });
+    }, []);
 
-    async function handleWSO2Logout() {
+    const handleWSO2Logout = async () => {
         await rpcClient.getAiPanelRpcClient().logout();
-        setWso2AILoggedIn(false);
-    }
+    };
 
-    async function handleAuthorizeCopilot() {
+    const handleAuthorizeCopilot = async () => {
         const resp = await rpcClient.getAiPanelRpcClient().promptGithubAuthorize();
-        console.log("called auth copilot", resp);
         if (resp) {
             setCopilotAuthorized(true);
         } else {
             setCopilotAuthorized(false);
         }
-    }
+    };
 
-    async function isCopilotAuthorized() {
+    const isCopilotAuthorized = async () => {
         return await rpcClient.getAiPanelRpcClient().isCopilotSignedIn();
-    }
-
-    async function isWSO2AILoggedIn() {
-        return await rpcClient.getAiPanelRpcClient().isWSO2AISignedIn();
-    }
-
-    React.useEffect(() => {
-        isCopilotAuthorized().then((authorized) => {
-            setCopilotAuthorized(authorized);
-        });
-        isWSO2AILoggedIn().then((loggedIn) => {
-            setWso2AILoggedIn(loggedIn);
-        });
-    }, []);
-
-    const messagesEndRef = React.createRef<HTMLDivElement>();
+    };
 
     return (
         <AIChatView>
             <Header>
-                {wso2AILoggedIn && (
-                    <Button appearance="icon" onClick={() => handleChat()} tooltip="Chat">
-                        <Codicon name="arrow-left" />
-                    </Button>
-                )}
+                <Button appearance="icon" onClick={() => props.onClose()} tooltip="Chat">
+                    <Codicon name="arrow-left" />
+                </Button>
+
                 <Typography variant="subtitle2">Manage Accounts</Typography>
             </Header>
             <VerticalLine />
@@ -135,18 +97,19 @@ export const SettingsPanel = (props: { showProjectHeader?: boolean }) => {
                 <RowGroup>
                     <Row>
                         <Typography variant="subtitle2">Login to WSO2 Copilot</Typography>
-                    <Typography variant="caption">Login to access AI-powered code generation, completions, test generation, data mappings, and more.</Typography>
+                        <Typography variant="caption">
+                            Login to access AI-powered code generation, completions, test generation, data mappings, and
+                            more.
+                        </Typography>
                     </Row>
-                    {
-                            wso2AILoggedIn
-                                ? <Button onClick={() => handleWSO2Logout()}>Logout</Button>
-                                : <Button onClick={() => handleWSO2Login()}>Login</Button>
-                    }
+                    <Button onClick={() => handleWSO2Logout()}>Logout</Button>
                 </RowGroup>
                 <RowGroup>
                     <Row>
                         <Typography variant="subtitle2">Enable GitHub Copilot Integration</Typography>
-                        <Typography variant="caption">Authorize Github Copilot and get Visual Completions via Github.</Typography>
+                        <Typography variant="caption">
+                            Authorize Github Copilot and get Visual Completions via Github.
+                        </Typography>
                     </Row>
                     <Button onClick={() => handleAuthorizeCopilot()} disabled={copilotAuthorized}>
                         {copilotAuthorized ? "Authorized" : "Authorize"}

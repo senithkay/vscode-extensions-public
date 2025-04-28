@@ -9,9 +9,12 @@
 
 import * as vscode from 'vscode';
 import { extension } from "../../BalExtensionContext";
-import { commands } from 'vscode';
-import { StateMachineAI } from 'src/views/ai-panel/aiMachine';
-import { AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
+import { AUTH_CLIENT_ID, AUTH_ORG } from '../../features/ai/utils';
+import axios from 'axios';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
+
+export const ACCESS_TOKEN_SECRET_KEY = 'BallerinaAIUser';
+export const REFRESH_TOKEN_SECRET_KEY = 'BallerinaAIRefreshToken';
 
 //TODO: What if user doesnt have github copilot.
 //TODO: Where does auth git get triggered
@@ -104,3 +107,73 @@ async function copilotTokenExists() {
     const copilotToken = await extension.context.secrets.get('GITHUB_COPILOT_TOKEN');
     return copilotToken !== undefined && copilotToken !== '';
 }
+
+// ==================================
+// WSO2 Copilot Auth Utils
+// ==================================
+export const getAccessToken = async (): Promise<string | undefined> => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const token = await extension.context.secrets.get(ACCESS_TOKEN_SECRET_KEY);
+            if (!token) {
+                resolve(undefined);
+                return;
+            }
+
+            let finalToken = token;
+
+            // Decode token and check expiration
+            try {
+                const decoded = jwtDecode<JwtPayload>(token);
+                const now = Math.floor(Date.now() / 1000);
+                if (decoded.exp && decoded.exp < now) {
+                    finalToken = await getRefreshedAccessToken();
+                }
+            } catch (err) {
+                // If decoding fails, we can still use the original token
+                console.warn("Failed to decode token, using original token.");
+            }
+
+            resolve(finalToken);
+        } catch (error: any) {
+            reject(error);
+        }
+    });
+};
+
+export const getRefreshedAccessToken = async (): Promise<string> => {
+    return new Promise(async (resolve, reject) => {
+        const CommonReqHeaders = {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
+            'Accept': 'application/json'
+        };
+
+        try {
+            const refreshToken = await extension.context.secrets.get(REFRESH_TOKEN_SECRET_KEY);
+            if (!refreshToken) {
+                reject(new Error("Refresh token is not available."));
+                return;
+            }
+
+            const params = new URLSearchParams({
+                client_id: AUTH_CLIENT_ID,
+                refresh_token: refreshToken,
+                grant_type: 'refresh_token',
+                scope: 'openid email'
+            });
+
+            const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
+
+            const newAccessToken = response.data.access_token;
+            const newRefreshToken = response.data.refresh_token;
+
+            await extension.context.secrets.store(ACCESS_TOKEN_SECRET_KEY, newAccessToken);
+            await extension.context.secrets.store(REFRESH_TOKEN_SECRET_KEY, newRefreshToken);
+
+            resolve(newAccessToken);
+        } catch (error: any) {
+            const errMsg = "Error while refreshing token! " + (error?.message || error?.toString());
+            reject(new Error(errMsg));
+        }
+    });
+};

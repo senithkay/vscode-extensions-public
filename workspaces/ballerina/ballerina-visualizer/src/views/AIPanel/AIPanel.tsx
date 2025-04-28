@@ -16,7 +16,7 @@ import AIChat from './components/AIChat';
 import { SignInToCopilotMessage } from './SignInWindow';
 import { WaitingForLoginMessage } from './WaitingForSignIn';
 import { DisabledWindow } from './DisabledWindow';
-import { SettingsPanel } from './SettingsPanel';
+import LoginPanel from './LoginPanel';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -56,8 +56,8 @@ const AIPanel = (props: { state: AIMachineStateValue }) => {
                 case "disabled":
                     setViewComponent(<DisabledWindow />);
                     break;
-                case "Settings":
-                    setViewComponent(<SettingsPanel />);
+                case "Login":
+                    setViewComponent(<LoginPanel />);
                     break;
                 default:
                     setViewComponent(<h1>{machineView.state}</h1>);

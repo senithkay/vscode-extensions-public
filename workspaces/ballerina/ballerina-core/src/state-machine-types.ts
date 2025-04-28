@@ -163,7 +163,7 @@ export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation>
 export const breakpointChanged: NotificationType<boolean> = { method: 'breakpointChanged' };
 
 // ------------------> AI Related state types <----------------------- 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled' | 'Settings';
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled' | 'Login';
 
 export enum AI_EVENT_TYPE {
     LOGIN = "LOGIN",

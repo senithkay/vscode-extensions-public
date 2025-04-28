@@ -7,16 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { jwtDecode } from "jwt-decode";
-
-interface JwtPayload {
-    exp?: number;
-}
-
 interface FetchWithAuthParams {
     url: string;
     method: "GET" | "POST" | "PUT" | "DELETE";
-    token: string;
     body?: any;
     rpcClient: any;
 }
@@ -27,25 +20,13 @@ let controller: AbortController | null = null;
 export const fetchWithAuth = async ({
     url,
     method,
-    token,
     body,
     rpcClient,
 }: FetchWithAuthParams): Promise<Response> => {
     controller?.abort();
 
     controller = new AbortController();
-    let finalToken = token;
-
-    // Decode token and check expiration
-    try {
-        const decoded = jwtDecode<JwtPayload>(token);
-        const now = Math.floor(Date.now() / 1000);
-        if (decoded.exp && decoded.exp < now) {
-            finalToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
-        }
-    } catch (err) {
-        console.warn("Failed to decode token, using original token.");
-    }
+    let finalToken = await rpcClient.getAiPanelRpcClient().getAccessToken();
 
     const makeRequest = async (authToken: string): Promise<Response> =>
         fetch(url, {
@@ -61,7 +42,7 @@ export const fetchWithAuth = async ({
     let response = await makeRequest(finalToken);
 
     if (response.status === 401) {
-        finalToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
+        finalToken = await rpcClient.getAiPanelRpcClient().getRefreshedAccessToken();
         if (finalToken) {
             response = await makeRequest(finalToken);
         }
@@ -77,4 +58,3 @@ export function abortFetchWithAuth() {
         controller = null;
     }
 }
-

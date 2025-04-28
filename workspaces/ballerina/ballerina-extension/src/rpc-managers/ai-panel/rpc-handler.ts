@@ -50,7 +50,7 @@ import {
     getModuleDirectory,
     getProjectSource,
     getProjectUuid,
-    getRefreshToken,
+    getRefreshedAccessToken,
     getResourceMethodAndPaths,
     getResourceSourceForMethodAndPath,
     getServiceNames,
@@ -63,13 +63,11 @@ import {
     isCopilotSignedIn,
     isNaturalProgrammingDirectoryExists,
     isRequirementsSpecificationFileExist,
-    isWSO2AISignedIn,
     login,
     logout,
     markAlertShown,
     notifyAIMappings,
     openChat,
-    openSettings,
     postProcess,
     promptGithubAuthorize,
     promptLogin,
@@ -88,7 +86,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getBackendUrl, () => rpcManger.getBackendUrl());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onRequest(getAccessToken, () => rpcManger.getAccessToken());
-    messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
+    messenger.onRequest(getRefreshedAccessToken, () => rpcManger.getRefreshedAccessToken());
     messenger.onRequest(getDefaultPrompt, () => rpcManger.getDefaultPrompt());
     messenger.onNotification(login, () => rpcManger.login());
     messenger.onNotification(logout, () => rpcManger.logout());
@@ -119,12 +117,10 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
     messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
     messenger.onRequest(getActiveFile, () => rpcManger.getActiveFile());
-    messenger.onNotification(openSettings, () => rpcManger.openSettings());
     messenger.onNotification(openChat, () => rpcManger.openChat());
     messenger.onRequest(promptGithubAuthorize, () => rpcManger.promptGithubAuthorize());
     messenger.onRequest(promptWSO2AILogout, () => rpcManger.promptWSO2AILogout());
     messenger.onRequest(isCopilotSignedIn, () => rpcManger.isCopilotSignedIn());
-    messenger.onRequest(isWSO2AISignedIn, () => rpcManger.isWSO2AISignedIn());
     messenger.onRequest(showSignInAlert, () => rpcManger.showSignInAlert());
     messenger.onNotification(markAlertShown, () => rpcManger.markAlertShown());
     messenger.onRequest(getFromDocumentation, (args: string) => rpcManger.getFromDocumentation(args));

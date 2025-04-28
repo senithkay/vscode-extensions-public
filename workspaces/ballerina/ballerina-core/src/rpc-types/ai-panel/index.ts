@@ -16,7 +16,7 @@ export interface AIPanelAPI {
     getBackendUrl: () => Promise<string>;
     getProjectUuid: () => Promise<string>;
     getAccessToken: () => Promise<string>;
-    getRefreshToken: () => Promise<string>;
+    getRefreshedAccessToken: () => Promise<string>;
     getDefaultPrompt: () => Promise<AIPanelPrompt>;
     login: () => void;
     logout: () => void;
@@ -48,12 +48,10 @@ export interface AIPanelAPI {
     applyDoOnFailBlocks: () => void;
     postProcess: (req: PostProcessRequest) => Promise<PostProcessResponse>;
     getActiveFile:() => Promise<string>;
-    openSettings: () => void;
     openChat: () => void;
     promptGithubAuthorize: () => Promise<boolean>;
     promptWSO2AILogout: () => Promise<boolean>;
     isCopilotSignedIn: () => Promise<boolean>;
-    isWSO2AISignedIn: () => Promise<boolean>;
     showSignInAlert: () => Promise<boolean>;
     markAlertShown: () => void;
     getFromDocumentation: (content: string) => Promise<string>;
