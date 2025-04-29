@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AttachmentResult, createFunctionSignature, DataMappingRecord, ErrorCode, GenerateMappingFromRecordResponse, GenerateMappingsFromRecordRequest, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, getSource, PartialST, ProjectSource, SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { Attachment, createFunctionSignature, DataMappingRecord, ErrorCode, GenerateMappingFromRecordResponse, GenerateMappingsFromRecordRequest, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, getSource, PartialST, ProjectSource, SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import { FunctionDefinition, ModulePart, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { camelCase, memoize } from "lodash";
 import path from "path";
@@ -53,7 +53,7 @@ async function getUpdatedFunctionSource(
     projectRoot: string,
     funcSource: string,
     imports: { moduleName: string; alias?: string }[],
-    file?: AttachmentResult
+    file?: Attachment
 ): Promise<string> {
     const importsString = imports
       .map(({ moduleName, alias }) =>

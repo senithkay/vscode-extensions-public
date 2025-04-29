@@ -9,7 +9,7 @@
 
 import { ErrorCode } from "@wso2-enterprise/ballerina-core";
 
-export const UNAUTHORIZED: ErrorCode = {
+export const NOT_LOGGED_IN: ErrorCode = {
     code: 1,
     message: "You need to be logged in to use WSO2 Copilot Features. Please login and try again."
 };

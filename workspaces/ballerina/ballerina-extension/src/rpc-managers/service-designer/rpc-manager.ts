@@ -294,9 +294,11 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             });
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `main.bal`);
-                this.ensureFileExists(targetFile);
-                params.filePath = targetFile;
+                if (!params.filePath) {
+                    const targetFile = path.join(projectDir, `main.bal`);
+                    this.ensureFileExists(targetFile);
+                    params.filePath = targetFile;
+                }
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
                     startColumn: params.codedata.lineRange.startLine.offset
@@ -304,7 +306,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const res: ResourceSourceCodeResponse = await context.langClient.addResourceSourceCode(params);
                 const position = await this.updateSource(res, undefined, targetPosition);
                 const result: SourceUpdateResponse = {
-                    filePath: targetFile,
+                    filePath: params.filePath,
                     position: position
                 };
                 resolve(result);

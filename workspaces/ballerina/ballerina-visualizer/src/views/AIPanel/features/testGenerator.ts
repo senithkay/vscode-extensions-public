@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AttachmentResult } from "@wso2-enterprise/ballerina-core";
+import { Attachment } from "@wso2-enterprise/ballerina-core";
 
 export interface TestGeneratorIntermediaryState {
-    content: [string, AttachmentResult[]];
+    content: [string, Attachment[]];
     token: string;
     resourceFunction: string;
     testPlan: string;

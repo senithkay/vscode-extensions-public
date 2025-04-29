@@ -460,7 +460,7 @@ export class NodeInitVisitor implements Visitor {
             }
         }
 
-        // create node for configuring local variables
+        // create node for configuring sub mappings
         const letExprNode = new LetExpressionNode(
             this.context,
             exprFuncBody
@@ -514,7 +514,7 @@ export class NodeInitVisitor implements Visitor {
         const isSelectedExpr = parentNode
             && (STKindChecker.isSpecificField(selectedSTNode) || STKindChecker.isLetVarDecl(selectedSTNode))
             && (isPositionsEquals(parentNode.position, selectedSTNode.position) || isSelectClauseQueryExpr(fieldPath))
-            && isPositionsEquals(node.position, position);
+            && (!position || isPositionsEquals(node.position, position));
 
         if (isSelectedExpr) {
             const { fromClause, intermediateClauses } = node.queryPipeline;
@@ -687,7 +687,7 @@ export class NodeInitVisitor implements Visitor {
                 queryNode.targetPorts = expandedHeaderPorts;
                 queryNode.height = intermediateClausesHeight;
 
-                // create node for local variables
+                // create node for sub mappings
                 const letExprNode = new LetExpressionNode(
                     this.context,
                     this.context.functionST.functionBody as ExpressionFunctionBody,
