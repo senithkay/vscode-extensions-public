@@ -270,6 +270,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                             hasInvalidTypeCast={hasInvalidTypeCast}
                             innermostExpr={innermostExpr}
                             typeCastExpr={typeCastExpr}
+                            unionTypeInfo={unionTypeInfo}
                         />
                     </div>
                 </TreeBody>

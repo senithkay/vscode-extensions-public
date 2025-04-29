@@ -17,7 +17,7 @@ import { TypeField } from "@wso2-enterprise/ballerina-core";
 import { IdentifierToken, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { getSupportedUnionTypes } from "../../utils/union-type-utils";
+import { getSupportedUnionTypes, UnionTypeInfo } from "../../utils/union-type-utils";
 import { TypeDescriptor } from "../commons/DataMapperNode";
 
 import { UnionTypesList } from "./UnionTypesList";
@@ -29,10 +29,11 @@ export interface UnionTypeSelectorProps {
     hasInvalidTypeCast: boolean;
     innermostExpr: STNode;
     typeCastExpr: STNode;
+    unionTypeInfo: UnionTypeInfo;
 }
 
 export function UnionTypeSelector(props: UnionTypeSelectorProps) {
-    const { typeIdentifier, context, typeDef, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
+    const { typeIdentifier, context, typeDef, hasInvalidTypeCast, innermostExpr, typeCastExpr, unionTypeInfo } = props;
     const supportedUnionTypes = getSupportedUnionTypes(typeDef, typeIdentifier);
 
     return (
@@ -42,6 +43,7 @@ export function UnionTypeSelector(props: UnionTypeSelectorProps) {
             hasInvalidTypeCast={hasInvalidTypeCast}
             innermostExpr={innermostExpr}
             typeCastExpr={typeCastExpr}
+            unionTypeInfo={unionTypeInfo}
         />
     );
 }
