@@ -581,6 +581,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
                             <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
                                 <label>{element.displayName}{element.required === 'true' && '*'}</label>
+                                {helpTipElement && <div style={{ paddingTop: '5px' }}>
+                                    {helpTipElement}
+                                </div>}
                             </div>
                             <LinkButton onClick={() => addNewConnection(name, element.allowedConnectionTypes)}>
                                 <Codicon name="plus" />Add new connection
