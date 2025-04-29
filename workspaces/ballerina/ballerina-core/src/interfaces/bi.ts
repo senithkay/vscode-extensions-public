@@ -245,6 +245,7 @@ export interface ProjectStructureArtifactResponse {
     moduleName?: string;
     position?: NodePosition;
     resources?: ProjectStructureArtifactResponse[];
+    isNew?: boolean;
 }
 export type Item = Category | AvailableNode;
 

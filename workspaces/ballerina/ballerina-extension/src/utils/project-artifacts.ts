@@ -16,6 +16,7 @@ import { ExtendedLangClient } from "../core/extended-language-client";
 import { ServiceDesignerRpcManager } from "../rpc-managers/service-designer/rpc-manager";
 import { injectAgent, injectAgentCode, injectImportIfMissing } from "./source-utils";
 import { tmpdir } from "os";
+import { notifyArtifactUpdated } from "../RPCLayer";
 
 export async function buildProjectArtifactsStructure(projectDir: string, langClient: ExtendedLangClient, isUpdate: boolean = false): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
@@ -41,7 +42,7 @@ export async function buildProjectArtifactsStructure(projectDir: string, langCli
         await populateLocalConnectors(projectDir, result);
     }
     if (isUpdate) {
-        StateMachine.updateProjectStructure({ ...result }, true);
+        StateMachine.updateProjectStructure({ ...result });
     }
     return result;
 }
@@ -56,25 +57,12 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
             // Skip the temp dirs
             return;
         }
-        const entryLocation = await traverseUpdatedComponents(publishedArtifacts.artifacts, currentProjectStructure);
-        StateMachine.setReadyMode();
-        // Skip if the user is in diagram view
-        const currentView = StateMachine.context().view;
-        const skipOpeningViews = [MACHINE_VIEW.BIDiagram, MACHINE_VIEW.ServiceDesigner, MACHINE_VIEW.GraphQLDiagram, MACHINE_VIEW.DataMapper];
-        if (entryLocation) {
-            const location: VisualizerLocation = {
-                documentUri: entryLocation?.path,
-                position: entryLocation?.position
-            };
-            if (!skipOpeningViews.includes(currentView)) { // Check if the user is in a view that should not be opened
-                StateMachine.updateProjectStructure({ ...currentProjectStructure }, true, location); // Open new view
-                return;
-            } else {
-                StateMachine.updateProjectStructure({ ...currentProjectStructure }, true); // Refresh the current view
-                return;
-            }
+        const entryLocations = await traverseUpdatedComponents(publishedArtifacts.artifacts, currentProjectStructure);
+        if (entryLocations.length > 0) {
+            notifyArtifactUpdated(entryLocations);
         }
-        StateMachine.updateProjectStructure({ ...currentProjectStructure }, false); // Send notification to the current view
+        StateMachine.setReadyMode();
+        StateMachine.updateProjectStructure({ ...currentProjectStructure }); // Send notification to the current view
         return;
     }
 }
@@ -146,9 +134,9 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
                 };
                 // Hack to handle AI services --------------------------------->
                 // Inject the AI agent code into the service when new service is created
-                const isNewService = StateMachine.context().tempData?.isNewService;
+                const isNewService = StateMachine.context().artifactData?.isNew;
                 const agentName = artifact.name.split('-')[1].trim().replace(/\//g, '');
-                const tempServiceAgentName = StateMachine.context().tempData?.serviceModel?.properties["basePath"]?.value.trim().replace(/\//g, '');
+                const tempServiceAgentName = StateMachine.context().artifactData?.serviceName;
                 if (isNewService && artifact.module === "ai" && agentName === tempServiceAgentName) {
                     const injectedResult = await injectAIAgent(artifact);
                     entryValue.position = injectedResult.position;
@@ -322,6 +310,7 @@ async function processAddition(artifact: BaseArtifact, artifactCategoryKey: stri
             if (!projectStructure.directoryMap[mapping.mapKey]) {
                 projectStructure.directoryMap[mapping.mapKey] = [];
             }
+            entryValue.isNew = true; // This is a flag to identify the new artifact
             projectStructure.directoryMap[mapping.mapKey]?.push(entryValue);
             return findTempDataEntry(mapping.mapKey, entryValue);
         } catch (error) {
@@ -369,8 +358,8 @@ async function processUpdate(artifact: BaseArtifact, artifactCategoryKey: string
     }
 }
 
-async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentProjectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse | undefined> {
-    let entryLocation: ProjectStructureArtifactResponse | undefined;
+async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentProjectStructure: ProjectStructureResponse): Promise<ProjectStructureArtifactResponse[]> {
+    const entryLocations: ProjectStructureArtifactResponse[] = [];
     const promises: Promise<ProjectStructureArtifactResponse | undefined>[] = [];
 
     // Iterate through each artifact category (e.g., EntryPoints, Listeners)
@@ -400,105 +389,29 @@ async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentP
     // Wait for all additions and updates to complete
     const results = await Promise.all(promises);
 
-    // Find the last relevant entry location from the results
-    // The original code overwrites entryLocation, so we mimic that by taking the last non-undefined result.
+    // Populate addition entry locations
     for (const result of results) {
         if (result) {
-            entryLocation = result;
+            entryLocations.push(result);
         }
     }
-
-    return entryLocation;
+    return entryLocations;
 }
 
 // Find the tempData Entry
 async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStructureArtifactResponse): Promise<ProjectStructureArtifactResponse | undefined> {
-    let selectedEntry: ProjectStructureArtifactResponse;
-    switch (mapType) {
-        case DIRECTORY_MAP.SERVICE:
-            // Check if the created entry matched the properties of the temp service model
-            const tempServiceModel = StateMachine.context().tempData?.serviceModel;
-            if (tempServiceModel) { // This is used to check if the created entry is a service model
-                if (entryValue.moduleName === tempServiceModel.moduleName) {
-                    if (entryValue.name.includes("-")) {
-                        const servicePath = entryValue.name.split('-')[1].trim();
-                        if (JSON.stringify(tempServiceModel.properties).includes(servicePath)) {
-                            selectedEntry = entryValue;
-                            break;
-                        }
-                    } else {
-                        selectedEntry = entryValue;
-                        break;
-                    }
-                }
-            } else {
-                const resources = entryValue.resources;
-                // Check from current identifier or temp data identifier
-                const identifier = StateMachine.context().tempData?.identifier || StateMachine.context().identifier;
-                if (resources.length > 0) {
-                    for (const resource of resources) {
-                        if (resource.id === identifier) {
-                            selectedEntry = entryValue;
-                            break;
-                        }
-                    }
-                }
-            }
-            break;
-        case DIRECTORY_MAP.AUTOMATION:
-            // Check from current identifier or temp data identifier
-            const automationIdentifier = StateMachine.context().tempData?.identifier || StateMachine.context().identifier;
-            if (automationIdentifier && automationIdentifier === "Automation") {
-                selectedEntry = entryValue;
-                break;
-            } else {
-                // Check if the created entry is a functionNode and matched the properties
-                const tempFunction = StateMachine.context().tempData?.flowNode;
-                if (tempFunction) {
-                    if (tempFunction.properties?.functionName && entryValue.context === tempFunction.properties.functionName.value) {
-                        selectedEntry = entryValue;
-                        break;
-                    }
-                }
-            }
-            break;
-        case DIRECTORY_MAP.FUNCTION:
-        case DIRECTORY_MAP.DATA_MAPPER:
-            // Check from current identifier or temp data identifier
-            const identifier = StateMachine.context().tempData?.identifier || StateMachine.context().identifier;
-            if (identifier) {
-                if (entryValue.context === identifier) {
-                    selectedEntry = entryValue;
-                    break;
-                }
-            } else {
-                // Check if the created entry is a functionNode and matched the properties
-                const tempFunction = StateMachine.context().tempData?.flowNode;
-                if (tempFunction) {
-                    if (tempFunction.properties?.functionName && entryValue.context === tempFunction.properties.functionName.value) {
-                        selectedEntry = entryValue;
-                        break;
-                    }
-                }
-            }
-            break;
-        case DIRECTORY_MAP.CONNECTION:
-        case DIRECTORY_MAP.TYPE:
-        case DIRECTORY_MAP.CONFIGURABLE:
-        case DIRECTORY_MAP.LOCAL_CONNECTORS:
-        case DIRECTORY_MAP.LISTENER:
-            // Check if the created entry matched the properties of the temp identifier
-            const tempIdentifier = StateMachine.context().tempData?.identifier || StateMachine.context().identifier;
-            if (tempIdentifier) {
-                if (entryValue.name === tempIdentifier) {
-                    selectedEntry = entryValue;
-                }
-            }
-            break;
-        default:
-            break;
+    // Check if the temp data is of the same type as the map type
+    const tempArtifactType = StateMachine.context().artifactData?.artifactType;
+    const tempIdentifier = StateMachine.context().artifactData?.identifier;
+    if (tempArtifactType === mapType) {
+        if (tempIdentifier && tempIdentifier === entryValue.name) {
+            return entryValue;
+        }
+        if (!tempIdentifier) {
+            return entryValue;
+        }
     }
-    return selectedEntry;
+    return undefined;
 }
 
 async function populateLocalConnectors(projectDir: string, response: ProjectStructureResponse) {

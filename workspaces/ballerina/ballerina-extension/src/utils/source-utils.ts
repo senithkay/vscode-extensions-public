@@ -11,8 +11,71 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { workspace } from 'vscode';
 import { Uri, Position } from 'vscode';
-import { LinePosition } from '@wso2-enterprise/ballerina-core';
+import { ArtifactsNotification, LinePosition, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
 import path from 'path';
+import { StateMachine } from '../stateMachine';
+
+export async function updateSourceCode(textEdits: { [key: string]: TextEdit[]; }): Promise<void> {
+    StateMachine.setEditMode();
+    const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
+    for (const [key, value] of Object.entries(textEdits)) {
+        const fileUri = Uri.file(key);
+        const fileUriString = fileUri.toString();
+        const edits = value;
+
+        if (edits && edits.length > 0) {
+            const modificationList: STModification[] = [];
+
+            for (const edit of edits) {
+                const stModification: STModification = {
+                    startLine: edit.range.start.line,
+                    startColumn: edit.range.start.character,
+                    endLine: edit.range.end.line,
+                    endColumn: edit.range.end.character,
+                    type: "INSERT",
+                    isImport: false,
+                    config: {
+                        STATEMENT: edit.newText,
+                    },
+                };
+                modificationList.push(stModification);
+            }
+
+            if (modificationRequests[fileUriString]) {
+                modificationRequests[fileUriString].modifications.push(...modificationList);
+            } else {
+                modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
+            }
+        }
+    }
+
+    // Iterate through modificationRequests and apply modifications
+    try {
+        for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+            const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
+                documentIdentifier: { uri: fileUriString },
+                astModifications: request.modifications,
+            })) as SyntaxTree;
+
+            if (parseSuccess) {
+                const fileUri = Uri.file(request.filePath);
+                const workspaceEdit = new vscode.WorkspaceEdit();
+                workspaceEdit.replace(
+                    fileUri,
+                    new vscode.Range(
+                        new vscode.Position(0, 0),
+                        new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                    ),
+                    source
+                );
+                await workspace.applyEdit(workspaceEdit);
+            }
+        }
+    } catch (error) {
+        console.log(">>> error updating source", error);
+    }
+}
+
 
 export async function injectImportIfMissing(importStatement: string, filePath: string) {
     const fileContent = fs.readFileSync(filePath, 'utf8');

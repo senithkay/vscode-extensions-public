@@ -215,9 +215,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     ): Promise<void> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
         StateMachine.setEditMode();
-        StateMachine.setTempData({
-            flowNode: flowNode as FlowNode
-        });
+        // StateMachine.setTempData({
+        //     flowNode: flowNode as FlowNode
+        // });
         for (const [key, value] of Object.entries(params.textEdits)) {
             const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
@@ -1278,9 +1278,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const projectUri = StateMachine.context().projectUri;
         const filePath = path.join(projectUri, params.fileName);
         StateMachine.setEditMode();
-        StateMachine.setTempData({
-            identifier: params.newName
-        });
+        // StateMachine.setTempData({
+        //     identifier: params.newName
+        // });
         const fileUri = Uri.file(filePath).toString();
         const request: RenameRequest = {
             textDocument: {

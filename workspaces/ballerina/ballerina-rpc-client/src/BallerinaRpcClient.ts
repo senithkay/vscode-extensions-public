@@ -31,7 +31,12 @@ import {
     getPopupVisualizerState,
     onDownloadProgress,
     DownloadProgress,
-    breakpointChanged
+    breakpointChanged,
+    onArtifactUpdatedNotification,
+    onArtifactUpdatedRequest,
+    DIRECTORY_MAP,
+    ProjectStructureArtifactResponse,
+    ArtifactData
 } from "@wso2-enterprise/ballerina-core";
 import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
@@ -171,6 +176,11 @@ export class BallerinaRpcClient {
 
     onProjectContentUpdated(callback: (state: boolean) => void) {
         this.messenger.onNotification(projectContentUpdated, callback);
+    }
+
+    onArtifactUpdated(artifactData: ArtifactData, callback: (artifacts: ProjectStructureArtifactResponse[]) => void) {
+        this.messenger.sendRequest(onArtifactUpdatedRequest, HOST_EXTENSION, artifactData);
+        this.messenger.onNotification(onArtifactUpdatedNotification, callback);
     }
 
     webviewReady(): void {

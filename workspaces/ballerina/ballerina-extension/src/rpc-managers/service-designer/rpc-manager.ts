@@ -188,10 +188,11 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             // Update the state tempData with the service model. This is used to navigate after the source code is updated
-            StateMachine.setTempData({
-                serviceModel: params.service,
-                isNewService: true
-            });
+            // StateMachine.setArtifactData({
+            //     artifactType: DIRECTORY_MAP.AUTOMATION,
+            //     artifact: params.service,
+            //     isNew: true
+            // });
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
@@ -234,9 +235,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             // Update the state tempData with the service model. This is used to navigate after the source code is updated
-            StateMachine.setTempData({
-                serviceModel: params.service
-            });
+            // StateMachine.setTempData({
+            //     serviceModel: params.service
+            // });
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
@@ -289,9 +290,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
-            StateMachine.setTempData({
-                serviceModel: params.service
-            });
+            // StateMachine.setTempData({
+            //     serviceModel: params.service
+            // });
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 if (!params.filePath) {
@@ -319,9 +320,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
-            StateMachine.setTempData({
-                serviceModel: params.service
-            });
+            // StateMachine.setTempData({
+            //     serviceModel: params.service
+            // });
             try {
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,

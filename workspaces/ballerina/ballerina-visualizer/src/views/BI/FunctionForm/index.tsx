@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodePropertyKey } from "@wso2-enterprise/ballerina-core";
+import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodePropertyKey, DIRECTORY_MAP, ProjectStructureArtifactResponse, MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -65,6 +65,14 @@ export function FunctionForm(props: FunctionFormProps) {
             formType.current = "Automation";
             setTitleSubtitle('An automation that can be invoked periodically or manually');
             setFormSubtitle('Periodic invocation should be scheduled in an external system such as cronjob, k8s, or Devant');
+
+            rpcClient.onArtifactUpdated({ artifactType: DIRECTORY_MAP.AUTOMATION, identifier: functionName }, (artifacts: ProjectStructureArtifactResponse[]) => {
+                console.log("Artifact updated: ", artifacts);
+                if (artifacts.length > 0) {
+                    rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: artifacts[0].path, position: artifacts[0].position } })
+                }
+            });
+
         } else if (isDataMapper) {
             nodeKind = 'DATA_MAPPER_DEFINITION';
             formType.current = 'Data Mapper';
@@ -76,11 +84,23 @@ export function FunctionForm(props: FunctionFormProps) {
             //     formType.current = 'Natural Function';
             //     setTitleSubtitle('Build a flow using a natural language description');
             //     setFormSubtitle('Describe what you need in a prompt and let AI handle the implementation');
+            rpcClient.onArtifactUpdated({ artifactType: DIRECTORY_MAP.DATA_MAPPER, identifier: functionName }, (artifacts: ProjectStructureArtifactResponse[]) => {
+                console.log("Artifact updated: ", artifacts);
+                if (artifacts.length > 0) {
+                    rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: artifacts[0].path, position: artifacts[0].position } })
+                }
+            });
         } else {
             nodeKind = 'FUNCTION_DEFINITION';
             formType.current = 'Function';
             setTitleSubtitle('Build reusable custom flows');
             setFormSubtitle('Define a flow that can be used within your integration');
+            rpcClient.onArtifactUpdated({ artifactType: DIRECTORY_MAP.FUNCTION, identifier: functionName }, (artifacts: ProjectStructureArtifactResponse[]) => {
+                console.log("Artifact updated: ", artifacts);
+                if (artifacts.length > 0) {
+                    rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: artifacts[0].path, position: artifacts[0].position } })
+                }
+            });
         }
 
         if (functionName) {
