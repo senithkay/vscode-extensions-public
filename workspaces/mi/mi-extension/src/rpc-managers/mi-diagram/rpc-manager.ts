@@ -3217,8 +3217,6 @@ ${endpointAttributes}
                         type: "zip"
                     }];
                     
-
-                    
                     await rpcClient.updateDependencies({
                         dependencies
                     });
@@ -3230,7 +3228,7 @@ ${endpointAttributes}
                 const response = await rpcClient.updateConnectorDependencies();
             } else {
                 console.error("Connector not found");
-                return null;
+                return null;    
             }
         };
 
