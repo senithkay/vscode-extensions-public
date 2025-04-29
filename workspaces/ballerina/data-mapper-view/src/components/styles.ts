@@ -291,9 +291,12 @@ export const useUnionTypeNodeStyles = () => ({
         alignItems: 'center'
     }),
     warningText: css({
+        width: '100%',
         color:  'var(--vscode-errorForeground)',
-        fontSize: '15px',
-        fontWeight: 'normal',
+        fontSize: '14px',
+        fontWeight: '400',
         marginBottom: '8px',
+        padding: '5px 10px',
+        backgroundColor: 'var(--vscode-input-background)'
     }),
 });
