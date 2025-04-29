@@ -474,7 +474,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, {type: keyType}, sidePanelContext);
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, { type: keyType }, sidePanelContext);
                     }
                 }
 
@@ -609,6 +609,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         labelAdornment={helpTipElement}
                         required={isRequired}
                         errorMsg={errorMsg}
+                        editorSx={{ height: '100px' }}
                     />
                 );
             case 'popUp':
