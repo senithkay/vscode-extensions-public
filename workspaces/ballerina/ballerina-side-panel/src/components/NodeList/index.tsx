@@ -137,8 +137,6 @@ namespace S {
         & svg {
             height: 16px;
             width: 16px;
-            fill: ${ThemeColors.ON_SURFACE};
-            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 
