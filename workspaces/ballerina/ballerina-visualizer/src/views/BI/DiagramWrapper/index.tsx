@@ -482,7 +482,8 @@ function getParameters(syntaxTree: STNode) {
             .join(", ");
     } else if (
         STKindChecker.isFunctionDefinition(syntaxTree) &&
-        syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
+        STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody) &&
+        syntaxTree.functionBody.expression.kind === "NaturalExpression"
     ) {
         return syntaxTree.functionSignature.parameters
             .map((param) => {
