@@ -66,19 +66,8 @@ export async function createProject(page: ExtendedPage, projectName?: string, ru
     await page.page.pause()
 
     const sub = webview.getByRole('button', { name: 'Set up Ballerina distribution' })
-    await sub.waitFor({ timeout: 300000 });
-    await sub.click();
-    await page.page.pause()
-
-
-    // const submitBtn = await webview.waitForSelector(`vscode-button:text("Set up Ballerina distribution")`);
-    
-    // Wait for the setup view to be fully loaded
-    // await apiFormFrame.locator('text=Let\'s set up your environment').waitFor();
-    // await page.page.pause()
-    // const setupBtn = apiFormFrame.getByRole('button', { name: 'Set up Ballerina distribution' });
-    // await setupBtn.waitFor({ state: 'visible', timeout: 300000 });
-    // await submitBtn.click();
+    await sub.waitFor();
+    await sub.click({force: true});
 }
 
 export function initTest(newProject: boolean = false, skipProjectCreation: boolean = false, cleanupAfter?: boolean, projectName?: string, runtimeVersion?: string) {
