@@ -45,7 +45,6 @@ export interface AIPanelAPI {
     applyDoOnFailBlocks: () => void;
     postProcess: (req: PostProcessRequest) => Promise<PostProcessResponse>;
     getActiveFile:() => Promise<string>;
-    openChat: () => void;
     promptGithubAuthorize: () => Promise<boolean>;
     promptWSO2AILogout: () => Promise<boolean>;
     isCopilotSignedIn: () => Promise<boolean>;

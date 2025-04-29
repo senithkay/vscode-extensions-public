@@ -668,10 +668,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return response.toString();
     }
 
-    async openChat(): Promise<void> {
-        // StateMachineAI.service().send(AI_EVENT_TYPE.CHAT);
-    }
-
     async promptGithubAuthorize(): Promise<boolean> {
         return await loginGithubCopilot();
         //Change state to notify?

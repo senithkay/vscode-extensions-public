@@ -76,7 +76,6 @@ import {
     isRequirementsSpecificationFileExist,
     markAlertShown,
     notifyAIMappings,
-    openChat,
     postProcess,
     promptGithubAuthorize,
     promptWSO2AILogout,
@@ -218,10 +217,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getActiveFile(): Promise<string> {
         return this._messenger.sendRequest(getActiveFile, HOST_EXTENSION);
-    }
-
-    openChat(): void {
-        return this._messenger.sendNotification(openChat, HOST_EXTENSION);
     }
 
     promptGithubAuthorize(): Promise<boolean> {
