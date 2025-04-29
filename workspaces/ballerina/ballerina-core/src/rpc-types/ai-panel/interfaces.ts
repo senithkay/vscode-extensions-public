@@ -9,7 +9,7 @@
  */
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { AIMachineStateValue } from "../../state-machine-types";
+import { AIMachineContext, AIMachineStateValue } from "../../state-machine-types";
 import { Command, TemplateId } from "../../interfaces/ai-panel";
 
 // ==================================
@@ -20,8 +20,9 @@ export type AIPanelPrompt =
     | { type: 'text'; text: string }
     | undefined;
 
-export interface AIVisualizerState {
+export interface AIMachineSnapshot {
     state: AIMachineStateValue;
+    context: AIMachineContext;
 }
 
 export type ErrorCode = {

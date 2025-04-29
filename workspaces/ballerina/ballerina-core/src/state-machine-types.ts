@@ -163,41 +163,46 @@ export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation>
 export const breakpointChanged: NotificationType<boolean> = { method: 'breakpointChanged' };
 
 // ------------------> AI Related state types <----------------------- 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled' | 'Login';
+export type AIMachineStateValue =
+    | 'Initialize'          // (checking auth, first load)
+    | 'Unauthenticated'     // (show login window)
+    | 'Authenticating'      // (waiting for SSO login result after redirect)
+    | 'Authenticated'       // (ready, main view)
+    | 'Disabled';           // (optional: if AI Chat is globally unavailable)
 
-export enum AI_EVENT_TYPE {
-    LOGIN = "LOGIN",
-    SIGN_IN_SUCCESS = "SIGN_IN_SUCCESS",
-    LOGOUT = "LOGOUT",
-    EXECUTE = "EXECUTE",
-    CLEAR = "CLEAR",
-    CLEAR_PROMPT = "CLEAR_PROMPT",
-    DISPOSE = "DISPOSE",
-    CANCEL = "CANCEL",
-    RETRY = "RETRY",
-    SETUP = "SETUP",
-    CHAT = "CHAT",
+export enum AIMachineEventType {
+    CHECK_AUTH = 'CHECK_AUTH',
+    LOGIN = 'LOGIN',
+    LOGOUT = 'LOGOUT',
+    LOGIN_SUCCESS = 'LOGIN_SUCCESS',
+    CANCEL_LOGIN = 'CANCEL_LOGIN',
+    RETRY = 'RETRY',
+    DISPOSE = 'DISPOSE',
 }
 
-export enum AI_MACHINE_VIEW {
-    AIOverview = "AI Overview",
-    AIArtifact = "AI Artifact",
-    AIChat = "AI Chat",
+export type AIMachineEventValue =
+    | { type: AIMachineEventType.CHECK_AUTH }
+    | { type: AIMachineEventType.LOGIN }
+    | { type: AIMachineEventType.LOGOUT }
+    | { type: AIMachineEventType.LOGIN_SUCCESS }
+    | { type: AIMachineEventType.CANCEL_LOGIN }
+    | { type: AIMachineEventType.RETRY }
+    | { type: AIMachineEventType.DISPOSE };
+
+interface AIUsageTokens {
+    maxUsage: number;
+    remainingTokens: number;
 }
 
-export interface AIVisualizerLocation {
-    view?: AI_MACHINE_VIEW | null;
-    initialPrompt?: string;
-    state?: AIMachineStateValue;
-    userTokens?: AIUserTokens;
+export interface AIUserToken {
+    accessToken: string;
+    usageTokens?: AIUsageTokens;
 }
 
-export interface AIUserTokens {
-    max_usage: number;
-    remaining_tokens: number;
-    time_to_reset: number;
+export interface AIMachineContext {
+    userToken?: AIUserToken;
+    errorMessage?: string;
 }
 
 export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
-export const getAIVisualizerState: RequestType<void, AIVisualizerLocation> = { method: 'getAIVisualizerState' };
-export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sendAIStateEvent' };
+export const sendAIStateEvent: RequestType<AIMachineEventType, void> = { method: 'sendAIStateEvent' };

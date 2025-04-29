@@ -9,6 +9,7 @@
 
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { AIMachineEventType } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 import React from "react";
@@ -92,8 +93,8 @@ const LegalNotice: React.FC = () => {
 const LoginPanel: React.FC = () => {
     const { rpcClient } = useRpcContext();
 
-    const handleWSO2Login = () => {
-        rpcClient.getAiPanelRpcClient().login();
+    const handleCopilotLogin = () => {
+        rpcClient.sendAIStateEvent(AIMachineEventType.LOGIN);
     };
 
     return (
@@ -121,7 +122,7 @@ const LoginPanel: React.FC = () => {
             <BottomSpacer />
             <FooterContent>
                 <LegalNotice />
-                <StyledButton onClick={handleWSO2Login}>Login to WSO2 Copilot</StyledButton>
+                <StyledButton onClick={handleCopilotLogin}>Login to WSO2 Copilot</StyledButton>
             </FooterContent>
         </PanelWrapper>
     );

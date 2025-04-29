@@ -12,6 +12,7 @@ import { extension } from "../../BalExtensionContext";
 import { AUTH_CLIENT_ID, AUTH_ORG } from '../../features/ai/utils';
 import axios from 'axios';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
+// import { StateMachineAI } from '../../../src/views/ai-panel/aiMachine';
 
 export const ACCESS_TOKEN_SECRET_KEY = 'BallerinaAIUser';
 export const REFRESH_TOKEN_SECRET_KEY = 'BallerinaAIRefreshToken';
@@ -130,8 +131,13 @@ export const getAccessToken = async (): Promise<string | undefined> => {
                     finalToken = await getRefreshedAccessToken();
                 }
             } catch (err) {
-                // If decoding fails, we can still use the original token
-                console.warn("Failed to decode token, using original token.");
+                if (axios.isAxiosError(err)) {
+                    const status = err.response?.status;
+                    if (status === 400) {
+                        reject(new Error("TOKEN_EXPIRED"));
+                    }
+                }
+                reject(err);
             }
 
             resolve(finalToken);
@@ -172,8 +178,7 @@ export const getRefreshedAccessToken = async (): Promise<string> => {
 
             resolve(newAccessToken);
         } catch (error: any) {
-            const errMsg = "Error while refreshing token! " + (error?.message || error?.toString());
-            reject(new Error(errMsg));
+            reject(error);
         }
     });
 };

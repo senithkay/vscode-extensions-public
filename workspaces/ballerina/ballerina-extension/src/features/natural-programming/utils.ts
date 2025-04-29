@@ -30,11 +30,11 @@ import {
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
 import { BACKEND_URL } from '../ai/utils';
-import { handleLogin } from "../../rpc-managers/ai-panel/utils";
-import { BallerinaProject } from '@wso2-enterprise/ballerina-core';
+import { AIMachineEventType, BallerinaProject } from '@wso2-enterprise/ballerina-core';
 import { getCurrentBallerinaProjectFromContext } from '../config-generator/configGenerator';
 import { BallerinaExtension } from 'src/core';
 import { getRefreshedAccessToken } from '../../../src/utils/ai/auth';
+import { AIStateMachine } from '../../../src/views/ai-panel/aiMachine';
 
 let controller = new AbortController();
 
@@ -702,13 +702,13 @@ export async function addConfigFile(configPath: string, isNaturalFunctionsAvaila
             try {
                 const token: string = await getTokenForNaturalFunction();
                 if (token == null) {
-                    handleLogin();
+                    AIStateMachine.service().send(AIMachineEventType.LOGOUT);
                     return;
                 }
 
                 addDefaultModelConfigForNaturalFunctions(configPath, token, await getBackendURL(), isNaturalFunctionsAvailableInBallerinaOrg);
             } catch (error) {
-                handleLogin();
+                AIStateMachine.service().send(AIMachineEventType.LOGOUT);
                 return;
             }
         }

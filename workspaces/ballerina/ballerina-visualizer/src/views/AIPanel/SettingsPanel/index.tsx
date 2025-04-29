@@ -15,7 +15,8 @@ import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
-import { AIChatView } from "./styles";
+import { AIChatView } from "../styles";
+import { AIMachineEventType } from "@wso2-enterprise/ballerina-core";
 
 const Container = styled.div`
     display: flex;
@@ -65,8 +66,8 @@ export const SettingsPanel = (props: { onClose: () => void }) => {
         });
     }, []);
 
-    const handleWSO2Logout = async () => {
-        await rpcClient.getAiPanelRpcClient().logout();
+    const handleCopilotLogout = () => {
+        rpcClient.sendAIStateEvent(AIMachineEventType.LOGOUT);
     };
 
     const handleAuthorizeCopilot = async () => {
@@ -102,7 +103,7 @@ export const SettingsPanel = (props: { onClose: () => void }) => {
                             more.
                         </Typography>
                     </Row>
-                    <Button onClick={() => handleWSO2Logout()}>Logout</Button>
+                    <Button onClick={() => handleCopilotLogout()}>Logout</Button>
                 </RowGroup>
                 <RowGroup>
                     <Row>

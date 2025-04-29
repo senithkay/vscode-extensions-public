@@ -10,9 +10,9 @@
  */
 import {
     AIChatSummary,
+    AIMachineSnapshot,
     AIPanelAPI,
     AIPanelPrompt,
-    AIVisualizerState,
     AddToProjectRequest,
     DeleteFromProjectRequest,
     DeveloperDocument,
@@ -46,9 +46,9 @@ import {
     deleteFromProject,
     fetchData,
     generateMappings,
+    getAIMachineSnapshot,
     getAccessToken,
     getActiveFile,
-    getAiPanelState,
     getBackendUrl,
     getContentFromFile,
     getDefaultPrompt,
@@ -74,14 +74,11 @@ import {
     isCopilotSignedIn,
     isNaturalProgrammingDirectoryExists,
     isRequirementsSpecificationFileExist,
-    login,
-    logout,
     markAlertShown,
     notifyAIMappings,
     openChat,
     postProcess,
     promptGithubAuthorize,
-    promptLogin,
     promptWSO2AILogout,
     readDeveloperMdFile,
     showSignInAlert,
@@ -119,16 +116,8 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getDefaultPrompt, HOST_EXTENSION);
     }
 
-    login(): void {
-        return this._messenger.sendNotification(login, HOST_EXTENSION);
-    }
-
-    logout(): void {
-        return this._messenger.sendNotification(logout, HOST_EXTENSION);
-    }
-
-    getAiPanelState(): Promise<AIVisualizerState> {
-        return this._messenger.sendRequest(getAiPanelState, HOST_EXTENSION);
+    getAIMachineSnapshot(): Promise<AIMachineSnapshot> {
+        return this._messenger.sendRequest(getAIMachineSnapshot, HOST_EXTENSION);
     }
 
     fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
@@ -165,10 +154,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     stopAIMappings(): Promise<GenerateMappingsResponse> {
         return this._messenger.sendRequest(stopAIMappings, HOST_EXTENSION);
-    }
-
-    promptLogin(): Promise<boolean> {
-        return this._messenger.sendRequest(promptLogin, HOST_EXTENSION);
     }
 
     getProjectSource(requestType: string): Promise<ProjectSource> {

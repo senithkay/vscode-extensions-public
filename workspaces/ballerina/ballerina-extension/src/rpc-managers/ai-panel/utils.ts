@@ -8,7 +8,7 @@
  */
 
 import { ArrayTypeDesc, FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, Attachment, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords } from "@wso2-enterprise/ballerina-core";
+import { ErrorCode, FormField, STModification, SyntaxTree, Attachment, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords, AIMachineEventType } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 
@@ -26,11 +26,12 @@ import {
     INVALID_RECORD_UNION_TYPE
 } from "../../views/ai-panel/errorCodes";
 import { hasStopped } from "./rpc-manager";
-import { StateMachineAI } from "../../views/ai-panel/aiMachine";
+// import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import path from "path";
 import * as fs from 'fs';
 import { BACKEND_URL } from "../../features/ai/utils";
 import { getAccessToken, getRefreshedAccessToken } from "../../../src/utils/ai/auth";
+import { AIStateMachine } from "../../../src/views/ai-panel/aiMachine";
 
 const BACKEND_BASE_URL = BACKEND_URL.replace(/\/v2\.0$/, "");
 //TODO: Temp workaround as custom domain seem to block file uploads
@@ -42,26 +43,6 @@ const REQUEST_TIMEOUT = 2000000;
 
 let abortController = new AbortController();
 const primitiveTypes = ["string", "int", "float", "decimal", "boolean"];
-
-export async function isLoggedin(): Promise<boolean> {
-    try {
-        await getAccessToken();
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
-
-export async function handleLogin() : Promise<void> {
-    const quickPicks: QuickPickItem[] = [];
-    quickPicks.push({ label: "WSO2: Copilot Login", description: "Register/Login to WSO2 Copilot"});
-
-    const options: QuickPickOptions = { canPickMany: false, title: "You need to login to access WSO2 Copilot features. Please login and retry." };
-    const selected = await window.showQuickPick(quickPicks, options);
-    if (selected) {
-        StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
-    }
-}
 
 export function handleStop() {
     abortController.abort();
@@ -1302,7 +1283,7 @@ export async function getDatamapperCode(parameterDefinitions: ErrorCode | Parame
         if (response.status === 401) {
             const newAccessToken = await getRefreshedAccessToken();
             if (!newAccessToken) {
-                await handleLogin();
+                AIStateMachine.service().send(AIMachineEventType.LOGOUT);
                 return;
             }
             let retryResponse: Response | ErrorCode = await sendDatamapperRequest(parameterDefinitions, newAccessToken);
@@ -2156,7 +2137,7 @@ export async function fetchWithToken(url: string, options: RequestInit) {
             };
             response = await fetch(url, options);
         } else {
-            await handleLogin();
+            AIStateMachine.service().send(AIMachineEventType.LOGOUT);
             return;
         }
     }

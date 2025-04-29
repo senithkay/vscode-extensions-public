@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { AIMachineEventType } from "@wso2-enterprise/ballerina-core";
+
 interface FetchWithAuthParams {
     url: string;
     method: "GET" | "POST" | "PUT" | "DELETE";
@@ -26,7 +28,6 @@ export const fetchWithAuth = async ({
     controller?.abort();
 
     controller = new AbortController();
-    let finalToken = await rpcClient.getAiPanelRpcClient().getAccessToken();
 
     const makeRequest = async (authToken: string): Promise<Response> =>
         fetch(url, {
@@ -38,6 +39,17 @@ export const fetchWithAuth = async ({
             body: body ? JSON.stringify(body) : undefined,
             signal: controller!.signal,
         });
+
+    let finalToken;
+    try {
+        finalToken = await rpcClient.getAiPanelRpcClient().getAccessToken();
+    } catch (error) {
+        if (isErrorWithMessage(error) && error?.message === "TOKEN_EXPIRED") {
+            rpcClient.sendAIStateEvent(AIMachineEventType.LOGOUT);
+            return;
+        }
+        throw error;
+    }
 
     let response = await makeRequest(finalToken);
 
@@ -57,4 +69,8 @@ export function abortFetchWithAuth() {
         controller.abort();
         controller = null;
     }
+}
+
+function isErrorWithMessage(error: unknown): error is { message: string } {
+    return typeof error === 'object' && error !== null && 'message' in error;
 }

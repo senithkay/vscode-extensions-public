@@ -7,7 +7,7 @@
 * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
-import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics, GetModuleDirParams, AIPanelPrompt } from "./interfaces";
+import { AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics, GetModuleDirParams, AIPanelPrompt, AIMachineSnapshot } from "./interfaces";
 
 export interface AIPanelAPI {
     // ==================================
@@ -18,9 +18,7 @@ export interface AIPanelAPI {
     getAccessToken: () => Promise<string>;
     getRefreshedAccessToken: () => Promise<string>;
     getDefaultPrompt: () => Promise<AIPanelPrompt>;
-    login: () => void;
-    logout: () => void;
-    getAiPanelState: () => Promise<AIVisualizerState>;
+    getAIMachineSnapshot: () => Promise<AIMachineSnapshot>;
     fetchData: (params: FetchDataRequest) => Promise<FetchDataResponse>;
     addToProject: (content: AddToProjectRequest) => void;
     getFromFile: (content: GetFromFileRequest) => Promise<string>;
@@ -30,7 +28,6 @@ export interface AIPanelAPI {
     generateMappings: (params: GenerateMappingsRequest) => Promise<GenerateMappingsResponse>;
     notifyAIMappings: (params: NotifyAIMappingsRequest) => Promise<boolean>;
     stopAIMappings: () => Promise<GenerateMappingsResponse>;
-    promptLogin: () => Promise<boolean>;
     getProjectSource: (requestType: string) => Promise<ProjectSource>;
     getShadowDiagnostics: (project: ProjectSource) => Promise<ProjectDiagnostics>;
     checkSyntaxError: (project: ProjectSource) => Promise<boolean>;

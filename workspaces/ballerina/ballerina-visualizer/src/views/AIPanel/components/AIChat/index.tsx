@@ -220,8 +220,8 @@ const AIChat: React.FC = () => {
                 const storedChatArray = localStorage.getItem(localStorageFile);
                 rpcClient
                     .getAiPanelRpcClient()
-                    .getAiPanelState()
-                    .then((machineView: any) => {
+                    .getAIMachineSnapshot()
+                    .then((snapshot) => {
                         if (storedChatArray) {
                             const chatArrayFromStorage = JSON.parse(storedChatArray);
                             chatArray = chatArrayFromStorage;
@@ -323,17 +323,6 @@ const AIChat: React.FC = () => {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
         }
     }, [messages]);
-
-    useEffect(() => {
-        if (rpcClient) {
-            rpcClient
-                .getAiPanelRpcClient()
-                .getAiPanelState()
-                .then((initialState) => {
-                    //setState(initialState);
-                });
-        }
-    }, [rpcClient]);
 
     async function handleSendQuery(content: { input: Input[]; attachments: Attachment[] }) {
         // Clear previous generation refs
@@ -593,12 +582,6 @@ const AIChat: React.FC = () => {
         }
 
         if (!(responseStatus >= 200 && responseStatus < 300)) {
-            if (responseStatus > 400 && responseStatus < 500) {
-                await rpcClient.getAiPanelRpcClient().promptLogin();
-                setIsLoading(false);
-                return;
-            }
-
             throw new Error(DRIFT_CHECK_ERROR);
         }
 
@@ -655,12 +638,6 @@ const AIChat: React.FC = () => {
         });
 
         if (!response.ok) {
-            if (response.status > 400 && response.status < 500) {
-                await rpcClient.getAiPanelRpcClient().promptLogin();
-                setIsLoading(false);
-                return;
-            }
-
             setIsLoading(false);
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
@@ -1220,12 +1197,6 @@ const AIChat: React.FC = () => {
         }
 
         async function handleErrorResponse(response: Response) {
-            if (response.status >= 400 && response.status < 500) {
-                await rpcClient.getAiPanelRpcClient().promptLogin();
-                setIsLoading(false);
-                return;
-            }
-
             if (response.status === 429) {
                 const body = await response.json();
                 throw new Error(`Too many requests: ${RATE_LIMIT_ERROR}`);
@@ -1826,12 +1797,6 @@ const AIChat: React.FC = () => {
         });
 
         if (!response.ok) {
-            if (response.status > 400 && response.status < 500) {
-                await rpcClient.getAiPanelRpcClient().promptLogin();
-                setIsLoading(false);
-                return;
-            }
-
             setIsLoading(false);
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
@@ -1942,12 +1907,6 @@ const AIChat: React.FC = () => {
         });
 
         if (!response.ok) {
-            if (response.status > 400 && response.status < 500) {
-                await rpcClient.getAiPanelRpcClient().promptLogin();
-                setIsLoading(false);
-                return;
-            }
-
             setIsLoading(false);
             let error = `Failed to fetch response.`;
             if (response.status == 429) {
