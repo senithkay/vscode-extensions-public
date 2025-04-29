@@ -1,0 +1,112 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import { ExtendedPage, getVsCodeButton, startVSCode, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { ElectronApplication, expect, Page, test } from '@playwright/test';
+import fs, { copyFileSync, existsSync } from 'fs';
+import path from 'path';
+
+const dataFolder = path.join(__dirname, 'data');
+const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
+const vscodeVersion = 'latest';
+export const resourcesFolder = path.join(__dirname, '..', 'test-resources');
+export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
+export let vscode;
+export let page: ExtendedPage;
+
+async function initVSCode() {
+    if (vscode && page) {
+        await page.executePaletteCommand('Reload Window');
+    } else {
+        vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, newProjectPath);
+    }
+    page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
+}
+
+async function resumeVSCode() {
+    if (vscode && page) {
+        await page.executePaletteCommand('Reload Window');
+    } else {
+        console.log('Starting VSCode');
+        vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, path.join(newProjectPath, 'testProject'));
+        await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+    page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
+}
+
+export async function toggleNotifications(disable: boolean) {
+    const notificationStatus = page.page.locator('#status\\.notifications');
+    await notificationStatus.waitFor();
+    const ariaLabel = await notificationStatus.getAttribute('aria-label');
+    if ((ariaLabel !== "Do Not Disturb" && disable) || (ariaLabel === "Do Not Disturb" && !disable)) {
+        console.log("Toggling notifications");
+        await page.executePaletteCommand("Notifications: Toggle Do Not Disturb Mode");
+        console.log("Toggled notifications");
+    }
+    console.log("Finished")
+}
+
+export async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string, addAdvancedConfig: boolean = false) {
+    console.log('Creating new project');
+    await page.selectSidebarItem('Ballerina Integrator');
+
+    const webview = await switchToIFrame('Ballerina Integrator', page.page);
+    if (!webview) {
+        throw new Error('Ballerina Integrator webview not found');
+    }
+    const apiFormFrame = webview.locator('div#root');
+
+    const txt = webview.locator('text=Ballerina Integrator for VS');
+    await txt.waitFor({ timeout: 30000 });
+    await page.page.pause()
+
+    const sub = webview.getByRole('button', { name: 'Set up Ballerina distribution' })
+    await sub.waitFor({ timeout: 300000 });
+    await sub.click();
+    await page.page.pause()
+
+
+    // const submitBtn = await webview.waitForSelector(`vscode-button:text("Set up Ballerina distribution")`);
+    
+    // Wait for the setup view to be fully loaded
+    // await apiFormFrame.locator('text=Let\'s set up your environment').waitFor();
+    // await page.page.pause()
+    // const setupBtn = apiFormFrame.getByRole('button', { name: 'Set up Ballerina distribution' });
+    // await setupBtn.waitFor({ state: 'visible', timeout: 300000 });
+    // await submitBtn.click();
+}
+
+export function initTest(newProject: boolean = false, skipProjectCreation: boolean = false, cleanupAfter?: boolean, projectName?: string, runtimeVersion?: string) {
+    test.beforeAll(async ({ }, testInfo) => {
+        console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);
+        if (!existsSync(path.join(newProjectPath, projectName ?? 'testProject')) || newProject) {
+            if (fs.existsSync(newProjectPath)) {
+                fs.rmSync(newProjectPath, { recursive: true });
+            }
+            fs.mkdirSync(newProjectPath, { recursive: true });
+            console.log('Starting VSCode');
+            await initVSCode();
+            if (!skipProjectCreation) {
+                await createProject(page, projectName, runtimeVersion);
+            }
+        } else {
+            console.log('Resuming VSCode');
+            await resumeVSCode();
+            await page.page.waitForLoadState();
+            await toggleNotifications(true);
+        }
+        console.log('Test runner started');
+    });
+
+    test.afterAll(async ({ }, testInfo) => {
+        if (cleanupAfter && fs.existsSync(newProjectPath)) {
+            fs.rmSync(newProjectPath, { recursive: true });
+        }
+        console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}, Attempt: ${testInfo.retry + 1}`);
+    });
+}
