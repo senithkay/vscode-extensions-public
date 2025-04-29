@@ -3200,8 +3200,8 @@ ${endpointAttributes}
         const fetchConnectors = async (name) => {
             const runtimeVersion = await getMIVersionFromPom();
 
-                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
-                const connectorStoreData = await connectorStoreResponse.json();
+            const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+            const connectorStoreData = await connectorStoreResponse.json();
             
             const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
             const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
