@@ -16,16 +16,15 @@ import { Automation } from "../components/ArtifactTest/Automation";
 import { initTest, page} from '../Utils';
 
 export default function createTests() {
-    test.describe(async () => {
+    test.describe("View Artifact Tests", {
+        tag: '@group2',
+    }, async () => {
         initTest();
 
         test('View Artifact Tests', async ({ }) => {
             await test.step('API Diagram Rendering Test', async () => {
                 const projectExplorer = new ProjectExplorer(page.page);
                 await projectExplorer.goToOverview("testProject");
-                const overview = new Overview(page.page);
-                await overview.init();
-                await overview.goToAddArtifact();
                 const api = new API(page.page);
                 await api.init();
                 await api.addAPI('helloWorld', "/helloWorld");

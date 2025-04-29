@@ -83,10 +83,6 @@ export class Proxy {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', name], true);
-        const isExpanded = await this._page.locator('a').filter({ hasText: name }).first().isVisible();
-        if (isExpanded === false) {
-            await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Proxy Services', name], true);
-        }
         const webView = await switchToIFrame('Proxy View', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Proxy View iframe");

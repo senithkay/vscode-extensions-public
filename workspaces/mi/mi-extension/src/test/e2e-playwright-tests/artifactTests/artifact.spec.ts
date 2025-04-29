@@ -29,7 +29,9 @@ import path from 'path';
 const filePath = path.join( __dirname, '..', 'components', 'ArtifactTest', 'data', 'importApi_v1.0.0.xml');
 
 export default function createTests() {
-  test.describe('Artifact Tests', async () => {
+  test.describe('Artifact Tests', {
+    tag: '@group1',
+  }, async () => {
     initTest();
 
     let currentTaskName: string = "TestTask";
@@ -44,10 +46,6 @@ export default function createTests() {
         await automation.init();
         await automation.add("TestTask" + testAttempt);
       });
-      await test.step('Open Diagram View for Automation', async () => {
-        console.log('Opening Diagram View for Automation');
-        await automation.openDiagramView("TestTask" + testAttempt);
-      });
       await test.step('Edit Automation', async () => {
         console.log('Editing Automation');
         await automation.edit("NewTestTask" + testAttempt);
@@ -55,6 +53,10 @@ export default function createTests() {
       await test.step('Create External Trigger', async () => {
         console.log('Creating new External Trigger');
         await automation.createExternalTrigger("TestExternalTrigger" + testAttempt);
+      });
+      await test.step('Open Diagram View for Automation', async () => {
+        console.log('Opening Diagram View for Automation');
+        await automation.openDiagramView("NewTestTask" + testAttempt);
       });
     });
 
@@ -69,10 +71,6 @@ export default function createTests() {
         apiName = "TestAPI" + testAttempt;
         await api.addAPI(apiName, "/testAdd" + testAttempt);
       });
-      await test.step('Open Diagram View for API', async () => {
-          console.log('Opening Diagram View for API');
-          await api.openDiagramView("TestAPI" + testAttempt);
-        });
       await test.step('Edit API', async () => {
         console.log('Editing API');
         apiName = "NewTestAPI" + testAttempt;
@@ -111,6 +109,10 @@ export default function createTests() {
       await test.step('Create Open API from OpenAPI file', async () => {
         console.log('Creating new API from OpenAPI file');
         await api.createOpenApi("NewOpenAPI" + testAttempt, "/openAPI" + testAttempt);
+      });
+      await test.step('Open Diagram View for API', async () => {
+         console.log('Opening Diagram View for API');
+         await api.openDiagramView("NewOpenAPI" + testAttempt + ":v1.0.27-SNAPSHOT");
       });
     });
 
@@ -163,10 +165,6 @@ export default function createTests() {
         await sequence.init();
         await sequence.createSequence(sequenceName);
       });
-      await test.step('Open Diagram View for Proxy', async () => {
-        console.log('Opening Diagram View for Proxy');
-        await sequence.openDiagramView("seqEP" + testAttempt);
-      });
       await test.step('Edit Sequence', async () => {
         console.log('Edit Sequence');
         await sequence.editSequence(sequenceName, "TestSequenceEdited" + testAttempt);
@@ -174,6 +172,10 @@ export default function createTests() {
       await test.step('Create Sequence from Project Explorer', async () => {
         console.log('Create Sequence from Project Explorer');
         await sequence.createSequenceFromProjectExplorer("TestNewSequence" + testAttempt);
+      });
+      await test.step('Open Diagram View for Proxy', async () => {
+        console.log('Opening Diagram View for Proxy');
+        await sequence.openDiagramView("TestNewSequence" + testAttempt);
       });
     });
 
@@ -537,18 +539,17 @@ export default function createTests() {
         await proxyService.init();
         await proxyService.add("testProxyService" + testAttempt);
       });
-      await test.step('Open Diagram View of Proxy', async () => {
-        console.log('Opening Diagram View of Proxy');
-        await proxyService.openDiagramView("testProxyService" + testAttempt);
-      });
       await test.step('Edit Proxy Service', async () => {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
       });
-
       await test.step('Create Proxy Service from Project Explorer', async () => {
         console.log('Creating new Proxy Service from Project Explorer');
         await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
+      });
+      await test.step('Open Diagram View of Proxy', async () => {
+        console.log('Opening Diagram View of Proxy');
+        await proxyService.openDiagramView("testProxyService" + testAttempt);
       });
     });
 
@@ -558,7 +559,7 @@ export default function createTests() {
         await importArtifact.init();
         await importArtifact.import(filePath);
         const api = new API(page.page);
-        await api.openDiagramView('importApi');
+        await api.openDiagramView('importApi:v1.0.0');
       });
     });
   });

@@ -138,10 +138,7 @@ export class Sequence {
     public async openDiagramView(name: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
-        const isExpanded = await this._page.locator('a').filter({ hasText: name }).first().isVisible();
-        if (isExpanded === false) {
-            await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Sequences', name], true);
-        }
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Sequences', name], true);
         const webView = await switchToIFrame('Sequence View', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Sequence View iframe");
