@@ -219,6 +219,13 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 && typeFromStore.typeName !== '$CompilationError$'
                 && supportedTypes.includes(typeName)
                 && typeFromStore;
+            if (!!typeFromStore && !this.resolvedType) {
+                if (supportedTypes.includes("anydata") || supportedTypes.includes("any")) {
+                    this.resolvedType = this.unionTypeDef.members.find((member) => {
+                        return member.typeName === "anydata" || member.typeName === "any";
+                    });
+                }
+            }
         }
     }
 

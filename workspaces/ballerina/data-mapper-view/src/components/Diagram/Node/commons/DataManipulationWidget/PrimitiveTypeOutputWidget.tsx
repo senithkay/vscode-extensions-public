@@ -30,6 +30,7 @@ import {
 	CLEAR_EXISTING_MAPPINGS_WARNING,
 	getSupportedUnionTypes,
 	INCOMPATIBLE_CASTING_WARNING,
+	isAnydataType,
 	UnionTypeInfo
 } from "../../../utils/union-type-utils";
 import { OutputSearchHighlight } from '../Search';
@@ -164,7 +165,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 
 		for (const member of unionTypeInfo.unionType.members) {
 			const memberTypeName = getTypeName(member);
-			if (!supportedTypes.includes(memberTypeName)) {
+			if (!supportedTypes.includes(memberTypeName) || isAnydataType(memberTypeName)) {
 				continue;
 			}
 			const isResolvedType = memberTypeName === resolvedTypeName;

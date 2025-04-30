@@ -30,6 +30,7 @@ import {
     CLEAR_EXISTING_MAPPINGS_WARNING,
     getSupportedUnionTypes,
     INCOMPATIBLE_CASTING_WARNING,
+    isAnydataType,
     UnionTypeInfo
 } from "../../utils/union-type-utils";
 import { ValueConfigMenu } from "../commons/DataManipulationWidget/ValueConfigButton";
@@ -181,7 +182,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
 
         for (const member of unionTypeInfo.unionType.members) {
             const memberTypeName = getTypeName(member);
-            if (!supportedTypes.includes(memberTypeName)) {
+            if (!supportedTypes.includes(memberTypeName) || isAnydataType(memberTypeName)) {
                 continue;
             }
             const isResolvedType = memberTypeName === resolvedTypeName;

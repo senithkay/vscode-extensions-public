@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { OtherBalType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, AnyType, OtherBalType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
 	ExpressionFunctionBody,
 	SelectClause,
@@ -160,6 +160,10 @@ export function getUnionTypes(unionType: TypeField): string[] {
 		}
 	}
 	return unionTypes;
+}
+
+export function isAnydataType(type: string): boolean {
+	return type === AnydataType || type === AnyType;
 }
 
 function isUnsupportedTypeDesc(typeDesc: STNode): boolean {
