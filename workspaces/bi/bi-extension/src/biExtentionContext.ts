@@ -16,6 +16,7 @@ export class ExtensionVariables {
     public langClient!: ExtendedLangClientInterface;
     public projectPath: string;
     public biSupported?: boolean;
+    public isNPSupported?: boolean;
 }
 
 export const extension = new ExtensionVariables();
