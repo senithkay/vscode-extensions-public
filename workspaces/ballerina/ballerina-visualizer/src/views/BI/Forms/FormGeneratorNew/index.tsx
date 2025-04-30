@@ -279,7 +279,8 @@ export function FormGeneratorNew(props: FormProps) {
                         ...(valueTypeConstraint && { typeConstraint: valueTypeConstraint })
                     });
 
-                    visibleTypes = convertToVisibleTypes(types);
+                    const isFetchingTypesForDM = valueTypeConstraint === "json";
+                    visibleTypes = convertToVisibleTypes(types, isFetchingTypesForDM);
                     setTypes(visibleTypes);
                 }
 

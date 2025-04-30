@@ -98,7 +98,8 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                             ...(valueTypeConstraint && { typeConstraint: valueTypeConstraint })
                         })
                         .then((types) => {
-                            const basicTypes = getTypes(types);
+                            const isFetchingTypesForDM = valueTypeConstraint === "json";
+                            const basicTypes = getTypes(types, isFetchingTypesForDM);
                             setBasicTypes(basicTypes);
                             setFilteredBasicTypes(basicTypes);
 
