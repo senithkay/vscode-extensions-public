@@ -47,8 +47,7 @@ export const transformCategories = (categories: Category[]): Category[] => {
         "TRANSACTION",
         "COMMIT",
         "ROLLBACK",
-        "RETRY",
-        "NP_FUNCTION",
+        "RETRY"
     ];
 
     filteredCategories = filteredCategories.map((category) => ({
