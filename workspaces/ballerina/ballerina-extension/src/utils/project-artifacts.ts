@@ -543,6 +543,7 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
             }
             break;
         case DIRECTORY_MAP.FUNCTION:
+        case DIRECTORY_MAP.NP_FUNCTION:
         case DIRECTORY_MAP.DATA_MAPPER:
             // Check from current identifier
             const identifier = StateMachine.context().identifier;

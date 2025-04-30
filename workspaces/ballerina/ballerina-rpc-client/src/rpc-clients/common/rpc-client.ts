@@ -32,6 +32,7 @@ import {
     getWorkspaceFiles,
     getWorkspaceRoot,
     goToSource,
+    isNPSupported,
     openExternalUrl,
     runBackgroundTerminalCommand,
     selectFileOrDirPath,
@@ -81,6 +82,10 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     experimentalEnabled(): Promise<boolean> {
         return this._messenger.sendRequest(experimentalEnabled, HOST_EXTENSION);
+    }
+
+    isNPSupported(): Promise<boolean> {
+        return this._messenger.sendRequest(isNPSupported, HOST_EXTENSION);
     }
 
     getWorkspaceRoot(): Promise<WorkspaceRootResponse> {

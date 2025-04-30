@@ -24,6 +24,7 @@ import {
     getWorkspaceFiles,
     getWorkspaceRoot,
     goToSource,
+    isNPSupported,
     openExternalUrl,
     runBackgroundTerminalCommand,
     selectFileOrDirPath,
@@ -43,6 +44,7 @@ export function registerCommonRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openExternalUrl, (args: OpenExternalUrlRequest) => rpcManger.openExternalUrl(args));
     messenger.onRequest(selectFileOrDirPath, (args: FileOrDirRequest) => rpcManger.selectFileOrDirPath(args));
     messenger.onRequest(experimentalEnabled, () => rpcManger.experimentalEnabled());
+    messenger.onRequest(isNPSupported, () => rpcManger.isNPSupported());
     messenger.onRequest(getWorkspaceRoot, () => rpcManger.getWorkspaceRoot());
     messenger.onNotification(showErrorMessage, (args: ShowErrorMessageRequest) => rpcManger.showErrorMessage(args));
 }
