@@ -235,7 +235,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 					</Button>
 					{label}
 				</span>
-				{unionTypeInfo && (
+				{valConfigMenuItems?.length > 0 && (
 					<>
 						{isModifyingTypeCast ? (
 							<ProgressRing sx={{ height: '16px', width: '16px' }} />
