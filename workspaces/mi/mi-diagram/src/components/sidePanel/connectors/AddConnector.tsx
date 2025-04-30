@@ -50,7 +50,7 @@ interface AddConnectorProps {
 }
 
 const AddConnector = (props: AddConnectorProps) => {
-    const { formData, nodePosition, control, errors, setValue, reset, watch, getValues, dirtyFields, isUpdate, handleSubmit, documentUri } = props;
+    const { formData, connectionName, nodePosition, control, errors, setValue, reset, watch, getValues, dirtyFields, isUpdate, handleSubmit, documentUri } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -104,7 +104,11 @@ const AddConnector = (props: AddConnectorProps) => {
     }, [sidePanelContext.pageStack]);
 
     useEffect(() => {
-        fetchConnections();
+        if (connectionName) {
+            setValue('configRef', connectionName);
+        } {
+            fetchConnections();
+        }
     }, [props.formData]);
 
     useEffect(() => {
@@ -335,7 +339,7 @@ const AddConnector = (props: AddConnectorProps) => {
                             watch={watch}
                             getValues={getValues}
                             skipGeneralHeading={true}
-                            ignoreFields={props.connectionName ? ["configRef"] : []}
+                            disableFields={props.connectionName ? ["configRef"] : []}
                             addNewConnection={addNewConnection}
                             range={props.nodePosition} />
                     </>

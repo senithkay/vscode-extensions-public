@@ -82,6 +82,7 @@ export interface FormGeneratorProps {
     getValues: any;
     skipGeneralHeading?: boolean;
     ignoreFields?: string[];
+    disableFields?: string[];
     addNewConnection?: any;
     autoGenerateSequences?: boolean;
     range?: Range;
@@ -145,6 +146,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         watch,
         skipGeneralHeading,
         ignoreFields,
+        disableFields,
         addNewConnection,
         range
     } = props;
@@ -188,7 +190,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             if (element.type === 'attributeGroup') {
                 Object.assign(defaultValues, getDefaultValues(element.value.elements));
             } else {
-                defaultValues[name] = getDefaultValue(element);
+                defaultValues[name] = getValues(element.value.name) ?? getDefaultValue(element);
 
                 if (element.value.inputType === 'connection' && documentUri && connectorName) {
                     const allowedTypes: string[] = element.value.allowedConnectionTypes;
@@ -368,6 +370,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const renderFormElement = (element: Element, field: any) => {
         const name = getNameForController(element.name);
         const isRequired = typeof element.required === 'boolean' ? element.required : element.required === 'true';
+        const isDisabled = disableFields?.includes(String(element.name));
         const errorMsg = errors[name] && errors[name].message.toString();
         const helpTip = element.helpTip;
 
@@ -585,9 +588,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     {helpTipElement}
                                 </div>}
                             </div>
-                            <LinkButton onClick={() => addNewConnection(name, element.allowedConnectionTypes)}>
+                            {!isDisabled && <LinkButton onClick={() => addNewConnection(name, element.allowedConnectionTypes)}>
                                 <Codicon name="plus" />Add new connection
-                            </LinkButton>
+                            </LinkButton>}
                         </div>
                         <AutoComplete
                             name={name}
@@ -597,6 +600,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                             onValueChange={(e: any) => {
                                 field.onChange(e);
                             }}
+                            disabled={isDisabled}
                             required={element.required === 'true'}
                             allowItemCreate={false}
                         />
