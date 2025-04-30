@@ -109,7 +109,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                   <excludeTransitive>true</excludeTransitive>
                   <!-- exclude dependencies which already available in MI -->
                   <excludeGroupIds>org.apache.synapse,org.apache.axis2</excludeGroupIds>
-                  <excludeTypes>zip</excludeTypes>
+                  <excludeTypes>zip,car</excludeTypes>
                 </configuration>
               </execution>
             </executions>
