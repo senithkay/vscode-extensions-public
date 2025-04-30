@@ -13,19 +13,16 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React from "react";
 
-import { TypeField } from "@wso2-enterprise/ballerina-core";
-import { IdentifierToken, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { getSupportedUnionTypes, isAnydataType, UnionTypeInfo } from "../../utils/union-type-utils";
-import { TypeDescriptor } from "../commons/DataMapperNode";
+import { UnionTypeInfo } from "../../utils/union-type-utils";
 
 import { UnionTypesList } from "./UnionTypesList";
 
 export interface UnionTypeSelectorProps {
     context: IDataMapperContext;
-    typeIdentifier: TypeDescriptor | IdentifierToken;
-    typeDef: TypeField;
+    supportedUnionTypes: string[];
     hasInvalidTypeCast: boolean;
     innermostExpr: STNode;
     typeCastExpr: STNode;
@@ -33,9 +30,7 @@ export interface UnionTypeSelectorProps {
 }
 
 export function UnionTypeSelector(props: UnionTypeSelectorProps) {
-    const { typeIdentifier, context, typeDef, hasInvalidTypeCast, innermostExpr, typeCastExpr, unionTypeInfo } = props;
-    const supportedUnionTypes = getSupportedUnionTypes(typeDef, typeIdentifier)
-        ?.filter(type => !isAnydataType(type));
+    const { context, supportedUnionTypes, hasInvalidTypeCast, innermostExpr, typeCastExpr, unionTypeInfo } = props;
 
     return (
         <UnionTypesList

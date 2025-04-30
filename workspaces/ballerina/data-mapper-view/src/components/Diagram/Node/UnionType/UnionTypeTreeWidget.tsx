@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, TypeField } from "@wso2-enterprise/ballerina-core";
@@ -40,7 +40,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 
 import { UnionTypeSelector } from "./UnionTypeSelector";
-import { Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Divider, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { useIONodesStyles, useUnionTypeNodeStyles } from "../../../styles";
 
 export interface UnionTypeTreeWidgetProps {
@@ -224,58 +224,88 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
     };
 
     const valConfigMenuItems = unionTypeInfo && getTypedElementMenuItems();
+    const supportedUnionTypes = getSupportedUnionTypes(typeDef, typeIdentifier)
+        ?.filter(type => !isAnydataType(type)) || [];
+
+    const header: ReactNode = (
+        <TreeHeader
+            isSelected={portState !== PortState.Unselected}
+            id={"recordfield-" + id}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+        >
+            <span className={ioNodesStyles.inPort}>
+                {portIn &&
+                    <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
+                }
+            </span>
+            <span className={ioNodesStyles.label}>
+                {label}
+            </span>
+            {unionTypeInfo && resolvedTypeName && (
+                <>
+                    {isModifyingTypeCast ? (
+                        <ProgressRing sx={{ height: '16px', width: '16px' }} />
+                    ) : (
+                        <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
+                    )}
+                </>
+            )}
+        </TreeHeader>
+    );
+
+    const typeSelector: ReactNode = (
+        <TreeBody>
+            <div
+                className={unionTypeNodeStyles.selectTypeWrap}
+                data-testid={"union-type-selector-list"}
+            >
+                <div className={unionTypeNodeStyles.warningText}>
+                    <div className={unionTypeNodeStyles.warningContainer}>
+                        <Codicon name="warning" sx={{ marginRight: "6px" }} iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                        <span>{`Types are ambiguous.`}</span>
+                    </div>
+                    <span>{`Please select a type to continue.`}</span>
+                </div>
+                <UnionTypeSelector
+                    context={context}
+                    supportedUnionTypes={supportedUnionTypes}
+                    hasInvalidTypeCast={hasInvalidTypeCast}
+                    innermostExpr={innermostExpr}
+                    typeCastExpr={typeCastExpr}
+                    unionTypeInfo={unionTypeInfo}
+                />
+            </div>
+        </TreeBody>
+    );
+
+    const incompatibleTypeBanner: ReactNode = (
+        <div className={unionTypeNodeStyles.treeContainer}>
+            <span className={unionTypeNodeStyles.unsupportedIOBanner}>
+                <div className={unionTypeNodeStyles.infoContainer}>
+                    <Codicon name="warning" className={unionTypeNodeStyles.warningIcon} />
+                    <span className={unionTypeNodeStyles.messageTitle}>Incompatible Union Types Found</span>
+                </div>
+                <Divider className={unionTypeNodeStyles.divider} />
+                <div className={unionTypeNodeStyles.messageBody}>
+                    {`The union type ${typeName} is not compatible with the Visual Data Mapper.`}
+                    {` Please ensure you are using compatible Record Types or Primitive Types.`}
+                </div>
+            </span>
+        </div>
+    );
 
     return (
-        <TreeContainer data-testid={"union-type-selector-node"}>
-            <TreeHeader
-                isSelected={portState !== PortState.Unselected}
-                id={"recordfield-" + id}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
-            >
-					<span className={ioNodesStyles.inPort}>
-						{portIn &&
-                            <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
-                        }
-					</span>
-                <span className={ioNodesStyles.label}>
-                    {label}
-                </span>
-                {unionTypeInfo && resolvedTypeName && (
-                    <>
-                        {isModifyingTypeCast ? (
-                            <ProgressRing sx={{ height: '16px', width: '16px' }} />
-                        ) : (
-                            <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
-                        )}
-                    </>
-                )}
-            </TreeHeader>
-            {!resolvedTypeName && (
-                <TreeBody>
-                    <div
-                        className={unionTypeNodeStyles.selectTypeWrap}
-                        data-testid={"union-type-selector-list"}
-                    >
-                        <div className={unionTypeNodeStyles.warningText}>
-                            <div className={unionTypeNodeStyles.warningContainer}>
-                                <Icon name="error-icon" sx={{ marginRight: "6px" }} iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                                <span>{`Types are ambiguous.`}</span>
-                            </div>
-                            <span>{`Please select a type to continue.`}</span>
-                        </div>
-                        <UnionTypeSelector
-                            context={context}
-                            typeIdentifier={typeIdentifier}
-                            typeDef={typeDef}
-                            hasInvalidTypeCast={hasInvalidTypeCast}
-                            innermostExpr={innermostExpr}
-                            typeCastExpr={typeCastExpr}
-                            unionTypeInfo={unionTypeInfo}
-                        />
-                    </div>
-                </TreeBody>
-            )}
-        </TreeContainer>
+        <>
+            {supportedUnionTypes.length === 0
+                ? incompatibleTypeBanner
+                : (
+                    <TreeContainer data-testid={"union-type-selector-node"}>
+                        {header}
+                        {!resolvedTypeName && supportedUnionTypes.length > 0 && typeSelector}
+                    </TreeContainer>
+                )
+            } 
+        </>
     );
 }

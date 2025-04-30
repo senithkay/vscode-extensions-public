@@ -50,7 +50,7 @@ import {
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
-import { getResolvedType, getSupportedUnionTypes, getUnionTypes } from "../../utils/union-type-utils";
+import { getResolvedType, getSupportedUnionTypes, getUnionTypes, isAnydataType } from "../../utils/union-type-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -222,7 +222,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             if (!!typeFromStore && !this.resolvedType) {
                 if (supportedTypes.includes("anydata") || supportedTypes.includes("any")) {
                     this.resolvedType = this.unionTypeDef.members.find((member) => {
-                        return member.typeName === "anydata" || member.typeName === "any";
+                        return isAnydataType(member.typeName);
                     });
                 }
             }
