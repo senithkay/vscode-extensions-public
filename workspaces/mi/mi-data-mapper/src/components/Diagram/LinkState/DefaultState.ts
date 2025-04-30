@@ -36,7 +36,6 @@ export class DefaultState extends State<DiagramEngine> {
 
 	constructor(resetState: boolean = false) {
 		super({ name: 'starting-state' });
-		this.childStates = [new SelectingState()];
 		this.dragCanvas = new DragCanvasState({allowDrag: false});
 		this.createLink = new CreateLinkState(resetState);
 		this.dragItems = new DragDiagramItemsState();
