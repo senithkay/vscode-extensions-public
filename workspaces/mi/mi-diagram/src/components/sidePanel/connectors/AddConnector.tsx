@@ -60,26 +60,28 @@ const AddConnector = (props: AddConnectorProps) => {
     const [parameters, setParameters] = useState<string[]>(props.parameters);
 
     const fetchConnections = async () => {
-        const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-            documentUri: props.documentUri,
-            connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
-        });
-
-        if (props.formData && props.formData !== "") {
-            const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
-
-            const filteredConnections = connectionsData.connections.filter(
-                connection => allowedTypes?.some(
-                    // Ignore case in checking allowed connection types
-                    type => type.toLowerCase() === connection.connectionType.toLowerCase()
-                ));
-            const connectionNames = filteredConnections.map(connection => connection.name);
-
-            setConnections(connectionNames);
-        } else {
-            // Fetch connections for old connectors (No ConnectionType)
-            const connectionsNames = connectionsData.connections.map(connection => connection.name);
-            setConnections(connectionsNames);
+        if (!formData) {
+            const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                documentUri: props.documentUri,
+                connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
+            });
+    
+            if (props.formData && props.formData !== "") {
+                const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
+    
+                const filteredConnections = connectionsData.connections.filter(
+                    connection => allowedTypes?.some(
+                        // Ignore case in checking allowed connection types
+                        type => type.toLowerCase() === connection.connectionType.toLowerCase()
+                    ));
+                const connectionNames = filteredConnections.map(connection => connection.name);
+    
+                setConnections(connectionNames);
+            } else {
+                // Fetch connections for old connectors (No ConnectionType)
+                const connectionsNames = connectionsData.connections.map(connection => connection.name);
+                setConnections(connectionsNames);
+            }
         }
 
         setIsLoading(false);
@@ -151,28 +153,6 @@ const AddConnector = (props: AddConnectorProps) => {
 
     function getNameForController(name: string | number) {
         return String(name).replace('.', '__dot__');
-    }
-
-
-    function getInputType(formData: any, paramName: string): string {
-        let inputType = null;
-
-        function traverseElements(elements: any) {
-            for (let element of elements) {
-                if (element.type === 'attribute' && element.value.name === paramName) {
-                    inputType = element.value.inputType;
-                    return;
-                }
-
-                if (element.type === 'attributeGroup') {
-                    traverseElements(element.value.elements);
-                }
-            }
-        }
-
-        traverseElements(formData.elements);
-
-        return inputType;
     }
 
     const addNewConnection = async (name?: string, allowedConnectionTypes?: string) => {
@@ -340,7 +320,6 @@ const AddConnector = (props: AddConnectorProps) => {
                             getValues={getValues}
                             skipGeneralHeading={true}
                             disableFields={props.connectionName ? ["configRef"] : []}
-                            addNewConnection={addNewConnection}
                             range={props.nodePosition} />
                     </>
             }

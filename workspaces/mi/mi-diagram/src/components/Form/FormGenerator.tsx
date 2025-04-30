@@ -83,7 +83,6 @@ export interface FormGeneratorProps {
     skipGeneralHeading?: boolean;
     ignoreFields?: string[];
     disableFields?: string[];
-    addNewConnection?: any;
     autoGenerateSequences?: boolean;
     range?: Range;
 }
@@ -147,7 +146,6 @@ export function FormGenerator(props: FormGeneratorProps) {
         skipGeneralHeading,
         ignoreFields,
         disableFields,
-        addNewConnection,
         range
     } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
@@ -183,6 +181,20 @@ export function FormGenerator(props: FormGeneratorProps) {
         setIsLoading(false);
     }, [sidePanelContext.pageStack, formData]);
 
+    async function getConnectionNames(allowedTypes?: string[]) {
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+            documentUri: documentUri,
+            connectorName: formData?.connectorName ?? connectorName.replace(/\s/g, '')
+        });
+
+        const filteredConnections = connectorData.connections.filter(
+            connection => allowedTypes?.some(
+                type => type.toLowerCase() === connection.connectionType.toLowerCase()
+            ));
+        const connectionNames = filteredConnections.map(connection => connection.name);
+        return connectionNames;
+    }
+
     function getDefaultValues(elements: any[]) {
         const defaultValues: Record<string, any> = {};
         elements.forEach(async (element: any) => {
@@ -194,18 +206,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
                 if (element.value.inputType === 'connection' && documentUri && connectorName) {
                     const allowedTypes: string[] = element.value.allowedConnectionTypes;
-
-                    const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-                        documentUri: documentUri,
-                        connectorName: formData?.connectorName ?? connectorName.replace(/\s/g, '')
-                    });
-
-                    const filteredConnections = connectorData.connections.filter(
-                        connection => allowedTypes?.some(
-                            // Ignore case in checking allowed connection types
-                            type => type.toLowerCase() === connection.connectionType.toLowerCase()
-                        ));
-                    const connectionNames = filteredConnections.map(connection => connection.name);
+                    const connectionNames = await getConnectionNames(allowedTypes);
 
                     setConnections((prevConnections) => ({
                         ...prevConnections,
@@ -579,6 +580,31 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             }
             case 'connection':
+                const onCreateButtonClick = async (name?: string, allowedConnectionTypes?: string[]) => {
+                    const fetchItems = async () => {
+                        const connectionNames = await getConnectionNames(allowedConnectionTypes);
+
+                        setConnections((prevConnections) => ({
+                            ...prevConnections,
+                            [name]: connectionNames
+                        }));
+                    }
+
+                    const handleValueChange = (value: string) => {
+                        setValue(name ?? 'configKey', value);
+                    }
+
+                    openPopup(
+                        rpcClient,
+                        "connection",
+                        fetchItems,
+                        handleValueChange,
+                        props.documentUri,
+                        { allowedConnectionTypes: allowedConnectionTypes },
+                        sidePanelContext
+                    );
+                }
+
                 return (
                     <>
                         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
@@ -588,7 +614,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     {helpTipElement}
                                 </div>}
                             </div>
-                            {!isDisabled && <LinkButton onClick={() => addNewConnection(name, element.allowedConnectionTypes)}>
+                            {!isDisabled && <LinkButton onClick={() => onCreateButtonClick(name, element.allowedConnectionTypes)}>
                                 <Codicon name="plus" />Add new connection
                             </LinkButton>}
                         </div>
