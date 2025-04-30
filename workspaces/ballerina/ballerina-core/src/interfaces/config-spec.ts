@@ -42,6 +42,7 @@ export enum OtherBalType {
 }
 
 export const AnydataType = "anydata";
+export const AnyType = "any";
 
 export const httpResponse: NonPrimitiveBal = {
     orgName: 'ballerina',

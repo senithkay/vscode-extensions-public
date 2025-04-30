@@ -99,7 +99,6 @@ export async function getParamDefinitions(
         let paramType = "";
 
         if (STKindChecker.isArrayTypeDesc(param.typeName)) {
-            paramName = `${paramName}Item`; 
             arrayParams++;
         }
 
@@ -2036,6 +2035,13 @@ async function processParentKey(
     let refinedKeys = refinedInnerKey.split(".");
     let refinedFieldName = refinedKeys.pop()!;
     let refinedParentKey = refinedKeys.slice(0, refinedKeys.length);
+
+    // Handle the base case where there's only one key
+    if (refinedParentKey.length === 1) {
+        itemKey = parentKey[0];
+        combinedKey = parentKey[0];
+        return { itemKey, combinedKey, inputArrayNullable };
+    }
 
     for (let index = refinedParentKey.length - 1; index > 0; index--) {
         const modifiedInputs = await resolveMetadata(parameterDefinitions, refinedParentKey, refinedParentKey[index], "inputMetadata");
