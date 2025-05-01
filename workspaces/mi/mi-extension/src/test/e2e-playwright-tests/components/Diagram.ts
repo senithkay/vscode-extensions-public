@@ -72,6 +72,15 @@ export class Diagram {
         await form.submit("Add");
     }
 
+    public async selectVariableFromHelperPane(varName: string) {
+        const variablesContainer = this.diagramWebView.locator('div').filter({ hasText: /^Variables$/ });
+        await variablesContainer.waitFor();
+        await variablesContainer.click();
+        const variable = this.diagramWebView.getByTitle(varName);
+        await variable.waitFor();
+        await variable.click();
+    }
+
     public async downloadConnectorThroughModulesList(name: string, index: number = 0, version?: string) {
         await this.clickPlusButtonByIndex(index);
 

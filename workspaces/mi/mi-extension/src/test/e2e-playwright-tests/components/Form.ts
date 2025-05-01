@@ -208,6 +208,13 @@ export class Form {
         await pencilBtn.click();
     }
 
+    public async clickHelperPaneBtnForField(field: string) {
+        const parentDiv = this.container.locator(`div[data-test-id="EX${field}"]`);
+        await parentDiv.waitFor();
+        const chipBtn = await parentDiv.getByTitle('Open Helper Pane').locator('div');
+        await chipBtn.click();
+    }
+
     public async getInputValue(key: string) {
         const input = this.container.locator(`vscode-text-field[aria-label="${key}"]`);
         return await input.getAttribute('current-value');
