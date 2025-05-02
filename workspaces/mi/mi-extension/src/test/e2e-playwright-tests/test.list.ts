@@ -12,6 +12,7 @@ import connectionTests from './connectorTests/connection.spec';
 import connectorTests from './connectorTests/connector.spec';
 import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 import artifactTests from './artifactTests/artifact.spec';
+import createProjectTests from './projectTests/createProject.spec';
 import artifact430Tests from './artifactTests/artifact430.spec';
 import logMediatorTests from './mediatorTests/log.spec';
 import cacheMediatorTests from './mediatorTests/cache.spec';
@@ -30,6 +31,7 @@ test.beforeAll(async () => {
     console.log('>>> Starting test suite');
 });
 
+test.describe(createProjectTests);
 test.describe(artifactTests);
 test.describe(overviewPageTests);
 test.describe(connectionTests);

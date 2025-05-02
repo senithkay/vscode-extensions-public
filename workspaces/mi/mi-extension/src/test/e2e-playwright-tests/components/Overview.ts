@@ -19,7 +19,7 @@ export class Overview {
     constructor(private _page: Page) {
     }
 
-    public async init() {
+    public async init(projectName : string = "testProject") {
         let iframeTitle;
 
         try {
@@ -31,7 +31,7 @@ export class Overview {
         }
         if (iframeTitle != MACHINE_VIEW.Overview) {
             const projectExplorer = new ProjectExplorer(this._page);
-            await projectExplorer.goToOverview("testProject");
+            await projectExplorer.goToOverview(projectName);
         }
         const webview = await switchToIFrame("Project Overview", this._page)
         if (!webview) {
@@ -62,6 +62,10 @@ export class Overview {
     public async goToAddArtifact() {
         const addArtifactBtn = await this.webView.waitForSelector(`vscode-button:text("Add Artifact")`);
         await addArtifactBtn.click();
+    }
+
+    public async diagramRenderingForApi(api : string) {
+        await this.webView.getByText(api, { exact: true }).click();
     }
 
     public async getWebView() {
