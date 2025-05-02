@@ -235,6 +235,26 @@ export const TokenEditor = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isHelperPaneOpen]);
 
+    const updateNodeInfo = () => {
+        const selection = window.getSelection();
+        if (!selection) return;
+        const range = selection.getRangeAt(0);
+
+        if (
+            range.startContainer !== editorRef.current &&
+            !editorRef.current?.contains(range.startContainer)
+        ) {
+            // If selection is outside of the editor, do nothing
+            return;
+        } else if (
+            range.startContainer.nodeType === Node.TEXT_NODE ||
+            range.startContainer.nodeType === Node.ELEMENT_NODE
+        ) {
+            currentNodeRef.current = range.startContainer;
+            currentNodeOffsetRef.current = range.startOffset;
+        }
+    };
+
     const addEventListeners = () => {
         const editor = editorRef.current;
         if (!editor) return;
@@ -264,6 +284,7 @@ export const TokenEditor = ({
             token.querySelector('.expression-token-close')!.addEventListener('click', e => {
                 e.stopPropagation();
                 token.remove();
+                updateNodeInfo();
                 selectedTokenRef.current = null;
                 onChange?.(extractExpressions(editor.innerHTML));
             });
@@ -468,6 +489,9 @@ export const TokenEditor = ({
         // Update the value
         onChange?.(extractExpressions(editor.innerHTML));
 
+        // Update the node info
+        updateNodeInfo();
+
         // Clearing operations
         changeHelperPaneState?.(false);
         setTokenValue('');
@@ -584,32 +608,6 @@ export const TokenEditor = ({
         changeHelperPaneState?.(!isHelperPaneOpen);
     };
 
-    const handleSelectionChange = () => {
-        const selection = window.getSelection();
-        if (!selection) return;
-        const range = selection.getRangeAt(0);
-
-        // if (range.startContainer.contains(textAreaRef.current)) {
-        //     // Update cursor position for text area
-        //     textAreaCursorPositionRef.current =
-        //         textAreaRef.current?.getPosition().?.querySelector('textarea')?.selectionStart;
-        // }
-
-        if (
-            range.startContainer !== editorRef.current &&
-            !editorRef.current?.contains(range.startContainer)
-        ) {
-            // If selection is outside of the editor, do nothing
-            return;
-        } else if (
-            range.startContainer.nodeType === Node.TEXT_NODE ||
-            range.startContainer.nodeType === Node.ELEMENT_NODE
-        ) {
-            currentNodeRef.current = range.startContainer;
-            currentNodeOffsetRef.current = range.startOffset;
-        }
-    };
-
     useEffect(() => {
         if (!isHelperPaneOpen) {
             // Remove the clicked class from all tokens
@@ -664,13 +662,13 @@ export const TokenEditor = ({
         editor.addEventListener('input', onInput);
         editor.addEventListener('keydown', onKeyDown);
         editor.addEventListener('focus', handleFocus);
-        document.addEventListener('selectionchange', handleSelectionChange);
+        document.addEventListener('selectionchange', updateNodeInfo);
 
         return () => {
             editor.removeEventListener('input', onInput);
             editor.removeEventListener('keydown', onKeyDown);
             editor.removeEventListener('focus', onFocus);
-            document.removeEventListener('selectionchange', handleSelectionChange);
+            document.removeEventListener('selectionchange', updateNodeInfo);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
