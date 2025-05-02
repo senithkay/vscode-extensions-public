@@ -2,7 +2,7 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, ArtifactData } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, ArtifactData, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
@@ -46,6 +46,7 @@ const stateMachine = createMachine<MachineContext>(
                 actions: [
                     assign({
                         projectStructure: (context, event) => event.payload,
+                        recentArtifacts: (context, event) => event.recentArtifacts,
                         artifactData: (context, event) => undefined
                     }),
                     () => {
@@ -430,8 +431,12 @@ export const StateMachine = {
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
     setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
     setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
+    isReady: () => {
+        const state = stateService.getSnapshot().value;
+        return typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
+    },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
-    updateProjectStructure: (payload: ProjectStructureResponse) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload }); },
+    updateProjectStructure: (payload: ProjectStructureResponse, recentArtifacts: ProjectStructureArtifactResponse[]) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, recentArtifacts }); },
     setArtifactData: (payload: ArtifactData) => { stateService.send({ type: "SET_ARTIFACT_DATA", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });

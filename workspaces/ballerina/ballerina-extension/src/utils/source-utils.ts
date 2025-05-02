@@ -11,14 +11,20 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { workspace } from 'vscode';
 import { Uri, Position } from 'vscode';
-import { ArtifactsNotification, LinePosition, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
+import { ArtifactsNotification, LinePosition, ProjectStructureArtifactResponse, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
 import path from 'path';
 import { StateMachine } from '../stateMachine';
 
-export async function updateSourceCode(textEdits: { [key: string]: TextEdit[]; }): Promise<void> {
+export interface UpdateSourceCodeRequest {
+    textEdits: {
+        [key: string]: TextEdit[];
+    }
+}
+
+export async function updateSourceCodeResponse(request: UpdateSourceCodeRequest): Promise<ProjectStructureArtifactResponse[]> {
     StateMachine.setEditMode();
     const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
-    for (const [key, value] of Object.entries(textEdits)) {
+    for (const [key, value] of Object.entries(request.textEdits)) {
         const fileUri = Uri.file(key);
         const fileUriString = fileUri.toString();
         const edits = value;
@@ -69,6 +75,12 @@ export async function updateSourceCode(textEdits: { [key: string]: TextEdit[]; }
                     source
                 );
                 await workspace.applyEdit(workspaceEdit);
+
+                // Wait till we get the artifacts and the state machine is ready
+                while (!StateMachine.isReady()) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                return StateMachine.context().recentArtifacts;
             }
         }
     } catch (error) {

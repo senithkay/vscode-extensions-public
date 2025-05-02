@@ -42,12 +42,12 @@ export async function buildProjectArtifactsStructure(projectDir: string, langCli
         await populateLocalConnectors(projectDir, result);
     }
     if (isUpdate) {
-        StateMachine.updateProjectStructure({ ...result });
+        StateMachine.updateProjectStructure({ ...result }, []);
     }
     return result;
 }
 
-export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotification) {
+export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotification): Promise<void> {
     // Current project structure
     const currentProjectStructure: ProjectStructureResponse = StateMachine.context().projectStructure;
     if (publishedArtifacts && currentProjectStructure) {
@@ -62,8 +62,7 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
             notifyArtifactUpdated(entryLocations);
         }
         StateMachine.setReadyMode();
-        StateMachine.updateProjectStructure({ ...currentProjectStructure }); // Send notification to the current view
-        return;
+        StateMachine.updateProjectStructure({ ...currentProjectStructure }, entryLocations); // Send notification to the current view
     }
 }
 

@@ -140,6 +140,7 @@ import { refreshAccessToken } from "../ai-panel/utils";
 import { BACKEND_URL } from "../../features/ai/utils";
 import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { cleanAndValidateProject } from "../../features/config-generator/configGenerator";
+import { updateSourceCodeResponse } from "../../utils/source-utils";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -191,10 +192,10 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
                     if (params?.isConnector) {
-                        await this.updateSource(model, flowNode, true, isFunctionNodeUpdate);
+                        const response = await updateSourceCodeResponse({ textEdits: model.textEdits });
                         resolve(model);
                     } else {
-                        await this.updateSource(model, flowNode, false, isFunctionNodeUpdate);
+                        const response = await updateSourceCodeResponse({ textEdits: model.textEdits });
                         resolve(model);
                     }
                 })
@@ -205,82 +206,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     });
                 });
         });
-    }
-
-    async updateSource(
-        params: BISourceCodeResponse,
-        flowNode?: FlowNode | FunctionNode,
-        isConnector?: boolean,
-        isFunctionNodeUpdate?: boolean
-    ): Promise<void> {
-        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
-        StateMachine.setEditMode();
-        // StateMachine.setTempData({
-        //     flowNode: flowNode as FlowNode
-        // });
-        for (const [key, value] of Object.entries(params.textEdits)) {
-            const fileUri = Uri.file(key);
-            const fileUriString = fileUri.toString();
-            const edits = value;
-
-            if (edits && edits.length > 0) {
-                const modificationList: STModification[] = [];
-
-                for (const edit of edits) {
-                    const stModification: STModification = {
-                        startLine: edit.range.start.line,
-                        startColumn: edit.range.start.character,
-                        endLine: edit.range.end.line,
-                        endColumn: edit.range.end.character,
-                        type: "INSERT",
-                        isImport: false,
-                        config: {
-                            STATEMENT: edit.newText,
-                        },
-                    };
-                    modificationList.push(stModification);
-                }
-
-                if (modificationRequests[fileUriString]) {
-                    modificationRequests[fileUriString].modifications.push(...modificationList);
-                } else {
-                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
-                }
-            }
-        }
-
-        // Iterate through modificationRequests and apply modifications
-        try {
-            for (const [fileUriString, request] of Object.entries(modificationRequests)) {
-                const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
-                    documentIdentifier: { uri: fileUriString },
-                    astModifications: request.modifications,
-                })) as SyntaxTree;
-
-                if (parseSuccess) {
-                    const fileUri = Uri.file(request.filePath);
-                    const workspaceEdit = new vscode.WorkspaceEdit();
-                    workspaceEdit.replace(
-                        fileUri,
-                        new vscode.Range(
-                            new vscode.Position(0, 0),
-                            new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
-                        ),
-                        source
-                    );
-                    await workspace.applyEdit(workspaceEdit);
-
-                    if (isConnector) {
-                        // Temp fix: ResolveMissingDependencies does not work unless we call didOpen, This needs to be fixed in the LS
-                        await StateMachine.langClient().didOpen({
-                            textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                        });
-                    }
-                }
-            }
-        } catch (error) {
-            console.log(">>> error updating source", error);
-        }
     }
 
     async applyTextEdits(filePath: string, textEdits: TextEdit[]): Promise<void> {
@@ -558,13 +483,13 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         console.log(">>> requesting bi delete node from ls", params);
         // Clean project diagnostics before deleting flow node
         await cleanAndValidateProject(StateMachine.langClient(), StateMachine.context().projectUri);
-        
+
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .deleteFlowNode(params)
                 .then(async (model) => {
                     console.log(">>> bi delete node from ls", model);
-                    await this.updateSource(model, params.flowNode);
+                    await updateSourceCodeResponse({ textEdits: model.textEdits });
                     resolve(model);
                 })
                 .catch((error) => {
@@ -636,7 +561,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             }
 
             const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
-            await this.updateSource(response, undefined, false);
+            await updateSourceCodeResponse({ textEdits: response.textEdits });
             resolve(response);
         });
     }
@@ -878,7 +803,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .deleteByComponentInfo(params)
                 .then(async (model) => {
                     console.log(">>> bi delete node from ls by componentInfo", model);
-                    await this.updateSource(model);
+                    await updateSourceCodeResponse({ textEdits: model.textEdits });
                     resolve(model);
                 })
                 .catch((error) => {
@@ -1106,7 +1031,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .updateType({ filePath, type: params.type, description: "" })
                 .then(async (updateTypeResponse: UpdateTypeResponse) => {
                     console.log(">>> update type response", updateTypeResponse);
-                    await this.updateSource(updateTypeResponse);
+                    await updateSourceCodeResponse({ textEdits: updateTypeResponse.textEdits });
                     resolve(updateTypeResponse);
                 }).catch((error) => {
                     console.log(">>> error fetching types from ls", error);
@@ -1218,7 +1143,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .createGraphqlClassType({ filePath, type: params.type, description: "" })
                 .then(async (updateTypeResponse: UpdateTypeResponse) => {
                     console.log(">>> create graphql class type response", updateTypeResponse);
-                    await this.updateSource(updateTypeResponse);
+                    await updateSourceCodeResponse({ textEdits: updateTypeResponse.textEdits });
                     resolve(updateTypeResponse);
                 }).catch((error) => {
                     console.log(">>> error fetching class type from ls", error);
@@ -1242,7 +1167,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().updateClassField(params);
-                await this.updateSource({ textEdits: res.textEdits });
+                await updateSourceCodeResponse({ textEdits: res.textEdits });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -1254,7 +1179,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().updateServiceClass(params);
-                await this.updateSource({ textEdits: res.textEdits });
+                await updateSourceCodeResponse({ textEdits: res.textEdits });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -1266,7 +1191,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().addClassField(params);
-                await this.updateSource({ textEdits: res.textEdits });
+                await updateSourceCodeResponse({ textEdits: res.textEdits });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -1498,7 +1423,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             ).then(async (updateTypesresponse: UpdateTypesResponse) => {
                 console.log(">>> update type response", updateTypesresponse);
                 if (updateTypesresponse.textEdits) {
-                    await this.updateSource({ textEdits: updateTypesresponse.textEdits });
+                    await updateSourceCodeResponse({ textEdits: updateTypesresponse.textEdits });
                     resolve(updateTypesresponse);
                 } else {
                     console.log(">>> error updating types", updateTypesresponse?.errorMsg);

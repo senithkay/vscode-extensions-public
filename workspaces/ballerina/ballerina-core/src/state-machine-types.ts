@@ -113,6 +113,7 @@ export interface VisualizerLocation {
     metadata?: VisualizerMetadata;
     scope?: SCOPE;
     projectStructure?: ProjectStructureResponse;
+    recentArtifacts?: ProjectStructureArtifactResponse[];
     artifactData?: ArtifactData;
 }
 
