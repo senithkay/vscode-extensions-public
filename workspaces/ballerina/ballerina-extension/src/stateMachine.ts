@@ -495,9 +495,14 @@ async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFold
 
     if (balProjects.length > 1) {
         const projectPaths = balProjects.map(folder => folder.uri.fsPath);
-        const selectedProject = await window.showQuickPick(projectPaths, {
+        let selectedProject = await window.showQuickPick(projectPaths, {
             placeHolder: 'Select a project to load the Ballerina Integrator'
         });
+
+        if (!selectedProject) {
+            // Pick the first project if the user cancels the selection
+            selectedProject = projectPaths[0];
+        }
 
         const isBI = checkIsBI(Uri.file(selectedProject));
         const scope = isBI && fetchScope(Uri.file(selectedProject));
