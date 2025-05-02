@@ -59,29 +59,16 @@ const AddConnector = (props: AddConnectorProps) => {
     const handleOnCancelExprEditorRef = useRef(() => { });
     const [parameters, setParameters] = useState<string[]>(props.parameters);
 
-    const fetchConnections = async () => {
-        if (!formData) {
+    const fetchConnectionsForTemplateConnection = async () => {
+        if (!props.formData) {
             const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
                 documentUri: props.documentUri,
                 connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
             });
-    
-            if (props.formData && props.formData !== "") {
-                const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
-    
-                const filteredConnections = connectionsData.connections.filter(
-                    connection => allowedTypes?.some(
-                        // Ignore case in checking allowed connection types
-                        type => type.toLowerCase() === connection.connectionType.toLowerCase()
-                    ));
-                const connectionNames = filteredConnections.map(connection => connection.name);
-    
-                setConnections(connectionNames);
-            } else {
-                // Fetch connections for old connectors (No ConnectionType)
-                const connectionsNames = connectionsData.connections.map(connection => connection.name);
-                setConnections(connectionsNames);
-            }
+
+            // Fetch connections for old connectors (No ConnectionType)
+            const connectionsNames = connectionsData.connections.map(connection => connection.name);
+            setConnections(connectionsNames);
         }
 
         setIsLoading(false);
@@ -108,8 +95,6 @@ const AddConnector = (props: AddConnectorProps) => {
     useEffect(() => {
         if (connectionName) {
             setValue('configRef', connectionName);
-        } {
-            fetchConnections();
         }
     }, [props.formData]);
 
@@ -172,7 +157,7 @@ const AddConnector = (props: AddConnectorProps) => {
 
         rpcClient.onParentPopupSubmitted(async (data: ParentPopupData) => {
             if (data.recentIdentifier) {
-                await fetchConnections();
+                await fetchConnectionsForTemplateConnection();
                 setValue(name ?? 'configKey', data.recentIdentifier);
             }
         });
