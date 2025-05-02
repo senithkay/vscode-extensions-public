@@ -589,8 +589,11 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
     };
 }
 
-export function convertToVisibleTypes(types: VisibleTypeItem[]): CompletionItem[] {
+export function convertToVisibleTypes(types: VisibleTypeItem[], isFetchingTypesForDM?: boolean): CompletionItem[] {
     types = types.filter(type => type !== null);
+    if (isFetchingTypesForDM) {
+        types = types.filter(type => isDMSupportedType(type));
+    }
     return types.map((type) => ({
         label: type.label,
         value: type.insertText,
@@ -868,3 +871,22 @@ export function filterUnsupportedDiagnostics(diagnostics: Diagnostic[]): Diagnos
         return !diagnostic.message.startsWith('unknown type') && !diagnostic.message.startsWith('undefined module');
     });
 }
+
+/**
+ * Check if the type is supported by the data mapper
+ * 
+ * @param type - The type to check
+ * @returns Whether the type is supported by the data mapper
+ */
+export const isDMSupportedType = (type: VisibleTypeItem) => {
+    // HACK: This is a temporary solution to filter out types that are not supported by the data mapper which should be handled by the LS.
+    if (
+        type.labelDetails.description === "Nil" ||
+        type.labelDetails.description === "Byte" ||
+        type.labelDetails.description === "Map"
+    ) {
+        return false;
+    }
+
+    return true;
+};

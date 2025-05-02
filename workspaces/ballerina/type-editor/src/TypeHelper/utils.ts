@@ -16,7 +16,7 @@ export const isTypePanelOpen = (activePanelIndex: number) => {
 
 export const getTypeCreateText = (
     typeName: string,
-    basicTypes: TypeHelperCategory[],
+    referenceTypes: TypeHelperCategory[],
     newTypeName: MutableRefObject<string>
 ) => {
     if (!typeName) {
@@ -31,7 +31,7 @@ export const getTypeCreateText = (
     }
 
     let typeExists: boolean = false;
-    for (const category of basicTypes) {
+    for (const category of referenceTypes) {
         if (category.items.find((item) => item.name === typeName)) {
             typeExists = true;
             break;

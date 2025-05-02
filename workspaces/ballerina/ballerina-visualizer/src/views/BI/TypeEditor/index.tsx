@@ -215,6 +215,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                     typeHelper={{
                         loading,
                         loadingTypeBrowser,
+                        referenceTypes: basicTypes,
                         basicTypes: filteredBasicTypes,
                         importedTypes,
                         operators: filteredOperators,

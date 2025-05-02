@@ -80,6 +80,7 @@ type TypeHelperProps = {
     /* Context props */
     loading?: boolean;
     loadingTypeBrowser?: boolean;
+    referenceTypes: TypeHelperCategory[];
     basicTypes: TypeHelperCategory[];
     importedTypes: TypeHelperCategory[];
     operators: TypeHelperOperator[];
