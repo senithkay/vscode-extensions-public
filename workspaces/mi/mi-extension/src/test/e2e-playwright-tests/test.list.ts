@@ -18,8 +18,9 @@ import logMediatorTests from './mediatorTests/log.spec';
 import cacheMediatorTests from './mediatorTests/cache.spec';
 import throttleMediatorTests from './mediatorTests/throttle.spec';
 import callSequenceMediatorTests from './mediatorTests/callSequence.spec';
+import overviewPageTests from './overviewPageTests/projectSettingPage.spec';
+import openEntryPointArtifact from './overviewPageTests/openEntryPointArtifact.spec';
 import validateMediatorTests from './mediatorTests/validate.spec';
-import overviewPageTests from './OverviewPageTests/projectSettingPage.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
@@ -37,6 +38,7 @@ test.beforeAll(async () => {
 test.describe(createProjectTests);
 test.describe(artifactTests);
 test.describe(overviewPageTests);
+test.describe(openEntryPointArtifact);
 test.describe(connectionTests);
 test.describe(connectorTests);
 test.describe(inboundEpTests);

@@ -23,7 +23,10 @@ import { Proxy } from '../components/ArtifactTest/Proxy';
 import { DataSource } from '../components/ArtifactTest/DataSource';
 import { DataService } from '../components/ArtifactTest/DataService';
 import { API } from '../components/ArtifactTest/APITests';
+import { EventIntegration } from '../components/ArtifactTest/EventIntegration';
+import { ImportArtifact } from '../components/ImportArtifact';
 import path from 'path';
+const filePath = path.join( __dirname, '..', 'components', 'ArtifactTest', 'data', 'importApi_v1.0.0.xml');
 
 export default function createTests() {
   test.describe('Artifact Tests', {
@@ -50,6 +53,10 @@ export default function createTests() {
       await test.step('Create External Trigger', async () => {
         console.log('Creating new External Trigger');
         await automation.createExternalTrigger("TestExternalTrigger" + testAttempt);
+      });
+      await test.step('Open Diagram View for Automation', async () => {
+        console.log('Opening Diagram View for Automation');
+        await automation.openDiagramView("NewTestTask" + testAttempt);
       });
     });
 
@@ -102,6 +109,10 @@ export default function createTests() {
       await test.step('Create Open API from OpenAPI file', async () => {
         console.log('Creating new API from OpenAPI file');
         await api.createOpenApi("NewOpenAPI" + testAttempt, "/openAPI" + testAttempt);
+      });
+      await test.step('Open Diagram View for API', async () => {
+         console.log('Opening Diagram View for API');
+         await api.openDiagramView("NewOpenAPI" + testAttempt + ":v1.0.27-SNAPSHOT", "/pet/findByStatus");
       });
     });
 
@@ -161,6 +172,31 @@ export default function createTests() {
       await test.step('Create Sequence from Project Explorer', async () => {
         console.log('Create Sequence from Project Explorer');
         await sequence.createSequenceFromProjectExplorer("TestNewSequence" + testAttempt);
+      });
+      await test.step('Open Diagram View for Proxy', async () => {
+        console.log('Opening Diagram View for Proxy');
+        await sequence.openDiagramView("TestNewSequence" + testAttempt);
+      });
+    });
+
+    test('Event Integration tests ', async () => {
+      let eventIntegration: EventIntegration;
+      let name: string = "HttpEventIntegration";
+      await test.step('Add Event Integration', async () => {
+        console.log('Creating new Event Integration');
+        eventIntegration = new EventIntegration(page.page);
+        await eventIntegration.init();
+        await eventIntegration.add(name);
+      });
+
+      await test.step('Edit Event Integration', async () => {
+        console.log('Editing Event Integration');
+        await eventIntegration.edit(name);
+      });
+
+      await test.step('Open Diagram View of Event Integration', async () => {
+        console.log('Opening Diagram View');
+        await eventIntegration.openDiagramView(name);
       });
     });
 
@@ -507,10 +543,23 @@ export default function createTests() {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
       });
-
       await test.step('Create Proxy Service from Project Explorer', async () => {
         console.log('Creating new Proxy Service from Project Explorer');
         await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
+      });
+      await test.step('Open Diagram View of Proxy', async () => {
+        console.log('Opening Diagram View of Proxy');
+        await proxyService.openDiagramView("testProxyService" + testAttempt);
+      });
+    });
+
+    test ('Import Artifact', async () => {
+      await test.step('Import API Artifact', async () => {
+        const importArtifact = new ImportArtifact(page.page);
+        await importArtifact.init();
+        await importArtifact.import(filePath);
+        const api = new API(page.page);
+        await api.openDiagramView('importApi:v1.0.0', "/");
       });
     });
   });

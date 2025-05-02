@@ -11,7 +11,6 @@ import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
-import { Overview } from "../Overview";
 
 export class EventIntegration {
 
@@ -19,34 +18,49 @@ export class EventIntegration {
     }
 
     public async init() {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        await overviewPage.goToAddArtifact();
-
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
         await addArtifactPage.add('Event Integration');
     }
 
-    public async add() {
+    public async add(name: string) {
         const epWebView = await switchToIFrame('Event Integration Form', this._page);
         if (!epWebView) {
             throw new Error("Failed to switch to Event Integration Form iframe");
         }
-        const epFrame = epWebView.locator('div#root');
-        const httpsMessage = epFrame.locator('div:has-text("HTTPS")');
-        await httpsMessage.waitFor({ timeout: 10000 });
-        await epFrame.getByText('HTTPS').click();
-        const httpEPWebview = await switchToIFrame('Event Integration Form', this._page);
-        if (!httpEPWebview) {
-            throw new Error("Failed to switch to Http Endpoint Form iframe");
+        await epWebView.getByText('Inbuilt HTTP Event Listener').click();
+        await epWebView.getByRole('textbox', { name: 'Event Integration Name*' }).fill(name);
+        try {
+            await epWebView.getByText('An artifact with same').click();
+            console.log('Artifact:' + name + 'found, no action on Create button.');
+            return;
+        } catch (error) {
+            await epWebView.getByRole('textbox', { name: 'Port*' }).fill('8093');
+            await epWebView.getByRole('button', { name: 'Create' }).click();         
         }
     }
 
-    public async edit() {
-        
+    public async edit(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Event Integrations', name], true);
+        const webView = await switchToIFrame('Event Integration View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Event Integration View iframe");
+        }
+        await webView.getByTestId('edit-button').click();
+        await webView.getByRole('textbox', { name: 'Port*' }).fill('8098');
+        await webView.getByText('Update').click();
+    }
+
+    public async openDiagramView(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Event Integrations', name], true);
+        const webView = await switchToIFrame('Event Integration View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Event Integration View iframe");
+        }
+        await webView.getByText('Start').click();
     }
 }
