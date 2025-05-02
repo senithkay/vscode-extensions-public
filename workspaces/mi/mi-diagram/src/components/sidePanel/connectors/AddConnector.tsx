@@ -96,6 +96,7 @@ const AddConnector = (props: AddConnectorProps) => {
         if (connectionName) {
             setValue('configRef', connectionName);
         }
+        setIsLoading(false);
     }, [props.formData]);
 
     useEffect(() => {
