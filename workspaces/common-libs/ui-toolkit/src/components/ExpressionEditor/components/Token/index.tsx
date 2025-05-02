@@ -650,12 +650,7 @@ export const TokenEditor = ({
     useEffect(() => {
         const editor = editorRef.current;
         if (!editor) return;
-
-        if (value) {
-            setValue(editor, value);
-            addEventListeners();
-        }
-
+        
         const onInput = () => handleInput();
         const onKeyDown = (e: KeyboardEvent) => handleKeyDown(e);
 
