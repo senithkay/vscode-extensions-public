@@ -6,9 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExtendedPage, getVsCodeButton, startVSCode, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
-import { ElectronApplication, expect, Page, test } from '@playwright/test';
-import fs, { copyFileSync, existsSync } from 'fs';
+import { ExtendedPage, Form, startVSCode, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { test } from '@playwright/test';
+import fs, { existsSync } from 'fs';
 import path from 'path';
 
 const dataFolder = path.join(__dirname, 'data');
@@ -51,26 +51,60 @@ export async function toggleNotifications(disable: boolean) {
     console.log("Finished")
 }
 
-export async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string, addAdvancedConfig: boolean = false) {
-    console.log('Creating new project');
-    await page.selectSidebarItem('Ballerina Integrator');
-
+export async function setupBallerinaIntegrator() {
+    // Try to find the 'Create New Integration' button
     const webview = await switchToIFrame('Ballerina Integrator', page.page);
     if (!webview) {
         throw new Error('Ballerina Integrator webview not found');
     }
-    const apiFormFrame = webview.locator('div#root');
-
     const txt = webview.locator('text=Ballerina Integrator for VS');
     await txt.waitFor({ timeout: 30000 });
-    await page.page.pause()
-
-    const sub = webview.getByRole('button', { name: 'Set up Ballerina distribution' })
-    await sub.waitFor();
-    await sub.click({force: true});
+    const createNewIntegrationBtn = webview.getByRole('button', { name: 'Create New Integration' });
+    try {
+        // Check if 'Create New Integration' button exists
+        await createNewIntegrationBtn.waitFor({ timeout: 1000 });
+        console.log('Found Create New Integration button, clicking it');
+        await createNewIntegrationBtn.click({ force: true });
+    } catch (error) {
+        console.log('Create New Integration button not found, will use Set up Ballerina distribution button');
+        const setupButton = webview.getByRole('button', { name: 'Set up Ballerina distribution' })
+        await setupButton.waitFor();
+        await setupButton.click({ force: true });
+    }
 }
 
-export function initTest(newProject: boolean = false, skipProjectCreation: boolean = false, cleanupAfter?: boolean, projectName?: string, runtimeVersion?: string) {
+export async function createProject(page: ExtendedPage, projectName?: string) {
+    console.log('Creating new project');
+    await page.selectSidebarItem('Ballerina Integrator');
+    await setupBallerinaIntegrator();
+    const webview = await switchToIFrame('Ballerina Integrator', page.page, 10000);
+    if (!webview) {
+        throw new Error('Ballerina Integrator webview not found');
+    }
+    const form = new Form(page.page, 'Ballerina Integrator', webview);
+    await form.switchToFormView(false, webview);
+    await form.fill({
+        values: {
+            'Integration Name': {
+                type: 'input',
+                value: projectName ?? 'sample',
+            },
+            'Select Path': {
+                type: 'file',
+                value: newProjectPath
+            }
+        }
+    });
+    await form.submit('Create Integration');
+    const artifactWebView = await switchToIFrame('Ballerina Integrator', page.page);
+    if (!artifactWebView) {
+        throw new Error('Ballerina Integrator webview not found');
+    }
+    const integrationName = artifactWebView.locator('text=sample');
+    await integrationName.waitFor({ timeout: 200000 });
+}
+
+export function initTest(newProject: boolean = false, skipProjectCreation: boolean = false, cleanupAfter?: boolean, projectName?: string) {
     test.beforeAll(async ({ }, testInfo) => {
         console.log(`>>> Starting tests. Title: ${testInfo.title}, Attempt: ${testInfo.retry + 1}`);
         if (!existsSync(path.join(newProjectPath, projectName ?? 'testProject')) || newProject) {
@@ -81,7 +115,7 @@ export function initTest(newProject: boolean = false, skipProjectCreation: boole
             console.log('Starting VSCode');
             await initVSCode();
             if (!skipProjectCreation) {
-                await createProject(page, projectName, runtimeVersion);
+                await createProject(page, projectName);
             }
         } else {
             console.log('Resuming VSCode');
@@ -98,4 +132,18 @@ export function initTest(newProject: boolean = false, skipProjectCreation: boole
         }
         console.log(`>>> Finished ${testInfo.title} with status: ${testInfo.status}, Attempt: ${testInfo.retry + 1}`);
     });
+}
+
+export async function addArtifact(artifactName: string, testId: string) {
+    console.log(`Adding artifact: ${artifactName}`);
+    const artifactWebView = await switchToIFrame('Ballerina Integrator', page.page);
+    if (!artifactWebView) {
+        throw new Error('Ballerina Integrator webview not found');
+    }
+    // Navigate to the overview page
+    await artifactWebView.getByRole('button', { name: ' Add Artifact' }).click();
+    // how to get element by id
+    const addArtifactBtn = artifactWebView.locator(`#${testId}`);
+    await addArtifactBtn.waitFor();
+    await addArtifactBtn.click();
 }

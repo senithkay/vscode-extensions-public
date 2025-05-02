@@ -9,10 +9,12 @@
 
 import { test } from '@playwright/test';
 import { page } from './utils';
-import api from './api.spec';
 const fs = require('fs');
 const path = require('path');
 const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
+
+import service from './service/service.spec';
+import automation from './automation/automation.spec';
 
 test.describe.configure({ mode: 'default' });
 
@@ -23,7 +25,8 @@ test.beforeAll(async () => {
     console.log('>>> Starting test suite');
 });
 
-test.describe(api);
+test.describe(service);
+test.describe(automation);
 
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);

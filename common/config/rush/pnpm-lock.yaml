@@ -1940,6 +1940,7 @@ importers:
 
   ../../workspaces/bi/bi-extension:
     specifiers:
+      '@playwright/test': ~1.52.0
       '@types/mocha': ^10.0.3
       '@types/node': 18.x
       '@types/vscode': ^1.84.0
@@ -1949,6 +1950,7 @@ importers:
       '@vscode/vsce': ^2.22.0
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
+      '@wso2-enterprise/playwright-vscode-tester': workspace:*
       copy-webpack-plugin: ^11.0.0
       copyfiles: ^2.4.1
       eslint: ^8.52.0
@@ -1966,6 +1968,7 @@ importers:
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       xstate: 4.38.3
     devDependencies:
+      '@playwright/test': 1.52.0
       '@types/mocha': 10.0.6
       '@types/node': 18.19.14
       '@types/vscode': 1.86.0
@@ -1973,6 +1976,7 @@ importers:
       '@typescript-eslint/parser': 6.21.0_rszs4ssu3hjbruhzajramqeml4
       '@vscode/test-electron': 2.4.1
       '@vscode/vsce': 2.23.0
+      '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
       copy-webpack-plugin: 11.0.0_webpack@5.90.1
       copyfiles: 2.4.1
       eslint: 8.57.0
@@ -50085,7 +50089,6 @@ packages:
     resolution: {integrity: sha512-h9LqIQaAv+CYvWzsZ+h3RsrqCStkBHlgo6/TJlFst3cOTlLghBQlJwPOZKQJTKNaD3QIB7aAVQ+gfWbN3NXB7A==}
     engines: {node: '>=18'}
     hasBin: true
-    dev: false
 
   /playwright/1.46.1:
     resolution: {integrity: sha512-oPcr1yqoXLCkgKtD5eNUPLiN40rYEM39odNpIb6VE6S7/15gJmA1NzVv6zJYusV0e7tzvkU/utBFNa/Kpxmwng==}
@@ -50095,7 +50098,6 @@ packages:
       playwright-core: 1.46.1
     optionalDependencies:
       fsevents: 2.3.2
-    dev: false
 
   /please-upgrade-node/3.2.0:
     resolution: {integrity: sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==}
