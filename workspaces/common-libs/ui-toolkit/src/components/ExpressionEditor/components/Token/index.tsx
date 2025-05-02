@@ -676,7 +676,9 @@ export const TokenEditor = ({
     useEffect(() => {
         if (!isFocused) {
             setValue(editorRef.current, value);
+            addEventListeners();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value, isFocused]);
 
     return (
