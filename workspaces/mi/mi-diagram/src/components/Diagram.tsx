@@ -151,31 +151,33 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-                documentUri: props.documentUri,
-                connectorName: ''
-            });
-            const connectorMap: { [key: string]: { connectorIcon: string; connections: { [key: string]: string } } } = {};
-            
-            await Promise.all(connectorData.connectors.map(async (connector) => {
-                const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connector.iconPath, name: "icon-small" });
-
-                const connectionsMap: { [key: string]: string } = {};
-                const connectionUiSchema: ConnectionSchema = connector.connectionUiSchema;
-
-                await Promise.all(Object.entries(connectionUiSchema).map(async ([connectionType, value]) => {
-                    const connectionIconPath = connectionType && await rpcClient.getMiDiagramRpcClient().getIconPathUri({
-                        path: path.join(connector.iconPath, 'connections'),
-                        name: connectionType
-                    });
-                    
-                    connectionsMap[connectionType] = await connectionIconPath?.uri ?? iconPath;
+            if (rpcClient?.getMiDiagramRpcClient()) {
+                const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                    documentUri: props.documentUri,
+                    connectorName: ''
+                });
+                const connectorMap: { [key: string]: { connectorIcon: string; connections: { [key: string]: string } } } = {};
+                
+                await Promise.all(connectorData.connectors.map(async (connector) => {
+                    const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connector.iconPath, name: "icon-small" });
+    
+                    const connectionsMap: { [key: string]: string } = {};
+                    const connectionUiSchema: ConnectionSchema = connector.connectionUiSchema;
+    
+                    await Promise.all(Object.entries(connectionUiSchema).map(async ([connectionType, value]) => {
+                        const connectionIconPath = connectionType && await rpcClient.getMiDiagramRpcClient().getIconPathUri({
+                            path: path.join(connector.iconPath, 'connections'),
+                            name: connectionType
+                        });
+                        
+                        connectionsMap[connectionType] = await connectionIconPath?.uri ?? iconPath;
+                    }));
+    
+                    connectorMap[connector.name] = { connectorIcon: iconPath.uri, connections: connectionsMap };
                 }));
-
-                connectorMap[connector.name] = { connectorIcon: iconPath.uri, connections: connectionsMap };
-            }));
-
-            setConnectorIcons(connectorMap);
+    
+                setConnectorIcons(connectorMap);
+            }
         }
 
         fetchData();
@@ -529,7 +531,7 @@ export function Diagram(props: DiagramProps) {
                             centerNode={centerNode}
                             documentUri={props.documentUri}
                             connectorIcons={connectorIcons} />}
-                        <Button appearance="icon" onClick={() => expandNavigator()} tooltip="Zoom In" sx={{ bottom: 0, marginTop: '3px' }}>
+                        <Button appearance="icon" onClick={() => expandNavigator()} tooltip="Navigator" sx={{ bottom: 0, marginTop: '3px' }}>
                             <Codicon name='layers' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} sx={{ width: '18px', height: '18px' }} />
                         </Button>
                     </S.NavigatorContainer>

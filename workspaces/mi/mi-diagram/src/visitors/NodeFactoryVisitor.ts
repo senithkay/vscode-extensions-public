@@ -261,8 +261,8 @@ export class NodeFactoryVisitor implements Visitor {
                     {
                         id: linkId,
                         label: this.currentBranchData?.isStart ? this.currentBranchData?.name : undefined,
-                        stRange: addPosition.position,
-                        trailingSpace: addPosition.trailingSpace ?? "",
+                        stRange: addPosition?.position,
+                        trailingSpace: addPosition?.trailingSpace ?? "",
                         brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
                         previousNode: previousStNode.tag,
                         nextNode: type !== NodeTypes.END_NODE ? node.tag : undefined,
