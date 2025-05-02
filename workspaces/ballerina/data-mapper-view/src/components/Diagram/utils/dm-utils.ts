@@ -1116,6 +1116,7 @@ export function getDefaultValue(typeName: string): string {
 			break;
 		case PrimitiveBalType.Nil:
 		case "anydata":
+		case "any":
 		case "()":
 			draftParameter = `()`;
 			break;

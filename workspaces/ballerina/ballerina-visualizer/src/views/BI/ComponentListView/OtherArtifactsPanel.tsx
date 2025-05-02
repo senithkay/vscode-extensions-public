@@ -16,7 +16,12 @@ import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
 import { useVisualizerContext } from '../../../Context';
 
-export function OtherArtifactsPanel() {
+interface OtherArtifactsPanelProps {
+    isNPSupported: boolean;
+}
+
+export function OtherArtifactsPanel(props: OtherArtifactsPanelProps) {
+    const { isNPSupported } = props;
     const { rpcClient } = useRpcContext();
     const { setPopupMessage } = useVisualizerContext();
 
@@ -82,13 +87,14 @@ export function OtherArtifactsPanel() {
                     title="Function"
                     onClick={() => handleClick(DIRECTORY_MAP.FUNCTION)}
                 />
-                {/* TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314 */}
-                {/* <ButtonCard
-                    icon={<Icon name="bi-ai-function" />}
-                    title="Natural Function"
-                    onClick={() => handleClick(DIRECTORY_MAP.NP_FUNCTION)}
-                    isBeta
-                /> */}
+                {isNPSupported &&
+                    <ButtonCard
+                        icon={<Icon name="bi-ai-function" />}
+                        title="Natural Function"
+                        onClick={() => handleClick(DIRECTORY_MAP.NP_FUNCTION)}
+                        isBeta
+                    />
+                }
                 <ButtonCard
                     icon={<Icon name="dataMapper" />}
                     title="Data Mapper"

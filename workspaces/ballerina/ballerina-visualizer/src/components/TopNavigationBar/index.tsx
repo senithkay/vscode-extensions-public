@@ -149,7 +149,7 @@ function getShortNames(name: string) {
         case MACHINE_VIEW.BIFunctionForm:
             return "Function";
         case MACHINE_VIEW.BINPFunctionForm:
-            return "Function";
+            return "Natural Function";
         case MACHINE_VIEW.BITestFunctionForm:
             return "Test Function";
         case MACHINE_VIEW.BIServiceWizard:

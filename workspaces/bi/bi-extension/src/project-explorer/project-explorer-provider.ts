@@ -280,21 +280,22 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     }
     entries.push(configs);
 
-    // TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314
     // ---------- Natural Functions ----------
-    // const naturalFunctions = new ProjectExplorerEntry(
-    //     "Natural Functions",
-    //     vscode.TreeItemCollapsibleState.Expanded,
-    //     null,
-    //     'function',
-    //     false
-    // );
-    // naturalFunctions.contextValue = "naturalFunctions";
-    // naturalFunctions.children = getComponents(components.directoryMap[DIRECTORY_MAP.NP_FUNCTION], DIRECTORY_MAP.NP_FUNCTION);
-    // if (naturalFunctions.children.length > 0) {
-    //     naturalFunctions.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-    // }
-    // entries.push(naturalFunctions);
+    if (extension.isNPSupported) {
+        const naturalFunctions = new ProjectExplorerEntry(
+            "Natural Functions",
+            vscode.TreeItemCollapsibleState.Expanded,
+            null,
+            'function',
+            false
+        );
+        naturalFunctions.contextValue = "naturalFunctions";
+        naturalFunctions.children = getComponents(components.directoryMap[DIRECTORY_MAP.NP_FUNCTION], DIRECTORY_MAP.NP_FUNCTION);
+        if (naturalFunctions.children.length > 0) {
+            naturalFunctions.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
+        }
+        entries.push(naturalFunctions);
+    }
 
     // ---------- Local Connectors ----------
     const localConnectors = new ProjectExplorerEntry(

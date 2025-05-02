@@ -410,7 +410,6 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
             return entryValue;
         }
     }
-    return undefined;
 }
 
 async function populateLocalConnectors(projectDir: string, response: ProjectStructureResponse) {
