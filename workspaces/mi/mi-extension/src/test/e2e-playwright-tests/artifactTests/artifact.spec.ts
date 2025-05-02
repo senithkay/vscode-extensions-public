@@ -112,7 +112,7 @@ export default function createTests() {
       });
       await test.step('Open Diagram View for API', async () => {
          console.log('Opening Diagram View for API');
-         await api.openDiagramView("NewOpenAPI" + testAttempt + ":v1.0.27-SNAPSHOT");
+         await api.openDiagramView("NewOpenAPI" + testAttempt + ":v1.0.27-SNAPSHOT", "/pet/findByStatus");
       });
     });
 
@@ -559,7 +559,7 @@ export default function createTests() {
         await importArtifact.init();
         await importArtifact.import(filePath);
         const api = new API(page.page);
-        await api.openDiagramView('importApi:v1.0.0');
+        await api.openDiagramView('importApi:v1.0.0', "/");
       });
     });
   });
