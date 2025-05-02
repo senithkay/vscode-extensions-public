@@ -1790,9 +1790,19 @@ const AIChat: React.FC = () => {
         try {
             assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);
 
+            console.log("Assistant Response: " + assistant_response);
+            
             formatted_response = assistant_response.replace(
-                /```ballerina\s*([\s\S]+?)\s*```/g,
-                "<inlineCode>$1<inlineCode>"
+                /^([ \t]*)```ballerina\s*\n([\s\S]*?)^[ \t]*```/gm,
+                (_, indent, codeBlock) => {
+                  // Remove the common indent from all lines in the code block
+                  const cleanedCode = codeBlock
+                    .split('\n')
+                    .map((line: string) => line.startsWith(indent) ? line.slice(indent.length) : line)
+                    .join('\n');
+                    
+                  return `<inlineCode>\n${cleanedCode}\n<inlineCode>`;
+                }
             );
 
             const referenceRegex = /reference sources:\s*((?:<https?:\/\/[^\s>]+>\s*)+)/;
