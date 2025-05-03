@@ -362,7 +362,7 @@ export function Diagram(props: DiagramProps) {
                 const currentOffsetX = model.getOffsetX();
                 const currentOffsetY = model.getOffsetY();
 
-                const isSidePanelOpen = sidePanelState.isOpen || isFormOpen;
+                const isSidePanelOpen = sidePanelState.isOpen || isFormOpen || nodeModel;
                 const offsetAdjX = isSidePanelOpen ? (SIDE_PANEL_WIDTH - 20) : 0;
                 const offsetAdjY = -150;
                 const node = nodeModel ?? sidePanelState.node;
