@@ -145,14 +145,18 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
 
     useEffect(() => {
         const fetchData = async () => {
+            const connectorIcon = await rpcClient.getMiDiagramRpcClient().getConnectorIcon({ 
+                connectorName: node.stNode?.connectorName,
+                documentUri: node.documentUri
+            });
+
+            setIconPath(connectorIcon.iconPath);
+
             const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
                 documentUri: node.documentUri,
                 connectorName: connectorNode.tag.split(".")[0]
             });
-
-            const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
-            setIconPath(iconPath.uri);
-
+            
             const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
                 documentUri: node.documentUri,
                 connectorName: node.stNode.tag.split(".")[0]
@@ -162,12 +166,12 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             const connection = connectionData.connections.find((connection: any) => connection.name === connectionName);
             const connectionType = connection ? connection.connectionType : null;
 
-            const connectionIconPath = connectionType ? await rpcClient.getMiDiagramRpcClient().getIconPathUri({
+            const connectionIconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({
                 path: path.join(connectorData.iconPath, 'connections'),
                 name: connectionType
-            }) : iconPath;
+            });
 
-            setConnectionIconPath(connectionIconPath.uri ?? iconPath.uri);
+            setConnectionIconPath(connectionIconPath.uri ?? connectorIcon.iconPath);
         }
 
         fetchData();

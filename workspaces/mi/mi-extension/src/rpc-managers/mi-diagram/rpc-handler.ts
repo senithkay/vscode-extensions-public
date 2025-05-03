@@ -282,7 +282,9 @@ import {
     deployProject,
     DeployProjectRequest,
     CreateBallerinaModuleRequest,
-    getDevantMetadata
+    getDevantMetadata,
+    GetConnectorIconRequest,
+    getConnectorIcon
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -389,6 +391,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger, projectUri: s
     messenger.onRequest(getConnectorForm, (args: GetConnectorFormRequest) => rpcManger.getConnectorForm(args));
     messenger.onRequest(getConnectionForm, (args: GetConnectionFormRequest) => rpcManger.getConnectionForm(args));
     messenger.onRequest(getStoreConnectorJSON, () => rpcManger.getStoreConnectorJSON());
+    messenger.onRequest(getConnectorIcon, (args: GetConnectorIconRequest) => rpcManger.getConnectorIcon(args));
     messenger.onRequest(saveInboundEPUischema, (args: SaveInboundEPUischemaRequest) => rpcManger.saveInboundEPUischema(args));
     messenger.onRequest(getInboundEPUischema, (args: GetInboundEPUischemaRequest) => rpcManger.getInboundEPUischema(args));
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));

@@ -240,7 +240,9 @@ import {
     DeployProjectRequest,
     DeployProjectResponse,
     DevantMetadata,
-    UpdateMediatorResponse
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -344,6 +346,7 @@ export interface MiDiagramAPI {
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
+    getConnectorIcon: (params: GetConnectorIconRequest) => Promise<GetConnectorIconResponse>
     saveInboundEPUischema: (params: SaveInboundEPUischemaRequest) => Promise<boolean>;
     getInboundEPUischema: (params: GetInboundEPUischemaRequest) => Promise<GetInboundEPUischemaResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
