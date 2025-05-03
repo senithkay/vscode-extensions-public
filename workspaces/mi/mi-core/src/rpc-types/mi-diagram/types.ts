@@ -1527,6 +1527,15 @@ export interface StoreConnectorJsonResponse {
     connectors?: any[];
 }
 
+export interface GetConnectorIconRequest {
+    connectorName: string;
+    documentUri: string;
+}
+
+export interface GetConnectorIconResponse {
+    iconPath: string;
+}
+
 export interface LocalInboundConnectorsResponse {
     "inbound-connector-data"?: any;
 }

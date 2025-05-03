@@ -403,7 +403,10 @@ import {
     buildBallerinaModule,
     DevantMetadata,
     getDevantMetadata,
-    UpdateMediatorResponse
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse,
+    getConnectorIcon
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -845,6 +848,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
         return this._messenger.sendRequest(getStoreConnectorJSON, HOST_EXTENSION);
+    }
+
+    getConnectorIcon(params: GetConnectorIconRequest): Promise<GetConnectorIconResponse> {
+        return this._messenger.sendRequest(getConnectorIcon, HOST_EXTENSION, params);
     }
 
     logoutFromMIAccount(): void {

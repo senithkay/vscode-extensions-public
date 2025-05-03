@@ -241,7 +241,9 @@ import {
     HandleFileRequest,
     HandleFileResponse,
     DevantMetadata,
-    UpdateMediatorResponse
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -346,6 +348,7 @@ export const removeConnector: RequestType<RemoveConnectorRequest, RemoveConnecto
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
 export const getConnectionForm: RequestType<GetConnectionFormRequest, GetConnectionFormResponse> = { method: `${_preFix}/getConnectionForm` };
 export const getStoreConnectorJSON: RequestType<void, StoreConnectorJsonResponse> = { method: `${_preFix}/getStoreConnectorJSON` };
+export const getConnectorIcon: RequestType<GetConnectorIconRequest, GetConnectorIconResponse> = { method: `${_preFix}/getConnectorIcon` };
 export const saveInboundEPUischema: RequestType<SaveInboundEPUischemaRequest, boolean> = { method: `${_preFix}/saveInboundEPUischema` };
 export const getInboundEPUischema: RequestType<GetInboundEPUischemaRequest, GetInboundEPUischemaResponse> = { method: `${_preFix}/getInboundEPUischema` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
