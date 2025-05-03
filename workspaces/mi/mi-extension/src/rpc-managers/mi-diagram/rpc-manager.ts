@@ -260,7 +260,9 @@ import {
     CreateBallerinaModuleResponse,
     SCOPE,
     DevantMetadata,
-    UpdateMediatorResponse
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -279,7 +281,7 @@ import { DiagramService, APIResource, NamedSequence, UnitTest, Proxy } from "../
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_ICON, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
 import { getStateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -3992,6 +3994,39 @@ ${endpointAttributes}
             }
         });
 
+    }
+
+    async getConnectorIcon(params: GetConnectorIconRequest): Promise<GetConnectorIconResponse> {
+        return new Promise(async (resolve) => {
+            const iconCache = connectorCache.get('connector-icon-data');
+
+            if (iconCache && iconCache.hasOwnProperty(params.connectorName) && iconCache[params.connectorName]) {
+                resolve ({ iconPath: iconCache[params.connectorName] });
+            } else {
+                const connectorData = await this.getAvailableConnectors({
+                    documentUri: params.documentUri,
+                    connectorName: params.connectorName
+                });
+    
+                let connectorIcon = DEFAULT_ICON;
+                if (connectorData.iconPath) {
+                    const iconPath = await this.getIconPathUri({
+                        path: connectorData.iconPath,
+                        name: "icon-small"
+                    });
+                    connectorIcon = iconPath.uri;
+                }
+    
+                // Get the latest cache state before updating
+                const latestIconCache = connectorCache.get('connector-icon-data') || {};
+                connectorCache.set('connector-icon-data', {
+                    ...latestIconCache,
+                    [params.connectorName]: connectorIcon
+                });
+    
+                resolve ({ iconPath: connectorIcon });
+            }
+        });
     }
 
     async saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<boolean> {

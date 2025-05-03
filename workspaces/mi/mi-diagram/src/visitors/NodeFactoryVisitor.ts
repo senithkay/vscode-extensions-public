@@ -133,7 +133,7 @@ export class NodeFactoryVisitor implements Visitor {
     private resource: DiagramService;
     private breakpointPositions?: BreakpointPosition[];
     private activatedBreakpoint?: BreakpointPosition;
-    public nodeTree: AllNodeModel[] = [];
+    private nodeTree: AllNodeModel[] = [];
 
 
     constructor(documentUri: string, model: DiagramService, breakpoints?: GetBreakpointsResponse) {
@@ -456,6 +456,10 @@ export class NodeFactoryVisitor implements Visitor {
 
     getLinks(): NodeLinkModel[] {
         return this.links;
+    }
+
+    getNodeTree(): AllNodeModel[]{
+        return this.nodeTree;
     }
 
     beginVisitCall = (node: Call): void => {

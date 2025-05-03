@@ -132,14 +132,12 @@ export function Navigator(props: NavigatorProps) {
             let nodeIcon = getMediatorIconsFromFont(mediatorNode.tag);
             if (node.stNode.tag.includes('.')) {
                 // Fetch connector icon
-                const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-                    documentUri: node.documentUri,
-                    connectorName: node.stNode?.connectorName
+                const connectorIcon = await rpcClient.getMiDiagramRpcClient().getConnectorIcon({ 
+                    connectorName: node.stNode?.connectorName,
+                    documentUri: node.documentUri
                 });
-    
-                const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
 
-                nodeIcon = <div style={{ width: '25px', height: '25px' }}><img src={iconPath?.uri} alt="Icon" /></div>;
+                nodeIcon = <div style={{ width: '25px', height: '25px' }}><img src={connectorIcon.iconPath} alt="Icon" /></div>;
                 const operation = (((node.stNode as Tool).mediator ?? node.stNode) as Connector).method;
                 nodeContent = FirstCharToUpperCase(operation);
             }
