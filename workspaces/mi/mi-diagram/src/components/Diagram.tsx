@@ -385,7 +385,6 @@ export function Diagram(props: DiagramProps) {
                 const centerX = (isSidePanelOpen || nodeModel) ? - ((currentOffsetX + nodeX + (nodeWidth / 2) - scrollX) - ((offsetWidth - offsetAdjX) / 2)) : 0;
                 const centerY = (isSidePanelOpen || nodeModel) ? - ((currentOffsetY + nodeY + (nodeHeight / 2) - scrollY) - ((offsetHeight) / 2)) + offsetAdjY : 0;
 
-                // canvas.style.transition = "transform 0.5s";
                 canvas.style.transition = "transform 0.5s ease-in-out";
                 canvas.style.transform = `translate(${centerX}px, ${centerY}px)`;
 
