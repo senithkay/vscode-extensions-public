@@ -136,7 +136,7 @@ const ParameterManager = (props: ParameterManagerProps) => {
     }
 
     const Form = () => {
-        return <FormWrapper>
+        return <FormWrapper id='parameterManagerForm'>
             <FormGenerator
                 formData={formData}
                 range={nodeRange}
@@ -209,10 +209,10 @@ const ParameterManager = (props: ParameterManagerProps) => {
                         {!readonly && !isAdding && !isUpdate && (
                             <ActionWrapper>
                                 <ActionIconWrapper>
-                                    <EditIconWrapper>
+                                    <EditIconWrapper id='paramEdit'>
                                         <Codicon name="edit" onClick={() => handleEditParameter(param, index)} />
                                     </EditIconWrapper>
-                                    <DeleteIconWrapper>
+                                    <DeleteIconWrapper id='paramTrash'>
                                         <Codicon name="trash" onClick={() => handleDeleteParameter(param)} />
                                     </DeleteIconWrapper>
                                 </ActionIconWrapper>

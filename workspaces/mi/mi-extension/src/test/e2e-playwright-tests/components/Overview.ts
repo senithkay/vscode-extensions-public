@@ -192,4 +192,8 @@ export class Overview {
         await this.webView.getByRole('button', { name: 'Update Configurables' }).click();
         await popupPanel.waitFor({ state: 'detached' });
     }
+
+    public async clickOnDiagramView(api : string) {
+        await this.webView.getByText(api, { exact: true }).click();
+    }
 }
