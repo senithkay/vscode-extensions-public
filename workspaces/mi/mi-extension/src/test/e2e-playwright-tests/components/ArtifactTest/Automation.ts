@@ -73,4 +73,15 @@ export class Automation {
         await frame.getByLabel('Enable statistics').click();
         await frame.getByRole('button', { name: 'Create' }).click();
     }
+
+    public async openDiagramView(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Automations', name], true);
+        const webView = await switchToIFrame('Task View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Task View iframe");
+        }
+        await webView.getByText('Start').click();
+    }
 }

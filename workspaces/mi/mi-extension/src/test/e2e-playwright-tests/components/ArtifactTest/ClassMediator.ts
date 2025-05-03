@@ -8,9 +8,8 @@
  */
 
 import { Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
-import { Overview } from "../Overview";
+import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { AddArtifact } from "../AddArtifact";
 import { page } from "../../Utils";
 
@@ -20,13 +19,6 @@ export class ClassMediator {
     }
 
     public async init() {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        await overviewPage.goToAddArtifact();
-
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
         await addArtifactPage.add('Class Mediator');

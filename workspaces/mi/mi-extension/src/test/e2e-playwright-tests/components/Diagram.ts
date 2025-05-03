@@ -72,6 +72,15 @@ export class Diagram {
         await form.submit("Add");
     }
 
+    public async selectVariableFromHelperPane(varName: string) {
+        const variablesContainer = this.diagramWebView.locator('div').filter({ hasText: /^Variables$/ });
+        await variablesContainer.waitFor();
+        await variablesContainer.click();
+        const variable = this.diagramWebView.getByTitle(varName);
+        await variable.waitFor();
+        await variable.click();
+    }
+
     public async downloadConnectorThroughModulesList(name: string, index: number = 0, version?: string) {
         await this.clickPlusButtonByIndex(index);
 
@@ -206,8 +215,12 @@ class Mediator {
         await form.updateMediator(props);
     }
 
-    public async delete() {
-        await this.mediatotNode.getByRole("img").click();
+    public async delete(isConditionalMediator = false) {
+        if (isConditionalMediator) {
+            await this.mediatotNode.locator('vscode-button').getByRole("img").click();
+        } else {
+            await this.mediatotNode.getByRole("img").click();
+        }
         await this.container.getByText('Delete').click();
         await this.mediatotNode.waitFor({ state: 'detached' });
     }

@@ -19,20 +19,28 @@ export interface TreeViewProps {
     disableClick?: boolean;
     sx?: any;
     onSelect?: (id: string) => void;
+    collapseByDefault?: boolean;
+    onEdit?: (e: any) => void;
+    onDelete?: (id: string) => void;
 }
 
 interface TreeContainerProps {
     isRootTreeView: boolean;
     sx?: any;
+    isExpanded?: boolean;
 }
 const TreeContainer = styled.div<TreeContainerProps>`
-    padding-left: ${(props: TreeContainerProps) => props.isRootTreeView ? 0 : "20px"};
+    width: 100%;
+    &:hover {
+        background-color: ${(props: TreeContainerProps) => props.isExpanded ? "var(--vscode-editorHoverWidget-background)" : "var(--vscode-list-hoverBackground)"};
+    };
     ${(props: TreeContainerProps) => props.sx}
 `;
 
 interface IconContainerProps {
     isCollapsed: boolean;
     isSelected?: boolean;
+    isExpanded?: boolean;
 }
 const IconContainer = styled.div<IconContainerProps>`
     display: flex;
@@ -41,32 +49,79 @@ const IconContainer = styled.div<IconContainerProps>`
     align-items: center;
     padding-top: 3px;
     background-color: ${(props: IconContainerProps) => props.isSelected ? "var(--vscode-editorHoverWidget-background)" : "transparent"};
-    &:hover {
-        background-color: var(--vscode-editorHoverWidget-background);
-    }
+     &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+    };
+    width: 100%;
 `;
 const EmptyContainer = styled.div`
     width: 14px;
 `;
 
+const ContentContainer = styled.div`
+    width: 100%;
+    display: flex;
+    height: 25px;
+    justify-content: space-between;
+    align-items: center;
+    & > div {
+        display: none;
+    };
+    &:hover > div {
+        display: flex;
+    };
+`
+
+const EditIconContainer = styled.div`
+    width: 15px;
+    height: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    align-content: center;
+    padding: 1px 5px 1px 5px;
+    margin-top: 2px;
+    color: var(--vscode-list-deemphasizedForeground);
+    &:hover, &.active {
+        background-color: var(--vscode-toolbar-hoverBackground);
+        color: var(--vscode-editor-foreground);
+    }
+    & img {
+        width: 20px;
+    }
+`;
+
 export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
-    const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId, disableClick = false, sx } = props
+    const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId, disableClick = false, sx, collapseByDefault = false, onEdit, onDelete } = props
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const toggleExpand = (sId: string) => {
+    const toggleExpand = (e?: any) => {
+        e?.stopPropagation();
         if (!disableClick) {
-            if (onSelect) {
-                onSelect(sId);
-            }
             setIsExpanded(!isExpanded);
         }
     };
 
     const handleSelect = (sId: string) => {
-        if (onSelect) {
-            onSelect(sId);
+        if (!disableClick) {
+            if (onSelect) {
+                onSelect(sId);
+            }
+
+            toggleExpand();
         }
-    };
+    }
+
+    const handleDelete = () => {
+        if (onDelete) {
+            onDelete(id);
+        }
+    }
+
+    const handleEdit = (e: any) => {
+        if (onDelete) {
+            onEdit(e);
+        }
+    }
 
     useEffect(() => {
         const hasSelectedChild = (children: ReactNode): boolean => {
@@ -79,30 +134,48 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
                 return child?.props?.children && hasSelectedChild(child.props.children);
             });
         };
-    
+
         // Expand if this TreeView is selected or contains the selected item
-        if (selectedId === id || (children && hasSelectedChild(children))) {
+        if (!collapseByDefault && (selectedId === id || (children && hasSelectedChild(children)))) {
             setIsExpanded(true);
         }
     }, [selectedId, id, children]);
 
     return (
-        <TreeContainer isRootTreeView={isRootTreeView} sx={sx}>
-            <div onClick={() => toggleExpand(id)}>
-                <IconContainer isCollapsed={!isExpanded} isSelected={selectedId === id}>
-                    {React.Children.count(children) === 0 ? <EmptyContainer /> : <Codicon name={isExpanded ? "chevron-down" : "chevron-right"} />} 
+        <TreeContainer isRootTreeView={isRootTreeView} sx={sx} isExpanded={isExpanded}>
+            <IconContainer
+                style={{ cursor: 'pointer', paddingLeft: '10px' }}
+                isCollapsed={!isExpanded}
+                isSelected={selectedId === id}
+                onClick={() => handleSelect(id)}
+                isExpanded={isExpanded}>
+                {React.Children.count(children) === 0 ?
+                    <EmptyContainer /> :
+                    <Codicon name={isExpanded ? "chevron-down" : "chevron-right"} onClick={toggleExpand}/>
+                }
+                <ContentContainer>
                     {content}
-                </IconContainer>
-            </div>
+                    <div style={{marginRight: '7px'}}>
+                        {onEdit && (
+                            <EditIconContainer
+                                onClick={(e) => handleEdit(e)}
+                                className="edit-icon">
+                                <Codicon name="edit" iconSx={{ fontSize: 15 }} />
+                            </EditIconContainer>
+                        )}
+                        {onDelete && (
+                            <EditIconContainer
+                                onClick={() => handleDelete()}
+                                className="delete-icon">
+                                <Codicon name="trash" iconSx={{ fontSize: 15 }} />
+                            </EditIconContainer>
+                        )}
+                    </div>
+                </ContentContainer>
+            </IconContainer>
             {isExpanded && (
-                <div>
-                    {React.Children.map(children, child =>
-                        React.cloneElement(child as React.ReactElement<any>, {
-                            selectedId: selectedId,
-                            disableClick: disableClick,
-                            onSelect: handleSelect,
-                        })
-                    )}
+                <div style={{ paddingLeft: '10px' }}>
+                    {children}
                 </div>
             )}
         </TreeContainer>

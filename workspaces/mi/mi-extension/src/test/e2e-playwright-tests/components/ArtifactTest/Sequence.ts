@@ -10,7 +10,6 @@
 import { Locator, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
-import { Overview } from "../Overview";
 import { AddArtifact } from "../AddArtifact";
 import { Form } from "../Form";
 import { page } from "../../Utils";
@@ -21,13 +20,6 @@ export class Sequence {
     }
 
     public async init() {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        await overviewPage.goToAddArtifact();
-
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
         await addArtifactPage.add('Sequence');
@@ -141,5 +133,16 @@ export class Sequence {
         if (!overview) {
             throw new Error("Failed to switch to project overview iframe");
         }
+    }
+
+    public async openDiagramView(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Other Artifacts', 'Sequences', name], true);
+        const webView = await switchToIFrame('Sequence View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Sequence View iframe");
+        }
+        await webView.getByText('Start').click();
     }
 }
