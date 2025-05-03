@@ -315,7 +315,7 @@ export function Diagram(props: DiagramProps) {
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
-        const tree = nodeVisitor.nodeTree;
+        const tree = nodeVisitor.getNodeTree();
         return { nodes, links, dimensions, tree };
     };
 
