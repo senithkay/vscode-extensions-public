@@ -156,24 +156,11 @@ export function Diagram(props: DiagramProps) {
                     documentUri: props.documentUri,
                     connectorName: ''
                 });
-                const connectorMap: { [key: string]: { connectorIcon: string; connections: { [key: string]: string } } } = {};
+                const connectorMap: { [key: string]: { connectorIcon: string; } } = {};
                 
                 await Promise.all(connectorData.connectors.map(async (connector) => {
                     const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connector.iconPath, name: "icon-small" });
-    
-                    const connectionsMap: { [key: string]: string } = {};
-                    const connectionUiSchema: ConnectionSchema = connector.connectionUiSchema;
-    
-                    await Promise.all(Object.entries(connectionUiSchema).map(async ([connectionType, value]) => {
-                        const connectionIconPath = connectionType && await rpcClient.getMiDiagramRpcClient().getIconPathUri({
-                            path: path.join(connector.iconPath, 'connections'),
-                            name: connectionType
-                        });
-                        
-                        connectionsMap[connectionType] = await connectionIconPath?.uri ?? iconPath;
-                    }));
-    
-                    connectorMap[connector.name] = { connectorIcon: iconPath.uri, connections: connectionsMap };
+                    connectorMap[connector.name] = { connectorIcon: iconPath.uri };
                 }));
     
                 setConnectorIcons(connectorMap);

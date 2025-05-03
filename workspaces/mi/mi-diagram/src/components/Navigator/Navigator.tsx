@@ -22,7 +22,6 @@ import { debounce } from "lodash";
 import { getMediatorIconsFromFont } from "../../resources/icons/mediatorIcons/icons";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
-import { ConnectorIcons } from "../Diagram";
 import { FirstCharToUpperCase } from "../../utils/commons";
 
 const SearchStyle = {
@@ -44,7 +43,6 @@ export interface NavigatorProps {
     links: NodeLinkModel[];
     documentUri: string;
     centerNode?: (node: MediatorNodeModel | NodeLinkModel) => Promise<void>;
-    connectorIcons: ConnectorIcons;
 }
 
 interface GenerateTreeProps {
@@ -53,7 +51,7 @@ interface GenerateTreeProps {
 }
 
 export function Navigator(props: NavigatorProps) {
-    const { links, connectorIcons } = props;
+    const { links } = props;
     const [searchTerm, setSearchTerm] = useState('');
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -133,7 +131,7 @@ export function Navigator(props: NavigatorProps) {
                 : fullContent;
             let nodeIcon = getMediatorIconsFromFont(mediatorNode.tag);
             if (node.stNode.tag.includes('.')) {
-                nodeIcon = <div style={{ width: '25px', height: '25px' }}><img src={connectorIcons[node.stNode.connectorName].connectorIcon} alt="Icon" /></div>;
+                nodeIcon = <div style={{ width: '25px', height: '25px' }}><img src={"connectorIcons[node.stNode.connectorName].connectorIcon"} alt="Icon" /></div>;
                 const operation = (((node.stNode as Tool).mediator ?? node.stNode) as Connector).method;
                 nodeContent = FirstCharToUpperCase(operation);
             }
