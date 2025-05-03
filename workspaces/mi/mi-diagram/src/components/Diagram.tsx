@@ -52,15 +52,6 @@ export enum DiagramType {
     FLOW = "flow",
     FAULT = "fault"
 }
-
-interface ConnectionSchema {
-    [key: string]: string;
-}
-
-export interface ConnectorIcons { 
-    [key: string]: { connectorIcon: string; connections: { [key: string]: string } }
-}
-
 interface DiagramData {
     engine: DiagramEngine;
     modelType: DiagramType;
@@ -115,7 +106,6 @@ export function Diagram(props: DiagramProps) {
     const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
     const [diagramViewStateKey, setDiagramViewStateKey] = useState("");
     const [expandedNavigator, setExpandedNavigator] = useState(false);
-    const [connectorIcons, setConnectorIcons] = useState<ConnectorIcons>({});
 
     const scrollRef = useRef();
 
@@ -148,28 +138,6 @@ export function Diagram(props: DiagramProps) {
             }
         }
     }, [diagramViewStateKey, canvasDimensions]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (rpcClient?.getMiDiagramRpcClient()) {
-                const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-                    documentUri: props.documentUri,
-                    connectorName: ''
-                });
-                const connectorMap: { [key: string]: { connectorIcon: string; } } = {};
-                
-                await Promise.all(connectorData.connectors.map(async (connector) => {
-                    const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connector.iconPath, name: "icon-small" });
-                    connectorMap[connector.name] = { connectorIcon: iconPath.uri };
-                }));
-    
-                setConnectorIcons(connectorMap);
-            }
-        }
-
-        fetchData();
-    }, []);
-
 
     const [diagramData, setDiagramData] = useState({
         flow: {
@@ -516,8 +484,7 @@ export function Diagram(props: DiagramProps) {
                             nodes={diagramData.flow.tree}
                             links={diagramData.flow.links}
                             centerNode={centerNode}
-                            documentUri={props.documentUri}
-                            connectorIcons={connectorIcons} />}
+                            documentUri={props.documentUri} />}
                         <Button appearance="icon" onClick={() => expandNavigator()} tooltip="Navigator" sx={{ bottom: 0, marginTop: '3px' }}>
                             <Codicon name='layers' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} sx={{ width: '18px', height: '18px' }} />
                         </Button>
