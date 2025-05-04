@@ -52,7 +52,7 @@ export async function toggleNotifications(disable: boolean) {
 }
 
 export async function setupBallerinaIntegrator() {
-    // Try to find the 'Create New Integration' button
+    await page.selectSidebarItem('Ballerina Integrator');
     const webview = await switchToIFrame('Ballerina Integrator', page.page);
     if (!webview) {
         throw new Error('Ballerina Integrator webview not found');
@@ -70,14 +70,17 @@ export async function setupBallerinaIntegrator() {
         const setupButton = webview.getByRole('button', { name: 'Set up Ballerina distribution' })
         await setupButton.waitFor();
         await setupButton.click({ force: true });
+        const restartButton = webview.getByRole('button', { name: 'Restart VS Code' });
+        await restartButton.waitFor({ timeout: 600000 });
+        await resumeVSCode();
+        await setupBallerinaIntegrator();
     }
 }
 
 export async function createProject(page: ExtendedPage, projectName?: string) {
     console.log('Creating new project');
-    await page.selectSidebarItem('Ballerina Integrator');
     await setupBallerinaIntegrator();
-    const webview = await switchToIFrame('Ballerina Integrator', page.page, 10000);
+    const webview = await switchToIFrame('Ballerina Integrator', page.page, 60000);
     if (!webview) {
         throw new Error('Ballerina Integrator webview not found');
     }
