@@ -82,7 +82,7 @@ export interface FormGeneratorProps {
     getValues: any;
     skipGeneralHeading?: boolean;
     ignoreFields?: string[];
-    addNewConnection?: any;
+    disableFields?: string[];
     autoGenerateSequences?: boolean;
     range?: Range;
 }
@@ -145,7 +145,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         watch,
         skipGeneralHeading,
         ignoreFields,
-        addNewConnection,
+        disableFields,
         range
     } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
@@ -181,6 +181,20 @@ export function FormGenerator(props: FormGeneratorProps) {
         setIsLoading(false);
     }, [sidePanelContext.pageStack, formData]);
 
+    async function getConnectionNames(allowedTypes?: string[]) {
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+            documentUri: documentUri,
+            connectorName: formData?.connectorName ?? connectorName.replace(/\s/g, '')
+        });
+
+        const filteredConnections = connectorData.connections.filter(
+            connection => allowedTypes?.some(
+                type => type.toLowerCase() === connection.connectionType.toLowerCase()
+            ));
+        const connectionNames = filteredConnections.map(connection => connection.name);
+        return connectionNames;
+    }
+
     function getDefaultValues(elements: any[]) {
         const defaultValues: Record<string, any> = {};
         elements.forEach(async (element: any) => {
@@ -188,22 +202,11 @@ export function FormGenerator(props: FormGeneratorProps) {
             if (element.type === 'attributeGroup') {
                 Object.assign(defaultValues, getDefaultValues(element.value.elements));
             } else {
-                defaultValues[name] = getDefaultValue(element);
+                defaultValues[name] = getValues(element.value.name) ?? getDefaultValue(element);
 
                 if (element.value.inputType === 'connection' && documentUri && connectorName) {
                     const allowedTypes: string[] = element.value.allowedConnectionTypes;
-
-                    const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-                        documentUri: documentUri,
-                        connectorName: formData?.connectorName ?? connectorName.replace(/\s/g, '')
-                    });
-
-                    const filteredConnections = connectorData.connections.filter(
-                        connection => allowedTypes?.some(
-                            // Ignore case in checking allowed connection types
-                            type => type.toLowerCase() === connection.connectionType.toLowerCase()
-                        ));
-                    const connectionNames = filteredConnections.map(connection => connection.name);
+                    const connectionNames = await getConnectionNames(allowedTypes);
 
                     setConnections((prevConnections) => ({
                         ...prevConnections,
@@ -368,6 +371,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const renderFormElement = (element: Element, field: any) => {
         const name = getNameForController(element.name);
         const isRequired = typeof element.required === 'boolean' ? element.required : element.required === 'true';
+        const isDisabled = disableFields?.includes(String(element.name));
         const errorMsg = errors[name] && errors[name].message.toString();
         const helpTip = element.helpTip;
 
@@ -474,7 +478,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, {type: keyType}, sidePanelContext);
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange, undefined, { type: keyType }, sidePanelContext);
                     }
                 }
 
@@ -576,15 +580,43 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             }
             case 'connection':
+                const onCreateButtonClick = async (name?: string, allowedConnectionTypes?: string[]) => {
+                    const fetchItems = async () => {
+                        const connectionNames = await getConnectionNames(allowedConnectionTypes);
+
+                        setConnections((prevConnections) => ({
+                            ...prevConnections,
+                            [name]: connectionNames
+                        }));
+                    }
+
+                    const handleValueChange = (value: string) => {
+                        setValue(name ?? 'configKey', value);
+                    }
+
+                    openPopup(
+                        rpcClient,
+                        "connection",
+                        fetchItems,
+                        handleValueChange,
+                        props.documentUri,
+                        { allowedConnectionTypes: allowedConnectionTypes },
+                        sidePanelContext
+                    );
+                }
+
                 return (
                     <>
                         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
                             <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
                                 <label>{element.displayName}{element.required === 'true' && '*'}</label>
+                                {helpTipElement && <div style={{ paddingTop: '5px' }}>
+                                    {helpTipElement}
+                                </div>}
                             </div>
-                            <LinkButton onClick={() => addNewConnection(name, element.allowedConnectionTypes)}>
+                            {!isDisabled && <LinkButton onClick={() => onCreateButtonClick(name, element.allowedConnectionTypes)}>
                                 <Codicon name="plus" />Add new connection
-                            </LinkButton>
+                            </LinkButton>}
                         </div>
                         <AutoComplete
                             name={name}
@@ -594,6 +626,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                             onValueChange={(e: any) => {
                                 field.onChange(e);
                             }}
+                            disabled={isDisabled}
                             required={element.required === 'true'}
                             allowItemCreate={false}
                         />
@@ -609,6 +642,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         labelAdornment={helpTipElement}
                         required={isRequired}
                         errorMsg={errorMsg}
+                        editorSx={{ height: '100px' }}
                     />
                 );
             case 'popUp':
