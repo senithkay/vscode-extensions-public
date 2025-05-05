@@ -27,7 +27,7 @@ import { StyleBase, FnSignatureProps } from '../Common/types';
 
 import { ANIMATION } from '../../constants';
 import { FormExpressionEditorRef, FormExpressionEditorElProps, CompletionItem } from '../../types';
-import { addClosingBracketIfNeeded, checkCursorInFunction, getHelperPaneArrowPosition, getHelperPanePosition, setCursor } from '../../utils';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getHelperPaneArrowPosition, getHelperPaneOrigin, getHelperPanePosition, setCursor } from '../../utils';
 
 import { Codicon } from '../../../Codicon/Codicon';
 import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator';
@@ -75,7 +75,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         autoSelectFirstItem,
         getDefaultCompletion,
         isHelperPaneOpen,
-        helperPaneOrigin = 'bottom',
+        helperPaneOrigin = 'auto',
         helperPaneHeight = 'default',
         helperPaneWidth,
         helperPaneSx,
@@ -316,14 +316,15 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     const getHelperPaneComponent = (): JSX.Element => {
-        const helperPanePosition = getHelperPanePosition(containerRef, helperPaneOrigin, helperPaneHeight, helperPaneWidth);
-        const arrowPosition = getHelperPaneArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
+        const calculatedHelperPaneOrigin = getHelperPaneOrigin(containerRef, helperPaneOrigin);
+        const helperPanePosition = getHelperPanePosition(containerRef, calculatedHelperPaneOrigin, helperPaneHeight, helperPaneWidth);
+        const arrowPosition = getHelperPaneArrowPosition(containerRef, calculatedHelperPaneOrigin, helperPanePosition);
         
         return (
             <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition, ...helperPaneSx }}>
                 <Transition show={isHelperPaneOpen} {...ANIMATION}>
                     {getHelperPane(value, handleChange, helperPaneHeight)}
-                    {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
+                    {arrowPosition && <HelperPane.Arrow origin={calculatedHelperPaneOrigin} sx={{ ...arrowPosition }} />}
                 </Transition>
             </DropdownContainer>
         )

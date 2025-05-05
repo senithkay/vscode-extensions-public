@@ -370,7 +370,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                         onBlur={handleBlur}
                         onCancel={handleCancel}
                         getExpressionEditorIcon={handleGetExpressionEditorIcon}
-                        helperPaneOrigin='left'
                         actionButtons={actionButtons}
                         {...(value.isExpression && {
                             completions,
