@@ -78,6 +78,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         helperPaneOrigin = 'bottom',
         helperPaneHeight = 'default',
         helperPaneWidth,
+        helperPaneSx,
         actionButtons,
         resize = 'vertical',
         growRange = { start: 1, offset: 7 },
@@ -319,7 +320,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         const arrowPosition = getHelperPaneArrowPosition(containerRef, helperPaneOrigin, helperPanePosition);
         
         return (
-            <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
+            <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition, ...helperPaneSx }}>
                 <Transition show={isHelperPaneOpen} {...ANIMATION}>
                     {getHelperPane(value, handleChange, helperPaneHeight)}
                     {arrowPosition && <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}

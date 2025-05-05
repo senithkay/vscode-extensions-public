@@ -378,6 +378,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                             changeHelperPaneState: handleChangeHelperPaneState,
                             getHelperPane: handleGetHelperPane,
                             onFunctionEdit: handleFunctionEdit,
+                            helperPaneSx: { zIndex: 2101 },
                             startAdornment: (
                                 <S.AdornmentContainer>
                                     <Typography variant="h4" sx={{ margin: 0 }}>
