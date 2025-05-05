@@ -1,4 +1,3 @@
-* @hevayo @kaviththiranga @gigara
 *.tsx @hevayo @gigara @tharindulak
 *.css @hevayo @gigara @tharindulak
 *.scss @hevayo @gigara @tharindulak
@@ -8,3 +7,4 @@
 /workspaces/ballerina/ballerina-rpc-client @hevayo @axewilledge @kanushka
 /workspaces/choreo/ @kaje94
 /workspaces/wso2-platform/ @kaje94
+* @hevayo @gigara

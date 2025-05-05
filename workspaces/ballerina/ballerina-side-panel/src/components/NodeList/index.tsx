@@ -24,6 +24,7 @@ import { BackIcon, CloseIcon, LogIcon } from "../../resources";
 import { Category, Item, Node } from "./types";
 import { cloneDeep, debounce } from "lodash";
 import GroupList from "../GroupList";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 namespace S {
     export const Container = styled.div<{}>`
@@ -118,7 +119,7 @@ namespace S {
                 enabled &&
                 `
                 background-color: ${ThemeColors.PRIMARY_CONTAINER};
-                border: 1px solid ${ThemeColors.PRIMARY};
+                border: 1px solid ${ThemeColors.HIGHLIGHT};
             `}
         }
     `;
@@ -225,6 +226,14 @@ export function NodeList(props: NodeListProps) {
     const [searchText, setSearchText] = useState<string>("");
     const [showGeneratePanel, setShowGeneratePanel] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+    const { rpcClient } = useRpcContext();
+    const [isNPSupported, setIsNPSupported] = useState(false);
+
+    useEffect(() => {
+        rpcClient.getCommonRpcClient().isNPSupported().then((supported) => {
+            setIsNPSupported(supported);
+        });
+    }, []);
 
     useEffect(() => {
         if (onSearchTextChange) {
@@ -269,6 +278,9 @@ export function NodeList(props: NodeListProps) {
             {nodes.map((node, index) => {
                 if (["MATCH"].includes(node.id)) {
                     // HACK: Skip the MATCH and FOREACH nodes until the implementation is ready
+                    return;
+                }
+                if (["NP_FUNCTION"].includes(node.id) && !isNPSupported) {
                     return;
                 }
 

@@ -32,7 +32,7 @@ export function UnsupportedDataMapperHeader(props: DataMapperHeaderProps) {
     return (
         <HeaderContainer>
             <HomeButton onClick={onClose} />
-            <Title> Data Mapper: </Title>
+            <Title> Data Mapper </Title>
         </HeaderContainer>
     );
 }

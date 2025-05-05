@@ -181,7 +181,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
             sx={{ transition: "all 0.3s ease-in-out", width: 600 }}
         >
             <SidePanelTitleContainer>
-                <div>Local Variables</div>
+                <div>Sub Mappings</div>
                 <Button onClick={onCancel} appearance="icon"><Codicon name="close"/></Button>
             </SidePanelTitleContainer>
             <SidePanelBody>

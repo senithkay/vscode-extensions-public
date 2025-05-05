@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useMemo, useReducer, useState } from "react";
 
-import { css } from "@emotion/css";
+import { css, keyframes } from "@emotion/css";
 import {
     EVENT_TYPE,
     FileListEntry,
@@ -50,7 +50,12 @@ import { AutoMapError } from "./Error/AutoMapError";
 import { AUTO_MAP_IN_PROGRESS_MSG, AUTO_MAP_TIMEOUT_MS } from "../Diagram/utils/constants";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { AutoMapErrorComponent, IOErrorComponent } from "./Error/DataMapperError";
+import { AutoMapErrorComponent, IOErrorComponent, UnsupportedIOErrorComponent } from "./Error/DataMapperError";
+
+const fadeIn = keyframes`
+    from { opacity: 0.5; }
+    to { opacity: 1; }
+`;
 
 const classes = {
     root: css({
@@ -99,6 +104,8 @@ const classes = {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
+        width: '500px',
+        animation: `${fadeIn} 0.5s ease-in-out`
     }),
     overlayWithLoader: css({
         display: 'flex',
@@ -604,7 +611,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 onError={handleErrors}
                             />
                         )}
-                        {hasInvalidIO && <IOErrorComponent errorKind={ErrorNodeKind.Other} classes={classes} />}
+                        {hasInvalidIO && <UnsupportedIOErrorComponent inputs={inputs} output={output} classes={classes} />}
                         {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}

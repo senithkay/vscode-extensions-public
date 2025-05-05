@@ -184,7 +184,8 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
                 // Get the children of the service
                 const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
                 const remoteFunctions = await getComponents(artifact.children, DIRECTORY_MAP.REMOTE, icon, artifact.module);
-                entryValue.resources = [...resourceFunctions, ...remoteFunctions];
+                const privateFunctions = await getComponents(artifact.children, DIRECTORY_MAP.FUNCTION, icon, artifact.module);
+                entryValue.resources = [...resourceFunctions, ...remoteFunctions, ...privateFunctions];
             }
             break;
         case DIRECTORY_MAP.LISTENER:
@@ -542,6 +543,7 @@ async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStru
             }
             break;
         case DIRECTORY_MAP.FUNCTION:
+        case DIRECTORY_MAP.NP_FUNCTION:
         case DIRECTORY_MAP.DATA_MAPPER:
             // Check from current identifier
             const identifier = StateMachine.context().identifier;

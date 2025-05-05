@@ -84,8 +84,8 @@ export class PositionVisitor implements Visitor {
     };
     private skipChildrenVisit = false;
 
-    constructor(sequenceWidth: number) {
-        this.position.x += sequenceWidth / 2;
+    constructor(offset: number) {
+        this.position.x += offset;
     }
 
     skipChildren(): boolean {

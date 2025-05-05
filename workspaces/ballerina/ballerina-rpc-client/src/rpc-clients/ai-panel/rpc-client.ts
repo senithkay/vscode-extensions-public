@@ -13,6 +13,7 @@ import {
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
+    AIPanelPrompt,
     DeleteFromProjectRequest,
     DeveloperDocument,
     FetchDataRequest,
@@ -25,7 +26,6 @@ import {
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
     GetModuleDirParams,
-    InitialPrompt,
     LLMDiagnostics,
     NotifyAIMappingsRequest,
     PostProcessRequest,
@@ -49,14 +49,14 @@ import {
     getAccessToken,
     getActiveFile,
     getAiPanelState,
-    getBackendURL,
+    getBackendUrl,
     getContentFromFile,
+    getDefaultPrompt,
     getDriftDiagnosticContents,
     getFileExists,
     getFromDocumentation,
     getFromFile,
     getGeneratedTests,
-    getInitialPrompt,
     getMappingsFromRecord,
     getModuleDirectory,
     getProjectSource,
@@ -86,11 +86,9 @@ import {
     promptLogin,
     promptWSO2AILogout,
     readDeveloperMdFile,
-    refreshAccessToken,
     showSignInAlert,
     stopAIMappings,
     updateDevelopmentDocument,
-    updateProject,
     updateRequirementSpecification
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -103,12 +101,24 @@ export class AiPanelRpcClient implements AIPanelAPI {
         this._messenger = messenger;
     }
 
-    getBackendURL(): Promise<string> {
-        return this._messenger.sendRequest(getBackendURL, HOST_EXTENSION);
+    getBackendUrl(): Promise<string> {
+        return this._messenger.sendRequest(getBackendUrl, HOST_EXTENSION);
     }
 
-    updateProject(): void {
-        return this._messenger.sendNotification(updateProject, HOST_EXTENSION);
+    getProjectUuid(): Promise<string> {
+        return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
+    }
+
+    getAccessToken(): Promise<string> {
+        return this._messenger.sendRequest(getAccessToken, HOST_EXTENSION);
+    }
+
+    getRefreshToken(): Promise<string> {
+        return this._messenger.sendRequest(getRefreshToken, HOST_EXTENSION);
+    }
+
+    getDefaultPrompt(): Promise<AIPanelPrompt> {
+        return this._messenger.sendRequest(getDefaultPrompt, HOST_EXTENSION);
     }
 
     login(): void {
@@ -123,20 +133,8 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getAiPanelState, HOST_EXTENSION);
     }
 
-    getAccessToken(): Promise<string> {
-        return this._messenger.sendRequest(getAccessToken, HOST_EXTENSION);
-    }
-
-    refreshAccessToken(): void {
-        return this._messenger.sendNotification(refreshAccessToken, HOST_EXTENSION);
-    }
-
     fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
         return this._messenger.sendRequest(fetchData, HOST_EXTENSION, params);
-    }
-
-    getProjectUuid(): Promise<string> {
-        return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
     addToProject(content: AddToProjectRequest): void {
@@ -153,10 +151,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     deleteFromProject(content: DeleteFromProjectRequest): void {
         return this._messenger.sendNotification(deleteFromProject, HOST_EXTENSION, content);
-    }
-
-    getRefreshToken(): Promise<string> {
-        return this._messenger.sendRequest(getRefreshToken, HOST_EXTENSION);
     }
 
     getThemeKind(): Promise<string> {
@@ -189,10 +183,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     checkSyntaxError(project: ProjectSource): Promise<boolean> {
         return this._messenger.sendRequest(checkSyntaxError, HOST_EXTENSION, project);
-    }
-
-    getInitialPrompt(): Promise<InitialPrompt> {
-        return this._messenger.sendRequest(getInitialPrompt, HOST_EXTENSION);
     }
 
     clearInitialPrompt(): void {

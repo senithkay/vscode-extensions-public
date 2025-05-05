@@ -124,8 +124,6 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
         setIsHovered(false);
     };
 
-    const linkColor = isHovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE;
-
     return (
         <S.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <S.Circle show={node.isVisible()} clickable={node.showButton}>

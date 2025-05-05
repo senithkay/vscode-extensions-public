@@ -139,7 +139,7 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
         if (!collapseByDefault && (selectedId === id || (children && hasSelectedChild(children)))) {
             setIsExpanded(true);
         }
-    }, [selectedId, id, children]);
+    }, [selectedId, id, children, collapseByDefault]);
 
     return (
         <TreeContainer isRootTreeView={isRootTreeView} sx={sx} isExpanded={isExpanded}>
@@ -158,14 +158,14 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
                     <div style={{marginRight: '7px'}}>
                         {onEdit && (
                             <EditIconContainer
-                                onClick={(e) => handleEdit(e)}
+                                onClick={handleEdit}
                                 className="edit-icon">
                                 <Codicon name="edit" iconSx={{ fontSize: 15 }} />
                             </EditIconContainer>
                         )}
                         {onDelete && (
                             <EditIconContainer
-                                onClick={() => handleDelete()}
+                                onClick={handleDelete}
                                 className="delete-icon">
                                 <Codicon name="trash" iconSx={{ fontSize: 15 }} />
                             </EditIconContainer>

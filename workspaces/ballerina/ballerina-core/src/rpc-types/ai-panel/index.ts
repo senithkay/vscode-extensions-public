@@ -7,23 +7,25 @@
 * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
-import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics, GetModuleDirParams } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, GenerateMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, FetchDataRequest, FetchDataResponse, TestGenerationRequest, TestGenerationResponse, TestGenerationMentions, AIChatSummary, DeveloperDocument, RequirementSpecification, LLMDiagnostics, GetModuleDirParams, AIPanelPrompt } from "./interfaces";
 
 export interface AIPanelAPI {
-    getBackendURL: () => Promise<string>;
-    updateProject: () => void;
+    // ==================================
+    // General Functions
+    // ==================================
+    getBackendUrl: () => Promise<string>;
+    getProjectUuid: () => Promise<string>;
+    getAccessToken: () => Promise<string>;
+    getRefreshToken: () => Promise<string>;
+    getDefaultPrompt: () => Promise<AIPanelPrompt>;
     login: () => void;
     logout: () => void;
     getAiPanelState: () => Promise<AIVisualizerState>;
-    getAccessToken: () => Promise<string>;
-    refreshAccessToken: () => void;
     fetchData: (params: FetchDataRequest) => Promise<FetchDataResponse>;
-    getProjectUuid: () => Promise<string>;
     addToProject: (content: AddToProjectRequest) => void;
     getFromFile: (content: GetFromFileRequest) => Promise<string>;
     getFileExists: (content: GetFromFileRequest) => Promise<boolean>;
     deleteFromProject: (content: DeleteFromProjectRequest) => void;
-    getRefreshToken: () => Promise<string>;
     getThemeKind: () => Promise<string>;
     generateMappings: (params: GenerateMappingsRequest) => Promise<GenerateMappingsResponse>;
     notifyAIMappings: (params: NotifyAIMappingsRequest) => Promise<boolean>;
@@ -32,7 +34,6 @@ export interface AIPanelAPI {
     getProjectSource: (requestType: string) => Promise<ProjectSource>;
     getShadowDiagnostics: (project: ProjectSource) => Promise<ProjectDiagnostics>;
     checkSyntaxError: (project: ProjectSource) => Promise<boolean>;
-    getInitialPrompt: () => Promise<InitialPrompt>;
     clearInitialPrompt: () => void;
     // Test-generator related functions
     getGeneratedTests: (params: TestGenerationRequest) => Promise<TestGenerationResponse>;

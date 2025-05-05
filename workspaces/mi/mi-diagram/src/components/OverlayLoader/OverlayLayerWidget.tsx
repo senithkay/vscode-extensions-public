@@ -11,9 +11,6 @@ import styled from "@emotion/styled";
 
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
-export interface NodeLayerWidgetProps {
-}
-
 const Container = styled.div`
     display: flex;
     align-items: center;
@@ -29,14 +26,20 @@ const Container = styled.div`
     z-index: 3000;
 `;
 
-export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
-    render() {
-        return (
-            <div data-testid={"loading-overlay"}>
-                <Container>
+interface OverlayLayerProps {
+    isDownloading?: boolean;
+}
+export function OverlayLayerWidget(props: OverlayLayerProps) {
+    const { isDownloading } = props;
+    return (
+        <div data-testid={"loading-overlay"}>
+            <Container>
+                {isDownloading ? (
+                    <p>Generating Image...</p>
+                ) : (
                     <ProgressRing />
-                </Container>
-            </div>
-        );
-    }
+                )}
+            </Container>
+        </div>
+    );
 }

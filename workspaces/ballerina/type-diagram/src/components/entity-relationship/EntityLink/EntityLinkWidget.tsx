@@ -33,7 +33,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 		return sourceNode?.getID() === selectedNodeId || targetNode?.getID() === selectedNodeId;
 	}, [link, selectedNodeId]);
 
-	const linkColour = isSelected ? ThemeColors.SECONDARY : isConnectedToSelectedNode ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE;
+	const linkColour = isSelected ? ThemeColors.SECONDARY : isConnectedToSelectedNode ? ThemeColors.SECONDARY : ThemeColors.PRIMARY;
 
 	useEffect(() => {
 		if (link.cardinality) {

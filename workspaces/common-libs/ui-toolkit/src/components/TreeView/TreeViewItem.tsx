@@ -78,14 +78,14 @@ export const TreeViewItem: React.FC<TreeViewItemProps> = ({ id, children, select
             <div style={{marginRight: '7px'}}>
                 {onEdit && (
                     <IconContainer
-                        onClick={(e) => handleEdit(e)}
+                        onClick={handleEdit}
                         className="edit-icon">
                         <Codicon name="edit" iconSx={{ fontSize: 15 }} />
                     </IconContainer>
                 )}
                 {onDelete && (
                     <IconContainer
-                        onClick={() => handleDelete()}
+                        onClick={handleDelete}
                         className="delete-icon">
                         <Codicon name="trash" iconSx={{ fontSize: 15 }} />
                     </IconContainer>
