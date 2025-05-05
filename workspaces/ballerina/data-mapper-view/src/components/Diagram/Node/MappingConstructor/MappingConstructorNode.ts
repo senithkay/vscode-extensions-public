@@ -142,7 +142,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
             const field = fields[fields.length - 1];
-            if (!value || !value.source) {
+            if (!value || !value.source || (otherVal && STKindChecker.isIndexedExpression(otherVal))) {
                 // Unsupported mapping
                 return;
             }

@@ -41,6 +41,7 @@ import {
     BreakpointRequest,
     BuildMode,
     ClassFieldModifierRequest,
+    Command,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
@@ -97,6 +98,7 @@ import {
     SignatureHelpResponse,
     SourceEditResponse,
     SyntaxTree,
+    TemplateId,
     TextEdit,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
@@ -722,7 +724,11 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     openAIChat(params: AIChatRequest): void {
         if (params.readme) {
-            commands.executeCommand("ballerina.open.ai.panel", "Generate an integration according to the given Readme file");
+            commands.executeCommand("ballerina.open.ai.panel", {
+                type: 'command-template',
+                command: Command.Code,
+                templateId: TemplateId.GenerateFromReadme,
+            });
         } else {
             commands.executeCommand("ballerina.open.ai.panel");
         }

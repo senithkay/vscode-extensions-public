@@ -204,6 +204,7 @@ import {
     getSequenceDirectory,
     getStoreConnectorJSON,
     getSubFolderNames,
+    getEULALicense,
     getSyntaxTree,
     getTask,
     getTemplate,
@@ -452,4 +453,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger, projectUri: s
     messenger.onRequest(getHelperPaneInfo, (args: GetHelperPaneInfoRequest) => rpcManger.getHelperPaneInfo(args));
     messenger.onRequest(testConnectorConnection, (args: TestConnectorConnectionRequest) => rpcManger.testConnectorConnection(args));
     messenger.onRequest(saveConfig, (args: SaveConfigRequest) => rpcManger.saveConfig(args));
+    messenger.onRequest(getEULALicense, () => rpcManger.getEULALicense());
 }

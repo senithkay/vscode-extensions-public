@@ -216,4 +216,8 @@ export class CommonRpcManager implements CommonRPCAPI {
         messageWithLink.appendMarkdown(`\n\nPlease [create an issue](${BALLERINA_INTEGRATOR_ISSUES_URL}) if the issue persists.`);
         window.showErrorMessage(messageWithLink.value);
     }
+
+    async isNPSupported(): Promise<boolean> {
+        return ballerinaExtInstance.isNPSupported;
+    }
 }

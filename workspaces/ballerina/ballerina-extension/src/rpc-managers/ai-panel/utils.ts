@@ -8,7 +8,7 @@
  */
 
 import { ArrayTypeDesc, FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords } from "@wso2-enterprise/ballerina-core";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, Attachment, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 
@@ -19,7 +19,7 @@ import {
     INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY,
     PARSING_ERROR,
     TIMEOUT,
-    UNAUTHORIZED,
+    NOT_LOGGED_IN,
     USER_ABORTED,
     SERVER_ERROR,
     TOO_MANY_REQUESTS,
@@ -99,7 +99,6 @@ export async function getParamDefinitions(
         let paramType = "";
 
         if (STKindChecker.isArrayTypeDesc(param.typeName)) {
-            paramName = `${paramName}Item`; 
             arrayParams++;
         }
 
@@ -312,7 +311,7 @@ export async function getParamDefinitions(
 export async function processMappings(
     fnSt: FunctionDefinition,
     fileUri: string,
-    file?: AttachmentResult
+    file?: Attachment
 ): Promise<SyntaxTree | ErrorCode> {
     let result = await getParamDefinitions(fnSt, fileUri);
     if (isErrorCode(result)) {
@@ -1333,7 +1332,7 @@ export async function getDatamapperCode(parameterDefinitions: ErrorCode | Parame
     try {
         const accessToken = await getAccessToken().catch((error) => {
             console.error(error);
-            return UNAUTHORIZED;
+            return NOT_LOGGED_IN;
         });
         let response = await sendDatamapperRequest(parameterDefinitions, accessToken);
         if (isErrorCode(response)) {
@@ -1543,7 +1542,7 @@ export async function getTypesFromFile(file: Blob): Promise<string | ErrorCode> 
     }
 }
 
-export async function mappingFileParameterDefinitions(file: AttachmentResult, parameterDefinitions: ErrorCode | ParameterMetadata): Promise<ParameterMetadata | ErrorCode> {
+export async function mappingFileParameterDefinitions(file: Attachment, parameterDefinitions: ErrorCode | ParameterMetadata): Promise<ParameterMetadata | ErrorCode> {
     if (!file) { return parameterDefinitions; }
 
     const convertedFile = convertBase64ToBlob(file);
@@ -1560,7 +1559,7 @@ export async function mappingFileParameterDefinitions(file: AttachmentResult, pa
     };
 }
 
-export async function typesFileParameterDefinitions(file: AttachmentResult): Promise<string | ErrorCode> {
+export async function typesFileParameterDefinitions(file: Attachment): Promise<string | ErrorCode> {
     if (!file) { throw new Error("File is undefined"); }
 
     const convertedFile = convertBase64ToBlob(file);
@@ -1572,7 +1571,7 @@ export async function typesFileParameterDefinitions(file: AttachmentResult): Pro
     return typesFile;
 }
 
-function convertBase64ToBlob(file: AttachmentResult): Blob | null {
+function convertBase64ToBlob(file: Attachment): Blob | null {
     try {
         const { content: base64Content, name: fileName } = file;
         const binaryString = atob(base64Content);
@@ -2037,6 +2036,13 @@ async function processParentKey(
     let refinedFieldName = refinedKeys.pop()!;
     let refinedParentKey = refinedKeys.slice(0, refinedKeys.length);
 
+    // Handle the base case where there's only one key
+    if (refinedParentKey.length === 1) {
+        itemKey = parentKey[0];
+        combinedKey = parentKey[0];
+        return { itemKey, combinedKey, inputArrayNullable };
+    }
+
     for (let index = refinedParentKey.length - 1; index > 0; index--) {
         const modifiedInputs = await resolveMetadata(parameterDefinitions, refinedParentKey, refinedParentKey[index], "inputMetadata");
         if (!modifiedInputs) {
@@ -2164,7 +2170,7 @@ export async function requirementsSpecification(filepath: string): Promise<strin
     }
 
     const convertedFile = convertBase64ToBlob({name: path.basename(filepath), 
-                            content: getBase64FromFile(filepath), status: AttachmentStatus.Unknown});
+                            content: getBase64FromFile(filepath), status: AttachmentStatus.UnknownError});
     if (!convertedFile) { throw new Error("Invalid file content"); }
 
     let requirements = await getTextFromRequirements(convertedFile);

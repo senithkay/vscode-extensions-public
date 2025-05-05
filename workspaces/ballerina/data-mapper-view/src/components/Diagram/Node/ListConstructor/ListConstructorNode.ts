@@ -40,6 +40,7 @@ import {
     getTypeName,
     getTypeOfValue,
     hasNoMatchFound,
+    isIndexedExpression,
     isSelectClauseQueryExpr
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
@@ -129,7 +130,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
             const field = fields[fields.length - 1];
-            if (!value || !value.source) {
+            if (!value || !value.source || (otherVal && isIndexedExpression(otherVal))) {
                 // Unsupported mapping
                 return;
             }

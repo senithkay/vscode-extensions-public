@@ -19,6 +19,8 @@ import { Icon, ProgressRing, Tooltip, Typography } from "@wso2-enterprise/ui-too
 import { IDataMapperContext} from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getModification } from "../../utils/modifications";
 import { useUnionTypeNodeStyles } from "../../../styles";
+import { UnionTypeInfo } from "../../utils/union-type-utils";
+import { getDefaultValue, getTypeName } from "../../utils/dm-utils";
 
 export interface UnionTypeListItemProps {
     key: number;
@@ -27,16 +29,21 @@ export interface UnionTypeListItemProps {
     hasInvalidTypeCast: boolean;
     innermostExpr: STNode;
     typeCastExpr: STNode;
+    unionTypeInfo: UnionTypeInfo;
 }
 
 export function UnionTypeListItem(props: UnionTypeListItemProps) {
-    const { key, context, type, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
+    const { key, context, type, hasInvalidTypeCast, innermostExpr, typeCastExpr, unionTypeInfo } = props;
     const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
     const classes = useUnionTypeNodeStyles();
 
     const onClickOnListItem = async () => {
         setIsAddingTypeCast(true)
         try {
+            const selectedType = unionTypeInfo.unionType.members.find(member => {
+                return getTypeName(member) === type;
+            });
+            const defaultValue = selectedType ? getDefaultValue(selectedType.typeName) : `()`;
             let targetPosition: NodePosition;
             const valueExprPosition: NodePosition = innermostExpr.position;
             if (hasInvalidTypeCast) {
@@ -47,13 +54,9 @@ export function UnionTypeListItem(props: UnionTypeListItemProps) {
                     endColumn: valueExprPosition.startColumn
                 };
             } else {
-                targetPosition = {
-                    ...valueExprPosition,
-                    endLine: valueExprPosition.startLine,
-                    endColumn: valueExprPosition.startColumn
-                };
+                targetPosition = valueExprPosition;
             }
-            const modification = [getModification(`<${type}>`, targetPosition)];
+            const modification = [getModification(`<${type}>${defaultValue}`, targetPosition)];
             await context.applyModifications(modification);
         } finally {
             setIsAddingTypeCast(false);

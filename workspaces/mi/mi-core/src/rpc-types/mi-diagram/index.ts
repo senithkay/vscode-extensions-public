@@ -407,4 +407,5 @@ export interface MiDiagramAPI {
     getHelperPaneInfo: (params: GetHelperPaneInfoRequest) => Promise<GetHelperPaneInfoResponse>;
     testConnectorConnection: (params: TestConnectorConnectionRequest) => Promise<TestConnectorConnectionResponse>;
     saveConfig: (params: SaveConfigRequest) => Promise<SaveConfigResponse>;
+    getEULALicense: () => Promise<string>;
 }

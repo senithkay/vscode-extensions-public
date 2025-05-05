@@ -32,9 +32,14 @@ export function ComponentListView(props: ComponentListViewProps) {
     const { rpcClient } = useRpcContext();
     const [triggers, setTriggers] = useState<TriggerModelsResponse>({ local: [] });
     const { cacheTriggers, setCacheTriggers } = useVisualizerContext();
+    const [isNPSupported, setIsNPSupported] = useState<boolean>(false);
 
     useEffect(() => {
         getTriggers();
+
+        rpcClient.getCommonRpcClient().isNPSupported().then((supported) => {
+            setIsNPSupported(supported);
+        });
     }, []);
 
     const getTriggers = () => {
@@ -64,7 +69,7 @@ export function ComponentListView(props: ComponentListViewProps) {
                         <IntegrationAPIPanel scope={scope} />
                         <EventIntegrationPanel triggers={triggers} scope={scope} />
                         <FileIntegrationPanel triggers={triggers} scope={scope} />
-                        <OtherArtifactsPanel />
+                        <OtherArtifactsPanel isNPSupported={isNPSupported} />
                     </AddPanel>
                 </Container>
             </ViewContent>

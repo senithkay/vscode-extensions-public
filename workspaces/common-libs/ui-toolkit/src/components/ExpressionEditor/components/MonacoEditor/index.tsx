@@ -52,7 +52,7 @@ export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({
             // check if function aruments are missing
             const functionMatch = content.match(/^(\w+)\s*\((.*)\)$/);
             if (functionMatch) {
-                const [_fullMatch, fnName, args] = functionMatch;
+                const [, fnName, args] = functionMatch;
                 const argList = args.split(',');
                 argList.forEach((arg, index) => {
                     if (arg.trim().length === 0) {
@@ -106,6 +106,7 @@ export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({
                     [/\bconfigs\.\w+\b/, 'variable.configs'],
                     [/\b\d+\b/, 'number'],
                     [/".*?"/, 'string'],
+                    // eslint-disable-next-line no-useless-escape
                     [/[{}()\[\]]/, '@brackets'],
                     [/[;,.]/, 'delimiter'],
                     [/\b\w+(?=\s*\()/, 'function.name'],
@@ -317,3 +318,5 @@ export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({
         />
     );
 });
+
+MonacoEditor.displayName = 'MonacoEditor';

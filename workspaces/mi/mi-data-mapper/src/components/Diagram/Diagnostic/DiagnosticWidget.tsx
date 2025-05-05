@@ -18,14 +18,15 @@ export interface DiagnosticWidgetProps {
     value?: string,
     onClick?: () => void,
     isLabelElement? : boolean,
-    btnSx?: React.CSSProperties
+    btnSx?: React.CSSProperties,
+    editButtonText?: string
 }
 
 export function DiagnosticWidget(props: DiagnosticWidgetProps) {
-    const {diagnostic, value, onClick, btnSx} =  props;
+    const { diagnostic, value, editButtonText, onClick, btnSx } = props;
 
     return (
-        <DiagnosticTooltip diagnostic={diagnostic} value={value} onClick={onClick}>
+        <DiagnosticTooltip diagnostic={diagnostic} value={value} onClick={onClick} editButtonText={editButtonText}>
             <Button
                 appearance="icon"
                 data-testid={`expression-label-diagnostic`}

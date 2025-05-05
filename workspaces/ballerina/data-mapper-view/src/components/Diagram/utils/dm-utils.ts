@@ -1116,6 +1116,7 @@ export function getDefaultValue(typeName: string): string {
 			break;
 		case PrimitiveBalType.Nil:
 		case "anydata":
+		case "any":
 		case "()":
 			draftParameter = `()`;
 			break;
@@ -1695,9 +1696,13 @@ function getSpecificField(mappingConstruct: MappingConstructor, targetFieldName:
 	) as SpecificField;
 }
 
-export function isComplexExpression (node: STNode): boolean {
+export function isComplexExpression(node: STNode): boolean {
 	return (STKindChecker.isConditionalExpression(node)
 			|| (STKindChecker.isBinaryExpression(node) && STKindChecker.isElvisToken(node.operator)))
+}
+
+export function isIndexedExpression(node: STNode): boolean {
+	return STKindChecker.isIndexedExpression(node);
 }
 
 export function getFnDefForFnCall(node: FunctionCall): FnDefInfo {
@@ -1918,6 +1923,31 @@ export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: P
     }
     return '';
 };
+
+export function genArrayElementAccessExpr(node: STNode): string {
+    let accessors: string[] = [];
+	let targetNode = STKindChecker.isSpecificField(node) ? node.valueExpr : node;
+
+    while (STKindChecker.isIndexedExpression(targetNode)) {
+        const keyExprs = targetNode.keyExpression;
+		if (keyExprs?.length === 1 && STKindChecker.isNumericLiteral(keyExprs[0])) {
+			accessors.push(keyExprs[0].source);
+			targetNode = targetNode.containerExpression;
+		}
+    }
+    accessors.reverse();
+    return `[${accessors.join(",")}]`;
+}
+
+export function hasFieldAccessExpression(node: STNode): boolean {
+	if (!node) {
+		return false;
+	} else if (STKindChecker.isSpecificField(node) && STKindChecker.isIndexedExpression(node.valueExpr)) {
+		return true;
+	} else {
+		return STKindChecker.isIndexedExpression(node)
+	}
+}
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)

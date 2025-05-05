@@ -178,6 +178,23 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                 delete paramFields[name];
             }
         });
+
+        Object.keys(values).forEach((key: string) => {
+            // Handle param manager input type
+            if (Array.isArray(values[key])) {
+                const value = values[key];
+                let paramText = `[`;
+
+                value.forEach((item: any) => {
+                    const propertyName = item.propertyName;
+                    const propertyValue = item.propertyValue?.value ?? item.propertyValue;
+                    const text = `["${propertyName}","${propertyValue}"],`;
+                    paramText = paramText + text;
+                });
+                paramText = paramText + `]`;
+                paramFields[key] = paramText;
+            }
+        })
         return { attrFields, paramFields };
     }
 
@@ -229,16 +246,21 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
         const { attrFields, paramFields } = extractProperties(values, attributeNames);
 
+        const finalParameters: any = {};
+
+        // Add key-value pairs from param manager
+        params.paramValues.forEach(param => {
+            finalParameters[param.key] = param.value;
+        });
+
         // Transform the keys of the rest object
         const transformedParameters = Object.fromEntries(
             Object.entries(paramFields).map(([key, value]) => [getOriginalName(key), value])
                 .filter(([_, value]) => value && typeof value !== 'object')
         );
 
-        // Add key-value pairs from param manager
-        params.paramValues.forEach(param => {
-            transformedParameters[param.key] = param.value;
-        });
+        // Merge transformedParameters into finalParameters
+        Object.assign(finalParameters, transformedParameters);
 
         // Generate unique sequence and onError names if not provided
         if (!values.sequence) {

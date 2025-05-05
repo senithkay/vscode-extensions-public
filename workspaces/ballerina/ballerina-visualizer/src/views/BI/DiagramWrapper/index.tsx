@@ -43,7 +43,7 @@ const LeftElementsWrapper = styled.div`
 
 const AccessorType = styled.span`
     background-color: ${ThemeColors.SURFACE_BRIGHT};
-    color: ${ThemeColors.BADGE};
+    color: ${ThemeColors.ON_SURFACE};
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
@@ -482,7 +482,8 @@ function getParameters(syntaxTree: STNode) {
             .join(", ");
     } else if (
         STKindChecker.isFunctionDefinition(syntaxTree) &&
-        syntaxTree.functionBody.source.includes("@np:NaturalFunction external")
+        STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody) &&
+        syntaxTree.functionBody.expression.kind === "NaturalExpression"
     ) {
         return syntaxTree.functionSignature.parameters
             .map((param) => {

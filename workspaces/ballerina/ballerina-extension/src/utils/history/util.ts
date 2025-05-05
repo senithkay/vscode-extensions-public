@@ -30,6 +30,10 @@ export function isPositionEqual(position1: NodePosition, position2: NodePosition
         position1.endColumn === position2.endColumn;
 }
 
+export function isPositionWithinDeletedComponent(currentPosition: NodePosition, deletedPosition: NodePosition): boolean {
+    return currentPosition.startLine >= deletedPosition.startLine;
+}
+
 export function generateResourcePathString(resourcePathSegments: (DotToken | IdentifierToken | ResourcePathRestParam | ResourcePathSegmentParam | SlashToken)[]): string {
     let path: string = '';
     resourcePathSegments.forEach(pathSegment => {

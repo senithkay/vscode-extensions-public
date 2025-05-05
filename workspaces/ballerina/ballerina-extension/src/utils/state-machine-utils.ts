@@ -297,6 +297,16 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
                     }
                 };
             case DIRECTORY_MAP.NP_FUNCTION:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.BIDiagram,
+                        documentUri: normalizedDocumentUri,
+                        position: dir.position,
+                        identifier: dir.name,
+                        focusFlowDiagramView: FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION,
+                    },
+                    dataMapperDepth: 0
+                };
             case DIRECTORY_MAP.AUTOMATION:
             case DIRECTORY_MAP.FUNCTION:
             case DIRECTORY_MAP.REMOTE:

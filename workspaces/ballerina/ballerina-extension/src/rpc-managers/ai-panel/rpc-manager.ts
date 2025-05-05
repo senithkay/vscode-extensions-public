@@ -16,6 +16,8 @@ import {
     AddToProjectRequest,
     BIModuleNodesRequest,
     BISourceCodeResponse,
+    Command,
+    AIPanelPrompt,
     DeleteFromProjectRequest,
     DeveloperDocument,
     DiagnosticEntry,
@@ -30,7 +32,6 @@ import {
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
     GetModuleDirParams,
-    InitialPrompt,
     LLMDiagnostics,
     NotifyAIMappingsRequest,
     PostProcessRequest,
@@ -42,6 +43,7 @@ import {
     STModification,
     SourceFile,
     SyntaxTree,
+    TemplateId,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse
@@ -67,7 +69,7 @@ import { StateMachine, updateView } from "../../stateMachine";
 import { loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
+import { PARSING_ERROR, NOT_LOGGED_IN, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import {
     DEVELOPMENT_DOCUMENT,
     NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
@@ -85,58 +87,13 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
     private testGenAbortController: AbortController | null = null;
 
-    async getBackendURL(): Promise<string> {
+    // ==================================
+    // General Functions
+    // ==================================
+    async getBackendUrl(): Promise<string> {
         return new Promise(async (resolve) => {
             resolve(BACKEND_URL);
         });
-    }
-
-    async updateProject(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getToken(): Promise<string> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async login(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
-    }
-
-    async logout(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.LOGOUT);
-    }
-
-    async getAIVisualizerState(): Promise<AIVisualizerState> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getAiPanelState(): Promise<AIVisualizerState> {
-        return { state: StateMachineAI.state() };
-    }
-
-    async getAccessToken(): Promise<string> {
-        // return new Promise(async (resolve) => {
-        //     resolve(StateMachineAI.context().token as string);
-        // });
-        return new Promise(async (resolve) => {
-            const token = await extension.context.secrets.get('BallerinaAIUser');
-            resolve(token as string);
-        });
-    }
-
-    async refreshAccessToken(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
-        return {
-            response: await fetchData(params.url, params.options)
-        };
     }
 
     async getProjectUuid(): Promise<string> {
@@ -161,6 +118,53 @@ export class AiPanelRpcManager implements AIPanelAPI {
             console.log("Workspace folder path hashed successfully.");
             resolve(hashedWorkspaceFolderPath);
         });
+    }
+
+    async getAccessToken(): Promise<string> {
+        // return new Promise(async (resolve) => {
+        //     resolve(StateMachineAI.context().token as string);
+        // });
+        return new Promise(async (resolve) => {
+            const token = await extension.context.secrets.get('BallerinaAIUser');
+            resolve(token as string);
+        });
+    }
+
+    async getRefreshToken(): Promise<string> {
+        return new Promise(async (resolve) => {
+            const token = await refreshAccessToken();
+            resolve(token);
+        });
+    }
+
+    async getDefaultPrompt(): Promise<AIPanelPrompt> {
+        const defaultPrompt = extension.aiChatDefaultPrompt;
+        return new Promise((resolve) => {
+            resolve(defaultPrompt);
+        });
+    }
+
+    async login(): Promise<void> {
+        StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
+    }
+
+    async logout(): Promise<void> {
+        StateMachineAI.service().send(AI_EVENT_TYPE.LOGOUT);
+    }
+
+    async getAIVisualizerState(): Promise<AIVisualizerState> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getAiPanelState(): Promise<AIVisualizerState> {
+        return { state: StateMachineAI.state() };
+    }
+
+    async fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
+        return {
+            response: await fetchData(params.url, params.options)
+        };
     }
 
     async addToProject(req: AddToProjectRequest): Promise<void> {
@@ -254,21 +258,13 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return false;
     }
 
-    async getRefreshToken(): Promise<string> {
-        return new Promise(async (resolve) => {
-            const token = await refreshAccessToken();
-            resolve(token);
-        });
-    }
-
     async generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
         const logged = await isLoggedin();
 
         if (!logged) {
-            return { error: UNAUTHORIZED };
+            await handleLogin();
+            return { error: NOT_LOGGED_IN };
         }
-        commands.executeCommand("ballerina.close.ai.panel");
-        commands.executeCommand("ballerina.open.ai.panel", "datamap");
 
         let { filePath, position } = params;
 
@@ -309,7 +305,16 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
 
         const functionName = fnSt.functionName?.value || "";
-        extension.dataMappingFunctionName = functionName;
+
+        commands.executeCommand("ballerina.close.ai.panel");
+        commands.executeCommand("ballerina.open.ai.panel", {
+            type: 'command-template',
+            command: Command.DataMap,
+            templateId: TemplateId.MappingsForFunction,
+            params: {
+                functionName: functionName
+            }
+        });
     }
 
     async notifyAIMappings(params: NotifyAIMappingsRequest): Promise<boolean> {
@@ -372,7 +377,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
                 const projectModule: ProjectModule = {
                     moduleName: module.moduleName,
                     sourceFiles: [],
-                    isGenerated : module.isGenerated
+                    isGenerated: module.isGenerated
                 };
                 for (const [fileName, content] of Object.entries(module.sources)) {
                     // const filePath = `modules/${module.moduleName}/${fileName}`;
@@ -401,25 +406,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
         };
     }
 
-    async getInitialPrompt(): Promise<InitialPrompt> {
-        const initialPrompt = extension.initialPrompt;
-        if (initialPrompt) {
-            return {
-                exists: true,
-                text: initialPrompt,
-                dataMappingFunctionName: extension.dataMappingFunctionName || ""
-            };
-        } else {
-            return {
-                exists: false,
-                text: "",
-                dataMappingFunctionName: ""
-            };
-        }
-    }
-
     async clearInitialPrompt(): Promise<void> {
-        extension.initialPrompt = undefined;
+        extension.aiChatDefaultPrompt = undefined;
     }
 
     async checkSyntaxError(project: ProjectSource): Promise<boolean> {

@@ -164,6 +164,10 @@ const AddConnector = (props: AddConnectorProps) => {
         });
     }
 
+    const handleOnClose = () => {
+        sidePanelContext.pageStack.length > 1 ? sidepanelGoBack(sidePanelContext) : clearSidePanelState(sidePanelContext);
+    }
+
     const onClick = async (values: any) => {
         setDiagramLoading(true);
 
@@ -195,10 +199,6 @@ const AddConnector = (props: AddConnectorProps) => {
         clearSidePanelState(sidePanelContext);
 
     };
-
-    const handleOnClose = () => {
-        sidePanelContext.pageStack.length > 1 ? sidepanelGoBack(sidePanelContext) : clearSidePanelState(sidePanelContext);
-    }
 
     if (isLoading) {
         return <ProgressIndicator />;

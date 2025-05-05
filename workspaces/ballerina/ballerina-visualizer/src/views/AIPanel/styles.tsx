@@ -11,10 +11,6 @@
 
 import styled from "@emotion/styled";
 
-export const Footer = styled.footer({
-    padding: "20px",
-});
-
 export const FlexRow = styled.div({
     display: "flex",
     flexDirection: "row",

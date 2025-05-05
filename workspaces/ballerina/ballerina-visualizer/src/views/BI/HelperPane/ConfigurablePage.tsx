@@ -27,6 +27,9 @@ namespace S {
         display: flex;
         flex-direction: column;
         gap: 8px;
+        background-color: var(--vscode-menu-background);
+        padding: 10px;
+        border-radius: 4px;
     `
 
     export const FormBody = styled.div`
