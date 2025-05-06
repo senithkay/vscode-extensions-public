@@ -11,23 +11,37 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { workspace } from 'vscode';
 import { Uri, Position } from 'vscode';
-import { ArtifactData, ArtifactsNotification, DIRECTORY_MAP, LinePosition, ProjectStructureArtifactResponse, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
+import { ArtifactData, LinePosition, ProjectStructureArtifactResponse, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
 import path from 'path';
 import { StateMachine } from '../stateMachine';
 import { ArtifactsUpdated, ArtifactNotificationHandler } from './project-artifacts-handler';
+import { existsSync, writeFileSync } from 'fs';
 
 export interface UpdateSourceCodeRequest {
     textEdits: {
         [key: string]: TextEdit[];
     };
+    resolveMissingDependencies?: boolean;
 }
 
-export async function updateSourceCodeResponse(request: UpdateSourceCodeRequest, artifactData?: ArtifactData): Promise<ProjectStructureArtifactResponse[]> {
+export async function updateSourceCodeResponse(updateSourceCodeRequest: UpdateSourceCodeRequest, artifactData?: ArtifactData): Promise<ProjectStructureArtifactResponse[]> {
     StateMachine.setEditMode();
     const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
-    for (const [key, value] of Object.entries(request.textEdits)) {
+    for (const [key, value] of Object.entries(updateSourceCodeRequest.textEdits)) {
         const fileUri = Uri.file(key);
         const fileUriString = fileUri.toString();
+        if (!existsSync(fileUri.fsPath)) {
+            writeFileSync(fileUri.fsPath, '');
+            await new Promise(resolve => setTimeout(resolve, 500)); // Add small delay to ensure file is created
+            await StateMachine.langClient().didOpen({
+                textDocument: {
+                    uri: fileUriString,
+                    text: '',
+                    languageId: 'ballerina',
+                    version: 1
+                }
+            });
+        }
         const edits = value;
 
         if (edits && edits.length > 0) {
@@ -81,8 +95,14 @@ export async function updateSourceCodeResponse(request: UpdateSourceCodeRequest,
                     // Get the artifact notification handler instance
                     const notificationHandler = ArtifactNotificationHandler.getInstance();
                     // Subscribe to artifact updated notifications
-                    let unsubscribe = notificationHandler.subscribe(ArtifactsUpdated.method, artifactData, (payload) => {
+                    let unsubscribe = notificationHandler.subscribe(ArtifactsUpdated.method, artifactData, async (payload) => {
                         console.log("Received notification:", payload);
+                        clearTimeout(timeoutId);
+                        if (updateSourceCodeRequest.resolveMissingDependencies) {
+                            await StateMachine.langClient().resolveMissingDependencies({
+                                documentIdentifier: { uri: fileUriString },
+                            });
+                        }
                         resolve(payload.data);
                         StateMachine.setReadyMode();
                         unsubscribe();

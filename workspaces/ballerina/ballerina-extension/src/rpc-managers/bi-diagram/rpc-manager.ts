@@ -74,6 +74,7 @@ import {
     ImportStatements,
     LinePosition,
     ModelFromCodeRequest,
+    NodeKind,
     OpenAPIClientDeleteRequest,
     OpenAPIClientDeleteResponse,
     OpenAPIClientGenerationRequest,
@@ -195,7 +196,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         const artifacts = await updateSourceCodeResponse({ textEdits: model.textEdits }, { artifactType: DIRECTORY_MAP.CONNECTION });
                         resolve({ artifacts });
                     } else {
-                        const artifacts = await updateSourceCodeResponse({ textEdits: model.textEdits }, { artifactType: DIRECTORY_MAP.FUNCTION });
+                        const artifacts = await updateSourceCodeResponse({ textEdits: model.textEdits }, { artifactType: this.getDirectoryMapFromNodeKind(params.flowNode.codedata.node) });
                         resolve({ artifacts });
                     }
                 })
@@ -206,6 +207,24 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     });
                 });
         });
+    }
+
+    private getDirectoryMapFromNodeKind(nodeKind: NodeKind): DIRECTORY_MAP {
+        switch (nodeKind) {
+            case 'FUNCTION':
+                return DIRECTORY_MAP.FUNCTION;
+            case 'FUNCTION_DEFINITION':
+                return DIRECTORY_MAP.FUNCTION;
+            case 'AUTOMATION':
+                return DIRECTORY_MAP.AUTOMATION;
+            case 'DATA_MAPPER_DEFINITION':
+                return DIRECTORY_MAP.DATA_MAPPER;
+            case 'NP_FUNCTION_DEFINITION':
+                return DIRECTORY_MAP.NP_FUNCTION;
+            // Add other cases as needed
+            default:
+                return DIRECTORY_MAP.FUNCTION;
+        }
     }
 
     async applyTextEdits(filePath: string, textEdits: TextEdit[]): Promise<void> {
