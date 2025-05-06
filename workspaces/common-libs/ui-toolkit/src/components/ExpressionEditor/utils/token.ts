@@ -21,7 +21,7 @@ const EXPRESSION_REGEX = /\$\{([^}]+)\}/g;
 const EXPRESSION_TOKEN_REGEX = /<div[^>]*>\s*<span[^>]*>\s*([^<]+?)\s*<\/span>\s*.+\s*<\/div>/g;
 
 const wrapTextInDiv = (text: string): string => {
-    return `<div class="expression-token" contenteditable="false">
+    return `<div class="expression-token" contenteditable="false" title="${text}">
     <span class="expression-token-text">${text}</span>
     <span class="expression-token-close">×</span>
 </div>`;

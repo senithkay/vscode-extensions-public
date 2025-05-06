@@ -100,10 +100,11 @@ namespace S {
             padding-left: 4px;
             border-radius: 2px;
             margin-inline: 4px;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
             line-height: normal;
             user-select: none;
-            white-space: normal;
+            max-width: 200px;
             cursor: pointer;
         }
 
@@ -111,13 +112,22 @@ namespace S {
             background-color: var(--button-primary-hover-background);
         }
 
+        .expression-token-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
         .expression-token-close {
             opacity: 0.7;
             font-size: 12px;
             padding: 0 4px;
+            margin: 2px 0 2px 4px;
             border-left: 1px solid var(--vscode-button-foreground);
             color: color-mix(in srgb, var(--vscode-button-foreground) 70%, transparent);
             background-color: color-mix(in srgb, var(--vscode-button-background) 70%, transparent);
+            flex-shrink: 0;
 
             &:hover {
                 color: var(--vscode-button-foreground);
