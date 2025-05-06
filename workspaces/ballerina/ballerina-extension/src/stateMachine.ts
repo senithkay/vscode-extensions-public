@@ -46,18 +46,11 @@ const stateMachine = createMachine<MachineContext>(
                 actions: [
                     assign({
                         projectStructure: (context, event) => event.payload,
-                        recentArtifacts: (context, event) => event.recentArtifacts,
-                        artifactData: (context, event) => undefined
                     }),
                     () => {
                         commands.executeCommand("BI.project-explorer.refresh");
                     }
                 ]
-            },
-            SET_ARTIFACT_DATA: {
-                actions: assign({
-                    artifactData: (context, event) => event.payload
-                })
             }
         },
         states: {
@@ -436,15 +429,13 @@ export const StateMachine = {
         return typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
     },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
-    updateProjectStructure: (payload: ProjectStructureResponse, recentArtifacts: ProjectStructureArtifactResponse[]) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, recentArtifacts }); },
-    setArtifactData: (payload: ArtifactData) => { stateService.send({ type: "SET_ARTIFACT_DATA", payload }); },
+    updateProjectStructure: (payload: ProjectStructureResponse) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
     },
 };
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
-    StateMachine.setReadyMode();
     if (resetHistory) {
         history?.clear();
     }

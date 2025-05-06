@@ -8,7 +8,7 @@
  */
 
 import { URI, Utils } from "vscode-uri";
-import { ARTIFACT_TYPE, Artifacts, ArtifactsNotification, BaseArtifact, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, ProjectStructureArtifactResponse, ProjectStructureResponse, SourceUpdateResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { ARTIFACT_TYPE, Artifacts, ArtifactsNotification, BaseArtifact, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, ProjectStructureArtifactResponse, ProjectStructureResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { StateMachine } from "../stateMachine";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -16,7 +16,7 @@ import { ExtendedLangClient } from "../core/extended-language-client";
 import { ServiceDesignerRpcManager } from "../rpc-managers/service-designer/rpc-manager";
 import { injectAgent, injectAgentCode, injectImportIfMissing } from "./source-utils";
 import { tmpdir } from "os";
-import { notifyArtifactUpdated } from "../RPCLayer";
+import { ArtifactsUpdated, ArtifactNotificationHandler } from "./project-artifacts-handler";
 
 export async function buildProjectArtifactsStructure(projectDir: string, langClient: ExtendedLangClient, isUpdate: boolean = false): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
@@ -42,7 +42,7 @@ export async function buildProjectArtifactsStructure(projectDir: string, langCli
         await populateLocalConnectors(projectDir, result);
     }
     if (isUpdate) {
-        StateMachine.updateProjectStructure({ ...result }, []);
+        StateMachine.updateProjectStructure({ ...result });
     }
     return result;
 }
@@ -59,10 +59,14 @@ export async function updateProjectArtifacts(publishedArtifacts: ArtifactsNotifi
         }
         const entryLocations = await traverseUpdatedComponents(publishedArtifacts.artifacts, currentProjectStructure);
         if (entryLocations.length > 0) {
-            notifyArtifactUpdated(entryLocations);
+            const notificationHandler = ArtifactNotificationHandler.getInstance();
+            // Publish a notification to the artifact handler
+            notificationHandler.publish(ArtifactsUpdated.method, {
+                data: entryLocations,
+                timestamp: Date.now()
+            });
         }
-        StateMachine.setReadyMode();
-        StateMachine.updateProjectStructure({ ...currentProjectStructure }, entryLocations); // Send notification to the current view
+        StateMachine.updateProjectStructure({ ...currentProjectStructure }); // Update the project structure and refresh the tree
     }
 }
 
@@ -131,15 +135,6 @@ async function getEntryValue(artifact: BaseArtifact, icon: string, moduleName?: 
                     startColumn: aiResourceLocation.startLine.offset,
                     startLine: aiResourceLocation.startLine.line
                 };
-                // Hack to handle AI services --------------------------------->
-                // Inject the AI agent code into the service when new service is created
-                const isNewService = StateMachine.context().artifactData?.isNew;
-                const agentName = artifact.name.split('-')[1].trim().replace(/\//g, '');
-                const tempServiceAgentName = StateMachine.context().artifactData?.serviceName;
-                if (isNewService && artifact.module === "ai" && agentName === tempServiceAgentName) {
-                    const injectedResult = await injectAIAgent(artifact);
-                    entryValue.position = injectedResult.position;
-                }
             } else {
                 // Get the children of the service
                 const resourceFunctions = await getComponents(artifact.children, DIRECTORY_MAP.RESOURCE, icon, artifact.module);
@@ -310,8 +305,22 @@ async function processAddition(artifact: BaseArtifact, artifactCategoryKey: stri
                 projectStructure.directoryMap[mapping.mapKey] = [];
             }
             entryValue.isNew = true; // This is a flag to identify the new artifact
+
+            // Hack to handle AI services --------------------------------->
+            // Inject the AI agent code into the service when new service is created
+            if (artifact.module === "ai" && artifact.type === DIRECTORY_MAP.SERVICE) {
+                const aiResourceLocation = Object.values(artifact.children).find(child => child.type === DIRECTORY_MAP.RESOURCE)?.location;
+                const startLine = aiResourceLocation.startLine.line;
+                const endLine = aiResourceLocation.endLine.line;
+                const isEmptyResource = endLine - startLine === 1;
+                if (isEmptyResource) {
+                    const injectedResult = await injectAIAgent(artifact);
+                    entryValue.position = injectedResult.position;
+                }
+            }
+            // <-------------------------------------------------------------
             projectStructure.directoryMap[mapping.mapKey]?.push(entryValue);
-            return findTempDataEntry(mapping.mapKey, entryValue);
+            return entryValue;
         } catch (error) {
             console.error(`Error processing addition for artifact ${artifact.id} in category ${artifactCategoryKey}:`, error);
             return undefined;
@@ -346,7 +355,7 @@ async function processUpdate(artifact: BaseArtifact, artifactCategoryKey: string
                 console.warn(`Artifact ${artifact.id} not found for update in ${mapping.mapKey}, adding it instead.`);
                 projectStructure.directoryMap[mapping.mapKey]?.push(entryValue);
             }
-            return findTempDataEntry(mapping.mapKey, entryValue);
+            return entryValue;
         } catch (error) {
             console.error(`Error processing update for artifact ${artifact.id} in category ${artifactCategoryKey}:`, error);
             return undefined;
@@ -395,21 +404,6 @@ async function traverseUpdatedComponents(publishedArtifacts: Artifacts, currentP
         }
     }
     return entryLocations;
-}
-
-// Find the tempData Entry
-async function findTempDataEntry(mapType: DIRECTORY_MAP, entryValue: ProjectStructureArtifactResponse): Promise<ProjectStructureArtifactResponse | undefined> {
-    // Check if the temp data is of the same type as the map type
-    const tempArtifactType = StateMachine.context().artifactData?.artifactType;
-    const tempIdentifier = StateMachine.context().artifactData?.identifier;
-    if (tempArtifactType === mapType) {
-        if (tempIdentifier && tempIdentifier === entryValue.name) {
-            return entryValue;
-        }
-        if (!tempIdentifier) {
-            return entryValue;
-        }
-    }
 }
 
 async function populateLocalConnectors(projectDir: string, response: ProjectStructureResponse) {

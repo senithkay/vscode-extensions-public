@@ -11,17 +11,18 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { workspace } from 'vscode';
 import { Uri, Position } from 'vscode';
-import { ArtifactsNotification, LinePosition, ProjectStructureArtifactResponse, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
+import { ArtifactData, ArtifactsNotification, DIRECTORY_MAP, LinePosition, ProjectStructureArtifactResponse, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
 import path from 'path';
 import { StateMachine } from '../stateMachine';
+import { ArtifactsUpdated, ArtifactNotificationHandler } from './project-artifacts-handler';
 
 export interface UpdateSourceCodeRequest {
     textEdits: {
         [key: string]: TextEdit[];
-    }
+    };
 }
 
-export async function updateSourceCodeResponse(request: UpdateSourceCodeRequest): Promise<ProjectStructureArtifactResponse[]> {
+export async function updateSourceCodeResponse(request: UpdateSourceCodeRequest, artifactData?: ArtifactData): Promise<ProjectStructureArtifactResponse[]> {
     StateMachine.setEditMode();
     const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
     for (const [key, value] of Object.entries(request.textEdits)) {
@@ -76,14 +77,36 @@ export async function updateSourceCodeResponse(request: UpdateSourceCodeRequest)
                 );
                 await workspace.applyEdit(workspaceEdit);
 
-                // Wait till we get the artifacts and the state machine is ready
-                while (!StateMachine.isReady()) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
-                return StateMachine.context().recentArtifacts;
+                return new Promise((resolve, reject) => {
+                    // Get the artifact notification handler instance
+                    const notificationHandler = ArtifactNotificationHandler.getInstance();
+                    // Subscribe to artifact updated notifications
+                    let unsubscribe = notificationHandler.subscribe(ArtifactsUpdated.method, artifactData, (payload) => {
+                        console.log("Received notification:", payload);
+                        resolve(payload.data);
+                        StateMachine.setReadyMode();
+                        unsubscribe();
+                    });
+
+                    // Set a timeout to reject if no notification is received within 10 seconds
+                    const timeoutId = setTimeout(() => {
+                        console.log("No artifact update notification received within 10 seconds");
+                        unsubscribe();
+                        StateMachine.setReadyMode();
+                        reject(new Error("Operation timed out. Please try again."));
+                    }, 10000);
+
+                    // Clear the timeout when notification is received
+                    const originalUnsubscribe = unsubscribe;
+                    unsubscribe = () => {
+                        clearTimeout(timeoutId);
+                        originalUnsubscribe();
+                    };
+                });
             }
         }
     } catch (error) {
+        StateMachine.setReadyMode();
         console.log(">>> error updating source", error);
     }
 }

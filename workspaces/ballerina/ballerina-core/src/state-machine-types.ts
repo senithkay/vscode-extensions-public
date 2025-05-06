@@ -113,15 +113,11 @@ export interface VisualizerLocation {
     metadata?: VisualizerMetadata;
     scope?: SCOPE;
     projectStructure?: ProjectStructureResponse;
-    recentArtifacts?: ProjectStructureArtifactResponse[];
-    artifactData?: ArtifactData;
 }
 
 export interface ArtifactData {
-    artifactType?: DIRECTORY_MAP;
+    artifactType: DIRECTORY_MAP;
     identifier?: string;
-    serviceName?: string;
-    isNew?: boolean;
 }
 
 export interface VisualizerMetadata {

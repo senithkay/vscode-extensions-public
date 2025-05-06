@@ -66,14 +66,6 @@ export function FunctionForm(props: FunctionFormProps) {
             formType.current = "Automation";
             setTitleSubtitle('An automation that can be invoked periodically or manually');
             setFormSubtitle('Periodic invocation should be scheduled in an external system such as cronjob, k8s, or Devant');
-
-            rpcClient.onArtifactUpdated({ artifactType: DIRECTORY_MAP.AUTOMATION, identifier: functionName }, (artifacts: ProjectStructureArtifactResponse[]) => {
-                console.log("Artifact updated: ", artifacts);
-                if (artifacts.length > 0) {
-                    rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: artifacts[0].path, position: artifacts[0].position } })
-                }
-            });
-
         } else if (isDataMapper) {
             nodeKind = 'DATA_MAPPER_DEFINITION';
             formType.current = 'Data Mapper';
@@ -89,12 +81,6 @@ export function FunctionForm(props: FunctionFormProps) {
             formType.current = 'Function';
             setTitleSubtitle('Build reusable custom flows');
             setFormSubtitle('Define a flow that can be used within your integration');
-            rpcClient.onArtifactUpdated({ artifactType: DIRECTORY_MAP.FUNCTION, identifier: functionName }, (artifacts: ProjectStructureArtifactResponse[]) => {
-                console.log("Artifact updated: ", artifacts);
-                if (artifacts.length > 0) {
-                    rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: artifacts[0].path, position: artifacts[0].position } })
-                }
-            });
         }
 
         if (functionName) {
@@ -273,9 +259,18 @@ export function FunctionForm(props: FunctionFormProps) {
             .getBIDiagramRpcClient()
             .getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
 
-        if (!sourceCode.textEdits) {
+        if (sourceCode.artifacts.length === 0) {
             setSaving(false);
             showErrorNotification();
+        } else {
+            const newArtifact = sourceCode.artifacts.find(res => res.isNew);
+            if (newArtifact) {
+                rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: newArtifact.path, position: newArtifact.position } })
+            }
+            const updatedArtifact = sourceCode.artifacts.find(res => !res.isNew && res.name == functionName);
+            if (updatedArtifact) {
+                rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: updatedArtifact.path, position: updatedArtifact.position } })
+            }
         }
     };
 

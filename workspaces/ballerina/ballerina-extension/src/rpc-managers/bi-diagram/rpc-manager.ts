@@ -109,6 +109,7 @@ import {
     UpdateTypeResponse,
     UpdateTypesRequest,
     UpdateTypesResponse,
+    UpdatedArtifactsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
@@ -183,26 +184,25 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async getSourceCode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
+    async getSourceCode(params: BISourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         console.log(">>> requesting bi source code from ls", params);
-        const { flowNode, isFunctionNodeUpdate } = params;
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getSourceCode(params)
                 .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
                     if (params?.isConnector) {
-                        const response = await updateSourceCodeResponse({ textEdits: model.textEdits });
-                        resolve(model);
+                        const artifacts = await updateSourceCodeResponse({ textEdits: model.textEdits }, { artifactType: DIRECTORY_MAP.CONNECTION });
+                        resolve({ artifacts });
                     } else {
-                        const response = await updateSourceCodeResponse({ textEdits: model.textEdits });
-                        resolve(model);
+                        const artifacts = await updateSourceCodeResponse({ textEdits: model.textEdits }, { artifactType: DIRECTORY_MAP.FUNCTION });
+                        resolve({ artifacts });
                     }
                 })
                 .catch((error) => {
                     console.log(">>> error fetching source code from ls", error);
                     return new Promise((resolve) => {
-                        resolve(undefined);
+                        resolve({ artifacts: [], error: error });
                     });
                 });
         });
@@ -479,7 +479,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
+    async deleteFlowNode(params: BISourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         console.log(">>> requesting bi delete node from ls", params);
         // Clean project diagnostics before deleting flow node
         await cleanAndValidateProject(StateMachine.langClient(), StateMachine.context().projectUri);
@@ -489,8 +489,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .deleteFlowNode(params)
                 .then(async (model) => {
                     console.log(">>> bi delete node from ls", model);
-                    await updateSourceCodeResponse({ textEdits: model.textEdits });
-                    resolve(model);
+                    const artifacts = await updateSourceCodeResponse({ textEdits: model.textEdits }, { artifactType: DIRECTORY_MAP.FUNCTION });
+                    resolve({ artifacts });
                 })
                 .catch((error) => {
                     console.log(">>> error fetching delete node from ls", error);
@@ -561,7 +561,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             }
 
             const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
-            await updateSourceCodeResponse({ textEdits: response.textEdits });
+            await updateSourceCodeResponse({ textEdits: response.textEdits }, { artifactType: DIRECTORY_MAP.CONFIGURABLE });
             resolve(response);
         });
     }
@@ -1202,7 +1202,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async renameIdentifier(params: RenameIdentifierRequest): Promise<void> {
         const projectUri = StateMachine.context().projectUri;
         const filePath = path.join(projectUri, params.fileName);
-        StateMachine.setEditMode();
         // StateMachine.setTempData({
         //     identifier: params.newName
         // });

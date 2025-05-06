@@ -35,6 +35,7 @@ import { registerTestManagerRpcHandlers } from './rpc-managers/test-manager/rpc-
 import { registerIcpServiceRpcHandlers } from './rpc-managers/icp-service/rpc-handler';
 import { ballerinaExtInstance } from './core';
 import { registerAgentChatRpcHandlers } from './rpc-managers/agent-chat/rpc-handler';
+import { ArtifactsUpdated, ArtifactNotificationHandler } from './utils/project-artifacts-handler';
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -90,8 +91,15 @@ export class RPCLayer {
         // ----- Popup Views RPC Methods
         RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
 
+        // ----- Artifact Updated Common Notification
         RPCLayer._messenger.onRequest(onArtifactUpdatedRequest, (artifactData: ArtifactData) => {
-            StateMachine.setArtifactData(artifactData);
+            // Get the notification handler instance
+            const notificationHandler = ArtifactNotificationHandler.getInstance();
+            // Subscribe to notifications
+            const artifactUpdateUnsubscribe = notificationHandler.subscribe(ArtifactsUpdated.method, artifactData, (payload) => {
+                RPCLayer._messenger.sendNotification(onArtifactUpdatedNotification, { type: 'webview', webviewType: VisualizerWebview.viewType }, payload.data);
+                artifactUpdateUnsubscribe();
+            });
         });
     }
 
@@ -144,10 +152,6 @@ function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
 
 export function notifyCurrentWebview() {
     RPCLayer._messenger.sendNotification(projectContentUpdated, { type: 'webview', webviewType: VisualizerWebview.viewType }, true);
-}
-
-export function notifyArtifactUpdated(artifacts: ProjectStructureArtifactResponse[]) {
-    RPCLayer._messenger.sendNotification(onArtifactUpdatedNotification, { type: 'webview', webviewType: VisualizerWebview.viewType }, artifacts);
 }
 
 export function notifyAiWebview() {

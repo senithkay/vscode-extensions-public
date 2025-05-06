@@ -187,12 +187,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
-            // Update the state tempData with the service model. This is used to navigate after the source code is updated
-            // StateMachine.setArtifactData({
-            //     artifactType: DIRECTORY_MAP.AUTOMATION,
-            //     artifact: params.service,
-            //     isNew: true
-            // });
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
@@ -342,7 +336,6 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     }
 
     private async updateSource(params: ListenerSourceCodeResponse, identifiers?: string[], targetPosition?: NodePosition): Promise<NodePosition> {
-        StateMachine.setEditMode();
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
         let position: NodePosition;
         const sortedTextEdits = Object.entries(params.textEdits).sort((a, b) => b[0].length - a[0].length);
