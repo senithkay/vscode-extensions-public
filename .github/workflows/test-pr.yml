@@ -14,4 +14,5 @@ jobs:
     if: github.event.pull_request.draft == false
     uses: ./.github/workflows/build.yml
     secrets: inherit  
-    
+    with:
+      skipUiTests: ${{ !contains(github.event.pull_request.labels.*.name, 'Checks/Run with UI Tests') }}
