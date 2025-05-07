@@ -1739,11 +1739,18 @@ const AIChat: React.FC = () => {
         let formatted_response = ";";
         setIsLoading(true);
         try {
-            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);
-
+            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);            
             formatted_response = assistant_response.replace(
-                /```ballerina\s*([\s\S]+?)\s*```/g,
-                "<inlineCode>$1<inlineCode>"
+                /^([ \t]*)```ballerina\s*\n([\s\S]*?)^[ \t]*```/gm,
+                (_, indent, codeBlock) => {
+                  // Remove the common indent from all lines in the code block
+                  const cleanedCode = codeBlock
+                    .split('\n')
+                    .map((line: string) => line.startsWith(indent) ? line.slice(indent.length) : line)
+                    .join('\n');
+                    
+                  return `<inlineCode>\n${cleanedCode}\n<inlineCode>`;
+                }
             );
 
             const referenceRegex = /reference sources:\s*((?:<https?:\/\/[^\s>]+>\s*)+)/;
@@ -1754,8 +1761,6 @@ const AIChat: React.FC = () => {
                 const referencesTag = `<references>${JSON.stringify(references)}<references>`;
                 formatted_response = formatted_response.replace(referenceRegex, referencesTag);
             }
-
-            console.log("Formatted Response: " + formatted_response);
 
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
