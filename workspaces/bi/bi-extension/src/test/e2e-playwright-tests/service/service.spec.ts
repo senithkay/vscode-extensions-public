@@ -34,7 +34,7 @@ export default function createTests() {
                 }
             });
             await form.submit('Create');
-            const context = artifactWebView.locator('text=/sample');
+            const context = artifactWebView.locator(`text=/sample${testAttempt}`);
             await context.waitFor();
             const projectExplorer = new ProjectExplorer(page.page);
             await projectExplorer.findItem(['sample', 'HTTP Service - /sample'], true);
@@ -63,7 +63,7 @@ export default function createTests() {
                 }
             });
             await form.submit('Save');
-            const context = artifactWebView.locator('text=/newSample');
+            const context = artifactWebView.locator(`text=/newSample${testAttempt}`);
             await context.waitFor();
         });
     });
