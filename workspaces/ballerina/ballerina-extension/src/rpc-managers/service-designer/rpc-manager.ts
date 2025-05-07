@@ -244,6 +244,12 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const result: UpdatedArtifactsResponse = {
                     artifacts: artifacts
                 };
+                // Find the correct artifact by checking the position
+                const lineRange = params.service.codedata.lineRange;
+                const artifact = artifacts.find(artifact => artifact.position.startLine === lineRange.startLine.line && artifact.position.startColumn === lineRange.startLine.offset);
+                if (artifact) {
+                    result.artifacts = [artifact];
+                }
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -286,7 +292,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     params.filePath = targetFile;
                 }
                 const res: ResourceSourceCodeResponse = await context.langClient.addResourceSourceCode(params);
-                const artifacts = await updateSourceCodeResponse(res, { artifactType: DIRECTORY_MAP.RESOURCE });
+                const artifacts = await updateSourceCodeResponse(res, { artifactType: DIRECTORY_MAP.SERVICE });
                 const result: UpdatedArtifactsResponse = {
                     artifacts: artifacts
                 };
@@ -302,7 +308,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const context = StateMachine.context();
             try {
                 const res: ResourceSourceCodeResponse = await context.langClient.updateResourceSourceCode(params);
-                const artifacts = await updateSourceCodeResponse(res, { artifactType: DIRECTORY_MAP.RESOURCE });
+                const artifacts = await updateSourceCodeResponse(res, { artifactType: DIRECTORY_MAP.SERVICE });
                 const result: UpdatedArtifactsResponse = {
                     artifacts: artifacts
                 };
@@ -330,7 +336,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const context = StateMachine.context();
             try {
                 const res: ResourceSourceCodeResponse = await context.langClient.addFunctionSourceCode(params);
-                const artifacts = await updateSourceCodeResponse(res, { artifactType: DIRECTORY_MAP.RESOURCE });
+                const artifacts = await updateSourceCodeResponse(res, { artifactType: DIRECTORY_MAP.SERVICE });
                 const result: UpdatedArtifactsResponse = {
                     artifacts: artifacts
                 };

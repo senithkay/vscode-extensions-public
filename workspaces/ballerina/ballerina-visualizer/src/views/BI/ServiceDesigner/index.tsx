@@ -89,13 +89,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const [projectListeners, setProjectListeners] = useState<ProjectStructureArtifactResponse[]>([]);
 
     useEffect(() => {
-        fetchService();
+        fetchService(position);
     }, [position]);
 
-    const fetchService = () => {
+    const fetchService = (targetPosition: NodePosition) => {
         const lineRange: LineRange = {
-            startLine: { line: position.startLine, offset: position.startColumn },
-            endLine: { line: position.endLine, offset: position.endColumn },
+            startLine: { line: targetPosition.startLine, offset: targetPosition.startColumn },
+            endLine: { line: targetPosition.endLine, offset: targetPosition.endColumn },
         };
         try {
             rpcClient
@@ -203,7 +203,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             };
             const deleteAction: STModification = removeStatement(targetPosition);
             await applyModifications(rpcClient, [deleteAction]);
-            fetchService();
+            fetchService(targetPosition);
         }
     };
 
@@ -218,6 +218,12 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
+            const newArtifact = res.artifacts.find(res => res.isNew);
+            if (newArtifact) {
+                fetchService(newArtifact.position);
+                setIsSaving(false);
+                return;
+            }
         } else {
             res = await rpcClient
                 .getServiceDesignerRpcClient()

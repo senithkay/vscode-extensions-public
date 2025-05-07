@@ -121,6 +121,12 @@ export function ServiceWizard(props: ServiceWizardProps) {
     const handleServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
+        const newArtifact = res.artifacts.find(res => res.isNew);
+        if (newArtifact) {
+            rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: newArtifact.path, position: newArtifact.position } });
+            setSaving(false);
+            return;
+        }
     }
 
     const onBack = () => {
