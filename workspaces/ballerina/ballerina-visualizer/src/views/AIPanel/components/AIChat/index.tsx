@@ -1386,6 +1386,12 @@ const AIChat: React.FC = () => {
     ): DataMappingRecord | Error {
         const isArray = recordName.endsWith("[]");
         const cleanedRecordName = recordName.replace(/\[\]$/, "");
+
+        // Check for primitive types
+        const primitiveTypes = ["string", "int", "boolean", "float", "decimal"];
+        if (primitiveTypes.includes(cleanedRecordName)) {
+            return { type: `${cleanedRecordName}`, isArray, filePath: null };
+        }
         const rec = recordMap.get(cleanedRecordName);
 
         if (!rec) {
@@ -1396,7 +1402,7 @@ const AIChat: React.FC = () => {
                         if (imp.alias) {
                             return cleanedRecordName.startsWith(imp.alias);
                         }
-                        const moduleNameParts = imp.moduleName.split(".");
+                        const moduleNameParts = imp.moduleName.split(/[./]/);
                         const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
                         return cleanedRecordName.startsWith(inferredAlias);
                     });
