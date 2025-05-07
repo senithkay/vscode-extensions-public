@@ -7,6 +7,11 @@ jobs:
   Build:
     uses: ./.github/workflows/build.yml
     secrets: inherit  
+    with:
+      bi: true
+      mi: true
+      runTests: true
+      runE2ETests: true
 
   NotifySuccess:
     name: Notify
