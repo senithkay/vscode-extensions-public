@@ -8,7 +8,7 @@
  */
 
 import { ArrayTypeDesc, FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, Attachment, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords } from "@wso2-enterprise/ballerina-core";
+import { ErrorCode, FormField, STModification, SyntaxTree, Attachment, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords, AIMachineEventType } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 
@@ -26,13 +26,12 @@ import {
     INVALID_RECORD_UNION_TYPE
 } from "../../views/ai-panel/errorCodes";
 import { hasStopped } from "./rpc-manager";
-import { StateMachineAI } from "../../views/ai-panel/aiMachine";
-import { extension } from "../../BalExtensionContext";
-import axios from "axios";
-import { getPluginConfig } from "../../../src/utils";
+// import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import path from "path";
 import * as fs from 'fs';
-import { AUTH_CLIENT_ID, AUTH_ORG, BACKEND_URL } from "../../features/ai/utils";
+import { BACKEND_URL } from "../../features/ai/utils";
+import { getAccessToken, getRefreshedAccessToken } from "../../../src/utils/ai/auth";
+import { AIStateMachine } from "../../../src/views/ai-panel/aiMachine";
 
 const BACKEND_BASE_URL = BACKEND_URL.replace(/\/v2\.0$/, "");
 //TODO: Temp workaround as custom domain seem to block file uploads
@@ -44,34 +43,6 @@ const REQUEST_TIMEOUT = 2000000;
 
 let abortController = new AbortController();
 const primitiveTypes = ["string", "int", "float", "decimal", "boolean"];
-
-export async function getAccessToken(): Promise<string> {
-    let token:string = await extension.context.secrets.get("BallerinaAIUser");
-    if (token) {
-        return token;
-    }
-    return Promise.reject(new Error("Access token not found"));
-}
-
-export async function isLoggedin(): Promise<boolean> {
-    try {
-        await getAccessToken();
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
-
-export async function handleLogin() : Promise<void> {
-    const quickPicks: QuickPickItem[] = [];
-    quickPicks.push({ label: "WSO2: Copilot Login", description: "Register/Login to WSO2 Copilot"});
-
-    const options: QuickPickOptions = { canPickMany: false, title: "You need to login to access WSO2 Copilot features. Please login and retry." };
-    const selected = await window.showQuickPick(quickPicks, options);
-    if (selected) {
-        StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
-    }
-}
 
 export function handleStop() {
     abortController.abort();
@@ -697,40 +668,6 @@ async function getMappingString(mapping: object, parameterDefinitions: Parameter
     return path;
 }
 
-export async function refreshAccessToken(): Promise<string> {
-    const CommonReqHeaders = {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
-        'Accept': 'application/json'
-    };
-
-    const config = getPluginConfig();
-    const refresh_token = await extension.context.secrets.get('BallerinaAIRefreshToken');
-    if (!refresh_token) {
-        throw new Error("Refresh token is not available.");
-    } else {
-        try {
-            console.log("Refreshing token...");
-            const params = new URLSearchParams({
-                client_id: AUTH_CLIENT_ID,
-                refresh_token: refresh_token,
-                grant_type: 'refresh_token',
-                scope: 'openid email'
-            });
-            const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
-            const newAccessToken = response.data.access_token;
-            const newRefreshToken = response.data.refresh_token;
-            await extension.context.secrets.store('BallerinaAIUser', newAccessToken);
-            await extension.context.secrets.store('BallerinaAIRefreshToken', newRefreshToken);
-            console.log("Token refreshed successfully!");
-            const token = await extension.context.secrets.get('BallerinaAIUser');
-            return token;
-        } catch (error: any) {
-            const errMsg = "Error while refreshing token! " + error?.message;
-            console.error(errMsg);
-        }
-    }
-}
-
 //Define interfaces for the visitor pattern
 interface TypeInfoVisitor {
     visitField(field: FormField, context: VisitorContext): void;
@@ -1343,9 +1280,9 @@ export async function getDatamapperCode(parameterDefinitions: ErrorCode | Parame
 
         // Refresh
         if (response.status === 401) {
-            const newAccessToken = await refreshAccessToken();
+            const newAccessToken = await getRefreshedAccessToken();
             if (!newAccessToken) {
-                await handleLogin();
+                AIStateMachine.service().send(AIMachineEventType.LOGOUT);
                 return;
             }
             let retryResponse: Response | ErrorCode = await sendDatamapperRequest(parameterDefinitions, newAccessToken);
@@ -2197,7 +2134,7 @@ export async function fetchWithToken(url: string, options: RequestInit) {
     console.log("Response status: ", response.status);
     if (response.status === 401) {
         console.log("Token expired. Refreshing token...");
-        const newToken = await refreshAccessToken();
+        const newToken = await getRefreshedAccessToken();
         console.log("refreshed token : " + newToken);
         if (newToken) {
             options.headers = {
@@ -2206,7 +2143,7 @@ export async function fetchWithToken(url: string, options: RequestInit) {
             };
             response = await fetch(url, options);
         } else {
-            await handleLogin();
+            AIStateMachine.service().send(AIMachineEventType.LOGOUT);
             return;
         }
     }

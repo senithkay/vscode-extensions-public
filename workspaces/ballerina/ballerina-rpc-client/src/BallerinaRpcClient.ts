@@ -13,7 +13,6 @@ import { Messenger } from "vscode-messenger-webview";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
 import {
     AIMachineStateValue,
-    AI_EVENT_TYPE,
     MachineStateValue,
     VisualizerLocation,
     aiStateChanged,
@@ -32,11 +31,11 @@ import {
     onDownloadProgress,
     DownloadProgress,
     breakpointChanged,
-    onArtifactUpdatedNotification,
-    onArtifactUpdatedRequest,
-    DIRECTORY_MAP,
+    AIMachineEventType,
+    ArtifactData,
     ProjectStructureArtifactResponse,
-    ArtifactData
+    onArtifactUpdatedNotification,
+    onArtifactUpdatedRequest
 } from "@wso2-enterprise/ballerina-core";
 import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
@@ -170,7 +169,7 @@ export class BallerinaRpcClient {
         this.messenger.onNotification(aiStateChanged, callback);
     }
 
-    sendAIStateEvent(event: AI_EVENT_TYPE) {
+    sendAIStateEvent(event: AIMachineEventType) {
         this.messenger.sendRequest(sendAIStateEvent, HOST_EXTENSION, event);
     }
 
@@ -178,6 +177,7 @@ export class BallerinaRpcClient {
         this.messenger.onNotification(projectContentUpdated, callback);
     }
 
+    // <----- This is used to register given artifact updated callback notification ----->
     onArtifactUpdated(artifactData: ArtifactData, callback: (artifacts: ProjectStructureArtifactResponse[]) => void) {
         this.messenger.sendRequest(onArtifactUpdatedRequest, HOST_EXTENSION, artifactData);
         this.messenger.onNotification(onArtifactUpdatedNotification, callback);

@@ -13,8 +13,7 @@ import vscode, { Diagnostic, Uri } from 'vscode';
 import { extension } from "../../BalExtensionContext";
 import { ReadableStream } from 'stream/web';
 import { CustomDiagnostic } from './custom-diagnostics';
-import { requirementsSpecification, refreshAccessToken, isErrorCode } from "../../rpc-managers/ai-panel/utils";
-import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
+import { requirementsSpecification, isErrorCode } from "../../rpc-managers/ai-panel/utils";
 import { BallerinaPluginConfig, ResultItem, DriftResponseData, DriftResponse, BallerinaSource } from "./interfaces";
 import {
     PROJECT_DOCUMENTATION_DRIFT_CHECK_ENDPOINT, API_DOCS_DRIFT_CHECK_ENDPOINT,
@@ -31,10 +30,11 @@ import {
 import { isError, isNumber } from 'lodash';
 import { HttpStatusCode } from 'axios';
 import { BACKEND_URL } from '../ai/utils';
-import { handleLogin } from "../../rpc-managers/ai-panel/utils";
-import { BallerinaProject } from '@wso2-enterprise/ballerina-core';
+import { AIMachineEventType, BallerinaProject } from '@wso2-enterprise/ballerina-core';
 import { getCurrentBallerinaProjectFromContext } from '../config-generator/configGenerator';
 import { BallerinaExtension } from 'src/core';
+import { getRefreshedAccessToken } from '../../../src/utils/ai/auth';
+import { AIStateMachine } from '../../../src/views/ai-panel/aiMachine';
 
 let controller = new AbortController();
 
@@ -488,7 +488,7 @@ export async function fetchWithToken(url: string, options: RequestInit) {
         console.log("Response status: ", response.status);
         if (response.status === 401) {
             console.log("Token expired. Refreshing token...");
-            const newToken = await refreshAccessToken();
+            const newToken = await getRefreshedAccessToken();
             if (newToken) {
                 options.headers = {
                     ...options.headers,
@@ -617,7 +617,7 @@ export function addDefaultModelConfigForNaturalFunctions(
 
 export function getTokenForNaturalFunction() {
     try {
-        return refreshAccessToken();
+        return getRefreshedAccessToken();
     } catch (error) {
         throw error;
     }
@@ -702,13 +702,13 @@ export async function addConfigFile(configPath: string, isNaturalFunctionsAvaila
             try {
                 const token: string = await getTokenForNaturalFunction();
                 if (token == null) {
-                    handleLogin();
+                    AIStateMachine.service().send(AIMachineEventType.LOGOUT);
                     return;
                 }
 
                 addDefaultModelConfigForNaturalFunctions(configPath, token, await getBackendURL(), isNaturalFunctionsAvailableInBallerinaOrg);
             } catch (error) {
-                handleLogin();
+                AIStateMachine.service().send(AIMachineEventType.LOGOUT);
                 return;
             }
         }

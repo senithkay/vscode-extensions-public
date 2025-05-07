@@ -13,9 +13,9 @@ import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
 import { modelMapper, generateEngine } from './utils';
-import { DiagramControls, HeaderWidget, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
+import { DiagramControls, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
 import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine } from './resources';
-import { Container, DiagramContainer, useStyles } from './utils/CanvasStyles';
+import { DiagramContainer, useStyles } from './utils/CanvasStyles';
 
 import './resources/assets/font/fonts.css';
 import { NavigationWrapperCanvasWidget } from "./components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget";
@@ -24,17 +24,18 @@ interface PersistDiagramProps {
     getPersistModel: () => Promise<PersistERModel>;
     selectedRecordName: string;
     showProblemPanel: () => void;
+    collapsedMode?: boolean;
 }
 
 export function PersistDiagram(props: PersistDiagramProps) {
-    const { getPersistModel, selectedRecordName, showProblemPanel } = props;
+    const { getPersistModel, selectedRecordName, showProblemPanel, collapsedMode: externalCollapsedMode } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>(undefined);
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>(undefined);
-    const [collapsedMode, setIsCollapsedMode] = useState<boolean>(false);
+    const [collapsedMode, setIsCollapsedMode] = useState<boolean>(externalCollapsedMode || false);
     const [focusedNodeId, setFocusedNodeId] = useState<string>(undefined);
 
     const styles = useStyles();
@@ -47,6 +48,15 @@ export function PersistDiagram(props: PersistDiagramProps) {
         }
         setFocusedNodeId(undefined);
     }, [props]);
+
+    useEffect(() => {
+        if (externalCollapsedMode !== undefined && externalCollapsedMode !== collapsedMode) {
+            setIsCollapsedMode(externalCollapsedMode);
+            if (diagramModel) {
+                autoDistribute(diagramModel);
+            }
+        }
+    }, [externalCollapsedMode]);
 
     useEffect(() => {
         if (diagramEngine.getCanvas()) {
@@ -82,18 +92,14 @@ export function PersistDiagram(props: PersistDiagramProps) {
     const autoDistribute = (model: DiagramModel) => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
-            diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
+            if (diagramEngine.getCanvas()?.getBoundingClientRect) {
+                diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
+            }
+            diagramEngine.repaintCanvas();
             diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
             diagramEngine.setModel(model);
-        }, 30);
+        }, 300);
     };
-
-    const switchCollapseMode = (shouldCollapse: boolean) => {
-        setIsCollapsedMode(shouldCollapse);
-        if (diagramModel) {
-            autoDistribute(diagramModel);
-        }
-    }
 
     let ctx = {
         collapsedMode,
@@ -112,32 +118,29 @@ export function PersistDiagram(props: PersistDiagramProps) {
     };
 
     return (
-        <Container>
-            <PersistDiagramContext {...ctx}>
-                <HeaderWidget collapsedMode={collapsedMode} setIsCollapsedMode={switchCollapseMode} />
-                <DiagramContainer onClick={handleCanvasClick}>
-                    {diagramEngine?.getModel() && diagramModel ?
-                        <>
-                            <NavigationWrapperCanvasWidget
-                                diagramEngine={diagramEngine}
-                                className={styles.canvas}
-                                focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
-                            />
-                            <DiagramControls
-                                engine={diagramEngine}
-                                refreshDiagram={refreshDiagram}
-                                showProblemPanel={showProblemPanel}
-                            />
-                        </> :
-                        userMessage ?
-                            <PromptScreen
-                                userMessage={userMessage}
-                                showProblemPanel={hasDiagnostics ? showProblemPanel : undefined}
-                            /> :
-                            <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
-                    }
-                </DiagramContainer>
-            </PersistDiagramContext>
-        </Container>
+        <PersistDiagramContext {...ctx}>
+            <DiagramContainer onClick={handleCanvasClick}>
+                {diagramEngine?.getModel() && diagramModel ?
+                    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+                        <NavigationWrapperCanvasWidget
+                            diagramEngine={diagramEngine}
+                            className={styles.canvas}
+                            focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
+                        />
+                        <DiagramControls
+                            engine={diagramEngine}
+                            refreshDiagram={refreshDiagram}
+                            showProblemPanel={showProblemPanel}
+                        />
+                    </div> :
+                    userMessage ?
+                        <PromptScreen
+                            userMessage={userMessage}
+                            showProblemPanel={hasDiagnostics ? showProblemPanel : undefined}
+                        /> :
+                        <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
+                }
+            </DiagramContainer>
+        </PersistDiagramContext>
     );
 }

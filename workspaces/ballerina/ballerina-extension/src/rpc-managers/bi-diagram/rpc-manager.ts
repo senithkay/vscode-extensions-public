@@ -138,11 +138,11 @@ import { StateMachine, updateView } from "../../stateMachine";
 import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
-import { refreshAccessToken } from "../ai-panel/utils";
 import { BACKEND_URL } from "../../features/ai/utils";
 import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { cleanAndValidateProject } from "../../features/config-generator/configGenerator";
 import { updateSourceCodeResponse } from "../../utils/source-utils";
+import { getRefreshedAccessToken } from "../../../src/utils/ai/auth";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -1578,7 +1578,7 @@ export async function fetchWithToken(url: string, options: RequestInit) {
     console.log("Response status: ", response.status);
     if (response.status === 401) {
         console.log("Token expired. Refreshing token...");
-        const newToken = await refreshAccessToken();
+        const newToken = await getRefreshedAccessToken();
         console.log("refreshed token : " + newToken);
         if (newToken) {
             options.headers = {
