@@ -1788,10 +1788,7 @@ const AIChat: React.FC = () => {
         let formatted_response = ";";
         setIsLoading(true);
         try {
-            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);
-
-            console.log("Assistant Response: " + assistant_response);
-            
+            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);            
             formatted_response = assistant_response.replace(
                 /^([ \t]*)```ballerina\s*\n([\s\S]*?)^[ \t]*```/gm,
                 (_, indent, codeBlock) => {
@@ -1813,8 +1810,6 @@ const AIChat: React.FC = () => {
                 const referencesTag = `<references>${JSON.stringify(references)}<references>`;
                 formatted_response = formatted_response.replace(referenceRegex, referencesTag);
             }
-
-            console.log("Formatted Response: " + formatted_response);
 
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
