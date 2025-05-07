@@ -171,6 +171,12 @@ const AIChat: React.FC = () => {
             .then((defaultPrompt: AIPanelPrompt) => {
                 if (defaultPrompt) {
                     aiChatInputRef.current?.setInputContent(defaultPrompt);
+                } else {
+                    aiChatInputRef.current?.setInputContent({
+                        command: Command.Code,
+                        templateId: TemplateId.Wildcard,
+                        type: 'command-template',
+                    });
                 }
             });
     }, []);
@@ -187,8 +193,8 @@ const AIChat: React.FC = () => {
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
             setIsReqFileExists(
                 chatLocation != null &&
-                    chatLocation != undefined &&
-                    (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
+                chatLocation != undefined &&
+                (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
             );
 
             generateNaturalProgrammingTemplate(isReqFileExists);
@@ -558,7 +564,6 @@ const AIChat: React.FC = () => {
                 case Command.OpenAPI: {
                     switch (parsedInput.templateId) {
                         case TemplateId.Wildcard:
-                            await findInDocumentation(parsedInput.text, inputText);
                             await processOpenAPICodeGeneration(parsedInput.text, inputText);
                             break;
                     }
@@ -1325,8 +1330,8 @@ const AIChat: React.FC = () => {
             }
             const generatedFullSource = existingSource
                 ? existingSource +
-                  "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
-                  response.testSource
+                "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
+                response.testSource
                 : response.testSource;
 
             const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics({
