@@ -1439,10 +1439,18 @@ const AIChat: React.FC = () => {
             });
 
             const fileName = func.filePath.split("/").pop();
+            const contentLines = functionContent.split('\n');
+            // Filter out commented lines (both // and # style comments)
+            const nonCommentedLines = contentLines.filter(line => {
+                const trimmedLine = line.trim();
+                return !(trimmedLine.startsWith('//') || trimmedLine.startsWith('#'));
+            });
+            const cleanContent = nonCommentedLines.join('\n');
+            
             const signatureRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^{=]+)(?:\s*=>\s*)?/g;
 
             // Use matchAll to find all function signatures in the content
-            const matches = [...functionContent.matchAll(signatureRegex)];
+            const matches = [...cleanContent.matchAll(signatureRegex)];
 
             // Check if any of the function signatures match the target function name
             for (const match of matches) {
