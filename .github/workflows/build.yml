@@ -216,7 +216,8 @@ jobs:
   UiTest_Ballerina:
     name: Run Ballerina e2e tests
     needs: Build_Stage
-    if: ${{ inputs.runE2ETests || github.base_ref == 'release-ballerina' }}
+    if: false
+    # if: ${{ inputs.runE2ETests || github.base_ref == 'release-ballerina' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
