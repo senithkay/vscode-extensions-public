@@ -2,7 +2,7 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, TempData } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, ArtifactData, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
@@ -12,10 +12,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
-import { StateMachineAI } from './views/ai-panel/aiMachine';
+import { AIStateMachine } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
 import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
-import { buildProjectArtifactsStructure, forceUpdateProjectArtifacts } from './utils/project-artifacts';
+import { buildProjectArtifactsStructure } from './utils/project-artifacts';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -46,26 +46,11 @@ const stateMachine = createMachine<MachineContext>(
                 actions: [
                     assign({
                         projectStructure: (context, event) => event.payload,
-                        tempData: (context, event) => event.stateMachineNavigate ? undefined : context.tempData // Remove temp data if the location is set
                     }),
-                    (context, event) => {
-                        if (event.stateMachineNavigate) {
-                            if (event.location) {
-                                openView(EVENT_TYPE.OPEN_VIEW, event.location);
-                            } else {
-                                updateView();
-                            }
-                        } else {
-                            notifyCurrentWebview();
-                        }
+                    () => {
                         commands.executeCommand("BI.project-explorer.refresh");
                     }
                 ]
-            },
-            SET_TEMP_DATA: {
-                actions: assign({
-                    tempData: (context, event) => event.payload
-                })
             }
         },
         states: {
@@ -220,7 +205,7 @@ const stateMachine = createMachine<MachineContext>(
                     commands.executeCommand('setContext', 'BI.status', 'loadingLS');
                     const ls = await activateBallerina();
                     fetchAndCacheLibraryData();
-                    StateMachineAI.initialize();
+                    AIStateMachine.initialize();
                     StateMachinePopup.initialize();
                     commands.executeCommand('setContext', 'BI.status', 'loadingDone');
                     if (!ls.biSupported) {
@@ -439,16 +424,18 @@ export const StateMachine = {
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
     setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
     setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
+    isReady: () => {
+        const state = stateService.getSnapshot().value;
+        return typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
+    },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
-    updateProjectStructure: (payload: ProjectStructureResponse, stateMachineNavigate: boolean, location?: VisualizerLocation) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, stateMachineNavigate, location }); },
-    setTempData: (payload: TempData) => { stateService.send({ type: "SET_TEMP_DATA", payload }); },
+    updateProjectStructure: (payload: ProjectStructureResponse) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
     },
 };
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
-    StateMachine.setReadyMode();
     if (resetHistory) {
         history?.clear();
     }
@@ -466,7 +453,7 @@ export function updateView(refreshTreeView?: boolean) {
     }
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
     if (refreshTreeView) {
-        forceUpdateProjectArtifacts();
+        buildProjectArtifactsStructure(StateMachine.context().projectUri, StateMachine.langClient(), true);
     }
     notifyCurrentWebview();
 }

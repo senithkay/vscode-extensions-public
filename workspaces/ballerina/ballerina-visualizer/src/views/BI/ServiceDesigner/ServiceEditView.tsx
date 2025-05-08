@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ServiceModel, NodePosition, LineRange, ListenerModel } from '@wso2-enterprise/ballerina-core';
+import { ServiceModel, NodePosition, LineRange, ListenerModel, EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 import { Typography, ProgressRing, View, ViewContent } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -100,6 +100,12 @@ export function ServiceEditView(props: ServiceEditViewProps) {
     const onSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().updateServiceSourceCode({ filePath, service: value });
+        const updatedArtifact = res.artifacts.at(0);
+        if (updatedArtifact) {
+            rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: updatedArtifact.path, position: updatedArtifact.position } });
+            setSaving(false);
+            return;
+        }
     }
 
     const handleListenerSubmit = async (value?: ListenerModel) => {

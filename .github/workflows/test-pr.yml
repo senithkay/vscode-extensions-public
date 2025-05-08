@@ -15,4 +15,4 @@ jobs:
     uses: ./.github/workflows/build.yml
     secrets: inherit  
     with:
-      skipUiTests: ${{ !contains(github.event.pull_request.labels.*.name, 'Checks/Run with UI Tests') }}
+      runE2ETests: ${{ !contains(github.event.pull_request.labels.*.name, 'Checks/Run with UI Tests') }}

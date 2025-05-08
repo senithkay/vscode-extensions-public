@@ -11,8 +11,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
-import { FlowNode, ProjectStructureResponse } from "./interfaces/bi";
-import { ServiceModel } from "./interfaces/service";
+import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "./interfaces/bi";
 
 export type MachineStateValue =
     | 'initialize'
@@ -114,13 +113,10 @@ export interface VisualizerLocation {
     metadata?: VisualizerMetadata;
     scope?: SCOPE;
     projectStructure?: ProjectStructureResponse;
-    tempData?: TempData;
 }
 
-export interface TempData {
-    flowNode?: FlowNode;
-    serviceModel?: ServiceModel;
-    isNewService?: boolean;
+export interface ArtifactData {
+    artifactType: DIRECTORY_MAP;
     identifier?: string;
 }
 
@@ -155,6 +151,10 @@ export const projectContentUpdated: NotificationType<boolean> = { method: 'proje
 export const getVisualizerLocation: RequestType<void, VisualizerLocation> = { method: 'getVisualizerLocation' };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 
+// Artifact updated request and notification
+export const onArtifactUpdatedNotification: NotificationType<ProjectStructureArtifactResponse[]> = { method: 'onArtifactUpdatedNotification' };
+export const onArtifactUpdatedRequest: RequestType<ArtifactData, void> = { method: 'onArtifactUpdatedRequest' };
+
 // Popup machine methods
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
 export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
@@ -163,41 +163,46 @@ export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation>
 export const breakpointChanged: NotificationType<boolean> = { method: 'breakpointChanged' };
 
 // ------------------> AI Related state types <----------------------- 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled' | 'Settings';
+export type AIMachineStateValue =
+    | 'Initialize'          // (checking auth, first load)
+    | 'Unauthenticated'     // (show login window)
+    | 'Authenticating'      // (waiting for SSO login result after redirect)
+    | 'Authenticated'       // (ready, main view)
+    | 'Disabled';           // (optional: if AI Chat is globally unavailable)
 
-export enum AI_EVENT_TYPE {
-    LOGIN = "LOGIN",
-    SIGN_IN_SUCCESS = "SIGN_IN_SUCCESS",
-    LOGOUT = "LOGOUT",
-    EXECUTE = "EXECUTE",
-    CLEAR = "CLEAR",
-    CLEAR_PROMPT = "CLEAR_PROMPT",
-    DISPOSE = "DISPOSE",
-    CANCEL = "CANCEL",
-    RETRY = "RETRY",
-    SETUP = "SETUP",
-    CHAT = "CHAT",
+export enum AIMachineEventType {
+    CHECK_AUTH = 'CHECK_AUTH',
+    LOGIN = 'LOGIN',
+    LOGOUT = 'LOGOUT',
+    LOGIN_SUCCESS = 'LOGIN_SUCCESS',
+    CANCEL_LOGIN = 'CANCEL_LOGIN',
+    RETRY = 'RETRY',
+    DISPOSE = 'DISPOSE',
 }
 
-export enum AI_MACHINE_VIEW {
-    AIOverview = "AI Overview",
-    AIArtifact = "AI Artifact",
-    AIChat = "AI Chat",
+export type AIMachineEventValue =
+    | { type: AIMachineEventType.CHECK_AUTH }
+    | { type: AIMachineEventType.LOGIN }
+    | { type: AIMachineEventType.LOGOUT }
+    | { type: AIMachineEventType.LOGIN_SUCCESS }
+    | { type: AIMachineEventType.CANCEL_LOGIN }
+    | { type: AIMachineEventType.RETRY }
+    | { type: AIMachineEventType.DISPOSE };
+
+interface AIUsageTokens {
+    maxUsage: number;
+    remainingTokens: number;
 }
 
-export interface AIVisualizerLocation {
-    view?: AI_MACHINE_VIEW | null;
-    initialPrompt?: string;
-    state?: AIMachineStateValue;
-    userTokens?: AIUserTokens;
+export interface AIUserToken {
+    accessToken: string;
+    usageTokens?: AIUsageTokens;
 }
 
-export interface AIUserTokens {
-    max_usage: number;
-    remaining_tokens: number;
-    time_to_reset: number;
+export interface AIMachineContext {
+    userToken?: AIUserToken;
+    errorMessage?: string;
 }
 
 export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
-export const getAIVisualizerState: RequestType<void, AIVisualizerLocation> = { method: 'getAIVisualizerState' };
-export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sendAIStateEvent' };
+export const sendAIStateEvent: RequestType<AIMachineEventType, void> = { method: 'sendAIStateEvent' };

@@ -69,7 +69,6 @@ jobs:
       mi:  ${{ inputs.mi }}
       version: ${{ inputs.version }}
       isReleaseBuild: true
-      skipBallerinaUiTests: true
 
   Release:
     name: Release VSIX

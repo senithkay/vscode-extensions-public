@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { ListenerModel } from '@wso2-enterprise/ballerina-core';
+import { EVENT_TYPE, ListenerModel } from '@wso2-enterprise/ballerina-core';
 import { View, ViewContent, TextField, Button } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -128,12 +128,16 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
                 rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({
                     filePath: "",
                     service: res.service
-                }).then((res) => {
+                }).then((sourceCode) => {
                     setCurrentStep(4);
+                    const newArtifact = sourceCode.artifacts.find(res => res.isNew);
+                    if (newArtifact) {
+                        setCurrentStep(5);
+                        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: newArtifact.path, position: newArtifact.position } });
+                        return;
+                    }
                 });
             });
-
-            setCurrentStep(5);
         } catch (error) {
             console.error("Error creating AI Chat Agent:", error);
             setIsCreating(false);
