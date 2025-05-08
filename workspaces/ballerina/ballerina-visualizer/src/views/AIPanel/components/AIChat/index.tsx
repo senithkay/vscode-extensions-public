@@ -171,6 +171,12 @@ const AIChat: React.FC = () => {
             .then((defaultPrompt: AIPanelPrompt) => {
                 if (defaultPrompt) {
                     aiChatInputRef.current?.setInputContent(defaultPrompt);
+                } else {
+                    aiChatInputRef.current?.setInputContent({
+                        command: Command.Code,
+                        templateId: TemplateId.Wildcard,
+                        type: 'command-template',
+                    });
                 }
             });
     }, []);
@@ -187,8 +193,8 @@ const AIChat: React.FC = () => {
             chatLocation = (await rpcClient.getVisualizerLocation()).projectUri;
             setIsReqFileExists(
                 chatLocation != null &&
-                    chatLocation != undefined &&
-                    (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
+                chatLocation != undefined &&
+                (await rpcClient.getAiPanelRpcClient().isRequirementsSpecificationFileExist(chatLocation))
             );
 
             generateNaturalProgrammingTemplate(isReqFileExists);
@@ -558,7 +564,6 @@ const AIChat: React.FC = () => {
                 case Command.OpenAPI: {
                     switch (parsedInput.templateId) {
                         case TemplateId.Wildcard:
-                            await findInDocumentation(parsedInput.text, inputText);
                             await processOpenAPICodeGeneration(parsedInput.text, inputText);
                             break;
                     }
@@ -1325,8 +1330,8 @@ const AIChat: React.FC = () => {
             }
             const generatedFullSource = existingSource
                 ? existingSource +
-                  "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
-                  response.testSource
+                "\n\n// >>>>>>>>>>>>>>TEST CASES NEED TO BE FIXED <<<<<<<<<<<<<<<\n\n" +
+                response.testSource
                 : response.testSource;
 
             const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics({
@@ -1386,6 +1391,12 @@ const AIChat: React.FC = () => {
     ): DataMappingRecord | Error {
         const isArray = recordName.endsWith("[]");
         const cleanedRecordName = recordName.replace(/\[\]$/, "");
+
+        // Check for primitive types
+        const primitiveTypes = ["string", "int", "boolean", "float", "decimal"];
+        if (primitiveTypes.includes(cleanedRecordName)) {
+            return { type: `${cleanedRecordName}`, isArray, filePath: null };
+        }
         const rec = recordMap.get(cleanedRecordName);
 
         if (!rec) {
@@ -1396,7 +1407,7 @@ const AIChat: React.FC = () => {
                         if (imp.alias) {
                             return cleanedRecordName.startsWith(imp.alias);
                         }
-                        const moduleNameParts = imp.moduleName.split(".");
+                        const moduleNameParts = imp.moduleName.split(/[./]/);
                         const inferredAlias = moduleNameParts[moduleNameParts.length - 1];
                         return cleanedRecordName.startsWith(inferredAlias);
                     });
@@ -1439,10 +1450,18 @@ const AIChat: React.FC = () => {
             });
 
             const fileName = func.filePath.split("/").pop();
+            const contentLines = functionContent.split('\n');
+            // Filter out commented lines (both // and # style comments)
+            const nonCommentedLines = contentLines.filter(line => {
+                const trimmedLine = line.trim();
+                return !(trimmedLine.startsWith('//') || trimmedLine.startsWith('#'));
+            });
+            const cleanContent = nonCommentedLines.join('\n');
+            
             const signatureRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*returns\s+([^{=]+)(?:\s*=>\s*)?/g;
 
             // Use matchAll to find all function signatures in the content
-            const matches = [...functionContent.matchAll(signatureRegex)];
+            const matches = [...cleanContent.matchAll(signatureRegex)];
 
             // Check if any of the function signatures match the target function name
             for (const match of matches) {
@@ -1733,11 +1752,18 @@ const AIChat: React.FC = () => {
         let formatted_response = ";";
         setIsLoading(true);
         try {
-            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);
-
+            assistant_response = await rpcClient.getAiPanelRpcClient().getFromDocumentation(messageBody);            
             formatted_response = assistant_response.replace(
-                /```ballerina\s*([\s\S]+?)\s*```/g,
-                "<inlineCode>$1<inlineCode>"
+                /^([ \t]*)```ballerina\s*\n([\s\S]*?)^[ \t]*```/gm,
+                (_, indent, codeBlock) => {
+                  // Remove the common indent from all lines in the code block
+                  const cleanedCode = codeBlock
+                    .split('\n')
+                    .map((line: string) => line.startsWith(indent) ? line.slice(indent.length) : line)
+                    .join('\n');
+                    
+                  return `<inlineCode>\n${cleanedCode}\n<inlineCode>`;
+                }
             );
 
             const referenceRegex = /reference sources:\s*((?:<https?:\/\/[^\s>]+>\s*)+)/;
@@ -1748,8 +1774,6 @@ const AIChat: React.FC = () => {
                 const referencesTag = `<references>${JSON.stringify(references)}<references>`;
                 formatted_response = formatted_response.replace(referenceRegex, referencesTag);
             }
-
-            console.log("Formatted Response: " + formatted_response);
 
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];

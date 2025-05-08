@@ -250,7 +250,7 @@ export async function getParamDefinitions(
     if (outputTypeDefinition["types"] && outputTypeDefinition["types"].length > 0) {
         const type = outputTypeDefinition["types"][0].type;
         if (type.typeName === "union" && type.members) {
-            const hasFields = type.members.some(member => member.fields && member.fields.length > 0);
+            const hasFields = type.members.some(member => member.fields);
             if (hasFields) {
                 return INVALID_RECORD_UNION_TYPE;
             }

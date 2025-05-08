@@ -123,9 +123,23 @@ function createDataMappingFunctionSource(inputParams: DataMappingRecord[], outpu
     return typeName;
   }
 
+  function getDefaultParamName(type: string, isArray: boolean): string {
+    const processedType = processType(type);
+
+    // Handle primitive types with special naming
+    if (processedType === 'string') return isArray ? 'strArr' : 'str';
+    if (processedType === 'int') return isArray ? 'numArr' : 'num';
+    if (processedType === 'float') return isArray ? 'fltArr' : 'flt';
+    if (processedType === 'decimal') return isArray ? 'decArr' : 'dec';
+    if (processedType === 'boolean') return isArray ? 'flagArr' : 'flag';
+
+    // Default to camelCase for non-primitive types
+    return camelCase(processedType);
+  }
+
   const parametersStr = inputParams
     .map((item, index) => {
-      const paramName = inputNames[index] || camelCase(processType(item.type));
+      const paramName = inputNames[index] || getDefaultParamName(item.type, item.isArray);
       return `${processType(item.type)}${item.isArray ? '[]' : ''} ${paramName}`;
     })
     .join(", ");

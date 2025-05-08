@@ -16,7 +16,12 @@ import { notifyAiWebview } from '../../RPCLayer';
 export function activateAiPanel(ballerinaExtInstance: BallerinaExtension) {
     ballerinaExtInstance.context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_AI_PANEL, (defaultPrompt?: AIPanelPrompt) => {
-            openAIWebview(defaultPrompt);
+            if (defaultPrompt instanceof vscode.Uri) {
+                // Passed directly from vscode side
+                openAIWebview(null);
+            } else {
+                openAIWebview(defaultPrompt);
+            }
         })
     );
     ballerinaExtInstance.context.subscriptions.push(
