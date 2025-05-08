@@ -20,6 +20,8 @@ export { ObservationIcon } from "./ObservationIcon";
 export { DiffIcon } from "./DiffIcon";
 export { DiagramIcon } from "./DiagramIcon";
 export { InfoIcon } from "./InfoIcon";
+export { SettingsIcon } from "./SettingsIcon"
+export { DebugIcon as debugIcon } from "./DebugIcon" 
 
 // Cell icons
 export { GatewayIcon } from "./GatewayIcon";
