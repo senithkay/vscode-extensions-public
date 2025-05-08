@@ -287,14 +287,16 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
         });
 
-        if (endIfLinkCount === 0 || allBranchesReturn) {
-            // remove endIf node if no links are created
-            const index = this.nodes.findIndex((n) => n.getID() === endIfEmptyNode.getID());
-            if (index !== -1) {
-                this.nodes.splice(index, 1);
-            }
-            return;
-        }
+        // TODO: remove this logic after completing the error handling node
+        // if (endIfLinkCount === 0 || allBranchesReturn) {
+        //     // remove endIf node if no links are created
+        //     const index = this.nodes.findIndex((n) => n.getID() === endIfEmptyNode.getID());
+        //     if (index !== -1) {
+        //         this.nodes.splice(index, 1);
+        //     }
+        //     return;
+        // }
+        
         this.lastNodeModel = endIfEmptyNode;
     }
 
