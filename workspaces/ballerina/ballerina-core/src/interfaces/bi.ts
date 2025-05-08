@@ -333,6 +333,7 @@ export type NodeKind =
     | "INCLUDED_FIELD"
     | "LOCK"
     | "LV_EXPRESSION"
+    | "MATCH"
     | "NEW_CONNECTION"
     | "NEW_DATA"
     | "NP_FUNCTION"

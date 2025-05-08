@@ -127,6 +127,10 @@ export class InitVisitor implements BaseVisitor {
         }
     }
 
+    beginVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitIf(node, parent);
+    }
+
     private visitContainerNode(node: FlowNode, parent?: FlowNode): void {
         node.viewState = this.getDefaultViewState();
 
