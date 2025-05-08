@@ -97,8 +97,8 @@ export class InitVisitor implements BaseVisitor {
             branch.viewState = this.getDefaultViewState();
         });
 
-        // add empty else branch if not exists
-        if (node.branches.find((branch) => branch.label === "Else") === undefined) {
+        // add empty else branch if not exists in IF node
+        if (node.codedata.node === "IF" && node.branches.find((branch) => branch.label === "Else") === undefined) {
             const emptyElseBranch: FlowNode = {
                 id: getCustomNodeId(node.id, "Else"),
                 codedata: {
