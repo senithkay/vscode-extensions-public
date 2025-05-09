@@ -1372,7 +1372,7 @@ async function sendMappingFileUploadRequest(file: Blob): Promise<Response | Erro
     return response;
 }
 
-export async function searchDocumentation(message: string): Promise<string | ErrorCode> {
+export async function searchDocumentation(message: string): Promise<string> {
     const response = await fetchWithToken(ASK_API_URL_V1 + "/documentation-assistant", {
         method: "POST",
         headers: {
@@ -1388,7 +1388,7 @@ export async function searchDocumentation(message: string): Promise<string | Err
     
 }
 
-export async function filterDocumentation(resp: Response): Promise<string | ErrorCode> {
+export async function filterDocumentation(resp: Response): Promise<string> {
     let responseContent: string;
     if (resp.status == 200 || resp.status == 201) {
         const data = (await resp.json()) as any;
@@ -1403,14 +1403,7 @@ export async function filterDocumentation(resp: Response): Promise<string | Erro
 
         return responseContent;
     }
-    if (resp.status == 404) {
-        return ENDPOINT_REMOVED;
-    }
-    if (resp.status == 400) {
-        const data = (await resp.json()) as any;
-        console.log(data);
-        return PARSING_ERROR;
-    } 
+    throw new Error(AIErrors.UNKNOWN_CONNECTION_ERROR);
 }
 
 async function filterMappingResponse(resp: Response): Promise<string| ErrorCode> {

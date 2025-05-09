@@ -1783,15 +1783,7 @@ const AIChat: React.FC = () => {
             setIsLoading(false);
         } catch (error) {
             setIsLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                newMessages[
-                    newMessages.length - 1
-                ].content += `An unknown error occurred while fetching data from the documentation`;
-                newMessages[newMessages.length - 1].type = "Error";
-                return newMessages;
-            });
-            return;
+            throw error;
         }
         addChatEntry("user", message);
         addChatEntry("assistant", formatted_response);
