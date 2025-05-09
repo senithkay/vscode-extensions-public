@@ -83,11 +83,37 @@ export async function runHandler(request: TestRunRequest, token: CancellationTok
                 });
             });
         } else if (isTestFunctionItem(test)) {
-            command = `${executor} test --tests ${test.label}`;
+            command = `${executor} test --tests ${test.label} --code-coverage`;
+
+            const parentGroup = test.parent;
+            let testItems: TestItem[] = [];
+            if (parentGroup) {
+                parentGroup.children.forEach((child) => {
+                    if (isTestFunctionItem(child)) {
+                        testItems.push(child);
+                    }
+                });
+            }
+
+            const startTime = Date.now();
             runCommand(command).then(() => {
-                run.passed(test);
+                const EndTime = Date.now();
+                const timeElapsed = (EndTime - startTime) / testItems.length;
+
+                reportTestResults(run, testItems, timeElapsed, true).then(() => {
+                    endGroup(test, true, run);
+                }).catch(() => {
+                    endGroup(test, false, run);
+                });
             }).catch(() => {
-                run.failed(test, new TestMessage('Test failed!'));
+                const EndTime = Date.now();
+                const timeElapsed = (EndTime - startTime) / testItems.length;
+
+                reportTestResults(run, testItems, timeElapsed, true).then(() => {
+                    endGroup(test, true, run);
+                }).catch(() => {
+                    endGroup(test, false, run);
+                });
             }).finally(() => { 
                 run.end();
             });
@@ -98,10 +124,11 @@ const TEST_RESULTS_PATH = path.join("target", "report", "test_results.json").toS
 
 enum TEST_STATUS {
     PASSED = 'PASSED',
-    FAILED = 'FAILURE'
+    FAILED = 'FAILURE',
+    SKIPPED = 'SKIPPED',
 }
 
-async function reportTestResults(run: TestRun, testItems: TestItem[], timeElapsed: number) {
+async function reportTestResults(run: TestRun, testItems: TestItem[], timeElapsed: number, individualTest: boolean = false) {
     const projectRoot = StateMachine.context().projectUri;
 
     // reading test results
@@ -134,13 +161,17 @@ async function reportTestResults(run: TestRun, testItems: TestItem[], timeElapse
                     const testMessage: TestMessage = new TestMessage(testResult.failureMessage);
                     run.failed(test, testMessage, timeElapsed);
                     found = true;
+                } else if (testResult.status === TEST_STATUS.SKIPPED) {
+                    // test skipped
+                    run.skipped(test);
+                    found = true;
                 }
             }
             if (found) {
                 break;
             }
         }
-        if (found) {
+        if (found || individualTest) {
             continue;
         }
         // test failed
