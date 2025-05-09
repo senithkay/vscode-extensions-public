@@ -73,7 +73,7 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ isOnboarding = false })
                 {isOnboarding && (
                     <CardWrapper
                         onClick={() =>
-                            rpcClient.getAiPanelRpcClient().openExternalUrl({ url: "https://youtu.be/5klLsz1alPE" })
+                            rpcClient.getCommonRpcClient().openExternalUrl({ url: "https://youtu.be/5klLsz1alPE" })
                         }
                     >
                         <PlayIcon>

@@ -25,10 +25,6 @@ export interface AIMachineSnapshot {
     context: AIMachineContext;
 }
 
-export interface OpenExternalUrlRequest {
-    url: string;
-}
-
 export type ErrorCode = {
     code: number;
     message: string;

@@ -77,7 +77,6 @@ import {
     isRequirementsSpecificationFileExist,
     markAlertShown,
     notifyAIMappings,
-    openExternalUrl,
     postProcess,
     promptGithubAuthorize,
     promptWSO2AILogout,
@@ -119,10 +118,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getAIMachineSnapshot(): Promise<AIMachineSnapshot> {
         return this._messenger.sendRequest(getAIMachineSnapshot, HOST_EXTENSION);
-    }
-
-    openExternalUrl(params: OpenExternalUrlRequest): void {
-        return this._messenger.sendNotification(openExternalUrl, HOST_EXTENSION, params);
     }
 
     fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
