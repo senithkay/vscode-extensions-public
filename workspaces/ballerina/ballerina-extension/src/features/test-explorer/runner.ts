@@ -15,6 +15,8 @@ import { StateMachine } from "../../stateMachine";
 import { isTestFunctionItem, isTestGroupItem } from './discover';
 import { ballerinaExtInstance } from '../../core';
 import { constructDebugConfig } from "../debugger";
+const fs = require('fs');
+import path from 'path';
 
 export async function runHandler(request: TestRunRequest, token: CancellationToken) {
     if (!request.include) {
@@ -23,7 +25,7 @@ export async function runHandler(request: TestRunRequest, token: CancellationTok
     const run = testController.createTestRun(request);
 
     if (request.profile?.kind == TestRunProfileKind.Debug) {
-        const testFuncs : string[] = [];
+        const testFuncs: string[] = [];
         request.include.forEach((test) => {
             if (isTestFunctionItem(test)) {
                 testFuncs.push(test.label);
@@ -46,62 +48,137 @@ export async function runHandler(request: TestRunRequest, token: CancellationTok
 
         run.started(test);
 
-        let command : string;
+        let command: string;
         const executor = ballerinaExtInstance.getBallerinaCmd();
         if (isTestGroupItem(test)) {
-            let allPassed = true;
-            let count = 0;
-            test.children.forEach(async (child) => {
+            let testCaseNames: string[] = [];
+            let testItems : TestItem[] = [];
+            test.children.forEach((child) => {
                 const functionName = child.label;
-                
-                command = `${executor} test --tests ${functionName}`;
-                runCommand(run, child, command, request).then(() => {
-                    allPassed = allPassed && true;
-                    count++;
-                    endGroup(count, test, allPassed, run);
+                testCaseNames.push(functionName);
+                testItems.push(child);
+                run.started(child);
+            });
+
+            command = `bal test --tests ${testCaseNames.join(',')} --code-coverage`;
+
+            const startTime = Date.now();
+            runCommand(command).then(() => {
+                const EndTime = Date.now();
+                const timeElapsed = (EndTime - startTime) / testItems.length;
+
+                reportTestResults(run, testItems, timeElapsed).then(() => {
+                    endGroup(test, true, run);
                 }).catch(() => {
-                    allPassed = allPassed && false;
-                    count++;
-                    endGroup(count, test, allPassed, run);
+                    endGroup(test, false, run);
+                });
+            }).catch(() => {
+                const EndTime = Date.now();
+                const timeElapsed = (EndTime - startTime) / testItems.length;
+
+                reportTestResults(run, testItems, timeElapsed).then(() => {
+                    endGroup(test, true, run);
+                }).catch(() => {
+                    endGroup(test, false, run);
                 });
             });
-            
         } else if (isTestFunctionItem(test)) {
-            const functionName = test.label;
-            command = `${executor} test --tests ${functionName}`;
-            runCommand(run, test, command, request);
+            command = `${executor} test --tests ${test.label}`;
+            runCommand(command).then(() => {
+                run.passed(test);
+            }).catch(() => {
+                run.failed(test, new TestMessage('Test failed!'));
+            }).finally(() => { 
+                run.end();
+            });
         }
     });
 }
+const TEST_RESULTS_PATH = path.join("target", "report", "test_results.json").toString();
 
-function endGroup(count: number, test: TestItem, allPassed: boolean, run: TestRun) {
-    if (count === test.children.size) {
-        if (allPassed) {
-            run.passed(test);
-            run.end();
-        } else {
-            run.failed(test, new TestMessage('Some tests failed!'));
-            run.end();
+enum TEST_STATUS {
+    PASSED = 'PASSED',
+    FAILED = 'FAILURE'
+}
+
+async function reportTestResults(run: TestRun, testItems: TestItem[], timeElapsed: number) {
+    const projectRoot = StateMachine.context().projectUri;
+
+    // reading test results
+    let testsJson: JSON | undefined = undefined;
+    testsJson = await readTestJson(path.join(projectRoot!, TEST_RESULTS_PATH).toString());
+    if (!testsJson) {
+        for (const test of testItems) {
+            const testMessage: TestMessage = new TestMessage("Command failed");
+            run.failed(test, testMessage, timeElapsed);
         }
+        return;
+    }
+
+    const moduleStatus = testsJson["moduleStatus"];
+
+    for (const test of testItems) {
+        let found = false;
+        for (const status of moduleStatus) {
+            const testResults = status["tests"];
+            for (const testResult of testResults) {
+                if (testResult.name !== test.label && !testResult.name.startsWith(`${test.label}#`)) {
+                    continue;
+                }
+
+                if (testResult.status === TEST_STATUS.PASSED) {
+                    run.passed(test, timeElapsed);
+                    found = true;
+                } else if (testResult.status === TEST_STATUS.FAILED) {
+                    // test failed
+                    const testMessage: TestMessage = new TestMessage(testResult.failureMessage);
+                    run.failed(test, testMessage, timeElapsed);
+                    found = true;
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+        if (found) {
+            continue;
+        }
+        // test failed
+        const testMessage: TestMessage = new TestMessage("");
+        run.failed(test, testMessage, timeElapsed);
     }
 }
 
-async function runCommand(run: TestRun, test: TestItem, command: string, request: TestRunRequest): Promise<void> {
+/** 
+ * Read test json output.
+ * @param file File path of the json.
+ */
+export async function readTestJson(file): Promise<JSON | undefined> {
+    try {
+        let rawdata = fs.readFileSync(file);
+        return JSON.parse(rawdata);
+    } catch {
+        return undefined;
+    }
+}
+
+function endGroup(test: TestItem, allPassed: boolean, run: TestRun) {
+    if (allPassed) {
+        run.passed(test);
+    } else {
+        run.failed(test, new TestMessage('Some tests failed!'));
+    }
+    run.end();
+}
+
+async function runCommand(command: string): Promise<void> {
     return new Promise((resolve, reject) => {
         exec(command, { cwd: StateMachine.context().projectUri }, (error, stdout, stderr) => {
             if (error) {
                 // Report test failure
-                run.failed(test, new TestMessage(stderr || 'Test failed!'));
                 reject(new Error(stderr || 'Test failed!'));
             } else {
-                // Report test success
-                run.passed(test);
                 resolve();
-            }
-
-            // End the test run if this is the last test
-            if (test === request.include[request.include.length - 1]) {
-                run.end();
             }
         });
     });
@@ -112,7 +189,7 @@ async function runCommand(run: TestRun, test: TestItem, command: string, request
  */
 export async function startDebugging(testDebug: boolean, args: any[])
     : Promise<void> {
-    const uri : Uri = Uri.parse(StateMachine.context().projectUri);    
+    const uri: Uri = Uri.parse(StateMachine.context().projectUri);
     const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
     const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug, args);
 
