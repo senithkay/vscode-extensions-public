@@ -17,12 +17,23 @@ import { FindConstructByNameVisitor } from "./history/find-construct-by-name-vis
 import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-visitor";
 import { getConstructBodyString } from "./history/util";
 import { ballerinaExtInstance } from "../core";
+import path from "path";
 
 export async function getView(documentUri: string, position: NodePosition, projectUri?: string): Promise<HistoryEntry> {
     const haveTreeData = !!StateMachine.context().projectStructure;
-    if (haveTreeData) {
+    if (path.relative(projectUri || '', documentUri).startsWith("tests")) {
+        return {
+            location: {
+                view: MACHINE_VIEW.BIDiagram,
+                documentUri: documentUri,
+                position: position
+            },
+            dataMapperDepth: 0
+        };
+    } else if (haveTreeData) {
         return getViewByArtifacts(documentUri, position, projectUri);
-    } else {
+    }
+    else {
         return await getViewBySTRange(documentUri, position, projectUri);
     }
 }
