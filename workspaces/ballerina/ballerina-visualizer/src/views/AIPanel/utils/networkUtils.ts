@@ -45,7 +45,7 @@ export const fetchWithAuth = async ({
         finalToken = await rpcClient.getAiPanelRpcClient().getAccessToken();
     } catch (error) {
         if (isErrorWithMessage(error) && error?.message === "TOKEN_EXPIRED") {
-            rpcClient.sendAIStateEvent(AIMachineEventType.LOGOUT);
+            rpcClient.sendAIStateEvent(AIMachineEventType.SILENT_LOGOUT);
             return;
         }
         throw error;
