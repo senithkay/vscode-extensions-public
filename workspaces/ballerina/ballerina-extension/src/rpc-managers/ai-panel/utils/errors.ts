@@ -9,7 +9,7 @@
  */
 
 //TODO: We need to make sure we throw only these errors from the AI RPC.
-enum AIErrors {
+enum AIChatError {
     TIMEOUT = "Connection Timeout",
     UNKNOWN_CONNECTION_ERROR = "Something went wrong while connecting the the AI service"
 }

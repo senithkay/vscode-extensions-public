@@ -1403,7 +1403,7 @@ export async function filterDocumentation(resp: Response): Promise<string> {
 
         return responseContent;
     }
-    throw new Error(AIErrors.UNKNOWN_CONNECTION_ERROR);
+    throw new Error(AIChatError.UNKNOWN_CONNECTION_ERROR);
 }
 
 async function filterMappingResponse(resp: Response): Promise<string| ErrorCode> {
