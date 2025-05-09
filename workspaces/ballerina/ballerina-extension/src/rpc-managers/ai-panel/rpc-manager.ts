@@ -33,6 +33,7 @@ import {
     GetModuleDirParams,
     LLMDiagnostics,
     NotifyAIMappingsRequest,
+    OpenExternalUrlRequest,
     PostProcessRequest,
     PostProcessResponse,
     ProjectDiagnostics,
@@ -53,8 +54,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import path from "path";
 import { parse } from 'toml';
-import { Uri, commands, window, workspace } from 'vscode';
-
+import vscode, { Uri, commands, window, workspace } from 'vscode';
 import { writeFileSync } from "fs";
 import { isNumber } from "lodash";
 import { URI } from "vscode-uri";
@@ -151,6 +151,10 @@ export class AiPanelRpcManager implements AIPanelAPI {
             state: AIStateMachine.state(),
             context: AIStateMachine.context(),
         };
+    }
+
+    async openExternalUrl(params: OpenExternalUrlRequest): Promise<void> {
+        vscode.env.openExternal(vscode.Uri.parse(params.url));
     }
 
     async fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {

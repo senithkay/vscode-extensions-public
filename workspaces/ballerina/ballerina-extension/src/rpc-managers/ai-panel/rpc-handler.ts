@@ -20,6 +20,7 @@ import {
     GetFromFileRequest,
     GetModuleDirParams,
     NotifyAIMappingsRequest,
+    OpenExternalUrlRequest,
     PostProcessRequest,
     ProjectSource,
     RequirementSpecification,
@@ -65,6 +66,7 @@ import {
     isRequirementsSpecificationFileExist,
     markAlertShown,
     notifyAIMappings,
+    openExternalUrl,
     postProcess,
     promptGithubAuthorize,
     promptWSO2AILogout,
@@ -85,6 +87,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getRefreshedAccessToken, () => rpcManger.getRefreshedAccessToken());
     messenger.onRequest(getDefaultPrompt, () => rpcManger.getDefaultPrompt());
     messenger.onRequest(getAIMachineSnapshot, () => rpcManger.getAIMachineSnapshot());
+    messenger.onNotification(openExternalUrl, (args: OpenExternalUrlRequest) => rpcManger.openExternalUrl(args));
     messenger.onRequest(fetchData, (args: FetchDataRequest) => rpcManger.fetchData(args));
     messenger.onNotification(addToProject, (args: AddToProjectRequest) => rpcManger.addToProject(args));
     messenger.onRequest(getFromFile, (args: GetFromFileRequest) => rpcManger.getFromFile(args));

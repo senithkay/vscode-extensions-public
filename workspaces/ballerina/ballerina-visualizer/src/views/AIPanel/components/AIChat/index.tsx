@@ -34,7 +34,7 @@ import RoleContainer from "../RoleContainter";
 import { Attachment, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import { findRegexMatches } from "../../../../utils/utils";
 
-import { AIChatView, Header, HeaderButtons, ChatMessage, Welcome, Badge } from "../../styles";
+import { AIChatView, Header, HeaderButtons, ChatMessage, Badge } from "../../styles";
 import ReferenceDropdown from "../ReferenceDropdown";
 import AccordionItem from "../TestScenarioSegment";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
@@ -67,6 +67,8 @@ import AttachmentBox, { AttachmentsContainer } from "../AttachmentBox";
 import Footer from "./Footer";
 import { useFooterLogic } from "./Footer/useFooterLogic";
 import { SettingsPanel } from "../../SettingsPanel";
+import WelcomeMessage from "./Welcome";
+import { getOnboardingOpens, incrementOnboardingOpens } from "./utils/utils";
 
 /* REFACTORED CODE START [1] */
 /* REFACTORED CODE END [1] */
@@ -179,6 +181,13 @@ const AIChat: React.FC = () => {
                     });
                 }
             });
+    }, []);
+
+    /**
+     * Effect: Update onboarding state
+     */
+    useEffect(function updateOnboardingState() {
+        incrementOnboardingOpens();
     }, []);
     /* REFACTORED CODE END [2] */
 
@@ -2291,71 +2300,7 @@ const AIChat: React.FC = () => {
                     </Header>
                     <main style={{ flex: 1, overflowY: "auto" }}>
                         {Array.isArray(otherMessages) && otherMessages.length === 0 && (
-                            <Welcome>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        marginTop: "100px",
-                                    }}
-                                >
-                                    <Icon
-                                        name="bi-ai-chat"
-                                        sx={{ width: 60, height: 50 }}
-                                        iconSx={{
-                                            fontSize: "60px",
-                                            color: "var(--vscode-foreground)",
-                                            cursor: "default",
-                                        }}
-                                    />
-
-                                    <div style={{ display: "inline-flex" }}>
-                                        <h2>WSO2 Copilot</h2>
-                                    </div>
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            marginBottom: "24px",
-                                            color: "var(--vscode-descriptionForeground)",
-                                            textAlign: "center",
-                                            maxWidth: 350,
-                                            fontSize: 14,
-                                        }}
-                                    >
-                                        WSO2 Copilot is powered by AI. It can make mistakes. Make sure to review the
-                                        generated code before adding it to your integration.
-                                    </Typography>
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            marginBottom: "14px",
-                                            color: "var(--vscode-descriptionForeground)",
-                                            textAlign: "center",
-                                            maxWidth: 350,
-                                            fontSize: 14,
-                                        }}
-                                    >
-                                        Type / to use commands
-                                    </Typography>
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            marginBottom: "24px",
-                                            color: "var(--vscode-descriptionForeground)",
-                                            textAlign: "center",
-                                            maxWidth: 350,
-                                            fontSize: 14,
-                                            gap: 10,
-                                            display: "inline-flex",
-                                        }}
-                                    >
-                                        <Icon isCodicon={true} name="new-file" iconSx={{ cursor: "default" }} /> to
-                                        attatch context
-                                    </Typography>
-                                </div>
-                            </Welcome>
+                            <WelcomeMessage isOnboarding={getOnboardingOpens() <= 3.0} />
                         )}
                         {otherMessages.map((message, index) => {
                             const showGeneratingFiles = !codeSegmentRendered && index === currentGeneratingPromptIndex;
