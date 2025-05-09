@@ -28,7 +28,6 @@ import {
     GetModuleDirParams,
     LLMDiagnostics,
     NotifyAIMappingsRequest,
-    OpenExternalUrlRequest,
     PostProcessRequest,
     PostProcessResponse,
     ProjectDiagnostics,

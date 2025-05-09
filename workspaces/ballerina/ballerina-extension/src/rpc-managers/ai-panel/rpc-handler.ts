@@ -20,7 +20,6 @@ import {
     GetFromFileRequest,
     GetModuleDirParams,
     NotifyAIMappingsRequest,
-    OpenExternalUrlRequest,
     PostProcessRequest,
     ProjectSource,
     RequirementSpecification,
