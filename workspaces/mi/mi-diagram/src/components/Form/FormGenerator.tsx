@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 import {
     AutoComplete,
     CheckBox,
@@ -16,34 +16,38 @@ import {
     FormGroup,
     Icon,
     LinkButton,
+    ProgressRing,
     RequiredFormInput,
     TextArea,
     TextField,
     Tooltip,
-    Typography
-} from '@wso2-enterprise/ui-toolkit';
-import styled from '@emotion/styled';
-import { Controller } from 'react-hook-form';
-import React from 'react';
+    Typography,
+} from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
+import { Controller } from "react-hook-form";
+import React from "react";
 import {
     ExpressionFieldValue,
     Keylookup,
     FormExpressionField,
     ExpressionField,
     CodeTextArea,
-    FormTokenEditor
-} from '.';
-import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
-import { handleOpenExprEditor, sidepanelGoBack } from '../sidePanel';
-import SidePanelContext from '../sidePanel/SidePanelContexProvider';
-import { openPopup, deriveDefaultValue } from './common';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+    FormTokenEditor,
+} from ".";
+import ExpressionEditor from "../sidePanel/expressionEditor/ExpressionEditor";
+import { handleOpenExprEditor, sidepanelGoBack } from "../sidePanel";
+import SidePanelContext from "../sidePanel/SidePanelContexProvider";
+import { openPopup, deriveDefaultValue } from "./common";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import ParameterManager from './GigaParamManager/ParameterManager';
-import { StringWithParamManagerComponent } from './StringWithParamManager';
-import { isLegacyExpression, isValueExpression } from './utils';
-import { Colors } from '../../resources/constants';
-import ReactMarkdown from 'react-markdown';
+import ParameterManager from "./GigaParamManager/ParameterManager";
+import { StringWithParamManagerComponent } from "./StringWithParamManager";
+import { isLegacyExpression, isValueExpression } from "./utils";
+import { Colors } from "../../resources/constants";
+import ReactMarkdown from "react-markdown";
+import GenerateDiv from "./GenerateComponents/GenerateDiv";
+import { HelperPaneCompletionItem, HelperPaneData } from "@wso2-enterprise/mi-core";
+import AIAutoFillBox from "./AIAutoFillBox/AIAutoFillBox";
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -65,8 +69,9 @@ export const cardStyle = {
     margin: "15px 0",
     padding: "0 15px 15px 15px",
     width: "auto",
-    cursor: "auto"
+    cursor: "auto",
 };
+
 
 export interface FormGeneratorProps {
     documentUri?: string;
@@ -113,21 +118,20 @@ export interface Element {
     keyValueSeparator?: string;
     viewIdentifier?: string;
     viewDisplayName?: string;
-    expressionType?: 'xpath/jsonPath' | 'synapse';
+    expressionType?: "xpath/jsonPath" | "synapse";
     supportsAIValues?: boolean;
 }
 
 interface ExpressionValueWithSetter {
     value: ExpressionFieldValue;
     setValue: (value: ExpressionFieldValue) => void;
-};
-
+}
 
 export function getNameForController(name: string | number) {
-    if (name === 'configRef') {
-        return 'configKey';
+    if (name === "configRef") {
+        return "configKey";
     }
-    return String(name).replace(/\./g, '__dot__');
+    return String(name).replace(/\./g, "__dot__");
 }
 
 export function FormGenerator(props: FormGeneratorProps) {
@@ -152,14 +156,89 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isLegacyExpressionEnabled, setIsLegacyExpressionEnabled] = useState<boolean>(false);
-    const handleOnCancelExprEditorRef = useRef(() => { });
+    const handleOnCancelExprEditorRef = useRef(() => {});
     const [connectionNames, setConnections] = useState<{ [key: string]: string[] }>({});
+    const [generatedFormDetails, setGeneratedFormDetails] = useState<Record<string,any>>(null);
+    const [visibleDetails, setVisibleDetails] = useState<{ [key: string]: boolean }>({});
+    const [isGenerating, setIsGenerating] = useState<boolean>(false);
+    const [generatingError, setGeneratingError] = useState<boolean>(false);
+    const [isClickedDropDown, setIsClickedDropDown] = useState<boolean>(false);
+    const [inputGenerate, setInputGenerate] = useState<string>("");
+    const [defaultValues, setDefaultValues] = useState<any>({});
+    const [elementDetails, setElementDetails] = useState<any>([]);
+    const [isSendButtonClicked, setIsSendButtonClicked] = useState<boolean>(false);
+    const [isAutoFillBtnClicked, setIsAutoFillBtnClicked] = useState<boolean>(false);
+    const [followUp, setFollowUp] = useState<string>("");
+    const [isSame, setIsSame] = useState<boolean>(false);
+    const [isSameValues, setIsSameValues] = useState<boolean>(false);
+    const [numberOfDifferent, setNumberOfDifferent] = useState<number>(0);
+
+    useEffect(() => {
+        if (generatedFormDetails) {
+            const currentValues = getValues();
+            const generatedKeys = Object.keys(generatedFormDetails);
+            const currentKeys = Object.keys(currentValues);
+
+            const countDifferences = () => {
+                let differentCount = generatedKeys.length; // Start with the length of current keys
+
+                for (let key of generatedKeys) {
+                    if (currentKeys.includes(key)) {
+                        const generatedValue = generatedFormDetails[key];
+                        const currentValue = currentValues[key];
+
+                        // If the value is an object, compare only the `value` property
+                        if (
+                            typeof generatedValue === "object" &&
+                            generatedValue !== null &&
+                            "value" in generatedValue
+                        ) {
+                            if (generatedValue.value === (currentValue?.value ?? currentValue)) {
+                                differentCount -= 1;
+                            }
+                        }
+
+                        // For array comparison
+                        else if (Array.isArray(generatedValue) && Array.isArray(currentValue)) {
+                            differentCount -= 1;
+                        }
+
+                        // Otherwise, compare the values directly
+                        else if (generatedValue.toString() === currentValue.toString()) {
+                            differentCount -= 1;
+                        }
+                    }
+                }
+
+                return differentCount;
+            };
+
+            const newNumberOfDifferent = countDifferences();
+            setNumberOfDifferent(newNumberOfDifferent);
+
+            // Set flags based on whether all values match or not
+            const hasSameValues = newNumberOfDifferent === 0;
+            setIsSame(hasSameValues);
+            setIsSameValues(hasSameValues);
+        }
+    }, [generatedFormDetails, getValues]);
+
+    useEffect(() => {
+        if (generatedFormDetails) {
+            const initialVisibility = Object.keys(generatedFormDetails).reduce((acc, key) => {
+                acc[key] = true;
+                return acc;
+            }, {} as { [key: string]: boolean });
+
+            setVisibleDetails(initialVisibility);
+        }
+    }, [generatedFormDetails]);
 
     useEffect(() => {
         rpcClient
             .getMiVisualizerRpcClient()
             .isLegacyExpressionSupportEnabled()
-            .then(isEnabled => {
+            .then((isEnabled) => {
                 setIsLegacyExpressionEnabled(isEnabled);
             })
             .catch(() => {
@@ -169,6 +248,52 @@ export function FormGenerator(props: FormGeneratorProps) {
     }, []);
 
     useEffect(() => {
+        setTimeout(() => {
+            setIsSame(false);
+        }, 5000);
+    }, [isSame]);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setGeneratingError(false);
+        }, 5000);
+    }, [generatingError]);
+
+    function processElement(element: any): any {
+        const { type, ...cleanedElement } = element;
+
+        // If element contains nested elements, recurse through them
+        if (Array.isArray(element?.value?.elements)) {
+            // Process each nested element
+            return element.value.elements.map((nestedElement: any) => processElement(nestedElement));
+        } else {
+            // Process the current element
+            if (cleanedElement?.value?.displayName) {
+                const { displayName, allowedConnectionTypes, defaultType, ...cleaned } = cleanedElement?.value;
+
+                // Modify inputType based on conditions
+                if (cleaned?.inputType === "checkbox") {
+                    cleaned.inputType = "boolean";
+                }
+
+                if (cleaned?.inputType === "expressionTextArea") {
+                    cleaned.inputType = "synapseExpressions or string or stringWithSynapseExpressions";
+                }
+
+                if (cleaned?.inputType === "connection") {
+                    cleaned.inputType = "connection names";
+                }
+
+                if (cleaned?.name === "configRef"){
+                    cleaned.name = "configKey";
+                }
+
+                return cleaned;
+            }
+        }
+    }
+
+    useEffect(() => {
         setIsLoading(true);
         handleOnCancelExprEditorRef.current = () => {
             sidepanelGoBack(sidePanelContext);
@@ -176,8 +301,12 @@ export function FormGenerator(props: FormGeneratorProps) {
 
         if (formData.elements) {
             const defaultValues = getDefaultValues(formData.elements);
+            setDefaultValues(defaultValues);
             reset(defaultValues);
+            const details: any = formData.elements.map((element: any) => processElement(element));
+            setElementDetails(details);
         }
+
         setIsLoading(false);
     }, [sidePanelContext.pageStack, formData]);
 
@@ -195,7 +324,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         return connectionNames;
     }
 
-    function getDefaultValues(elements: any[]) {
+ function getDefaultValues(elements: any[]) {
         const defaultValues: Record<string, any> = {};
         elements.forEach(async (element: any) => {
             const name = getNameForController(element.value.name);
@@ -224,14 +353,23 @@ export function FormGenerator(props: FormGeneratorProps) {
         const value = element.value;
         const inputType = value.inputType;
         const deriveResponseVariable = value.deriveResponseVariable ?? false;
-        const defaultValue = deriveResponseVariable ? deriveDefaultValue(formData.connectorName, formData.operationName) : value.defaultValue;
+        const defaultValue = deriveResponseVariable
+            ? deriveDefaultValue(formData.connectorName, formData.operationName)
+            : value.defaultValue;
         const currentValue = value.currentValue ?? getValues(name) ?? defaultValue;
         deriveDefaultValue(formData.connectorName, formData.operationName);
-        const expressionTypes = ['stringOrExpression', 'integerOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression',
-            'textOrExpression', 'textAreaOrExpression', 'stringOrExpresion'
+        const expressionTypes = [
+            "stringOrExpression",
+            "integerOrExpression",
+            "expression",
+            "keyOrExpression",
+            "resourceOrExpression",
+            "textOrExpression",
+            "textAreaOrExpression",
+            "stringOrExpresion",
         ];
 
-        if (type === 'table') {
+        if (type === "table") {
             const valueObj: any[] = [];
             currentValue?.forEach((param: any[]) => {
                 const val: any = {};
@@ -250,16 +388,160 @@ export function FormGenerator(props: FormGeneratorProps) {
             });
 
             return valueObj;
-        } else if (expressionTypes.includes(inputType) &&
-            (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
+        } else if (
+            expressionTypes.includes(inputType) &&
+            (!currentValue || typeof currentValue !== "object" || !("isExpression" in currentValue))
+        ) {
             const isExpression = inputType === "expression" || isValueExpression(currentValue);
             return { isExpression: isExpression, value: currentValue ?? "" };
-        } else if (inputType === 'checkbox') {
+        } else if (inputType === "checkbox") {
             return currentValue ?? false;
         } else {
             return currentValue ?? "";
         }
     }
+
+    const handleRejectAll = async () => {
+        setGeneratedFormDetails(null);
+        setIsClickedDropDown(false);
+        setIsGenerating(false);
+        setVisibleDetails({});
+        setGeneratingError(false);
+        setIsAutoFillBtnClicked(false);
+        setInputGenerate("");
+        setFollowUp("");
+        setIsSendButtonClicked(false);
+        setIsSame(false);
+    };
+
+    const handleAcceptAll = async () => {
+        setIsClickedDropDown(false);
+        setIsGenerating(false);
+        reset(generatedFormDetails);
+        setVisibleDetails({});
+        setGeneratedFormDetails(null);
+        setIsAutoFillBtnClicked(false);
+
+        setGeneratingError(false);
+        setInputGenerate("");
+
+        setFollowUp("");
+        setIsSendButtonClicked(false);
+        setIsSame(false);
+    };
+
+    const handleGenerateAi = async () => {
+        try {
+            // Reset state
+            setGeneratedFormDetails(null);
+            setIsAutoFillBtnClicked(false);
+            setIsSendButtonClicked(true);
+            setGeneratingError(false);
+            setIsGenerating(true);
+            setIsSame(false);
+            setIsSameValues(false);
+            // Check if input is empty
+            if (inputGenerate.trim() === "" && followUp.trim() === "") {
+                setIsAutoFillBtnClicked(true);
+            }
+            // Handle follow-up text if present
+            let currentInput = inputGenerate;
+            if (followUp.trim()) {
+                currentInput = `${inputGenerate}, ${followUp}`;
+                setInputGenerate(currentInput);
+                setFollowUp("");
+            }
+            // Validate required fields
+            if (!range || !documentUri) {
+                throw new Error("Missing required document information");
+            }
+            // Get helper pane information
+            const data: HelperPaneData = await rpcClient.getMiDiagramRpcClient().getHelperPaneInfo({
+                documentUri,
+                position: range.start,
+            });
+            // Create a description for each form element
+            let fieldDescriptions: Record<string,string> = {}
+            formData.elements.map((element:{ type: string; value: Element }) => {
+                let description = "";
+                if (element.value?.helpTip) {
+                  description = description + "This field is used to " + element.value.helpTip + ". ";
+                }
+                if (element.value?.description) {
+                  description = description + " " + element.value.description + ". ";
+                }
+                if (element.value?.comboValues) {
+                  description = description + "The possible values for this field are " + element.value.comboValues.join(", ") + ". ";
+                }
+                if (element.value?.inputType !== 'expressionTextArea') {
+                  description = description + "The type of this field is " + element.value.inputType + ". ";
+                }
+                if (element.value?.inputType === 'expressionTextArea') {
+                  description = description + "This field is used to enter synapseExpressions or string or stringWithSynapseExpressions.";
+                }
+                if (element.value?.defaultValue) {
+                  description = description + " The default value for this field is " + element.value.defaultValue + ". ";
+                }
+                fieldDescriptions[element.value.name] = description;
+              });
+            // Extract data categories
+            const { payload, variables, properties, params, headers, configs } = data;
+            const payloads: HelperPaneCompletionItem[] = payload?.[0]?.children || [];
+            // Prepare form details
+            const formDetails = {
+                form_help: formData.help || "",
+                form_title: formData.title || "",
+                form_type: formData.type || "",
+                form_element_details: elementDetails,
+                form_description: formData.doc || "",
+            };
+            const values = getValues();
+            const base_url = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;  //${base_url}
+            const response = await fetch(`http://127.0.0.1:8000/auto-fill`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    payloads,
+                    variables,
+                    params,
+                    properties,
+                    headers,
+                    configs,
+                    current_values: values,
+                    form_details: formDetails,
+                    connection_names: connectionNames,
+                    question: currentInput,
+                    feild_descriptions: fieldDescriptions,
+                }).replaceAll("insertText", "insert_text").replaceAll("configKey", "config_key").replaceAll("isExpression", "is_expression"),
+            });
+            if (!response.ok) {
+                throw new Error("Failed to fetch suggestion");
+            }
+            const responseData = await response.json();
+            if (!responseData.suggestion) {
+                throw new Error("No valid suggestion found");
+            }
+            // Set generated form details if different from current
+            if (generatedFormDetails !== responseData.suggestion) {
+                const result = JSON.stringify(responseData.suggestion).replaceAll("is_expression", "isExpression");
+                setGeneratedFormDetails(JSON.parse(result));
+            }
+        } catch (error) {
+            console.error("Error in handleGenerateAi:", error);
+            setGeneratingError(true);
+            setGeneratedFormDetails(null);
+        } finally {
+            setIsGenerating(false);
+            setIsClickedDropDown(false);
+            // Only reset these if there was an error
+            if (generatingError) {
+                setVisibleDetails({});
+                setIsAutoFillBtnClicked(false);
+            }
+        }
+    };
 
     function ParamManagerComponent(element: Element, isRequired: boolean, helpTipElement: React.JSX.Element, field: any) {
         return <ComponentCard id={'parameterManager-' + element.name} sx={cardStyle} disbaleHoverEffect>
@@ -268,20 +550,35 @@ export function FormGenerator(props: FormGeneratorProps) {
                 {isRequired && (<RequiredFormInput />)}
                 <div style={{ paddingTop: '5px' }}>
                     {helpTipElement}
+                    </div>
                 </div>
-            </div>
-            <Typography variant="body3">{element.description}</Typography>
+                <Typography variant="body3">{element.description}</Typography>
 
-            <ParameterManager
-                formData={element}
-                parameters={field.value}
-                setParameters={field.onChange}
-                nodeRange={range}
-            />
-        </ComponentCard>;
+                <ParameterManager
+                    documentUri={documentUri}
+                    formData={element}
+                    parameters={field.value}
+                    setParameters={field.onChange}
+                    nodeRange={range}
+                />
+            </ComponentCard>
     }
 
-    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string, isRequired: boolean }) => {
+    const ExpressionFieldComponent = ({
+        element,
+        canChange,
+        field,
+        helpTipElement,
+        placeholder,
+        isRequired,
+    }: {
+        element: Element;
+        canChange: boolean;
+        field: any;
+        helpTipElement: React.JSX.Element;
+        placeholder: string;
+        isRequired: boolean;
+    }) => {
         const name = getNameForController(element.name);
 
         return expressionEditorField !== name ? (
@@ -292,7 +589,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={placeholder}
                 canChange={canChange}
                 required={isRequired}
-                isTextArea={element.inputType === 'textAreaOrExpression'}
+                isTextArea={element.inputType === "textAreaOrExpression"}
                 errorMsg={errors[name] && errors[name].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -301,59 +598,13 @@ export function FormGenerator(props: FormGeneratorProps) {
             />
         ) : (
             <>
-                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <label>{element.displayName}</label>
                     {element.required === "true" && <RequiredFormInput />}
-                    <div style={{ paddingTop: '5px' }}>
-                        {helpTipElement}
-                    </div>
+                    <div style={{ paddingTop: "5px" }}>{helpTipElement}</div>
                 </div>
                 <ExpressionEditor
-                    value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
-                    handleOnSave={(newValue) => {
-                        if (currentExpressionValue) {
-                            currentExpressionValue.setValue(newValue);
-                        }
-                        setExpressionEditorField(null);
-                    }}
-                    handleOnCancel={() => {
-                        setExpressionEditorField(null);
-                    }}
-                />
-            </>
-        )
-    }
-
-    const FormExpressionFieldComponent = (element: Element, field: any, helpTipElement: React.JSX.Element, isRequired: boolean, errorMsg: string) => {
-        const name = getNameForController(element.name);
-
-        return expressionEditorField !== name ? (
-            <FormExpressionField
-                {...field}
-                labelAdornment={helpTipElement}
-                label={element.displayName}
-                required={isRequired}
-                placeholder={element.placeholder}
-                nodeRange={range}
-                canChange={element.inputType !== 'expression'}
-                supportsAIValues={element.supportsAIValues}
-                errorMsg={errorMsg}
-                openExpressionEditor={(value, setValue) => {
-                    setCurrentExpressionValue({ value, setValue });
-                    setExpressionEditorField(name);
-                }}
-            />
-        ) : (
-            <>
-                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                    <label>{element.displayName}</label>
-                    {element.required === "true" && <RequiredFormInput />}
-                    <div style={{ paddingTop: '5px' }}>
-                        {helpTipElement}
-                    </div>
-                </div>
-                <ExpressionEditor
-                    value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
+                    value={currentExpressionValue.value || { isExpression: false, value: "", namespaces: [] }}
                     handleOnSave={(newValue) => {
                         if (currentExpressionValue) {
                             currentExpressionValue.setValue(newValue);
@@ -366,7 +617,64 @@ export function FormGenerator(props: FormGeneratorProps) {
                 />
             </>
         );
-    }
+    };
+
+    const FormExpressionFieldComponent = (
+        element: Element,
+        field: any,
+        helpTipElement: React.JSX.Element,
+        isRequired: boolean,
+        errorMsg: string
+    ) => {
+        const name = getNameForController(element.name);
+
+        return expressionEditorField !== name ? (
+            <FormExpressionField
+                {...field}
+                numberOfDifferent={numberOfDifferent}
+                setNumberOfDifferent={setNumberOfDifferent}
+                getValues={getValues}
+                element={element}
+                generatedFormDetails={generatedFormDetails}
+                visibleDetails={visibleDetails}
+                setIsClickedDropDown={setIsClickedDropDown}
+                setIsGenerating={setIsGenerating}
+                setVisibleDetails={setVisibleDetails}
+                labelAdornment={helpTipElement}
+                label={element.displayName}
+                required={isRequired}
+                placeholder={element.placeholder}
+                nodeRange={range}
+                canChange={element.inputType !== "expression"}
+                supportsAIValues={element.supportsAIValues}
+                errorMsg={errorMsg}
+                openExpressionEditor={(value, setValue) => {
+                    setCurrentExpressionValue({ value, setValue });
+                    setExpressionEditorField(name);
+                }}
+            />
+        ) : (
+            <>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <label>{element.displayName}</label>
+                    {element.required === "true" && <RequiredFormInput />}
+                    <div style={{ paddingTop: "5px" }}>{helpTipElement}</div>
+                </div>
+                <ExpressionEditor
+                    value={currentExpressionValue.value || { isExpression: false, value: "", namespaces: [] }}
+                    handleOnSave={(newValue) => {
+                        if (currentExpressionValue) {
+                            currentExpressionValue.setValue(newValue);
+                        }
+                        setExpressionEditorField(null);
+                    }}
+                    handleOnCancel={() => {
+                        setExpressionEditorField(null);
+                    }}
+                />
+            </>
+        );
+    };
 
     const renderFormElement = (element: Element, field: any) => {
         const name = getNameForController(element.name);
@@ -376,11 +684,13 @@ export function FormGenerator(props: FormGeneratorProps) {
         const helpTip = element.helpTip;
 
         const helpTipElement = helpTip ? (
-            <Tooltip
-                content={helpTip}
-                position='right'
-            >
-                <Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} />
+            <Tooltip content={helpTip} position="right">
+                <Icon
+                    name="question"
+                    isCodicon
+                    iconSx={{ fontSize: "18px" }}
+                    sx={{ marginLeft: "5px", cursor: "help" }}
+                />
             </Tooltip>
         ) : null;
 
@@ -399,82 +709,208 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
 
         switch (element.inputType) {
-            case 'string':
-                if (element.name === 'connectionName') {
+            case "string":
+                if (element.name === "connectionName") {
                     return null;
                 }
+
                 return (
-                    <TextField {...field}
-                        label={element.displayName}
-                        labelAdornment={helpTipElement}
-                        size={50}
-                        placeholder={placeholder}
-                        required={isRequired}
-                        errorMsg={errorMsg}
-                    />
+                    <div>
+                        <TextField
+                            {...field}
+                            label={element.displayName}
+                            labelAdornment={helpTipElement}
+                            size={50}
+                            placeholder={placeholder}
+                            required={isRequired}
+                            errorMsg={errorMsg}
+                            onChange={(e: any) => {
+                                field.onChange(e.target.value);
+                            }}
+                        />
+
+                        {generatedFormDetails &&
+                            visibleDetails[element.name] &&
+                            generatedFormDetails[element.name] !== getValues(element.name) && (
+                                <GenerateDiv
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(generatedFormDetails[element.name]);
+                                            setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
+                    </div>
                 );
-            case 'textArea':
+            case "textArea":
                 return (
-                    <TextArea {...field}
-                        label={element.displayName}
-                        labelAdornment={helpTipElement}
-                        rows={5}
-                        placeholder={placeholder}
-                        required={isRequired}
-                        errorMsg={errorMsg}
-                    />
+                    <div>
+                        <TextArea
+                            {...field}
+                            label={element.displayName}
+                            labelAdornment={helpTipElement}
+                            rows={5}
+                            placeholder={placeholder}
+                            required={isRequired}
+                            errorMsg={errorMsg}
+                            onChange={(e: any) => {
+                                field.onChange(e.target.value);
+                            }}
+                        />
+
+                        {generatedFormDetails &&
+                            visibleDetails[element.name] &&
+                            generatedFormDetails[element.name] !== getValues(element.name) && (
+                                <GenerateDiv
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(generatedFormDetails[element.name]);
+
+                                            setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
+                    </div>
                 );
-            case 'boolean':
-            case 'checkbox':
+            case "boolean":
+            case "checkbox":
                 return (
-                    <CheckBox
-                        {...field}
-                        label={element.displayName}
-                        labelAdornment={helpTipElement}
-                        checked={typeof field.value === 'boolean' ? field.value : field.value === 'true' ? true : false}
-                    />
+                    <div>
+                        <CheckBox
+                            {...field}
+                            label={element.displayName}
+                            labelAdornment={helpTipElement}
+                            checked={
+                                typeof field.value === "boolean" ? field.value : field.value === "true" ? true : false
+                            }
+                            onChange={(checked: boolean) => {
+                                field.onChange(checked);
+                            }}
+                        />
+                        {generatedFormDetails &&
+                            visibleDetails[element.name] &&
+                            generatedFormDetails[element.name].toString().toLowerCase() !==
+                                getValues(element.name).toString().toLowerCase() &&
+                            element.name !== "responseVariable" &&
+                            element.name !== "overwriteBody" && (
+                                <GenerateDiv
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    isChecked={true}
+                                    isExpression={false}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(
+                                                typeof generatedFormDetails[element.name] === "string"
+                                                    ? generatedFormDetails[element.name] === "true"
+                                                        ? true
+                                                        : false
+                                                    : generatedFormDetails[element.name]
+                                            );
+                                            setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
+                    </div>
                 );
-            case 'stringOrExpression':
-            case 'stringOrExpresion':
-            case 'textOrExpression':
-            case 'textAreaOrExpression':
-            case 'integerOrExpression':
-            case 'expression':
-                const isValueLegacyExpression = isLegacyExpression(element.expressionType, isLegacyExpressionEnabled, field);
+            case "stringOrExpression":
+            case "stringOrExpresion":
+            case "textOrExpression":
+            case "textAreaOrExpression":
+            case "integerOrExpression":
+            case "expression":
+                const isValueLegacyExpression = isLegacyExpression(
+                    element.expressionType,
+                    isLegacyExpressionEnabled,
+                    field
+                );
                 if (isValueLegacyExpression) {
                     return ExpressionFieldComponent({
                         element,
-                        canChange: element.inputType !== 'expression',
+                        canChange: element.inputType !== "expression",
                         field,
                         helpTipElement,
                         placeholder,
-                        isRequired
+                        isRequired,
                     });
                 }
                 return FormExpressionFieldComponent(element, field, helpTipElement, isRequired, errorMsg);
-            case 'booleanOrExpression':
-            case 'comboOrExpression':
-            case 'combo':
-                const items = element.inputType === 'booleanOrExpression' ? ["true", "false"] : element.comboValues;
-                const allowItemCreate = element.inputType === 'comboOrExpression';
+            case "booleanOrExpression":
+            case "comboOrExpression":
+            case "combo":
+                const items = element.inputType === "booleanOrExpression" ? ["true", "false"] : element.comboValues;
+                const allowItemCreate = element.inputType === "comboOrExpression";
                 return (
-                    <AutoComplete
-                        name={name}
-                        label={element.displayName}
-                        labelAdornment={helpTipElement}
-                        errorMsg={errorMsg}
-                        items={items}
-                        value={field.value}
-                        onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }}
-                        required={isRequired}
-                        allowItemCreate={allowItemCreate}
-                    />
+                    <div>
+                        <AutoComplete
+                            name={name}
+                            label={element.displayName}
+                            labelAdornment={helpTipElement}
+                            errorMsg={errorMsg}
+                            items={items}
+                            value={field.value}
+                            onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }}
+                            required={isRequired}
+                            allowItemCreate={allowItemCreate}
+                        />
+
+                        {generatedFormDetails &&
+                            visibleDetails[element.name] &&
+                            generatedFormDetails[element.name] !== getValues(element.name) && (
+                                <GenerateDiv
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(generatedFormDetails[element.name]);
+
+                                            setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
+                    </div>
                 );
-            case 'key':
-            case 'keyOrExpression':
-            case 'comboOrKey': {
+            case "key":
+            case "keyOrExpression":
+            case "comboOrKey": {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
@@ -482,46 +918,107 @@ export function FormGenerator(props: FormGeneratorProps) {
                     }
                 }
 
-                return (<Keylookup
-                    value={field.value}
-                    filterType={(keyType as any) ?? "registry"}
-                    label={element.displayName}
-                    labelAdornment={helpTipElement}
-                    allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
-                    onValueChange={field.onChange}
-                    required={isRequired}
-                    errorMsg={errorMsg}
-                    additionalItems={element.comboValues}
-                    {...element.inputType.endsWith('OrExpression') && { canChangeEx: true }}
-                    {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
-                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                    onCreateButtonClick={onCreateButtonClick}
-                />)
-            }
-            case 'registry':
-            case 'resource':
-            case 'resourceOrExpression': {
-                const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                    openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, { type: Array.isArray(keyType) ? keyType : [keyType] });
-                }
+                return (
+                    <div>
+                        <Keylookup
+                            value={field.value}
+                            filterType={(keyType as any) ?? "registry"}
+                            label={element.displayName}
+                            labelAdornment={helpTipElement}
+                            allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== "false"}
+                            onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }}
+                            required={isRequired}
+                            errorMsg={errorMsg}
+                            additionalItems={element.comboValues}
+                            {...(element.inputType.endsWith("OrExpression") && { canChangeEx: true })}
+                            {...(element.inputType.endsWith("OrExpression") && { exprToggleEnabled: true })}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) =>
+                                handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)
+                            }
+                            onCreateButtonClick={onCreateButtonClick}
+                        />
 
-                return (<Keylookup
-                    value={field.value}
-                    filterType={(keyType as any) ?? "registry"}
-                    label={element.displayName}
-                    labelAdornment={helpTipElement}
-                    allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
-                    onValueChange={field.onChange}
-                    required={isRequired}
-                    errorMsg={errorMsg}
-                    additionalItems={element.comboValues}
-                    {...element.inputType.endsWith('OrExpression') && { canChangeEx: true }}
-                    {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
-                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                    onCreateButtonClick={onCreateButtonClick}
-                />)
+                        {generatedFormDetails &&
+                            visibleDetails[element.name] &&
+                            generatedFormDetails[element.name] !== getValues(element.name) && (
+                                <GenerateDiv
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(generatedFormDetails[element.name]);
+
+                                            setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
+                    </div>
+                );
             }
-            case 'stringWithParamManager': {
+            case "registry":
+            case "resource":
+            case "resourceOrExpression": {
+                const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
+                    openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, {
+                        type: Array.isArray(keyType) ? keyType : [keyType],
+                    });
+                };
+
+                return (
+                    <div>
+                        <Keylookup
+                            value={field.value}
+                            filterType={(keyType as any) ?? "registry"}
+                            label={element.displayName}
+                            labelAdornment={helpTipElement}
+                            allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== "false"}
+                            onValueChange={field.onChange}
+                            required={isRequired}
+                            errorMsg={errorMsg}
+                            additionalItems={element.comboValues}
+                            {...(element.inputType.endsWith("OrExpression") && { canChangeEx: true })}
+                            {...(element.inputType.endsWith("OrExpression") && { exprToggleEnabled: true })}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) =>
+                                handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)
+                            }
+                            onCreateButtonClick={onCreateButtonClick}
+                        />
+                        {generatedFormDetails &&
+                            visibleDetails[element.name] &&
+                            generatedFormDetails[element.name] !== getValues(element.name) && (
+                                <GenerateDiv
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(generatedFormDetails[element.name]);
+
+                                            setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
+                    </div>
+                );
+            }
+            case "stringWithParamManager": {
                 return (
                     <StringWithParamManagerComponent
                         element={element}
@@ -531,43 +1028,72 @@ export function FormGenerator(props: FormGeneratorProps) {
                         errorMsg={errorMsg}
                         nodeRange={range}
                     />
-                )
-            }
-            case 'ParamManager': {
-                return (
-                    ParamManagerComponent(element, isRequired, helpTipElement, field)
                 );
             }
-            case 'codeTextArea':
+            case "ParamManager": {
+                return ParamManagerComponent(element, isRequired, helpTipElement, field);
+            }
+            case "codeTextArea":
                 return (
-                    <CodeTextArea
-                        {...field}
-                        label={element.displayName}
-                        labelAdornment={helpTipElement}
-                        placeholder={placeholder}
-                        required={isRequired}
-                        resize="vertical"
-                        growRange={{ start: 5, offset: 10 }}
-                        errorMsg={errorMsg}
-                    />
+                    <div>
+                        <CodeTextArea
+                            {...field}
+                            label={element.displayName}
+                            labelAdornment={helpTipElement}
+                            placeholder={placeholder}
+                            required={isRequired}
+                            resize="vertical"
+                            growRange={{ start: 5, offset: 10 }}
+                            errorMsg={errorMsg}
+                            onChange={(e: any) => {
+                                field.onChange(e.target.value);
+                            }}
+                        />
+
+                        {generatedFormDetails &&
+                            visibleDetails[element.name] &&
+                            generatedFormDetails[element.name] !== getValues(element.name) && (
+                                <GenerateDiv
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(generatedFormDetails[element.name]);
+
+                                            setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
+                    </div>
                 );
-            case 'configurable': {
+            case "configurable": {
                 const onCreateButtonClick = async (fetchItems: any, handleValueChange: any) => {
                     await rpcClient.getMiVisualizerRpcClient().addConfigurable({
-                        projectUri: '',
+                        projectUri: "",
                         configurableName: field.value.value,
-                        configurableType: element.configurableType
+                        configurableType: element.configurableType,
                     });
                     handleValueChange(field.value.value);
-                }
+                };
                 return (
                     <div>
                         <Keylookup
                             name={getNameForController(element.name)}
                             label={element.displayName}
-                            errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                            errorMsg={
+                                errors[getNameForController(element.name)] &&
+                                errors[getNameForController(element.name)].message.toString()
+                            }
                             filter={(configurableType) => configurableType === element.configurableType}
-                            filterType='configurable'
+                            filterType="configurable"
                             value={field.value.value ? field.value.value : ""}
                             onValueChange={(e: any) => {
                                 field.onChange({ isConfigurable: true, value: e });
@@ -576,11 +1102,34 @@ export function FormGenerator(props: FormGeneratorProps) {
                             allowItemCreate={true}
                             onCreateButtonClick={onCreateButtonClick}
                         />
+                        {generatedFormDetails &&
+                            visibleDetails[element.name] &&
+                            generatedFormDetails[element.name] !== getValues(element.name) && (
+                                <GenerateDiv
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(generatedFormDetails[element.name]);
+
+                                            setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
                     </div>
                 );
             }
             case 'connection':
                 const onCreateButtonClick = async (name?: string, allowedConnectionTypes?: string[]) => {
+                    
                     const fetchItems = async () => {
                         const connectionNames = await getConnectionNames(allowedConnectionTypes);
 
@@ -620,7 +1169,10 @@ export function FormGenerator(props: FormGeneratorProps) {
                         </div>
                         <AutoComplete
                             name={name}
-                            errorMsg={errors[getNameForController(name)] && errors[getNameForController(name)].message.toString()}
+                            errorMsg={
+                                errors[getNameForController(name)] &&
+                                errors[getNameForController(name)].message.toString()
+                            }
                             items={connectionNames[name] ?? []}
                             value={field.value}
                             onValueChange={(e: any) => {
@@ -630,25 +1182,84 @@ export function FormGenerator(props: FormGeneratorProps) {
                             required={element.required === 'true'}
                             allowItemCreate={false}
                         />
-                    </>);
-            case 'expressionTextArea':
-                return (
-                    <FormTokenEditor
-                        nodeRange={range}
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder={placeholder}
-                        label={element.displayName}
-                        labelAdornment={helpTipElement}
-                        required={isRequired}
-                        errorMsg={errorMsg}
-                        editorSx={{ height: '100px' }}
-                    />
+
+                        {generatedFormDetails &&
+                            visibleDetails["configKey"] &&
+                            generatedFormDetails["configKey"] !== getValues("configKey") && (
+                                <GenerateDiv
+                                    isConnection={true}
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(generatedFormDetails["configKey"]);
+
+                                            setVisibleDetails((prev) => ({ ...prev, ["configKey"]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, ["configKey"]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
+                    </>
                 );
-            case 'popUp':
+            case "expressionTextArea":
                 return (
-                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: '100%', gap: '10px' }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                    <div>
+                        <FormTokenEditor
+                            nodeRange={range}
+                            value={field.value}
+                            onChange={(e: any) => {
+                                field.onChange(e);
+                            }}
+                            placeholder={placeholder}
+                            label={element.displayName}
+                            labelAdornment={helpTipElement}
+                            required={isRequired}
+                            errorMsg={errorMsg}
+                            editorSx={{ height: '100px' }}
+                        />
+
+                        {generatedFormDetails &&
+                            visibleDetails[element.name] &&
+                            generatedFormDetails[element.name] !== getValues(element.name) && (
+                                <GenerateDiv
+                                    element={element}
+                                    generatedFormDetails={generatedFormDetails}
+                                    handleOnClickChecked={async () => {
+                                        if (generatedFormDetails) {
+                                            field.onChange(generatedFormDetails[element.name]);
+
+                                            setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }
+                                    }}
+                                    handleOnClickClose={async () => {
+                                        setIsClickedDropDown(false);
+                                        setIsGenerating(false);
+                                        setVisibleDetails((prev) => ({ ...prev, [element.name]: false }));
+                                        setNumberOfDifferent(numberOfDifferent - 1);
+                                    }}
+                                />
+                            )}
+                    </div>
+                );
+            case "popUp":
+                return (
+                    <div
+                        style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                            width: "100%",
+                            gap: "10px",
+                        }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                             <span>{element.helpTip}</span>
                         </div>
                     </div>
@@ -659,36 +1270,39 @@ export function FormGenerator(props: FormGeneratorProps) {
     };
 
     const renderForm: any = (elements: any[]) => {
-        return elements.map((element: { type: string; value: any; }) => {
+        return elements.map((element: { type: string; value: any }) => {
             const name = getNameForController(element.value.groupName ?? element.value.name);
             if (element?.value?.enableCondition !== undefined) {
                 const shouldRender = getConditions(element.value.enableCondition);
                 if (!shouldRender) {
                     if (getValues(name) !== undefined) {
-                        setValue(name, undefined)
+                        setValue(name, undefined);
                     }
                     return;
                 }
             }
 
-            if (element.type === 'attributeGroup') {
+            if (element.type === "attributeGroup") {
                 return (
                     <>
-                        {(element.value.groupName === "Generic" || (element.value.groupName === "General" && skipGeneralHeading)) ?
-                            renderForm(element.value.elements) :
+                        {element.value.groupName === "Generic" ||
+                        (element.value.groupName === "General" && skipGeneralHeading) ? (
+                            renderForm(element.value.elements)
+                        ) : (
                             <Field>
                                 <FormGroup
                                     key={element.value.groupName}
                                     title={element.value.groupName}
-                                    isCollapsed={(element.value.groupName === "Advanced" || !!element.value.isCollapsed) ?
-                                        true : false
+                                    isCollapsed={
+                                        element.value.groupName === "Advanced" || !!element.value.isCollapsed
+                                            ? true
+                                            : false
                                     }
-                                    sx={{ paddingBottom: '0px', gap: '0px' }}
-                                >
+                                    sx={{ paddingBottom: "0px", gap: "0px" }}>
                                     {renderForm(element.value.elements)}
                                 </FormGroup>
                             </Field>
-                        }
+                        )}
                     </>
                 );
             } else {
@@ -700,16 +1314,15 @@ export function FormGenerator(props: FormGeneratorProps) {
                     return;
                 }
 
-                return (
-                    renderController(element)
-                );
+                return renderController(element);
             }
         });
     };
 
     const renderController = (element: any) => {
         const name = getNameForController(element.value.name);
-        const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
+        const isRequired =
+            typeof element.value.required === "boolean" ? element.value.required : element.value.required === "true";
         const matchPattern = element.value.matchPattern;
         let validateType = element.value.validateType;
         const defaultValue = getDefaultValue(element);
@@ -718,8 +1331,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             setValue(name, defaultValue);
         }
 
-        if (element.type === 'table') {
-            element.value.inputType = 'ParamManager';
+        if (element.type === "table") {
+            element.value.inputType = "ParamManager";
         }
 
         return (
@@ -727,67 +1340,66 @@ export function FormGenerator(props: FormGeneratorProps) {
                 name={name}
                 control={control}
                 defaultValue={defaultValue}
-                rules={
-                    {
-                        ...(isRequired) && {
-                            validate: (value) => {
-                                if (value.fromAI) {
-                                    return true;
-                                }
-                                if (!value || (typeof value === 'object' && !value.value)) {
-                                    return "This field is required";
-                                }
-                                if (typeof value === 'object' && 'isExpression' in value && value.isExpression && (!value.value || value.value.replace(/\s/g, '') === '${}')) {
-                                    return "Expression is required";
-                                }
-                                return true;
-                            },
-                        },
-                        ...(matchPattern) && {
-                            pattern: {
-                                value: new RegExp(matchPattern),
-                                message: "Value does not match the pattern"
-                            }
-                        },
-                        ...(validateType) && {
-                            validate: (value) => {
-                                if (typeof validateType === 'object' && 'conditionField' in validateType) {
-                                    const conditionFieldValue = getValues(validateType.conditionField);
-                                    validateType = validateType.mapping[conditionFieldValue];
-                                }
-                                if (validateType === 'number' && isNaN(value)) {
-                                    return "Value should be a number";
-                                }
-                                if (validateType === 'boolean' && !['true', 'false'].includes(value)) {
-                                    return "Value should be a boolean";
-                                }
-                                if (validateType === 'json' && typeof value !== 'object') {
-                                    try {
-                                        JSON.parse(value);
-                                    } catch (e) {
-                                        return "Value should be a valid JSON";
-                                    }
-                                }
-                                if (validateType === 'xml' && typeof value !== 'object') {
-                                    const parser = new DOMParser();
-                                    const xmlDoc = parser.parseFromString(value, "application/xml");
-                                    if (xmlDoc.getElementsByTagName("parsererror").length) {
-                                        return "Value should be a valid XML";
-                                    }
-                                }
+                rules={{
+                    ...(isRequired && {
+                        validate: (value) => {
+                            if (value.fromAI) {
                                 return true;
                             }
-                        }
-                    }
-                }
-                render={({ field }) => (
-                    <Field>
-                        {renderFormElement(element.value, field)}
-                    </Field>
-                )}
+                            if (!value || (typeof value === "object" && !value.value)) {
+                                return "This field is required";
+                            }
+                            if (
+                                typeof value === "object" &&
+                                "isExpression" in value &&
+                                value.isExpression &&
+                                (!value.value || value.value.replace(/\s/g, "") === "${}")
+                            ) {
+                                return "Expression is required";
+                            }
+                            return true;
+                        },
+                    }),
+                    ...(matchPattern && {
+                        pattern: {
+                            value: new RegExp(matchPattern),
+                            message: "Value does not match the pattern",
+                        },
+                    }),
+                    ...(validateType && {
+                        validate: (value) => {
+                            if (typeof validateType === "object" && "conditionField" in validateType) {
+                                const conditionFieldValue = getValues(validateType.conditionField);
+                                validateType = validateType.mapping[conditionFieldValue];
+                            }
+                            if (validateType === "number" && isNaN(value)) {
+                                return "Value should be a number";
+                            }
+                            if (validateType === "boolean" && !["true", "false"].includes(value)) {
+                                return "Value should be a boolean";
+                            }
+                            if (validateType === "json" && typeof value !== "object") {
+                                try {
+                                    JSON.parse(value);
+                                } catch (e) {
+                                    return "Value should be a valid JSON";
+                                }
+                            }
+                            if (validateType === "xml" && typeof value !== "object") {
+                                const parser = new DOMParser();
+                                const xmlDoc = parser.parseFromString(value, "application/xml");
+                                if (xmlDoc.getElementsByTagName("parsererror").length) {
+                                    return "Value should be a valid XML";
+                                }
+                            }
+                            return true;
+                        },
+                    }),
+                }}
+                render={({ field }) => <Field>{renderFormElement(element.value, field)}</Field>}
             />
         );
-    }
+    };
 
     function getConditions(conditions: any): boolean {
         const evaluateCondition = (condition: any) => {
@@ -795,13 +1407,16 @@ export function FormGenerator(props: FormGeneratorProps) {
             const expectedValue = condition[conditionKey];
             const currentVal = watch(getNameForController(conditionKey));
 
-            if (conditionKey.includes('.')) {
-                const [key, subKey] = conditionKey.split('.');
+            if (conditionKey.includes(".")) {
+                const [key, subKey] = conditionKey.split(".");
                 const parentValue = watch(getNameForController(key));
                 const subKeyValue = parentValue?.[subKey] || currentVal;
                 return subKeyValue === expectedValue;
             }
-            return currentVal === condition[conditionKey] || (typeof condition[conditionKey] === 'string' && String(currentVal) === condition[conditionKey]);
+            return (
+                currentVal === condition[conditionKey] ||
+                (typeof condition[conditionKey] === "string" && String(currentVal) === condition[conditionKey])
+            );
         };
 
         if (Array.isArray(conditions)) {
@@ -809,9 +1424,13 @@ export function FormGenerator(props: FormGeneratorProps) {
             const restConditions = conditions.slice(1);
 
             if (firstElement === "AND") {
-                return restConditions.every(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
+                return restConditions.every((condition) =>
+                    Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition)
+                );
             } else if (firstElement === "OR") {
-                return restConditions.some(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
+                return restConditions.some((condition) =>
+                    Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition)
+                );
             } else if (firstElement === "NOT") {
                 const condition = conditions[1];
                 return Array.isArray(condition) ? !getConditions(condition) : !evaluateCondition(condition);
@@ -823,33 +1442,84 @@ export function FormGenerator(props: FormGeneratorProps) {
     }
 
     return (
-        formData && formData.elements && formData.elements.length > 0 && !isLoading && (
+        formData &&
+        formData.elements &&
+        formData.elements.length > 0 &&
+        !isLoading && (
             <>
-                {formData.help && !ignoreFields?.includes('connectionName') && (
-                    <div style={{
-                        padding: "10px",
-                        marginBottom: "20px",
-                        borderBottom: "1px solid var(--vscode-editorWidget-border)",
-                        display: "flex",
-                        flexDirection: 'row'
-                    }}>
-                        {typeof formData.help === 'string' && formData.help.includes('<') ?
+                {formData.help && !ignoreFields?.includes("connectionName") && (
+                    <div
+                        style={{
+                            padding: "10px",
+                            marginBottom: "10px",
+                            borderBottom: "1px solid var(--vscode-editorWidget-border)",
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: !(typeof formData.help === "string" && formData.help.includes("<"))
+                                ? "space-between"
+                                : "end", // Dynamic alignment
+                            alignItems: "center",
+                        }}>
+                        {typeof formData.help === "string" && formData.help.includes("<") ? null : ( 
                             // <div dangerouslySetInnerHTML={{ __html: formData.help }} /> Enable when forms are fixed
-                            null
-                            : <Typography variant="body3">{formData.help}</Typography>
-                        }
-                        {formData.doc && <a href={formData.doc}><Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} /></a>}
+                            <Typography variant="body3">{formData.help}</Typography>
+                        )}
+                        {formData.doc && (
+                            <a href={formData.doc}>
+                                <Icon
+                                    name="question"
+                                    isCodicon
+                                    iconSx={{ fontSize: "18px" }}
+                                    sx={{ marginLeft: "5px", cursor: "help" }}
+                                />
+                            </a>
+                        )}
                     </div>
                 )}
-                {formData.banner &&
+
+                {formData.banner && (
                     <WarningBanner>
                         <ReactMarkdown>{formData.banner}</ReactMarkdown>
                     </WarningBanner>
-                }
-                {renderForm(formData.elements)}
+                )}
+        {documentUri && range &&
+                <AIAutoFillBox
+                    isGenerating={isGenerating}
+                    inputGenerate={inputGenerate}
+                    generatedFormDetails={generatedFormDetails}
+                    isClickedDropDown={isClickedDropDown}
+                    generatingError={generatingError}
+                    isAutoFillBtnClicked={isAutoFillBtnClicked}
+                    isSendButtonClicked={isSendButtonClicked}
+                    followUp={followUp}
+                    handleGenerateAi={handleGenerateAi}
+                    handleRejectAll={handleRejectAll}
+                    handleAcceptAll={handleAcceptAll}
+                    setInputGenerate={setInputGenerate}
+                    setFollowUp={setFollowUp}
+                    setIsClickedDropDown={setIsClickedDropDown}
+                    setGeneratedFormDetails={setGeneratedFormDetails}
+                    setVisibleDetails={setVisibleDetails}
+                    setIsAutoFillBtnClicked={setIsAutoFillBtnClicked}
+                    setIsSendButtonClicked={setIsSendButtonClicked}
+                    setGeneratingError={setGeneratingError}
+                    setIsSame={setIsSame}
+                    setIsSameValues={setIsSameValues}
+                    numberOfDifferent={numberOfDifferent}
+                    isSame={isSame}
+                    isSameValues={isSameValues}
+                />}
+
+                {isGenerating && (
+                    <div style={{ display: "flex", justifyContent: "center", paddingTop: "20px" }}>
+                        <ProgressRing />
+                    </div>
+                )}
+
+                {!isGenerating && renderForm(formData.elements)}
             </>
         )
     );
-};
+}
 
 export default FormGenerator;
