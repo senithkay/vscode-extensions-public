@@ -652,8 +652,12 @@ async function checkIfMiProject() {
         if (!isProject) {
             const projectFiles = await vscode.workspace.findFiles('.project', '**/node_modules/**', 1);
             if (projectFiles.length > 0) {
+                const oldProjectNatures = [
+                    '<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>',
+                    '<nature>org.eclipse.m2e.core.maven2Nature</nature>'
+                ];
                 const projectContent = await vscode.workspace.openTextDocument(projectFiles[0]);
-                if (projectContent.getText().includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
+                if (oldProjectNatures.some(nature => projectContent.getText().includes(nature))) {
                     isOldProject = true;
                     log("Integration Studio project detected");
                 }

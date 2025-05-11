@@ -290,7 +290,7 @@ import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIRes
 import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
-import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
+import { generateSwagger, getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
@@ -1794,6 +1794,10 @@ ${endpointAttributes}
             let xmlData = getTemplateXmlWrapper(getTemplateParams);
             let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
+            if (params.templateType === 'Sequence Template') {
+                params.isEdit = false;
+            }
+
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else if (params.isEdit && params.range) {
@@ -3034,7 +3038,7 @@ ${endpointAttributes}
             const initialDependencies = generateInitialDependencies(httpConnectorVersion);
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", (artifactID ?? name).toLowerCase(), projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
                     '.env': '',
                     'src': {
                         'main': {
@@ -3713,6 +3717,9 @@ ${endpointAttributes}
             // Copy the file from the source to the destination
             const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
             await fs.promises.copyFile(sourceFilePath, destinationFilePath);
+            if (params.artifactType === "API") {
+                await generateSwagger(destinationFilePath);
+            }
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             return { success: true }; // Return success response
         } catch (error) {
