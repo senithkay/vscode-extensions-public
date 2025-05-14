@@ -41,6 +41,8 @@ export function NodeIcon(props: NodeIconProps) {
     switch (type) {
         case "IF":
             return <BranchIcon />;
+        case "MATCH":
+            return <Icon name="bi-match" sx={{ fontSize: size, width: size, height: size }} />;
         case "EXPRESSION":
             return <CodeIcon />;
         case "REMOTE_ACTION_CALL":

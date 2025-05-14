@@ -24,6 +24,9 @@ export interface BaseVisitor {
     beginVisitIf?(node: FlowNode, parent?: FlowNode): void;
     endVisitIf?(node: FlowNode, parent?: FlowNode): void;
 
+    beginVisitMatch?(node: FlowNode, parent?: FlowNode): void;
+    endVisitMatch?(node: FlowNode, parent?: FlowNode): void;
+
     beginVisitConditional?(node: Branch, parent?: FlowNode): void;
     endVisitConditional?(node: Branch, parent?: FlowNode): void;
 
