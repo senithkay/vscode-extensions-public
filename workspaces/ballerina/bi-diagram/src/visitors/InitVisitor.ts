@@ -129,7 +129,6 @@ export class InitVisitor implements BaseVisitor {
 
     beginVisitMatch(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
-        console.log(">>> visit match", node);
         node.viewState = this.getDefaultViewState();
         // add empty node if branch is empty
         node.branches?.forEach((branch, index) => {
