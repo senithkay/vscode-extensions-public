@@ -21,7 +21,8 @@ import path from "path";
 
 export async function getView(documentUri: string, position: NodePosition, projectUri?: string): Promise<HistoryEntry> {
     const haveTreeData = !!StateMachine.context().projectStructure;
-    if (path.relative(projectUri || '', documentUri).startsWith("tests")) {
+    const isServiceClassFunction = await checkForServiceClassFunctions(documentUri, position);
+    if (isServiceClassFunction || path.relative(projectUri || '', documentUri).startsWith("tests")) {
         return {
             location: {
                 view: MACHINE_VIEW.BIDiagram,
@@ -35,6 +36,22 @@ export async function getView(documentUri: string, position: NodePosition, proje
     }
     else {
         return await getViewBySTRange(documentUri, position, projectUri);
+    }
+}
+
+async function checkForServiceClassFunctions(documentUri: string, position: NodePosition) {
+    const currentProjectArtifacts = StateMachine.context().projectStructure;
+    if (currentProjectArtifacts) {
+        for (const dir of currentProjectArtifacts.directoryMap[DIRECTORY_MAP.TYPE]) {
+            if (dir.path === documentUri && isPositionWithinBlock(position, dir.position)) {
+                const req = getSTByRangeReq(documentUri, position);
+                const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
+                if (node.parseSuccess && STKindChecker.isObjectMethodDefinition(node.syntaxTree)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 
@@ -377,6 +394,10 @@ function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: Nod
 
 function isPositionWithinRange(position: NodePosition, artifactPosition: NodePosition) {
     return position.startLine === artifactPosition.startLine && position.startColumn === artifactPosition.startColumn;
+}
+
+function isPositionWithinBlock(position: NodePosition, artifactPosition: NodePosition) {
+    return position.startLine > artifactPosition.startLine && position.endLine < artifactPosition.endLine;
 }
 
 export function getComponentIdentifier(node: STNode): string {
