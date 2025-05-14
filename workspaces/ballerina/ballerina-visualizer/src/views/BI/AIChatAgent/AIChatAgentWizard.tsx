@@ -15,7 +15,7 @@ import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { LoadingContainer } from '../../styles';
 import { TitleBar } from '../../../components/TitleBar';
 import { TopNavigationBar } from '../../../components/TopNavigationBar';
-import { LoadingRing } from '../../../components/Loader';
+import { RelativeLoader } from '../../../components/RelativeLoader';
 import { FormHeader } from '../../../components/FormHeader';
 
 const FORM_WIDTH = 600;
@@ -37,6 +37,8 @@ const Container = styled.div`
 const ButtonContainer = styled.div`
     display: flex;
     gap: 10px;
+    margin-top: 10px;
+    justify-content: flex-end;
 `;
 
 const FormFields = styled.div`
@@ -156,47 +158,40 @@ export function AIChatAgentWizard(props: AIChatAgentWizardProps) {
             />
             <ViewContent padding>
                 <Container>
-                    {currentStep === 0 &&
-                        <>
-                            <FormHeader
-                                title="Create AI Chat Agent"
+                    <FormHeader
+                        title="Create AI Chat Agent"
+                    />
+                    <FormContainer>
+                        <FormFields>
+                            <TextField
+                                label="Name"
+                                description="Name of the agent"
+                                value={agentName}
+                                disabled={isCreating}
+                                onChange={(e) => {
+                                    setAgentName(e.target.value);
+                                    validateName(e.target.value);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !isCreating && !nameError && agentName) {
+                                        handleCreateService();
+                                    }
+                                }}
+                                errorMsg={nameError}
+                                autoFocus
                             />
-                            <FormContainer>
-                                <FormFields>
-                                    <TextField
-                                        label="Name"
-                                        description="Name of the agent"
-                                        value={agentName}
-                                        onChange={(e) => {
-                                            setAgentName(e.target.value);
-                                            validateName(e.target.value);
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && !isCreating && !nameError && agentName) {
-                                                handleCreateService();
-                                            }
-                                        }}
-                                        errorMsg={nameError}
-                                        autoFocus
-                                    />
-                                    <ButtonContainer>
-                                        <Button
-                                            appearance="primary"
-                                            onClick={handleCreateService}
-                                            disabled={isCreating || !!nameError || !agentName}
-                                        >
-                                            {isCreating ? 'Creating...' : 'Create'}
-                                        </Button>
-                                    </ButtonContainer>
-                                </FormFields>
-                            </FormContainer>
-                        </>
-                    }
-                    {currentStep !== 0 &&
-                        <LoadingContainer>
-                            <LoadingRing message={steps[currentStep].description} />
-                        </LoadingContainer>
-                    }
+                            <ButtonContainer>
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleCreateService}
+                                    disabled={isCreating || !!nameError || !agentName}
+                                >
+                                    {isCreating ? 'Creating...' : 'Create'}
+                                </Button>
+                            </ButtonContainer>
+                            {isCreating && <RelativeLoader message={steps[currentStep].description} />}
+                        </FormFields>
+                    </FormContainer>
                 </Container>
             </ViewContent>
         </View>
