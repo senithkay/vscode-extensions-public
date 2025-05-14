@@ -24,7 +24,7 @@ export interface UpdateSourceCodeRequest {
     resolveMissingDependencies?: boolean;
 }
 
-export async function updateSourceCodeResponse(updateSourceCodeRequest: UpdateSourceCodeRequest, artifactData?: ArtifactData): Promise<ProjectStructureArtifactResponse[]> {
+export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCodeRequest, artifactData?: ArtifactData): Promise<ProjectStructureArtifactResponse[]> {
     StateMachine.setEditMode();
     const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
     for (const [key, value] of Object.entries(updateSourceCodeRequest.textEdits)) {
