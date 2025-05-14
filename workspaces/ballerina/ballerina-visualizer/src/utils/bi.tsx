@@ -102,7 +102,7 @@ function convertDiagramCategoryToSidePanelCategory(category: Category, functionT
     return {
         title: category.metadata.label,
         description: category.metadata.description,
-        icon: <ConnectorIcon url={icon} style={{ width: "20px" }} />,
+        icon: <ConnectorIcon url={icon} style={{ width: "20px", height: "20px", fontSize: "20px" }} />,
         items: items,
     };
 }

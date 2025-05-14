@@ -8,7 +8,7 @@
  */
 
 import React, { CSSProperties } from "react";
-import { ApiIcon, DatabaseIcon, HttpIcon } from "../../resources";
+import { ApiIcon, DatabaseIcon } from "../../resources";
 import { FlowNode } from "../../utils/types";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 
@@ -27,40 +27,52 @@ export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
 
     // Default styles for images
     const defaultImageStyle: CSSProperties = {
-        width: "24px"
+        width: "24px",
     };
 
     // Merge default styles with custom styles
     const mergedImageStyle: CSSProperties = {
         ...defaultImageStyle,
-        ...style
+        ...style,
     };
 
     // Default styles for icons
-    const defaultIconStyle: CSSProperties = {};
+    const defaultIconStyle: CSSProperties = {
+        width: 24,
+        height: 24,
+        fontSize: 24,
+    };
 
     // Merge default icon styles with custom icon styles
     const mergedIconStyle: CSSProperties = {
         ...defaultIconStyle,
-        ...iconStyle
+        ...iconStyle,
+        ...style,
     };
 
-    if (url && isValidUrl(url) && !imageError) {
+    console.log(">>> connector icon", { node, url });
+
+    // use custom icon for http
+    if (
+        (url && isValidUrl(url) && url.includes("ballerina_http_")) ||
+        (node?.metadata?.icon && node?.metadata?.icon.includes("ballerina_http_")) ||
+        node?.codedata?.module === "http"
+    ) {
         return (
-            <img 
-                src={url} 
-                style={mergedImageStyle} 
-                className={className}
-                onError={() => setImageError(true)} 
-            />
+            <div style={mergedIconStyle} className={className}>
+                <Icon name="bi-globe" sx={{ ...mergedIconStyle }} />
+            </div>
         );
-    } else if (url && fallbackIcon) {
-        return <div style={mergedIconStyle} className={className}>{fallbackIcon}</div>;
     }
 
-     // use custom icon for http
-     if (node?.metadata?.icon && node?.metadata?.icon.includes("ballerina_http_")) {
-        return <div style={mergedIconStyle} className={className}><Icon name="bi-globe" sx={{ width: 24, height: 24, fontSize: 24 }} /></div>;
+    if (url && isValidUrl(url) && !imageError) {
+        return <img src={url} style={mergedImageStyle} className={className} onError={() => setImageError(true)} />;
+    } else if (url && fallbackIcon) {
+        return (
+            <div style={mergedIconStyle} className={className}>
+                {fallbackIcon}
+            </div>
+        );
     }
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
@@ -77,17 +89,26 @@ export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
     }
 
     if (fallbackIcon && imageError) {
-        return <div style={mergedIconStyle} className={className}>{fallbackIcon}</div>;
+        return (
+            <div style={mergedIconStyle} className={className}>
+                {fallbackIcon}
+            </div>
+        );
     }
 
     if (node?.codedata?.module && databaseClients.includes(node.codedata.module)) {
-        return <div style={mergedIconStyle} className={className}><DatabaseIcon /></div>;
-    }
-    if (node?.codedata?.module === "http") {
-        return <div style={mergedIconStyle} className={className}><HttpIcon /></div>;
+        return (
+            <div style={mergedIconStyle} className={className}>
+                <DatabaseIcon />
+            </div>
+        );
     }
 
-    return <div style={mergedIconStyle} className={className}><ApiIcon /></div>;
+    return (
+        <div style={mergedIconStyle} className={className}>
+            <ApiIcon />
+        </div>
+    );
 }
 
 export default ConnectorIcon;
