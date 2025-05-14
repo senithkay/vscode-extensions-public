@@ -497,7 +497,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             };
             const values = getValues();
             const base_url = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
-            const response = await fetch(`${base_url}/auto-fill`, {
+            const response = await fetch(`${base_url}/form/auto-fill`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
