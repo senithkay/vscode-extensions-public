@@ -22,11 +22,12 @@ import { StyleBase } from '../Common/types';
 import {
     extractExpressions,
     getHelperPaneWithEditorArrowPosition,
+    getHelperPaneWithEditorOrigin,
     getHelperPaneWithEditorPosition,
     setValue,
     transformExpressions
 } from '../../utils';
-import { HelperPanePosition, TokenEditorProps } from '../../types';
+import { HelperPaneOrigin, HelperPanePosition, TokenEditorProps } from '../../types';
 
 import { Button } from '../../../Button/Button';
 import { Icon } from '../../../Icon/Icon';
@@ -197,7 +198,7 @@ export const TokenEditor = ({
     endAdornment,
     onChange,
     getHelperPane,
-    helperPaneOrigin,
+    helperPaneOrigin = 'auto',
     isHelperPaneOpen,
     changeHelperPaneState,
     onFocus,
@@ -217,13 +218,16 @@ export const TokenEditor = ({
     const selectedTokenRef = useRef<HTMLSpanElement | null>(null);
     const [helperPanePosition, setHelperPanePosition] = useState<HelperPanePosition>({ top: 0, left: 0 });
     const [helperPaneArrowPosition, setHelperPaneArrowPosition] = useState<HelperPanePosition>({ top: 0, left: 0 });
+    const [calculatedHelperPaneOrigin, setCalculatedHelperPaneOrigin] = useState<HelperPaneOrigin>('auto');
     const monacoEditorRef = useRef();
 
     const updatePosition = throttle(() => {
         if (containerRef.current) {
-            setHelperPanePosition(getHelperPaneWithEditorPosition(containerRef, helperPaneOrigin));
+            const calculatedHelperPaneOrigin = getHelperPaneWithEditorOrigin(containerRef, helperPaneOrigin);
+            setCalculatedHelperPaneOrigin(calculatedHelperPaneOrigin);
+            setHelperPanePosition(getHelperPaneWithEditorPosition(containerRef, calculatedHelperPaneOrigin));
             setHelperPaneArrowPosition(
-                getHelperPaneWithEditorArrowPosition(containerRef, helperPaneOrigin, helperPanePosition)
+                getHelperPaneWithEditorArrowPosition(containerRef, calculatedHelperPaneOrigin, helperPanePosition)
             );
         }
     }, 10);
@@ -609,7 +613,7 @@ export const TokenEditor = ({
 
                 {/* Side arrow of the helper pane */}
                 {helperPaneArrowPosition && (
-                    <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...helperPaneArrowPosition }} />
+                    <HelperPane.Arrow origin={calculatedHelperPaneOrigin} sx={{ ...helperPaneArrowPosition }} />
                 )}
             </S.HelperPane>,
             document.body
