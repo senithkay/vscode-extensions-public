@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,121 +8,27 @@
  */
 
 import React, { useEffect, useState } from "react";
-import styled from "@emotion/styled";
-import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { IfNodeModel } from "./IfNodeModel";
-import { IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT } from "../../../resources/constants";
+import { Item, Menu, MenuItem, Popover, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 import { nodeHasError } from "../../../utils/node";
 import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
+import { NodeStyles } from "./IfNodeWidget";
 
-export namespace NodeStyles {
-    export type NodeStyleProp = {
-        disabled: boolean;
-        hovered: boolean;
-    };
-    export const Node = styled.div<NodeStyleProp>`
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
-        color: ${ThemeColors.ON_SURFACE};
-        cursor: pointer;
-    `;
-
-    export const Header = styled.div<{}>`
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        width: 100%;
-        padding: 8px;
-    `;
-
-    export const StyledButton = styled(Button)`
-        border-radius: 5px;
-        position: absolute;
-        top: -6px;
-        left: 46px;
-    `;
-
-    export const ErrorIcon = styled.div`
-        position: absolute;
-        bottom: -6px;
-        left: 48px;
-    `;
-
-    export const TopPortWidget = styled(PortWidget)`
-        margin-top: -3px;
-    `;
-
-    export const BottomPortWidget = styled(PortWidget)`
-        margin-bottom: -2px;
-    `;
-
-    export const StyledText = styled.div`
-        font-size: 14px;
-    `;
-
-    export const Icon = styled.div`
-        padding: 4px;
-        svg {
-            fill: ${ThemeColors.ON_SURFACE};
-        }
-    `;
-
-    export const Title = styled(StyledText)`
-        max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: "GilmerMedium";
-        color: ${ThemeColors.ON_SURFACE};
-    `;
-
-    export const Description = styled(StyledText)`
-        font-size: 12px;
-        max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: monospace;
-        opacity: 0.7;
-    `;
-
-    export const Row = styled.div`
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    `;
-
-    export const Column = styled.div`
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
-    `;
-
-    export const Hr = styled.hr`
-        width: 100%;
-    `;
-}
-
-interface IfNodeWidgetProps {
+interface MatchNodeWidgetProps {
     model: IfNodeModel;
     engine: DiagramEngine;
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<MatchNodeWidgetProps, "children"> {}
 
-export function IfNodeWidget(props: IfNodeWidgetProps) {
+export function MatchNodeWidget(props: MatchNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint, readOnly } = useDiagramContext();
 
@@ -224,7 +130,11 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             height={NODE_HEIGHT}
                             rx="5"
                             ry="5"
-                            fill={isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM}
+                            fill={
+                                isActiveBreakpoint
+                                    ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND
+                                    : ThemeColors.SURFACE_DIM
+                            }
                             stroke={
                                 hasError
                                     ? ThemeColors.ERROR
@@ -237,12 +147,12 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             opacity={disabled ? 0.7 : 1}
                             transform="rotate(45 28 28)"
                         />
-                        <svg x="20" y="15" width="30" height="30" viewBox="0 0 24 24">
+                        <svg x="22" y="18" width="26" height="26" viewBox="0 0 16 16">
                             <path
                                 fill={ThemeColors.ON_SURFACE}
-                                transform="rotate(180)"
-                                transform-origin="50% 50%"
-                                d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"
+                                fillRule="evenodd"
+                                d="M13.25 12a.75.75 0 1 0 0 1.5a.75.75 0 0 0 0-1.5m-.75-1.372a2.251 2.251 0 1 0 1.5 0v-.378a3 3 0 0 0-3-3H8.75V5.372a2.25 2.25 0 1 0-1.5 0V7.25H5a3 3 0 0 0-3 3v.378a2.251 2.251 0 1 0 1.5 0v-.378A1.5 1.5 0 0 1 5 8.75h2.25v1.878a2.251 2.251 0 1 0 1.5 0V8.75H11a1.5 1.5 0 0 1 1.5 1.5zM2.75 12a.75.75 0 1 0 0 1.5a.75.75 0 0 0 0-1.5m4.5.75a.75.75 0 1 1 1.5 0a.75.75 0 0 1-1.5 0M8 2.5A.75.75 0 1 0 8 4a.75.75 0 0 0 0-1.5"
+                                clipRule="evenodd"
                             />
                         </svg>
                     </svg>
@@ -250,9 +160,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                 </NodeStyles.Column>
                 <NodeStyles.Header onClick={handleOnClick}>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    {/* <NodeStyles.Description>
-                        {model.node.branches.at(0).properties.condition.value}
-                    </NodeStyles.Description> */}
+                    <NodeStyles.Description>{model.node.properties.condition.value}</NodeStyles.Description>
                 </NodeStyles.Header>
                 {hasError && (
                     <NodeStyles.ErrorIcon>

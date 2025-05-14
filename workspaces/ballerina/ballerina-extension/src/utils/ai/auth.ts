@@ -135,9 +135,11 @@ export const getAccessToken = async (): Promise<string | undefined> => {
                     const status = err.response?.status;
                     if (status === 400) {
                         reject(new Error("TOKEN_EXPIRED"));
+                        return;
                     }
                 }
                 reject(err);
+                return;
             }
 
             resolve(finalToken);

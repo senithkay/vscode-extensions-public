@@ -71,6 +71,7 @@ import { getHelperPane } from "../../HelperPane";
 import { FormTypeEditor } from "../../TypeEditor";
 import { getTypeHelper } from "../../TypeHelper";
 import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
+import MatchForm from "../MatchForm";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -687,6 +688,23 @@ export function FormGenerator(props: FormProps) {
     if (node?.codedata.node === "IF") {
         return (
             <IfForm
+                fileName={fileName}
+                node={node}
+                targetLineRange={targetLineRange}
+                expressionEditor={expressionEditor}
+                onSubmit={onSubmit}
+                openSubPanel={openSubPanel}
+                updatedExpressionField={updatedExpressionField}
+                subPanelView={subPanelView}
+                resetUpdatedExpressionField={resetUpdatedExpressionField}
+            />
+        );
+    }
+
+    // handle match node form
+    if (node?.codedata.node === "MATCH") {
+        return (
+            <MatchForm
                 fileName={fileName}
                 node={node}
                 targetLineRange={targetLineRange}

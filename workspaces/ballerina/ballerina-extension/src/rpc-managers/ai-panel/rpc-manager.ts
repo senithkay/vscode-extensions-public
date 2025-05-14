@@ -592,8 +592,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getFromDocumentation(content: string): Promise<string> {
-        const response = await searchDocumentation(content);
-        return response.toString();
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await searchDocumentation(content);
+                resolve(response.toString());
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async promptGithubAuthorize(): Promise<boolean> {
