@@ -79,6 +79,7 @@ import {
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
 import { handleStop, isErrorCode, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
+import { updateSourceCode } from "../../utils/source-utils";
 
 export let hasStopped: boolean = false;
 
@@ -570,80 +571,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
             };
 
             const resp: BISourceCodeResponse = await StateMachine.langClient().addErrorHandler(req);
-            await this.updateSource(resp, false);
-        }
-    }
-
-    // TODO: Reuse the one in bi-diagram
-    async updateSource(
-        params: BISourceCodeResponse,
-        isConnector?: boolean,
-        isDataMapperFormUpdate?: boolean
-    ): Promise<void> {
-        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
-
-        for (const [key, value] of Object.entries(params.textEdits)) {
-            const fileUri = Uri.parse(key);
-            const fileUriString = fileUri.toString();
-            const edits = value;
-
-            if (edits && edits.length > 0) {
-                const modificationList: STModification[] = [];
-
-                for (const edit of edits) {
-                    const stModification: STModification = {
-                        startLine: edit.range.start.line,
-                        startColumn: edit.range.start.character,
-                        endLine: edit.range.end.line,
-                        endColumn: edit.range.end.character,
-                        type: "INSERT",
-                        isImport: false,
-                        config: {
-                            STATEMENT: edit.newText,
-                        },
-                    };
-                    modificationList.push(stModification);
-                }
-
-                if (modificationRequests[fileUriString]) {
-                    modificationRequests[fileUriString].modifications.push(...modificationList);
-                } else {
-                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
-                }
-            }
-        }
-
-        // Iterate through modificationRequests and apply modifications
-        for (const [fileUriString, request] of Object.entries(modificationRequests)) {
-            const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
-                documentIdentifier: { uri: fileUriString },
-                astModifications: request.modifications,
-            })) as SyntaxTree;
-
-            if (parseSuccess) {
-                writeFileSync(request.filePath, source);
-                await StateMachine.langClient().didChange({
-                    textDocument: { uri: fileUriString, version: 1 },
-                    contentChanges: [
-                        {
-                            text: source,
-                        },
-                    ],
-                });
-
-                if (isConnector) {
-                    await StateMachine.langClient().resolveMissingDependencies({
-                        documentIdentifier: { uri: fileUriString },
-                    });
-                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
-                    await StateMachine.langClient().didOpen({
-                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                    });
-                }
-            }
-        }
-        if (!isConnector && !isDataMapperFormUpdate) {
-            updateView();
+            await updateSourceCode({ textEdits: resp.textEdits });
         }
     }
 
@@ -664,8 +592,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getFromDocumentation(content: string): Promise<string> {
-        const response = await searchDocumentation(content);
-        return response.toString();
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await searchDocumentation(content);
+                resolve(response.toString());
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async promptGithubAuthorize(): Promise<boolean> {

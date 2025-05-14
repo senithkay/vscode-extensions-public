@@ -53,6 +53,10 @@ export class BreakpointVisitor implements BaseVisitor {
         this.setBreakpointData(node);
     }
 
+    beginVisitMatch?(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitIf(node, parent);
+    }
+
     beginVisitWhile?(node: FlowNode, parent?: FlowNode): void {
         this.setBreakpointData(node);
     }
