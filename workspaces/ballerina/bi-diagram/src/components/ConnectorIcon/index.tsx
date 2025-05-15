@@ -7,111 +7,61 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { CSSProperties } from "react";
-import { ApiIcon, DatabaseIcon } from "../../resources";
-import { FlowNode } from "../../utils/types";
+import React, { CSSProperties, useState } from "react";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { ApiIcon } from "../../resources";
+import { getAIColor, ThemeListener } from "../NodeIcon";
 
 interface ConnectorIconProps {
-    node?: FlowNode;
     url?: string;
     fallbackIcon?: React.ReactNode;
     style?: CSSProperties; // Custom style for images
-    iconStyle?: CSSProperties; // Custom style for icons
     className?: string;
 }
 
 export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
-    const { node, url, fallbackIcon, style, iconStyle, className } = props;
+    const { url, fallbackIcon, className, style } = props;
     const [imageError, setImageError] = React.useState(false);
+    const [themeAwareColor, setThemeAwareColor] = useState<string>(getAIColor());
 
-    // Default styles for images
-    const defaultImageStyle: CSSProperties = {
-        width: "24px",
+    // Update color when theme changes
+    const handleThemeChange = () => {
+        setThemeAwareColor(getAIColor());
     };
-
-    // Merge default styles with custom styles
-    const mergedImageStyle: CSSProperties = {
-        ...defaultImageStyle,
-        ...style,
-    };
-
-    // Default styles for icons
-    const defaultIconStyle: CSSProperties = {
-        width: 24,
-        height: 24,
-        fontSize: 24,
-    };
-
-    // Merge default icon styles with custom icon styles
-    const mergedIconStyle: CSSProperties = {
-        ...defaultIconStyle,
-        ...iconStyle,
-        ...style,
-    };
-
-    console.log(">>> connector icon", { node, url });
 
     // use custom icon for http
-    if (
-        (url && isValidUrl(url) && url.includes("ballerina_http_")) ||
-        (node?.metadata?.icon && node?.metadata?.icon.includes("ballerina_http_")) ||
-        node?.codedata?.module === "http"
-    ) {
+    if (url?.includes("ballerina_http_")) {
+        return <Icon name="bi-globe" className={className} sx={{ width: 24, height: 24, fontSize: 24, ...style }} />;
+    }
+
+    // use custom icon for ai module
+    if (url?.includes("ballerinax_ai_")) {
         return (
-            <div style={mergedIconStyle} className={className}>
-                <Icon name="bi-globe" sx={{ ...mergedIconStyle }} />
-            </div>
+            <>
+                <Icon 
+                    name="bi-ai-agent" 
+                    className={className} 
+                    sx={{ width: 24, height: 24, fontSize: 24, color: themeAwareColor, ...style }} 
+                />
+                <ThemeListener onThemeChange={handleThemeChange} />
+            </>
         );
     }
 
     if (url && isValidUrl(url) && !imageError) {
-        return <img src={url} style={mergedImageStyle} className={className} onError={() => setImageError(true)} />;
-    } else if (url && fallbackIcon) {
-        return (
-            <div style={mergedIconStyle} className={className}>
-                {fallbackIcon}
-            </div>
-        );
+        return <img src={url} className={className} onError={() => setImageError(true)} style={{ ...style }} />;
     }
 
-    const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
-    if (node?.metadata?.icon && isValidUrl(node.metadata.icon) && !imageError) {
-        return (
-            <img
-                src={node.metadata.icon}
-                alt={node.codedata.module}
-                style={mergedImageStyle}
-                className={className}
-                onError={() => setImageError(true)}
-            />
-        );
-    }
-
-    if (fallbackIcon && imageError) {
-        return (
-            <div style={mergedIconStyle} className={className}>
-                {fallbackIcon}
-            </div>
-        );
-    }
-
-    if (node?.codedata?.module && databaseClients.includes(node.codedata.module)) {
-        return (
-            <div style={mergedIconStyle} className={className}>
-                <DatabaseIcon />
-            </div>
-        );
+    if (fallbackIcon) {
+        return <div className={className}>{fallbackIcon}</div>;
     }
 
     return (
-        <div style={mergedIconStyle} className={className}>
+        <div style={style} className={className}>
             <ApiIcon />
         </div>
     );
 }
-
-export default ConnectorIcon;
 
 function isValidUrl(url: string): boolean {
     try {
@@ -121,3 +71,5 @@ function isValidUrl(url: string): boolean {
         return false;
     }
 }
+
+export default ConnectorIcon;

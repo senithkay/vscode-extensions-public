@@ -366,8 +366,8 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                         ? `${(model.node.properties.connection.value as string).slice(0, 16)}...`
                         : model.node.properties.connection.value}
                 </text>
-                <foreignObject x="68" y="12" width="44" height="44" fill={ThemeColors.ON_SURFACE}>
-                    <ConnectorIcon node={model.node} />
+                <foreignObject x="68" y="12" width="24" height="24" fill={ThemeColors.ON_SURFACE}>
+                    <ConnectorIcon url={model.node.metadata.icon} style={{ width: 24, height: 24, fontSize: 24 }} />
                 </foreignObject>
                 <line
                     x1="0"

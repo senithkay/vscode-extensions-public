@@ -31,7 +31,7 @@ import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 // VSCode chart colors - guaranteed to be available in all webviews
 // These colors are visually distinct and work well in both light and dark themes
-const CHART_COLORS = {
+export const CHART_COLORS = {
     // Terminal ANSI colors (chart-like)
     BLUE: "var(--vscode-terminal-ansiBlue)",
     BRIGHT_BLUE: "var(--vscode-terminal-ansiBrightBlue)",
@@ -88,7 +88,7 @@ const NODE_COLOR_GROUPS = {
 };
 
 // Get current theme type (light or dark)
-const isDarkTheme = (): boolean => {
+export const isDarkTheme = (): boolean => {
     // Check for VSCode specific variable that indicates theme type
     // The --vscode-editor-background tends to be dark in dark themes
     const backgroundColor = getComputedStyle(document.documentElement)
@@ -116,7 +116,7 @@ const isDarkTheme = (): boolean => {
 };
 
 // Returns the appropriate chart color for a node type, considering the current theme
-const getNodeChartColor = (nodeType: NodeKind): string => {
+export const getNodeChartColor = (nodeType: NodeKind): string => {
     const dark = isDarkTheme();
 
     // Control flow group - blue variants
@@ -158,6 +158,12 @@ const getNodeChartColor = (nodeType: NodeKind): string => {
     return CHART_COLORS.DEFAULT;
 };
 
+// Get AI-specific color (reusable across components)
+export const getAIColor = (): string => {
+    const dark = isDarkTheme();
+    return dark ? CHART_COLORS.BRIGHT_CYAN : CHART_COLORS.CYAN;
+};
+
 // Icon mapping by node type
 const NODE_ICONS: Record<NodeKind, React.FC<{ size: number; color: string }>> = {
     IF: ({ size, color }) => <BranchIcon />,
@@ -197,7 +203,7 @@ const NODE_ICONS: Record<NodeKind, React.FC<{ size: number; color: string }>> = 
 } as Record<NodeKind, React.FC<{ size: number; color: string }>>;
 
 // Component to listen for theme changes
-const ThemeListener = ({ onThemeChange }: { onThemeChange: () => void }) => {
+export const ThemeListener = ({ onThemeChange }: { onThemeChange: () => void }): React.ReactElement => {
     useEffect(() => {
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
