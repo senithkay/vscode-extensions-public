@@ -798,6 +798,15 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getCommonRpcClient().executeCommand({ commands: [BI_COMMANDS.BI_DEBUG_PROJECT] });
     };
 
+    const handleLocalConfigure = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.ViewConfigVariables,
+            },
+        });
+    }
+
     const handleDockerBuild = () => {
         rpcClient.getBIDiagramRpcClient().buildProject(BuildMode.DOCKER);
     };
@@ -841,6 +850,9 @@ export function Overview(props: ComponentDiagramProps) {
                     <ProjectSubtitle>Integration</ProjectSubtitle>
                 </TitleContainer>
                 <HeaderControls>
+                    <Button appearance="icon" onClick={handleLocalConfigure} buttonSx={{ padding: "4px 8px" }}>
+                        <Codicon name="settings-gear" sx={{ marginRight: 5 }} /> Configure
+                    </Button>
                     <Button appearance="icon" onClick={handleLocalRun} buttonSx={{ padding: "4px 8px" }}>
                         <Codicon name="play" sx={{ marginRight: 5 }} /> Run
                     </Button>
