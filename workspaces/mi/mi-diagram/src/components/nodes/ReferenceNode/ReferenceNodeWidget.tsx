@@ -13,12 +13,12 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ReferenceNodeModel } from "./ReferenceNodeModel";
 import { Colors, MEDIATORS, NODE_DIMENSIONS, OPEN_SEQUENCE_VIEW } from "../../../resources/constants";
 import { Aggregate, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
-import { EVENT_TYPE, GetDefinitionResponse, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { GetDefinitionResponse } from "@wso2-enterprise/mi-core";
 import { Header, Description, Name, Content, OptionsMenu, Body } from "../BaseNodeModel";
 import { getNodeDescription } from "../../../utils/node";
 
@@ -242,13 +242,12 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                     marginLeft: "30px",
                     padding: 0
                 }}
+                handleClose={handlePopoverClose}
             >
-                <ClickAwayListener onClickAway={handlePopoverClose}>
-                    <Menu>
-                        {canOpenView && <MenuItem key={'share-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />}
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
-                    </Menu>
-                </ClickAwayListener>
+                <Menu>
+                    {canOpenView && <MenuItem key={'share-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />}
+                    <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
+                </Menu>
             </Popover>
 
         </div >

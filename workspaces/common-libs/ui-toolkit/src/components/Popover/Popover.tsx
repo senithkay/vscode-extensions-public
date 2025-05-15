@@ -146,7 +146,7 @@ export const Popover: React.FC<PropsWithChildren<PopoverProps>> =
 
         if (handleClose) {
             PopoverElement = (
-                <ClickAwayListener anchorEl={anchorEvent} onClickAway={handleClose}>
+                <ClickAwayListener isMenuOpen={open} anchorEl={anchorEvent} onClickAway={handleClose}>
                     {PopoverElement}
                 </ClickAwayListener>
             )
