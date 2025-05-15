@@ -163,11 +163,12 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
     if (stNode.connections?.["Embedding Connection"]) connections["Embedding"] = stNode.connections["Embedding Connection"];
     if (stNode.connections?.["Vector Store Connection"]) connections["Vector Store"] = stNode.connections["Vector Store Connection"];
 
-    const systemPrompt = stNode.parameters?.filter((property: any) => property.name === "system")[0]?.value;
+    const systemPrompt = stNode.parameters?.find((p: any) => p.name === "system")?.value;
+    const instructions = stNode.parameters?.find((p: any) => p.name === "instructions")?.value;
     const prompt = stNode.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
-    const systemPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160, 8);
+    const systemPromptSize = getTextSizes(systemPrompt ?? instructions, "13px", undefined, undefined, 160, 8);
     const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160, 8);
-    const systemPromptHeight = systemPrompt ? 36 + systemPromptSize.height : 0;
+    const systemPromptHeight = (systemPrompt ?? instructions) ? 36 + systemPromptSize.height : 0;
     const promptHeight = prompt ? 36 + promptSize.height : 0;
 
     const tooltip = hasDiagnotics
@@ -436,9 +437,9 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                         )}
                     </S.DefaultContent>
 
-                    {systemPrompt && <S.PromptBox>
+                    {(systemPrompt || instructions) && <S.PromptBox>
                         <Header showBorder={true}>
-                            <Typography variant="h5" sx={{ margin: 0 }}>System Prompt</Typography>
+                            <Typography variant="h5" sx={{ margin: 0 }}>{systemPrompt ? "System Prompt" : "Instructions"}</Typography>
                         </Header>
 
                         <Tooltip
@@ -453,7 +454,7 @@ export function AiAgentNodeWidget(props: CallNodeWidgetProps) {
                                 WebkitLineClamp: '8',
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden'
-                            }}>{systemPrompt}</Typography>
+                            }}>{systemPrompt ?? instructions}</Typography>
                         </Tooltip>
                     </S.PromptBox>}
 

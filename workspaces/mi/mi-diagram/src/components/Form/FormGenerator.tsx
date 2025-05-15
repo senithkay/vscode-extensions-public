@@ -637,7 +637,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 }
             }
 
-            if (element.type === 'attributeGroup') {
+            if (element.type === 'attributeGroup' && !element.value.hidden) {
                 return (
                     <>
                         {(element.value.groupName === "Generic" || (element.value.groupName === "General" && skipGeneralHeading)) ?
