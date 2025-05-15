@@ -90,7 +90,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 				onMouseOver={selectPath}
 				pointerEvents={'all'}
 				stroke={isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
-				strokeWidth={0.75}
+				strokeWidth={1.5}
 			/>
 		</g>
 	)

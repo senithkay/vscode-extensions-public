@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { getAccessToken, refreshAccessToken } from "../utils";
+import { getAccessToken, getRefreshedAccessToken } from "../../../utils/ai/auth";
 
 export async function fetchData(url: string, options: RequestInit): Promise<Response> {
     try {
@@ -24,7 +24,7 @@ export async function fetchData(url: string, options: RequestInit): Promise<Resp
         let response = await fetch(url, options);
 
         if (response.status === 401) {
-            const refreshedToken = await refreshAccessToken();
+            const refreshedToken = await getRefreshedAccessToken();
             if (!refreshedToken) {
                 throw new Error("Session expired. Please log in again.");
             }

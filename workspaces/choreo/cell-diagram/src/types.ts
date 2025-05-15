@@ -47,6 +47,7 @@ export enum ComponentType {
     EVENT_HANDLER = "event-handler",
     TEST = "test",
     EXTERNAL_CONSUMER = "external-consumer",
+    SYSTEM_COMPONENT = "system",
 }
 
 

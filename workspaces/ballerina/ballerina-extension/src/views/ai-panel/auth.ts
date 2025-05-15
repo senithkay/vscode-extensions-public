@@ -8,13 +8,10 @@
  */
 
 import axios from 'axios';
-import { StateMachineAI } from './aiMachine';
-import { AIUserTokens, AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 import { extension } from '../../BalExtensionContext';
-import * as vscode from 'vscode';
-import fetch from 'node-fetch';
-import { getPluginConfig } from '../../../src/utils';
 import { AUTH_CLIENT_ID, AUTH_ORG, AUTH_REDIRECT_URL } from '../../features/ai/utils';
+import { AIStateMachine } from './aiMachine';
+import { AIMachineEventType } from '@wso2-enterprise/ballerina-core';
 
 export interface AccessToken {
     accessToken: string;
@@ -80,7 +77,7 @@ export async function exchangeAuthCode(authCode: string) {
             token = await extension.context.secrets.get('BallerinaAIUser');
             console.log("Token after exchange: " + token);
 
-            StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGN_IN_SUCCESS);
+            AIStateMachine.sendEvent(AIMachineEventType.LOGIN_SUCCESS);
         } catch (error: any) {
             const errMsg = "Error while signing in to Copilot! " + error?.message;
             throw new Error(errMsg);

@@ -184,6 +184,10 @@ export class SizingVisitor implements BaseVisitor {
         );
     }
 
+    endVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        this.endVisitIf(node, parent);
+    }
+
     endVisitConditional(node: Branch, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
         this.createBlockNode(node);

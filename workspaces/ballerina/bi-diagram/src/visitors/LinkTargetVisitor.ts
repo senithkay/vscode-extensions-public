@@ -179,6 +179,10 @@ export class LinkTargetVisitor implements BaseVisitor {
         });
     }
 
+    beginVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitIf(node, parent);
+    }
+
     private visitContainerNode(node: FlowNode, parent?: FlowNode) {
         const outLinks = this.getOutLinksFromNode(node);
         if (!outLinks) {

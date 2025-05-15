@@ -10,7 +10,7 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated, aiStateChanged, sendAIStateEvent, AI_EVENT_TYPE, popupStateChanged, getPopupVisualizerState, PopupVisualizerLocation, breakpointChanged } from '@wso2-enterprise/ballerina-core';
+import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated, aiStateChanged, sendAIStateEvent, popupStateChanged, getPopupVisualizerState, PopupVisualizerLocation, breakpointChanged, AIMachineEventType } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
 import { registerLangClientRpcHandlers } from './rpc-managers/lang-client/rpc-handler';
@@ -23,9 +23,8 @@ import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/
 import { registerBiDiagramRpcHandlers } from './rpc-managers/bi-diagram/rpc-handler';
 import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler';
 import { AiPanelWebview } from './views/ai-panel/webview';
-import { StateMachineAI } from './views/ai-panel/aiMachine';
+import { AIStateMachine } from './views/ai-panel/aiMachine';
 import path from 'path';
-import * as fs from 'fs';
 import { StateMachinePopup } from './stateMachinePopup';
 import { registerAiAgentRpcHandlers } from './rpc-managers/ai-agent/rpc-handler';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
@@ -51,7 +50,7 @@ export class RPCLayer {
             });
         } else {
             RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
-            StateMachineAI.service().onTransition((state) => {
+            AIStateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
             });
         }
@@ -82,7 +81,7 @@ export class RPCLayer {
 
         // ----- AI Webview RPC Methods
         registerAiPanelRpcHandlers(RPCLayer._messenger);
-        RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
+        RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AIMachineEventType) => AIStateMachine.sendEvent(event));
 
         // ----- Inline Data Mapper Webview RPC Methods
         registerInlineDataMapperRpcHandlers(RPCLayer._messenger);
