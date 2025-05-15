@@ -65,6 +65,10 @@ export class RemoveNodeVisitor implements BaseVisitor {
         });
     }
 
+    beginVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitIf(node, parent);
+    }
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }

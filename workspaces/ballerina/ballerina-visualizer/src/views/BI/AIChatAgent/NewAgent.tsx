@@ -246,6 +246,7 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
 
         // update the agent call node
         const updatedAgentCallNode = cloneDeep(agentCallNode);
+        updatedAgentCallNode.properties.variable.value = rawData["variable"];
         updatedAgentCallNode.properties.query.value = rawData["query"];
         updatedAgentCallNode.properties.sessionId.value = rawData["sessionId"];
         updatedAgentCallNode.properties.connection.value = agentVarName;
