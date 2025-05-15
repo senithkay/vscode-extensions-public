@@ -308,6 +308,7 @@ import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API
 import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
 import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
+import { DebuggerConfig } from "../../debugger/config";
 
 const AdmZip = require('adm-zip');
 
@@ -5182,7 +5183,12 @@ ${keyValuesXML}`;
 
     async getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
         const langClient = StateMachine.context().langClient!;
-        const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        let response;
+        if (params.isRuntimeService) {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath, port: DebuggerConfig.getServerPort() });
+        } else {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        }
         const generatedSwagger = response.swagger;
         const port = await getPortPromise({ port: 1000, stopPort: 3000 });
         const cors_proxy = require('cors-anywhere');
