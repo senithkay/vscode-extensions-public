@@ -134,6 +134,7 @@ export interface ConfigProps {
     variableIndex?: number;
     isExternallauncher?: boolean;
     fileName: string;
+    addNewConfig?: boolean;
 }
 
 export function ViewConfigurableVariables(props?: ConfigProps) {
@@ -222,6 +223,13 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             setConfigIndex(props.variableIndex);
         }
     }, [props?.variableIndex, configVariables]);
+
+    useEffect(() => {
+        if (props.addNewConfig) {
+            setEditConfigVariableFormOpen(false);
+            setAddConfigVariableFormOpen(true);
+        }
+    }, [props.addNewConfig]);
 
     const getConfigVariables = () => {
         rpcClient

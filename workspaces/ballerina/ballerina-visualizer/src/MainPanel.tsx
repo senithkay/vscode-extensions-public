@@ -327,6 +327,16 @@ const MainPanel = () => {
                             );
                         });
                         break;
+                    case MACHINE_VIEW.AddConfigVariable:
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <ViewConfigurableVariables
+                                    addNewConfig={true}
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath}
+                                />
+                            );
+                        });
+                        break;
                     case MACHINE_VIEW.EditConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {
                             rpcClient.getBIDiagramRpcClient().getConfigVariables().then((variables) => {
