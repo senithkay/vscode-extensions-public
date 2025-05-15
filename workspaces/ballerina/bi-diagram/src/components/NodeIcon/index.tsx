@@ -53,7 +53,7 @@ export const CHART_COLORS = {
 // Node types grouped by color
 const NODE_COLOR_GROUPS = {
     // Control flow group - blue variants
-    BLUE_GROUP: ["IF", "WHILE", "FOREACH", "RETURN"],
+    BLUE_GROUP: ["IF", "WHILE", "FOREACH", "MATCH", "RETURN"],
     
     // Break/continue - cyan variants
     CYAN_CONTROL_GROUP: ["BREAK", "CONTINUE"],
