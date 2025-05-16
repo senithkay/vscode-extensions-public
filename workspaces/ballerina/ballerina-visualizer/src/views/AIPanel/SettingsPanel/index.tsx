@@ -97,7 +97,7 @@ export const SettingsPanel = (props: { onClose: () => void }) => {
                 <Typography variant="subtitle1">Connect to AI Platforms for Enhanced Features</Typography>
                 <RowGroup>
                     <Row>
-                        <Typography variant="subtitle2">Login to WSO2 Copilot</Typography>
+                        <Typography variant="subtitle2">Login to BI Copilot</Typography>
                         <Typography variant="caption">
                             Login to access AI-powered code generation, completions, test generation, data mappings, and
                             more.

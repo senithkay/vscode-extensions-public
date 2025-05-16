@@ -10,47 +10,75 @@
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import React from "react";
 
-export const Welcome = styled.div({
-    padding: "0 20px",
-});
+const PanelWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+`;
 
-const CardTitle = styled.h3({
-    margin: "4px 0",
-});
+const TopSpacer = styled.div`
+    flex-grow: 1;
+    min-height: 24px;
+`;
 
-const CardWrapper = styled.div({
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    backgroundColor: "var(--vscode-toolbar-hoverBackground)",
-    padding: "16px",
-    borderRadius: "4px",
-    marginBottom: "48px",
-    gap: "16px",
-    cursor: "pointer",
-    maxWidth: "350px",
-});
+const BottomSpacer = styled.div`
+    flex-grow: 1;
+    min-height: 48px;
+`;
 
-const PlayIcon = styled.div({
-    width: "36px",
-    height: "36px",
-    borderRadius: "50%",
-    backgroundColor: "var(--vscode-foreground)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flexShrink: 0,
-});
+const Content = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 360px;
+    align-self: center;
+`;
 
-const Triangle = styled.div({
-    width: 0,
-    height: 0,
-    borderLeft: "12px solid #000",
-    borderTop: "7px solid transparent",
-    borderBottom: "7px solid transparent",
-    marginLeft: "2px",
-});
+const VideoThumbnail = styled.div`
+    position: relative;
+    width: 64%;
+    aspect-ratio: 2 / 1;
+    margin: 32px auto 32px;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.2s;
+`;
+
+const YouTubeThumbnail = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+`;
+
+const PlayButton = styled.div`
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    background-color: rgba(255, 255, 255, 0.75);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* So clicks go to parent */
+
+    &::before {
+        content: "▶";
+        color: #000000;
+        font-size: 16px;
+        margin-left: 2px;
+    }
+`;
 
 interface WelcomeMessageProps {
     isOnboarding?: boolean;
@@ -60,91 +88,82 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ isOnboarding = false })
     const { rpcClient } = useRpcContext();
 
     return (
-        <Welcome>
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginTop: "100px",
-                }}
-            >
-                {isOnboarding && (
-                    <CardWrapper
-                        onClick={() =>
-                            rpcClient.getCommonRpcClient().openExternalUrl({ url: "https://youtu.be/5klLsz1alPE" })
-                        }
-                    >
-                        <PlayIcon>
-                            <Triangle />
-                        </PlayIcon>
-                        <div style={{ display: "flex", flexDirection: "column" }}>
-                            <CardTitle>Quick Tour: WSO2 Copilot in Action</CardTitle>
-                            <Typography
-                                variant="body2"
-                                sx={{ color: "var(--vscode-descriptionForeground)", fontSize: 12 }}
-                            >
-                                A quick walkthrough to get you started
-                            </Typography>
-                        </div>
-                    </CardWrapper>
-                )}
-
+        <PanelWrapper>
+            <TopSpacer />
+            <Content>
                 <Icon
                     name="bi-ai-chat"
-                    sx={{ width: 60, height: 50 }}
-                    iconSx={{
-                        fontSize: "60px",
-                        color: "var(--vscode-foreground)",
-                        cursor: "default",
-                    }}
+                    sx={{ width: 54, height: 54 }}
+                    iconSx={{ fontSize: "54px", color: "var(--vscode-foreground)", cursor: "default" }}
                 />
-
-                <div style={{ display: "inline-flex" }}>
-                    <h2>WSO2 Copilot</h2>
-                </div>
+                <Typography
+                    variant="h2"
+                    sx={{
+                        color: "var(--vscode-foreground)",
+                        textAlign: "center",
+                        margin: "12px 0",
+                    }}
+                >
+                    BI Copilot
+                </Typography>
+                {isOnboarding && (
+                    <div title="Watch Quick Tour">
+                        <VideoThumbnail
+                            onClick={() =>
+                                rpcClient.getCommonRpcClient().openExternalUrl({
+                                    url: "https://youtu.be/5klLsz1alPE",
+                                })
+                            }
+                        >
+                            <YouTubeThumbnail
+                                src="https://img.youtube.com/vi/QxZmnmbDUVk/hqdefault.jpg"
+                                alt="Quick Tour Video"
+                            />
+                            <PlayButton />
+                        </VideoThumbnail>
+                    </div>
+                )}
                 <Typography
                     variant="body1"
                     sx={{
-                        marginBottom: "24px",
                         color: "var(--vscode-descriptionForeground)",
                         textAlign: "center",
-                        maxWidth: 350,
                         fontSize: 14,
+                        marginTop: "16px",
                     }}
                 >
-                    WSO2 Copilot is powered by AI. It can make mistakes. Make sure to review the generated code before
-                    adding it to your integration.
+                    BI Copilot is powered by AI. It can make mistakes. Review generated code before adding it to your
+                    integration.
                 </Typography>
                 <Typography
                     variant="body1"
                     sx={{
-                        marginBottom: "14px",
                         color: "var(--vscode-descriptionForeground)",
                         textAlign: "center",
-                        maxWidth: 350,
                         fontSize: 14,
+                        marginTop: "36px",
                     }}
                 >
-                    Type / to use commands
+                    Type <b>/</b> to use commands
                 </Typography>
                 <Typography
                     variant="body1"
                     sx={{
-                        marginBottom: "24px",
                         color: "var(--vscode-descriptionForeground)",
                         textAlign: "center",
-                        maxWidth: 350,
                         fontSize: 14,
-                        gap: 10,
                         display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        marginTop: "12px",
                     }}
                 >
-                    <Icon isCodicon={true} name="new-file" iconSx={{ cursor: "default" }} /> to attatch context
+                    <Icon isCodicon name="new-file" iconSx={{ cursor: "default" }} />
+                    to attach context
                 </Typography>
-            </div>
-        </Welcome>
+            </Content>
+            <BottomSpacer />
+        </PanelWrapper>
     );
 };
 
