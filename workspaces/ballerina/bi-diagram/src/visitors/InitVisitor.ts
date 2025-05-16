@@ -63,6 +63,23 @@ export class InitVisitor implements BaseVisitor {
             };
             this.flow.nodes.push(emptyNode);
         }
+
+        // supported node types which has children and branches
+        // TODO: this list should go away once we have a way to support all node types
+        const supportedNodeTypes = [
+            "IF",
+            "ELSE",
+            "MATCH",
+            "WHILE",
+            "FOREACH",
+            "ERROR_HANDLER",
+            "FORK",
+            "LOCK",
+        ];
+        if (node.branches && !supportedNodeTypes.includes(node.codedata.node)) {
+            // unsupported node types with children and branches
+            node.branches = [];
+        }
     }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
@@ -227,6 +244,10 @@ export class InitVisitor implements BaseVisitor {
         }
 
         const branch = node.branches.at(0);
+        if (!branch) {
+            console.error("No branch found in container node", node);
+            return;
+        }
         branch.viewState = this.getDefaultViewState();
 
         // remove empty nodes if the branch is not empty
@@ -271,7 +292,6 @@ export class InitVisitor implements BaseVisitor {
         this.visitContainerNode(node, parent);
     }
     
-
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 

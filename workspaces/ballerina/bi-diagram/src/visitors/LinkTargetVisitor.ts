@@ -199,7 +199,7 @@ export class LinkTargetVisitor implements BaseVisitor {
 
         const bodyBranch = node.branches.at(0);
         if (!bodyBranch) {
-            console.log(">>> no body branch", { node });
+            console.error("No body branch found in container node", node);
             return;
         }
         outLinks.forEach((outLink) => {

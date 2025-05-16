@@ -69,10 +69,18 @@ export class PositionVisitor implements BaseVisitor {
         }
 
         node.branches.forEach((branch, index) => {
+            if (!branch?.viewState) {
+                console.error("Branch view state is not defined", branch);
+                return;
+            }
             if (index === 0) {
                 branch.viewState.x = centerX - node.viewState.clw;
             } else {
                 const previousBranch = node.branches.at(index - 1);
+                if (!previousBranch.viewState) {
+                    console.error("Previous branch view state is not defined", previousBranch);
+                    return;
+                }
                 branch.viewState.x =
                     previousBranch.viewState.x +
                     previousBranch.viewState.clw +
@@ -136,10 +144,10 @@ export class PositionVisitor implements BaseVisitor {
         // add empty node end of the block
         if (reverseCustomNodeId(node.id).label === LAST_NODE) {
             node.viewState.y = this.lastNodeY;
-            const centerX = parent ? parent.viewState.x + parent.viewState.lw : this.diagramCenterX;
+            const centerX = (parent && parent.viewState) ? parent.viewState.x + parent.viewState.lw : this.diagramCenterX;
             node.viewState.x = centerX - node.viewState.rw;
             // if top node is comment, align with comment
-            if (parent.codedata.node === "COMMENT") {
+            if (parent.codedata.node === "COMMENT" && parent.viewState) {
                 node.viewState.x = parent.viewState.x - (COMMENT_NODE_CIRCLE_WIDTH / 2 + DRAFT_NODE_BORDER_WIDTH);
             }
             return;
@@ -171,6 +179,10 @@ export class PositionVisitor implements BaseVisitor {
 
         // const branch = node.branches.find((branch) => branch.label === "Body");
         const branch = node.branches.at(0);
+        if (!branch?.viewState) {
+            console.error("No body branch found in while node", node);
+            return;
+        }
         branch.viewState.y = this.lastNodeY;
         branch.viewState.x = centerX - branch.viewState.clw;
     }
@@ -242,10 +254,18 @@ export class PositionVisitor implements BaseVisitor {
         node.viewState.x = centerX - node.viewState.lw;
 
         node.branches?.forEach((branch, index) => {
+            if (!branch?.viewState) {
+                console.error("Branch view state is not defined", branch);
+                return;
+            }
             if (index === 0) {
                 branch.viewState.x = centerX - node.viewState.clw;
             } else {
                 const previousBranch = node.branches.at(index - 1);
+                if (!previousBranch.viewState) {
+                    console.error("Previous branch view state is not defined", previousBranch);
+                    return;
+                }
                 branch.viewState.x =
                     previousBranch.viewState.x +
                     previousBranch.viewState.clw +
