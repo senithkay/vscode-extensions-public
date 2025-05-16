@@ -245,7 +245,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 handleClose={handlePopoverClose}
             >
                 <Menu>
-                    {canOpenView && <MenuItem key={'share-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />}
+                    {canOpenView && <MenuItem key={'openView-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />}
                     <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
                 </Menu>
             </Popover>
