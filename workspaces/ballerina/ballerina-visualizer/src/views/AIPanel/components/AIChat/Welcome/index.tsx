@@ -41,9 +41,9 @@ const Content = styled.div`
 
 const VideoThumbnail = styled.div`
     position: relative;
-    width: 64%;
-    aspect-ratio: 2 / 1;
-    margin: 32px auto 32px;
+    width: 80%;
+    aspect-ratio: 24 / 5;
+    margin: 60px auto 0;
     border-radius: 4px;
     overflow: hidden;
     cursor: pointer;
@@ -56,6 +56,7 @@ const YouTubeThumbnail = styled.img`
     object-fit: cover;
     object-position: center;
     display: block;
+    filter: grayscale(100%);
 `;
 
 const PlayButton = styled.div`
@@ -106,23 +107,6 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ isOnboarding = false })
                 >
                     BI Copilot
                 </Typography>
-                {isOnboarding && (
-                    <div title="Watch Quick Tour">
-                        <VideoThumbnail
-                            onClick={() =>
-                                rpcClient.getCommonRpcClient().openExternalUrl({
-                                    url: "https://youtu.be/5klLsz1alPE",
-                                })
-                            }
-                        >
-                            <YouTubeThumbnail
-                                src="https://img.youtube.com/vi/QxZmnmbDUVk/hqdefault.jpg"
-                                alt="Quick Tour Video"
-                            />
-                            <PlayButton />
-                        </VideoThumbnail>
-                    </div>
-                )}
                 <Typography
                     variant="body1"
                     sx={{
@@ -161,6 +145,23 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ isOnboarding = false })
                     <Icon isCodicon name="new-file" iconSx={{ cursor: "default" }} />
                     to attach context
                 </Typography>
+                {isOnboarding && (
+                    <div title="Watch Quick Tour">
+                        <VideoThumbnail
+                            onClick={() =>
+                                rpcClient.getCommonRpcClient().openExternalUrl({
+                                    url: "https://youtu.be/5klLsz1alPE",
+                                })
+                            }
+                        >
+                            <YouTubeThumbnail
+                                src="https://img.youtube.com/vi/QxZmnmbDUVk/hqdefault.jpg"
+                                alt="Quick Tour Video"
+                            />
+                            <PlayButton />
+                        </VideoThumbnail>
+                    </div>
+                )}
             </Content>
             <BottomSpacer />
         </PanelWrapper>
