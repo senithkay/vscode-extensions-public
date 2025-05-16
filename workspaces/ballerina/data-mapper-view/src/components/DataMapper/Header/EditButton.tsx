@@ -15,10 +15,11 @@ import { useMediaQuery } from "../utils";
 
 interface AutoMapButtonProps {
     onClick: () => void;
+    disabled?: boolean;
 }
 
 export default function EditButton(props: AutoMapButtonProps) {
-    const { onClick } = props;
+    const { onClick, disabled } = props;
     const showText = useMediaQuery('(min-width:800px)');
 
     return (
@@ -26,6 +27,7 @@ export default function EditButton(props: AutoMapButtonProps) {
             <Button
                 onClick={onClick}
                 appearance="secondary"
+                disabled={disabled}
             >
                 <Icon name="bi-edit" sx={{ marginRight: 5, width: 16, height: 16, fontSize: 14 }} />
                 {showText ? 'Edit' : null}

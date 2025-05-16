@@ -28,6 +28,8 @@ import { ChildProcess } from 'child_process';
 import treeKill = require('tree-kill');
 import { serverLog, showServerOutputChannel } from '../util/serverLogger';
 import { getJavaHomeFromConfig, getServerPathFromConfig } from '../util/onboardingUtils';
+import * as crypto from 'crypto';
+
 const child_process = require('child_process');
 const findProcess = require('find-process');
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
@@ -144,12 +146,28 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
     return new Promise<void>(async (resolve, reject) => {
         const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
 
+        const isEqual = await compareFilesByMD5(path.join(serverPath, "conf", "deployment.toml"),
+            path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "deployment", "deployment.toml"));
+        if (!isEqual) {
+            const copyConf = await vscode.window.showWarningMessage(
+                'Deployment configurations in the runtime is different from the project. Do you want to copy the deployment configurations to the runtime?',
+                { modal: true },
+                'Yes'
+            );
+            if (copyConf === 'Yes') {
+                fs.copyFileSync(path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "deployment", "deployment.toml"), path.join(serverPath, "conf", "deployment.toml"));
+            } else {
+                reject('Deployment configurations in the project should be as the same as the runtime. Please copy the deployment configurations to the runtime and try again.');
+                return;
+            }
+        }
+
         const buildCommand = getBuildCommand();
         const envVariables = {
             ...process.env,
             ...setJavaHomeInEnvironmentAndPath()
         };
-        const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri, env: envVariables });
+        const buildProcess = await child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri, env: envVariables });
         showServerOutputChannel();
 
         buildProcess.stdout.on('data', (data) => {
@@ -615,4 +633,32 @@ export async function killProcessByPort(port: number): Promise<void> {
     } catch (error) {
         vscode.window.showErrorMessage(`Error finding or killing process on port ${port}: ${(error as Error).message}`);
     }
+}
+
+function getFileMD5(filePath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const hash = crypto.createHash('md5');
+        const stream = fs.createReadStream(filePath);
+        stream.on('data', (data) => hash.update(data));
+        stream.on('end', () => resolve(hash.digest('hex')));
+        stream.on('error', (err) => reject(err));
+    });
+}
+
+async function compareFilesByMD5(file1: string, file2: string): Promise<boolean> {
+    return new Promise<boolean>(async (resolve) => {
+        try {
+            const [hash1, hash2] = await Promise.all([
+                getFileMD5(file1),
+                getFileMD5(file2),
+            ]);
+            if (hash1 === hash2) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        } catch (error) {
+            console.error('Error comparing files:', error);
+        }
+    });
 }

@@ -42,13 +42,11 @@ export const transformCategories = (categories: Category[]): Category[] => {
     // TODO: these categories should be supported in the future
     const notSupportedCategories = [
         "PARALLEL_FLOW",
-        "LOCK",
         "START",
         "TRANSACTION",
         "COMMIT",
         "ROLLBACK",
-        "RETRY",
-        "NP_FUNCTION",
+        "RETRY"
     ];
 
     filteredCategories = filteredCategories.map((category) => ({

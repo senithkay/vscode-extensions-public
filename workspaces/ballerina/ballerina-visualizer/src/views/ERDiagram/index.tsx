@@ -7,15 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { PersistERModel, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PersistDiagram } from "@wso2-enterprise/persist-layer-diagram";
+import { Button, Icon, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { TopNavigationBar } from "../../components/TopNavigationBar";
+import { TitleBar } from "../../components/TitleBar";
+import styled from "@emotion/styled";
+
+const ActionButton = styled(Button)`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+`;
 
 export function ERDiagram() {
     const { rpcClient } = useRpcContext();
     const persistDiagramRPCClient = rpcClient.getPersistDiagramRpcClient();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
+    const [collapsedMode, setIsCollapsedMode] = useState<boolean>(false);
 
     useEffect(() => {
         if (rpcClient) {
@@ -24,7 +35,6 @@ export function ERDiagram() {
             });
         }
     }, [rpcClient]);
-
 
     const getPersistModel = async () => {
         if (!rpcClient) {
@@ -39,13 +49,37 @@ export function ERDiagram() {
             return;
         }
         await persistDiagramRPCClient.showProblemPanel();
-    }
-
+    };
+    
     return (
-        <PersistDiagram
-            getPersistModel={getPersistModel}
-            selectedRecordName={visualizerLocation?.identifier}
-            showProblemPanel={showProblemPanel}
-        />
+        <View>
+            <TopNavigationBar />
+            <TitleBar
+                title="Entity Relationship Diagram"
+                actions={
+                    <>
+                        <ActionButton
+                            onClick={() => setIsCollapsedMode(!collapsedMode)}
+                            appearance="secondary" 
+                        >
+                            {collapsedMode ? (
+                                <Icon name="unfold-more" sx={{ marginRight: "5px", width: 16, height: 16, fontSize: 14 }} />
+                            ) : (
+                                <Icon name="unfold-less" sx={{ marginRight: "5px", width: 16, height: 16, fontSize: 14 }} />
+                            )}
+                            {collapsedMode ? "Expand" : "Collapse"}
+                        </ActionButton>
+                    </>
+                }
+            />
+            <ViewContent>
+                <PersistDiagram
+                    getPersistModel={getPersistModel}
+                    selectedRecordName={visualizerLocation?.identifier}
+                    showProblemPanel={showProblemPanel}
+                    collapsedMode={collapsedMode}
+                />
+            </ViewContent>
+        </View>
     );
 }

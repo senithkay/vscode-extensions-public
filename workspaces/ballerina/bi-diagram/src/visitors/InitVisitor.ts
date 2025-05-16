@@ -9,7 +9,7 @@
 
 import { LAST_NODE, START_NODE } from "../resources/constants";
 import { getCustomNodeId } from "../utils/node";
-import { Branch, Flow, FlowNode, ViewState } from "../utils/types";
+import { Branch, Flow, FlowNode, Property, ViewState } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class InitVisitor implements BaseVisitor {
@@ -62,6 +62,23 @@ export class InitVisitor implements BaseVisitor {
                 viewState: this.getDefaultViewState(),
             };
             this.flow.nodes.push(emptyNode);
+        }
+
+        // supported node types which has children and branches
+        // TODO: this list should go away once we have a way to support all node types
+        const supportedNodeTypes = [
+            "IF",
+            "ELSE",
+            "MATCH",
+            "WHILE",
+            "FOREACH",
+            "ERROR_HANDLER",
+            "FORK",
+            "LOCK",
+        ];
+        if (node.branches && !supportedNodeTypes.includes(node.codedata.node)) {
+            // unsupported node types with children and branches
+            node.branches = [];
         }
     }
 
@@ -127,6 +144,97 @@ export class InitVisitor implements BaseVisitor {
         }
     }
 
+    beginVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        node.viewState = this.getDefaultViewState();
+        // add empty node if branch is empty
+        node.branches?.forEach((branch, index) => {
+            // if branch is not empty remove empty node
+            if (branch.children && branch.children.length > 0) {
+                const emptyNodeIndex = branch.children.findIndex((child) => child.codedata.node === "EMPTY");
+                if (emptyNodeIndex >= 0) {
+                    branch.children.splice(emptyNodeIndex, 1);
+                }
+            }
+
+            // if branch is empty add empty node
+            if (!branch.children || branch.children.length === 0) {
+                // empty branch
+                // add empty node as `add new node` button
+                const emptyNode: FlowNode = {
+                    id: getCustomNodeId(node.id, branch.label, index),
+                    codedata: {
+                        node: "EMPTY",
+                    },
+                    returning: false,
+                    metadata: { label: "", description: "" },
+                    branches: [],
+                    viewState: this.getDefaultViewState(),
+                };
+                branch.children.push(emptyNode);
+            }
+            branch.viewState = this.getDefaultViewState();
+        });
+
+        // add empty default "_" branch if not exists
+        if (
+            node.branches.find((branch) => (branch.properties?.patterns?.value as Property[]).at(0)?.value === "_") ===
+            undefined
+        ) {
+            const emptyDefaultBranch: FlowNode = {
+                id: getCustomNodeId(node.id, "_"),
+                codedata: {
+                    node: "EMPTY",
+                },
+                returning: false,
+                metadata: {
+                    label: "",
+                    description: "",
+                    draft: true, // default branch is draft
+                },
+                branches: [],
+                viewState: this.getDefaultViewState(),
+            };
+            node.branches.push({
+                label: "_",
+                kind: "block",
+                codedata: {
+                    node: "CONDITIONAL",
+                    lineRange: node.codedata.lineRange,
+                },
+                repeatable: "ONE_OR_MORE",
+                properties: {
+                    patterns: {
+                        metadata: {
+                            label: "Patterns",
+                            description: "List of binding patterns",
+                        },
+                        valueType: "SINGLE_SELECT",
+                        value: [
+                            {
+                                metadata: {
+                                    label: "Pattern",
+                                    description: "Binding pattern",
+                                },
+                                valueType: "EXPRESSION",
+                                value: "_",
+                                optional: false,
+                                editable: true,
+                                advanced: false,
+                                hidden: false,
+                            },
+                        ],
+                        optional: false,
+                        editable: true,
+                        advanced: false,
+                        hidden: false,
+                    },
+                },
+                children: [emptyDefaultBranch],
+            });
+        }
+    }
+
     private visitContainerNode(node: FlowNode, parent?: FlowNode): void {
         node.viewState = this.getDefaultViewState();
 
@@ -136,6 +244,10 @@ export class InitVisitor implements BaseVisitor {
         }
 
         const branch = node.branches.at(0);
+        if (!branch) {
+            console.error("No branch found in container node", node);
+            return;
+        }
         branch.viewState = this.getDefaultViewState();
 
         // remove empty nodes if the branch is not empty
@@ -175,6 +287,11 @@ export class InitVisitor implements BaseVisitor {
         this.visitContainerNode(node, parent);
     }
 
+    beginVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.visitContainerNode(node, parent);
+    }
+    
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 

@@ -20,6 +20,8 @@ export type TypeHelperContext = {
     loading?: boolean;
     // Whether the type browser is loading
     loadingTypeBrowser?: boolean;
+    // Array of reference types for the type helper
+    referenceTypes: TypeHelperCategory[];
     // Array of types for the type helper
     basicTypes: TypeHelperCategory[];
     // Array of imported types for the type helper
@@ -41,6 +43,7 @@ export type TypeHelperContext = {
 const defaultTypeHelperContext: TypeHelperContext = {
     loading: false,
     loadingTypeBrowser: false,
+    referenceTypes: [],
     basicTypes: [],
     importedTypes: [],
     operators: [],

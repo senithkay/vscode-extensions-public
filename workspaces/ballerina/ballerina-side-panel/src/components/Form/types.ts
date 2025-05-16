@@ -120,9 +120,15 @@ type FormCompletionConditionalProps = {
 type FormTypeConditionalProps = {
     types: CompletionItem[];
     referenceTypes: CompletionItem[];
-    retrieveVisibleTypes: (value: string, cursorPosition: number, fetchReferenceTypes?: boolean) => Promise<void>;
+    retrieveVisibleTypes: (
+        value: string,
+        cursorPosition: number,
+        fetchReferenceTypes: boolean,
+        valueTypeConstraint: string
+    ) => Promise<void>;
     getTypeHelper: (
         fieldKey: string,
+        valueTypeConstraint: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,

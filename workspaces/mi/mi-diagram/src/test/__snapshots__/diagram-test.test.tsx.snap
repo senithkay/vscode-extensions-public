@@ -138,13 +138,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -175,13 +175,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -212,13 +212,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -249,13 +249,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -286,13 +286,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -1033,7 +1033,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -1086,7 +1086,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="aggregate-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-aggregate-5-3"
@@ -1166,7 +1166,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-10-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -1204,7 +1204,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onComplete-10-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -1237,7 +1237,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -1610,7 +1610,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -1663,7 +1663,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="aggregate-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-aggregate-5-3"
@@ -1743,7 +1743,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-10-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -1781,7 +1781,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onComplete-10-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -1814,7 +1814,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -4797,7 +4797,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -4850,7 +4850,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="cache-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-cache-5-3"
@@ -4930,7 +4930,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-6-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -4968,7 +4968,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onCacheHit-6-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -5001,7 +5001,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -5374,7 +5374,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -5427,7 +5427,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="cache-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-cache-5-3"
@@ -5509,7 +5509,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-6-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -5547,7 +5547,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onCacheHit-6-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -5580,7 +5580,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -6757,7 +6757,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 80px;"
+            style="top: 40px; left: 25px;"
           >
             <div
               class="css-2ttski"
@@ -6810,7 +6810,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="call-5-3"
-            style="top: 130px; left: 55px;"
+            style="top: 130px; left: 0px;"
           >
             <div
               data-testid="callNode-call-5-3"
@@ -6950,7 +6950,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 240px; left: 118px;"
+            style="top: 240px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -7259,7 +7259,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 80px;"
+            style="top: 40px; left: 25px;"
           >
             <div
               class="css-2ttski"
@@ -7312,7 +7312,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="call-5-3"
-            style="top: 130px; left: 55px;"
+            style="top: 130px; left: 0px;"
           >
             <div
               data-testid="callNode-call-5-3"
@@ -7454,7 +7454,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 240px; left: 118px;"
+            style="top: 240px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -10437,7 +10437,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 50px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -10490,7 +10490,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="clone-5-3"
-            style="top: 130px; left: 25px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-clone-5-3"
@@ -10570,7 +10570,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-7-5"
-            style="top: 240px; left: 88px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -10608,7 +10608,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-7-5"
-            style="top: 314px; left: 88px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -10641,7 +10641,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="addNewSequence-9-3"
-            style="top: 240px; left: 185px;"
+            style="top: 240px; left: 182px;"
           >
             <div
               class="css-7l5e9h"
@@ -10677,7 +10677,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 88px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -11050,7 +11050,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 50px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -11103,7 +11103,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="clone-5-3"
-            style="top: 130px; left: 25px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-clone-5-3"
@@ -11185,7 +11185,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-7-5"
-            style="top: 240px; left: 88px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -11223,7 +11223,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-7-5"
-            style="top: 314px; left: 88px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -11256,7 +11256,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="addNewSequence-9-3"
-            style="top: 240px; left: 185px;"
+            style="top: 240px; left: 182px;"
           >
             <div
               class="css-7l5e9h"
@@ -11292,7 +11292,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 88px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -19685,7 +19685,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 325px;"
+            style="top: 40px; left: 347px;"
           >
             <div
               class="css-2ttski"
@@ -19738,7 +19738,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="entitlementService-5-3"
-            style="top: 130px; left: 300px;"
+            style="top: 130px; left: 322px;"
           >
             <div
               data-testid="groupNode-entitlementService-5-3"
@@ -19818,7 +19818,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-7-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -19856,7 +19856,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onAccept-7-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -19889,7 +19889,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-6-4"
-            style="top: 240px; left: 263px;"
+            style="top: 240px; left: 285px;"
           >
             <div
               class="css-2ttski"
@@ -19927,7 +19927,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onReject-6-4"
-            style="top: 314px; left: 263px;"
+            style="top: 314px; left: 285px;"
           >
             <div
               class="css-2ttski"
@@ -19960,7 +19960,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-8-4"
-            style="top: 240px; left: 463px;"
+            style="top: 240px; left: 485px;"
           >
             <div
               class="css-2ttski"
@@ -19998,7 +19998,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="obligations-8-4"
-            style="top: 314px; left: 463px;"
+            style="top: 314px; left: 485px;"
           >
             <div
               class="css-2ttski"
@@ -20031,7 +20031,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-9-4"
-            style="top: 240px; left: 663px;"
+            style="top: 240px; left: 685px;"
           >
             <div
               class="css-2ttski"
@@ -20069,7 +20069,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="advice-9-4"
-            style="top: 314px; left: 663px;"
+            style="top: 314px; left: 685px;"
           >
             <div
               class="css-2ttski"
@@ -20102,7 +20102,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 363px;"
+            style="top: 440px; left: 385px;"
           >
             <div
               class="css-2ttski"
@@ -20667,7 +20667,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 325px;"
+            style="top: 40px; left: 347px;"
           >
             <div
               class="css-2ttski"
@@ -20720,7 +20720,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="entitlementService-5-3"
-            style="top: 130px; left: 300px;"
+            style="top: 130px; left: 322px;"
           >
             <div
               data-testid="groupNode-entitlementService-5-3"
@@ -20802,7 +20802,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-7-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -20840,7 +20840,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onAccept-7-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -20873,7 +20873,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-6-4"
-            style="top: 240px; left: 263px;"
+            style="top: 240px; left: 285px;"
           >
             <div
               class="css-2ttski"
@@ -20911,7 +20911,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="onReject-6-4"
-            style="top: 314px; left: 263px;"
+            style="top: 314px; left: 285px;"
           >
             <div
               class="css-2ttski"
@@ -20944,7 +20944,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-8-4"
-            style="top: 240px; left: 463px;"
+            style="top: 240px; left: 485px;"
           >
             <div
               class="css-2ttski"
@@ -20982,7 +20982,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="obligations-8-4"
-            style="top: 314px; left: 463px;"
+            style="top: 314px; left: 485px;"
           >
             <div
               class="css-2ttski"
@@ -21015,7 +21015,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-9-4"
-            style="top: 240px; left: 663px;"
+            style="top: 240px; left: 685px;"
           >
             <div
               class="css-2ttski"
@@ -21053,7 +21053,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="advice-9-4"
-            style="top: 314px; left: 663px;"
+            style="top: 314px; left: 685px;"
           >
             <div
               class="css-2ttski"
@@ -21086,7 +21086,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 363px;"
+            style="top: 440px; left: 385px;"
           >
             <div
               class="css-2ttski"
@@ -27993,7 +27993,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -28046,7 +28046,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="foreach-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-foreach-5-3"
@@ -28126,7 +28126,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-6-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -28164,7 +28164,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-6-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -28197,7 +28197,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -28644,7 +28644,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-12-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -28697,7 +28697,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="foreach-14-12"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-foreach-14-12"
@@ -28777,7 +28777,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="foreach_seq_ref_start"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -28815,7 +28815,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="foreach_seq_ref_reference"
-            style="top: 314px; left: 0px;"
+            style="top: 314px; left: 22px;"
           >
             <div
               data-testid="referenceNode-foreach_seq_ref_reference"
@@ -28887,7 +28887,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="foreach_seq_ref_end"
-            style="top: 424px; left: 63px;"
+            style="top: 424px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -28920,7 +28920,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="respond-15-12"
-            style="top: 548px; left: 0px;"
+            style="top: 548px; left: 22px;"
           >
             <div
               data-testid="mediatorNode-respond-15-12"
@@ -28992,7 +28992,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-13-8"
-            style="top: 658px; left: 63px;"
+            style="top: 658px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -29365,7 +29365,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -29418,7 +29418,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="foreach-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-foreach-5-3"
@@ -29500,7 +29500,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-6-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -29538,7 +29538,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-6-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -29571,7 +29571,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -30648,7 +30648,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-2-4"
-            style="top: 40px; left: 150px;"
+            style="top: 40px; left: 147px;"
           >
             <div
               class="css-2ttski"
@@ -30701,7 +30701,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="property-5-12"
-            style="top: 130px; left: 125px;"
+            style="top: 130px; left: 122px;"
           >
             <div
               data-testid="mediatorNode-property-5-12"
@@ -30775,7 +30775,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="variable-6-12"
-            style="top: 240px; left: 125px;"
+            style="top: 240px; left: 122px;"
           >
             <div
               data-testid="mediatorNode-variable-6-12"
@@ -30849,7 +30849,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="scatter-gather-7-12"
-            style="top: 350px; left: 125px;"
+            style="top: 350px; left: 122px;"
           >
             <div
               data-testid="groupNode-scatter-gather-7-12"
@@ -30929,7 +30929,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-9-16"
-            style="top: 460px; left: 67.5px;"
+            style="top: 460px; left: 64.5px;"
           >
             <div
               class="css-2ttski"
@@ -30977,7 +30977,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-10-20"
-            style="top: 534px; left: 25px;"
+            style="top: 534px; left: 22px;"
           >
             <div
               data-testid="mediatorNode-log-10-20"
@@ -31049,7 +31049,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="subSequence-9-16"
-            style="top: 644px; left: 88px;"
+            style="top: 644px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -31082,7 +31082,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-14-16"
-            style="top: 460px; left: 267.5px;"
+            style="top: 460px; left: 264.5px;"
           >
             <div
               class="css-2ttski"
@@ -31130,7 +31130,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-14-16"
-            style="top: 534px; left: 288px;"
+            style="top: 534px; left: 285px;"
           >
             <div
               class="css-2ttski"
@@ -31163,7 +31163,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="addNewSequence-15-12"
-            style="top: 460px; left: 385px;"
+            style="top: 460px; left: 382px;"
           >
             <div
               class="css-7l5e9h"
@@ -31199,7 +31199,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="iterate-16-12"
-            style="top: 768px; left: 125px;"
+            style="top: 768px; left: 122px;"
           >
             <div
               data-testid="groupNode-iterate-16-12"
@@ -31279,7 +31279,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-18-20"
-            style="top: 878px; left: 188px;"
+            style="top: 878px; left: 185px;"
           >
             <div
               class="css-2ttski"
@@ -31317,7 +31317,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="property-19-24"
-            style="top: 952px; left: 125px;"
+            style="top: 952px; left: 122px;"
           >
             <div
               data-testid="mediatorNode-property-19-24"
@@ -31391,7 +31391,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="call-21-24"
-            style="top: 1062px; left: 125px;"
+            style="top: 1062px; left: 122px;"
           >
             <div
               data-testid="callNode-call-21-24"
@@ -31531,7 +31531,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="subSequence-18-20"
-            style="top: 1172px; left: 188px;"
+            style="top: 1172px; left: 185px;"
           >
             <div
               class="css-2ttski"
@@ -31564,7 +31564,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="aggregate-28-12"
-            style="top: 1296px; left: 125px;"
+            style="top: 1296px; left: 122px;"
           >
             <div
               data-testid="groupNode-aggregate-28-12"
@@ -31644,7 +31644,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-33-16"
-            style="top: 1406px; left: 188px;"
+            style="top: 1406px; left: 185px;"
           >
             <div
               class="css-2ttski"
@@ -31682,7 +31682,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="respond-34-20"
-            style="top: 1480px; left: 125px;"
+            style="top: 1480px; left: 122px;"
           >
             <div
               data-testid="mediatorNode-respond-34-20"
@@ -31754,7 +31754,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="subSequence-33-16"
-            style="top: 1590px; left: 188px;"
+            style="top: 1590px; left: 185px;"
           >
             <div
               class="css-2ttski"
@@ -31787,7 +31787,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-8"
-            style="top: 1714px; left: 188px;"
+            style="top: 1714px; left: 185px;"
           >
             <div
               class="css-2ttski"
@@ -33168,7 +33168,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -33221,7 +33221,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="iterate-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-iterate-5-3"
@@ -33301,7 +33301,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-7-5"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -33339,7 +33339,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-7-5"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -33372,7 +33372,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="iterate-10-3"
-            style="top: 440px; left: 0px;"
+            style="top: 440px; left: 22px;"
           >
             <div
               data-testid="groupNode-iterate-10-3"
@@ -33452,7 +33452,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="target_start"
-            style="top: 550px; left: 63px;"
+            style="top: 550px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -33490,7 +33490,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="target_reference"
-            style="top: 624px; left: 0px;"
+            style="top: 624px; left: 22px;"
           >
             <div
               data-testid="referenceNode-target_reference"
@@ -33562,7 +33562,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="target_end"
-            style="top: 734px; left: 63px;"
+            style="top: 734px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -33595,7 +33595,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 858px; left: 63px;"
+            style="top: 858px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -34042,7 +34042,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-17-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -34095,7 +34095,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="iterate-19-12"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-iterate-19-12"
@@ -34175,7 +34175,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="target_start"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -34213,7 +34213,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="target_reference"
-            style="top: 314px; left: 0px;"
+            style="top: 314px; left: 22px;"
           >
             <div
               data-testid="referenceNode-target_reference"
@@ -34285,7 +34285,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="target_end"
-            style="top: 424px; left: 63px;"
+            style="top: 424px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -34318,7 +34318,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="respond-22-12"
-            style="top: 548px; left: 0px;"
+            style="top: 548px; left: 22px;"
           >
             <div
               data-testid="mediatorNode-respond-22-12"
@@ -34390,7 +34390,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-18-8"
-            style="top: 658px; left: 63px;"
+            style="top: 658px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -34763,7 +34763,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -34816,7 +34816,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="iterate-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-iterate-5-3"
@@ -34898,7 +34898,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-7-5"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -34936,7 +34936,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-7-5"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -34969,7 +34969,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -42979,13 +42979,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -43016,13 +43016,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -43359,13 +43359,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -43396,13 +43396,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -43433,13 +43433,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -43470,13 +43470,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -43507,13 +43507,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -43993,13 +43993,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -44030,13 +44030,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -44067,13 +44067,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -44104,13 +44104,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -44141,13 +44141,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -44627,13 +44627,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -44664,13 +44664,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -45007,13 +45007,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -45023,7 +45023,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -45305,13 +45305,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -45321,7 +45321,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -45369,13 +45369,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -45406,13 +45406,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -45443,13 +45443,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -45857,13 +45857,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -45873,7 +45873,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -46155,13 +46155,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -46171,7 +46171,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -46219,13 +46219,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -46256,13 +46256,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -46293,13 +46293,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -46707,13 +46707,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -46744,13 +46744,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -46781,13 +46781,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -46818,13 +46818,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -46834,7 +46834,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -47259,13 +47259,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -47296,13 +47296,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -47333,13 +47333,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -47370,13 +47370,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -47386,7 +47386,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -47811,13 +47811,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -47848,13 +47848,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -48191,13 +48191,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -48228,13 +48228,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -48265,13 +48265,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -48302,13 +48302,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -48339,13 +48339,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -48825,13 +48825,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -48841,7 +48841,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -48889,13 +48889,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -48926,13 +48926,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -48942,7 +48942,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -49295,13 +49295,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -49311,7 +49311,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -49593,13 +49593,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -49609,7 +49609,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -49657,13 +49657,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -49694,13 +49694,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -49710,7 +49710,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -50063,13 +50063,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -50079,7 +50079,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -50127,13 +50127,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -50164,13 +50164,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -50201,13 +50201,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -50615,13 +50615,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -50652,13 +50652,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -50689,13 +50689,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -50726,13 +50726,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -50742,7 +50742,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -51167,13 +51167,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -51183,7 +51183,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -51231,13 +51231,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -51268,13 +51268,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -51284,7 +51284,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -51637,13 +51637,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -51653,7 +51653,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -51701,13 +51701,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -51738,13 +51738,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -51754,7 +51754,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -52107,13 +52107,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -52123,7 +52123,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -52171,13 +52171,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -52208,13 +52208,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -52224,7 +52224,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -52577,13 +52577,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -52593,7 +52593,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -52641,13 +52641,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -52678,13 +52678,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -52694,7 +52694,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="10"
                 y="-15"
               >
                 <div
@@ -56679,13 +56679,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -56716,13 +56716,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -57059,13 +57059,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -57096,13 +57096,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -57133,13 +57133,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="5,5"
@@ -57170,13 +57170,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -57207,13 +57207,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 20 0 L 20 0"
                 fill="none"
                 stroke="var(--vscode-progressBar-background)"
                 stroke-dasharray="0"
@@ -66856,7 +66856,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 150px;"
+            style="top: 40px; left: 147px;"
           >
             <div
               class="css-2ttski"
@@ -66909,7 +66909,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="scatter-gather-5-3"
-            style="top: 130px; left: 125px;"
+            style="top: 130px; left: 122px;"
           >
             <div
               data-testid="groupNode-scatter-gather-5-3"
@@ -66989,7 +66989,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-7-4"
-            style="top: 240px; left: 67.5px;"
+            style="top: 240px; left: 64.5px;"
           >
             <div
               class="css-2ttski"
@@ -67037,7 +67037,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-7-4"
-            style="top: 314px; left: 88px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -67070,7 +67070,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-8-4"
-            style="top: 240px; left: 267.5px;"
+            style="top: 240px; left: 264.5px;"
           >
             <div
               class="css-2ttski"
@@ -67118,7 +67118,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-8-4"
-            style="top: 314px; left: 288px;"
+            style="top: 314px; left: 285px;"
           >
             <div
               class="css-2ttski"
@@ -67151,7 +67151,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="addNewSequence-9-3"
-            style="top: 240px; left: 385px;"
+            style="top: 240px; left: 382px;"
           >
             <div
               class="css-7l5e9h"
@@ -67187,7 +67187,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 188px;"
+            style="top: 440px; left: 185px;"
           >
             <div
               class="css-2ttski"
@@ -67624,7 +67624,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 150px;"
+            style="top: 40px; left: 147px;"
           >
             <div
               class="css-2ttski"
@@ -67677,7 +67677,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="scatter-gather-5-3"
-            style="top: 130px; left: 125px;"
+            style="top: 130px; left: 122px;"
           >
             <div
               data-testid="groupNode-scatter-gather-5-3"
@@ -67759,7 +67759,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-7-4"
-            style="top: 240px; left: 67.5px;"
+            style="top: 240px; left: 64.5px;"
           >
             <div
               class="css-2ttski"
@@ -67807,7 +67807,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-7-4"
-            style="top: 314px; left: 88px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -67840,7 +67840,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-8-4"
-            style="top: 240px; left: 267.5px;"
+            style="top: 240px; left: 264.5px;"
           >
             <div
               class="css-2ttski"
@@ -67888,7 +67888,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-8-4"
-            style="top: 314px; left: 288px;"
+            style="top: 314px; left: 285px;"
           >
             <div
               class="css-2ttski"
@@ -67921,7 +67921,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="addNewSequence-9-3"
-            style="top: 240px; left: 385px;"
+            style="top: 240px; left: 382px;"
           >
             <div
               class="css-7l5e9h"
@@ -67957,7 +67957,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 188px;"
+            style="top: 440px; left: 185px;"
           >
             <div
               class="css-2ttski"
@@ -69136,7 +69136,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 80px;"
+            style="top: 40px; left: 25px;"
           >
             <div
               class="css-2ttski"
@@ -69189,7 +69189,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="send-5-3"
-            style="top: 130px; left: 55px;"
+            style="top: 130px; left: 0px;"
           >
             <div
               data-testid="callNode-send-5-3"
@@ -69329,7 +69329,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 240px; left: 118px;"
+            style="top: 240px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -69638,7 +69638,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 80px;"
+            style="top: 40px; left: 25px;"
           >
             <div
               class="css-2ttski"
@@ -69691,7 +69691,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="send-5-3"
-            style="top: 130px; left: 55px;"
+            style="top: 130px; left: 0px;"
           >
             <div
               data-testid="callNode-send-5-3"
@@ -69833,7 +69833,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 240px; left: 118px;"
+            style="top: 240px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -76744,7 +76744,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-2-4"
-            style="top: 40px; left: 625px;"
+            style="top: 40px; left: 850px;"
           >
             <div
               class="css-2ttski"
@@ -76797,7 +76797,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="variable-5-12"
-            style="top: 130px; left: 600px;"
+            style="top: 130px; left: 825px;"
           >
             <div
               data-testid="mediatorNode-variable-5-12"
@@ -76871,7 +76871,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-8-12"
-            style="top: 240px; left: 600px;"
+            style="top: 240px; left: 825px;"
           >
             <div
               data-testid="mediatorNode-log-8-12"
@@ -76943,7 +76943,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="filter-13-12"
-            style="top: 350px; left: 642.5px;"
+            style="top: 350px; left: 867.5px;"
           >
             <div
               data-testid="conditionNode-filter-13-12"
@@ -77026,7 +77026,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="switch-16-20"
-            style="top: 525px; left: 267.5px;"
+            style="top: 525px; left: 492.5px;"
           >
             <div
               data-testid="conditionNode-switch-16-20"
@@ -77109,7 +77109,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-19-28"
-            style="top: 700px; left: -225px;"
+            style="top: 700px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-19-28"
@@ -77181,7 +77181,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="respond-22-28"
-            style="top: 810px; left: -225px;"
+            style="top: 810px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-respond-22-28"
@@ -77253,7 +77253,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-27-28"
-            style="top: 700px; left: 75px;"
+            style="top: 700px; left: 300px;"
           >
             <div
               data-testid="mediatorNode-log-27-28"
@@ -77325,7 +77325,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="filter-31-28"
-            style="top: 810px; left: 117.5px;"
+            style="top: 810px; left: 342.5px;"
           >
             <div
               data-testid="conditionNode-filter-31-28"
@@ -77408,7 +77408,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="respond-33-36"
-            style="top: 985px; left: -25px;"
+            style="top: 985px; left: 200px;"
           >
             <div
               data-testid="mediatorNode-respond-33-36"
@@ -77480,7 +77480,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="variable-36-36"
-            style="top: 985px; left: 175px;"
+            style="top: 985px; left: 400px;"
           >
             <div
               data-testid="mediatorNode-variable-36-36"
@@ -77554,7 +77554,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="variable-37-36"
-            style="top: 1095px; left: 175px;"
+            style="top: 1095px; left: 400px;"
           >
             <div
               data-testid="mediatorNode-variable-37-36"
@@ -77628,7 +77628,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="variable-38-36"
-            style="top: 1205px; left: 175px;"
+            style="top: 1205px; left: 400px;"
           >
             <div
               data-testid="mediatorNode-variable-38-36"
@@ -77702,7 +77702,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-39-36"
-            style="top: 1315px; left: 175px;"
+            style="top: 1315px; left: 400px;"
           >
             <div
               data-testid="referenceNode-sequence-39-36"
@@ -77774,7 +77774,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="{\\"start\\":{\\"line\\":41,\\"character\\":28},\\"end\\":{\\"line\\":41,\\"character\\":37}}_end"
-            style="top: 1425px; left: 150px;"
+            style="top: 1425px; left: 375px;"
           >
             <div
               class="port css-1fb31et"
@@ -77790,7 +77790,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-46-28"
-            style="top: 700px; left: 375px;"
+            style="top: 700px; left: 600px;"
           >
             <div
               data-testid="mediatorNode-log-46-28"
@@ -77862,7 +77862,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="respond-49-28"
-            style="top: 810px; left: 375px;"
+            style="top: 810px; left: 600px;"
           >
             <div
               data-testid="mediatorNode-respond-49-28"
@@ -77934,7 +77934,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-54-28"
-            style="top: 700px; left: 675px;"
+            style="top: 700px; left: 900px;"
           >
             <div
               data-testid="mediatorNode-log-54-28"
@@ -78006,7 +78006,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="switch-58-28"
-            style="top: 810px; left: 717.5px;"
+            style="top: 810px; left: 942.5px;"
           >
             <div
               data-testid="conditionNode-switch-58-28"
@@ -78089,7 +78089,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="case-59-32"
-            style="top: 985px; left: 650px;"
+            style="top: 985px; left: 875px;"
           >
             <div
               class="port css-1fb31et"
@@ -78105,7 +78105,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="default-60-32"
-            style="top: 985px; left: 850px;"
+            style="top: 985px; left: 1075px;"
           >
             <div
               class="port css-1fb31et"
@@ -78121,7 +78121,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="addNewSequence-60-32"
-            style="top: 935px; left: 738px;"
+            style="top: 935px; left: 963px;"
           >
             <div
               class="css-7l5e9h"
@@ -78157,7 +78157,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="{\\"start\\":{\\"line\\":61,\\"character\\":28},\\"end\\":{\\"line\\":61,\\"character\\":37}}_end"
-            style="top: 1035px; left: 750px;"
+            style="top: 1035px; left: 975px;"
           >
             <div
               class="port css-1fb31et"
@@ -78173,7 +78173,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="addNewSequence-53-24"
-            style="top: 650px; left: 538px;"
+            style="top: 650px; left: 763px;"
           >
             <div
               class="css-7l5e9h"
@@ -78209,7 +78209,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="{\\"start\\":{\\"line\\":63,\\"character\\":20},\\"end\\":{\\"line\\":63,\\"character\\":29}}_end"
-            style="top: 1475px; left: 300px;"
+            style="top: 1475px; left: 525px;"
           >
             <div
               class="port css-1fb31et"
@@ -78225,7 +78225,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="variable-66-20"
-            style="top: 525px; left: 975px;"
+            style="top: 525px; left: 1200px;"
           >
             <div
               data-testid="mediatorNode-variable-66-20"
@@ -78299,7 +78299,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="variable-67-20"
-            style="top: 635px; left: 975px;"
+            style="top: 635px; left: 1200px;"
           >
             <div
               data-testid="mediatorNode-variable-67-20"
@@ -78373,7 +78373,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="variable-68-20"
-            style="top: 745px; left: 975px;"
+            style="top: 745px; left: 1200px;"
           >
             <div
               data-testid="mediatorNode-variable-68-20"
@@ -78447,7 +78447,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="sequence-69-20"
-            style="top: 855px; left: 975px;"
+            style="top: 855px; left: 1200px;"
           >
             <div
               data-testid="referenceNode-sequence-69-20"
@@ -78519,7 +78519,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="{\\"start\\":{\\"line\\":71,\\"character\\":12},\\"end\\":{\\"line\\":71,\\"character\\":21}}_end"
-            style="top: 1525px; left: 675px;"
+            style="top: 1525px; left: 900px;"
           >
             <div
               class="port css-1fb31et"
@@ -78535,7 +78535,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-3-8"
-            style="top: 1575px; left: 663px;"
+            style="top: 1575px; left: 888px;"
           >
             <div
               class="css-2ttski"
@@ -85946,7 +85946,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -85999,7 +85999,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="validate-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-validate-5-3"
@@ -86079,7 +86079,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-9-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -86117,7 +86117,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="on-fail-9-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -86150,7 +86150,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -86523,7 +86523,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-resource-3-1"
-            style="top: 40px; left: 25px;"
+            style="top: 40px; left: 47px;"
           >
             <div
               class="css-2ttski"
@@ -86576,7 +86576,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="validate-5-3"
-            style="top: 130px; left: 0px;"
+            style="top: 130px; left: 22px;"
           >
             <div
               data-testid="groupNode-validate-5-3"
@@ -86658,7 +86658,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-start-9-4"
-            style="top: 240px; left: 63px;"
+            style="top: 240px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -86696,7 +86696,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="on-fail-9-4"
-            style="top: 314px; left: 63px;"
+            style="top: 314px; left: 85px;"
           >
             <div
               class="css-2ttski"
@@ -86729,7 +86729,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence-4-2"
-            style="top: 440px; left: 63px;"
+            style="top: 440px; left: 85px;"
           >
             <div
               class="css-2ttski"

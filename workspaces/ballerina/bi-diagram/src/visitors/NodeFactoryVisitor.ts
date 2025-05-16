@@ -119,7 +119,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             return;
         }
         let lastChildNodeModel: NodeModel | undefined;
-        if (branch.children.at(-1).codedata.node === "IF") {
+        if (branch.children.at(-1).codedata.node === "IF" || branch.children.at(-1).codedata.node === "MATCH") {
             // if last child is IF, find endIf node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
         } else if (
@@ -130,7 +130,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         } else if (
             branch.children.at(-1).codedata.node === "WHILE" ||
             branch.children.at(-1).codedata.node === "FOREACH" ||
-            branch.children.at(-1).codedata.node === "FORK"
+            branch.children.at(-1).codedata.node === "FORK" ||
+            branch.children.at(-1).codedata.node === "LOCK"
         ) {
             // if last child is WHILE or FOREACH, find endwhile node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === getCustomNodeId(lastNode.id, END_CONTAINER));
@@ -287,15 +288,25 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
         });
 
-        if (endIfLinkCount === 0 || allBranchesReturn) {
-            // remove endIf node if no links are created
-            const index = this.nodes.findIndex((n) => n.getID() === endIfEmptyNode.getID());
-            if (index !== -1) {
-                this.nodes.splice(index, 1);
-            }
-            return;
-        }
+        // TODO: remove this logic after completing the error handling node
+        // if (endIfLinkCount === 0 || allBranchesReturn) {
+        //     // remove endIf node if no links are created
+        //     const index = this.nodes.findIndex((n) => n.getID() === endIfEmptyNode.getID());
+        //     if (index !== -1) {
+        //         this.nodes.splice(index, 1);
+        //     }
+        //     return;
+        // }
+        
         this.lastNodeModel = endIfEmptyNode;
+    }
+
+    beginVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitIf(node, parent);
+    }
+
+    endVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        this.endVisitIf(node, parent);
     }
 
     endVisitConditional(node: Branch, parent?: FlowNode): void {
@@ -323,7 +334,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         // assume that only the body branch exist
         const branch = node.branches.at(0);
-
+        if (!branch) {
+            console.error("No body branch found in container node", node);
+            return;
+        }
         // Create branch's IN link
         if (branch.children && branch.children.length > 0) {
             const firstChildNodeModel = this.getBranchStartNode(branch);
@@ -411,6 +425,16 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.endVisitWhile(node, parent);
     }
 
+    beginVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.beginVisitWhile(node, parent);
+    }
+
+    endVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.endVisitWhile(node, parent);
+    }
+    
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 
@@ -492,6 +516,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         if (bodyBranch.children && bodyBranch.children.at(0)?.codedata.node === "EMPTY") {
             const branchEmptyNodeModel = bodyBranch.children.at(0);
+            if (!branchEmptyNodeModel || !branchEmptyNodeModel.viewState) {
+                console.error("Branch empty node model not found", bodyBranch);
+                return;
+            }
 
             let branchEmptyNode = this.createEmptyNode(
                 branchEmptyNodeModel.id,

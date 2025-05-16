@@ -32,6 +32,7 @@ const TEXT_BASED_TYPES = [
  */
 const DOCUMENT_TYPES = [
     "text/plain",
+    "text/csv",
     "image/jpeg",
     "image/jpg",
     "image/png",
