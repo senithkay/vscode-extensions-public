@@ -254,6 +254,11 @@ export class LinkTargetVisitor implements BaseVisitor {
         this.visitContainerNode(node, parent);
     }
 
+    beginVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.visitContainerNode(node, parent);
+    }
+
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 

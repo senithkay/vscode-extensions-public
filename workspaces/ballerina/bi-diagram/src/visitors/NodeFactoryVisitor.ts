@@ -130,7 +130,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         } else if (
             branch.children.at(-1).codedata.node === "WHILE" ||
             branch.children.at(-1).codedata.node === "FOREACH" ||
-            branch.children.at(-1).codedata.node === "FORK"
+            branch.children.at(-1).codedata.node === "FORK" ||
+            branch.children.at(-1).codedata.node === "LOCK"
         ) {
             // if last child is WHILE or FOREACH, find endwhile node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === getCustomNodeId(lastNode.id, END_CONTAINER));
@@ -421,6 +422,16 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.endVisitWhile(node, parent);
     }
 
+    beginVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.beginVisitWhile(node, parent);
+    }
+
+    endVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.endVisitWhile(node, parent);
+    }
+    
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 

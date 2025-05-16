@@ -29,13 +29,13 @@ import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
 import { NodeIcon } from "../../NodeIcon";
 
 export namespace NodeStyles {
-    export const Node = styled.div`
+    export const Node = styled.div<{ isEditable: boolean }>`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         color: ${ThemeColors.ON_SURFACE};
         color: ${ThemeColors.ON_SURFACE};
-        cursor: pointer;
+        cursor: ${(props) => (props.isEditable ? "pointer" : "default")};
     `;
 
     export const Header = styled.div<{}>`
@@ -128,7 +128,11 @@ export namespace NodeStyles {
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
         border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
         border-color: ${(props: NodeStyleProp) =>
-            props.hasError ? ThemeColors.ERROR : props.hovered && !props.disabled ? ThemeColors.HIGHLIGHT : ThemeColors.OUTLINE_VARIANT};
+            props.hasError
+                ? ThemeColors.ERROR
+                : props.hovered && !props.disabled
+                ? ThemeColors.HIGHLIGHT
+                : ThemeColors.OUTLINE_VARIANT};
         border-radius: 8px;
         background-color: ${(props: NodeStyleProp) =>
             props?.isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM};
@@ -187,6 +191,8 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
         }
     }, [model.node.suggested]);
 
+    const isEditable = model.node.codedata.node !== "LOCK";
+
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
             onGoToSource();
@@ -233,6 +239,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
         {
             id: "edit",
             label: "Edit",
+            disabled: readOnly || !isEditable,
             onClick: () => onNodeClick(),
         },
         { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
@@ -244,15 +251,15 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const nodeViewState = model.node.viewState;
 
     return (
-        <NodeStyles.Node>
+        <NodeStyles.Node isEditable={isEditable}>
             <NodeStyles.Row>
                 <NodeStyles.Column>
                     <NodeStyles.Box
-                        onClick={handleOnClick}
+                        onClick={isEditable ? handleOnClick : undefined}
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         selected={model.isSelected()}
-                        hovered={isHovered}
+                        hovered={isEditable && isHovered}
                         hasError={hasError}
                         isActiveBreakpoint={isActiveBreakpoint}
                         disabled={disabled}
@@ -301,9 +308,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                 >
                     <Menu>
                         <>
-                            {menuItems.map((item) => (
-                                <MenuItem key={item.id} item={item} />
-                            ))}
+                            {menuItems.map((item) => !item.disabled && <MenuItem key={item.id} item={item} />)}
                             <BreakpointMenu
                                 hasBreakpoint={hasBreakpoint}
                                 onAddBreakpoint={onAddBreakpoint}

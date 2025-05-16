@@ -190,6 +190,16 @@ export class PositionVisitor implements BaseVisitor {
         this.endVisitWhile(node, parent);
     }
 
+    beginVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.beginVisitWhile(node, parent);
+    }
+
+    endVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.endVisitWhile(node, parent);
+    }
+
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 

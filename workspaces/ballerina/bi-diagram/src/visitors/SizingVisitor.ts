@@ -312,6 +312,11 @@ export class SizingVisitor implements BaseVisitor {
         this.visitContainerNode(node, WHILE_NODE_WIDTH);
     }
 
+    endVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.visitContainerNode(node, WHILE_NODE_WIDTH);
+    }
+
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 
