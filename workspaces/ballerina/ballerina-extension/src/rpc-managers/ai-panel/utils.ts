@@ -32,6 +32,7 @@ import * as fs from 'fs';
 import { BACKEND_URL } from "../../features/ai/utils";
 import { getAccessToken, getRefreshedAccessToken } from "../../../src/utils/ai/auth";
 import { AIStateMachine } from "../../../src/views/ai-panel/aiMachine";
+import { AIChatError } from "./utils/errors";
 
 const BACKEND_BASE_URL = BACKEND_URL.replace(/\/v2\.0$/, "");
 //TODO: Temp workaround as custom domain seem to block file uploads
