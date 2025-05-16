@@ -59,32 +59,6 @@ const YouTubeThumbnail = styled.img`
     filter: grayscale(100%);
 `;
 
-// const PlayButton = styled.div`
-//     position: absolute;
-//     top: 50%;
-//     left: 50%;
-//     transform: translate(-50%, -50%);
-//     width: 36px;
-//     height: 36px;
-//     background-color: transparent;
-//     border: 2px solid #000; /* circle border */
-//     border-radius: 50%;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center;
-//     pointer-events: none;
-
-//     &::before {
-//         content: "";
-//         display: inline-block;
-//         width: 0;
-//         height: 0;
-//         border-style: solid;
-//         border-width: 6px 0 6px 10px; /* creates right-pointing triangle */
-//         border-color: transparent transparent transparent black; /* only left border is visible */
-//     }
-// `;
-
 interface WelcomeMessageProps {
     isOnboarding?: boolean;
 }
