@@ -39,6 +39,7 @@ const LoadingContainer = styled.div`
 
 type TypeHelperProps = {
     fieldKey: string;
+    valueTypeConstraint: string;
     typeBrowserRef: RefObject<HTMLDivElement>;
     filePath: string;
     targetLineRange: LineRange;
@@ -56,6 +57,7 @@ type TypeHelperProps = {
 const TypeHelperEl = (props: TypeHelperProps) => {
     const {
         fieldKey,
+        valueTypeConstraint,
         typeHelperState,
         filePath,
         targetLineRange,
@@ -75,7 +77,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingTypeBrowser, setLoadingTypeBrowser] = useState<boolean>(false);
 
-    const [basicTypes, setBasicTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
+    const [basicTypes, setBasicTypes] = useState<TypeHelperCategory[]>([]);
     const [importedTypes, setImportedTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
     const [filteredBasicTypes, setFilteredBasicTypes] = useState<TypeHelperCategory[]>([]);
     const [filteredOperators, setFilteredOperators] = useState<TypeHelperOperator[]>([]);
@@ -83,7 +85,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
 
     const debouncedSearchTypeHelper = useCallback(
         debounce((searchText: string, isType: boolean) => {
-            if (isType && basicTypes === undefined) {
+            if (isType && basicTypes.length === 0) {
                 if (rpcClient) {
                     rpcClient
                         .getBIDiagramRpcClient()
@@ -92,10 +94,12 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                             position: {
                                 line: targetLineRange.startLine.line,
                                 offset: targetLineRange.startLine.offset
-                            }
+                            },
+                            ...(valueTypeConstraint && { typeConstraint: valueTypeConstraint })
                         })
                         .then((types) => {
-                            const basicTypes = getTypes(types);
+                            const isFetchingTypesForDM = valueTypeConstraint === "json";
+                            const basicTypes = getTypes(types, isFetchingTypesForDM);
                             setBasicTypes(basicTypes);
                             setFilteredBasicTypes(basicTypes);
 
@@ -237,6 +241,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                 currentCursorPosition={currentCursorPosition}
                 loading={loading}
                 loadingTypeBrowser={loadingTypeBrowser}
+                referenceTypes={basicTypes}
                 basicTypes={filteredBasicTypes}
                 importedTypes={importedTypes}
                 operators={filteredOperators}

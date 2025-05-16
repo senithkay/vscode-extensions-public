@@ -54,6 +54,7 @@ export function FunctionForm(props: FunctionFormProps) {
     const [titleSubtitle, setTitleSubtitle] = useState<string>("");
     const [formSubtitle, setFormSubtitle] = useState<string>("");
     const [saving, setSaving] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const fileName = filePath.split(/[\\/]/).pop();
     const formType = useRef("Function");
@@ -70,12 +71,11 @@ export function FunctionForm(props: FunctionFormProps) {
             formType.current = 'Data Mapper';
             setTitleSubtitle('Transform data between different data types');
             setFormSubtitle('Create mappings on how to convert the inputs into a single output');
-            // TODO: Enable Natural Functions https://github.com/wso2-enterprise/vscode-extensions/issues/5314
-            // } else if (isNpFunction) {
-            //     nodeKind = 'NP_FUNCTION_DEFINITION';
-            //     formType.current = 'Natural Function';
-            //     setTitleSubtitle('Build a flow using a natural language description');
-            //     setFormSubtitle('Describe what you need in a prompt and let AI handle the implementation');
+        } else if (isNpFunction) {
+            nodeKind = 'NP_FUNCTION_DEFINITION';
+            formType.current = 'Natural Function';
+            setTitleSubtitle('Build a flow using a natural language description');
+            setFormSubtitle('Describe what you need in a prompt and let AI handle the implementation');
         } else {
             nodeKind = 'FUNCTION_DEFINITION';
             formType.current = 'Function';
@@ -116,6 +116,7 @@ export function FunctionForm(props: FunctionFormProps) {
     }, [functionNode]);
 
     const getFunctionNode = async (kind: NodeKind) => {
+        setIsLoading(true);
         const res = await rpcClient
             .getBIDiagramRpcClient()
             .getNodeTemplate({
@@ -148,10 +149,12 @@ export function FunctionForm(props: FunctionFormProps) {
         }
 
         setFunctionNode(flowNode);
+        setIsLoading(false);
         console.log("Function Node: ", flowNode);
     }
 
     const getExistingFunctionNode = async () => {
+        setIsLoading(true);
         const res = await rpcClient
             .getBIDiagramRpcClient()
             .getFunctionNode({
@@ -184,6 +187,7 @@ export function FunctionForm(props: FunctionFormProps) {
         }
 
         setFunctionNode(flowNode);
+        setIsLoading(false);
         console.log("Existing Function Node: ", flowNode);
     }
 
@@ -341,6 +345,11 @@ export function FunctionForm(props: FunctionFormProps) {
                         title={`${functionName ? 'Edit' : 'Create New'} ${formType.current}`}
                         subtitle={formSubtitle}
                     />
+                    {isLoading && (
+                        <LoadingContainer>
+                            <LoadingRing />
+                        </LoadingContainer>
+                    )}
                     <FormContainer>
                         {filePath && targetLineRange && functionFields.length > 0 &&
                             <FormGeneratorNew

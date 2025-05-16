@@ -259,7 +259,8 @@ import {
     CreateBallerinaModuleRequest,
     CreateBallerinaModuleResponse,
     SCOPE,
-    DevantMetadata
+    DevantMetadata,
+    DependencyDetails
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -289,7 +290,7 @@ import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIRes
 import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
-import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
+import { generateSwagger, getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
@@ -306,6 +307,8 @@ import { checkForDevantExt } from "../../extension";
 import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
 import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
 import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
+import { DebuggerConfig } from "../../debugger/config";
 
 const AdmZip = require('adm-zip');
 
@@ -1792,6 +1795,10 @@ ${endpointAttributes}
             let xmlData = getTemplateXmlWrapper(getTemplateParams);
             let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
+            if (params.templateType === 'Sequence Template') {
+                params.isEdit = false;
+            }
+
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else if (params.isEdit && params.range) {
@@ -3032,7 +3039,7 @@ ${endpointAttributes}
             const initialDependencies = generateInitialDependencies(httpConnectorVersion);
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", (artifactID ?? name).toLowerCase(), projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
                     '.env': '',
                     'src': {
                         'main': {
@@ -3196,13 +3203,37 @@ ${endpointAttributes}
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         const fetchConnectors = async (name) => {
-            const data = await this.getStoreConnectorJSON();
-            const connector = data?.outboundConnectors?.find(connector => connector.name === name);
+            const runtimeVersion = await getMIVersionFromPom();
+
+            const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+            const connectorStoreData = await connectorStoreResponse.json();
+            
+            const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
+            const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
+        
             if (connector) {
-                return connector.download_url;
+                const rpcClient = new MiVisualizerRpcManager();
+                console.log("Connector found - ", connector);
+                const updateDependencies = async () => {
+                    const dependencies: DependencyDetails[] = [{
+                        groupId: connector.mavenGroupId,
+                        artifact: connector.mavenArtifactId,
+                        version: connector.version.tagName,
+                        type: "zip"
+                    }];
+                    
+                    await rpcClient.updateDependencies({
+                        dependencies
+                    });
+                }
+    
+                await updateDependencies();
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const response = await rpcClient.updateConnectorDependencies();
             } else {
                 console.error("Connector not found");
-                return null;
+                return null;    
             }
         };
 
@@ -3277,8 +3308,7 @@ ${endpointAttributes}
                     const tagParts = connectorMatch[1].split('.');
                     const connectorName = tagParts[0];
                     console.log('Connector name:', connectorName);
-                    const download_url = await fetchConnectors(connectorName);
-                    this.downloadConnector({ url: download_url });
+                    await fetchConnectors(connectorName);
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
@@ -3688,6 +3718,9 @@ ${endpointAttributes}
             // Copy the file from the source to the destination
             const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
             await fs.promises.copyFile(sourceFilePath, destinationFilePath);
+            if (params.artifactType === "API") {
+                await generateSwagger(destinationFilePath);
+            }
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             return { success: true }; // Return success response
         } catch (error) {
@@ -5150,7 +5183,12 @@ ${keyValuesXML}`;
 
     async getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
         const langClient = StateMachine.context().langClient!;
-        const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        let response;
+        if (params.isRuntimeService) {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath, port: DebuggerConfig.getServerPort() });
+        } else {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        }
         const generatedSwagger = response.swagger;
         const port = await getPortPromise({ port: 1000, stopPort: 3000 });
         const cors_proxy = require('cors-anywhere');

@@ -10,7 +10,7 @@
 import { AvailableNode, Category, functionKinds, Item, VisibleTypeItem } from '@wso2-enterprise/ballerina-core';
 import type { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
 import { COMPLETION_ITEM_KIND, convertCompletionItemKind } from '@wso2-enterprise/ui-toolkit';
-import { getFunctionItemKind } from '../../../utils/bi';
+import { getFunctionItemKind, isDMSupportedType } from '../../../utils/bi';
 
 // TODO: Remove this order onces the LS is fixed
 const TYPE_CATEGORY_ORDER = [
@@ -27,16 +27,23 @@ const TYPE_CATEGORY_ORDER = [
 /**
  * Get the categories for the type editor
  *
- * @param userDefinedTypes - The user defined types
+ * @param types - The types to get the categories for
+ * @param filterDMTypes - Whether to filter the types for the data mapper
  * @returns The categories for the type editor
  */
-export const getTypes = (types: VisibleTypeItem[]): TypeHelperCategory[] => {
+export const getTypes = (types: VisibleTypeItem[], filterDMTypes?: boolean): TypeHelperCategory[] => {
     const categoryRecord: Record<string, TypeHelperItem[]> = {};
 
     for (const type of types) {
         if (!type) {
             continue;
         }
+
+        // If types should be filtered for the data mapper
+        if (filterDMTypes && !isDMSupportedType(type)) {
+            continue;
+        }
+
         if (!categoryRecord[type.labelDetails.detail]) {
             categoryRecord[type.labelDetails.detail] = [];
         }
@@ -182,4 +189,3 @@ export const getTypeBrowserTypes = (types: Category[]) => {
 
     return categories;
 };
-

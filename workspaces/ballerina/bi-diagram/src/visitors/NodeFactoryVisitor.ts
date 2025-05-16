@@ -119,7 +119,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             return;
         }
         let lastChildNodeModel: NodeModel | undefined;
-        if (branch.children.at(-1).codedata.node === "IF") {
+        if (branch.children.at(-1).codedata.node === "IF" || branch.children.at(-1).codedata.node === "MATCH") {
             // if last child is IF, find endIf node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
         } else if (
@@ -287,15 +287,25 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
         });
 
-        if (endIfLinkCount === 0 || allBranchesReturn) {
-            // remove endIf node if no links are created
-            const index = this.nodes.findIndex((n) => n.getID() === endIfEmptyNode.getID());
-            if (index !== -1) {
-                this.nodes.splice(index, 1);
-            }
-            return;
-        }
+        // TODO: remove this logic after completing the error handling node
+        // if (endIfLinkCount === 0 || allBranchesReturn) {
+        //     // remove endIf node if no links are created
+        //     const index = this.nodes.findIndex((n) => n.getID() === endIfEmptyNode.getID());
+        //     if (index !== -1) {
+        //         this.nodes.splice(index, 1);
+        //     }
+        //     return;
+        // }
+        
         this.lastNodeModel = endIfEmptyNode;
+    }
+
+    beginVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitIf(node, parent);
+    }
+
+    endVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        this.endVisitIf(node, parent);
     }
 
     endVisitConditional(node: Branch, parent?: FlowNode): void {

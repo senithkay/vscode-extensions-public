@@ -12,7 +12,7 @@ import { COMMANDS } from '../constants';
 import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
 import { parseStringPromise } from 'xml2js';
 import { LATEST_CAR_PLUGIN_VERSION } from './templates';
-import { runCommand } from '../test-explorer/runner';
+import { runCommand, runBasicCommand } from '../test-explorer/runner';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
 const AdmZip = require('adm-zip');
@@ -986,7 +986,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                     if (data) {
                         if (data.includes("spawn bal ENOENT") ||
                             data.includes("The system cannot find the path specified") ||
-                            data.includes("'ba' is not recognized as an internal or external command, operable program or batch file.")) {
+                            data.includes("'bal' is not recognized as an internal or external command, operable program or batch file.")) {
                             vscode.window.showErrorMessage("Ballerina not found. Please install and setup the Ballerina Extension and try again.");
                             showExtensionPrompt();
                         } else {
@@ -1004,7 +1004,11 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                     commandFailed = false;
                     progress.report({ increment: 40, message: "Generating module..." });
 
-                    runCommand(`${balHome}${path.sep}bal mi-module-gen -i .`, `"${projectPath}"`, onData, onError, onComplete);
+                    const outputChannel = vscode.window.createOutputChannel('Ballerina Module Builder');
+                    outputChannel.clear();
+                    runBasicCommand(`${balHome}${path.sep}bal mi-module-gen -i .`, `${projectPath}`,
+                        onData, onError, onComplete, outputChannel
+                    );
 
                     async function onComplete() {
                         try {
@@ -1018,7 +1022,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                                 fs.rmSync(targetFolderPath, { recursive: true, force: true });
                             } else {
                                 reject();
-                                return vscode.window.showErrorMessage("Target directory not found");
+                                return vscode.window.showErrorMessage("Ballerina module build process failed.");
                             }
 
                             const tomlContent = fs.readFileSync(path.join(projectPath, "Ballerina.toml"), 'utf8');

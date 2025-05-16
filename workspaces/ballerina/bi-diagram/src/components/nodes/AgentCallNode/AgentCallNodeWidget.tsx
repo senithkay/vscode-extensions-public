@@ -33,6 +33,7 @@ import {
     OllamaIcon,
     DefaultLlmIcon,
     MistralAIIcon,
+    DeepseekIcon
 } from "../../../resources/icons";
 import { AgentData, FlowNode, ToolData } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -986,6 +987,8 @@ function getLlmModelIcons(modelType: string) {
             return <OllamaIcon />;
         case "MistralAiProvider":
             return <MistralAIIcon />;
+        case "DeepseekProvider":
+            return <DeepseekIcon />;
         default:
             return <DefaultLlmIcon />;
     }
