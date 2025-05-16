@@ -101,6 +101,10 @@ export class AddNodeVisitor implements BaseVisitor {
         this.beginVisitIf(node, parent);
     }
 
+    beginVisitLock(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitIf(node, parent);
+    }
+
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {
         this.beginVisitIf(node, parent);
     }

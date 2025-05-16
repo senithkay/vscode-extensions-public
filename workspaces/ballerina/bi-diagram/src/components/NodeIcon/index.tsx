@@ -80,7 +80,8 @@ const NODE_COLOR_GROUPS = {
         "WAIT", 
         "TRANSACTION", 
         "COMMIT", 
-        "ROLLBACK"
+        "ROLLBACK",
+        "LOCK"
     ],
     
     // Error handling - yellow variants

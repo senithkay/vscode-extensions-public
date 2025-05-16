@@ -83,4 +83,7 @@ export interface BaseVisitor {
 
     beginVisitParallelFlow?(node: FlowNode, parent?: FlowNode): void;
     endVisitParallelFlow?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitLock?(node: FlowNode, parent?: FlowNode): void;
+    endVisitLock?(node: FlowNode, parent?: FlowNode): void;
 }

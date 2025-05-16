@@ -130,7 +130,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         } else if (
             branch.children.at(-1).codedata.node === "WHILE" ||
             branch.children.at(-1).codedata.node === "FOREACH" ||
-            branch.children.at(-1).codedata.node === "FORK"
+            branch.children.at(-1).codedata.node === "FORK" ||
+            branch.children.at(-1).codedata.node === "LOCK"
         ) {
             // if last child is WHILE or FOREACH, find endwhile node
             lastChildNodeModel = this.nodes.find((n) => n.getID() === getCustomNodeId(lastNode.id, END_CONTAINER));
@@ -333,7 +334,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         // assume that only the body branch exist
         const branch = node.branches.at(0);
-
+        if (!branch) {
+            console.error("No body branch found in container node", node);
+            return;
+        }
         // Create branch's IN link
         if (branch.children && branch.children.length > 0) {
             const firstChildNodeModel = this.getBranchStartNode(branch);
@@ -421,6 +425,16 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.endVisitWhile(node, parent);
     }
 
+    beginVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.beginVisitWhile(node, parent);
+    }
+
+    endVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.endVisitWhile(node, parent);
+    }
+    
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 
@@ -502,6 +516,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         if (bodyBranch.children && bodyBranch.children.at(0)?.codedata.node === "EMPTY") {
             const branchEmptyNodeModel = bodyBranch.children.at(0);
+            if (!branchEmptyNodeModel || !branchEmptyNodeModel.viewState) {
+                console.error("Branch empty node model not found", bodyBranch);
+                return;
+            }
 
             let branchEmptyNode = this.createEmptyNode(
                 branchEmptyNodeModel.id,
