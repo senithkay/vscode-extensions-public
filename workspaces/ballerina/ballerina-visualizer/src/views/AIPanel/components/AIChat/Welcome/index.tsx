@@ -41,9 +41,9 @@ const Content = styled.div`
 
 const VideoThumbnail = styled.div`
     position: relative;
-    width: 64%;
-    aspect-ratio: 2 / 1;
-    margin: 32px auto 32px;
+    width: 80%;
+    aspect-ratio: 24 / 5;
+    margin: 42px auto 0;
     border-radius: 4px;
     overflow: hidden;
     cursor: pointer;
@@ -56,28 +56,7 @@ const YouTubeThumbnail = styled.img`
     object-fit: cover;
     object-position: center;
     display: block;
-`;
-
-const PlayButton = styled.div`
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 36px;
-    height: 36px;
-    background-color: rgba(255, 255, 255, 0.75);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none; /* So clicks go to parent */
-
-    &::before {
-        content: "▶";
-        color: #000000;
-        font-size: 16px;
-        margin-left: 2px;
-    }
+    filter: grayscale(100%);
 `;
 
 interface WelcomeMessageProps {
@@ -106,23 +85,6 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ isOnboarding = false })
                 >
                     BI Copilot
                 </Typography>
-                {isOnboarding && (
-                    <div title="Watch Quick Tour">
-                        <VideoThumbnail
-                            onClick={() =>
-                                rpcClient.getCommonRpcClient().openExternalUrl({
-                                    url: "https://youtu.be/5klLsz1alPE",
-                                })
-                            }
-                        >
-                            <YouTubeThumbnail
-                                src="https://img.youtube.com/vi/QxZmnmbDUVk/hqdefault.jpg"
-                                alt="Quick Tour Video"
-                            />
-                            <PlayButton />
-                        </VideoThumbnail>
-                    </div>
-                )}
                 <Typography
                     variant="body1"
                     sx={{
@@ -161,6 +123,37 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ isOnboarding = false })
                     <Icon isCodicon name="new-file" iconSx={{ cursor: "default" }} />
                     to attach context
                 </Typography>
+                {isOnboarding && (
+                    <div title="Watch Quick Tour">
+                        <VideoThumbnail
+                            onClick={() =>
+                                rpcClient.getCommonRpcClient().openExternalUrl({
+                                    url: "https://youtu.be/5klLsz1alPE",
+                                })
+                            }
+                        >
+                            <YouTubeThumbnail
+                                src="https://img.youtube.com/vi/QxZmnmbDUVk/hqdefault.jpg"
+                                alt="Quick Tour Video"
+                            />
+                            <Icon
+                                isCodicon
+                                name="play-circle"
+                                iconSx={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                    fontSize: "32px",
+                                    color: "#4b4b4b",
+                                    backgroundColor: "transparent",
+                                    cursor: "pointer",
+                                    pointerEvents: "none",
+                                }}
+                            />
+                        </VideoThumbnail>
+                    </div>
+                )}
             </Content>
             <BottomSpacer />
         </PanelWrapper>
