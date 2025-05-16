@@ -168,6 +168,7 @@ export const getAIColor = (): string => {
 // Icon mapping by node type
 const NODE_ICONS: Record<NodeKind, React.FC<{ size: number; color: string }>> = {
     IF: ({ size, color }) => <BranchIcon />,
+    MATCH: ({ size, color }) => <Icon name="bi-match" sx={{ fontSize: size, width: size, height: size, color }} />,
     EXPRESSION: ({ size, color }) => <CodeIcon />,
     REMOTE_ACTION_CALL: ({ size, color }) => <CallIcon />,
     RESOURCE_ACTION_CALL: ({ size, color }) => <CallIcon />,
