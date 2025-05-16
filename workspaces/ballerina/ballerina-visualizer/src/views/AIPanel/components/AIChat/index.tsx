@@ -2300,7 +2300,7 @@ const AIChat: React.FC = () => {
                     </Header>
                     <main style={{ flex: 1, overflowY: "auto" }}>
                         {Array.isArray(otherMessages) && otherMessages.length === 0 && (
-                            <WelcomeMessage isOnboarding={getOnboardingOpens() <= 120.0} />
+                            <WelcomeMessage isOnboarding={getOnboardingOpens() <= 3.0} />
                         )}
                         {otherMessages.map((message, index) => {
                             const showGeneratingFiles = !codeSegmentRendered && index === currentGeneratingPromptIndex;
