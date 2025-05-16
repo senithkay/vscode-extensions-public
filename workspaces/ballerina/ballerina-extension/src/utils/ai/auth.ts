@@ -110,7 +110,7 @@ async function copilotTokenExists() {
 }
 
 // ==================================
-// WSO2 Copilot Auth Utils
+// BI Copilot Auth Utils
 // ==================================
 export const getAccessToken = async (): Promise<string | undefined> => {
     return new Promise(async (resolve, reject) => {
