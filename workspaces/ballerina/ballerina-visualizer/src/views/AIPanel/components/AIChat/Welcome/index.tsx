@@ -43,7 +43,7 @@ const VideoThumbnail = styled.div`
     position: relative;
     width: 80%;
     aspect-ratio: 24 / 5;
-    margin: 60px auto 0;
+    margin: 42px auto 0;
     border-radius: 4px;
     overflow: hidden;
     cursor: pointer;
@@ -59,27 +59,31 @@ const YouTubeThumbnail = styled.img`
     filter: grayscale(100%);
 `;
 
-const PlayButton = styled.div`
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 36px;
-    height: 36px;
-    background-color: rgba(255, 255, 255, 0.75);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none; /* So clicks go to parent */
+// const PlayButton = styled.div`
+//     position: absolute;
+//     top: 50%;
+//     left: 50%;
+//     transform: translate(-50%, -50%);
+//     width: 36px;
+//     height: 36px;
+//     background-color: transparent;
+//     border: 2px solid #000; /* circle border */
+//     border-radius: 50%;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     pointer-events: none;
 
-    &::before {
-        content: "▶";
-        color: #000000;
-        font-size: 16px;
-        margin-left: 2px;
-    }
-`;
+//     &::before {
+//         content: "";
+//         display: inline-block;
+//         width: 0;
+//         height: 0;
+//         border-style: solid;
+//         border-width: 6px 0 6px 10px; /* creates right-pointing triangle */
+//         border-color: transparent transparent transparent black; /* only left border is visible */
+//     }
+// `;
 
 interface WelcomeMessageProps {
     isOnboarding?: boolean;
@@ -158,7 +162,21 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ isOnboarding = false })
                                 src="https://img.youtube.com/vi/QxZmnmbDUVk/hqdefault.jpg"
                                 alt="Quick Tour Video"
                             />
-                            <PlayButton />
+                            <Icon
+                                isCodicon
+                                name="play-circle"
+                                iconSx={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                    fontSize: "32px",
+                                    color: "#4b4b4b",
+                                    backgroundColor: "transparent",
+                                    cursor: "pointer",
+                                    pointerEvents: "none",
+                                }}
+                            />
                         </VideoThumbnail>
                     </div>
                 )}
