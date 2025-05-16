@@ -292,7 +292,7 @@ export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({
 
     return (
         <Editor
-            height={height + 10}
+            height={height + 12}
             defaultLanguage="customLanguage"
             value={value}
             theme={getIsDarkThemeActive() ? 'vs-dark' : 'vs'}
@@ -303,6 +303,7 @@ export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({
                 lineNumbers: 'off',
                 wordWrap: 'on',
                 automaticLayout: true,
+                renderLineHighlight: 'none',
                 scrollbar: {
                     vertical: 'hidden',
                     horizontal: 'hidden',

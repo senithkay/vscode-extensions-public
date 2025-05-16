@@ -178,8 +178,6 @@ namespace S {
     `;
 
     export const Adornment = styled.div`
-        padding-top: 3.75px;
-        padding-bottom: 2.5px;
         height: 100%;
     `;
 
