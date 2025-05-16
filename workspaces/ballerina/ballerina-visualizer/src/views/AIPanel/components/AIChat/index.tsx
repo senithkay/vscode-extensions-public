@@ -173,12 +173,6 @@ const AIChat: React.FC = () => {
             .then((defaultPrompt: AIPanelPrompt) => {
                 if (defaultPrompt) {
                     aiChatInputRef.current?.setInputContent(defaultPrompt);
-                } else {
-                    aiChatInputRef.current?.setInputContent({
-                        command: Command.Code,
-                        templateId: TemplateId.Wildcard,
-                        type: 'command-template',
-                    });
                 }
             });
     }, []);
