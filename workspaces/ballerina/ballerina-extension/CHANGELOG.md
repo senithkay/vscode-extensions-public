@@ -1,6 +1,6 @@
 # Change log
 
-All notable changes to the "ballerina" extension will be documented in this file.
+All notable changes to the "Ballerina" extension will be documented in this file.
 
 ## **5.1.2** (2025-05-17)
 
@@ -10,13 +10,13 @@ All notable changes to the "ballerina" extension will be documented in this file
 - Added support for the `Lock` node in Flow Diagram.
 - Added experimental support for the `Match` node in Flow Diagram.
 
-### Improved
+### Changed
 
 - Refactored AI Chat login flow and command structure for improved navigation and organization.
 - Enhanced project selection for BI projects within multi-root workspaces.
 - Updated Node Icons to align with theme colors.
 
-### Bug Fixes
+### Fixed
 
 - Enhanced error handling in Ask command execution in AI Chat.
 - Fixed issues in the Data Mapper, including incorrect rendering of link connectors for root mapping constructors, improved handling of union types with anydata in mapping outputs, and enabling query expression navigation within nested mappings.
