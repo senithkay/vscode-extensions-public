@@ -10,7 +10,7 @@
  */
 
 import styled from "@emotion/styled";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 import { useState, useEffect } from "react";
 
 export const PreviewContainerDefault = styled.div`
@@ -59,7 +59,11 @@ const RoleContainer: React.FC<RoleContainerProps> = ({ icon, title, showPreview,
 
     return (
         <div style={{ display: "flex", flexDirection: "row", gap: "6px" }}>
-            <Codicon name={icon} />
+            <Icon
+                name={icon}
+                sx={{ width: 24, height: 24 }}
+                iconSx={{ fontSize: "18px", color: "var(--vscode-foreground)", cursor: "default" }}
+            />
             <h3 style={{ margin: 0 }}>{title}</h3>
             {showPreview && <PreviewContainer>Preview</PreviewContainer>}
             {isLoading && <span style={{ color: "var(--vscode-input-placeholderForeground)" }}>{generatingText}</span>}
