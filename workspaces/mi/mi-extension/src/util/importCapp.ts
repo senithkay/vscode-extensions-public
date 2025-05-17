@@ -151,7 +151,6 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
             commands.executeCommand('vscode.openFolder', Uri.file(directory));
             return { filePath: directory };
         } else {
-            commands.executeCommand("workbench.action.reloadWindow");
             return { filePath: directory };
         }
     } else {
