@@ -2309,7 +2309,7 @@ const AIChat: React.FC = () => {
                                 <ChatMessage>
                                     {message.type !== "question" && message.type !== "label" && (
                                         <RoleContainer
-                                            icon={message.role === "User" ? "account" : "hubot"}
+                                            icon={message.role === "User" ? "bi-user" : "bi-ai-chat"}
                                             title={message.role}
                                             showPreview={false}
                                             isLoading={
