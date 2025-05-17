@@ -577,6 +577,7 @@ export async function setPathsInWorkSpace(request: SetPathRequest): Promise<Path
             if (response.status !== 'not-valid') {
                 config.update(SELECTED_SERVER_PATH, validServerPath, vscode.ConfigurationTarget.Workspace);
                 extension.context.globalState.update(SELECTED_SERVER_PATH, validServerPath);
+                config.update('suppressServerUpdateNotification', true, vscode.ConfigurationTarget.Workspace);
             } else {
                 vscode.window.showErrorMessage('Invalid Micro Integrator path or Unsupported version. Please set a valid Micro Integrator path');
             }

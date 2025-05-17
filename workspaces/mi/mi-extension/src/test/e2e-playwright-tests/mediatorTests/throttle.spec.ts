@@ -118,7 +118,7 @@ export default function createTests() {
               type: 'input',
               value: 'id1'
             },
-            'Maxmium Concurrent Access': {
+            'Maximum Concurrent Access': {
               type: 'input',
               value: '2'
             },
@@ -141,7 +141,7 @@ export default function createTests() {
               type: 'input',
               value: 'id2'
             },
-            'Maxmium Concurrent Access': {
+            'Maximum Concurrent Access': {
               type: 'input',
               value: '3'
             },
@@ -256,10 +256,6 @@ export default function createTests() {
             'Access Type': {
               type: 'combo',
               value: 'Deny'
-            },
-            'Max Request Count': {
-              type: 'input',
-              value: '5'
             }
           }
         })
@@ -292,14 +288,6 @@ export default function createTests() {
             'Throttle Type': {
               type: 'combo',
               value: 'DOMAIN'
-            },
-            'Unit Time': {
-              type: 'input',
-              value: '20'
-            },
-            'Prohibit Period': {
-              type: 'input',
-              value: '5'
             }
           }
         })
@@ -317,10 +305,10 @@ export default function createTests() {
         const paramEditForm = await paramManager.getEditForm(1);
         await paramEditForm.fill({
           values: {
-            'Unit Time': {
-              type: 'input',
-              value: '500'
-            }
+            'Throttle Type': {
+              type: 'combo',
+              value: 'IP'
+            },
           }
         });
         await paramEditForm.submit('Update');

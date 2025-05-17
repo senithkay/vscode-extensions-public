@@ -13,6 +13,7 @@ import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
 import { Overview } from "../Overview";
 import { Form } from "../Form";
+import { page } from "../../Utils";
 
 interface RegistryDataFromTemplate {
     name: string;
@@ -62,14 +63,25 @@ export class Registry {
         if (!resWebView) {
             throw new Error("Failed to switch to Registry Form iframe");
         }
-        const resFrame = resWebView.locator('div#root');
-        await resFrame.waitFor();
-        await resFrame.getByLabel('Import from file system').click();
-        await resFrame.getByText('Browse file').click();
-        await this._page.getByLabel('input').fill(data.filePath);
-        await this._page.getByRole('button', { name: 'OK' }).click();
-        await resFrame.getByRole('textbox', { name: 'Registry Path' }).fill(data.registryPath);
-        await resFrame.getByRole('button', { name: 'Create' }).click();
+        const registryForm = new Form(page.page, 'Resource Creation Form');
+        await registryForm.switchToFormView();
+        await registryForm.fill({
+            values: {
+                'Import from file system': {
+                    type: 'radio',
+                    value: 'checked',
+                },
+                'Browse file': {
+                    type: 'file',
+                    value: data.filePath
+                },
+                'Registry Path': {
+                    type: 'input',
+                    value: data.registryPath,
+                }
+            },
+        });
+        await registryForm.submit();
     }
 
     public async addFromTemplate(data: RegistryDataFromTemplate) {
