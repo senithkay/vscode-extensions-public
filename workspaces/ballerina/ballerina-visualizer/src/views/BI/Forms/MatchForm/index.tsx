@@ -103,8 +103,15 @@ export function MatchForm(props: MatchFormProps) {
         return (branch.properties?.patterns?.value as Property[])?.at(0)?.value === "_";
     };
 
-    const defaultBranch = node.branches.find(isDefaultBranch);
-    const hasDefaultBranch = defaultBranch?.children?.at(0)?.metadata.draft !== true;
+    const hasDefaultBranch = useMemo(() => {
+        for (const branch of branches) {
+            if (isDefaultBranch(branch) && 
+                (!branch.children?.at(0)?.metadata.draft || branch.children?.length === 0)) {
+                return true;
+            }
+        }
+        return false;
+    }, [branches]);
 
     // is new form fill pattern value
     if (
@@ -187,21 +194,26 @@ export function MatchForm(props: MatchFormProps) {
             // update target value
             updatedNode.properties.condition.value = data[`branch-${TARGET_FIELD_INDEX}`]?.trim();
 
-            // loop data and update branches (properties.condition.value)
-            branches.forEach((branch, index) => {
-                if (branch.label === "Else") {
-                    return;
+            // Update branches with form values
+            const updatedBranches = branches.map(branch => {
+                if (isDefaultBranch(branch) && branch.children?.at(0)?.metadata.draft === true) {
+                    return null;
                 }
-                const conditionValue = data[`branch-${index}`]?.trim();
-                if (conditionValue) {
-                    (branch.properties.patterns.value as Property[])[0].value = conditionValue;
-                    // clear patterns and save joined value
-                    const patternValue = (branch.properties.patterns.value as Property[])[0];
-                    branch.properties.patterns.value = [patternValue];
+                
+                if (!isDefaultBranch(branch)) {
+                    const index = branches.indexOf(branch);
+                    const conditionValue = data[`branch-${index}`]?.trim();
+                    if (conditionValue) {
+                        const branchCopy = cloneDeep(branch);
+                        (branchCopy.properties.patterns.value as Property[])[0].value = conditionValue;
+                        return branchCopy;
+                    }
                 }
-            });
+                
+                return branch;
+            }).filter(Boolean) as Branch[];
 
-            updatedNode.branches = branches;
+            updatedNode.branches = updatedBranches;
 
             // check all nodes and remove empty nodes
             const removeEmptyNodeVisitor = new RemoveEmptyNodesVisitor(updatedNode);
@@ -325,56 +337,101 @@ export function MatchForm(props: MatchFormProps) {
 
     const addDefaultBlock = () => {
         if (hasDefaultBranch) {
+            console.log("Real default branch already exists, not adding another one");
             return;
         }
-        const newDefaultBranch: Branch = {
-            label: "_",
-            kind: "block",
-            codedata: {
-                node: "CONDITIONAL",
-                lineRange: null,
-            },
-            repeatable: "ONE_OR_MORE",
-            properties: {
-                patterns: {
-                    metadata: {
-                        label: "Patterns",
-                        description: "List of binding patterns",
-                    },
-                    valueType: "SINGLE_SELECT",
-                    value: [
-                        {
-                            metadata: {
-                                label: "Pattern",
-                                description: "Binding pattern",
-                            },
-                            valueType: "EXPRESSION",
-                            value: "_",
-                            optional: false,
-                            editable: true,
-                            advanced: false,
-                            hidden: false,
-                        },
-                    ],
-                    optional: false,
-                    editable: true,
-                    advanced: false,
-                    hidden: false,
+        
+        const draftDefaultBranchIndex = branches.findIndex(branch => 
+            isDefaultBranch(branch) && branch.children?.at(0)?.metadata.draft === true
+        );
+        
+        if (draftDefaultBranchIndex >= 0) {
+            const updatedBranches = [...branches];
+            const updatedBranch = cloneDeep(updatedBranches[draftDefaultBranchIndex]);
+            
+            if (!updatedBranch.children || updatedBranch.children.length === 0) {
+                updatedBranch.children = []; 
+            } else {
+                updatedBranch.children.forEach(child => {
+                    if (child.metadata) {
+                        child.metadata.draft = false;
+                    }
+                });
+            }
+            
+            updatedBranches[draftDefaultBranchIndex] = updatedBranch;
+            setBranches(updatedBranches);
+        } else {
+            // No draft default branch exists, create a new one
+            const newDefaultBranch: Branch = {
+                label: "_",
+                kind: "block",
+                codedata: {
+                    node: "CONDITIONAL",
+                    lineRange: null,
                 },
-            },
-            children: [],
-        };
-        // add new branch to end of the current branches
-        setBranches([...branches, newDefaultBranch]);
+                repeatable: "ONE_OR_MORE",
+                properties: {
+                    patterns: {
+                        metadata: {
+                            label: "Patterns",
+                            description: "List of binding patterns",
+                        },
+                        valueType: "SINGLE_SELECT",
+                        value: [
+                            {
+                                metadata: {
+                                    label: "Pattern",
+                                    description: "Binding pattern",
+                                },
+                                valueType: "EXPRESSION",
+                                value: "_",
+                                optional: false,
+                                editable: true,
+                                advanced: false,
+                                hidden: false,
+                            },
+                        ],
+                        optional: false,
+                        editable: true,
+                        advanced: false,
+                        hidden: false,
+                    },
+                },
+                children: [],
+            };
+            
+            const updatedBranches = [...branches, newDefaultBranch];
+            setBranches(updatedBranches);
+        }
+        
+        setValue(`branch-${DEFAULT_BRANCH_INDEX}`, "_");
     };
 
     const removeDefaultBlock = () => {
         if (!hasDefaultBranch) {
             return;
         }
-        // remove the else branch
-        const updatedBranches = branches.filter((branch) => branch.label !== "Else");
+        
+        const defaultBranchIndices = branches
+            .map((branch, index) => isDefaultBranch(branch) ? index : -1)
+            .filter(index => index !== -1);
+            
+        if (defaultBranchIndices.length === 0) {
+            return;
+        }
+        
+        const updatedBranches = branches.filter(branch => !isDefaultBranch(branch));
         setBranches(updatedBranches);
+        
+        defaultBranchIndices.forEach(index => {
+            const fieldKey = `branch-${index}`;
+            handleSetDiagnosticsInfo({ key: fieldKey, diagnostics: [] });
+            clearErrors(fieldKey);
+        });
+        
+        handleSetDiagnosticsInfo({ key: `branch-${DEFAULT_BRANCH_INDEX}`, diagnostics: [] });
+        clearErrors(`branch-${DEFAULT_BRANCH_INDEX}`);
     };
 
     const handleExpressionEditorDiagnostics = useCallback(
