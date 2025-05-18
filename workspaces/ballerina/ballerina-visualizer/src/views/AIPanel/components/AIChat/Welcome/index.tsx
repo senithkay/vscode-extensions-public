@@ -143,7 +143,7 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ isOnboarding = false })
                     <Icon isCodicon name="new-file" iconSx={{ cursor: "default" }} />
                     to attach context
                 </Typography>
-                {isOnboarding || true && (
+                {isOnboarding && (
                     <GuideChip
                         onClick={() =>
                             rpcClient.getCommonRpcClient().openExternalUrl({
