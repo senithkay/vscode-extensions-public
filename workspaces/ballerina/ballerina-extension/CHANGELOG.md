@@ -2,7 +2,7 @@
 
 All notable changes to the "Ballerina" extension will be documented in this file.
 
-## **5.1.2** (2025-05-17)
+## **5.1.2** (2025-05-18)
 
 ### Added
 
