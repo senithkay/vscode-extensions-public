@@ -79,7 +79,7 @@ export function MatchForm(props: MatchFormProps) {
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
     const TARGET_FIELD_INDEX = -1;
-    const DEFAULT_BRANCH_INDEX = 100;
+    const DEFAULT_BRANCH_INDEX = 1000; // this is a magic number to avoid conflict with other branches
 
     const handleFormOpen = () => {
         rpcClient
@@ -195,13 +195,12 @@ export function MatchForm(props: MatchFormProps) {
             updatedNode.properties.condition.value = data[`branch-${TARGET_FIELD_INDEX}`]?.trim();
 
             // Update branches with form values
-            const updatedBranches = branches.map(branch => {
+            const updatedBranches = branches.map((branch, index) => {
                 if (isDefaultBranch(branch) && branch.children?.at(0)?.metadata.draft === true) {
                     return null;
                 }
                 
                 if (!isDefaultBranch(branch)) {
-                    const index = branches.indexOf(branch);
                     const conditionValue = data[`branch-${index}`]?.trim();
                     if (conditionValue) {
                         const branchCopy = cloneDeep(branch);
@@ -337,7 +336,6 @@ export function MatchForm(props: MatchFormProps) {
 
     const addDefaultBlock = () => {
         if (hasDefaultBranch) {
-            console.log("Real default branch already exists, not adding another one");
             return;
         }
         

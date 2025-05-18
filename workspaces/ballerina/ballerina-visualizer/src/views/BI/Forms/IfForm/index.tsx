@@ -93,9 +93,13 @@ export function IfForm(props: IfFormProps) {
             });
     };
 
+    const isElseBranch = (branch: Branch) => {
+        return branch.label === "Else"
+    }
+
     const hasElseBranch = branches.find(
         (branch) =>
-            branch.label === "Else" &&
+            isElseBranch(branch) &&
             ((branch.children?.length > 0 &&
                 !(branch.children[0].codedata.node === "EMPTY" && branch.children[0].metadata.draft)) ||
                 branch.children?.length === 0)
@@ -151,9 +155,9 @@ export function IfForm(props: IfFormProps) {
             }
 
             // Update branches with form values and filter out draft else branches
-            const updatedBranches = branches.map(branch => {
+            const updatedBranches = branches.map((branch, index) => {
                 // Skip draft else branches
-                if (branch.label === "Else" && 
+                if (isElseBranch(branch) && 
                     branch.children?.length > 0 && 
                     branch.children[0].codedata.node === "EMPTY" && 
                     branch.children[0].metadata.draft) {
@@ -162,7 +166,6 @@ export function IfForm(props: IfFormProps) {
                 
                 // For non-Else branches, update with form values
                 if (branch.label !== "Else") {
-                    const index = branches.indexOf(branch);
                     const conditionValue = data[`branch-${index}`]?.trim();
                     if (conditionValue) {
                         const branchCopy = cloneDeep(branch);
