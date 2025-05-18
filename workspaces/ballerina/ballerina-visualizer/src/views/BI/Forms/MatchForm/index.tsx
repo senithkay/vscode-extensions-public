@@ -184,6 +184,9 @@ export function MatchForm(props: MatchFormProps) {
                 };
             }
 
+            // update target value
+            updatedNode.properties.condition.value = data[`branch-${TARGET_FIELD_INDEX}`]?.trim();
+
             // loop data and update branches (properties.condition.value)
             branches.forEach((branch, index) => {
                 if (branch.label === "Else") {
@@ -210,7 +213,12 @@ export function MatchForm(props: MatchFormProps) {
     };
 
     const addNewCase = () => {
-        const newBranchIndex = branches.length - 1;
+        const existingValues = branches.map((_, idx) => getValues(`branch-${idx}`));
+        
+        const lastIndex = branches.length - 1;
+        const hasDefaultBranchAtEnd = lastIndex >= 0 && isDefaultBranch(branches[lastIndex]);
+        const newBranchIndex = hasDefaultBranchAtEnd ? lastIndex : branches.length;
+        
         const newBranch: Branch = {
             label: "branch-" + newBranchIndex,
             kind: "block",
@@ -249,18 +257,46 @@ export function MatchForm(props: MatchFormProps) {
             children: [],
         };
 
-        setValue(`branch-${newBranchIndex}`, "");
-        // add new branch before the last branch if there's a default branch, otherwise at the end
-        const lastIndex = branches.length - 1;
-        const updatedBranches = [...branches.slice(0, lastIndex), newBranch, branches[lastIndex]];
+        let updatedBranches;
+        if (hasDefaultBranchAtEnd) {
+            updatedBranches = [
+                ...branches.slice(0, lastIndex),
+                newBranch,
+                branches[lastIndex]
+            ];
+            
+            setValue(`branch-${DEFAULT_BRANCH_INDEX}`, getValues(`branch-${lastIndex}`));
+        } else {
+            updatedBranches = [...branches, newBranch];
+        }
+        
         setBranches(updatedBranches);
+        setValue(`branch-${newBranchIndex}`, "");
+        
+        existingValues.forEach((value, idx) => {
+            if (value && idx !== lastIndex) {
+                setValue(`branch-${idx}`, value);
+            }
+        });
     };
 
     const removeCondition = (index: number) => {
-        // Don't remove if it's the first branch (Then) or last branch (Else)
-        if (index === 0 || (hasDefaultBranch && index === branches.length - 1)) {
+        const nonDefaultBranches = branches.filter(branch => !isDefaultBranch(branch));
+        
+        // Don't remove if it's the first branch (index 0)
+        // Or if it would leave us with zero non-default branches
+        if (index === 0 || (nonDefaultBranches.length <= 1 && !isDefaultBranch(branches[index]))) {
             return;
         }
+        
+        if (isDefaultBranch(branches[index])) {
+            return;
+        }
+        
+        const fieldKey = `branch-${index}`;
+        handleSetDiagnosticsInfo({ key: fieldKey, diagnostics: [] });
+        clearErrors(fieldKey);
+        
         // Remove the branch at the specified index
         const updatedBranches = branches.filter((_, i) => i !== index);
         setBranches(updatedBranches);
@@ -268,6 +304,22 @@ export function MatchForm(props: MatchFormProps) {
         for (let i = index + 1; i < branches.length; i++) {
             const value = getValues(`branch-${i}`);
             setValue(`branch-${i - 1}`, value);
+            
+            if (diagnosticsInfo) {
+                const oldKey = `branch-${i}`;
+                const newKey = `branch-${i - 1}`;
+                const fieldDiagnostics = diagnosticsInfo.find(d => d.key === oldKey);
+                if (fieldDiagnostics) {
+                    handleSetDiagnosticsInfo({ 
+                        key: newKey, 
+                        diagnostics: fieldDiagnostics.diagnostics 
+                    });
+                    handleSetDiagnosticsInfo({ 
+                        key: oldKey, 
+                        diagnostics: [] 
+                    });
+                }
+            }
         }
     };
 
