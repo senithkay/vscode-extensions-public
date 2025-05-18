@@ -50,13 +50,33 @@ const VideoThumbnail = styled.div`
     transition: background 0.2s;
 `;
 
-const YouTubeThumbnail = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-    filter: grayscale(100%);
+const GuideChip = styled.div`
+    margin: 42px auto 0;
+    padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--vscode-menu-background, var(--vscode-editor-background));
+    color: var(--vscode-menu-foreground, var(--vscode-editor-foreground));
+    border-radius: 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid var(--vscode-menu-border, var(--vscode-widget-border));
+    box-shadow: 0 1px 3px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.05));
+    
+    &:hover {
+        background-color: var(--vscode-menubar-selectionBackground, var(--vscode-list-hoverBackground));
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.1));
+    }
+    
+    &:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.05));
+        opacity: 0.9;
+    }
 `;
 
 interface WelcomeMessageProps {
@@ -123,36 +143,17 @@ const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ isOnboarding = false })
                     <Icon isCodicon name="new-file" iconSx={{ cursor: "default" }} />
                     to attach context
                 </Typography>
-                {isOnboarding && (
-                    <div title="Watch Quick Tour">
-                        <VideoThumbnail
-                            onClick={() =>
-                                rpcClient.getCommonRpcClient().openExternalUrl({
-                                    url: "https://youtu.be/5klLsz1alPE",
-                                })
-                            }
-                        >
-                            <YouTubeThumbnail
-                                src="https://img.youtube.com/vi/QxZmnmbDUVk/hqdefault.jpg"
-                                alt="Quick Tour Video"
-                            />
-                            <Icon
-                                isCodicon
-                                name="play-circle"
-                                iconSx={{
-                                    position: "absolute",
-                                    top: "50%",
-                                    left: "50%",
-                                    transform: "translate(-50%, -50%)",
-                                    fontSize: "32px",
-                                    color: "#4b4b4b",
-                                    backgroundColor: "transparent",
-                                    cursor: "pointer",
-                                    pointerEvents: "none",
-                                }}
-                            />
-                        </VideoThumbnail>
-                    </div>
+                {isOnboarding || true && (
+                    <GuideChip
+                        onClick={() =>
+                            rpcClient.getCommonRpcClient().openExternalUrl({
+                                url: "https://youtu.be/5klLsz1alPE",
+                            })
+                        }
+                    >
+                        <Icon isCodicon name="play" iconSx={{ fontSize: "16px", color: "inherit" }} />
+                        Watch Getting Started Guide
+                    </GuideChip>
                 )}
             </Content>
             <BottomSpacer />
