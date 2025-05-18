@@ -16,6 +16,7 @@ import { closeEditorGroup, copyFile, page } from "../../Utils";
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import path from "path";
 import os from "os";
+import { Form } from "../Form";
 
 export class API {
     private webView!: Frame;
@@ -241,26 +242,35 @@ export class API {
         }
         console.log("Switched to API Form iframe");
 
-        const apiFormFrame = apiWebView.locator('div#root');
-        await apiFormFrame.waitFor();
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
-        console.log("Filled name and context");
-        await apiFormFrame.getByRole('radio', { name: 'From WSDL file' }).click();
-        console.log("Clicked on from WSDL file");
         const wsdlFile = path.join(__dirname, 'data', 'wsdl.xml');
         // Get the users home directory
         const homeDir = os.homedir();
         const desination = path.join(homeDir, 'wsdl.wsdl');
         console.log("Copying WSDL file to ", desination, " from ", wsdlFile);
         await copyFile(wsdlFile, desination);
-        console.log("Copied WSDL file to ", desination);
-        await apiFormFrame.getByRole('button', { name: 'Select Location' }).click();
-        await this._page.getByLabel('input').fill(desination);
-        await this._page.getByRole('button', { name: 'OK' }).click();
-        console.log("Clicked on OK");
-        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
-        console.log("Clicked on create");
+        const apiForm = new Form(page.page, 'API Form');
+        await apiForm.switchToFormView();
+        await apiForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: name,
+                },
+                'Context*': {
+                    type: 'input',
+                    value: context,
+                },
+                'From WSDL file': {
+                    type: 'radio',
+                    value: 'checked',
+                },
+                'Select Location': {
+                    type: 'file',
+                    value: desination
+                }
+            },
+        });
+        await apiForm.submit();
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -325,18 +335,35 @@ export class API {
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
         await apiFormFrame.waitFor();
-        console.log("Switched to API Form iframe");
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         await apiFormFrame.locator('#version-type div').nth(1).click();
         await apiFormFrame.getByLabel('Context', { exact: true }).click();
-        await apiFormFrame.getByRole('textbox', { name: 'Version' }).fill('1.0.0');
-        await apiFormFrame.getByLabel('From OpenAPI definition').click();
-        await apiFormFrame.getByRole('button', { name: 'Select Location' }).click();
-        await this._page.getByLabel('input').fill(desination);
-        await this._page.getByRole('button', { name: 'OK' }).click();
-        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
-        console.log("Clicked on create");
+        const apiForm = new Form(page.page, 'API Form');
+        await apiForm.switchToFormView();
+        await apiForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: name,
+                },
+                'Context*': {
+                    type: 'input',
+                    value: context,
+                },
+                'Version': {
+                    type: 'input',
+                    value: "1.0.0",
+                },
+                'From OpenAPI definition': {
+                    type: 'radio',
+                    value: 'checked',
+                },
+                'Select Location': {
+                    type: 'file',
+                    value: desination
+                }
+            }
+        });
+        await apiForm.submit();
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");

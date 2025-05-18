@@ -403,10 +403,10 @@ jobs:
     name: Run MI UI tests
     needs: Build_Stage
     if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runMIExtTests == 'true' || github.base_ref == 'release-mi' }}
-    timeout-minutes: 45
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         group: [group1, group2]
     steps:

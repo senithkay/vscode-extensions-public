@@ -47,9 +47,11 @@ export default function createTests() {
 
             await test.step("Open Existing Project Tests", async () => {
                 await page.executePaletteCommand("MI: Open Project");
-                await page.page.getByLabel('input').fill('');
-                await page.page.getByLabel('input').fill(newProjectPath + '/newProject/');
-                await page.page.getByRole('button', { name: 'Open MI Project' }).click();
+                const fileInput = await page.page?.waitForSelector('.quick-input-header');
+                const textInput = await fileInput?.waitForSelector('input[type="text"]');
+                await textInput?.fill(newProjectPath + '/newProject/');
+                const openBtn = await fileInput?.waitForSelector('a.monaco-button:has-text("Open MI Project")');
+                await openBtn?.click();
                 const addArtifactSelector = '.tab-label:has-text("Add Artifact")';
                 await page.page.waitForSelector(addArtifactSelector, { state: 'visible' });
                 await page.page.waitForSelector(addArtifactSelector, { state: 'attached' });

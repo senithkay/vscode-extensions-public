@@ -70,6 +70,8 @@ export async function createProject(page: ExtendedPage, projectName?: string, ru
     }
     await createNewProjectForm.submit();
     await welcomePage.waitUntilDeattached();
+    await page.page.getByRole('button', { name: "No, Don't Ask Again" })
+        .click({ timeout: 30000 }).catch(() => {});
     console.log('Project created');
 
     const setupEnvPage = new Welcome(page);

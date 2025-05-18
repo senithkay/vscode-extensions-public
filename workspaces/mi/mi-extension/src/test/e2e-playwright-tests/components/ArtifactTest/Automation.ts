@@ -64,7 +64,7 @@ export class Automation {
             throw new Error("Failed to switch to Task Form iframe");
         }
         const frame = webView.locator('div#root');
-        await frame.getByLabel('External Trigger').click();
+        await frame.getByLabel('Startup Trigger').click();
         await frame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await frame.getByRole('heading', { name: 'Advanced Configuration' }).click();
         await frame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
