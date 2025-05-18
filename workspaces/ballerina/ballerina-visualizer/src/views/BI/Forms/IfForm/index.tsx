@@ -150,21 +150,34 @@ export function IfForm(props: IfFormProps) {
                 };
             }
 
-            // loop data and update branches (properties.condition.value)
-            branches.forEach((branch, index) => {
-                if (branch.label === "Else") {
-                    return;
+            // Update branches with form values and filter out draft else branches
+            const updatedBranches = branches.map(branch => {
+                // Skip draft else branches
+                if (branch.label === "Else" && 
+                    branch.children?.length > 0 && 
+                    branch.children[0].codedata.node === "EMPTY" && 
+                    branch.children[0].metadata.draft) {
+                    return null; // Will be filtered out
                 }
-                const conditionValue = data[`branch-${index}`]?.trim();
-                if (conditionValue) {
-                    branch.properties.condition.value = conditionValue;
-                    if (branch.label !== "Then") {
-                        branch.label = "";
+                
+                // For non-Else branches, update with form values
+                if (branch.label !== "Else") {
+                    const index = branches.indexOf(branch);
+                    const conditionValue = data[`branch-${index}`]?.trim();
+                    if (conditionValue) {
+                        const branchCopy = cloneDeep(branch);
+                        branchCopy.properties.condition.value = conditionValue;
+                        if (branchCopy.label !== "Then") {
+                            branchCopy.label = "";
+                        }
+                        return branchCopy;
                     }
                 }
-            });
+                
+                return branch;
+            }).filter(Boolean) as Branch[];
 
-            updatedNode.branches = branches;
+            updatedNode.branches = updatedBranches;
 
             // check all nodes and remove empty nodes
             const removeEmptyNodeVisitor = new RemoveEmptyNodesVisitor(updatedNode);
