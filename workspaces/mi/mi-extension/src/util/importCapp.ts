@@ -34,11 +34,6 @@ const builderOptions: XmlBuilderOptions = {
 const xmlParser = new XMLParser(parserOptions);
 const xmlBuilder = new XMLBuilder(builderOptions);
 
-interface RegistryPath {
-    relativePath: string;
-    isGov: boolean;
-}
-
 interface RegistryInfo {
     artifacts: RegistryArtifact[];
 }
@@ -222,16 +217,16 @@ function importConfigs(source: string, directory: string) {
                         if (resource["item"]) {
                             infoJson.artifact["item"] = resource["item"];
                             const resourceFileName = resource["item"]["file"];
-                            const registryPath = extractRegistryPath(resource["item"]["path"])
+                            const relativePath = extractRegistryRelativePath(resource["item"]["path"])
                             const sourceResourcePath = path.join(dependencyPath, "resources", resourceFileName);
-                            const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", registryPath.isGov ? "gov" : "conf", registryPath.relativePath, path.basename(resourceFileName));
+                            const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", relativePath, path.basename(resourceFileName));
                             moveFile(sourceResourcePath, targetResourcePath);
                         } else if (resource["collection"]) {
                             infoJson.artifact["collection"] = resource["collection"];
                             const resourceDirectory = resource["collection"]["directory"];
-                            const registryPath = extractRegistryPath(resource["collection"]["path"]);
+                            const relativePath = extractRegistryRelativePath(resource["collection"]["path"]);
                             const sourceResourcePath = path.join(dependencyPath, "resources", resourceDirectory);
-                            const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", registryPath.isGov ? "gov" : "conf", registryPath.relativePath);
+                            const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", relativePath);
                             moveFiles(sourceResourcePath, targetResourcePath);
                         }
                         registryArtifactsInfo.artifacts.push(infoJson);
@@ -317,9 +312,14 @@ function getTargetFolder(type: string, source: string) {
     return path.join(source, "src", "main", "wso2mi", "artifacts", artifactFolder);
 }
 
-function extractRegistryPath(path: string): RegistryPath {
-    const match = path.match(/\/(governance)?(config)?(\/.*)/);
-    let isGov = match ? match[1] === "governance" : false;
-    let relativePath = match ? match[3] : "/";
-    return { relativePath, isGov };
+function extractRegistryRelativePath(registryPath: string): string {
+    if (registryPath.startsWith("/_system/governance/mi-resources")) {
+        const relativePath = registryPath.replace("/_system/governance/mi-resources", "");
+        return relativePath.split("/").join(path.sep);
+    } else {
+        const match = registryPath.match(/\/(governance)?(config)?(\/.*)/);
+        let isGov = match ? match[1] === "governance" : false;
+        let relativePath = match ? match[3] : "/";
+        return path.join('registry', isGov ? "gov" : "conf", relativePath.split("/").join(path.sep));
+    }
 }
