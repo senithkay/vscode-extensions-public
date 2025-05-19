@@ -13,6 +13,7 @@ import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { page } from '../Utils';
 import { ProjectExplorer } from "../components/ProjectExplorer";
 import { Overview } from "../components/Overview";
+import { Form } from "./Form";
 
 export class ImportArtifact {
     private webView!: Frame;
@@ -41,9 +42,20 @@ export class ImportArtifact {
 
     public async import(path: string) {
         await this.webView.getByText('Import Artifact').click();
-        await this.webView.getByRole('button', { name: 'Select Location' }).click();
-        await page.page.getByLabel('input', { exact: true }).fill(path);
-        await page.page.getByRole('button', { name: 'OK' }).click();
-        await this.webView.getByRole('button', { name: 'Import' }).click();
+        const importWebView = await switchToIFrame('Add Artifact Form', this._page);
+        if (!importWebView) {
+            throw new Error("Failed to switch to Import Artifact Form iframe");
+        }
+        const importArtifactForm = new Form(page.page, 'Add Artifact Form');
+        await importArtifactForm.switchToFormView();
+        await importArtifactForm.fill({
+            values: {
+                'Select Location': {
+                    type: 'file',
+                    value: path
+                }
+            }
+        });
+        await importArtifactForm.submit("Import");
     }
 }

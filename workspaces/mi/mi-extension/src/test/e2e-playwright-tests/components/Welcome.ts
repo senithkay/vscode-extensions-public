@@ -31,10 +31,14 @@ export class Welcome {
 
     public async createNewProjectFromSample(projectName: string, path: string) {
         await this.container.getByText(projectName).click();
-        await this.page.page.getByLabel('input').fill('');
-        await this.page.page.getByLabel('input').fill(path);
-        await this.page.page.getByRole('button', { name: 'Select Folder' }).click();
+        const fileInput = await this.page.page?.waitForSelector('.quick-input-header');
+        const textInput = await fileInput?.waitForSelector('input[type="text"]');
+        await textInput?.fill(path);
+        const selectBtn = await fileInput?.waitForSelector('a.monaco-button:has-text("Select Folder")');
+        await selectBtn?.click();
         await this.page.page.getByRole('button', { name: 'This Window' }).click();
+        await this.page.page.getByRole('button', { name: "No, Don't Ask Again" })
+            .click({ timeout: 30000 }).catch(() => {});
     }
 
     public async waitUntilDeattached() {
@@ -67,6 +71,13 @@ export class Welcome {
         const microIntegratorErrorMessage = container?.locator('div:has-text("Micro Integrator is not available")');
         if (await microIntegratorErrorMessage!.count() > 0) {
             console.log('Micro Integrator is not setup');
+            const checkbox = container?.locator(`vscode-checkbox[aria-label="Download Latest Pack"]`);
+            if (await checkbox?.count() > 0) {
+                const isChecked = await checkbox.isChecked();
+                if (isChecked) {
+                    await checkbox.click();
+                }
+            }
             const downloadMI = await getVsCodeButton(container!, 'Download Micro Integrator', 'primary');
             await downloadMI.click();
 
@@ -75,8 +86,17 @@ export class Welcome {
             console.log('Micro Integrator setup done');
         }
 
+        const continueAnywayBtn = await getVsCodeButton(container!, 'Continue Anyway', 'secondary').catch(() => null);
+        if (continueAnywayBtn) {
+            await continueAnywayBtn.click({ timeout: 10000 }).catch(() => {});
+        } else {
+            const continueBtn = await getVsCodeButton(container!, 'Continue', 'primary').catch(() => null);
+            if (continueBtn) {
+                await continueBtn.click({ timeout: 10000 }).catch(() => {});
+            }
+        }
+        await container!.page().getByRole('button', { name: "No, Don't Ask Again" })
+            .click({ timeout: 10000 }).catch(() => {});
         console.log('Environment setup done');
-        const continueBtn = await getVsCodeButton(container!, 'Continue', 'primary');
-        await continueBtn.click();
     }
 }

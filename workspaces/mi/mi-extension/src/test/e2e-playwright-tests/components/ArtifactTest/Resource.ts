@@ -13,6 +13,7 @@ import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
 import { Overview } from "../Overview";
 import { Form } from "../Form";
+import { page } from "../../Utils";
 
 interface ResourceDataFromTemplate {
     name: string;
@@ -73,14 +74,25 @@ export class Resource {
         if (!resWebView) {
             throw new Error("Failed to switch to Resource Form iframe");
         }
-        const resFrame = resWebView.locator('div#root');
-        await resFrame.waitFor();
-        await resFrame.getByLabel('Import from file system').click();
-        await resFrame.getByText('Browse file').click();
-        await this._page.getByLabel('input').fill(data.filePath);
-        await this._page.getByRole('button', { name: 'OK' }).click();
-        await resFrame.getByRole('textbox', { name: 'Registry Path' }).fill(data.registryPath);
-        await resFrame.getByRole('button', { name: 'Create' }).click();
+        const resourceForm = new Form(page.page, 'Resource Creation Form');
+        await resourceForm.switchToFormView();
+        await resourceForm.fill({
+            values: {
+                'Import from file system': {
+                    type: 'radio',
+                    value: 'checked',
+                },
+                'Browse file': {
+                    type: 'file',
+                    value: data.filePath
+                },
+                'Registry Path': {
+                    type: 'input',
+                    value: data.registryPath,
+                }
+            },
+        });
+        await resourceForm.submit();
     }
 
     public async addFromTemplate(data: ResourceDataFromTemplate, isPopUp?: boolean) {
