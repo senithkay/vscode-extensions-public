@@ -10,7 +10,6 @@ import React from "react";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import EditableDiv from "../EditableDiv/EditableDiv";
 import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
-import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { VSCodeColors } from "../../../resources/constants";
 
 // Styles
@@ -21,17 +20,14 @@ const State = {
             backgroundColor: VSCodeColors.PRIMARY_BUTTON,
             borderRadius: "2px",
         },
-
         SecondaryButton: {
             border: "1px solid var(--button-border)",
             backgroundColor: VSCodeColors.SECONDARY_BG_BUTTON,
             borderRadius: "2px",
         },
-
         SecondaryIcon: {
             color: VSCodeColors.SECONDARY_ICON,
         },
-
         PrimaryIcon: {
             color: VSCodeColors.PRIMARY_ICON,
         },
@@ -58,11 +54,10 @@ interface Props {
     setIsAutoFillBtnClicked: (value: boolean) => void;
     setIsSendButtonClicked: (value: boolean) => void;
     setGeneratingError: (value: boolean) => void;
-    setIsSame: (value: boolean) => void;
-    setIsSameValues: (value: boolean) => void;
+    setShowGeneratedValuesIdenticalMessage: (value: boolean) => void;
     numberOfDifferent: number;
-    isSame: boolean;
-    isSameValues: boolean;
+    showGeneratedValuesIdenticalMessage: boolean;
+    isGeneratedValuesIdentical: boolean;
 }
 
 const AIAutoFillBox: React.FC<Props> = ({
@@ -85,21 +80,18 @@ const AIAutoFillBox: React.FC<Props> = ({
     setIsAutoFillBtnClicked,
     setIsSendButtonClicked,
     setGeneratingError,
-    setIsSame,
-    setIsSameValues,
+    setShowGeneratedValuesIdenticalMessage,
     numberOfDifferent,
-    isSame,
-    isSameValues,
+    showGeneratedValuesIdenticalMessage,
+    isGeneratedValuesIdentical,
 }) => {
     return (
-        !isGenerating &&
-        (
+        !isGenerating && (
             <div>
                 <div
                     style={{
                         display: "flex",
                         flexDirection: "column",
-
                         padding: "3px 8px",
                         position: "relative",
                         boxShadow: "rgba(218, 216, 216, 0.1) 0px -2px 5px",
@@ -107,7 +99,7 @@ const AIAutoFillBox: React.FC<Props> = ({
                         borderRadius: "8px",
                         border: "calc(var(--border-width) * 1px) solid var(--dropdown-border)",
                     }}>
-                    {/* frist row  */}
+                    {/* first row  */}
                     <div
                         style={{
                             display: "flex",
@@ -126,69 +118,63 @@ const AIAutoFillBox: React.FC<Props> = ({
                             Fill With AI
                         </span>
                     <div>
-                            {/* Wand Icon with dropdown */}
-                            {!generatedFormDetails && (
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                    }}>
-                                    {inputGenerate.trim() === "" && (
-                                        <Button
-                                            appearance="secondary"
-                                            sx={{}}
-                                            tooltip="Auto Fill"
-                                            onClick={handleGenerateAi}>
-                                            <Codicon
-                                                name="wand"
-                                                iconSx={{ color: "var(--vscode-editor-foreground)" }}
-                                            />
-                                        </Button>
-                                    )}
-
-                                    {!isClickedDropDown && !generatedFormDetails && (
-                                        <Button
-                                            appearance="icon"
-                                            tooltip="With User Prompt"
-                                            onClick={() => {
-                                                setGeneratingError(false);
-                                                setIsClickedDropDown(!isClickedDropDown);
-
-                                                setIsAutoFillBtnClicked(false);
-                                                setIsSendButtonClicked(false);
-                                                setGeneratedFormDetails(null);
-                                                setVisibleDetails({});
-                                            }}>
-                                            <Codicon
-                                                name="chevron-down"
-                                                sx={{ color: "var(--vscode-editor-foreground)" }}
-                                            />
-                                        </Button>
-                                    )}
-
-                                    {isClickedDropDown && !generatedFormDetails && (
-                                        <Button
-                                            appearance="icon"
-                                            onClick={() => {
-                                                setGeneratingError(false);
-                                                setIsClickedDropDown(!isClickedDropDown);
-
-                                                setIsAutoFillBtnClicked(false);
-                                                setIsSendButtonClicked(false);
-                                                setGeneratedFormDetails(null);
-                                                setVisibleDetails({});
-                                                setInputGenerate("");
-                                            }}
-                                            tooltip="Close">
-                                            <Codicon
-                                                name="chevron-up"
-                                                sx={{ color: "var(--vscode-editor-foreground)" }}
-                                            />
-                                        </Button>
-                                    )}
+                        {/* Wand Icon with dropdown */}
+                        {!generatedFormDetails && (
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                }}>
+                                {inputGenerate.trim() === "" && (
+                                    <Button
+                                        appearance="secondary"
+                                        tooltip="Auto Fill"
+                                        onClick={handleGenerateAi}>
+                                        <Codicon
+                                            name="wand"
+                                            iconSx={{ color: "var(--vscode-editor-foreground)" }}
+                                        />
+                                    </Button>
+                                )}
+                                {!isClickedDropDown && !generatedFormDetails && (
+                                    <Button
+                                        appearance="icon"
+                                        tooltip="With User Prompt"
+                                        onClick={() => {
+                                            setGeneratingError(false);
+                                            setIsClickedDropDown(!isClickedDropDown);
+                                            setIsAutoFillBtnClicked(false);
+                                            setIsSendButtonClicked(false);
+                                            setGeneratedFormDetails(null);
+                                            setVisibleDetails({});
+                                        }}>
+                                        <Codicon
+                                            name="chevron-down"
+                                            sx={{ color: "var(--vscode-editor-foreground)" }}
+                                        />
+                                    </Button>
+                                )}
+                                {isClickedDropDown && !generatedFormDetails && (
+                                    <Button
+                                        appearance="icon"
+                                        onClick={() => {
+                                            setGeneratingError(false);
+                                            setIsClickedDropDown(!isClickedDropDown);
+                                            setIsAutoFillBtnClicked(false);
+                                            setIsSendButtonClicked(false);
+                                            setGeneratedFormDetails(null);
+                                            setVisibleDetails({});
+                                            setInputGenerate("");
+                                        }}
+                                        tooltip="Close">
+                                        <Codicon
+                                            name="chevron-up"
+                                            sx={{ color: "var(--vscode-editor-foreground)" }}
+                                        />
+                                    </Button>
+                                )}
                                 </div>
                             )}
-
                             {/* close icon */}
                             {generatedFormDetails && numberOfDifferent === 0 && (
                                 <div>
@@ -208,7 +194,7 @@ const AIAutoFillBox: React.FC<Props> = ({
                                             setIsAutoFillBtnClicked(false);
                                             setGeneratedFormDetails(null);
                                             setVisibleDetails({});
-                                            setIsSame(false);
+                                            setShowGeneratedValuesIdenticalMessage(false);
                                         }}>
                                         <Codicon
                                             name="chrome-close"
@@ -220,14 +206,8 @@ const AIAutoFillBox: React.FC<Props> = ({
                             )}
                         </div>
                     </div>
-
                     {/* second row  */}
-
-                    {!generatingError &&
-                        !isAutoFillBtnClicked &&
-                        !isSame &&
-                        !generatingError &&
-                        (isClickedDropDown || (generatedFormDetails && !isClickedDropDown)) && (
+                    {!generatingError && !isAutoFillBtnClicked && !showGeneratedValuesIdenticalMessage && !generatingError && (isClickedDropDown || (generatedFormDetails && !isClickedDropDown)) && (
                             <div
                                 style={{
                                     position: "relative",
@@ -236,14 +216,8 @@ const AIAutoFillBox: React.FC<Props> = ({
                                 <EditableDiv
                                     placeholder="Enter your prompt here"
                                     value={inputGenerate}
-                                    onChange={(value) => {
-                                        setInputGenerate(value);
-                                    }}
-                                    contentEditable={
-                                        generatedFormDetails && (isAutoFillBtnClicked || isSendButtonClicked)
-                                            ? false
-                                            : true
-                                    }
+                                    onChange={(value) => { setInputGenerate(value)}}
+                                    contentEditable={ generatedFormDetails && (isAutoFillBtnClicked || isSendButtonClicked)? false: true}
                                 />
                             </div>
                         )}
@@ -260,7 +234,7 @@ const AIAutoFillBox: React.FC<Props> = ({
                                 position: "relative",
                             }}>
                             {/* follow up instructions... */}
-                            {generatedFormDetails && !isSame && !generatingError ? (
+                            {generatedFormDetails && !showGeneratedValuesIdenticalMessage && !generatingError ? (
                                 <div
                                     style={{
                                         width: "100%",
@@ -270,25 +244,13 @@ const AIAutoFillBox: React.FC<Props> = ({
                                     <EditableDiv
                                         placeholder="Follow up instructions..."
                                         value={followUp}
-                                        onChange={(value) => {
-                                            setFollowUp(value);
-                                        }}
+                                        onChange={(value) => {setFollowUp(value)}}
                                         contentEditable={true}
                                     />
                                 </div>
-                            ) : (
-                                <div
-                                    style={{
-                                        width: "90%",
-                                    }}></div>
-                            )}
-
+                            ) : <div style={{width: "90%"}}></div>}
                             {/* run button  */}
-                            {(followUp.trim() !== "" ||
-                                (followUp.trim() !== "" && inputGenerate.trim() !== "") ||
-                                (isClickedDropDown && inputGenerate.trim() !== "")) &&
-                                !isSame &&
-                                !generatingError && (
+                            {(followUp.trim() !== "" ||(followUp.trim() !== "" && inputGenerate.trim() !== "") ||(isClickedDropDown && inputGenerate.trim() !== "")) && !showGeneratedValuesIdenticalMessage && !generatingError && (
                                     <div
                                         style={{
                                             display: "flex",
@@ -307,15 +269,8 @@ const AIAutoFillBox: React.FC<Props> = ({
                                         </Button>
                                     </div>
                                 )}
-
                             {/* Accept All reject all */}
-
-                            {generatedFormDetails &&
-                                followUp.trim() === "" &&
-                                !isSameValues &&
-                                !isSame &&
-                                !generatingError &&
-                                numberOfDifferent !== 0 && (
+                            {generatedFormDetails && followUp.trim() === "" && !isGeneratedValuesIdentical && !showGeneratedValuesIdenticalMessage && !generatingError && numberOfDifferent !== 0 && (
                                     <div
                                         style={{
                                             display: "flex",
@@ -330,7 +285,6 @@ const AIAutoFillBox: React.FC<Props> = ({
                                             sx={{
                                                 height: "20px",
                                                 width: "60px",
-
                                                 ...State.Selected.SecondaryButton,
                                             }}
                                             buttonSx={{
@@ -350,14 +304,12 @@ const AIAutoFillBox: React.FC<Props> = ({
                                                 <span style={{ fontSize: "8px" }}> Reject All</span>
                                             </div>
                                         </Button>
-
                                         <Button
                                             appearance="icon"
                                             onClick={handleAcceptAll}
                                             sx={{
                                                 height: "20px",
                                                 width: "60px",
-
                                                 ...State.Selected.PrimaryButton,
                                             }}
                                             buttonSx={{
@@ -379,17 +331,13 @@ const AIAutoFillBox: React.FC<Props> = ({
                                 )}
                         </div>
                     )}
-
                     {generatingError && (
                         <div>
                             <div
                                 style={{
                                     color: ThemeColors.ERROR,
-
                                     fontSize: "14px",
-
                                     display: "flex",
-
                                     alignItems: "center",
                                     justifyContent: "space-between",
                                 }}>
@@ -402,7 +350,6 @@ const AIAutoFillBox: React.FC<Props> = ({
                                     <Codicon name="error" iconSx={{ fontSize: "14px" }} />
                                     <span>Error with generating values.</span>
                                 </div>
-
                                 <Button
                                     onClick={() => {
                                         setGeneratingError(false);
@@ -414,17 +361,13 @@ const AIAutoFillBox: React.FC<Props> = ({
                             </div>
                         </div>
                     )}
-
-                    {isSame && (
+                    {showGeneratedValuesIdenticalMessage && (
                         <div>
                             <div
                                 style={{
                                     color: "var(--vscode-editor-foreground)",
-
                                     fontSize: "14px",
-
                                     display: "flex",
-
                                     alignItems: "center",
                                     justifyContent: "space-between",
                                 }}>
@@ -437,11 +380,8 @@ const AIAutoFillBox: React.FC<Props> = ({
                                     <Codicon name="report" iconSx={{ fontSize: "14px" }} />
                                     <span>No changes detected.</span>
                                 </div>
-
                                 <Button
-                                    onClick={() => {
-                                        setIsSame(false);
-                                    }}
+                                    onClick={() => { setShowGeneratedValuesIdenticalMessage(false)}}
                                     appearance="icon"
                                     buttonSx={{ color: "var(--vscode-editor-foreground)" }}>
                                     <Codicon name="chrome-close" iconSx={{ fontSize: "14px" }} />
@@ -450,7 +390,7 @@ const AIAutoFillBox: React.FC<Props> = ({
                         </div>
                     )}
                 </div>
-                <br />
+                <br/>
             </div>
         )
     );

@@ -476,23 +476,16 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                         })}
                     />
 
-                        {generatedFormDetails &&
-                                visibleDetails[element.name] &&
-                                generatedFormDetails[element.name]?.value !== getValues(element.name)?.value && (
+                        {generatedFormDetails && visibleDetails[element.name] && generatedFormDetails[element.name]?.value !== getValues(element.name)?.value && (
                                     <GenerateDiv
                                         isExpression={true}
                                         element={element}
                                         generatedFormDetails={generatedFormDetails}
-                                        handleOnClickChecked={async () => {
+                                        handleOnClickChecked={() => {
                                             setNumberOfDifferent(numberOfDifferent - 1);
-
                                             if (generatedFormDetails) {
                                                 handleExpressionChange(generatedFormDetails[element.name]?.value, 0);
-
-                                                if (
-                                                    generatedFormDetails[element.name]?.isExpression?.toString() === 'true'
-                                                ) {
-                                                   
+                                                if (generatedFormDetails[element.name]?.isExpression?.toString() === 'true') {
                                                     if (canChange) {
                                                         onChange({
                                                             ...value,
@@ -509,7 +502,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                                                         });
                                                     }
                                                 }
-
                                                 setVisibleDetails((prev: { [key: string]: boolean }) => ({
                                                     ...prev,
                                                     [element.name]: false,
@@ -526,7 +518,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                                     />
                                 )}
                     </div>}
-
                     {isAIFill && (
                         <div style={{ width: '100%' }}>
                             <div style={{

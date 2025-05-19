@@ -33,9 +33,7 @@ const EditableDiv: React.FC<EditableDivProps> = ({
         const el = divRef.current;
         if (el && document.activeElement !== el) {
             el.innerText = isPlaceholderVisible ? placeholder : value;
-            el.style.color = isPlaceholderVisible
-                ? VSCodeColors.ON_SURFACE
-                : VSCodeColors.ON_SECONDARY;
+            el.style.color = isPlaceholderVisible ? VSCodeColors.ON_SURFACE : VSCodeColors.ON_SECONDARY;
         }
     }, [value, placeholder]);
 

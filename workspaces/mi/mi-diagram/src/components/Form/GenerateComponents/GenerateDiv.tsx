@@ -99,16 +99,12 @@ const GenerateDiv = (props: GenerateDivProps) => {
                                             fontSize: "12px",
                                         }}
                                     />
-                                ) : (
-                                    <Codicon name="chrome-maximize" />
-                                )}
-
+                                ) : ( <Codicon name="chrome-maximize" />)}
                                 {element.displayName}
                             </div>
                         )}
                     </div>
                 </div>
-
                 <Button
                     appearance="icon"
                     onClick={handleOnClickClose}
@@ -129,7 +125,6 @@ const GenerateDiv = (props: GenerateDivProps) => {
                         <span style={{ fontSize: "10px" }}>Reject</span>
                     </div>
                 </Button>
-
                 <Button
                     appearance="icon"
                     onClick={handleOnClickChecked}
@@ -151,11 +146,7 @@ const GenerateDiv = (props: GenerateDivProps) => {
                     </div>
                 </Button>
             </div>
-
-            <div
-                style={{
-                    minHeight: "10px",
-                }}></div>
+            <div style={{ minHeight: "10px" }} ></div>
         </div>
     );
 };
