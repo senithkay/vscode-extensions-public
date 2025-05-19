@@ -556,17 +556,10 @@ export const TokenEditor = ({
                     />
                     <Typography variant='body1' sx={{ marginLeft: '4px' }}>Expression Editor</Typography>
                     <Button
-                        appearance='icon'
-                        onClick={() => console.log("info")}
-                        sx={{ marginLeft: 'auto' }}
-                        tooltip='Edit Expression'
-                    >
-                        <Codicon name="info" />
-                    </Button>
-                    <Button
                         appearance="icon"
                         onClick={handleHelperPaneWithEditorClose}
                         tooltip='Close helper pane'
+                        sx={{ marginLeft: 'auto' }}
                     >
                         <Codicon name="close" />
                     </Button>
