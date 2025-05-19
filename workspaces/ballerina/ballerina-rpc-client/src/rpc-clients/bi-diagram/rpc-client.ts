@@ -68,6 +68,7 @@ import {
     OpenAPIClientGenerationRequest,
     OpenAPIGeneratedModulesRequest,
     OpenAPIGeneratedModulesResponse,
+    OpenConfigTomlRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -143,6 +144,7 @@ import {
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
+    openConfigToml,
     openReadme,
     removeBreakpointFromSource,
     renameIdentifier,
@@ -236,6 +238,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
         return this._messenger.sendRequest(updateConfigVariables, HOST_EXTENSION, params);
+    }
+    
+    OpenConfigTomlRequest(params: OpenConfigTomlRequest): Promise<void> {
+        return this._messenger.sendRequest(openConfigToml, HOST_EXTENSION, params);
     }
 
     getModuleNodes(): Promise<BIModuleNodesResponse> {

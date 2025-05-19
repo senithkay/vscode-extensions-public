@@ -784,6 +784,10 @@ export interface UpdateConfigVariableResponse {
 
 }
 
+export interface OpenConfigTomlRequest {
+    filePath: string
+}
+
 export interface BICopilotContextRequest {
     position: LinePosition;
     filePath: string;
@@ -1572,4 +1576,5 @@ export interface ExtendedLangClientInterface extends BIInterface {
     updateStatusBar(): void;
     getDidOpenParams(): DidOpenParams;
     getProjectArtifacts(params: ProjectArtifactsRequest): Promise<ProjectArtifacts>;
+    openConfigToml(params: OpenConfigTomlRequest): Promise<void>;
 }

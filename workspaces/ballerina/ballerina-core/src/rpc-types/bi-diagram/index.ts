@@ -76,7 +76,8 @@ import {
     OpenAPIGeneratedModulesRequest,
     OpenAPIGeneratedModulesResponse,
     OpenAPIClientDeleteRequest,
-    OpenAPIClientDeleteResponse
+    OpenAPIClientDeleteResponse,
+    OpenConfigTomlRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -162,4 +163,5 @@ export interface BIDiagramAPI {
     generateOpenApiClient: (params: OpenAPIClientGenerationRequest) => Promise<GeneratedClientSaveResponse>;
     getOpenApiGeneratedModules: (params: OpenAPIGeneratedModulesRequest) => Promise<OpenAPIGeneratedModulesResponse>;
     deleteOpenApiGeneratedModules: (params: OpenAPIClientDeleteRequest) => Promise<OpenAPIClientDeleteResponse>;
+    OpenConfigTomlRequest: (params: OpenConfigTomlRequest) => Promise<void>;
 }

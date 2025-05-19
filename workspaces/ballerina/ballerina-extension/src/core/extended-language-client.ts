@@ -207,7 +207,8 @@ import {
     Artifacts,
     MemoryManagersRequest,
     MemoryManagersResponse,
-    ArtifactsNotification
+    ArtifactsNotification,
+    OpenConfigTomlRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug, handlePullModuleProgress } from "../utils";
@@ -284,6 +285,7 @@ enum EXTENDED_APIS {
     DATA_MAPPER_ADD_ELEMENT = 'dataMapper/addElement',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
     UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
+    OPEN_CONFIG_TOML = 'configEditor/openConfigToml',
     RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
     RUNNER_MAIN_FUNCTION_PARAMS = 'ballerinaRunner/mainFunctionParams',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
@@ -854,6 +856,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
         return this.sendRequest<UpdateConfigVariableResponse>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES, params);
+    }
+
+    async openConfigToml(params: OpenConfigTomlRequest): Promise<void> {
+        return this.sendRequest<void>(EXTENDED_APIS.OPEN_CONFIG_TOML, params);
     }
 
     async getSuggestedFlowModel(params: BISuggestedFlowModelRequest): Promise<BIFlowModelResponse> {

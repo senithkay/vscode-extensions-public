@@ -39,6 +39,7 @@ import {
     OpenAPIClientDeleteRequest,
     OpenAPIClientGenerationRequest,
     OpenAPIGeneratedModulesRequest,
+    OpenConfigTomlRequest,
     ProjectRequest,
     ReadmeContentRequest,
     RecordSourceGenRequest,
@@ -99,6 +100,7 @@ import {
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
+    openConfigToml,
     openReadme,
     removeBreakpointFromSource,
     renameIdentifier,
@@ -135,6 +137,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
     messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());
     messenger.onRequest(updateConfigVariables, (args: UpdateConfigVariableRequest) => rpcManger.updateConfigVariables(args));
+    messenger.onRequest(openConfigToml, (args: OpenConfigTomlRequest) => rpcManger.openConfigToml(args));
     messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());

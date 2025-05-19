@@ -38,6 +38,7 @@ import {
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
+    BallerinaProject,
     BreakpointRequest,
     BuildMode,
     ClassFieldModifierRequest,
@@ -79,6 +80,7 @@ import {
     OpenAPIClientGenerationRequest,
     OpenAPIGeneratedModulesRequest,
     OpenAPIGeneratedModulesResponse,
+    OpenConfigTomlRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -138,10 +140,10 @@ import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure 
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_URL } from "../../features/ai/utils";
 import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
-import { cleanAndValidateProject } from "../../features/config-generator/configGenerator";
+import { cleanAndValidateProject, getCurrentBIProject } from "../../features/config-generator/configGenerator";
 import { getRefreshedAccessToken } from "../../../src/utils/ai/auth";
-
 export class BiDiagramRpcManager implements BIDiagramAPI {
+    OpenConfigTomlRequest: (params: OpenConfigTomlRequest) => Promise<void>;
 
     async getFlowModel(): Promise<BIFlowModelResponse> {
         console.log(">>> requesting bi flow model from ls");
@@ -558,7 +560,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         console.log(">>> requesting bi delete node from ls", params);
         // Clean project diagnostics before deleting flow node
         await cleanAndValidateProject(StateMachine.langClient(), StateMachine.context().projectUri);
-        
+
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .deleteFlowNode(params)
@@ -640,6 +642,60 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             resolve(response);
         });
     }
+
+    // Function to open config toml
+    async openConfigToml(params: OpenConfigTomlRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const currentProject: BallerinaProject | undefined = await getCurrentBIProject(params.filePath);
+
+            const configFilePath = path.join(StateMachine.context().projectUri, "config.toml");
+            const ignoreFile = path.join(StateMachine.context().projectUri, ".gitignore");
+            const docLink = "https://ballerina.io/learn/provide-values-to-configurable-variables/#provide-via-toml-syntax";
+            const uri = Uri.file(configFilePath);
+
+            if (!fs.existsSync(configFilePath)) {
+                const updatedContent = `
+# Configuration file for "${currentProject.packageName}"
+# 
+# This file contains configuration values for configurable variables in your Ballerina code.
+# Both package-specific and imported module configurations are included below.
+# 
+# Learn more about configurable variables:
+# ${docLink}
+#
+# Note: This file is automatically added to .gitignore to protect sensitive information.
+`;
+                // Create and write content to the config file
+                fs.writeFile(configFilePath, updatedContent, (error) => {
+                    if (error) {
+                        window.showErrorMessage('Unable to create the Config.toml file: ' + error);
+                        return;
+                    }
+                });
+
+                if (fs.existsSync(ignoreFile)) {
+                    const ignoreUri = Uri.file(ignoreFile);
+                    let ignoreContent: string = fs.readFileSync(ignoreUri.fsPath, 'utf8');
+                    if (!ignoreContent.includes("config.toml")) {
+                        ignoreContent += `\n${"config.toml"}\n`;
+                        fs.writeFile(ignoreUri.fsPath, ignoreContent, function (error) {
+                            if (error) {
+                                return window.showErrorMessage('Unable to update the .gitIgnore file: ' + error);
+                            }
+                            window.showInformationMessage('Successfully updated the .gitIgnore file.');
+                        });
+                    }
+                }
+            }
+
+            await workspace.openTextDocument(uri).then(async document => {
+                window.showTextDocument(document, { preview: false });
+            });
+            resolve();
+        });
+
+    }
+
 
     async getReadmeContent(): Promise<ReadmeContentResponse> {
         return new Promise((resolve) => {

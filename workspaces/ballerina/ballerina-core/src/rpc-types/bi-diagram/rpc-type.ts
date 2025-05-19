@@ -73,7 +73,8 @@ import {
     OpenAPIGeneratedModulesRequest,
     OpenAPIGeneratedModulesResponse,
     OpenAPIClientDeleteRequest,
-    OpenAPIClientDeleteResponse
+    OpenAPIClientDeleteResponse,
+    OpenConfigTomlRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -160,3 +161,4 @@ export const getDevantMetadata: RequestType<void, DevantMetadata> = { method: `$
 export const generateOpenApiClient: RequestType<OpenAPIClientGenerationRequest, GeneratedClientSaveResponse> = { method: `${_preFix}/generateOpenApiClient` };
 export const getOpenApiGeneratedModules: RequestType<OpenAPIGeneratedModulesRequest, OpenAPIGeneratedModulesResponse> = { method: `${_preFix}/getOpenApiGeneratedModules` };
 export const deleteOpenApiGeneratedModules: RequestType<OpenAPIClientDeleteRequest, OpenAPIClientDeleteResponse> = { method: `${_preFix}/deleteOpenApiGeneratedModules` };
+export const openConfigToml: RequestType<OpenConfigTomlRequest, void> = { method: `${_preFix}/openConfigToml` };
