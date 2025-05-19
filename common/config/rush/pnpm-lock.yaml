@@ -1925,14 +1925,14 @@ importers:
   ../../workspaces/ballerina/graphql-design-diagram:
     dependencies:
       '@emotion/css':
-        specifier: ~11.11.2
-        version: 11.11.2
+        specifier: ~11.13.5
+        version: 11.13.5
       '@emotion/react':
-        specifier: ^11.9.3
-        version: 11.11.4(@types/react@17.0.85)(react@17.0.2)
+        specifier: ^11.14.0
+        version: 11.14.0(@types/react@17.0.85)(react@17.0.2)
       '@emotion/styled':
-        specifier: ^11.9.3
-        version: 11.11.5(@emotion/react@11.11.4(@types/react@17.0.85)(react@17.0.2))(@types/react@17.0.85)(react@17.0.2)
+        specifier: ^11.14.0
+        version: 11.14.0(@emotion/react@11.14.0(@types/react@17.0.85)(react@17.0.2))(@types/react@17.0.85)(react@17.0.2)
       '@projectstorm/geometry':
         specifier: ^6.7.4
         version: 6.7.4
@@ -1941,7 +1941,7 @@ importers:
         version: 6.7.4(lodash@4.17.21)(react@17.0.2)
       '@projectstorm/react-diagrams':
         specifier: ^6.7.4
-        version: 6.7.4(@emotion/react@11.11.4(@types/react@17.0.85)(react@17.0.2))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.85)(react@17.0.2))(@types/react@17.0.85)(react@17.0.2))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(react@17.0.2)(resize-observer-polyfill@1.5.1)
+        version: 6.7.4(@emotion/react@11.14.0(@types/react@17.0.85)(react@17.0.2))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@17.0.85)(react@17.0.2))(@types/react@17.0.85)(react@17.0.2))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(react@17.0.2)(resize-observer-polyfill@1.5.1)
       '@projectstorm/react-diagrams-core':
         specifier: ^6.7.4
         version: 6.7.4(lodash@4.17.21)(react@17.0.2)(resize-observer-polyfill@1.5.1)
@@ -1961,7 +1961,7 @@ importers:
         specifier: ^1.10.8
         version: 1.11.11
       lodash:
-        specifier: ^4.17.11
+        specifier: ^4.17.21
         version: 4.17.21
       react:
         specifier: ^17.0.1
@@ -1970,20 +1970,20 @@ importers:
         specifier: ^17.0.1
         version: 17.0.2(react@17.0.2)
       react-monaco-editor:
-        specifier: 0.43.0
-        version: 0.43.0(@types/react@17.0.85)(react@17.0.2)
+        specifier: 0.58.0
+        version: 0.58.0(monaco-editor@0.52.2)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       resize-observer-polyfill:
         specifier: ^1.5.1
         version: 1.5.1
       rimraf:
-        specifier: ^3.0.2
-        version: 3.0.2
+        specifier: ^6.0.1
+        version: 6.0.1
       tslint:
         specifier: ^6.1.3
         version: 6.1.3(typescript@4.9.5)
       tslint-react:
-        specifier: ^4.2.0
-        version: 4.2.0(tslint@6.1.3(typescript@4.9.5))(typescript@4.9.5)
+        specifier: ^5.0.0
+        version: 5.0.0(tslint@6.1.3(typescript@4.9.5))(typescript@4.9.5)
       tslint-react-hooks:
         specifier: ^2.2.2
         version: 2.2.2(tslint@6.1.3(typescript@4.9.5))(typescript@4.9.5)
@@ -1991,14 +1991,14 @@ importers:
         specifier: ^4.1.3
         version: 4.9.5
       vscode-uri:
-        specifier: ^3.0.8
-        version: 3.0.8
+        specifier: ^3.1.0
+        version: 3.1.0
     devDependencies:
       '@types/lodash':
-        specifier: 4.17.0
-        version: 4.17.0
+        specifier: 4.17.16
+        version: 4.17.16
       '@types/react':
-        specifier: ^17.0.0
+        specifier: ^17.0.85
         version: 17.0.85
 
   ../../workspaces/ballerina/inline-data-mapper:
@@ -10993,9 +10993,6 @@ packages:
 
   '@types/lodash@4.14.202':
     resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
-
-  '@types/lodash@4.17.0':
-    resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
 
   '@types/lodash@4.17.16':
     resolution: {integrity: sha512-HX7Em5NYQAXKW+1T+FiuG27NGwzJfCX3s1GjOa7ujxZa52kjJLOr4FUxT+giF6Tgxv1e+/czV/iTtBw27WTU9g==}
@@ -22037,11 +22034,12 @@ packages:
   react-merge-refs@1.1.0:
     resolution: {integrity: sha512-alTKsjEL0dKH/ru1Iyn7vliS2QRcBp9zZPGoWxUOvRGWPUYgjo+V01is7p04It6KhgrzhJGnIj9GgX8W4bZoCQ==}
 
-  react-monaco-editor@0.43.0:
-    resolution: {integrity: sha512-2PXSDwOzjUDlwdsK8psrmezSB2lPnjLQ/SRNwqoRF2+TAB2n4Q+Bs1wGlWOZbU8WI7s6Wnni0+3PdT9nSPtzRA==}
+  react-monaco-editor@0.58.0:
+    resolution: {integrity: sha512-e8JH0TQEzO96Wd/EXgzc9M9tQK1pxBECD+8GNob9slMURcCM36TiVrgc4topWCDGYxRuMj8IEkaX+s3eQcUUqw==}
     peerDependencies:
-      '@types/react': ^17.x
-      react: ^17.x
+      monaco-editor: ^0.52.0
+      react: '>=16.8.0 <20.0.0'
+      react-dom: '>=16.8.0 <20.0.0'
 
   react-redux@9.2.0:
     resolution: {integrity: sha512-ROY9fvHhwOD9ySfrF0wmvu//bKCQ6AeZZq1nJNtbDC+kk5DuSuNX/n6YWYF/SYy7bSba4D4FSz8DJeKY/S/r+g==}
@@ -43259,8 +43257,6 @@ snapshots:
 
   '@types/lodash@4.14.202': {}
 
-  '@types/lodash@4.17.0': {}
-
   '@types/lodash@4.17.16': {}
 
   '@types/mdast@3.0.15':
@@ -53997,7 +53993,10 @@ snapshots:
       pretty-format: 25.5.0
       throat: 5.0.0
     transitivePeerDependencies:
+      - bufferutil
+      - canvas
       - supports-color
+      - utf-8-validate
 
   jest-jasmine2@27.5.1:
     dependencies:
@@ -59625,12 +59624,11 @@ snapshots:
 
   react-merge-refs@1.1.0: {}
 
-  react-monaco-editor@0.43.0(@types/react@17.0.85)(react@17.0.2):
+  react-monaco-editor@0.58.0(monaco-editor@0.52.2)(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
-      '@types/react': 17.0.85
       monaco-editor: 0.52.2
-      prop-types: 15.8.1
       react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
 
   react-redux@9.2.0(@types/react@18.2.79)(react@18.2.0)(redux@5.0.1):
     dependencies:
