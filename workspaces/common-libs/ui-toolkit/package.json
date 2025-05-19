@@ -24,7 +24,7 @@
     "@emotion/css": "^11.10.5",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.10.5",
-    "@headlessui/react": "^2.2.3",
+    "@headlessui/react": "~1.7.18",
     "@projectstorm/geometry": "^6.7.4",
     "@projectstorm/react-canvas-core": "^6.7.4",
     "@projectstorm/react-diagrams": "^6.7.4",
