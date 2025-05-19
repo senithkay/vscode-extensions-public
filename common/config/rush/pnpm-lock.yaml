@@ -1929,22 +1929,22 @@ importers:
         version: 11.13.5
       '@emotion/react':
         specifier: ^11.14.0
-        version: 11.14.0(@types/react@17.0.85)(react@17.0.2)
+        version: 11.14.0(@types/react@18.3.21)(react@18.3.1)
       '@emotion/styled':
         specifier: ^11.14.0
-        version: 11.14.0(@emotion/react@11.14.0(@types/react@17.0.85)(react@17.0.2))(@types/react@17.0.85)(react@17.0.2)
+        version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1)
       '@projectstorm/geometry':
         specifier: ^6.7.4
         version: 6.7.4
       '@projectstorm/react-canvas-core':
         specifier: ^6.7.4
-        version: 6.7.4(lodash@4.17.21)(react@17.0.2)
+        version: 6.7.4(lodash@4.17.21)(react@18.3.1)
       '@projectstorm/react-diagrams':
         specifier: ^6.7.4
-        version: 6.7.4(@emotion/react@11.14.0(@types/react@17.0.85)(react@17.0.2))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@17.0.85)(react@17.0.2))(@types/react@17.0.85)(react@17.0.2))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(react@17.0.2)(resize-observer-polyfill@1.5.1)
+        version: 6.7.4(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(react@18.3.1)(resize-observer-polyfill@1.5.1)
       '@projectstorm/react-diagrams-core':
         specifier: ^6.7.4
-        version: 6.7.4(lodash@4.17.21)(react@17.0.2)(resize-observer-polyfill@1.5.1)
+        version: 6.7.4(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)
       '@wso2-enterprise/ballerina-core':
         specifier: workspace:*
         version: link:../ballerina-core
@@ -1964,14 +1964,14 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       react:
-        specifier: ^17.0.1
-        version: 17.0.2
+        specifier: ^18.3.1
+        version: 18.3.1
       react-dom:
-        specifier: ^17.0.1
-        version: 17.0.2(react@17.0.2)
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
       react-monaco-editor:
         specifier: 0.58.0
-        version: 0.58.0(monaco-editor@0.52.2)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+        version: 0.58.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       resize-observer-polyfill:
         specifier: ^1.5.1
         version: 1.5.1
@@ -1998,8 +1998,8 @@ importers:
         specifier: 4.17.16
         version: 4.17.16
       '@types/react':
-        specifier: ^17.0.85
-        version: 17.0.85
+        specifier: ^18.3.21
+        version: 18.3.21
 
   ../../workspaces/ballerina/inline-data-mapper:
     dependencies:
@@ -3460,7 +3460,7 @@ importers:
         version: 6.7.4
       '@projectstorm/react-canvas-core':
         specifier: ^6.7.4
-        version: 6.7.4(lodash@4.17.21)(react@17.0.2)
+        version: 6.7.4(lodash@4.17.21)(react@18.3.1)
       '@projectstorm/react-diagrams':
         specifier: ^6.7.4
         version: 6.7.4(@emotion/react@11.11.4(@types/react@17.0.85))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.85))(@types/react@17.0.85))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(resize-observer-polyfill@1.5.1)
@@ -31889,6 +31889,12 @@ snapshots:
       lodash: 4.17.21
       react: 18.2.0
 
+  '@projectstorm/react-canvas-core@6.7.4(lodash@4.17.21)(react@18.3.1)':
+    dependencies:
+      '@projectstorm/geometry': 6.7.4
+      lodash: 4.17.21
+      react: 18.3.1
+
   '@projectstorm/react-canvas-core@7.0.3(@types/react@17.0.85)':
     dependencies:
       '@emotion/react': 11.14.0(@types/react@17.0.85)(react@18.3.1)
@@ -31925,6 +31931,14 @@ snapshots:
       '@projectstorm/react-canvas-core': 6.7.4(lodash@4.17.21)(react@18.2.0)
       lodash: 4.17.21
       react: 18.2.0
+      resize-observer-polyfill: 1.5.1
+
+  '@projectstorm/react-diagrams-core@6.7.4(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)':
+    dependencies:
+      '@projectstorm/geometry': 6.7.4
+      '@projectstorm/react-canvas-core': 6.7.4(lodash@4.17.21)(react@18.3.1)
+      lodash: 4.17.21
+      react: 18.3.1
       resize-observer-polyfill: 1.5.1
 
   '@projectstorm/react-diagrams-core@7.0.3(@emotion/react@11.11.4(@types/react@17.0.85)(react@17.0.2))(@types/react@17.0.85)':
@@ -32029,7 +32043,7 @@ snapshots:
     dependencies:
       '@emotion/react': 11.11.4(@types/react@17.0.85)(react@19.1.0)
       '@emotion/styled': 11.11.5(@emotion/react@11.11.4(@types/react@17.0.85)(react@19.1.0))(@types/react@17.0.85)(react@19.1.0)
-      '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@17.0.2)(resize-observer-polyfill@1.5.1)
+      '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)
       lodash: 4.17.21
     transitivePeerDependencies:
       - resize-observer-polyfill
@@ -32061,6 +32075,16 @@ snapshots:
       '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@18.2.0)(resize-observer-polyfill@1.5.1)
       lodash: 4.17.21
       react: 18.2.0
+    transitivePeerDependencies:
+      - resize-observer-polyfill
+
+  '@projectstorm/react-diagrams-defaults@6.7.4(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)':
+    dependencies:
+      '@emotion/react': 11.14.0(@types/react@18.3.21)(react@18.3.1)
+      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1)
+      '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)
+      lodash: 4.17.21
+      react: 18.3.1
     transitivePeerDependencies:
       - resize-observer-polyfill
 
@@ -32123,7 +32147,7 @@ snapshots:
   '@projectstorm/react-diagrams-routing@6.7.4(@emotion/react@11.11.4(@types/react@17.0.85))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.85))(@types/react@17.0.85))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(resize-observer-polyfill@1.5.1)':
     dependencies:
       '@projectstorm/geometry': 6.7.4
-      '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@17.0.2)(resize-observer-polyfill@1.5.1)
+      '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)
       '@projectstorm/react-diagrams-defaults': 6.7.4(@emotion/react@11.11.4(@types/react@17.0.85))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.85))(@types/react@17.0.85))(lodash@4.17.21)(resize-observer-polyfill@1.5.1)
       dagre: 0.8.5
       lodash: 4.17.21
@@ -32174,6 +32198,21 @@ snapshots:
       pathfinding: 0.4.18
       paths-js: 0.4.11
       react: 18.2.0
+    transitivePeerDependencies:
+      - '@emotion/react'
+      - '@emotion/styled'
+      - resize-observer-polyfill
+
+  '@projectstorm/react-diagrams-routing@6.7.4(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(react@18.3.1)(resize-observer-polyfill@1.5.1)':
+    dependencies:
+      '@projectstorm/geometry': 6.7.4
+      '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)
+      '@projectstorm/react-diagrams-defaults': 6.7.4(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)
+      dagre: 0.8.5
+      lodash: 4.17.21
+      pathfinding: 0.4.18
+      paths-js: 0.4.11
+      react: 18.3.1
     transitivePeerDependencies:
       - '@emotion/react'
       - '@emotion/styled'
@@ -32275,7 +32314,7 @@ snapshots:
 
   '@projectstorm/react-diagrams@6.7.4(@emotion/react@11.11.4(@types/react@17.0.85))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.85))(@types/react@17.0.85))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(resize-observer-polyfill@1.5.1)':
     dependencies:
-      '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@17.0.2)(resize-observer-polyfill@1.5.1)
+      '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)
       '@projectstorm/react-diagrams-defaults': 6.7.4(@emotion/react@11.11.4(@types/react@17.0.85))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.85))(@types/react@17.0.85))(lodash@4.17.21)(resize-observer-polyfill@1.5.1)
       '@projectstorm/react-diagrams-routing': 6.7.4(@emotion/react@11.11.4(@types/react@17.0.85))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@17.0.85))(@types/react@17.0.85))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(resize-observer-polyfill@1.5.1)
     transitivePeerDependencies:
@@ -32323,6 +32362,21 @@ snapshots:
       '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@18.2.0)(resize-observer-polyfill@1.5.1)
       '@projectstorm/react-diagrams-defaults': 6.7.4(@emotion/react@11.14.0(@types/react@17.0.85)(react@18.2.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@17.0.85)(react@18.2.0))(@types/react@17.0.85)(react@18.2.0))(lodash@4.17.21)(react@18.2.0)(resize-observer-polyfill@1.5.1)
       '@projectstorm/react-diagrams-routing': 6.7.4(@emotion/react@11.14.0(@types/react@17.0.85)(react@18.2.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@17.0.85)(react@18.2.0))(@types/react@17.0.85)(react@18.2.0))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(react@18.2.0)(resize-observer-polyfill@1.5.1)
+    transitivePeerDependencies:
+      - '@emotion/react'
+      - '@emotion/styled'
+      - dagre
+      - lodash
+      - pathfinding
+      - paths-js
+      - react
+      - resize-observer-polyfill
+
+  '@projectstorm/react-diagrams@6.7.4(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(react@18.3.1)(resize-observer-polyfill@1.5.1)':
+    dependencies:
+      '@projectstorm/react-diagrams-core': 6.7.4(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)
+      '@projectstorm/react-diagrams-defaults': 6.7.4(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(lodash@4.17.21)(react@18.3.1)(resize-observer-polyfill@1.5.1)
+      '@projectstorm/react-diagrams-routing': 6.7.4(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(dagre@0.8.5)(lodash@4.17.21)(pathfinding@0.4.18)(paths-js@0.4.11)(react@18.3.1)(resize-observer-polyfill@1.5.1)
     transitivePeerDependencies:
       - '@emotion/react'
       - '@emotion/styled'
@@ -37457,7 +37511,7 @@ snapshots:
       ts-dedent: 2.2.0
       unfetch: 4.2.0
       util-deprecate: 1.0.2
-      webpack: 5.99.8(webpack-cli@6.0.1)
+      webpack: 5.99.8(webpack-cli@4.10.0)
     optionalDependencies:
       typescript: 4.9.5
 
@@ -59730,11 +59784,11 @@ snapshots:
 
   react-merge-refs@1.1.0: {}
 
-  react-monaco-editor@0.58.0(monaco-editor@0.52.2)(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
+  react-monaco-editor@0.58.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       monaco-editor: 0.52.2
-      react: 17.0.2
-      react-dom: 17.0.2(react@17.0.2)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   react-redux@9.2.0(@types/react@18.2.79)(react@18.2.0)(redux@5.0.1):
     dependencies:
