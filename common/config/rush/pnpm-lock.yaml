@@ -1126,8 +1126,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.2.0)
       vscode-languageserver-types:
         specifier: ^3.17.5
         version: 3.17.5
@@ -1135,35 +1135,35 @@ importers:
         specifier: ^0.4.5
         version: 0.4.5
       vscode-messenger-webview:
-        specifier: ^0.4.5
-        version: 0.4.5
+        specifier: ^0.5.1
+        version: 0.5.1
     devDependencies:
       '@types/react':
-        specifier: ^18.2.33
-        version: 18.2.79
+        specifier: ^18.3.21
+        version: 18.3.21
       '@types/react-dom':
-        specifier: ^18.2.14
-        version: 18.2.25
+        specifier: ^18.3.7
+        version: 18.3.7(@types/react@18.3.21)
       '@typescript-eslint/eslint-plugin':
-        specifier: ^6.9.1
-        version: 6.19.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)
+        specifier: ^8.32.1
+        version: 8.32.1(@typescript-eslint/parser@8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3))(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)
       '@typescript-eslint/parser':
-        specifier: ^6.9.1
-        version: 6.21.0(eslint@8.57.1)(typescript@5.8.3)
+        specifier: ^8.32.1
+        version: 8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)
       copyfiles:
         specifier: ^2.4.1
         version: 2.4.1
       eslint:
-        specifier: ^8.52.0
-        version: 8.57.1
+        specifier: ^9.27.0
+        version: 9.27.0(jiti@1.21.7)
       eslint-plugin-react-hooks:
-        specifier: ^4.6.0
-        version: 4.6.2(eslint@8.57.1)
+        specifier: ^5.2.0
+        version: 5.2.0(eslint@9.27.0(jiti@1.21.7))
       eslint-plugin-react-refresh:
-        specifier: ^0.4.4
-        version: 0.4.20(eslint@8.57.1)
+        specifier: ^0.4.20
+        version: 0.4.20(eslint@9.27.0(jiti@1.21.7))
       typescript:
-        specifier: ^5.2.2
+        specifier: ^5.8.3
         version: 5.8.3
 
   ../../workspaces/ballerina/ballerina-side-panel:
@@ -25747,6 +25747,9 @@ packages:
   vscode-messenger-webview@0.4.5:
     resolution: {integrity: sha512-pzGB6HoTfPszMF4HQG+u5WMJ959iGLmow6ehYVTZnZjZ+phBKEBtpTYAjJSNotyUfZJ58NCdq5+ZSvMgkAuAJw==}
 
+  vscode-messenger-webview@0.5.1:
+    resolution: {integrity: sha512-3IXFORcjD3c9khECdqRUeBh05mt0AZA/86FhY/MlCRB2YHGzqpJeD/5rRX92fO2M42rUjXLi5bnzmXSvVGXadw==}
+
   vscode-messenger@0.4.5:
     resolution: {integrity: sha512-a6e54dpPRi/ITmVex49LGU6YXlqcuxGPlDPauvZig20G1D1/QD2E8GfhtvlTj3ml5aU/QV3LHghyepq3riy7sw==}
 
@@ -40486,7 +40489,7 @@ snapshots:
       react-docgen-typescript: 2.2.2(typescript@4.9.5)
       tslib: 2.8.1
       typescript: 4.9.5
-      webpack: 5.99.8(webpack-cli@5.1.4)
+      webpack: 5.99.8(webpack-cli@4.10.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -43556,6 +43559,23 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@typescript-eslint/eslint-plugin@8.32.1(@typescript-eslint/parser@8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3))(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)':
+    dependencies:
+      '@eslint-community/regexpp': 4.12.1
+      '@typescript-eslint/parser': 8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)
+      '@typescript-eslint/scope-manager': 8.32.1
+      '@typescript-eslint/type-utils': 8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)
+      '@typescript-eslint/utils': 8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)
+      '@typescript-eslint/visitor-keys': 8.32.1
+      eslint: 9.27.0(jiti@1.21.7)
+      graphemer: 1.4.0
+      ignore: 7.0.4
+      natural-compare: 1.4.0
+      ts-api-utils: 2.1.0(typescript@5.8.3)
+      typescript: 5.8.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@typescript-eslint/experimental-utils@2.34.0(eslint@6.8.0)(typescript@3.9.10)':
     dependencies:
       '@types/json-schema': 7.0.15
@@ -43719,6 +43739,18 @@ snapshots:
       debug: 4.4.1(supports-color@5.5.0)
       eslint: 9.27.0(jiti@1.21.7)
       typescript: 4.9.5
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/parser@8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)':
+    dependencies:
+      '@typescript-eslint/scope-manager': 8.32.1
+      '@typescript-eslint/types': 8.32.1
+      '@typescript-eslint/typescript-estree': 8.32.1(typescript@5.8.3)
+      '@typescript-eslint/visitor-keys': 8.32.1
+      debug: 4.4.1(supports-color@5.5.0)
+      eslint: 9.27.0(jiti@1.21.7)
+      typescript: 5.8.3
     transitivePeerDependencies:
       - supports-color
 
@@ -43896,6 +43928,17 @@ snapshots:
       eslint: 9.27.0(jiti@1.21.7)
       ts-api-utils: 2.1.0(typescript@4.9.5)
       typescript: 4.9.5
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/type-utils@8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)':
+    dependencies:
+      '@typescript-eslint/typescript-estree': 8.32.1(typescript@5.8.3)
+      '@typescript-eslint/utils': 8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)
+      debug: 4.4.1(supports-color@5.5.0)
+      eslint: 9.27.0(jiti@1.21.7)
+      ts-api-utils: 2.1.0(typescript@5.8.3)
+      typescript: 5.8.3
     transitivePeerDependencies:
       - supports-color
 
@@ -44250,6 +44293,17 @@ snapshots:
       '@typescript-eslint/typescript-estree': 8.32.1(typescript@4.9.5)
       eslint: 9.27.0(jiti@1.21.7)
       typescript: 4.9.5
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/utils@8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)':
+    dependencies:
+      '@eslint-community/eslint-utils': 4.7.0(eslint@9.27.0(jiti@1.21.7))
+      '@typescript-eslint/scope-manager': 8.32.1
+      '@typescript-eslint/types': 8.32.1
+      '@typescript-eslint/typescript-estree': 8.32.1(typescript@5.8.3)
+      eslint: 9.27.0(jiti@1.21.7)
+      typescript: 5.8.3
     transitivePeerDependencies:
       - supports-color
 
@@ -59035,6 +59089,12 @@ snapshots:
       react: 18.2.0
       scheduler: 0.23.2
 
+  react-dom@18.3.1(react@18.2.0):
+    dependencies:
+      loose-envify: 1.4.0
+      react: 18.2.0
+      scheduler: 0.23.2
+
   react-dom@18.3.1(react@18.3.1):
     dependencies:
       loose-envify: 1.4.0
@@ -64305,6 +64365,10 @@ snapshots:
   vscode-messenger-webview@0.4.5:
     dependencies:
       vscode-messenger-common: 0.4.5
+
+  vscode-messenger-webview@0.5.1:
+    dependencies:
+      vscode-messenger-common: 0.5.1
 
   vscode-messenger@0.4.5:
     dependencies:
