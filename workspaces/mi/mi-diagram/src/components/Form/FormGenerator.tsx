@@ -115,6 +115,7 @@ export interface Element {
     viewDisplayName?: string;
     expressionType?: 'xpath/jsonPath' | 'synapse';
     supportsAIValues?: boolean;
+    rowCount?: number;
 }
 
 interface ExpressionValueWithSetter {
@@ -595,6 +596,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 field.onChange(e);
                             }}
                             required={element.required === 'true'}
+                            nullable={element.required === 'false'}
                             allowItemCreate={false}
                         />
                     </>);
@@ -609,6 +611,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         labelAdornment={helpTipElement}
                         required={isRequired}
                         errorMsg={errorMsg}
+                        editorSx={{ overflow: "auto", height: element.rowCount ? `${element.rowCount * 25}px` : '100px' }}
                     />
                 );
             case 'popUp':
