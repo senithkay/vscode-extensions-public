@@ -229,18 +229,6 @@ export function FormGenerator(props: FormGeneratorProps) {
             });
     }, []);
 
-    useEffect(() => {
-        setTimeout(() => {
-            setShowGeneratedValuesIdenticalMessage(false);
-        }, 5000);
-    }, [showGeneratedValuesIdenticalMessage]);
-
-    useEffect(() => {
-        setTimeout(() => {
-            setGeneratingError(false);
-        }, 5000);
-    }, [generatingError]);
-
     function processElement(element: any): any {
         const { type, ...cleanedElement } = element;
         if (Array.isArray(element?.value?.elements)) {

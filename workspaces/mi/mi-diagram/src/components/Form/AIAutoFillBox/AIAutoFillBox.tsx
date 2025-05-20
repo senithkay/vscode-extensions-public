@@ -195,6 +195,7 @@ const AIAutoFillBox: React.FC<Props> = ({
                                             setGeneratedFormDetails(null);
                                             setVisibleDetails({});
                                             setShowGeneratedValuesIdenticalMessage(false);
+                                            setGeneratingError(false);
                                         }}>
                                         <Codicon
                                             name="chrome-close"
