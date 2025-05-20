@@ -9,7 +9,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { FlexRow, Footer, StyledTransParentButton, RippleLoader, FlexColumn } from "../styles";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ToggleSwitch } from "@wso2-enterprise/ui-toolkit";
 import SuggestionsList from "./SuggestionsList";
 import { useMICopilotContext } from "./MICopilotContext";
 import { handleFileAttach } from "../utils";
@@ -58,6 +58,13 @@ const AIChatFooter: React.FC = () => {
     const [placeholder, setPlaceholder] = useState(placeholderString);
     const [charIndex, setCharIndex] = useState(0);
     const [showDots, setShowDots] = useState(false);
+
+    const [thinkingChecked, setChecked] = useState(false);
+
+    const toggleThinkingSelection = () => {
+        setChecked(!thinkingChecked);
+        console.log("Thinking mode toggled:", !thinkingChecked);
+    };
 
     // Handle text input keydown events
     const handleTextKeydown = (event: React.KeyboardEvent) => {
@@ -486,6 +493,23 @@ const AIChatFooter: React.FC = () => {
                                 {fileUploadStatus.text}
                             </span>
                         )}
+                    </div>
+                    <div 
+                        style={{ 
+                            display: "flex", 
+                            alignItems: "center", 
+                            gap: "5px", 
+                            backgroundColor: isDarkMode 
+                                ? "var(--vscode-editor-background)" 
+                                : "var(--vscode-list-hoverBackground)",
+                            padding: "4px 10px",
+                            borderRadius: "12px",
+                            border: "1px solid var(--vscode-editor-lineHighlightBorder)",
+                            fontSize: "10px"
+                        }}
+                    >
+                        <span>Thinking Mode</span>
+                        <ToggleSwitch checked={thinkingChecked} onChange={toggleThinkingSelection} sx={{ fontSize: 8 }} />
                     </div>
                     <input
                         id="fileInput"

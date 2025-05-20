@@ -51,6 +51,7 @@ export * from './components/Drawer/Drawer';
 export * from './components/Alert/Alert';
 export * from './components/MultiSelect/MultiSelect';
 export * from './components/Toggle/Toggle';
+export * from './components/ToggleSwitch/ToggleSwitch';
 export * from './components/ExpressionEditor';
 export * from './components/PromptTextField/PromptTextField';
 export * from './components/Commons/Overlay';
