@@ -108,6 +108,7 @@ export function MediatorForm(props: MediatorFormProps) {
     return (
         <FormContainer>
             <FormGenerator
+                documentUri={documentUri}
                 formData={mediatorData}
                 control={control}
                 errors={errors}

@@ -78,9 +78,10 @@ export interface ParameterManagerProps {
     parameters?: Param[];
     nodeRange?: Range;
     setParameters?: (params: Param[]) => void;
+    documentUri?: string;
 }
 const ParameterManager = (props: ParameterManagerProps) => {
-    const { formData, nodeRange, parameters, setParameters } = props;
+    const { documentUri, formData, nodeRange, parameters, setParameters } = props;
     const { addParamText, noDataText, readonly, tableKey, tableValue } = formData;
     const { control, setValue, getValues, reset, watch, handleSubmit, formState: { errors } } = useForm();
 
@@ -138,6 +139,7 @@ const ParameterManager = (props: ParameterManagerProps) => {
     const Form = () => {
         return <FormWrapper id='parameterManagerForm'>
             <FormGenerator
+                documentUri={documentUri}
                 formData={formData}
                 range={nodeRange}
                 control={control}
