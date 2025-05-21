@@ -528,14 +528,14 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                             height: '26px',
                             width: '22px',
                             borderRadius: '2px',
-                            backgroundColor: isAIFill ? Colors.PRIMARY : Colors.SECONDARY_BUTTON,
+                            backgroundColor: isAIFill ? Colors.PRIMARY : "transparent",
                         }}
                     >
                         <Codicon
                             name={"wand"}
                             iconSx={{
                                 fontSize: '12px',
-                                color: Colors.ON_PRIMARY
+                                color: isAIFill ? "white" : Colors.PRIMARY,
                             }}
                             sx={{ height: '14px', width: '16px' }}
                         />
