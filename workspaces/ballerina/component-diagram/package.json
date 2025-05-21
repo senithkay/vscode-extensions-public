@@ -21,8 +21,8 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "react": "~18.3.1",
-        "react-dom": "~18.3.1",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
         "@projectstorm/geometry": "^7.0.3",
         "@projectstorm/react-canvas-core": "^7.0.3",
         "@projectstorm/react-diagrams": "^7.0.4",
@@ -39,9 +39,9 @@
     },
     "devDependencies": {
         "@storybook/react": "^6.5.16",
-        "@types/react": "^17.0.85",
-        "@types/react-dom": "^17.0.26",
-        "typescript": "^5.8.3",
+        "@types/react": "18.2.0",
+        "@types/react-dom": "18.2.0",
+        "typescript": "5.8.3",
         "@types/dagre": "~0.7.52",
         "@types/lodash": "~4.17.16",
         "copyfiles": "^2.4.1"

@@ -77,6 +77,6 @@ module.exports = {
         new webpack.ProvidePlugin({
             process: "process/browser",
         }),
-        new ReactRefreshWebpackPlugin(),
-    ],
+        !process.env.CI & new ReactRefreshWebpackPlugin(),
+    ].filter(Boolean),
 };

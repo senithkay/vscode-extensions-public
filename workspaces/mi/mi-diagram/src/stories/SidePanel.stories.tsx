@@ -7,7 +7,7 @@ export default {
     component: SidePanelList,
 } as Meta;
 
-const Template: Story<SidePanelListProps> = (args: React.JSX.IntrinsicAttributes & SidePanelListProps) => <SidePanelList {...args} />;
+const Template: Story<SidePanelListProps> = (args: JSX.IntrinsicAttributes & SidePanelListProps) => <SidePanelList {...args} />;
 
 export const Primary = Template.bind({});
 Primary.args = {

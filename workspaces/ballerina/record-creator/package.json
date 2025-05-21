@@ -14,8 +14,8 @@
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
     },
     "dependencies": {
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
         "@wso2-enterprise/syntax-tree": "workspace:*",
         "@wso2-enterprise/ballerina-rpc-client": "workspace:*",
         "@wso2-enterprise/ballerina-core": "workspace:*",
@@ -37,10 +37,10 @@
     },
     "devDependencies": {
         "@types/node": "^22.15.18",
-        "@types/react": "^18.3.21",
-        "@types/react-dom": "^19.1.5",
+        "@types/react": "18.2.0",
+        "@types/react-dom": "18.2.0",
         "react-scripts-ts": "3.1.0",
-        "typescript": "^5.8.3",
+        "typescript": "5.8.3",
         "copyfiles": "~2.4.1",
         "eslint": "~9.26.0"
     },
