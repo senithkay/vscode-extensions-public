@@ -16,35 +16,40 @@ export default function createTests() {
         tag: '@group1',
     }, async () => {
         initTest();
-        test('Create Service', async () => {
+        test('Create Service', async ({ }, testInfo) => {
+            const testAttempt = testInfo.retry + 1;
+            console.log('Creating a new service in test attempt: ', testAttempt);
             // Creating a HTTP Service
             await addArtifact('HTTP Service', 'http-service-card');
             const artifactWebView = await switchToIFrame('Ballerina Integrator', page.page);
             if (!artifactWebView) {
                 throw new Error('Ballerina Integrator webview not found');
             }
+            const sampleName = `/sample${testAttempt}`;
             const form = new Form(page.page, 'Ballerina Integrator', artifactWebView);
             await form.switchToFormView(false, artifactWebView);
             await form.fill({
                 values: {
                     'Service base path*': {
                         type: 'input',
-                        value: '/sample',
+                        value: sampleName,
                     }
                 }
             });
             await form.submit('Create');
-            const context = artifactWebView.locator(`text=/sample${testAttempt}`);
+            const context = artifactWebView.locator(`text=${sampleName}`);
             await context.waitFor();
             const projectExplorer = new ProjectExplorer(page.page);
-            await projectExplorer.findItem(['sample', 'HTTP Service - /sample'], true);
+            await projectExplorer.findItem(['sample', `HTTP Service - ${sampleName}`], true);
             const updateArtifactWebView = await switchToIFrame('Ballerina Integrator', page.page);
             if (!updateArtifactWebView) {
                 throw new Error('Ballerina Integrator webview not found');
             }
         });
 
-        test('Editing Service', async () => {
+        test('Editing Service', async ({ }, testInfo) => {
+            const testAttempt = testInfo.retry + 1;
+            console.log('Editing a service in test attempt: ', testAttempt);
             const artifactWebView = await switchToIFrame('Ballerina Integrator', page.page);
             if (!artifactWebView) {
                 throw new Error('Ballerina Integrator webview not found');
@@ -54,16 +59,17 @@ export default function createTests() {
             await editBtn.click({ force: true });
             const form = new Form(page.page, 'Ballerina Integrator', artifactWebView);
             await form.switchToFormView(false, artifactWebView);
+            const sampleName = `/newSample${testAttempt}`;
             await form.fill({
                 values: {
                     'Service base path*': {
                         type: 'input',
-                        value: '/newSample',
+                        value: sampleName,
                     }
                 }
             });
             await form.submit('Save');
-            const context = artifactWebView.locator(`text=/newSample${testAttempt}`);
+            const context = artifactWebView.locator(`text=${sampleName}`);
             await context.waitFor();
         });
     });

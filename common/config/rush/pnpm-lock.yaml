@@ -2291,7 +2291,7 @@ importers:
 
   ../../workspaces/common-libs/playwright-vscode-tester:
     specifiers:
-      '@playwright/test': ~1.46.0
+      '@playwright/test': ~1.52.0
       '@types/fs-extra': ~11.0.1
       '@types/node': ~20.4.7
       '@types/unzipper': ~0.10.6
@@ -2302,18 +2302,18 @@ importers:
       fs-extra: ~11.1.1
       got: v11.8.3
       hpagent: ~1.2.0
-      playwright-core: ~1.46.0
+      playwright-core: ~1.52.0
       targz: ~1.0.1
       typescript: ^4.9.4
       unzipper: ~0.10.14
     dependencies:
-      '@playwright/test': 1.46.1
+      '@playwright/test': 1.52.0
       '@vscode/vsce': 2.21.1
       compare-versions: 6.0.0
       fs-extra: 11.1.1
       got: 11.8.3
       hpagent: 1.2.0
-      playwright-core: 1.46.1
+      playwright-core: 1.52.0
       targz: 1.0.1
       unzipper: 0.10.14
     devDependencies:
@@ -3005,7 +3005,7 @@ importers:
       '@babel/core': ^7.24.4
       '@babel/plugin-transform-typescript': ^7.16.1
       '@iarna/toml': ^2.2.5
-      '@playwright/test': ~1.46.0
+      '@playwright/test': ~1.52.0
       '@types/fs-extra': ~11.0.4
       '@types/json-schema': 7.0.15
       '@types/lodash': ~4.14.199
@@ -3046,6 +3046,7 @@ importers:
       mustache: ~4.2.0
       node-fetch: ~2.6.2
       node-loader: ~2.0.0
+      playwright-core: ~1.52.0
       portfinder: ^1.0.32
       recast: ^0.20.5
       rimraf: ~5.0.5
@@ -3075,7 +3076,6 @@ importers:
       '@babel/core': 7.24.4
       '@babel/plugin-transform-typescript': 7.23.6_@babel+core@7.24.4
       '@iarna/toml': 2.2.5
-      '@playwright/test': 1.46.1
       '@types/fs-extra': 11.0.4
       '@types/json-schema': 7.0.15
       '@types/lodash': 4.14.202
@@ -3121,6 +3121,7 @@ importers:
       xml2js: 0.6.2
       xstate: 4.38.3
     devDependencies:
+      '@playwright/test': 1.52.0
       '@types/mocha': 10.0.6
       '@types/node': 16.18.79
       '@types/vscode': 1.86.0
@@ -3134,6 +3135,7 @@ importers:
       eslint: 8.56.0
       glob: 10.3.10
       mocha: 10.2.0
+      playwright-core: 1.52.0
       rimraf: 5.0.5
       ts-loader: 9.5.1_jkke4aekx6qisbjiah2hkrbtyy
       ts-morph: 22.0.0
@@ -15402,13 +15404,12 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /@playwright/test/1.46.1:
-    resolution: {integrity: sha512-Fq6SwLujA/DOIvNC2EL/SojJnkKf/rAwJ//APpJJHRyMi1PdKrY3Az+4XNQ51N4RTbItbIByQ0jgd1tayq1aeA==}
+  /@playwright/test/1.52.0:
+    resolution: {integrity: sha512-uh6W7sb55hl7D6vsAeA+V2p5JnlAqzhqFyF0VcJkKZXkgnFcVG9PziERRHQfPLfNGx1C292a4JqbWzhR8L4R1g==}
     engines: {node: '>=18'}
     hasBin: true
     dependencies:
-      playwright: 1.46.1
-    dev: false
+      playwright: 1.52.0
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.11_huwbmoqutg6zralpejlchsnhpu:
     resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
@@ -50085,17 +50086,17 @@ packages:
     hasBin: true
     dev: true
 
-  /playwright-core/1.46.1:
-    resolution: {integrity: sha512-h9LqIQaAv+CYvWzsZ+h3RsrqCStkBHlgo6/TJlFst3cOTlLghBQlJwPOZKQJTKNaD3QIB7aAVQ+gfWbN3NXB7A==}
+  /playwright-core/1.52.0:
+    resolution: {integrity: sha512-l2osTgLXSMeuLZOML9qYODUQoPPnUsKsb5/P6LJ2e6uPKXUdPK5WYhN4z03G+YNbWmGDY4YENauNu4ZKczreHg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  /playwright/1.46.1:
-    resolution: {integrity: sha512-oPcr1yqoXLCkgKtD5eNUPLiN40rYEM39odNpIb6VE6S7/15gJmA1NzVv6zJYusV0e7tzvkU/utBFNa/Kpxmwng==}
+  /playwright/1.52.0:
+    resolution: {integrity: sha512-JAwMNMBlxJ2oD1kce4KPtMkDeKGHQstdpFPcPH3maElAXon/QZeTvtsfXmTMRyO9TslfoYOXkSsvao2nE1ilTw==}
     engines: {node: '>=18'}
     hasBin: true
     dependencies:
-      playwright-core: 1.46.1
+      playwright-core: 1.52.0
     optionalDependencies:
       fsevents: 2.3.2
 
