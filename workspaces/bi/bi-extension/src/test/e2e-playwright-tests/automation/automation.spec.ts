@@ -18,7 +18,7 @@ export default function createTests() {
         test('Create Automation', async () => {
             // Creating a Automation
             await addArtifact('Automation', 'automation');
-            const artifactWebView = await switchToIFrame('Ballerina Integrator', page.page);
+            const artifactWebView = await switchToIFrame('Ballerina Integrator', page.page, 30000);
             if (!artifactWebView) {
                 throw new Error('Ballerina Integrator webview not found');
             }

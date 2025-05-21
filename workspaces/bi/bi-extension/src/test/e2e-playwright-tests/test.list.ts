@@ -31,6 +31,8 @@ test.describe(automation);
 test.afterAll(async () => {
     console.log(`>>> Finished test suite`);
     const dateTime = new Date().toISOString().replace(/:/g, '-');
-    page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.webm`));
+    console.log('>>> Saving video');
     await page.page?.close();
+    page.page.video()?.saveAs(path.join(videosFolder, `test_${dateTime}.webm`));
+    console.log('>>> Video saved');
 });
