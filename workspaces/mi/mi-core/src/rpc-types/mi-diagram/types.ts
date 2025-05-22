@@ -1671,6 +1671,7 @@ export interface DevantMetadata {
     hasLocalChanges?: boolean;
 }
 
+/* eslint-disable-next-line @typescript-eslint/no-empty-object-type */
 export interface DeployProjectRequest {
 }
 export interface DeployProjectResponse {
@@ -1745,6 +1746,7 @@ export interface UpdateTestCaseRequest {
     range?: TagRange
 }
 
+/* eslint-disable-next-line @typescript-eslint/no-empty-object-type */
 export interface UpdateTestCaseResponse {
 }
 

@@ -3945,7 +3945,7 @@ importers:
   ../../workspaces/mi/mi-core:
     dependencies:
       '@types/vscode-webview':
-        specifier: ^1.57.3
+        specifier: ^1.57.5
         version: 1.57.5
       '@wso2-enterprise/mi-syntax-tree':
         specifier: workspace:*
@@ -3954,18 +3954,24 @@ importers:
         specifier: ~3.17.5
         version: 3.17.5
       vscode-messenger-common:
-        specifier: ^0.4.5
-        version: 0.4.5
+        specifier: ^0.5.1
+        version: 0.5.1
     devDependencies:
+      '@eslint/eslintrc':
+        specifier: ~3.3.1
+        version: 3.3.1
+      '@eslint/js':
+        specifier: ~9.27.0
+        version: 9.27.0
       '@typescript-eslint/eslint-plugin':
-        specifier: ^6.9.1
-        version: 6.19.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)
+        specifier: ^8.32.1
+        version: 8.32.1(@typescript-eslint/parser@8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3))(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)
       '@typescript-eslint/parser':
-        specifier: ^6.9.1
-        version: 6.21.0(eslint@8.57.1)(typescript@5.8.3)
+        specifier: ^8.32.1
+        version: 8.32.1(eslint@9.27.0(jiti@1.21.7))(typescript@5.8.3)
       eslint:
-        specifier: ^8.52.0
-        version: 8.57.1
+        specifier: ^9.27.0
+        version: 9.27.0(jiti@1.21.7)
       typescript:
         specifier: 5.8.3
         version: 5.8.3
@@ -4613,7 +4619,7 @@ importers:
         version: 2.9.11(react-hook-form@7.56.4(react@18.2.0))
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: ~0.6.0
-        version: 0.6.0(@types/webpack@5.28.5(webpack-cli@6.0.1))(react-refresh@0.17.0)(type-fest@4.41.0)(webpack-dev-server@4.15.2)(webpack-hot-middleware@2.26.1)(webpack@5.99.9)
+        version: 0.6.0(@types/webpack@5.28.5(webpack-cli@6.0.1))(react-refresh@0.17.0)(type-fest@4.41.0)(webpack-dev-server@5.2.1)(webpack-hot-middleware@2.26.1)(webpack@5.99.9)
       '@tanstack/query-core':
         specifier: ^5.76.0
         version: 5.76.0
@@ -4714,8 +4720,8 @@ importers:
         specifier: ~15.6.1
         version: 15.6.1(react@18.2.0)
       swagger-ui-react:
-        specifier: 5.21.0
-        version: 5.21.0(@types/react@18.2.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: 5.22.0
+        version: 5.22.0(@types/react@18.2.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       upath:
         specifier: ~2.0.1
         version: 2.0.1
@@ -4754,7 +4760,7 @@ importers:
         specifier: ~4.17.17
         version: 4.17.17
       '@types/mustache':
-        specifier: ~4.2.5
+        specifier: ~4.2.6
         version: 4.2.6
       '@types/node':
         specifier: ^22.15.21
@@ -4781,7 +4787,7 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0(webpack@5.99.9)
       ts-loader:
-        specifier: ^9.5.0
+        specifier: ^9.5.2
         version: 9.5.2(typescript@5.8.3)(webpack@5.99.9)
       typescript:
         specifier: 5.8.3
@@ -4790,14 +4796,14 @@ importers:
         specifier: ~3.17.5
         version: 3.17.5
       webpack:
-        specifier: ^5.56.0
+        specifier: ^5.99.9
         version: 5.99.9(webpack-cli@6.0.1)
       webpack-cli:
         specifier: ~6.0.1
-        version: 6.0.1(webpack-dev-server@4.15.2)(webpack@5.99.9)
+        version: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9)
       webpack-dev-server:
-        specifier: ^4.11.1
-        version: 4.15.2(webpack-cli@6.0.1)(webpack@5.99.9)
+        specifier: ^5.2.1
+        version: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.9)
       yaml:
         specifier: ~2.8.0
         version: 2.8.0
@@ -10483,14 +10489,26 @@ packages:
   '@swagger-api/apidom-ast@1.0.0-beta.37':
     resolution: {integrity: sha512-PeFTmtt1TGd5lks48JWcTj3sIytifuQLXfN5xwbxhB98z1J/UvFUV7M+Vg6E/oJsvUaI7TyiaTcUAZgIal/57w==}
 
+  '@swagger-api/apidom-ast@1.0.0-beta.39':
+    resolution: {integrity: sha512-EWeSOtvI8XpbYMRkDyu4qAIlivhcplrskpau2cbrWfXGBjrqEtmHqWlbJ9xoXJbNshbIcZ0Z77QdxicimGjs0w==}
+
   '@swagger-api/apidom-core@1.0.0-beta.37':
     resolution: {integrity: sha512-6ywaTg/95lZKV4c5cvPJ1vZWmUyN83G0qhe8VItsv8O7iFchaNRslgftoga03V6J8TGVlvAvWBQJ7WY/u2iUcQ==}
+
+  '@swagger-api/apidom-core@1.0.0-beta.39':
+    resolution: {integrity: sha512-tYZSVA+uDFvBJmnP104d8Qb/mye8B6ykNviohHAngHsy8ElcOPzSi5GKwwmJgf3taWzipMqWNM0ch5KytbXTqw==}
 
   '@swagger-api/apidom-error@1.0.0-beta.37':
     resolution: {integrity: sha512-goMIrcF02RFMW9uAfT0jWkp9gDNMOPqA2NJgb4bsEoBQL9uSXNnIMUEV3jF0fH4ZIanyqsar4ygznIKHC73Fdw==}
 
+  '@swagger-api/apidom-error@1.0.0-beta.39':
+    resolution: {integrity: sha512-vQ3xQaRQGP9kNNBEDcFCmUd2PT9rCtYdkCyqYWZMxHBm5dXSBC/dQaC5VN1DbqQygE16fSQC+c5sqOrwg5d5WQ==}
+
   '@swagger-api/apidom-json-pointer@1.0.0-beta.37':
     resolution: {integrity: sha512-QZJScrxtG4J3oGdwOjV+X0bNdEh/Lggwy5zjnAFDajblRuqu6SADoIAEqrSsKPZzPwCuJ2N1haFpfJc6Z3c7Gg==}
+
+  '@swagger-api/apidom-json-pointer@1.0.0-beta.39':
+    resolution: {integrity: sha512-gPDNT+MCs/B1XYuNpmnz0rOHQ0ssN9YjVDqeGkX61v03BLJUF/JZKMo3J3FA2mgKb6ap+kRHzpzw5PpHLwRKAw==}
 
   '@swagger-api/apidom-ns-api-design-systems@1.0.0-beta.37':
     resolution: {integrity: sha512-+/swYDxqNhjGxCdRG34hqmuTGNg/WCI+Je1CcmL+MlEvB2eiEAZ/KmhmvIES/P/6V1uPdFUsNOdQJ+oy8g7OJQ==}
@@ -10504,17 +10522,32 @@ packages:
   '@swagger-api/apidom-ns-json-schema-2019-09@1.0.0-beta.37':
     resolution: {integrity: sha512-NCkbEiUILg83pl4KR4/YYsEk6QaAC4GajoFtq2/6cUktv3DgRRYx4P1A6UvOaszBQDG7PKgda3fP71CEwyd/lw==}
 
+  '@swagger-api/apidom-ns-json-schema-2019-09@1.0.0-beta.39':
+    resolution: {integrity: sha512-I/XP4zbrWAmnq2KWPtbb9DKLWgzYFovIiSQOyh47bJqbYgz64/IhoZb/uGihZojVVHSqeeJH9o6JOahqHQzKOw==}
+
   '@swagger-api/apidom-ns-json-schema-2020-12@1.0.0-beta.37':
     resolution: {integrity: sha512-knPfySy8l9p1hDh2aNo8QgyLxWimeXo6SOzsw43Pv/1eoxn/9N/yCnwnRn4EcbupufFl17CsQNYS9avs2i3Few==}
+
+  '@swagger-api/apidom-ns-json-schema-2020-12@1.0.0-beta.39':
+    resolution: {integrity: sha512-9bpMp96fb76lOqeggtyCU457K/XBLyw3O9fxdVS3Tevhf8P3SJ6QpabmweRb6kFt4vI3+DiBschJGn0iqmlcXw==}
 
   '@swagger-api/apidom-ns-json-schema-draft-4@1.0.0-beta.37':
     resolution: {integrity: sha512-33AKN2yeRx25Hl/ivK/R+Ni9Ih6V7XGI28AcQs9Ej+96FegRqdMKLypHOEEF7LZZHmqd2Ioij/GZJwH+t29MTg==}
 
+  '@swagger-api/apidom-ns-json-schema-draft-4@1.0.0-beta.39':
+    resolution: {integrity: sha512-F25tm/nwPl1rRnUHzaVw4SAeASodO60oAtWX+GF3K61WEx/Aao4Maldv3CQtAoUk8L0Ml0l1KZL00sgfikwqlw==}
+
   '@swagger-api/apidom-ns-json-schema-draft-6@1.0.0-beta.37':
     resolution: {integrity: sha512-d5iR8Gbnm2YrWgXmT1Hbr2I66XlumC9073O5Cf170Jj5QUbIcAGlsIFDYmG+DvWQA0pPD4xONPyoEYezagivew==}
 
+  '@swagger-api/apidom-ns-json-schema-draft-6@1.0.0-beta.39':
+    resolution: {integrity: sha512-E2fQQHWIRtbM5C1m1EL95MQNDPL98mlgYomPQDDUEFbYrH3u9BQGAgpIu4KuYasKquyuhx9YXqS/jLRhMCRfAQ==}
+
   '@swagger-api/apidom-ns-json-schema-draft-7@1.0.0-beta.37':
     resolution: {integrity: sha512-x3k/O0x2u3WrvU1ZhIO6DQ15nVuj9tARBQdDHJnGOK5PuD6Dh04+7pLYiOrjRyukLzHcKusoTgxKd7bFNjobww==}
+
+  '@swagger-api/apidom-ns-json-schema-draft-7@1.0.0-beta.39':
+    resolution: {integrity: sha512-mhzb7n3pm0yfYuM9bZowYMp6L61Cz+HrbjBowUIt5iOMMAATQd6x209pj81hnSmgHmEJCgv+8IO9dvweme698A==}
 
   '@swagger-api/apidom-ns-openapi-2@1.0.0-beta.37':
     resolution: {integrity: sha512-w+X20EbyMUDeRJH+k5gv0XRfZgrBNZD67OjQqwJhSDACa9DWbNryD878BMnZQVuHbZLDFdqRzJqz+UM9687/dQ==}
@@ -10522,8 +10555,14 @@ packages:
   '@swagger-api/apidom-ns-openapi-3-0@1.0.0-beta.37':
     resolution: {integrity: sha512-Hq1UwZ5J0XhWZU1a8XIg43xY03mKACO8u9SYIjkVwWvT5c3SK8lkf/ES3fpADExIyUIv9Z2wayIzvHTGMoEsWw==}
 
+  '@swagger-api/apidom-ns-openapi-3-0@1.0.0-beta.39':
+    resolution: {integrity: sha512-lvNlUtCmyHH8+52qOhgXXdzy4HEYA+t7xnFNvDb6dtP+epXCexux3uRs8+xEYBHo/WqUGzjdwd0qKFRgyP7Lrw==}
+
   '@swagger-api/apidom-ns-openapi-3-1@1.0.0-beta.37':
     resolution: {integrity: sha512-ZhT7EvR4lVPvP541KiXtV2uGOF1/tWnVetpe4x1NLZTAXAXnWFfZVfPS2I7SPd8mavKB7Btk++Xjlv+O+82W+w==}
+
+  '@swagger-api/apidom-ns-openapi-3-1@1.0.0-beta.39':
+    resolution: {integrity: sha512-sXMJxTGL2F36Uyv9iqvPwvzsD5NJM/dJ52tUuiJP8h4RqXwjrOC86hqf1/Xk/rxgpZShhW4PNEqifvPq/Mto3w==}
 
   '@swagger-api/apidom-parser-adapter-api-design-systems-json@1.0.0-beta.37':
     resolution: {integrity: sha512-PtDlmEY9cypb5KSrJfd2YBx0kBRxjliWmTcQ4PGSc2ZaYVnJDccsUPcnQ+rtY4s0PkYqUPVlSlxp08uurq34bA==}
@@ -10569,6 +10608,9 @@ packages:
 
   '@swagger-api/apidom-reference@1.0.0-beta.37':
     resolution: {integrity: sha512-5rvC7oTgkcOGKPpBh3fskKV/meE9mSP8iaAP5b+HHoT72O24Me7AkVs0wiLthM3/NggEZDKjwfwG491fQHxotg==}
+
+  '@swagger-api/apidom-reference@1.0.0-beta.39':
+    resolution: {integrity: sha512-PrV2/3Z6XGJPj4fv1JazY1dKjlnAg/BN22UQdUOzA5/A0TkfbImt8uVQuVzQSL2P8RA6G9TDsdpOalj80N47rw==}
 
   '@swaggerexpert/cookie@2.0.2':
     resolution: {integrity: sha512-DPI8YJ0Vznk4CT+ekn3rcFNq1uQwvUHZhH6WvTSPD0YKBIlMS9ur2RYKghXuxxOiqOam/i4lHJH4xTIiTgs3Mg==}
@@ -23227,6 +23269,10 @@ packages:
     resolution: {integrity: sha512-cMGfwNyfDZ/nzJ2k2M+ClthBIh//GlZl1JEf47Uoa9XR11bz8Pa2T2wQO4bVrRdH48LrIDWJahQziKo3MjhsWg==}
     hasBin: true
 
+  short-unique-id@5.3.2:
+    resolution: {integrity: sha512-KRT/hufMSxXKEDSQujfVE0Faa/kZ51ihUcZQAcmP04t00DvPj7Ox5anHke1sJYUtzSuiT/Y5uyzg/W7bBEGhCg==}
+    hasBin: true
+
   side-channel-list@1.0.0:
     resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
     engines: {node: '>= 0.4'}
@@ -24010,8 +24056,17 @@ packages:
   swagger-client@3.35.0:
     resolution: {integrity: sha512-AOs1GV0ucu7rNluT0tq0kSslEBvPhgIznwZnqs0fl+98MbpV4NtzbnHypRG1I93sS79Jj2bPtqhzujtnSS049w==}
 
+  swagger-client@3.35.3:
+    resolution: {integrity: sha512-4bO+dhBbasP485Ak67o46cWNVUnV0/92ypb2997bhvxTO2M+IuQZM1ilkN/7nSaiGuxDKJhkuL54I35PVI3AAw==}
+
   swagger-ui-react@5.21.0:
     resolution: {integrity: sha512-lS5paITM1kkcBb/BTTSMHKelh8elHfcuUP4T3R3mO80tDR0AYJL2HR5UdQD6nV1LwdvekzRM8gKjJA6hVayi0A==}
+    peerDependencies:
+      react: '>=16.8.0 <19'
+      react-dom: '>=16.8.0 <19'
+
+  swagger-ui-react@5.22.0:
+    resolution: {integrity: sha512-Y0TEWg2qD4u/dgZ9q9G16yM/Edvyz0ovkIZlpACN8X/2gzSoIzS/fhSpLSJfCOxRt2UqrKmajMB11VK6cGZk2g==}
     peerDependencies:
       react: '>=16.8.0 <19'
       react-dom: '>=16.8.0 <19'
@@ -30232,10 +30287,7 @@ snapshots:
       jest-runner: 25.5.4
       jest-runtime: 25.5.4
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - utf-8-validate
 
   '@jest/test-sequencer@27.5.1':
     dependencies:
@@ -31425,7 +31477,7 @@ snapshots:
     optionalDependencies:
       '@types/webpack': 5.28.5(webpack-cli@6.0.1)
       type-fest: 4.41.0
-      webpack-dev-server: 5.2.1(webpack@5.99.9)
+      webpack-dev-server: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.9)
       webpack-hot-middleware: 2.26.1
 
   '@pmmmwh/react-refresh-webpack-plugin@0.5.16(@types/webpack@5.28.5)(react-refresh@0.11.0)(type-fest@4.41.0)(webpack-hot-middleware@2.26.1)(webpack@5.99.9)':
@@ -31458,10 +31510,10 @@ snapshots:
     optionalDependencies:
       '@types/webpack': 5.28.5(webpack-cli@6.0.1)
       type-fest: 4.41.0
-      webpack-dev-server: 5.2.1(webpack@5.99.9)
+      webpack-dev-server: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.9)
       webpack-hot-middleware: 2.26.1
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.6.0(@types/webpack@5.28.5(webpack-cli@6.0.1))(react-refresh@0.17.0)(type-fest@4.41.0)(webpack-dev-server@4.15.2)(webpack-hot-middleware@2.26.1)(webpack@5.99.9)':
+  '@pmmmwh/react-refresh-webpack-plugin@0.6.0(@types/webpack@5.28.5(webpack-cli@6.0.1))(react-refresh@0.17.0)(type-fest@4.41.0)(webpack-dev-server@5.2.1)(webpack-hot-middleware@2.26.1)(webpack@5.99.9)':
     dependencies:
       anser: 2.3.2
       core-js-pure: 3.42.0
@@ -31474,7 +31526,7 @@ snapshots:
     optionalDependencies:
       '@types/webpack': 5.28.5(webpack-cli@6.0.1)
       type-fest: 4.41.0
-      webpack-dev-server: 4.15.2(webpack-cli@6.0.1)(webpack@5.99.9)
+      webpack-dev-server: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.9)
       webpack-hot-middleware: 2.26.1
 
   '@popperjs/core@2.11.8': {}
@@ -39269,6 +39321,15 @@ snapshots:
       ramda-adjunct: 5.1.0(ramda@0.30.1)
       unraw: 3.0.0
 
+  '@swagger-api/apidom-ast@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-error': 1.0.0-beta.39
+      '@types/ramda': 0.30.2
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+      unraw: 3.0.0
+
   '@swagger-api/apidom-core@1.0.0-beta.37':
     dependencies:
       '@babel/runtime-corejs3': 7.27.1
@@ -39281,7 +39342,23 @@ snapshots:
       short-unique-id: 5.2.0
       ts-mixer: 6.0.4
 
+  '@swagger-api/apidom-core@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-ast': 1.0.0-beta.39
+      '@swagger-api/apidom-error': 1.0.0-beta.39
+      '@types/ramda': 0.30.2
+      minim: 0.23.8
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+      short-unique-id: 5.3.2
+      ts-mixer: 6.0.4
+
   '@swagger-api/apidom-error@1.0.0-beta.37':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+
+  '@swagger-api/apidom-error@1.0.0-beta.39':
     dependencies:
       '@babel/runtime-corejs3': 7.27.1
 
@@ -39290,6 +39367,13 @@ snapshots:
       '@babel/runtime-corejs3': 7.27.1
       '@swagger-api/apidom-core': 1.0.0-beta.37
       '@swagger-api/apidom-error': 1.0.0-beta.37
+      '@swaggerexpert/json-pointer': 2.10.2
+
+  '@swagger-api/apidom-json-pointer@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-core': 1.0.0-beta.39
+      '@swagger-api/apidom-error': 1.0.0-beta.39
       '@swaggerexpert/json-pointer': 2.10.2
 
   '@swagger-api/apidom-ns-api-design-systems@1.0.0-beta.37':
@@ -39337,6 +39421,17 @@ snapshots:
       ramda-adjunct: 5.1.0(ramda@0.30.1)
       ts-mixer: 6.0.4
 
+  '@swagger-api/apidom-ns-json-schema-2019-09@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-core': 1.0.0-beta.39
+      '@swagger-api/apidom-error': 1.0.0-beta.39
+      '@swagger-api/apidom-ns-json-schema-draft-7': 1.0.0-beta.39
+      '@types/ramda': 0.30.2
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+      ts-mixer: 6.0.4
+
   '@swagger-api/apidom-ns-json-schema-2020-12@1.0.0-beta.37':
     dependencies:
       '@babel/runtime-corejs3': 7.27.1
@@ -39348,11 +39443,32 @@ snapshots:
       ramda-adjunct: 5.1.0(ramda@0.30.1)
       ts-mixer: 6.0.4
 
+  '@swagger-api/apidom-ns-json-schema-2020-12@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-core': 1.0.0-beta.39
+      '@swagger-api/apidom-error': 1.0.0-beta.39
+      '@swagger-api/apidom-ns-json-schema-2019-09': 1.0.0-beta.39
+      '@types/ramda': 0.30.2
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+      ts-mixer: 6.0.4
+
   '@swagger-api/apidom-ns-json-schema-draft-4@1.0.0-beta.37':
     dependencies:
       '@babel/runtime-corejs3': 7.27.1
       '@swagger-api/apidom-ast': 1.0.0-beta.37
       '@swagger-api/apidom-core': 1.0.0-beta.37
+      '@types/ramda': 0.30.2
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+      ts-mixer: 6.0.4
+
+  '@swagger-api/apidom-ns-json-schema-draft-4@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-ast': 1.0.0-beta.39
+      '@swagger-api/apidom-core': 1.0.0-beta.39
       '@types/ramda': 0.30.2
       ramda: 0.30.1
       ramda-adjunct: 5.1.0(ramda@0.30.1)
@@ -39369,12 +39485,34 @@ snapshots:
       ramda-adjunct: 5.1.0(ramda@0.30.1)
       ts-mixer: 6.0.4
 
+  '@swagger-api/apidom-ns-json-schema-draft-6@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-core': 1.0.0-beta.39
+      '@swagger-api/apidom-error': 1.0.0-beta.39
+      '@swagger-api/apidom-ns-json-schema-draft-4': 1.0.0-beta.39
+      '@types/ramda': 0.30.2
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+      ts-mixer: 6.0.4
+
   '@swagger-api/apidom-ns-json-schema-draft-7@1.0.0-beta.37':
     dependencies:
       '@babel/runtime-corejs3': 7.27.1
       '@swagger-api/apidom-core': 1.0.0-beta.37
       '@swagger-api/apidom-error': 1.0.0-beta.37
       '@swagger-api/apidom-ns-json-schema-draft-6': 1.0.0-beta.37
+      '@types/ramda': 0.30.2
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+      ts-mixer: 6.0.4
+
+  '@swagger-api/apidom-ns-json-schema-draft-7@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-core': 1.0.0-beta.39
+      '@swagger-api/apidom-error': 1.0.0-beta.39
+      '@swagger-api/apidom-ns-json-schema-draft-6': 1.0.0-beta.39
       '@types/ramda': 0.30.2
       ramda: 0.30.1
       ramda-adjunct: 5.1.0(ramda@0.30.1)
@@ -39403,6 +39541,17 @@ snapshots:
       ramda-adjunct: 5.1.0(ramda@0.30.1)
       ts-mixer: 6.0.4
 
+  '@swagger-api/apidom-ns-openapi-3-0@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-core': 1.0.0-beta.39
+      '@swagger-api/apidom-error': 1.0.0-beta.39
+      '@swagger-api/apidom-ns-json-schema-draft-4': 1.0.0-beta.39
+      '@types/ramda': 0.30.2
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+      ts-mixer: 6.0.4
+
   '@swagger-api/apidom-ns-openapi-3-1@1.0.0-beta.37':
     dependencies:
       '@babel/runtime-corejs3': 7.27.1
@@ -39411,6 +39560,19 @@ snapshots:
       '@swagger-api/apidom-json-pointer': 1.0.0-beta.37
       '@swagger-api/apidom-ns-json-schema-2020-12': 1.0.0-beta.37
       '@swagger-api/apidom-ns-openapi-3-0': 1.0.0-beta.37
+      '@types/ramda': 0.30.2
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+      ts-mixer: 6.0.4
+
+  '@swagger-api/apidom-ns-openapi-3-1@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-ast': 1.0.0-beta.39
+      '@swagger-api/apidom-core': 1.0.0-beta.39
+      '@swagger-api/apidom-json-pointer': 1.0.0-beta.39
+      '@swagger-api/apidom-ns-json-schema-2020-12': 1.0.0-beta.39
+      '@swagger-api/apidom-ns-openapi-3-0': 1.0.0-beta.39
       '@types/ramda': 0.30.2
       ramda: 0.30.1
       ramda-adjunct: 5.1.0(ramda@0.30.1)
@@ -39594,6 +39756,41 @@ snapshots:
       '@swagger-api/apidom-ns-openapi-2': 1.0.0-beta.37
       '@swagger-api/apidom-ns-openapi-3-0': 1.0.0-beta.37
       '@swagger-api/apidom-ns-openapi-3-1': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-api-design-systems-json': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-api-design-systems-yaml': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-arazzo-json-1': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-arazzo-yaml-1': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-asyncapi-json-2': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-asyncapi-yaml-2': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-json': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-openapi-json-2': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-openapi-json-3-0': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-openapi-json-3-1': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-openapi-yaml-2': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-openapi-yaml-3-0': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-openapi-yaml-3-1': 1.0.0-beta.37
+      '@swagger-api/apidom-parser-adapter-yaml-1-2': 1.0.0-beta.37
+    transitivePeerDependencies:
+      - debug
+
+  '@swagger-api/apidom-reference@1.0.0-beta.39':
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@swagger-api/apidom-core': 1.0.0-beta.39
+      '@swagger-api/apidom-error': 1.0.0-beta.39
+      '@types/ramda': 0.30.2
+      axios: 1.9.0
+      minimatch: 7.4.6
+      process: 0.11.10
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+    optionalDependencies:
+      '@swagger-api/apidom-json-pointer': 1.0.0-beta.39
+      '@swagger-api/apidom-ns-arazzo-1': 1.0.0-beta.37
+      '@swagger-api/apidom-ns-asyncapi-2': 1.0.0-beta.37
+      '@swagger-api/apidom-ns-openapi-2': 1.0.0-beta.37
+      '@swagger-api/apidom-ns-openapi-3-0': 1.0.0-beta.37
+      '@swagger-api/apidom-ns-openapi-3-1': 1.0.0-beta.39
       '@swagger-api/apidom-parser-adapter-api-design-systems-json': 1.0.0-beta.37
       '@swagger-api/apidom-parser-adapter-api-design-systems-yaml': 1.0.0-beta.37
       '@swagger-api/apidom-parser-adapter-arazzo-json-1': 1.0.0-beta.37
@@ -41808,7 +42005,7 @@ snapshots:
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)':
     dependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@4.15.2)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9)
 
   '@webpack-cli/info@1.5.0(webpack-cli@4.10.0)':
     dependencies:
@@ -41833,7 +42030,7 @@ snapshots:
   '@webpack-cli/info@3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)':
     dependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@4.15.2)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9)
 
   '@webpack-cli/serve@1.7.0(webpack-cli@4.10.0)':
     dependencies:
@@ -41870,19 +42067,19 @@ snapshots:
       webpack: 5.99.8(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack@5.99.8)
 
-  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@4.15.2)(webpack@5.99.9)':
-    dependencies:
-      webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@4.15.2)(webpack@5.99.9)
-    optionalDependencies:
-      webpack-dev-server: 4.15.2(webpack-cli@6.0.1)(webpack@5.99.9)
-
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.1)(webpack@5.99.8)':
     dependencies:
       webpack: 5.99.8(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.8)
     optionalDependencies:
       webpack-dev-server: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.8)
+
+  '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.1)(webpack@5.99.9)':
+    dependencies:
+      webpack: 5.99.9(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9)
+    optionalDependencies:
+      webpack-dev-server: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.9)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.99.8)':
     dependencies:
@@ -57626,6 +57823,8 @@ snapshots:
 
   short-unique-id@5.2.0: {}
 
+  short-unique-id@5.3.2: {}
+
   side-channel-list@1.0.0:
     dependencies:
       es-errors: 1.3.0
@@ -58678,6 +58877,29 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  swagger-client@3.35.3:
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@scarf/scarf': 1.4.0
+      '@swagger-api/apidom-core': 1.0.0-beta.39
+      '@swagger-api/apidom-error': 1.0.0-beta.39
+      '@swagger-api/apidom-json-pointer': 1.0.0-beta.39
+      '@swagger-api/apidom-ns-openapi-3-1': 1.0.0-beta.39
+      '@swagger-api/apidom-reference': 1.0.0-beta.39
+      '@swaggerexpert/cookie': 2.0.2
+      deepmerge: 4.3.1
+      fast-json-patch: 3.1.1
+      js-yaml: 4.1.0
+      neotraverse: 0.6.18
+      node-abort-controller: 3.1.1
+      node-fetch-commonjs: 3.3.2
+      openapi-path-templating: 2.2.1
+      openapi-server-url-templating: 1.3.0
+      ramda: 0.30.1
+      ramda-adjunct: 5.1.0(ramda@0.30.1)
+    transitivePeerDependencies:
+      - debug
+
   swagger-ui-react@5.21.0(@types/react@18.2.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
       '@babel/runtime-corejs3': 7.27.1
@@ -58711,6 +58933,47 @@ snapshots:
       serialize-error: 8.1.0
       sha.js: 2.4.11
       swagger-client: 3.35.0
+      url-parse: 1.5.10
+      xml: 1.0.1
+      xml-but-prettier: 1.0.1
+      zenscroll: 4.0.2
+    transitivePeerDependencies:
+      - '@types/react'
+      - debug
+
+  swagger-ui-react@5.22.0(@types/react@18.2.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.1
+      '@scarf/scarf': 1.4.0
+      base64-js: 1.5.1
+      classnames: 2.5.1
+      css.escape: 1.5.1
+      deep-extend: 0.6.0
+      dompurify: 3.2.4
+      ieee754: 1.2.1
+      immutable: 3.8.2
+      js-file-download: 0.4.12
+      js-yaml: 4.1.0
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      randexp: 0.5.3
+      randombytes: 2.1.0
+      react: 18.2.0
+      react-copy-to-clipboard: 5.1.0(react@18.2.0)
+      react-debounce-input: 3.3.0(react@18.2.0)
+      react-dom: 18.2.0(react@18.2.0)
+      react-immutable-proptypes: 2.2.0(immutable@3.8.2)
+      react-immutable-pure-component: 2.2.2(immutable@3.8.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react-inspector: 6.0.2(react@18.2.0)
+      react-redux: 9.2.0(@types/react@18.2.0)(react@18.2.0)(redux@5.0.1)
+      react-syntax-highlighter: 15.6.1(react@18.2.0)
+      redux: 5.0.1
+      redux-immutable: 4.0.0(immutable@3.8.2)
+      remarkable: 2.0.1
+      reselect: 5.1.1
+      serialize-error: 8.1.0
+      sha.js: 2.4.11
+      swagger-client: 3.35.3
       url-parse: 1.5.10
       xml: 1.0.1
       xml-but-prettier: 1.0.1
@@ -60773,25 +61036,6 @@ snapshots:
       webpack: 5.99.8(webpack-cli@5.1.4)
       webpack-merge: 5.10.0
 
-  webpack-cli@6.0.1(webpack-dev-server@4.15.2)(webpack@5.99.9):
-    dependencies:
-      '@discoveryjs/json-ext': 0.6.3
-      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)
-      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)
-      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@4.15.2)(webpack@5.99.9)
-      colorette: 2.0.20
-      commander: 12.1.0
-      cross-spawn: 7.0.6
-      envinfo: 7.14.0
-      fastest-levenshtein: 1.0.16
-      import-local: 3.2.0
-      interpret: 3.1.1
-      rechoir: 0.8.0
-      webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-merge: 6.0.1
-    optionalDependencies:
-      webpack-dev-server: 4.15.2(webpack-cli@6.0.1)(webpack@5.99.9)
-
   webpack-cli@6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.8):
     dependencies:
       '@discoveryjs/json-ext': 0.6.3
@@ -60810,6 +61054,25 @@ snapshots:
       webpack-merge: 6.0.1
     optionalDependencies:
       webpack-dev-server: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.8)
+
+  webpack-cli@6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9):
+    dependencies:
+      '@discoveryjs/json-ext': 0.6.3
+      '@webpack-cli/configtest': 3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)
+      '@webpack-cli/info': 3.0.1(webpack-cli@6.0.1)(webpack@5.99.9)
+      '@webpack-cli/serve': 3.0.1(webpack-cli@6.0.1)(webpack-dev-server@5.2.1)(webpack@5.99.9)
+      colorette: 2.0.20
+      commander: 12.1.0
+      cross-spawn: 7.0.6
+      envinfo: 7.14.0
+      fastest-levenshtein: 1.0.16
+      import-local: 3.2.0
+      interpret: 3.1.1
+      rechoir: 0.8.0
+      webpack: 5.99.9(webpack-cli@6.0.1)
+      webpack-merge: 6.0.1
+    optionalDependencies:
+      webpack-dev-server: 5.2.1(webpack-cli@6.0.1)(webpack@5.99.9)
 
   webpack-cli@6.0.1(webpack@5.99.8):
     dependencies:
@@ -60892,15 +61155,6 @@ snapshots:
       schema-utils: 4.3.2
       webpack: 5.99.8(webpack-cli@5.1.4)
 
-  webpack-dev-middleware@5.3.4(webpack@5.99.9):
-    dependencies:
-      colorette: 2.0.20
-      memfs: 3.5.3
-      mime-types: 2.1.35
-      range-parser: 1.2.1
-      schema-utils: 4.3.2
-      webpack: 5.99.9(webpack-cli@6.0.1)
-
   webpack-dev-middleware@6.1.3(webpack@5.99.8(webpack-cli@6.0.1)):
     dependencies:
       colorette: 2.0.20
@@ -60962,7 +61216,6 @@ snapshots:
       schema-utils: 4.3.2
     optionalDependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
-    optional: true
 
   webpack-dev-server@2.11.3(webpack@3.8.1):
     dependencies:
@@ -61118,47 +61371,6 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  webpack-dev-server@4.15.2(webpack-cli@6.0.1)(webpack@5.99.9):
-    dependencies:
-      '@types/bonjour': 3.5.13
-      '@types/connect-history-api-fallback': 1.5.4
-      '@types/express': 4.17.21
-      '@types/serve-index': 1.9.4
-      '@types/serve-static': 1.15.7
-      '@types/sockjs': 0.3.36
-      '@types/ws': 8.18.1
-      ansi-html-community: 0.0.8
-      bonjour-service: 1.3.0
-      chokidar: 3.6.0
-      colorette: 2.0.20
-      compression: 1.8.0
-      connect-history-api-fallback: 2.0.0
-      default-gateway: 6.0.3
-      express: 4.21.2
-      graceful-fs: 4.2.11
-      html-entities: 2.6.0
-      http-proxy-middleware: 2.0.9(@types/express@4.17.21)
-      ipaddr.js: 2.2.0
-      launch-editor: 2.10.0
-      open: 8.4.2
-      p-retry: 4.6.2
-      rimraf: 3.0.2
-      schema-utils: 4.3.2
-      selfsigned: 2.4.1
-      serve-index: 1.9.1
-      sockjs: 0.3.24
-      spdy: 4.0.2
-      webpack-dev-middleware: 5.3.4(webpack@5.99.9)
-      ws: 8.18.2
-    optionalDependencies:
-      webpack: 5.99.9(webpack-cli@6.0.1)
-      webpack-cli: 6.0.1(webpack-dev-server@4.15.2)(webpack@5.99.9)
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - supports-color
-      - utf-8-validate
-
   webpack-dev-server@4.15.2(webpack@5.99.8):
     dependencies:
       '@types/bonjour': 3.5.13
@@ -61278,7 +61490,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  webpack-dev-server@5.2.1(webpack@5.99.9):
+  webpack-dev-server@5.2.1(webpack-cli@6.0.1)(webpack@5.99.9):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -61310,12 +61522,12 @@ snapshots:
       ws: 8.18.2
     optionalDependencies:
       webpack: 5.99.9(webpack-cli@6.0.1)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9)
     transitivePeerDependencies:
       - bufferutil
       - debug
       - supports-color
       - utf-8-validate
-    optional: true
 
   webpack-filter-warnings-plugin@1.2.1(webpack@4.47.0(webpack-cli@4.10.0)):
     dependencies:
@@ -61760,7 +61972,7 @@ snapshots:
       watchpack: 2.4.2
       webpack-sources: 3.2.3
     optionalDependencies:
-      webpack-cli: 6.0.1(webpack-dev-server@4.15.2)(webpack@5.99.9)
+      webpack-cli: 6.0.1(webpack-dev-server@5.2.1)(webpack@5.99.9)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
