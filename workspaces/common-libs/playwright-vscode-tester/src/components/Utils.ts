@@ -14,7 +14,7 @@ export async function switchToIFrame(
     page: Page,
     timeout: number = 150000
 ): Promise<Frame | null> {
-    await page.waitForTimeout(5000); // To fix intermittent issues in CI
+    await page.waitForLoadState();
     const webviewFrame = await page.waitForSelector('iframe.webview.ready', { timeout });
     const frame = await webviewFrame.contentFrame();
     if (!frame) {
@@ -27,17 +27,18 @@ export async function switchToIFrame(
     }
     const childFrame = await targetFrame.contentFrame();
     await childFrame?.waitForLoadState();
+    await page.waitForTimeout(2000); // To fix intermittent issues since VSCode is not using network calls to load the webview
     return childFrame;
 }
 
-export async function getVsCodeButton(container: Locator, text: string, type: 'primary' | 'secondary'): Promise<Locator> {
+export async function getVsCodeButton(container: Locator | Frame, text: string, type: 'primary' | 'secondary'): Promise<Locator> {
     const btn = container.locator(`vscode-button:has-text("${text}")`);
     await btn.waitFor();
-    expect(await btn.getAttribute('appearance')).toBe(type);
+    expect(btn).toHaveAttribute('appearance', type);
     return btn;
 }
 
-export async function getWebviewInput(container: Locator, label: string): Promise<Locator> {
+export async function getWebviewInput(container: Locator | Frame, label: string): Promise<Locator> {
     const input = container.locator(`input[aria-label="${label}"]`);
     await input.waitFor();
     return input;
