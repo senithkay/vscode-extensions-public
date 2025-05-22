@@ -11,11 +11,9 @@ module.exports = {
         path: path.resolve(__dirname, "build"),
         filename: "Visualizer.js",
         library: "visualizerWebview",
-        libraryTarget: "window",
         devtoolModuleFilenameTemplate: function (info) {
             return "file:///" + encodeURI(info.absoluteResourcePath);
         },
-        publicPath: "http://localhost:9000/",
     },
     resolve: {
         extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
