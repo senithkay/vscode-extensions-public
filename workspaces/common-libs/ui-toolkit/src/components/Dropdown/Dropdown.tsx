@@ -54,8 +54,6 @@ interface ContainerProps {
 
 const DropDownContainer = styled.div<ContainerProps>`
     display: flex;
-    position: relative;
-    z-index: 1000;
     flex-direction: column;
     gap : 2px;
     color: var(--vscode-editor-foreground);
