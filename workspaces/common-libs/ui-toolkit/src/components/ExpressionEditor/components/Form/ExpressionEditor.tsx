@@ -12,6 +12,7 @@ import React, {
     forwardRef,
     useEffect,
     useImperativeHandle,
+    useMemo,
     useRef,
     useState,
 } from 'react';
@@ -105,18 +106,24 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const helperPaneContainerRef = useRef<HTMLDivElement>(null);
+    const manualFocusTrigger = useRef<boolean>(false);
     const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
     const [fnSignatureElPosition, setFnSignatureElPosition] = useState<{ top: number; left: number }>();
     const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const SUGGESTION_REGEX = {
         prefix: /((?:\w|')*)$/,
-        suffix: /^((?:\w|')*)/,
+        suffix: /^((?:\w|')*)/
     };
-
-    const manualFocusTrigger = useRef<boolean>(false);
-
     const showCompletions = showDefaultCompletion || completions?.length > 0;
+
+    const editorWidth = useMemo(() => {
+        if (textAreaRef.current) {
+            return textAreaRef.current.getBoundingClientRect().width;
+        }
+        return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [textAreaRef.current]);
 
     const updatePosition = throttle(() => {
         if (elementRef.current) {
@@ -481,13 +488,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 growRange={growRange}
                 resize={resize}
             />
-            {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
-            {isFocused && 
+            {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: '100%' }} />}
+            {isFocused &&
                 createPortal(
-                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
+                    <DropdownContainer ref={dropdownContainerRef} sx={dropdownElPosition}>
                         <Transition show={showCompletions} {...ANIMATION}>
                             <Codicon
-                                id='expression-editor-close'
+                                id="expression-editor-close"
                                 sx={{
                                     position: 'absolute',
                                     top: '0',
@@ -496,7 +503,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                     margin: '-4px',
                                     borderRadius: '50%',
                                     backgroundColor: 'var(--vscode-activityBar-background)',
-                                    zIndex: '5',
+                                    zIndex: '5'
                                 }}
                                 iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
                                 name="close"
@@ -512,24 +519,23 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 onCompletionSelect={handleCompletionSelect}
                                 onDefaultCompletionSelect={onDefaultCompletionSelect}
                                 sx={completionSx}
+                                {...(editorWidth && { editorWidth: `${editorWidth}px` })}
                             />
                         </Transition>
                     </DropdownContainer>,
                     document.body
                 )}
-            {isFocused && getHelperPane &&
+            {isFocused && getHelperPane && createPortal(getHelperPaneComponent(), document.body)}
+            {isFocused &&
                 createPortal(
-                    getHelperPaneComponent(),
-                    document.body
-                )}
-            {isFocused && 
-                createPortal(
-                    <DropdownContainer sx={{ ...fnSignatureElPosition }}>
+                    <DropdownContainer sx={fnSignatureElPosition}>
                         <Transition show={!!fnSignature} {...ANIMATION}>
                             <FnSignatureEl
                                 label={fnSignature?.label}
                                 args={fnSignature?.args}
                                 currentArgIndex={fnSignature?.currentArgIndex ?? 0}
+                                sx={completionSx}
+                                {...(editorWidth && { editorWidth: `${editorWidth}px` })}
                             />
                         </Transition>
                     </DropdownContainer>,

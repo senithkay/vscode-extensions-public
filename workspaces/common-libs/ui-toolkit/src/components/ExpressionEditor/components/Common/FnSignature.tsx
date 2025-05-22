@@ -9,19 +9,23 @@
 
 import React, { Fragment, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { StyleBase, FnSignatureElProps } from './types';
+import { FnSignatureElProps, DropdownContainerStyles } from './types';
 import Typography from '../../../Typography/Typography';
+import { DROPDOWN_DEFAULT_WIDTH, DROPDOWN_MIN_WIDTH } from '../../constants';
 
 /* Styled components */
-const FnSignatureBody = styled.div<StyleBase>`
-    width: 350px;
+const FnSignatureBody = styled.div<DropdownContainerStyles>`
+    width: ${(props: DropdownContainerStyles) =>
+        props.editorWidth ? props.editorWidth : `${DROPDOWN_DEFAULT_WIDTH}px`};
+    min-width: ${DROPDOWN_MIN_WIDTH}px;
+    max-width: ${DROPDOWN_DEFAULT_WIDTH}px;
     height: 28px;
     display: flex;
     align-items: center;
     border-radius: 2px;
     background-color: var(--vscode-dropdown-background);
     border: 1px solid var(--vscode-menu-border);
-    ${(props: StyleBase) => props.sx}
+    ${(props: DropdownContainerStyles) => props.sx}
 `;
 
 const SyntaxBody = styled.div`
@@ -44,7 +48,7 @@ const SelectedArg = styled(Typography)`
 `;
 
 export const FnSignatureEl = (props: FnSignatureElProps) => {
-    const { label, args, currentArgIndex, sx } = props;
+    const { label, args, currentArgIndex, sx, editorWidth } = props;
     const selectedArgRef = useRef<HTMLParagraphElement>(null);
 
     useEffect(() => {
@@ -56,7 +60,7 @@ export const FnSignatureEl = (props: FnSignatureElProps) => {
     return (
         <>
             {label && (
-                <FnSignatureBody sx={sx}>
+                <FnSignatureBody sx={sx} editorWidth={editorWidth}>
                     <SyntaxBody>
                         <Typography variant="body3" sx={{ fontWeight: 600 }}>
                             {`${label}(`}

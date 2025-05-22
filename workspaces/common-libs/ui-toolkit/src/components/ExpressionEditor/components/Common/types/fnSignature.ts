@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { StyleBase } from "./common";
+import { DropdownContainerStyles } from "./common";
 
 export type FnSignatureProps = {
     label: string;
@@ -15,4 +15,4 @@ export type FnSignatureProps = {
     currentArgIndex: number;
 };
 
-export type FnSignatureElProps = StyleBase & FnSignatureProps;
+export type FnSignatureElProps = DropdownContainerStyles & FnSignatureProps;
