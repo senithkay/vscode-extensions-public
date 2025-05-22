@@ -379,7 +379,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                                 label="Enable Cipher Tool"
                                 description="Enables the cipher tool"
                                 descriptionSx={{ margin: "10px 0" }}
-                                control={control}
+                                control={control as any}
                                 sx={fieldStyle}
                                 {...register("buildDetails-dockerDetails-enableCipherTool")}
                             />
@@ -498,7 +498,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                                 label="Legacy Expression Support"
                                 description="Enables the legacy expression support"
                                 descriptionSx={{ margin: "10px 0" }}
-                                control={control}
+                                control={control as any}
                                 sx={fieldStyle}
                                 {...register("advanced-legacyExpressionSupport")}
                             />

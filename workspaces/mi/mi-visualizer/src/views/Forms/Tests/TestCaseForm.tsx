@@ -245,20 +245,20 @@ export function TestCaseForm(props: TestCaseFormProps) {
                         label="Resource path"
                         placeholder="/"
                         required
-                        errorMsg={errors.input?.requestPath?.message.toString()}
+                        errorMsg={errors.requestPath?.message.toString()}
                         {...register("input.requestPath")}
                     />
                     <Dropdown
                         id="requestMethod"
                         label="Resource method"
                         items={requestMethods.map((method) => ({ value: method, content: method }))}
-                        errorMsg={errors.input?.requestMethod?.message.toString()}
+                        errorMsg={errors.requestMethod?.message.toString()}
                         {...register('input.requestMethod')} />
                     <Dropdown
                         id="requestProtocol"
                         label="Resource Protocol"
                         items={requestProtocols.map((method) => ({ value: method, content: method.toUpperCase() }))}
-                        errorMsg={errors.input?.requestProtocol?.message.toString()}
+                        errorMsg={errors.requestProtocol?.message.toString()}
                         {...register('input.requestProtocol')} />
                 </>
             }

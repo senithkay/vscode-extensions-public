@@ -11,6 +11,7 @@ module.exports = {
         path: path.resolve(__dirname, "build"),
         filename: "Visualizer.js",
         library: "visualizerWebview",
+        libraryTarget: "window",
         devtoolModuleFilenameTemplate: function (info) {
             return "file:///" + encodeURI(info.absoluteResourcePath);
         },
@@ -77,6 +78,6 @@ module.exports = {
         new webpack.ProvidePlugin({
             process: "process/browser",
         }),
-        !process.env.CI & new ReactRefreshWebpackPlugin(),
+         new ReactRefreshWebpackPlugin(),
     ].filter(Boolean),
 };

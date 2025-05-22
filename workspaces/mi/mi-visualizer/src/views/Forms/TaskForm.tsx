@@ -35,23 +35,23 @@ interface TaskFormProps {
 };
 
 type InputsFields = {
-    name?: string;
-    group?: string;
-    implementation?: string;
-    pinnedServers?: string;
-    triggerType?: string;
-    triggerCount?: number;
-    triggerInterval?: number;
-    triggerCron?: string;
-    format?: string;
-    message?: string;
-    soapAction?: string;
-    proxyName?: string;
-    registryKey?: string;
-    sequenceName?: string;
-    invokeHandlers?: boolean;
-    injectTo?: string;
-    isCountUndefined?: boolean;
+    name: string;
+    group: string;
+    implementation: string;
+    pinnedServers: string;
+    triggerType: string;
+    triggerCount: number;
+    triggerInterval: number;
+    triggerCron: string;
+    format: string;
+    message: string;
+    soapAction: string;
+    proxyName: string;
+    registryKey: string;
+    sequenceName: string;
+    invokeHandlers: boolean;
+    injectTo: string;
+    isCountUndefined: boolean;
 };
 
 const newTask: InputsFields = {
@@ -67,7 +67,11 @@ const newTask: InputsFields = {
     format: "soap12",
     injectTo: "sequence",
     message: "<message></message>",
-    isCountUndefined: true
+    isCountUndefined: true,
+    proxyName:'',
+    sequenceName: '',
+    soapAction:'',
+    registryKey:''
 };
 
 function generateSequenceName(taskName: string) {
@@ -380,7 +384,7 @@ export function TaskForm(props: TaskFormProps) {
                             />
                             {watch("triggerType") === 'simple' ? (
                                 <>
-                                    <FormCheckBox label="Trigger Indefinitely" control={control} {...register('isCountUndefined')} />
+                                    <FormCheckBox label="Trigger Indefinitely" control={control as any} {...register('isCountUndefined')} />
                                     {!watch("isCountUndefined") &&
                                         <TextField
                                             id="triggerCount"
@@ -442,7 +446,7 @@ export function TaskForm(props: TaskFormProps) {
                             {watch("injectTo") === 'proxy' && (<>
                                 <FormKeylookup
                                     id="proxyName"
-                                    control={control}
+                                    control={control as any}
                                     label="Proxy service name"
                                     name="proxyName"
                                     filterType="proxyService"
@@ -455,7 +459,7 @@ export function TaskForm(props: TaskFormProps) {
                                 <FormKeylookup
                                     filter={(value: string) => !value.endsWith(".xml")}
                                     id="sequenceName"
-                                    control={control}
+                                    control={control as any}
                                     label="Sequence name"
                                     name="proxyName"
                                     filterType="sequence"
@@ -464,7 +468,7 @@ export function TaskForm(props: TaskFormProps) {
                                     {...register("sequenceName")}
                                 />
                                 <FormCheckBox
-                                    control={control}
+                                    control={control as any}
                                     label="Invoke handlers when calling sequence"
                                     {...register("invokeHandlers")}
                                 />

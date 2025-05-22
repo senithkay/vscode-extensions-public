@@ -32,24 +32,24 @@ interface CommonObject {
 }
 
 type InputsFields = {
-    name?: string;
-    description?: string;
-    type?: string;
-    dataSourceProvider?: string;
-    dbEngine?: string;
-    hostname?: string;
-    port?: string;
-    databaseName?: string;
-    username?: string;
-    password?: string;
-    driverClassName?: string;
-    url?: string;
-    customDSType?: string;
-    customDSConfiguration?: string;
-    externalDSClassName?: string;
-    dataSourceConfigParameters?: {},
-    jndiName?: string;
-    useDatasourceFactory?: boolean;
+    name: string;
+    description: string;
+    type: string;
+    dataSourceProvider: string;
+    dbEngine: string;
+    hostname: string;
+    port: string;
+    databaseName: string;
+    username: string;
+    password: string;
+    driverClassName: string;
+    url: string;
+    customDSType: string;
+    customDSConfiguration: string;
+    externalDSClassName: string;
+    dataSourceConfigParameters: {},
+    jndiName: string;
+    useDatasourceFactory: boolean;
 };
 
 const newDataSource: InputsFields = {
@@ -591,7 +591,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                                     <FormCheckBox
                                         label="Use Datasource Factory"
                                         {...register("useDatasourceFactory")}
-                                        control={control}
+                                        control={control as any}
                                     />
                                     <ParamManager
                                         paramConfigs={jndiProperties}
