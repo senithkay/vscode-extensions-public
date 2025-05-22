@@ -26,12 +26,23 @@ export type HelperPaneProps = {
     sx?: CSSProperties;
 };
 
+export const PAGE = {
+    CATEGORY: "category",
+    PAYLOAD: "payload",
+    VARIABLES: "variables",
+    HEADERS: "headers",
+    PARAMS: "params",
+    PROPERTIES: "properties",
+} as const;
+
+export type Page = (typeof PAGE)[keyof typeof PAGE];
+
 const HelperPaneEl = ({ position, helperPaneHeight, sx, onClose, onChange, addFunction }: HelperPaneProps) => {
-    const [currentPage, setCurrentPage] = useState<number>(0);
+    const [currentPage, setCurrentPage] = useState<Page>(PAGE.CATEGORY);
 
     return (
         <HelperPane helperPaneHeight={helperPaneHeight} sx={{ ' *': { boxSizing: 'border-box' }, ...sx }}>
-            {currentPage === 0 && (
+            {currentPage === PAGE.CATEGORY && (
                 <CategoryPage
                     position={position}
                     setCurrentPage={setCurrentPage}
@@ -40,7 +51,7 @@ const HelperPaneEl = ({ position, helperPaneHeight, sx, onClose, onChange, addFu
                     addFunction={addFunction}
                 />
             )}
-            {currentPage === 1 && (
+            {currentPage === PAGE.PAYLOAD && (
                 <PayloadPage
                     position={position}
                     setCurrentPage={setCurrentPage}
@@ -48,7 +59,7 @@ const HelperPaneEl = ({ position, helperPaneHeight, sx, onClose, onChange, addFu
                     onChange={onChange}
                 />
             )}
-            {currentPage === 2 && (
+            {currentPage === PAGE.VARIABLES && (
                 <VariablesPage
                     position={position}
                     setCurrentPage={setCurrentPage}
@@ -56,7 +67,7 @@ const HelperPaneEl = ({ position, helperPaneHeight, sx, onClose, onChange, addFu
                     onChange={onChange}
                 />
             )}
-            {currentPage === 3 && (
+            {currentPage === PAGE.HEADERS && (
                 <HeadersPage
                     position={position}
                     setCurrentPage={setCurrentPage}
@@ -64,10 +75,10 @@ const HelperPaneEl = ({ position, helperPaneHeight, sx, onClose, onChange, addFu
                     onChange={onChange}
                 />
             )}
-            {currentPage === 4 && (
+            {currentPage === PAGE.PARAMS && (
                 <ParamsPage position={position} setCurrentPage={setCurrentPage} onClose={onClose} onChange={onChange} />
             )}
-            {currentPage === 5 && (
+            {currentPage === PAGE.PROPERTIES && (
                 <PropertiesPage
                     position={position}
                     setCurrentPage={setCurrentPage}

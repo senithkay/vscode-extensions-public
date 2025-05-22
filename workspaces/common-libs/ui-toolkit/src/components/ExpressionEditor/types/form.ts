@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { MutableRefObject, ReactNode } from 'react';
+import { MutableRefObject, ReactNode, CSSProperties } from 'react';
 import { ActionButtonType, ExpressionEditorProps, ExpressionEditorRef, HelperPaneHeight, HelperPaneOrigin } from './common';
 
 type HelperPaneConditionalProps = {
@@ -19,6 +19,8 @@ type HelperPaneConditionalProps = {
     helperPaneHeight?: HelperPaneHeight;
     // - Width of the helper pane
     helperPaneWidth?: number;
+    // - Helper pane styles
+    helperPaneSx?: CSSProperties;
     // - Callback function to open/close the helper pane
     changeHelperPaneState: (isOpen: boolean) => void;
     // - Get the helper panel component
@@ -34,25 +36,30 @@ type HelperPaneConditionalProps = {
     helperPaneOrigin?: never;
     helperPaneHeight?: never;
     helperPaneWidth?: never;
+    helperPaneSx?: never;
     changeHelperPaneState?: never;
     getHelperPane?: never;
     getExpressionEditorIcon?: never;
 }
 
-export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {
+type FormExpressionEditorElBaseProps = ExpressionEditorProps & HelperPaneConditionalProps & {
+    anchorRef?: MutableRefObject<HTMLDivElement>;
     resize?: 'vertical' | 'disabled';
     growRange?: { start: number, offset: number };
     actionButtons?: ActionButtonType[];
-    startAdornment?: ReactNode;
-    endAdornment?: ReactNode;
-    anchorRef?: MutableRefObject<HTMLDivElement>;
-    expressionEditorIconName?: string;
-    enableExIcon?: boolean;
-};
+}
 
-export type FormExpressionEditorElProps = FormExpressionEditorProps & {
+export type FormExpressionEditorElProps = FormExpressionEditorElBaseProps & {
     containerRef: MutableRefObject<HTMLDivElement>;
 }
+
+export type FormExpressionEditorProps = FormExpressionEditorElBaseProps & {
+    startAdornment?: ReactNode;
+    endAdornment?: ReactNode;
+    expressionEditorIconName?: string;
+    enableExIcon?: boolean;
+    codeActions?: ReactNode[];
+};
 
 export type FormExpressionEditorRef = ExpressionEditorRef & {
     focus: (manualTrigger?: boolean) => void;
