@@ -59,7 +59,8 @@
     "upath": "~2.0.1",
     "@wso2-enterprise/mi-component-diagram": "workspace:*",
     "lodash": "~4.17.21",
-    "cron-expression-validator": "~1.0.20"
+    "cron-expression-validator": "~1.0.20",
+    "@playwright/test": "1.52.0"
   },
   "devDependencies": {
     "@storybook/addon-actions": "~8.6.14",

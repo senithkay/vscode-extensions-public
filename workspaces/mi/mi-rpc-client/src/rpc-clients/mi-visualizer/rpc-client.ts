@@ -153,8 +153,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendNotification(goSelected, HOST_EXTENSION, params);
     }
 
-    toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
-        return this._messenger.sendRequest(toggleDisplayOverview, HOST_EXTENSION, params);
+    toggleDisplayOverview(params: ToggleDisplayOverviewRequest): void {
+        return this._messenger.sendNotification(toggleDisplayOverview, HOST_EXTENSION, params);
     }
 
     goToSource(params: GoToSourceRequest): void {
@@ -169,8 +169,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendNotification(log, HOST_EXTENSION, params);
     }
 
-    updateContext(params: UpdateContextRequest): Promise<void> {
-        return this._messenger.sendRequest(updateContext, HOST_EXTENSION, params);
+    updateContext(params: UpdateContextRequest): void {
+        return this._messenger.sendNotification(updateContext, HOST_EXTENSION, params);
     }
 
     retrieveContext(params: RetrieveContextRequest): Promise<RetrieveContextResponse> {
