@@ -5559,6 +5559,28 @@ ${keyValuesXML}`;
             }
         });
     }
+
+    async closePayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', false);
+            resolve();
+        });
+    }
+
+    async shouldDisplayPayloadAlert(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const displayPayloadAlert: boolean =
+                (await extension.context.workspaceState.get('displayPayloadAlert')) ?? true;
+            resolve(displayPayloadAlert);
+        });
+    }
+
+    async displayPayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', true);
+            resolve();
+        });
+    }
 }
 
 export function getRepoRoot(projectRoot: string): string | undefined {

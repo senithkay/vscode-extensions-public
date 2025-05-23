@@ -52,6 +52,7 @@ export function EventIntegrationPanel(props: EventIntegrationPanelProps) {
                         .map((item, index) => {
                             return (
                                 <ButtonCard
+                                    id={`trigger-${item.moduleName}`}
                                     key={item.id}
                                     title={item.name}
                                     icon={getEntryNodeIcon(item)}

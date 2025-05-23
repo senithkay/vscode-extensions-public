@@ -200,12 +200,26 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         }
     };
 
-    const handleArrayInitialization = async () => {
+    const handleArrayInit = async () => {
         setLoading(true);
         try {
             const fnBody = context.functionST.getBody() as Block;
             await createSourceForUserInput(field, parentObjectLiteralExpr, '[]', fnBody, context.applyModifications);
         } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleArrayInitWithElement = async () => {
+        setLoading(true);
+        try {
+            const fnBody = context.functionST.getBody() as Block;
+            const defaultValue = getDefaultValue(field.type?.memberType);
+            await createSourceForUserInput(field, parentObjectLiteralExpr, `[${defaultValue}]`, fnBody, context.applyModifications);
+        } finally {
+            if(!expanded){
+                handleExpand(false);
+            }
             setLoading(false);
         }
     };
@@ -376,7 +390,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion }
             ]
             : [
-                { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
+                { title: ValueConfigOption.InitializeArray, onClick: handleArrayInit },
+                { title: ValueConfigOption.InitializeArrayWithElement, onClick: handleArrayInitWithElement }
             ]),
         modifyFieldOptionalityMenuItem,
         isMemberTypeInterface && makeChildFieldsOptionalMenuItem,
