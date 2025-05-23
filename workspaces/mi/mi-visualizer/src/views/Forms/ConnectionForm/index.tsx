@@ -13,9 +13,10 @@ import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnection from "./ConnectionFormGenerator";
-import { ImportConnectorForm } from "./ImportConnector";
 import path from "path";
 import { Colors } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
+import { ImportConnectionFromOpenAPI } from "./ImportConnectionFromOpenAPI";
+import { ImportConnectionFromProto } from "./ImportConnectionFromProto";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -156,7 +157,8 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
     const [isFetchingStoreConnectors, setIsFetchingStoreConnectors] = useState(false);
     const [isGeneratingForm, setIsGeneratingForm] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
-    const [isImportingConnector, setIsImportingConnector] = useState(false);
+    const [isImportingConnectionFromOpenAPI, setIsImportingConnectionFromOpenAPI] = useState(false);
+    const [isImportingConnectionFromProto, setIsImportingConnectionFromProto] = useState(false);
     const [conOnconfirmation, setConOnconfirmation] = useState(undefined);
     const [selectedConnectionType, setSelectedConnectionType] = useState<any>(undefined);
     const [searchValue, setSearchValue] = useState<string>('');
@@ -387,17 +389,23 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
         setIsDownloading(false);
     }
 
-    const handleImportConnector = () => {
-        setIsImportingConnector(true);
+    const handleImportConnectionFromOpenAPI = () => {
+        setIsImportingConnectionFromOpenAPI(true);
+    };
+
+    const handleImportConnectionFromProto = () => {
+        setIsImportingConnectionFromProto(true);
     };
 
     const onImportSuccess = () => {
-        setIsImportingConnector(false);
+        setIsImportingConnectionFromOpenAPI(false);
+        setIsImportingConnectionFromProto(false);
         fetchLocalConnectorData();
     }
 
     const cancelImportConnector = () => {
-        setIsImportingConnector(false);
+        setIsImportingConnectionFromOpenAPI(false);
+        setIsImportingConnectionFromProto(false);
     }
 
     const handleOnClose = () => {
@@ -541,8 +549,13 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
     return (
         <>
             {
-                isImportingConnector ? (
-                    <ImportConnectorForm
+                isImportingConnectionFromOpenAPI ? (
+                    <ImportConnectionFromOpenAPI
+                        handlePopupClose={props.handlePopupClose}
+                        goBack={cancelImportConnector}
+                        onImportSuccess={onImportSuccess} />
+                ) : isImportingConnectionFromProto ? (
+                    <ImportConnectionFromProto
                         handlePopupClose={props.handlePopupClose}
                         goBack={cancelImportConnector}
                         onImportSuccess={onImportSuccess} />
@@ -561,14 +574,25 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <span>Please select a connector to create a connection.</span>
                                 {!conOnconfirmation && !allowedConnectionTypes &&
-                                    <Button appearance="secondary" onClick={() => handleImportConnector()}>
-                                        <div style={BrowseBtnStyles}>
-                                            <IconWrapper>
-                                                <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
-                                            </IconWrapper>
-                                            <TextWrapper>Import Connector</TextWrapper>
-                                        </div>
-                                    </Button>}
+                                    <>
+                                        <Button appearance="secondary" onClick={() => handleImportConnectionFromOpenAPI()}>
+                                            <div style={BrowseBtnStyles}>
+                                                <IconWrapper>
+                                                    <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
+                                                </IconWrapper>
+                                                <TextWrapper>For REST (OpenAPI)</TextWrapper>
+                                            </div>
+                                        </Button>
+                                        <Button appearance="secondary" onClick={() => handleImportConnectionFromProto()}>
+                                            <div style={BrowseBtnStyles}>
+                                                <IconWrapper>
+                                                    <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
+                                                </IconWrapper>
+                                                <TextWrapper>For gRPC (Proto)</TextWrapper>
+                                            </div>
+                                        </Button>
+                                    </>
+                                }
                             </div>
                             {isGeneratingForm ? (
                                 <LoaderWrapper>
