@@ -2999,9 +2999,9 @@ ${endpointAttributes}
             // open file dialog to select the openapi spec file
             const options: vscode.OpenDialogOptions = {
                 canSelectMany: false,
-                openLabel: 'Open OpenAPI Spec',
+                openLabel: 'Open File',
                 filters: {
-                    'OpenAPI Spec': ['json', 'yaml', 'yml']
+                    'OpenAPI Spec': ['json', 'yaml', 'yml', 'proto']
                 }
             };
 
