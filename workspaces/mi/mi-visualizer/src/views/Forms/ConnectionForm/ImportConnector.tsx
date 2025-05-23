@@ -13,6 +13,7 @@ import styled from "@emotion/styled";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { ConnectorStatus } from "@wso2-enterprise/mi-core";
+import { POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -35,14 +36,13 @@ export interface ImportConnectorFormProps {
     goBack: () => void;
     handlePopupClose?: () => void;
     onImportSuccess: () => void;
+    isPopup?: boolean;
 }
 
 export function ImportConnectorForm(props: ImportConnectorFormProps) {
     const { rpcClient } = useVisualizerContext();
     const [zipDir, setZipDir] = useState("");
-    const [openApiDir, setOpenApiDir] = useState("");
     const [isImporting, setIsImporting] = useState(false);
-    const [importOpenAPI, setImportOpenAPI] = useState(true);
     const [isFailedImport, setIsFailedImport] = useState(false);
     const connectionStatus = useRef(null);
 
@@ -58,28 +58,6 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
         setZipDir(specDirecrory.path);
     }
 
-    const handleOpenAPIDirSelection = async () => {
-        const specDirecrory = await rpcClient.getMiDiagramRpcClient().askOpenAPIDirPath();
-        setOpenApiDir(specDirecrory.path);
-    }
-
-    const importWithOpenAPI = async () => {
-        setIsImporting(true);
-        try {
-            await rpcClient.getMiVisualizerRpcClient().importOpenAPISpec({ filePath: openApiDir });
-            
-            const newConnector: any = await waitForEvent();
-            if (newConnector?.isSuccess) {
-                props.onImportSuccess();
-            } else {
-                setIsFailedImport(true);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-        setIsImporting(false);
-    };
-
     const importWithZip = async () => {
         setIsImporting(true);
         const response = await rpcClient.getMiDiagramRpcClient().copyConnectorZip({ connectorPath: zipDir });
@@ -87,7 +65,11 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
             const newConnector: any = await waitForEvent();
 
             if (newConnector?.isSuccess) {
-                props.onImportSuccess();
+                rpcClient.getMiVisualizerRpcClient().openView({
+                    type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                    location: { view: null, recentIdentifier: "success" },
+                    isPopup: true
+                });
             } else {
                 await removeInvalidConnector(response.connectorPath);
                 setIsFailedImport(true);
@@ -121,49 +103,20 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
     }
 
     const handleCancel = () => {
-        props.goBack();
-    }
-
-    const handleOnClose = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: "cancel" },
+                isPopup: true
+            });
+        } else {
+            props.goBack();
+        }
     }
 
     return (
         <>
-            <FormView title={`Import Connector`} onClose={props.handlePopupClose ?? handleOnClose}>
-                <span>Please select a method to import a connector.</span>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: '80px', margin: '0px 0px 20px 0' }}>
-                    <label>
-                        <input
-                            type="radio"
-                            name="importMethod"
-                            value="openAPI"
-                            checked={importOpenAPI}
-                            onChange={() => {
-                                setImportOpenAPI(true);
-                                setZipDir("");
-                                setOpenApiDir("");
-                                setIsFailedImport(false);
-                            }}
-                        />
-                        Import Using OpenAPI
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            name="importMethod"
-                            value="zip"
-                            checked={!importOpenAPI}
-                            onChange={() => {
-                                setImportOpenAPI(false);
-                                setZipDir("");
-                                setOpenApiDir("");
-                                setIsFailedImport(false);
-                            }}
-                        />
-                        Upload Connector ZIP file
-                    </label>
-                </div>
+            <FormView title={`Import Connector`} onClose={handleCancel}>
                 {isImporting ?
                     (
                         <LoaderWrapper>
@@ -177,51 +130,27 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                                     <Typography variant="body3">Error importing connector. Please try again...</Typography>
                                 </div>
                             )}
-                            {importOpenAPI ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                {openApiDir && !['json', 'yaml', 'yml'].includes(openApiDir.split('.').pop()!) && 
-                                    <ErrorBanner errorMsg={"Invalid file type. Please select an OpenAPI specification"} />
-                                } 
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                {zipDir && !zipDir.endsWith('.zip') &&
+                                    <ErrorBanner errorMsg={"Invalid file type. Please select a connector zip file"} />
+                                }
                                 <LocationSelector
-                                    label="Choose path to OpenAPI specification"
-                                    selectedFile={openApiDir}
+                                    label="Choose path to connector Zip"
+                                    selectedFile={zipDir}
                                     required
-                                    onSelect={handleOpenAPIDirSelection}
+                                    onSelect={handleSourceDirSelection}
                                 />
                             </div>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    {zipDir && !zipDir.endsWith('.zip') &&
-                                        <ErrorBanner errorMsg={"Invalid file type. Please select a connector zip file"} />
-                                    }
-                                    <LocationSelector
-                                        label="Choose path to connector Zip"
-                                        selectedFile={zipDir}
-                                        required
-                                        onSelect={handleSourceDirSelection}
-                                    />
-                                </div>
-                            )}
                             <FormActions>
-                                {importOpenAPI ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                     <Button
                                         appearance="primary"
-                                        onClick={importWithOpenAPI}
-                                        disabled={!openApiDir || !['json', 'yaml', 'yml'].includes(openApiDir.split('.').pop()!)}
+                                        onClick={importWithZip}
+                                        disabled={!zipDir || !zipDir.endsWith('.zip')}
                                     >
                                         Import
                                     </Button>
-                                ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                        <Button
-                                            appearance="primary"
-                                            onClick={importWithZip}
-                                            disabled={!zipDir || !zipDir.endsWith('.zip')}
-                                        >
-                                            Import
-                                        </Button>
-                                    </div>
-                                )}
+                                </div>
                                 <Button
                                     appearance="secondary"
                                     onClick={handleCancel}

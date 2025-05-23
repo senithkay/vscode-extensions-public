@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "5.1.1",
+    "version": "5.1.125051608",
     "publisher": "wso2",
     "icon": "resources/images/ballerina.png",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
@@ -213,7 +213,7 @@
                     "ballerina.enableAiSuggestions": {
                         "type": "boolean",
                         "default": true,
-                        "description": "Enable AI suggestions from WSO2 Copilot."
+                        "description": "Enable AI suggestions from BI Copilot."
                     }
                 }
             }
@@ -922,21 +922,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f171"
+                    "fontCharacter": "\\f172"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1e5"
+                    "fontCharacter": "\\f1e6"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f16c"
+                    "fontCharacter": "\\f16d"
                 }
             },
             "distro-source-view": {
@@ -950,7 +950,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1c0"
+                    "fontCharacter": "\\f1c1"
                 }
             },
             "distro-cached-rounded": {

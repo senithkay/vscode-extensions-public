@@ -65,6 +65,10 @@ export class BreakpointVisitor implements BaseVisitor {
         this.setBreakpointData(node);
     }
 
+    beginVisitLock(node: FlowNode, parent?: FlowNode): void {
+        this.setBreakpointData(node);
+    }
+
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         this.setBreakpointData(node);
     }

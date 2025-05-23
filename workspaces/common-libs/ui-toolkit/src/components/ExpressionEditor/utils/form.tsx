@@ -22,6 +22,33 @@ export const convertHelperPaneHeightToCSS = (helperPaneHeight: HelperPaneHeight)
     }
 }
 
+/**
+ * If helper pane origin is auto, calculate the best position for the helper pane based on the expression editor position
+ * @param expressionEditorRef - The ref of the expression editor
+ * @param helperPaneOrigin - The origin of the helper pane
+ * @returns The best position for the helper pane
+ */
+export const getHelperPaneOrigin = (
+    expressionEditorRef: MutableRefObject<HTMLDivElement>,
+    helperPaneOrigin: HelperPaneOrigin
+): HelperPaneOrigin => {
+    // If the origin is specified, return it
+    if (helperPaneOrigin !== 'auto') {
+        return helperPaneOrigin;
+    }
+
+    // Rendering priority goes as left, right, bottom
+    const expressionEditor = expressionEditorRef.current!;
+    const rect = expressionEditor.getBoundingClientRect();
+    if (rect.left > HELPER_PANE_WIDTH + ARROW_HEIGHT) {
+        return 'left';
+    } else if (window.innerWidth - (rect.left + rect.width) > HELPER_PANE_WIDTH + ARROW_HEIGHT) {
+        return 'right';
+    }
+
+    return 'bottom';
+}
+
 export const getHelperPanePosition = (
     expressionEditorRef: MutableRefObject<HTMLDivElement>,
     helperPaneOrigin: HelperPaneOrigin,

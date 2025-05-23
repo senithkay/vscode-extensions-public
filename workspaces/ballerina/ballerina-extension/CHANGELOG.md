@@ -1,6 +1,27 @@
 # Change log
 
-All notable changes to the "ballerina" extension will be documented in this file.
+All notable changes to the "Ballerina" extension will be documented in this file.
+
+## **5.1.2** (2025-05-18)
+
+### Added
+
+- Added an onboarding guide in the AI Chat view to assist new users with getting started.
+- Added support for the `Lock` node in Flow Diagram.
+- Added experimental support for the `Match` node in Flow Diagram.
+
+### Changed
+
+- Refactored AI Chat login flow and command structure for improved navigation and organization.
+- Enhanced project selection for BI projects within multi-root workspaces.
+- Updated Node Icons to align with theme colors.
+
+### Fixed
+
+- Enhanced error handling in Ask command execution in AI Chat.
+- Fixed issues in the Data Mapper, including incorrect rendering of link connectors for root mapping constructors, improved handling of union types with anydata in mapping outputs, and enabling query expression navigation within nested mappings.
+- Resolved issues opening incomplete mappings through code lens navigation in the Data Mapper.
+- Resolved issues with running tests via the test explorer.
 
 ## **5.0.0** (2025-03-13)
 For more information, see the [release notes](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.5.0/).

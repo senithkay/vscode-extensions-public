@@ -72,9 +72,12 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const createTitle = `Provide the necessary configuration details for the ${serviceModel.displayAnnotation.label} to complete the setup.`;
     const editTitle = `Update the configuration details for the ${serviceModel.displayAnnotation.label} as needed.`
 
-    useEffect(() => {
-        // Check for choices in properties (for HTTP service types)
-        if (serviceModel?.listenerProtocol === "http") {
+    useEffect(() => {        
+        // Check if the service is HTTP protocol and any properties with choices
+        const hasPropertiesWithChoices = serviceModel?.listenerProtocol === "http" && 
+            Object.values(serviceModel.properties).some(property => property.choices);
+        
+        if (hasPropertiesWithChoices) {
             const choiceRecordTypeFields = Object.entries(serviceModel.properties)
                 .filter(([_, property]) => property.choices)
                 .flatMap(([parentKey, property]) =>

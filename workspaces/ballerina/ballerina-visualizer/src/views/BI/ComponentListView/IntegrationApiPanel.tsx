@@ -45,6 +45,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                 </TitleWrapper>
                 <CardGrid>
                     <ButtonCard
+                        id="http-service-card"
                         icon={<Icon name="bi-globe" />}
                         title="HTTP Service"
                         // description="Handle web requests and responses."
@@ -53,6 +54,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                     />
                     <ButtonCard
+                        data-testid="websocket-service-card"
                         icon={<Icon name="bi-graphql" sx={{ color: "#e535ab" }} />}
                         title="GraphQL Service"
                         // description="Flexible and efficient data queries."
@@ -62,6 +64,7 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         isBeta
                     />
                     <ButtonCard
+                        data-testid="websocket-service-card"
                         icon={<Icon name="bi-tcp" />}
                         title="TCP Service"
                         // description="Process connection oriented messages."

@@ -334,6 +334,8 @@ export class CodeUtil {
             platform += arch === 'x64' ? `-${arch}` : '';
             platform += '-archive';
             this.cliEnv = `set ${this.cliEnv} &&`;
+        } else if (platform === 'darwin') {
+            platform = (process.arch === 'arm64' || process.arch === 'x64') ? 'darwin-arm64' : 'darwin';
         }
 
         return platform;
