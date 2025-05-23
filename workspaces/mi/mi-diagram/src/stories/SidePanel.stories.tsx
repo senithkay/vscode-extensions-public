@@ -1,5 +1,5 @@
 import React from "react";
-import { Story, Meta } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react";
 import SidePanelList, { SidePanelListProps } from "../components/sidePanel";
 
 export default {
@@ -7,7 +7,7 @@ export default {
     component: SidePanelList,
 } as Meta;
 
-const Template: Story<SidePanelListProps> = (args: JSX.IntrinsicAttributes & SidePanelListProps) => <SidePanelList {...args} />;
+const Template: StoryFn<SidePanelListProps> = (args: JSX.IntrinsicAttributes & SidePanelListProps) => <SidePanelList {...args} />;
 
 export const Primary = Template.bind({});
 Primary.args = {

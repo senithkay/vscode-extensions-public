@@ -19,15 +19,15 @@ module.exports = {
     resolve: {
         extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
         alias: {
-            'react': path.resolve(__dirname, 'node_modules/react'),
-            'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
-             'vscode': path.resolve(__dirname, 'node_modules/vscode-uri'),
-            "crypto": false,
-            "net": false,
-            "os": false,
-            "fs": false,
-            "child_process": false,
-        },
+              'react': path.resolve(__dirname, 'node_modules/react'),
+              'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+              'vscode': path.resolve(__dirname, 'node_modules/vscode-uri'),
+              "crypto": false,
+              "net": false,
+              "os": false,
+              "fs": false,
+              "child_process": false,
+            },
         fallback: { 'process/browser': require.resolve('process/browser'), }
     },
     module: {
