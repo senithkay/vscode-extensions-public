@@ -21,7 +21,7 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { history, openView, undoRedoManager, updateView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
-import { commands } from "vscode";
+import { commands, window } from "vscode";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -78,5 +78,20 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     updateUndoRedoManager(params: UpdateUndoRedoMangerRequest): void {
         undoRedoManager.updateContent(params.filePath, params.fileContent);
+    }
+
+    async getThemeKind(): Promise<string> {
+        return new Promise((resolve) => {
+            const themeKind = window.activeColorTheme.kind;
+            switch (themeKind) {
+                case 1:
+                case 4:
+                    resolve("light");
+                    break;
+                default:
+                    resolve("dark");
+                    break;
+            }
+        });
     }
 }

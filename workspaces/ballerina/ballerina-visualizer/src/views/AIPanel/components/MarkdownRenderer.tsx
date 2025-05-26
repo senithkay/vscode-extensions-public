@@ -74,7 +74,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
          * Applies theme on initial load and theme changes.
          */
         const applyCurrentTheme = async () => {
-            const themeKind = await rpcClient.getAiPanelRpcClient().getThemeKind(); // Returns "light" or "dark"
+            const themeKind = await rpcClient.getVisualizerRpcClient().getThemeKind(); // Returns "light" or "dark"
             injectHighlightTheme(themeKind);
         };
 

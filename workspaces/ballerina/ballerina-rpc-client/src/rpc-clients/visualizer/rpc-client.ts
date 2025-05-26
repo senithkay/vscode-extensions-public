@@ -16,6 +16,7 @@ import {
     addToHistory,
     addToUndoStack,
     getHistory,
+    getThemeKind,
     goBack,
     goHome,
     goSelected,
@@ -73,4 +74,9 @@ export class VisualizerRpcClient implements VisualizerAPI {
     updateUndoRedoManager(params: UpdateUndoRedoMangerRequest): void {
         return this._messenger.sendNotification(updateUndoRedoManager, HOST_EXTENSION, params);
     }
+
+    getThemeKind(): Promise<string> {
+        return this._messenger.sendRequest(getThemeKind, HOST_EXTENSION);
+    }
+
 }

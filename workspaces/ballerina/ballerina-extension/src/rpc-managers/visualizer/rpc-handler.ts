@@ -15,6 +15,7 @@ import {
     addToHistory,
     addToUndoStack,
     getHistory,
+    getThemeKind,
     goBack,
     goHome,
     goSelected,
@@ -38,4 +39,5 @@ export function registerVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(redo, () => rpcManger.redo());
     messenger.onNotification(addToUndoStack, (args: string) => rpcManger.addToUndoStack(args));
     messenger.onNotification(updateUndoRedoManager, (args: UpdateUndoRedoMangerRequest) => rpcManger.updateUndoRedoManager(args));
+    messenger.onRequest(getThemeKind, () => rpcManger.getThemeKind());
 }
