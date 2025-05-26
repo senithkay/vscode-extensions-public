@@ -24,10 +24,10 @@ import { Transition } from '@headlessui/react';
 import { Dropdown, FnSignatureEl } from '../Common';
 import { ActionButtons } from '../Common/ActionButtons';
 import HelperPane from '../Common/HelperPane';
-import { StyleBase, FnSignatureProps } from '../Common/types';
+import { StyleBase } from '../Common/types';
 
 import { ANIMATION } from '../../constants';
-import { FormExpressionEditorRef, FormExpressionEditorElProps, CompletionItem } from '../../types';
+import { FormExpressionEditorRef, FormExpressionEditorElProps, CompletionItem, FnSignatureProps } from '../../types';
 import { addClosingBracketIfNeeded, checkCursorInFunction, getHelperPaneArrowPosition, getHelperPaneOrigin, getHelperPanePosition, setCursor } from '../../utils';
 
 import { Codicon } from '../../../Codicon/Codicon';
@@ -106,6 +106,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const helperPaneContainerRef = useRef<HTMLDivElement>(null);
+    const fnSignatureElRef = useRef<HTMLDivElement>(null);
     const manualFocusTrigger = useRef<boolean>(false);
     const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
     const [fnSignatureElPosition, setFnSignatureElPosition] = useState<{ top: number; left: number }>();
@@ -128,12 +129,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     const updatePosition = throttle(() => {
         if (elementRef.current) {
             const rect = elementRef.current.getBoundingClientRect();
+            const fnSignatureElHeight = fnSignatureElRef.current?.getBoundingClientRect().height ?? 28;
             setDropdownElPosition({
                 top: rect.top + rect.height,
                 left: rect.left,
             });
             setFnSignatureElPosition({
-                top: rect.top - 28,
+                top: rect.top - fnSignatureElHeight,
                 left: rect.left,
             });
         }
@@ -156,7 +158,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             resizeObserver.disconnect();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [elementRef, showCompletions, isHelperPaneOpen]);
+    }, [elementRef, fnSignatureElRef.current, showCompletions, isHelperPaneOpen]);
 
     const handleCancel = () => {
         onCancel();
@@ -446,7 +448,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 !containerRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target) &&
-                !anchorRef?.current?.contains(e.target)
+                !anchorRef?.current?.contains(e.target) &&
+                !fnSignatureElRef.current?.contains(e.target)
             ) {
                 // Additional actions to be performed when the expression editor loses focus
                 setIsFocused(false);
@@ -531,8 +534,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                     <DropdownContainer sx={fnSignatureElPosition}>
                         <Transition show={!!fnSignature} {...ANIMATION}>
                             <FnSignatureEl
+                                ref={fnSignatureElRef}
                                 label={fnSignature?.label}
                                 args={fnSignature?.args}
+                                documentation={fnSignature?.documentation}
                                 currentArgIndex={fnSignature?.currentArgIndex ?? 0}
                                 sx={completionSx}
                                 {...(editorWidth && { editorWidth: `${editorWidth}px` })}
