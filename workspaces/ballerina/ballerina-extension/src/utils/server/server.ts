@@ -12,6 +12,45 @@ import { debug } from '../logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient/node';
 import { isWindows } from '..';
 import { BallerinaExtension } from '../../core';
+import * as fs from 'fs';
+import * as path from 'path';
+
+function findFileByPattern(directory: string, pattern: RegExp): string | null {
+    try {
+        if (!fs.existsSync(directory)) {
+            return null;
+        }
+        const files = fs.readdirSync(directory);
+        const matchingFile = files.find(file => pattern.test(file));
+        return matchingFile ? path.join(directory, matchingFile) : null;
+    } catch (error) {
+        console.error(`Error reading directory ${directory}:`, error);
+        return null;
+    }
+}
+
+function findJarsByPatterns(directory: string, patterns: string[]): string[] {
+    try {
+        if (!fs.existsSync(directory)) {
+            return [];
+        }
+        const files = fs.readdirSync(directory);
+        const matchingJars: string[] = [];
+        
+        patterns.forEach(pattern => {
+            const regex = new RegExp(pattern.replace(/\*/g, '.*') + '\\.jar$');
+            const matchingFile = files.find(file => regex.test(file));
+            if (matchingFile) {
+                matchingJars.push(path.join(directory, matchingFile));
+            }
+        });
+        
+        return matchingJars;
+    } catch (error) {
+        console.error(`Error reading directory ${directory}:`, error);
+        return [];
+    }
+}
 
 export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExtension): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
@@ -37,13 +76,80 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
         opt.env.BAL_DEBUG_OPTS = `-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=${debugPort},quiet=y`;
     }
 
-    if (process.env.LS_CUSTOM_CLASSPATH) {
-        args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);
-    }
+    const ballerinaHome = extension?.getBallerinaHome();
+    // Get the base ballerina home by removing the distribution part
+    const baseHome = ballerinaHome.includes('distributions') 
+        ? ballerinaHome.substring(0, ballerinaHome.indexOf('distributions'))
+        : ballerinaHome;
+    
+    // ballerina jar patterns (using wildcards for version)
+    const ballerinaJarPatterns = [
+        'ballerina-lang-*',
+        'ballerina-tools-api-*',
+        'diagram-util-*',
+        'syntax-api-calls-gen-*',
+        'ballerina-parser-*',
+        'central-client-*',
+        'formatter-core-*',
+        'toml-parser-*'
+    ];
 
-    return {
+    // Generate paths for ballerina home jars using dynamic discovery
+    const ballerinaLibDir = join(ballerinaHome, 'bre', 'lib');
+    const ballerinaJarPaths = findJarsByPatterns(ballerinaLibDir, ballerinaJarPatterns);
+    
+    ballerinaJarPaths.forEach(jarPath => {
+        if (fs.existsSync(jarPath)) {
+            console.log(">>> Found ballerina jar in", jarPath);
+        } else {
+            console.log(">>> Ballerina jar not found in", jarPath);
+        }
+    });
+
+    // language server jar - find any ballerina-language-server jar in the ls directory
+    const lsDir = join(__dirname, 'ls');
+    const ballerinaLanguageServerJar = findFileByPattern(lsDir, /^ballerina-language-server.*\.jar$/);
+    
+    if (!ballerinaLanguageServerJar || !fs.existsSync(ballerinaLanguageServerJar)) {
+        console.error(">>> No ballerina language server jar found in:", lsDir);
+        throw new Error(`Language server JAR not found in ${lsDir}`);
+    }
+    
+    console.log(">>> Found language server jar:", ballerinaLanguageServerJar);
+
+    // join paths and add to args
+    const customPaths = [...ballerinaJarPaths, ballerinaLanguageServerJar];
+    if (process.env.LS_CUSTOM_CLASSPATH) {
+        console.log(">>> LS_CUSTOM_CLASSPATH:", process.env.LS_CUSTOM_CLASSPATH);
+        customPaths.push(process.env.LS_CUSTOM_CLASSPATH);
+    }
+    
+    const classpath = customPaths.join(delimiter);
+    
+    // Find any JDK in the dependencies directory
+    const dependenciesDir = join(baseHome, 'dependencies');
+    const jdkDir = findFileByPattern(dependenciesDir, /^jdk-.*-jre$/);
+    
+    if (!jdkDir) {
+        console.error(">>> No JDK found in dependencies directory:", dependenciesDir);
+        throw new Error(`JDK not found in ${dependenciesDir}`);
+    }
+    
+    const javaExecutable = isWindows() ? 'java.exe' : 'java';
+    cmd = join(jdkDir, 'bin', javaExecutable);
+    args = ['-cp', classpath, 'org.ballerinalang.langserver.launchers.stdio.Main'];
+    
+    console.log(">>> Found JDK:", jdkDir);
+    console.log(">>> Java executable:", cmd, "exists:", fs.existsSync(cmd));
+    
+    // Create the final command line that will be executed
+    const serverOptions = {
         command: cmd,
         args,
         options: opt
     };
+    
+    console.log(">>> final command:", cmd, args.join(" "));
+    
+    return serverOptions;
 }

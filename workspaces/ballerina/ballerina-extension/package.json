@@ -1071,7 +1071,7 @@
     "scripts": {
         "clean": "del-cli ./dist ./out ./ballerina-*.vsix ./coverage ./.nyc_output",
         "compile": "webpack --mode production",
-        "watch-ballerina": "webpack --mode none --watch",
+        "watch-ballerina": "pnpm run copyLSLibs && webpack --mode none --watch",
         "test-compile": "tsc -p ./",
         "test": "pnpm run test-compile && node ./out/test/runTest.js",
         "e2e-test-setup": "npx extest get-vscode -c 1.83.1 && npx extest get-chromedriver -c 1.83.1 && npx extest install-vsix -f $(ls vsix/*.vsix)",
@@ -1082,10 +1082,11 @@
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'",
         "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
         "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
+        "copyLSLibs": "copyfiles -f ls/* dist/ls",
         "copyVSIX": "copyfiles *.vsix ./vsix",
         "copyVSIXToRoot": "copyfiles -f ./vsix/*.vsix ../../..",
-        "build": "pnpm run compile && pnpm run lint && pnpm run postbuild",
-        "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
+        "build": "pnpm run compile && pnpm run lint && pnpm run copyLSLibs && pnpm run postbuild",
+        "rebuild": "pnpm run clean && pnpm run compile && pnpm run copyLSLibs && pnpm run postbuild",
         "postbuild": "pnpm run copyFonts && pnpm run copyJSLibs && pnpm run package && pnpm run copyVSIX",
         "copyJSLibs": "copyfiles -f ../ballerina-visualizer/build/*.js resources/jslibs"
     },
