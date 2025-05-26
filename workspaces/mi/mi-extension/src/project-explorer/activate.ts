@@ -559,9 +559,12 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 							window.showInformationMessage(`${item.label} has been deleted.`);
 							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
 
-							const currentLocation = StateMachine.context();
-							if (currentLocation.documentUri === fileUri) {
-								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+							const projectUri = workspace.getWorkspaceFolder(Uri.file(fileUri))?.uri?.fsPath;
+							if (projectUri) {
+								const currentLocation = getStateMachine(projectUri).context();
+								if (currentLocation.documentUri === fileUri) {
+									openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+								}
 							}
 							removeFromHistory(fileUri.fsPath);
 						} catch (error) {
