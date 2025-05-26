@@ -6,3 +6,4 @@ export { startVSCode } from './launcher';
 
 export * from './components/Page';
 export * from './components/Utils';
+export * from './components/Form';

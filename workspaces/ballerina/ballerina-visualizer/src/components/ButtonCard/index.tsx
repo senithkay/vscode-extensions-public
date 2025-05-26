@@ -96,6 +96,7 @@ const IconContainer = styled.div`
 export type ButtonCardAppearance = "large" | "small";
 
 export interface ButtonCardProps {
+    id?: string;
     title: string;
     caption?: string;
     description?: string;
@@ -130,6 +131,7 @@ export function ButtonCard(props: ButtonCardProps) {
     return (
         <Tooltip content={tooltip}>
             <Card
+                id={props.id}
                 onClick={disabled ? undefined : onClick}
                 active={active ?? false}
                 appearance={appearance}

@@ -187,7 +187,8 @@ export function RuntimeServicePanel() {
         if (aboslutePath) {
             const swaggerResponse = await rpcClient.getMiDiagramRpcClient().getOpenAPISpec({
                 apiName: name,
-                apiPath: aboslutePath
+                apiPath: aboslutePath,
+                isRuntimeService: true
             });
         }
     };

@@ -548,15 +548,14 @@ function generateArtifacts(
 				const mediators = findJavaFiles(javaPath);
 				parentEntry.id = 'class-mediator';
 				parentEntry.children = generateTreeDataOfClassMediator(project, projectStructure);
-				parentEntry.contextValue = 'class-mediator';
+				parentEntry.contextValue = 'class-mediators';
 				break;
 			}
 			case 'Ballerina Modules': {
-				const ballerinaPath = path.join(project.uri.fsPath, 'src', 'main', 'ballerina');
 				parentEntry.id = 'ballerina-module';
 				parentEntry.children = generateTreeDataOfBallerinaModule(project, projectStructure,
 					data[key].filter(file => file.name !== "Ballerina.toml"));
-				parentEntry.contextValue = 'ballerina-module';
+				parentEntry.contextValue = 'ballerina-modules';
 				break;
 			}
 			case 'Data Mappers': {
@@ -610,6 +609,7 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
 				"arguments": [vscode.Uri.file(filePath)]
 			};
+			resourceEntry.contextValue = 'class-mediator';
 			result.push(resourceEntry);
 		}
 	}
@@ -641,6 +641,7 @@ function generateTreeDataOfBallerinaModule(project: vscode.WorkspaceFolder, data
 				"command": COMMANDS.EDIT_BALLERINA_MODULE_COMMAND,
 				"arguments": [vscode.Uri.file(filePath)]
 			};
+			resourceEntry.contextValue = 'ballerina-module';
 			result.push(resourceEntry);
 		}
 	}

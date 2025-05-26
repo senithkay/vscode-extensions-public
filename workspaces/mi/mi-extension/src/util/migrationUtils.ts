@@ -27,7 +27,8 @@ enum Nature {
     DATASOURCE,
     CONNECTOR,
     REGISTRY,
-    CLASS
+    CLASS,
+    LEGACY
 }
 
 export async function importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
@@ -39,7 +40,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
 
     if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
-            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION, ""),
+            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId.toLowerCase(), projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION, ""),
             '.env': '',
             'src': {
                 'main': {
@@ -158,6 +159,22 @@ export async function migrateConfigs(source: string, target: string) {
                 }
             }
         });
+    } else if (projectType === Nature.LEGACY) {
+        const items = fs.readdirSync(source, { withFileTypes: true });
+        items.forEach(item => {
+            if (item.isDirectory()) {
+                const sourceAbsolutePath = path.join(source, item.name);
+                const moduleType = determineProjectType(path.join(source, item.name));
+                if (moduleType === Nature.LEGACY) {
+                    processArtifactsFolder(sourceAbsolutePath, target);
+                    processMetaDataFolder(sourceAbsolutePath, target);
+                    processTestsFolder(sourceAbsolutePath, target);
+                }
+            }
+        });
+    } else if (projectType === Nature.ESB || projectType === Nature.DS || projectType === Nature.DATASOURCE ||
+        projectType === Nature.CONNECTOR || projectType === Nature.REGISTRY || projectType === Nature.CLASS) {
+        copyConfigsToNewProjectStructure(projectType, source, target);
     }
     if (hasClassMediatorModule) {
         await changeRootPomForClassMediator();
@@ -202,6 +219,9 @@ function determineProjectType(source: string): Nature | undefined {
                         break;
                     case 'org.wso2.developerstudio.eclipse.artifact.mediator.project.nature':
                         configType = Nature.CLASS;
+                        break;
+                    case 'org.eclipse.m2e.core.maven2Nature':
+                        configType = Nature.LEGACY;
                         break;
                 }
             }

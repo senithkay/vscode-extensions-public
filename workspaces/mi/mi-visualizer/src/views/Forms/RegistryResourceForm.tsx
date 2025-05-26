@@ -386,6 +386,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     id="templateType"
                     items={templates}
                     {...register("templateType")}
+                    dropdownContainerSx={{ position: "relative", "z-index": 1000 }}
                 />
             </>)}
             {!createOptionValue && (<>

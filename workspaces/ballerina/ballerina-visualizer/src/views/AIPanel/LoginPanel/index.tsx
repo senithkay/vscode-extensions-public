@@ -72,7 +72,7 @@ const LegalNotice: React.FC = () => {
     return (
         <PostLoginSection>
             <div>
-                WSO2 Copilot uses AI to assist with integration. Please review all suggested content before adding it to
+                BI Copilot uses AI to assist with integration. Please review all suggested content before adding it to
                 your integration.
             </div>
             <div>
@@ -106,7 +106,7 @@ const LoginPanel: React.FC = () => {
                     sx={{ width: 54, height: 54 }}
                     iconSx={{ fontSize: "54px", color: "var(--vscode-foreground)", cursor: "default" }}
                 />
-                <Title>Welcome to WSO2 Copilot</Title>
+                <Title>Welcome to BI Copilot</Title>
                 <Typography
                     variant="body1"
                     sx={{
@@ -122,7 +122,7 @@ const LoginPanel: React.FC = () => {
             <BottomSpacer />
             <FooterContent>
                 <LegalNotice />
-                <StyledButton onClick={handleCopilotLogin}>Login to WSO2 Copilot</StyledButton>
+                <StyledButton onClick={handleCopilotLogin}>Login to BI Copilot</StyledButton>
             </FooterContent>
         </PanelWrapper>
     );

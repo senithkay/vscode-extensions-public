@@ -34,7 +34,7 @@ const WaitingForLogin = () => {
                 buttonTitle="Cancel"
                 onClick={cancelLogin}
                 subTitle={
-                    "Waiting for the login credentials. Please sign in to your WSO2 Copilot account in the browser window to continue."
+                    "Waiting for the login credentials. Please sign in to your BI Copilot account in the browser window to continue."
                 }
                 title={"Waiting for Login"}
             />

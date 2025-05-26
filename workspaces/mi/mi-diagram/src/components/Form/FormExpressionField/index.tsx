@@ -11,7 +11,7 @@ import { debounce } from 'lodash';
 import React, { CSSProperties, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
+import { FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import {
     Button,
@@ -28,8 +28,6 @@ import { getHelperPane } from '../HelperPane';
 import {
     enrichExpressionValue,
     extractExpressionValue,
-    filterHelperPaneCompletionItems,
-    filterHelperPaneFunctionCompletionItems,
     formatExpression,
     getExpressionValue,
     modifyCompletion
@@ -164,15 +162,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const cursorPositionRef = useRef<number>(null);
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
-    const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
     const [isExActive, setIsExActive] = useState<boolean>(false);
-    const [payloadInfo, setPayloadInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [variableInfo, setVariableInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [propertiesInfo, setPropertiesInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo>(null);
-    const [configInfo, setConfigInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [headerInfo, setHeaderInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [paramInfo, setParamInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [isAIFill, setIsAIFill] = useState<boolean>(value.fromAI);
 
     const debouncedRetrieveCompletions = useCallback(
@@ -228,54 +218,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
         handleCancel();
     };
-
-    const getHelperPaneInfo = useCallback(debounce((type: string, filterText: string) => {
-        rpcClient.getVisualizerState().then((machineView) => {
-            let position = nodeRange ? (nodeRange?.start == nodeRange?.end ? nodeRange.start :
-                { line: nodeRange.start.line, character: nodeRange.start.character + 1 }) : undefined;
-            rpcClient
-                .getMiDiagramRpcClient()
-                .getHelperPaneInfo({
-                    documentUri: machineView.documentUri,
-                    position: position,
-                })
-                .then((response) => {
-                    switch (type) {
-                        case 'payload':
-                            setPayloadInfo(filterHelperPaneCompletionItems(response.payload, filterText));
-                            break;
-                        case 'variables':
-                            setVariableInfo(filterHelperPaneCompletionItems(response.variables, filterText));
-                            break;
-                        case 'properties':
-                            setPropertiesInfo(filterHelperPaneCompletionItems(response.properties, filterText));
-                            break;
-                        case 'functions':
-                            setFunctionInfo(filterHelperPaneFunctionCompletionItems(response.functions, filterText));
-                            break;
-                        case 'configs':
-                            setConfigInfo(filterHelperPaneCompletionItems(response.configs, filterText));
-                            break;
-                        case 'headers':
-                            setHeaderInfo(filterHelperPaneCompletionItems(response.headers, filterText));
-                            break;
-                        case 'params':
-                            setParamInfo(filterHelperPaneCompletionItems(response.params, filterText));
-                            break;
-                    }
-                })
-                .finally(() => {
-                    setIsLoadingHelperPaneInfo(false);
-                });
-        });
-    }, 300),
-        [rpcClient, nodeRange?.start]
-    );
-
-    const handleGetHelperPaneInfo = useCallback((type: string, filterText: string) => {
-        setIsLoadingHelperPaneInfo(true);
-        getHelperPaneInfo(type, filterText);
-    }, [getHelperPaneInfo]);
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
         setIsHelperPaneOpen(isOpen);
@@ -428,7 +370,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                         onBlur={handleBlur}
                         onCancel={handleCancel}
                         getExpressionEditorIcon={handleGetExpressionEditorIcon}
-                        helperPaneOrigin='left'
                         actionButtons={actionButtons}
                         {...(value.isExpression && {
                             completions,
@@ -436,6 +377,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                             changeHelperPaneState: handleChangeHelperPaneState,
                             getHelperPane: handleGetHelperPane,
                             onFunctionEdit: handleFunctionEdit,
+                            helperPaneSx: { zIndex: 2101 },
                             startAdornment: (
                                 <S.AdornmentContainer>
                                     <Typography variant="h4" sx={{ margin: 0 }}>
@@ -528,14 +470,14 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                             height: '26px',
                             width: '22px',
                             borderRadius: '2px',
-                            backgroundColor: isAIFill ? Colors.PRIMARY : Colors.SECONDARY_BUTTON,
+                            backgroundColor: isAIFill ? Colors.PRIMARY : "transparent",
                         }}
                     >
                         <Codicon
                             name={"wand"}
                             iconSx={{
                                 fontSize: '12px',
-                                color: Colors.ON_PRIMARY
+                                color: isAIFill ? "white" : Colors.PRIMARY,
                             }}
                             sx={{ height: '14px', width: '16px' }}
                         />

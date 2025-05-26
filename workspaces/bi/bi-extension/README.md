@@ -29,9 +29,9 @@ Click on the **+ Add Artifact** button to add artifacts to your integration proj
 
 <img src="https://github.com/wso2/docs-bi/blob/main/en/docs/assets/img/extension-readme/designer.png?raw=true" width="100%" />
 
-## WSO2 Copilot
+## BI Copilot
 
-The WSO2 Copilot is an AI-powered tool that simplifies the process of creating integration scenarios. It allows you to specify integration requirements using natural language or by providing relevant files, such as OpenAPI specifications. WSO2 Copilot generates the necessary integration artifacts, which can be seamlessly incorporated into your projects. You can iteratively refine your projects through conversational prompts, enabling the addition of features or modifications with ease. This approach supports incremental development, allowing you to build and enhance your integration projects over time.
+The BI Copilot is an AI-powered tool that simplifies the process of creating integration scenarios. It allows you to specify integration requirements using natural language or by providing relevant files, such as OpenAPI specifications. BI Copilot generates the necessary integration artifacts, which can be seamlessly incorporated into your projects. You can iteratively refine your projects through conversational prompts, enabling the addition of features or modifications with ease. This approach supports incremental development, allowing you to build and enhance your integration projects over time.
 
 <img src="https://github.com/wso2/docs-bi/blob/main/en/docs/assets/img/extension-readme/open-ai-panel.png?raw=true" width="100%" />
 
