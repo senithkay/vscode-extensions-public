@@ -263,7 +263,10 @@ import {
     UpdateMediatorResponse,
     GetConnectorIconRequest,
     GetConnectorIconResponse,
-    DependencyDetails
+    DependencyDetails,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse,
+    getCodeDiagnostics
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -506,6 +509,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: documentUri
                 },
             });
+            console.log("Test Diagnostics");
+            console.log(await this.getCodeDiagnostics({"xmlCodes": [{fileName: "test.xml", code: "<test><format//></test>"}]}));
             resolve(res);
         });
     }
@@ -5520,6 +5525,23 @@ ${keyValuesXML}`;
             }
         });
     }
+
+    async getCodeDiagnostics(params: GetCodeDiagnosticsReqeust): Promise<GetCodeDiagnosticsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            //Empty array to store the diagnostics
+            const diagnostics: GetCodeDiagnosticsResponse = {diagnostics: []};
+            for(const xmlCode of params.xmlCodes){
+                const res = await langClient.getCodeDiagnostics(xmlCode);
+                diagnostics.diagnostics.push({
+                    fileName: xmlCode.fileName,
+                    diagnostics: res.diagnostics
+                });
+            }
+            resolve(diagnostics);
+        });
+    }
+
 
     async closePayloadAlert(): Promise<void> {
         return new Promise(async (resolve) => {

@@ -14,7 +14,7 @@ import SuggestionsList from "./SuggestionsList";
 import { useMICopilotContext } from "./MICopilotContext";
 import { handleFileAttach } from "../utils";
 import { USER_INPUT_PLACEHOLDER_MESSAGE, VALID_FILE_TYPES } from "../constants";
-import { generateSuggestions, generateId, getBackendUrlAndView, fetchCodeGenerationsWithRetry } from "../utils";
+import { generateSuggestions, generateId, getBackendUrlAndView, fetchCodeGenerationsWithRetry, getDiagnosticsReponseFromLlm } from "../utils";
 import { Role, MessageType, CopilotChatEntry, BackendRequestType } from "../types";
 import Attachments from "./Attachments";
 
@@ -60,6 +60,32 @@ const AIChatFooter: React.FC = () => {
     const [showDots, setShowDots] = useState(false);
 
     const [thinkingChecked, setChecked] = useState(false);
+    // Reference to store code blocks for the current chat
+    const currentChatCodeBlocksRef = useRef<string[]>([]);
+
+    // List of programming languages to filter for actual code files
+    const codeLanguages = [
+        'typescript', 'ts', 'javascript', 'js', 'jsx', 'tsx',
+        'java', 'python', 'py', 'c', 'cpp', 'cs', 'go', 'rust',
+        'php', 'ruby', 'swift', 'kotlin', 'scala', 'html', 'css',
+        'xml', 'yaml', 'yml', 'bash', 'sh', 'sql'
+    ];
+
+    // Function to extract code content from a code block
+    const extractCodeContent = (codeBlock: string): { language: string, code: string } | null => {
+        // Match the language identifier and code content
+        const match = codeBlock.match(/```([\w#+]*)\s*\n([\s\S]*?)```/);
+        if (!match) return null;
+
+        const language = match[1].trim().toLowerCase();
+        const code = match[2];
+
+        // Check if this is an actual code file (not JSON examples or other non-code content)
+        if (codeLanguages.includes(language)) {
+            return { language, code };
+        }
+        return null;
+    };
 
     const toggleThinkingSelection = () => {
         setChecked(!thinkingChecked);
@@ -137,6 +163,9 @@ const AIChatFooter: React.FC = () => {
 
         // Variable to hold Assistant response
         let assistant_response = "";
+
+        // Reset the current chat code blocks array for this new chat
+        currentChatCodeBlocksRef.current = [];
 
         // Add the current user prompt to the chats based on the request type
         let currentCopilotChat: CopilotChatEntry[] = [...copilotChat];
@@ -239,6 +268,84 @@ const AIChatFooter: React.FC = () => {
                                 { id: chatId, role: Role.CopilotAssistant, content: assistant_response },
                             ]);
 
+                            // Console log the code blocks for this chat
+                            console.log("Code files for chat ID:", chatId);
+                            console.log(currentChatCodeBlocksRef.current);
+                            // Filter XML code blocks and pass them to getCodeDiagnostics
+                            const xmlCodes = currentChatCodeBlocksRef.current
+                                .filter(codeBlock => {
+                                    // Extract language from the comment line
+                                    const languageMatch = codeBlock.match(/\/\/ Language: (\w+)/);
+                                    return languageMatch && languageMatch[1].toLowerCase() === 'xml';
+                                })
+                                .map((xmlCodeBlock, index) => {
+                                    // Remove the language comment line and get the actual code
+                                    const code = xmlCodeBlock.replace(/\/\/ Language: \w+\n/, '');
+                                    
+                                    // Extract the name attribute from the XML content
+                                    const nameMatch = code.match(/name=["']([^"']+)["']/);
+                                    const fileName = nameMatch ? `${nameMatch[1]}.xml` : `code_${index}.xml`;
+                                    
+                                    return {
+                                        fileName,
+                                        code
+                                    };
+                                });
+                            
+                            console.log("XML code blocks:", xmlCodes);
+                            
+                            // Only call getCodeDiagnostics if there are XML code blocks
+                            if (xmlCodes.length > 0) {
+                                try {
+                                    // Get diagnostics from the RPC client
+                                    const diagnosticResponse = await rpcClient.getMiDiagramRpcClient().getCodeDiagnostics({
+                                        xmlCodes
+                                    });
+
+                                    console.log("Diagnostics response:", diagnosticResponse);
+                                    
+                                    // If there are diagnostics, send them to the LLM for analysis
+                                    if (diagnosticResponse && diagnosticResponse.diagnostics && diagnosticResponse.diagnostics.length > 0) {
+                                        // Import the getDiagnosticsReponseFromLlm function
+                                        const llmResponse = await getDiagnosticsReponseFromLlm(
+                                            diagnosticResponse.diagnostics,
+                                            rpcClient,
+                                            new AbortController() // Create a new controller for this request
+                                        );
+                                        
+                                        // Process the LLM response
+                                        const llmResponseData = await llmResponse.json();
+                                        console.log("LLM diagnostics analysis:", llmResponseData);
+                                        
+                                        // If the LLM provides suggestions, add them to the chat
+                                        // if (llmResponseData && llmResponseData.suggestions) {
+                                        //     // Add the LLM's suggestions to the chat as a new message
+                                        //     setCopilotChat((prevCopilotChat) => [
+                                        //         ...prevCopilotChat,
+                                        //         { 
+                                        //             id: generateId(), 
+                                        //             role: Role.CopilotAssistant, 
+                                        //             content: llmResponseData.suggestions 
+                                        //         },
+                                        //     ]);
+                                            
+                                        //     // Update the messages in the UI
+                                        //     setMessages((prevMessages) => [
+                                        //         ...prevMessages,
+                                        //         {
+                                        //             id: generateId(),
+                                        //             role: Role.MICopilot,
+                                        //             content: llmResponseData.suggestions,
+                                        //             type: MessageType.AssistantMessage,
+                                        //         }
+                                        //     ]);
+                                        // }
+                                    }
+                                } catch (error) {
+                                    console.error("Error processing diagnostics:", error);
+                                }
+                            }
+
                             const questions = json.questions.map((question: string) => {
                                 return {
                                     id: chatId,
@@ -266,6 +373,16 @@ const AIChatFooter: React.FC = () => {
                             while ((match = regex.exec(assistant_response)) !== null) {
                                 if (!newCodeBlocks.includes(match[0])) {
                                     newCodeBlocks.push(match[0]);
+                                    
+                                    // Process the code block to extract actual code files
+                                    const codeContent = extractCodeContent(match[0]);
+                                    if (codeContent) {
+                                        // Only add actual code files to the current chat's code blocks array
+                                        const codeFileEntry = `// Language: ${codeContent.language}\n${codeContent.code}`;
+                                        if (!currentChatCodeBlocksRef.current.includes(codeFileEntry)) {
+                                            currentChatCodeBlocksRef.current.push(codeFileEntry);
+                                        }
+                                    }
                                 }
                             }
 

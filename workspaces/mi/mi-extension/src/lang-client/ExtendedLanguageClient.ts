@@ -64,6 +64,9 @@ import {
     CheckDBDriverResponse,
     RemoveDBDriverResponse,
     LocalInboundConnectorsResponse,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse,
+    XmlCode,
     MavenDeployPluginDetails
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
@@ -428,5 +431,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async testConnectorConnection(req: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
         return this.sendRequest("synapse/testConnectorConnection", req);
+    }
+
+    async getCodeDiagnostics(req: XmlCode): Promise<GetDiagnosticsResponse> {
+        return this.sendRequest("synapse/codeDiagnostic", req);
     }
 }
