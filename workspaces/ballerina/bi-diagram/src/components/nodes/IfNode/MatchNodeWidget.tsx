@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { IfNodeModel } from "./IfNodeModel";
 import { IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT } from "../../../resources/constants";
@@ -160,7 +160,7 @@ export function MatchNodeWidget(props: MatchNodeWidgetProps) {
                 </NodeStyles.Column>
                 <NodeStyles.Header onClick={handleOnClick}>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>{model.node.properties.condition.value}</NodeStyles.Description>
+                    <NodeStyles.Description>{model.node.properties.condition.value as ReactNode}</NodeStyles.Description>
                 </NodeStyles.Header>
                 {hasError && (
                     <NodeStyles.ErrorIcon>

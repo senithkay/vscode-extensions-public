@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { WhileNodeModel } from "./WhileNodeModel";
@@ -277,7 +277,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                 <NodeStyles.Header>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
                     {model.node.properties?.condition && (
-                        <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
+                        <NodeStyles.Description>{model.node.properties.condition?.value as ReactNode}</NodeStyles.Description>
                     )}
                 </NodeStyles.Header>
                 {!readOnly && (

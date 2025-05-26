@@ -12,9 +12,12 @@ import * as React from 'react';
 import { css, Global } from '@emotion/react';
 import styled, {StyledComponent} from '@emotion/styled';
 
-export const Container: StyledComponent<{
-	hidden: boolean;
-  }, {}, {}> = styled.div`
+type ContainerProps = {
+    hidden: boolean;
+    children?: React.ReactNode;
+};
+
+export const Container = styled.div<ContainerProps>`
 	// should take up full height minus the height of the header
 	height: calc(100% - 50px);
 	background-image: radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0);
@@ -38,7 +41,11 @@ export const Expand = css`
 `;
 
 
-export class DataMapperCanvasContainerWidget extends React.Component<{ hideCanvas: boolean }> {
+export class DataMapperCanvasContainerWidget extends React.Component<React.PropsWithChildren<{ hideCanvas: boolean }>> {
+	constructor(props: React.PropsWithChildren<{ hideCanvas: boolean }>) {
+		super(props);
+		this.render = this.render.bind(this);
+	}
 	render() {
 		return (
 			<>
