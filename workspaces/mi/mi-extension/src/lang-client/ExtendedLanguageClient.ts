@@ -66,7 +66,10 @@ import {
     TestConnectorConnectionResponse,
     CheckDBDriverResponse,
     RemoveDBDriverResponse,
-    LocalInboundConnectorsResponse
+    LocalInboundConnectorsResponse,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse,
+    XmlCode
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -424,5 +427,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async testConnectorConnection(req: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
         return this.sendRequest("synapse/testConnectorConnection", req);
+    }
+
+    async getCodeDiagnostics(req: XmlCode): Promise<GetDiagnosticsResponse> {
+        return this.sendRequest("synapse/codeDiagnostic", req);
     }
 }

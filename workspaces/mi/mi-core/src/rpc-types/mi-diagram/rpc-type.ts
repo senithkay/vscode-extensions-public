@@ -240,7 +240,9 @@ import {
     CreateBallerinaModuleRequest,
     HandleFileRequest,
     HandleFileResponse,
-    DevantMetadata
+    DevantMetadata,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -407,3 +409,4 @@ export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperP
 export const testConnectorConnection: RequestType<TestConnectorConnectionRequest, TestConnectorConnectionResponse> = { method: `${_preFix}/testConnectorConnection` };
 export const saveConfig: RequestType<SaveConfigRequest, SaveConfigResponse> = { method: `${_preFix}/saveConfig` };
 export const getEULALicense: RequestType<void, string> = { method: `${_preFix}/getEULALicense` };
+export const getCodeDiagnostics: RequestType<GetCodeDiagnosticsReqeust, GetCodeDiagnosticsResponse> = { method: `${_preFix}/getCodeDiagnostics` };

@@ -283,7 +283,10 @@ import {
     deployProject,
     DeployProjectRequest,
     CreateBallerinaModuleRequest,
-    getDevantMetadata
+    getDevantMetadata,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse,
+    getCodeDiagnostics
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -451,4 +454,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(testConnectorConnection, (args: TestConnectorConnectionRequest) => rpcManger.testConnectorConnection(args));
     messenger.onRequest(saveConfig, (args: SaveConfigRequest) => rpcManger.saveConfig(args));
     messenger.onRequest(getEULALicense, () => rpcManger.getEULALicense());
+    messenger.onRequest(getCodeDiagnostics, (args: GetCodeDiagnosticsReqeust) => rpcManger.getCodeDiagnostics(args));
 }

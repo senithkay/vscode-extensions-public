@@ -14,6 +14,7 @@ import {
     MI_ARTIFACT_EDIT_BACKEND_URL,
     MI_ARTIFACT_GENERATION_BACKEND_URL,
     MI_SUGGESTIVE_QUESTIONS_BACKEND_URL,
+    MI_DIAGNOSTICS_RESPONSE_BACKEND_URL,
     COPILOT_ERROR_MESSAGES,
     MAX_FILE_SIZE, VALID_FILE_TYPES,
 } from "./constants";
@@ -585,4 +586,52 @@ export const isDarkMode = (): boolean => {
     }
             
     return false;                         
+}
+
+/**
+ * Function to send diagnostics to the LLM backend and get a response
+ * @param diagnostics The diagnostics array received from the code diagnostics
+ * @param rpcClient The RPC client instance
+ * @param controller The abort controller for the fetch request
+ * @returns Promise with the response from the LLM backend
+ */
+export async function getDiagnosticsReponseFromLlm(
+    diagnostics: any,
+    rpcClient: RpcClientType,
+    controller: AbortController
+): Promise<Response> {
+    try {
+        // Get the backend URL
+        const backendRootUri = await fetchBackendUrl(rpcClient);
+        if (!backendRootUri) {
+            throw new Error("Failed to fetch backend URL");
+        }
+
+        // Construct the full URL
+        const url = backendRootUri + MI_DIAGNOSTICS_RESPONSE_BACKEND_URL;
+        
+        // Get the context
+        const context = await getContext(rpcClient);
+        
+        // Get the user token
+        const token = await rpcClient?.getMiDiagramRpcClient().getUserAccessToken();
+        
+        // Prepare the request body
+        const requestBody = {
+            diagnostics: diagnostics,
+            context: context[0].context
+        };
+        
+        // Send the request to the backend
+        return fetchWithRetry(
+            BackendRequestType.UserPrompt,
+            url,
+            requestBody,
+            rpcClient,
+            controller
+        );
+    } catch (error) {
+        console.error("Error sending diagnostics to LLM:", error);
+        throw error;
+    }
 }

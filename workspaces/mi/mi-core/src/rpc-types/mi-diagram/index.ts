@@ -239,7 +239,9 @@ import {
     BuildProjectRequest,
     DeployProjectRequest,
     DeployProjectResponse,
-    DevantMetadata
+    DevantMetadata,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -404,4 +406,5 @@ export interface MiDiagramAPI {
     testConnectorConnection: (params: TestConnectorConnectionRequest) => Promise<TestConnectorConnectionResponse>;
     saveConfig: (params: SaveConfigRequest) => Promise<SaveConfigResponse>;
     getEULALicense: () => Promise<string>;
+    getCodeDiagnostics: (params: GetCodeDiagnosticsReqeust) => Promise<GetCodeDiagnosticsResponse>;
 }

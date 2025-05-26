@@ -403,7 +403,10 @@ import {
     CreateBallerinaModuleResponse,
     buildBallerinaModule,
     DevantMetadata,
-    getDevantMetadata
+    getDevantMetadata,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse,
+    getCodeDiagnostics
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -1061,5 +1064,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getEULALicense(): Promise<string> {
         return this._messenger.sendRequest(getEULALicense, HOST_EXTENSION);
+    }
+
+    getCodeDiagnostics(params: GetCodeDiagnosticsReqeust): Promise<GetCodeDiagnosticsResponse> {
+        return this._messenger.sendRequest(getCodeDiagnostics, HOST_EXTENSION, params);
     }
 }
