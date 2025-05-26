@@ -14,7 +14,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 
 const _preFix = "visualizer";
 export const openView: NotificationType<OpenViewRequest> = { method: `${_preFix}/openView` };
-export const getHistory: NotificationType<void> = { method: `${_preFix}/getHistory` };
+export const getHistory: RequestType<void,HistoryEntry[]> = { method: `${_preFix}/getHistory` };
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
 export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
 export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };

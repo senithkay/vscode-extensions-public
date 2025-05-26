@@ -30,7 +30,7 @@
     "@types/ws": "^8.2.1"
   },
   "devDependencies": {
-    "@types/node": "^18.11.19",
+    "@types/node": "^22.15.21",
     "@types/vscode": "^1.83.1",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
