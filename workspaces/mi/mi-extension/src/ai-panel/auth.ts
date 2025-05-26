@@ -14,6 +14,7 @@ import { extension } from '../MIExtensionContext';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 import { USER_CHECK_BACKEND_URL } from '../constants';
+import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
 
 export interface AccessToken {
     accessToken: string;
@@ -78,9 +79,9 @@ export async function exchangeAuthCode(authCode: string) {
             await extension.context.secrets.store('MIAIUser', response.accessToken);
             await extension.context.secrets.store('MIAIRefreshToken', response.refreshToken ?? '');
 
-            const config = vscode.workspace.getConfiguration('MI');
-            const ROOT_URL = config.get('rootUrl') as string;
-            const url = ROOT_URL + USER_CHECK_BACKEND_URL;
+            const rpcManager = new MiDiagramRpcManager();
+            const backendRootUrlResponse = await rpcManager.getBackendRootUrl();
+            const url = backendRootUrlResponse.url + USER_CHECK_BACKEND_URL;
             
             const fetch_response = await fetch(url, {
                 method: 'GET',
