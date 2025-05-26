@@ -108,6 +108,7 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
                 org: org,
                 module: module,
                 version: version,
+                packageName: defaultSelection?.packageName,
             },
             typeConstraint: defaultSelection.type,
         }
@@ -148,6 +149,7 @@ export function ConfigureRecordPage(props: ConfigureRecordPageProps) {
                     org: org,
                     module: module,
                     version: version,
+                    packageName: member?.packageName,
                 },
                 typeConstraint: member.type,
             }
