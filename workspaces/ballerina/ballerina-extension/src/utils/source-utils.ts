@@ -16,6 +16,7 @@ import path from 'path';
 import { StateMachine } from '../stateMachine';
 import { ArtifactsUpdated, ArtifactNotificationHandler } from './project-artifacts-handler';
 import { existsSync, writeFileSync } from 'fs';
+import { notifyCurrentWebview } from '../RPCLayer';
 
 export interface UpdateSourceCodeRequest {
     textEdits: {
@@ -105,6 +106,7 @@ export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCode
                         }
                         resolve(payload.data);
                         StateMachine.setReadyMode();
+                        notifyCurrentWebview();
                         unsubscribe();
                     });
 
