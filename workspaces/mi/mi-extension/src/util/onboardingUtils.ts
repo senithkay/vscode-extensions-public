@@ -12,7 +12,7 @@ import { COMMANDS } from '../constants';
 import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
 import { parseStringPromise } from 'xml2js';
 import { LATEST_CAR_PLUGIN_VERSION } from './templates';
-import { runCommand } from '../test-explorer/runner';
+import { runCommand, runBasicCommand } from '../test-explorer/runner';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
 const AdmZip = require('adm-zip');
@@ -991,7 +991,11 @@ async function runBallerinaBuildsWithProgress(balProjectPath: string) {
                 commandFailed = false;
                 progress.report({ increment: 40, message: "Generating module..." });
 
-                runCommand(`${balHome}${path.sep}bal mi-module-gen -i .`, `"${balProjectPath}"`, onData, onError, onComplete);
+                const outputChannel = vscode.window.createOutputChannel('Ballerina Module Builder');
+                outputChannel.clear();
+                runBasicCommand(`${balHome}${path.sep}bal mi-module-gen -i .`, `${balProjectPath}`,
+                    onData, onError, onComplete, outputChannel
+                );
 
                 async function onComplete() {
                     try {
@@ -1005,7 +1009,7 @@ async function runBallerinaBuildsWithProgress(balProjectPath: string) {
                             fs.rmSync(targetFolderPath, { recursive: true, force: true });
                         } else {
                             reject();
-                            return vscode.window.showErrorMessage("Target directory not found");
+                            return vscode.window.showErrorMessage("Ballerina module build process failed.");
                         }
 
                         const tomlContent = fs.readFileSync(path.join(balProjectPath, "Ballerina.toml"), 'utf8');

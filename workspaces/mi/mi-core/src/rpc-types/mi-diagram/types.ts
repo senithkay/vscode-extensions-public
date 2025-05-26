@@ -1710,6 +1710,7 @@ export interface SwaggerTypeRequest {
     apiPath: string;
     generatedSwagger?: string;
     existingSwagger?: string;
+    isRuntimeService?: boolean;
 }
 
 export interface SwaggerFromAPIResponse {
@@ -1721,6 +1722,7 @@ export interface SwaggerFromAPIRequest {
     swaggerPath?: string;
     isJsonIn?: boolean;
     isJsonOut?: boolean;
+    port?: number;
 }
 
 export interface CompareSwaggerAndAPIResponse {

@@ -28,7 +28,7 @@ export class RemoveEmptyNodesVisitor implements BaseVisitor {
                     branch.children.splice(emptyNodeIndex, 1);
                 }
                 // remove start nodes from workers
-                if (branch.children[0].codedata.node === "EVENT_START") {
+                if (branch.children[0]?.codedata.node === "EVENT_START") {
                     branch.children.shift();
                 }
             }

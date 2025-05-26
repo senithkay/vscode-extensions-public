@@ -819,7 +819,6 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     async function handleSettings() {
-        await rpcClient.getAiPanelRpcClient().openSettings();
         rpcClient.getCommonRpcClient().executeCommand({ commands: [SHARED_COMMANDS.OPEN_AI_PANEL] });
     }
 

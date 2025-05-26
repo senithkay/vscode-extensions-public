@@ -408,4 +408,7 @@ export interface MiDiagramAPI {
     testConnectorConnection: (params: TestConnectorConnectionRequest) => Promise<TestConnectorConnectionResponse>;
     saveConfig: (params: SaveConfigRequest) => Promise<SaveConfigResponse>;
     getEULALicense: () => Promise<string>;
+    shouldDisplayPayloadAlert: () => Promise<boolean>;
+    displayPayloadAlert: () => Promise<void>;
+    closePayloadAlert: () => Promise<void>;
 }

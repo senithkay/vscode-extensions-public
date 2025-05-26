@@ -384,6 +384,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			case 'dataSource':
 			case 'connection':
 			case 'data-service':
+			case 'class-mediator':
 				{
 					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;
 					if (!fileUri) {
@@ -533,6 +534,42 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				}
 				break;
 			}
+			case 'ballerina-module':
+				{
+					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;
+					if (!fileUri) {
+						window.showErrorMessage('Module not found.');
+						return;
+					}
+					const confirmation = await window.showWarningMessage(
+						`Are you sure you want to delete ${item.contextValue} - ${item.label}?`,
+						{ modal: true },
+						'Yes'
+					);
+
+					if (confirmation === 'Yes') {
+						try {
+							const folderPath = path.dirname(fileUri.fsPath);
+							if (fs.existsSync(folderPath)) {
+								fs.rmSync(folderPath, { recursive: true, force: true });
+								console.log(`Deleted folder: ${folderPath}`);
+							} else {
+								console.error(`Folder does not exist: ${folderPath}`);
+							}
+							window.showInformationMessage(`${item.label} has been deleted.`);
+							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+
+							const currentLocation = StateMachine.context();
+							if (currentLocation.documentUri === fileUri) {
+								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+							}
+							removeFromHistory(fileUri.fsPath);
+						} catch (error) {
+							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
+						}
+					}
+					break;
+				}
 		}
 		projectExplorerDataProvider.refresh();
 		if (compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0 && registryExplorerDataProvider) {

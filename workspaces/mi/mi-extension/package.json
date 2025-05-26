@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "2.2.0",
+  "version": "2.2.2",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -795,12 +795,12 @@
         },
         {
           "command": "MI.project-explorer.add-class-mediator",
-          "when": "view == MI.project-explorer && viewItem == class-mediator",
+          "when": "view == MI.project-explorer && viewItem == class-mediators",
           "group": "inline"
         },
         {
           "command": "MI.project-explorer.add-ballerina-module",
-          "when": "view == MI.project-explorer && viewItem == ballerina-module",
+          "when": "view == MI.project-explorer && viewItem == ballerina-modules",
           "group": "inline"
         },
         {
@@ -840,7 +840,7 @@
         },
         {
           "command": "MI.project-explorer.delete",
-          "when": "view == MI.project-explorer && viewItem == api || viewItem == resource || viewItem == endpoint || viewItem == sequence || viewItem == proxy-service || viewItem == inboundEndpoint || viewItem == messageStore || viewItem == message-processor || viewItem == task || viewItem == localEntry || viewItem == template  || viewItem == dataSource || viewItem == data-service || viewItem == data-mapper || viewItem == connection || viewItem == registry-with-metadata || viewItem == registry-without-metadata",
+          "when": "view == MI.project-explorer && viewItem == api || viewItem == resource || viewItem == endpoint || viewItem == sequence || viewItem == proxy-service || viewItem == inboundEndpoint || viewItem == messageStore || viewItem == message-processor || viewItem == task || viewItem == localEntry || viewItem == template  || viewItem == dataSource || viewItem == data-service || viewItem == data-mapper || viewItem == connection || viewItem == registry-with-metadata || viewItem == registry-without-metadata || viewItem == class-mediator || viewItem == ballerina-module",
           "key": "delete"
         },
         {
@@ -893,14 +893,14 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f170"
+          "fontCharacter": "\\f172"
         }
       },
       "distro-build-package": {
         "description": "build-package",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f14b"
+          "fontCharacter": "\\f14d"
         }
       }
     }
@@ -948,7 +948,9 @@
     "@wso2-enterprise/wso2-platform-core": "workspace:*",
     "ts-morph": "^22.0.0",
     "await-notify": "^1.0.1",
-    "yaml": "~2.4.3"
+    "yaml": "~2.4.3",
+    "@playwright/test": "~1.52.0",
+    "playwright-core": "~1.52.0"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
@@ -957,7 +959,6 @@
     "vscode-messenger-common": "^0.4.5",
     "@wso2-enterprise/mi-core": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
-    "@playwright/test": "~1.52.0",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "vscode-extension-tester": "~5.9.1",
     "vscode-languageclient": "^8.0.2",

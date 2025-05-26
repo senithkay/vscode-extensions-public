@@ -10,10 +10,10 @@
  */
 import {
     AIChatSummary,
+    AIMachineSnapshot,
     AIPanelAPI,
-    AIVisualizerState,
-    AddToProjectRequest,
     AIPanelPrompt,
+    AddToProjectRequest,
     DeleteFromProjectRequest,
     DeveloperDocument,
     FetchDataRequest,
@@ -46,9 +46,9 @@ import {
     deleteFromProject,
     fetchData,
     generateMappings,
+    getAIMachineSnapshot,
     getAccessToken,
     getActiveFile,
-    getAiPanelState,
     getBackendUrl,
     getContentFromFile,
     getDefaultPrompt,
@@ -61,7 +61,7 @@ import {
     getModuleDirectory,
     getProjectSource,
     getProjectUuid,
-    getRefreshToken,
+    getRefreshedAccessToken,
     getResourceMethodAndPaths,
     getResourceSourceForMethodAndPath,
     getServiceNames,
@@ -74,16 +74,10 @@ import {
     isCopilotSignedIn,
     isNaturalProgrammingDirectoryExists,
     isRequirementsSpecificationFileExist,
-    isWSO2AISignedIn,
-    login,
-    logout,
     markAlertShown,
     notifyAIMappings,
-    openChat,
-    openSettings,
     postProcess,
     promptGithubAuthorize,
-    promptLogin,
     promptWSO2AILogout,
     readDeveloperMdFile,
     showSignInAlert,
@@ -113,24 +107,16 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getAccessToken, HOST_EXTENSION);
     }
 
-    getRefreshToken(): Promise<string> {
-        return this._messenger.sendRequest(getRefreshToken, HOST_EXTENSION);
+    getRefreshedAccessToken(): Promise<string> {
+        return this._messenger.sendRequest(getRefreshedAccessToken, HOST_EXTENSION);
     }
 
     getDefaultPrompt(): Promise<AIPanelPrompt> {
         return this._messenger.sendRequest(getDefaultPrompt, HOST_EXTENSION);
     }
 
-    login(): void {
-        return this._messenger.sendNotification(login, HOST_EXTENSION);
-    }
-
-    logout(): void {
-        return this._messenger.sendNotification(logout, HOST_EXTENSION);
-    }
-
-    getAiPanelState(): Promise<AIVisualizerState> {
-        return this._messenger.sendRequest(getAiPanelState, HOST_EXTENSION);
+    getAIMachineSnapshot(): Promise<AIMachineSnapshot> {
+        return this._messenger.sendRequest(getAIMachineSnapshot, HOST_EXTENSION);
     }
 
     fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
@@ -167,10 +153,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     stopAIMappings(): Promise<GenerateMappingsResponse> {
         return this._messenger.sendRequest(stopAIMappings, HOST_EXTENSION);
-    }
-
-    promptLogin(): Promise<boolean> {
-        return this._messenger.sendRequest(promptLogin, HOST_EXTENSION);
     }
 
     getProjectSource(requestType: string): Promise<ProjectSource> {
@@ -237,14 +219,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getActiveFile, HOST_EXTENSION);
     }
 
-    openSettings(): void {
-        return this._messenger.sendNotification(openSettings, HOST_EXTENSION);
-    }
-
-    openChat(): void {
-        return this._messenger.sendNotification(openChat, HOST_EXTENSION);
-    }
-
     promptGithubAuthorize(): Promise<boolean> {
         return this._messenger.sendRequest(promptGithubAuthorize, HOST_EXTENSION);
     }
@@ -255,10 +229,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     isCopilotSignedIn(): Promise<boolean> {
         return this._messenger.sendRequest(isCopilotSignedIn, HOST_EXTENSION);
-    }
-
-    isWSO2AISignedIn(): Promise<boolean> {
-        return this._messenger.sendRequest(isWSO2AISignedIn, HOST_EXTENSION);
     }
 
     showSignInAlert(): Promise<boolean> {

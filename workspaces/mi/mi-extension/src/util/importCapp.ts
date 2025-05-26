@@ -68,7 +68,8 @@ interface RegistryCollection {
 
 
 export async function importCapp(params: ImportProjectRequest): Promise<ImportProjectResponse> {
-    const { source, directory, open } = params;
+    const { directory, open } = params;
+    const source = params.source.replace(/\.car(?=\.zip$)/, '');
 
     const projectUuid = uuidv4();
 
@@ -155,7 +156,7 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
 
 function getProjectDetails(source: string): { projectName: any; groupId: any; artifactId: any; version: any; } {
 
-    const match = source.match(/^(.+)_(\d+(?:\.\d+){0,2})\.zip$/);
+    const match = source.match(/^(.+?)_(\d+(?:\.\d+){0,2}(?:-[\w\d]+)?)\.(zip|car)$/);
     const projectName = match ? match[1] : "sample";
     const version = match ? match[2] : "1.0.0";
     return { projectName: projectName, groupId: "org.wso2", artifactId: projectName, version: version };
