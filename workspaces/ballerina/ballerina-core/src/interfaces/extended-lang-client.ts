@@ -1217,6 +1217,7 @@ export interface GetRecordConfigRequest {
         org: string;
         module: string;
         version: string;
+        packageName?: string;
     };
     typeConstraint: string;
 }
