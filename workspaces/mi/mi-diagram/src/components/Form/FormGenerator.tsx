@@ -377,6 +377,13 @@ export function FormGenerator(props: FormGeneratorProps) {
     };
 
     const handleGenerateAi = async () => {
+        let token: any;
+        try {
+            token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+        } catch (error) {
+            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel"] }).catch(console.error);
+            throw new Error("User not authenticated");
+        }
         try {
             setGeneratedFormDetails(null);
             setIsAutoFillBtnClicked(false);
@@ -440,6 +447,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token.token}`
                 },
                 body: JSON.stringify({
                     payloads,

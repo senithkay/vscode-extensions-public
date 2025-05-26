@@ -36,7 +36,11 @@ const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
 
 export async function setupEnvironment(projectUri: string, isOldProject: boolean): Promise<boolean> {
     try {
-        const wrapperFiles = await vscode.workspace.findFiles('{mvnw,mvnw.cmd}', '**/node_modules/**', 1);
+        const wrapperFiles = await vscode.workspace.findFiles(
+            new vscode.RelativePattern(projectUri, '{mvnw,mvnw.cmd}'),
+            '**/node_modules/**',
+            1
+        );
         if (!isOldProject) {
             if (wrapperFiles.length === 0) {
                 copyMavenWrapper(
