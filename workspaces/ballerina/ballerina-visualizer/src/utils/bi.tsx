@@ -590,7 +590,7 @@ const MarkdownCodeRenderer = {
             // Apply syntax highlighting if language is registered
             if (hljs.getLanguage(language)) {
                 return (
-                    <pre>
+                    <pre style={{ border: '1px solid var(--vscode-editorIndentGuide-background)' }}>
                         <code
                             className={`hljs ${language}`}
                             dangerouslySetInnerHTML={{
@@ -638,8 +638,8 @@ export function injectHighlightTheme(theme: ColorThemeKind) {
     themeLink.rel = "stylesheet";
     themeLink.href =
         extractedTheme === "light"
-            ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
-            : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css";
+            ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-light.min.css"
+            : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-dark.min.css";
     document.head.appendChild(themeLink);
 
     // Add background override once
