@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { delimiter, join, sep } from 'path';
-import { debug } from '../logger';
+import { delimiter, join } from 'path';
+import { debug, log } from '../logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient/node';
 import { isWindows } from '..';
 import { BallerinaExtension } from '../../core';
@@ -103,7 +103,7 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
     
     ballerinaJarPaths.forEach(jarPath => {
         if (!fs.existsSync(jarPath)) {
-            console.log(">>> Ballerina jar not found in", jarPath);
+            log(`Ballerina jar not found in ${jarPath}`);
         }
     });
 
@@ -112,32 +112,32 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
     
     if (configuredLangServerPath && configuredLangServerPath.trim() !== "") {
         // User provided custom language server path
-        console.log(">>> Using configured language server path:", configuredLangServerPath);
+        log(`Using configured language server path: ${configuredLangServerPath}`);
         if (fs.existsSync(configuredLangServerPath)) {
             ballerinaLanguageServerJar = configuredLangServerPath;
-            console.log(">>> Custom language server jar found:", ballerinaLanguageServerJar);
+            log(`Custom language server jar found: ${ballerinaLanguageServerJar}`);
         } else {
-            console.error(">>> Configured language server jar not found:", configuredLangServerPath);
+            log(`Configured language server jar not found: ${configuredLangServerPath}`);
             throw new Error(`Configured language server JAR not found: ${configuredLangServerPath}`);
         }
     } else {
         // Use bundled language server from ls directory
-        console.log(">>> Using bundled language server from ls directory");
+        log(`Using bundled language server from ls directory`);
         const lsDir = extension?.context.asAbsolutePath("ls");    
         ballerinaLanguageServerJar = findFileByPattern(lsDir, /^ballerina-language-server.*\.jar$/);
         
         if (!ballerinaLanguageServerJar || !fs.existsSync(ballerinaLanguageServerJar)) {
-            console.error(">>> No ballerina language server jar found in:", lsDir);
+            log(`No ballerina language server jar found in: ${lsDir}`);
             throw new Error(`Language server JAR not found in ${lsDir}`);
         }
         
-        console.log(">>> Found bundled language server jar:", ballerinaLanguageServerJar);
+        log(`Found bundled language server jar: ${ballerinaLanguageServerJar}`);
     }
 
     // join paths and add to args
     const customPaths = [...ballerinaJarPaths, ballerinaLanguageServerJar];
     if (process.env.LS_CUSTOM_CLASSPATH) {
-        console.log(">>> LS_CUSTOM_CLASSPATH:", process.env.LS_CUSTOM_CLASSPATH);
+        log(`LS_CUSTOM_CLASSPATH: ${process.env.LS_CUSTOM_CLASSPATH}`);
         customPaths.push(process.env.LS_CUSTOM_CLASSPATH);
     }
     
@@ -148,7 +148,7 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
     const jdkDir = findFileByPattern(dependenciesDir, /^jdk-.*-jre$/);
     
     if (!jdkDir) {
-        console.error(">>> No JDK found in dependencies directory:", dependenciesDir);
+        log(`No JDK found in dependencies directory: ${dependenciesDir}`);
         throw new Error(`JDK not found in ${dependenciesDir}`);
     }
     
@@ -156,8 +156,8 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
     cmd = join(jdkDir, 'bin', javaExecutable);
     args = ['-cp', classpath, `-Dballerina.home=${ballerinaHome}`, 'org.ballerinalang.langserver.launchers.stdio.Main'];
     
-    console.log(">>> Found JDK:", jdkDir);
-    console.log(">>> Java executable:", cmd, "exists:", fs.existsSync(cmd));
+    log(`Found JDK: ${jdkDir}`);
+    log(`Java executable: ${cmd} exists: ${fs.existsSync(cmd)}`);
     
     // Create the final command line that will be executed
     const serverOptions = {
@@ -166,7 +166,7 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
         options: opt
     };
     
-    console.log(">>> final command:", cmd, args.join(" "));
+    log(`Final command: ${cmd} ${args.join(" ")}`);
     
     return serverOptions;
 }
