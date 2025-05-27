@@ -217,7 +217,7 @@ export default function createTests() {
       await classMediator.clear([className, classNameForExplorer]);
     });
 
-    test.skip('Ballerina Module Tests', async () => {
+    test('Ballerina Module Tests', async () => {
       await toggleNotifications(false);
       const testAttempt = test.info().retry + 1;
       const ballerinaModuleName = "TestBallerinaModule" + testAttempt;

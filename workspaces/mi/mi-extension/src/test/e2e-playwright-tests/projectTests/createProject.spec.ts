@@ -27,28 +27,35 @@ export default function createTests() {
 
         test("Create Project Tests", async () => {
             await test.step('Create New Project Tests', async () => {
+                console.log('Starting to create a new project');
                 await createProject(page, 'newProject', '4.4.0');
+                console.log('Waiting for pom.xml to contain new project artifactId');
                 await waitUntilPomContains(page.page, path.join(newProjectPath, 'newProject', 'pom.xml'), 
                 '<artifactId>newproject</artifactId>');
+                console.log('New project created successfully');
             });
 
             await test.step("Create New Project from Sample", async () => {
+                console.log('Starting to create a new project from sample');
                 await page.executePaletteCommand("MI: Open MI Welcome");
-                await page.selectSidebarItem('Micro Integrator');
                 const welcomePage = new Welcome(page);
                 await welcomePage.init();
+                console.log('Creating new project from sample');
                 await welcomePage.createNewProjectFromSample('Hello World ServiceA simple', newProjectPath);
                 const projectExplorer = new ProjectExplorer(page.page);
                 await projectExplorer.goToOverview("HelloWorldService");
                 const overview = new Overview(page.page);
                 await overview.init();
-                await overview.diagramRenderingForApi('HelloWorld');
+                await overview.diagramRenderingForApi('HelloWorldAPI');
+                console.log('New project from sample created successfully');
             });
 
             await test.step("Open Existing Project Tests", async () => {
+                console.log('Starting to open an existing project');
                 await page.executePaletteCommand("MI: Open Project");
                 const fileInput = await page.page?.waitForSelector('.quick-input-header');
                 const textInput = await fileInput?.waitForSelector('input[type="text"]');
+                console.log('Filling in the project path');
                 await textInput?.fill(newProjectPath + '/newProject/');
                 const openBtn = await fileInput?.waitForSelector('a.monaco-button:has-text("Open MI Project")');
                 await openBtn?.click();
@@ -60,16 +67,19 @@ export default function createTests() {
                 await api.addAPI('helloWorld', '/helloWorld');
                 const overview = new Overview(page.page);
                 await overview.init("newProject");
-                await overview.diagramRenderingForApi('helloWorld');
+                await overview.diagramRenderingForApi('helloWorldAPI');
+                console.log('Existing project opened and API added successfully');
             });
 
             await test.step("Create New Project with Advanced Config Tests", async () => {
+                console.log('Starting to create a new project with advanced configuration');
                 fs.rmSync(newProjectPath, { recursive: true });
                 await page.page.reload();
                 await page.executePaletteCommand("MI: Open MI Welcome");
                 await createProject(page, 'newProjectWithAdConfig', '4.4.0', true);
                 await waitUntilPomContains(page.page, path.join(newProjectPath, 'newProject', 'newProjectWithAdConfig', 'pom.xml'), 
                 '<artifactId>test</artifactId>');
+                console.log('New project with advanced config created successfully');
             });
         });
     });
