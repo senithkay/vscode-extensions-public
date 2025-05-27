@@ -23,7 +23,8 @@ export default function createTests() {
   }, async () => {
     initTest();
 
-    test("Validate Mediator Tests", async () => {
+    test("Validate Mediator Tests", async ({}, testInfo) => {
+      const testAttempt = testInfo.retry + 1;
       await test.step('Create new API', async () => {
         console.log('Create API for validate mediator tests');
         // wait until window reload
@@ -45,11 +46,11 @@ export default function createTests() {
           values: {
             'Name*': {
               type: 'input',
-              value: 'validateMediatorAPI',
+              value: 'validateMediatorAPI' + testAttempt,
             },
             'Context*': {
               type: 'input',
-              value: '/validateMediatorAPI',
+              value: '/validateMediatorAPI' + testAttempt,
             },
           }
         });
