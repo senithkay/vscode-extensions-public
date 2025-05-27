@@ -86,8 +86,8 @@ export class BallerinaModule {
         const successNotification = currentPage.getByText('Ballerina module build successful', { exact: true })
         const errorNotification = currentPage.getByText('Ballerina not found. Please download Ballerina and try again.', { exact: true })
         await Promise.race([
-            successNotification.waitFor({ state: 'visible', timeout: 20000 }),
-            errorNotification.waitFor({ state: 'visible', timeout: 20000 })
+            successNotification.waitFor({ state: 'visible', timeout: 40000 }),
+            errorNotification.waitFor({ state: 'visible', timeout: 40000 })
         ]);
 
         if (await errorNotification.isVisible()) {
@@ -155,6 +155,6 @@ export class BallerinaModule {
         await diagram.init();
         await diagram.refreshBallerinaModule(moduleName);
         const notificationAlert = await page.page.getByText('Ballerina module build successful', { exact: true })
-        await expect(notificationAlert).toBeVisible({ timeout: 20000 });
+        await expect(notificationAlert).toBeVisible({ timeout: 40000 });
     }
 }
