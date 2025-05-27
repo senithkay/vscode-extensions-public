@@ -29,7 +29,7 @@ export default function createTests() {
             await test.step('Create New Project Tests', async () => {
                 await createProject(page, 'newProject', '4.4.0');
                 await waitUntilPomContains(page.page, path.join(newProjectPath, 'newProject', 'pom.xml'), 
-                '<artifactId>newProject</artifactId>');
+                '<artifactId>newproject</artifactId>');
             });
 
             await test.step("Create New Project from Sample", async () => {

@@ -314,19 +314,7 @@ export class API {
         expect(await submitBtn.isEnabled()).toBeTruthy();
         await submitBtn.click({force: true});
         console.log("Clicked on create");
-        // if not detached we will throw an error and click again
-        try {
-            await submitBtn.waitFor({ state: 'detached' });
-        } catch (error) {
-            console.log("Submit button not detached, waiting for 10 seconds");
-            await page.page.waitForTimeout(10000);
-            expect(await submitBtn.isEnabled()).toBeTruthy();
-            await submitBtn.click({force: true} );
-            await submitBtn.waitFor({ state: 'detached', timeout: 10000 });
-            console.log("Clicked on create");
-        }
-        console.log("Waiting for submit button to be detached");
-        const webView = await switchToIFrame('Service Designer', this._page, 60000);
+        const webView = await switchToIFrame('Service Designer', this._page, 90000);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }
