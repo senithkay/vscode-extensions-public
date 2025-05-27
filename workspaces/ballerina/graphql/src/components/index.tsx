@@ -8,12 +8,13 @@
  */
 
 import * as React from "react";
-import * as ReactDOM from "react-dom";
+import * as ReactDOM from "react-dom/client";
 import { GraphqlView } from './graphql-view/GraphqlView';
 
 export function renderGraphql(data: any) {
-    ReactDOM.render(
-        <GraphqlView data={data} />,
-        document.getElementById("graphql-view")
-    );
+    const container = document.getElementById("graphql-view");
+    if (container) {
+        const root = ReactDOM.createRoot(container);
+        root.render(<GraphqlView data={data} />);
+    }
 }

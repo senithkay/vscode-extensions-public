@@ -475,26 +475,26 @@
       "projectFolder": "workspaces/choreo/choreo-webviews",
       "versionPolicyName": "choreo-extension"
     },
-    {
-      "packageName": "fhir-tools",
-      "projectFolder": "workspaces/fhir-tools/fhir-tools-extension",
-      "versionPolicyName": "fhir-tools-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/fhir-tools-webview",
-      "projectFolder": "workspaces/fhir-tools/webview",
-      "versionPolicyName": "fhir-tools-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/fhir-tools-core",
-      "projectFolder": "workspaces/fhir-tools/fhir-tools-core",
-      "versionPolicyName": "fhir-tools-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/fhir-tools-rpc-client",
-      "projectFolder": "workspaces/fhir-tools/fhir-tools-rpc-client",
-      "versionPolicyName": "fhir-tools-extension"
-    },
+    // {
+    //   "packageName": "fhir-tools",
+    //   "projectFolder": "workspaces/fhir-tools/fhir-tools-extension",
+    //   "versionPolicyName": "fhir-tools-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/fhir-tools-webview",
+    //   "projectFolder": "workspaces/fhir-tools/webview",
+    //   "versionPolicyName": "fhir-tools-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/fhir-tools-core",
+    //   "projectFolder": "workspaces/fhir-tools/fhir-tools-core",
+    //   "versionPolicyName": "fhir-tools-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/fhir-tools-rpc-client",
+    //   "projectFolder": "workspaces/fhir-tools/fhir-tools-rpc-client",
+    //   "versionPolicyName": "fhir-tools-extension"
+    // },
     // {
     //   "packageName": "@wso2-enterprise/ballerina-data-mapper",
     //   "projectFolder": "workspaces/ballerina/data-mapper",
@@ -590,11 +590,11 @@
     //   "projectFolder": "workspaces/ballerina/perf-forecast",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    {
-      "packageName": "@wso2-enterprise/choreo-cell-diagram",
-      "projectFolder": "workspaces/choreo/cell-diagram",
-      "versionPolicyName": "choreo-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/choreo-cell-diagram",
+    //   "projectFolder": "workspaces/choreo/cell-diagram",
+    //   "versionPolicyName": "choreo-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/persist-layer-diagram",
       "projectFolder": "workspaces/ballerina/persist-layer-diagram",
@@ -662,11 +662,11 @@
       "packageName": "@wso2-enterprise/mi-data-mapper-utils",
       "projectFolder": "workspaces/mi/mi-data-mapper-utils"
     },
-    {
-      "packageName": "api-chat",
-      "projectFolder": "workspaces/api-chat/extension",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "api-chat",
+    //   "projectFolder": "workspaces/api-chat/extension",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/api-chat-vscode-webviews",
       "projectFolder": "workspaces/api-chat/webviews",
@@ -731,10 +731,10 @@
       "projectFolder": "workspaces/ballerina/inline-data-mapper",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "api-designer",
-      "projectFolder": "workspaces/api-designer/api-designer-extension"
-    },
+    // {
+    //   "packageName": "api-designer",
+    //   "projectFolder": "workspaces/api-designer/api-designer-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/api-designer-core",
       "projectFolder": "workspaces/api-designer/api-designer-core"

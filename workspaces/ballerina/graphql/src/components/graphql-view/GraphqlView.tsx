@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import GraphiQL from "graphiql";
+import { GraphiQL } from "graphiql";
 import GraphiQLExplorer from "graphiql-explorer";
 import { buildClientSchema, getIntrospectionQuery, GraphQLSchema } from "graphql";
 import "graphiql/graphiql.css";
