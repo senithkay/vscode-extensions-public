@@ -102,23 +102,37 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
     const ballerinaJarPaths = findJarsExcludingPatterns(ballerinaLibDir, excludeJarPatterns);
     
     ballerinaJarPaths.forEach(jarPath => {
-        if (fs.existsSync(jarPath)) {
-            console.log(">>> Found ballerina jar in", jarPath);
-        } else {
+        if (!fs.existsSync(jarPath)) {
             console.log(">>> Ballerina jar not found in", jarPath);
         }
     });
 
-    // language server jar - find any ballerina-language-server jar in the ls directory
-    const lsDir = extension?.context.asAbsolutePath("ls");    
-    const ballerinaLanguageServerJar = findFileByPattern(lsDir, /^ballerina-language-server.*\.jar$/);
+    let ballerinaLanguageServerJar: string | null = null;
+    const configuredLangServerPath = extension?.getConfiguredLangServerPath();
     
-    if (!ballerinaLanguageServerJar || !fs.existsSync(ballerinaLanguageServerJar)) {
-        console.error(">>> No ballerina language server jar found in:", lsDir);
-        throw new Error(`Language server JAR not found in ${lsDir}`);
+    if (configuredLangServerPath && configuredLangServerPath.trim() !== "") {
+        // User provided custom language server path
+        console.log(">>> Using configured language server path:", configuredLangServerPath);
+        if (fs.existsSync(configuredLangServerPath)) {
+            ballerinaLanguageServerJar = configuredLangServerPath;
+            console.log(">>> Custom language server jar found:", ballerinaLanguageServerJar);
+        } else {
+            console.error(">>> Configured language server jar not found:", configuredLangServerPath);
+            throw new Error(`Configured language server JAR not found: ${configuredLangServerPath}`);
+        }
+    } else {
+        // Use bundled language server from ls directory
+        console.log(">>> Using bundled language server from ls directory");
+        const lsDir = extension?.context.asAbsolutePath("ls");    
+        ballerinaLanguageServerJar = findFileByPattern(lsDir, /^ballerina-language-server.*\.jar$/);
+        
+        if (!ballerinaLanguageServerJar || !fs.existsSync(ballerinaLanguageServerJar)) {
+            console.error(">>> No ballerina language server jar found in:", lsDir);
+            throw new Error(`Language server JAR not found in ${lsDir}`);
+        }
+        
+        console.log(">>> Found bundled language server jar:", ballerinaLanguageServerJar);
     }
-    
-    console.log(">>> Found language server jar:", ballerinaLanguageServerJar);
 
     // join paths and add to args
     const customPaths = [...ballerinaJarPaths, ballerinaLanguageServerJar];

@@ -195,6 +195,11 @@
                         "type": "boolean",
                         "default": false,
                         "description": "Experimental: Enable inlay hints for Ballerina."
+                    },
+                    "ballerina.langServerPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Specify the path to the Ballerina language server JAR file. Leave empty to use the bundled language server."
                     }
                 }
             },
