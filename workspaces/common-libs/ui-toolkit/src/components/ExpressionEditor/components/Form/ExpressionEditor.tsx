@@ -174,7 +174,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     const updateFnSignature = async (value: string, cursorPosition: number) => {
         if (extractArgsFromFunction) {
             const fnSignature = await extractArgsFromFunction(value, cursorPosition);
-            setFnSignature(fnSignature);
+            if (fnSignature) {
+                setFnSignature(fnSignature);
+            }
         }
     };
 

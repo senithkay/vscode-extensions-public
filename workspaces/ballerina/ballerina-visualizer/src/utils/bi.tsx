@@ -683,7 +683,12 @@ async function getDocumentation(fnDescription: string, argsDescription: string[]
 };
 
 export async function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
-    const fnText = signatureHelp.signatures[0].label;
+    const currentSignature = signatureHelp.signatures[0];
+    if (!currentSignature) {
+        return undefined;
+    }
+
+    const fnText = currentSignature.label;
     const fnRegex = /^(?<label>[a-zA-Z0-9_']+)\((?<args>.*)\)$/;
     const fnMatch = fnText.match(fnRegex);
 
