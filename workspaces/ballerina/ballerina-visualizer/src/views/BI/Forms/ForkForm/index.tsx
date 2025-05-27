@@ -43,6 +43,7 @@ interface ForkFormProps {
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
     subPanelView?: SubPanelView;
+    showProgressIndicator?: boolean;
 }
 
 export function ForkForm(props: ForkFormProps) {
@@ -55,7 +56,8 @@ export function ForkForm(props: ForkFormProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        subPanelView
+        subPanelView,
+        showProgressIndicator,
     } = props;
     const {
         watch,
@@ -290,7 +292,7 @@ export function ForkForm(props: ForkFormProps) {
         return hasDiagnostics;
     }, [diagnosticsInfo]);
 
-    const disableSaveButton = !isValid || isValidating;
+    const disableSaveButton = !isValid || isValidating || showProgressIndicator;
 
     // TODO: support multiple type fields
     return (
@@ -334,7 +336,7 @@ export function ForkForm(props: ForkFormProps) {
             {onSubmit && (
                 <FormStyles.Footer>
                     <Button appearance="primary" onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                        Save
+                        {showProgressIndicator ? "Saving" : "Save"}
                     </Button>
                 </FormStyles.Footer>
             )}

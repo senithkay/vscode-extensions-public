@@ -44,6 +44,7 @@ interface MatchFormProps {
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
     subPanelView?: SubPanelView;
+    showProgressIndicator?: boolean;
 }
 
 export function MatchForm(props: MatchFormProps) {
@@ -57,6 +58,7 @@ export function MatchForm(props: MatchFormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField,
         subPanelView,
+        showProgressIndicator,
     } = props;
     const {
         watch,
@@ -500,7 +502,7 @@ export function MatchForm(props: MatchFormProps) {
 
     console.log(">>> Match node", node);
 
-    const disableSaveButton = !isValid || isValidating;
+    const disableSaveButton = !isValid || isValidating || showProgressIndicator;
     const targetField = convertNodePropertyToFormField(`branch-${TARGET_FIELD_INDEX}`, node.properties.condition);
     targetField.label = "Target";
 
@@ -589,7 +591,7 @@ export function MatchForm(props: MatchFormProps) {
             {onSubmit && (
                 <FormStyles.Footer>
                     <Button appearance="primary" onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                        Save
+                        {showProgressIndicator ? "Saving" : "Save"}
                     </Button>
                 </FormStyles.Footer>
             )}

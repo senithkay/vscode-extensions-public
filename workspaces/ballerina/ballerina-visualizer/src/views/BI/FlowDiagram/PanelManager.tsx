@@ -59,6 +59,7 @@ interface PanelManagerProps {
     projectPath?: string;
     editForm?: boolean;
     updatedExpressionField?: ExpressionFormField;
+    showProgressIndicator?: boolean;
 
     // Action handlers
     onClose: () => void;
@@ -99,6 +100,7 @@ export function PanelManager(props: PanelManagerProps) {
         projectPath,
         editForm,
         updatedExpressionField,
+        showProgressIndicator,
         onClose,
         onBack,
         onSelectNode,
@@ -251,6 +253,7 @@ export function PanelManager(props: PanelManagerProps) {
                         projectPath={projectPath}
                         editForm={editForm}
                         onSubmit={onSubmitForm}
+                        showProgressIndicator={showProgressIndicator}
                         subPanelView={subPanel.view}
                         openSubPanel={onSubPanel}
                         updatedExpressionField={updatedExpressionField}

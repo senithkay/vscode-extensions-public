@@ -509,7 +509,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .deleteFlowNode(params)
                 .then(async (model) => {
                     console.log(">>> bi delete node from ls", model);
-                    const artifacts = await updateSourceCode({ textEdits: model.textEdits }, { artifactType: undefined });
+                    const artifacts = await updateSourceCode({ textEdits: model.textEdits });
                     resolve({ artifacts });
                 })
                 .catch((error) => {

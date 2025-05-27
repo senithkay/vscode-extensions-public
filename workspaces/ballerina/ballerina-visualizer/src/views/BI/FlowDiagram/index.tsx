@@ -344,11 +344,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "NP_FUNCTION",
         };
@@ -379,11 +379,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -535,7 +535,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             })
             .then((response) => {
                 console.log(">>> Updated source code", response);
-                if (response.textEdits) {
+                if (response.artifacts.length > 0) {
                     selectedNodeRef.current = undefined;
                     handleOnCloseSidePanel();
                 } else {
@@ -1083,6 +1083,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 onAddNPFunction={handleOnAddNPFunction}
                 onAddDataMapper={handleOnAddDataMapper}
                 onSubmitForm={handleOnFormSubmit}
+                showProgressIndicator={showProgressIndicator}
                 onDiscardSuggestions={onDiscardSuggestions}
                 onSubPanel={handleSubPanel}
                 onUpdateExpressionField={handleUpdateExpressionField}

@@ -90,6 +90,7 @@ interface FormProps {
     editForm?: boolean;
     isGraphql?: boolean;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean, formImports?: FormImports) => void;
+    showProgressIndicator?: boolean;
     subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -135,6 +136,7 @@ export function FormGenerator(props: FormProps) {
         targetLineRange,
         projectPath,
         editForm,
+        showProgressIndicator,
         isGraphql,
         onSubmit,
         subPanelView,
@@ -508,7 +510,7 @@ export function FormGenerator(props: FormProps) {
                             property: property,
                         },
                     });
-    
+
                     let uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
 
                     // HACK: filter unknown module and undefined type diagnostics for local connections
@@ -692,6 +694,7 @@ export function FormGenerator(props: FormProps) {
                 node={node}
                 targetLineRange={targetLineRange}
                 expressionEditor={expressionEditor}
+                showProgressIndicator={showProgressIndicator}
                 onSubmit={onSubmit}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
@@ -710,6 +713,7 @@ export function FormGenerator(props: FormProps) {
                 targetLineRange={targetLineRange}
                 expressionEditor={expressionEditor}
                 onSubmit={onSubmit}
+                showProgressIndicator={showProgressIndicator}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
                 subPanelView={subPanelView}
@@ -726,6 +730,7 @@ export function FormGenerator(props: FormProps) {
                 node={node}
                 targetLineRange={targetLineRange}
                 expressionEditor={expressionEditor}
+                showProgressIndicator={showProgressIndicator}
                 onSubmit={onSubmit}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
@@ -773,6 +778,8 @@ export function FormGenerator(props: FormProps) {
                     expressionEditor={expressionEditor}
                     targetLineRange={targetLineRange}
                     fileName={fileName}
+                    isSaving={showProgressIndicator}
+                    submitText={showProgressIndicator ? "Saving" : undefined}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}

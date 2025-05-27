@@ -38,6 +38,7 @@ interface IfFormProps {
     node: FlowNode;
     targetLineRange: LineRange;
     expressionEditor: FormExpressionEditorProps;
+    showProgressIndicator?: boolean;
     onSubmit: (node?: FlowNode) => void;
     openSubPanel: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -54,6 +55,7 @@ export function IfForm(props: IfFormProps) {
         onSubmit,
         openSubPanel,
         updatedExpressionField,
+        showProgressIndicator,
         resetUpdatedExpressionField,
         subPanelView
     } = props;
@@ -345,7 +347,7 @@ export function IfForm(props: IfFormProps) {
         return hasDiagnostics;
     }, [diagnosticsInfo])
 
-    const disableSaveButton = !isValid || isValidating;
+    const disableSaveButton = !isValid || isValidating || showProgressIndicator;
 
     // TODO: support multiple type fields
     return (
@@ -402,7 +404,7 @@ export function IfForm(props: IfFormProps) {
             {onSubmit && (
                 <FormStyles.Footer>
                     <Button appearance="primary" onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                        Save
+                        {showProgressIndicator ? "Saving" : "Save"}
                     </Button>
                 </FormStyles.Footer>
             )}
