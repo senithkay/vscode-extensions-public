@@ -9,12 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ColorThemeKind,
     HistoryEntry,
     OpenViewRequest,
     UpdateUndoRedoMangerRequest,
     VisualizerAPI,
     addToHistory,
     addToUndoStack,
+    getCurrentThemeKind,
     getHistory,
     getThemeKind,
     goBack,
@@ -79,4 +81,7 @@ export class VisualizerRpcClient implements VisualizerAPI {
         return this._messenger.sendRequest(getThemeKind, HOST_EXTENSION);
     }
 
+    getCurrentThemeKind(): Promise<ColorThemeKind> {
+        return this._messenger.sendRequest(getCurrentThemeKind, HOST_EXTENSION);
+    }
 }

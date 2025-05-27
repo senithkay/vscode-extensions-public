@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ColorThemeKind,
     HistoryEntry,
     UpdateUndoRedoMangerRequest,
     VisualizerAPI,
@@ -92,6 +93,12 @@ export class VisualizerRpcManager implements VisualizerAPI {
                     resolve("dark");
                     break;
             }
+        });
+    }
+
+    async getCurrentThemeKind(): Promise<ColorThemeKind> {
+        return new Promise((resolve) => {
+            resolve(window.activeColorTheme.kind);
         });
     }
 }
