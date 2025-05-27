@@ -18,6 +18,7 @@ import Badge from "./ChatBadge";
 import ballerina from "../../../languages/ballerina.js";
 import { SYSTEM_BADGE_SECRET, SYSTEM_ERROR_SECRET } from "./AIChatInput/constants";
 import ErrorBox from "./ErrorBox";
+import { ColorThemeKind } from "@wso2-enterprise/ballerina-core";
 
 // Register custom languages with highlight.js
 hljs.registerLanguage("yaml", yaml);
@@ -75,7 +76,17 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
          */
         const applyCurrentTheme = async () => {
             const themeKind = await rpcClient.getVisualizerRpcClient().getThemeKind(); // Returns "light" or "dark"
-            injectHighlightTheme(themeKind);
+            let extractedTheme: string;
+            switch (themeKind) {
+                case ColorThemeKind.Light:
+                case ColorThemeKind.HighContrastLight:
+                    extractedTheme = "light";
+                    break;
+                default:
+                    extractedTheme = "dark";
+                    break;
+            }
+            injectHighlightTheme(extractedTheme);
         };
 
         rpcClient.onProjectContentUpdated(() => {

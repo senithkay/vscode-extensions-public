@@ -81,22 +81,7 @@ export class VisualizerRpcManager implements VisualizerAPI {
         undoRedoManager.updateContent(params.filePath, params.fileContent);
     }
 
-    async getThemeKind(): Promise<string> {
-        return new Promise((resolve) => {
-            const themeKind = window.activeColorTheme.kind;
-            switch (themeKind) {
-                case 1:
-                case 4:
-                    resolve("light");
-                    break;
-                default:
-                    resolve("dark");
-                    break;
-            }
-        });
-    }
-
-    async getCurrentThemeKind(): Promise<ColorThemeKind> {
+    async getThemeKind(): Promise<ColorThemeKind> {
         return new Promise((resolve) => {
             resolve(window.activeColorTheme.kind);
         });

@@ -24,5 +24,4 @@ export const undo: RequestType<void, string> = { method: `${_preFix}/undo` };
 export const redo: RequestType<void, string> = { method: `${_preFix}/redo` };
 export const addToUndoStack: NotificationType<string> = { method: `${_preFix}/addToUndoStack` };
 export const updateUndoRedoManager: NotificationType<UpdateUndoRedoMangerRequest> = { method: `${_preFix}/updateUndoRedoManager` };
-export const getThemeKind: RequestType<void, string> = { method: `${_preFix}/getThemeKind` };
-export const getCurrentThemeKind: RequestType<void, ColorThemeKind> = { method: `${_preFix}/getCurrentThemeKind` };
+export const getThemeKind: RequestType<void, ColorThemeKind> = { method: `${_preFix}/getThemeKind` };

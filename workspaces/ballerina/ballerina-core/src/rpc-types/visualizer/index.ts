@@ -22,6 +22,5 @@ export interface VisualizerAPI {
     redo: () => Promise<string>;
     addToUndoStack: (source: string) => void;
     updateUndoRedoManager: (params: UpdateUndoRedoMangerRequest) => void;
-    getThemeKind: () => Promise<string>;
-    getCurrentThemeKind: () => Promise<ColorThemeKind>;
+    getThemeKind: () => Promise<ColorThemeKind>;
 }
