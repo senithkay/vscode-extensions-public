@@ -123,21 +123,25 @@ export function getProjectDetails(filePath: string) {
     let artifactId: string | undefined;
     let version: string | undefined;
     let runtimeVersion: string | undefined;
-    const pomContent = fs.readFileSync(path.join(filePath, "pom.xml"), 'utf8');
 
-    parseString(pomContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
-        if (err) {
-            console.error('Error parsing pom.xml:', err);
-            return;
-        }
+    const pomPath = path.join(filePath, "pom.xml");
 
-        projectName = result?.project?.name;
-        groupId = result?.project?.groupId;
-        artifactId = result?.project?.artifactId;
-        version = result?.project?.version;
-        runtimeVersion = result?.project?.properties["project.runtime.version"];
-    });
+    if (fs.existsSync(pomPath)) {
+        const pomContent = fs.readFileSync(pomPath, 'utf8');
 
+        parseString(pomContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
+            if (err) {
+                console.error('Error parsing pom.xml:', err);
+                return;
+            }
+
+            projectName = result?.project?.name;
+            groupId = result?.project?.groupId;
+            artifactId = result?.project?.artifactId;
+            version = result?.project?.version;
+            runtimeVersion = result?.project?.properties["project.runtime.version"];
+        });
+    } 
     return { projectName, groupId, artifactId, version, runtimeVersion };
 }
 
