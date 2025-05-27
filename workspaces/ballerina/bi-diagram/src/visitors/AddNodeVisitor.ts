@@ -89,27 +89,23 @@ export class AddNodeVisitor implements BaseVisitor {
         });
     }
 
-    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
-        if (this.skipChildrenVisit) {
-            return;
-        }
+    beginVisitMatch(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitIf(node, parent);
+    }
 
+    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
         this.beginVisitIf(node, parent);
     }
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
-        if (this.skipChildrenVisit) {
-            return;
-        }
+        this.beginVisitIf(node, parent);
+    }
 
+    beginVisitLock(node: FlowNode, parent?: FlowNode): void {
         this.beginVisitIf(node, parent);
     }
 
     beginVisitFork(node: FlowNode, parent?: FlowNode): void {
-        if (this.skipChildrenVisit) {
-            return;
-        }
-
         this.beginVisitIf(node, parent);
     }
 

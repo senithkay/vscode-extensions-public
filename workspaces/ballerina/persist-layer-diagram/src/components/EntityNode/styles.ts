@@ -20,9 +20,9 @@ interface StyleProps {
 
 export const EntityNode: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? ThemeColors.SURFACE_DIM_2 :
-        props.isAnonymous ? ThemeColors.SURFACE_BRIGHT : ThemeColors.SURFACE_DIM};
-    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? ThemeColors.SECONDARY :
-        props.isAnonymous ? ThemeColors.PRIMARY : props.isFocused ? ThemeColors.ON_PRIMARY : ThemeColors.PRIMARY}`};
+        props.isAnonymous ? ThemeColors.SURFACE_BRIGHT : ThemeColors.SURFACE_BRIGHT};
+    border: ${(props: StyleProps) => `1.8px solid ${props.isSelected ? ThemeColors.HIGHLIGHT :
+        props.isAnonymous ? ThemeColors.PRIMARY : props.isFocused ? ThemeColors.HIGHLIGHT : ThemeColors.OUTLINE_VARIANT}`};
     border-radius: 6px !important;
     color: ${(props: StyleProps) => props.isAnonymous ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE};
     display: flex;
@@ -46,15 +46,17 @@ export const EntityHead: React.FC<any> = styled.div`
 export const EntityName: React.FC<any> = styled.span`
     cursor: pointer;
     &:hover {
-        color: ${(props: StyleProps) => props.isClickable ? ThemeColors.ON_SURFACE : ``};
+        color: ${(props: StyleProps) => props.isClickable ? ThemeColors.HIGHLIGHT : ``};
         cursor: ${(props: StyleProps) => props.isClickable ? `grabbing` : ``};
         text-decoration: ${(props: StyleProps) => props.isClickable ? `underline` : ``};
     }
+    font-family: "GilmerMedium";
+    font-size: 14px;
 `;
 
 export const AttributeContainer: React.FC<any> = styled.div`
     align-items: center;
-    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? ThemeColors.SURFACE_DIM_2 : ThemeColors.SURFACE_DIM};
+    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? ThemeColors.SURFACE_DIM_2 : ThemeColors.SURFACE_BRIGHT};
     border: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
     display: flex;
     flex-direction: row;

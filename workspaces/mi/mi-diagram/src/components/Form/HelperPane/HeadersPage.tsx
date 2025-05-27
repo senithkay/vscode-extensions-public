@@ -14,10 +14,11 @@ import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
 import { filterHelperPaneCompletionItems, getHelperPaneCompletionItem } from '../FormExpressionField/utils';
 import { debounce } from 'lodash';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { PAGE, Page } from './index';
 
 type HeadersPageProps = {
     position: Position;
-    setCurrentPage: (page: number) => void;
+    setCurrentPage: (page: Page) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
@@ -83,7 +84,7 @@ export const HeadersPage = ({
         <>
             <HelperPane.Header
                 title="Headers"
-                onBack={() => setCurrentPage(0)}
+                onBack={() => setCurrentPage(PAGE.CATEGORY)}
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}

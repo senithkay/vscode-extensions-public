@@ -81,6 +81,7 @@ export enum MACHINE_VIEW {
     ManageConfigurables = "Manage Configurables",
     ProjectInformationForm = "Project Information Form",
     SETUP_ENVIRONMENT = "Setup Environment",
+    ImportConnectorForm = "Import Connector",
 }
 
 export enum AI_MACHINE_VIEW {

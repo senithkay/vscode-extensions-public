@@ -195,6 +195,7 @@ import {
     browseFile,
     buildProject,
     checkOldProject,
+    closePayloadAlert,
     closeWebView,
     closeWebViewNotification,
     compareSwaggerAndAPI,
@@ -218,6 +219,7 @@ import {
     createTemplate,
     deleteArtifact,
     downloadConnector,
+    displayPayloadAlert,
     editAPI,
     editOpenAPISpec,
     executeCommand,
@@ -293,6 +295,7 @@ import {
     redo,
     refreshAccessToken,
     saveConfig,
+    shouldDisplayPayloadAlert,
     showErrorMessage,
     undo,
     updateAPIFromSwagger,
@@ -1069,5 +1072,17 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getEULALicense(): Promise<string> {
         return this._messenger.sendRequest(getEULALicense, HOST_EXTENSION);
+    }
+
+    shouldDisplayPayloadAlert(): Promise<boolean> {
+        return this._messenger.sendRequest(shouldDisplayPayloadAlert, HOST_EXTENSION);
+    }
+
+    displayPayloadAlert(): Promise<void> {
+        return this._messenger.sendRequest(displayPayloadAlert, HOST_EXTENSION);
+    }
+
+    closePayloadAlert(): Promise<void> {
+        return this._messenger.sendRequest(closePayloadAlert, HOST_EXTENSION);
     }
 }

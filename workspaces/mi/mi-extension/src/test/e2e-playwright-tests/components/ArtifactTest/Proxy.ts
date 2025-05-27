@@ -87,6 +87,8 @@ export class Proxy {
         if (!webView) {
             throw new Error("Failed to switch to Proxy View iframe");
         }
-        await webView.getByText('Start').click();
+        const startBtn = webView.getByText('Start');
+        await startBtn.waitFor();
+        await startBtn.click({force: true});
     }
 }

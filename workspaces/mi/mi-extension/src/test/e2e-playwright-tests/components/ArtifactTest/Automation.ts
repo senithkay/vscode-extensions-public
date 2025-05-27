@@ -53,7 +53,7 @@ export class Automation {
         await frame.getByTestId('create-task-button').click();
     }
 
-    public async createExternalTrigger(name: string) {
+    public async createExternalTrigger(name: string, seqName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         console.log("Navigated to project overview");
@@ -68,7 +68,7 @@ export class Automation {
         await frame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await frame.getByRole('heading', { name: 'Advanced Configuration' }).click();
         await frame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
-        await frame.getByText('SEQUENCE TestTask1Sequence').click();
+        await frame.getByText(seqName).click();
         await frame.getByLabel('Enable tracing').click();
         await frame.getByLabel('Enable statistics').click();
         await frame.getByRole('button', { name: 'Create' }).click();

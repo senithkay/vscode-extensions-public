@@ -293,7 +293,7 @@ import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIRes
 import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
-import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
+import { generateSwagger, getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
@@ -311,6 +311,7 @@ import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API
 import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
 import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
+import { DebuggerConfig } from "../../debugger/config";
 
 const AdmZip = require('adm-zip');
 
@@ -1749,6 +1750,10 @@ ${endpointAttributes}
             let xmlData = getTemplateXmlWrapper(getTemplateParams);
             let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
+            if (params.templateType === 'Sequence Template') {
+                params.isEdit = false;
+            }
+
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else if (params.isEdit && params.range) {
@@ -2952,9 +2957,9 @@ ${endpointAttributes}
             // open file dialog to select the openapi spec file
             const options: vscode.OpenDialogOptions = {
                 canSelectMany: false,
-                openLabel: 'Open OpenAPI Spec',
+                openLabel: 'Open File',
                 filters: {
-                    'OpenAPI Spec': ['json', 'yaml', 'yml']
+                    'OpenAPI Spec': ['json', 'yaml', 'yml', 'proto']
                 }
             };
 
@@ -2992,7 +2997,7 @@ ${endpointAttributes}
             const initialDependencies = generateInitialDependencies(httpConnectorVersion);
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", (artifactID ?? name).toLowerCase(), projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
                     '.env': '',
                     'src': {
                         'main': {
@@ -3627,6 +3632,9 @@ ${endpointAttributes}
             // Copy the file from the source to the destination
             const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
             await fs.promises.copyFile(sourceFilePath, destinationFilePath);
+            if (params.artifactType === "API") {
+                await generateSwagger(destinationFilePath);
+            }
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             return { success: true }; // Return success response
         } catch (error) {
@@ -5086,7 +5094,12 @@ ${keyValuesXML}`;
 
     async getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
         const langClient = getStateMachine(this.projectUri).context().langClient!;
-        const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        let response;
+        if (params.isRuntimeService) {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath, port: DebuggerConfig.getServerPort() });
+        } else {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        }
         const generatedSwagger = response.swagger;
         const port = await getPortPromise({ port: 1000, stopPort: 3000 });
         const cors_proxy = require('cors-anywhere');
@@ -5455,6 +5468,28 @@ ${keyValuesXML}`;
             } catch (e) {
                 reject(e);
             }
+        });
+    }
+
+    async closePayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', false);
+            resolve();
+        });
+    }
+
+    async shouldDisplayPayloadAlert(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const displayPayloadAlert: boolean =
+                (await extension.context.workspaceState.get('displayPayloadAlert')) ?? true;
+            resolve(displayPayloadAlert);
+        });
+    }
+
+    async displayPayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', true);
+            resolve();
         });
     }
 }

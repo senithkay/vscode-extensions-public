@@ -12,7 +12,7 @@ import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vsc
 import { AddArtifact } from "../AddArtifact";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
-import { closeEditorGroup, copyFile, page } from "../../Utils";
+import { copyFile, page } from "../../Utils";
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import path from "path";
 import os from "os";
@@ -144,7 +144,7 @@ export class API {
         await frame.getByRole('button', { name: 'Update' }).click();
     }
 
-    public async goToSwaggerView() {
+    public async goToSwaggerView(attemptId: number) {
         const desWebView = await switchToIFrame('Service Designer', this._page);
         if (!desWebView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -168,6 +168,9 @@ export class API {
             throw new Error(`IFrame of Swagger View not found`);
         }
         console.log("Found swagger view frame");
+        // Save changes
+        // Save all files
+        await page.executePaletteCommand('File: Save All Files');
         const swaggerFrame = swaggerView.locator('div#root');
         console.log("Waiting for swagger frame");
         await swaggerFrame.waitFor();
@@ -181,7 +184,9 @@ export class API {
         console.log("Clicked on try it out");
         await swaggerView.getByRole('button', { name: 'Execute' }).click();
         console.log("Clicked on execute");
-        closeEditorGroup();
+        await page.executePaletteCommand('View: Close All Editor Groups');
+        // wait for the editor to close
+        // await page.page.waitForTimeout(2000);
         try {
             const saveBtn = this._page.getByRole('button', { name: 'Save', exact: true });
             await saveBtn.waitFor({ timeout: 5000 });
@@ -193,7 +198,10 @@ export class API {
         }
 
         const projectExplorer = new ProjectExplorer(this._page);
-        const item = await projectExplorer.findItem(['Project testProject', 'APIs', 'NewTestAPI1:v1.0.2']);
+        console.log("Navigating to project overview");
+        const apiProjectName = `NewTestAPI${attemptId}:v1.0.2`;
+        const item = await projectExplorer.findItem(['Project testProject', 'APIs', apiProjectName], true);
+        console.log("Found project testProject");
         await item.getByRole('button', { name: 'Open Service Designer' }).click();
     }
 
@@ -216,9 +224,13 @@ export class API {
         await overviewPage.init();
         const webview = await overviewPage.getWebView();
         console.log("Found project testProject");
-        await this._page.getByLabel('Open Project Overview').click();
+        const openProjectOverviewBtn = this._page.getByLabel('Open Project Overview');
+        await openProjectOverviewBtn.waitFor();
+        await openProjectOverviewBtn.click();
         console.log("Clicked on open project overview");
-        await webview.locator('vscode-button > svg').first().click();
+        const vscodeButton = webview.locator('vscode-button > svg').nth(1);
+        await vscodeButton.waitFor();
+        await vscodeButton.click({force: true});
         const deleteBtn = webview.getByText('Delete');
         console.log("Clicked on delete API");
         await deleteBtn.waitFor();
@@ -294,13 +306,15 @@ export class API {
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         console.log("Filled name and context");
         await apiFormFrame.getByLabel('From WSDL file').click();
-        console.log("Clicked on from WSDL file");
+        console.log("Clicked on From WSDL file");
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
         await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('http://www.dneonline.com/calculator.asmx?wsdl');
-        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
+        const submitBtn = await getVsCodeButton(apiFormFrame, 'Create', "primary");
+        expect(await submitBtn.isEnabled()).toBeTruthy();
+        await submitBtn.click({force: true});
         console.log("Clicked on create");
-        const webView = await switchToIFrame('Service Designer', this._page);
+        const webView = await switchToIFrame('Service Designer', this._page, 90000);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }

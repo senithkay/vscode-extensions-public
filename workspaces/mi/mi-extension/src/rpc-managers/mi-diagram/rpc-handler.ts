@@ -119,6 +119,7 @@ import {
     buildProject,
     checkDBDriver,
     checkOldProject,
+    closePayloadAlert,
     closeWebView,
     closeWebViewNotification,
     compareSwaggerAndAPI,
@@ -143,6 +144,7 @@ import {
     createTemplate,
     deleteArtifact,
     deleteDriverFromLib,
+    displayPayloadAlert,
     downloadConnector,
     downloadInboundConnector,
     editAPI,
@@ -231,6 +233,7 @@ import {
     renameFile,
     saveConfig,
     saveInboundEPUischema,
+    shouldDisplayPayloadAlert,
     showErrorMessage,
     testDbConnection,
     undo,
@@ -454,4 +457,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger, projectUri: s
     messenger.onRequest(testConnectorConnection, (args: TestConnectorConnectionRequest) => rpcManger.testConnectorConnection(args));
     messenger.onRequest(saveConfig, (args: SaveConfigRequest) => rpcManger.saveConfig(args));
     messenger.onRequest(getEULALicense, () => rpcManger.getEULALicense());
+    messenger.onRequest(shouldDisplayPayloadAlert, () => rpcManger.shouldDisplayPayloadAlert());
+    messenger.onRequest(displayPayloadAlert, () => rpcManger.displayPayloadAlert());
+    messenger.onRequest(closePayloadAlert, () => rpcManger.closePayloadAlert());
 }

@@ -11,7 +11,6 @@ import { Attachment } from "@wso2-enterprise/ballerina-core";
 
 export interface TestGeneratorIntermediaryState {
     content: [string, Attachment[]];
-    token: string;
     resourceFunction: string;
     testPlan: string;
 }

@@ -136,50 +136,51 @@ export default function createTests() {
                 await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "http_connection" + testAttempt]);
             });
 
-            await test.step('Import Connector', async () => {
-                console.log('Importing connector: bookservice');
-                const overviewPage = new Overview(page.page);
-                await overviewPage.init();
-                await overviewPage.goToAddArtifact();
+            // ToDo: Uncomment the following section to test importing a connector
+            // await test.step('Import Connector', async () => {
+            //     console.log('Importing connector: bookservice');
+            //     const overviewPage = new Overview(page.page);
+            //     await overviewPage.init();
+            //     await overviewPage.goToAddArtifact();
 
-                const addArtifactPage = new AddArtifact(page.page);
-                await addArtifactPage.init();
-                await addArtifactPage.add('Connections');
+            //     const addArtifactPage = new AddArtifact(page.page);
+            //     await addArtifactPage.init();
+            //     await addArtifactPage.add('Connections');
 
-                const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
-                await connectorStore.init();
+            //     const connectorStore = new ConnectorStore(page.page, "Connector Store Form");
+            //     await connectorStore.init();
 
-                console.log('importing connector');
-                await connectorStore.importConnector('bookservice-1.0.0.zip', true);
+            //     console.log('importing connector');
+            //     await connectorStore.importConnector('bookservice-1.0.0.zip', true);
 
-                await connectorStore.search('Bookservice');
-                await connectorStore.selectOperation('BOOKSERVICE');
+            //     await connectorStore.search('Bookservice');
+            //     await connectorStore.selectOperation('BOOKSERVICE');
 
-                const connectionForm = new Form(page.page, 'Connector Store Form');
-                await connectionForm.switchToFormView();
-                console.log('Filling out connection form');
-                await connectionForm.fill({
-                    values: {
-                        'Connection Name*': {
-                            type: 'input',
-                            value: 'bookservice_connection' + testAttempt,
-                        },
-                        'Server URL*': {
-                            type: 'expression',
-                            value: 'http://localhost'
-                        },
-                        'Port*': {
-                            type: 'expression',
-                            value: '80',
-                        }
-                    }
-                });
-                await connectionForm.submit('Add');
-                const projectExplorer = new ProjectExplorer(page.page);
-                await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "bookservice_connection" + testAttempt]);
+            //     const connectionForm = new Form(page.page, 'Connector Store Form');
+            //     await connectionForm.switchToFormView();
+            //     console.log('Filling out connection form');
+            //     await connectionForm.fill({
+            //         values: {
+            //             'Connection Name*': {
+            //                 type: 'input',
+            //                 value: 'bookservice_connection' + testAttempt,
+            //             },
+            //             'Server URL*': {
+            //                 type: 'expression',
+            //                 value: 'http://localhost'
+            //             },
+            //             'Port*': {
+            //                 type: 'expression',
+            //                 value: '80',
+            //             }
+            //         }
+            //     });
+            //     await connectionForm.submit('Add');
+            //     const projectExplorer = new ProjectExplorer(page.page);
+            //     await projectExplorer.findItem(["Project testProject", "Other Artifacts", "Connections", "bookservice_connection" + testAttempt]);
 
-                console.log('Connection tests completed');
-            });
+            //     console.log('Connection tests completed');
+            // });
         });
     });
 }

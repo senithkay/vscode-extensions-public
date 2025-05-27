@@ -96,6 +96,8 @@ export const AttributeName: React.FC<any> = styled.span`
     line-height: 30px;
     padding-right: 8px;
     text-align: left;
+    min-width: fit-content;
+    white-space: nowrap;
 `;
 
 export const AttributeType: React.FC<any> = styled.span`

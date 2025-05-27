@@ -23,38 +23,48 @@ export default function createTests() {
 
         test('View Artifact Tests', async ({ }) => {
             await test.step('API Diagram Rendering Test', async () => {
+                console.log('Starting API Diagram Rendering Test');
                 const projectExplorer = new ProjectExplorer(page.page);
                 await projectExplorer.goToOverview("testProject");
+                console.log('Navigated to project overview');
                 const api = new API(page.page);
                 await api.init();
                 await api.addAPI('helloWorld', "/helloWorld");
+                console.log('API added successfully');
                 const explorer = new ProjectExplorer(page.page);
                 await explorer.goToOverview("testProject");
                 const overviewPage = new Overview(page.page);
                 await overviewPage.init();
-                await overviewPage.clickOnDiagramView('helloWorld');
+                console.log('Clicking on diagram view for helloWorld API');
+                await overviewPage.clickOnDiagramView('helloWorldAPI');
             });
 
             await test.step('Auotomation Diagram Rendering Test', async () => {
+                console.log('Starting Automation Diagram Rendering Test');
                 const automation = new Automation(page.page);
                 await automation.init();
                 await automation.add('TestTask');
+                console.log('Automation added successfully');
                 const projectExplorer = new ProjectExplorer(page.page);
                 await projectExplorer.goToOverview("testProject");
                 const overviewPage = new Overview(page.page);
                 await overviewPage.init();
-                await overviewPage.clickOnDiagramView('TestTask')
+                console.log('Clicking on diagram view for TestTask Automation');
+                await overviewPage.clickOnDiagramView('Automation')
             });
 
             await test.step('Event Integration Diagram Rendering Test', async () => {
+                console.log('Starting Event Integration Diagram Rendering Test');
                 const eventIntegration = new EventIntegration(page.page);
                 await eventIntegration.init();
                 await eventIntegration.add('HttpEventIntegration');
+                console.log('Event Integration added successfully');
                 const projectExplorer = new ProjectExplorer(page.page);
                 await projectExplorer.goToOverview("testProject");
                 const overviewPage = new Overview(page.page);
                 await overviewPage.init();
-                await overviewPage.clickOnDiagramView('HttpEventIntegration')
+                console.log('Clicking on diagram view for HttpEventIntegration');
+                await overviewPage.clickOnDiagramView('Event Integration')
             });
         });
     });

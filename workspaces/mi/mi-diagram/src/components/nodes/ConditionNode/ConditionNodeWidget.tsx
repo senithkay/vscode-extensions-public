@@ -14,7 +14,7 @@ import { ConditionNodeModel } from "./ConditionNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { MoreVertIcon } from "../../../resources";
 import { Description, Name } from "../BaseNodeModel";
@@ -168,13 +168,12 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                     marginLeft: "30px",
                     padding: 0
                 }}
+                handleClose={handlePopoverClose}
             >
-                <ClickAwayListener onClickAway={handlePopoverClose}>
-                    <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
-                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
-                    </Menu>
-                </ClickAwayListener>
+                <Menu>
+                    <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
+                    <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
+                </Menu>
             </Popover>
         </div>
     );

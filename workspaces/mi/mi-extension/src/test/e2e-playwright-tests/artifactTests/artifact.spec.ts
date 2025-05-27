@@ -52,7 +52,8 @@ export default function createTests() {
       });
       await test.step('Create External Trigger', async () => {
         console.log('Creating new External Trigger');
-        await automation.createExternalTrigger("TestExternalTrigger" + testAttempt);
+        const sequenceName = `SEQUENCE TestTask${testAttempt}Sequence`;
+        await automation.createExternalTrigger("TestExternalTrigger" + testAttempt, sequenceName);
       });
       await test.step('Open Diagram View for Automation', async () => {
         console.log('Opening Diagram View for Automation');
@@ -87,7 +88,8 @@ export default function createTests() {
       });
       await test.step('Go to swagger view', async () => {
         console.log('Navigating to swagger view');
-        await api.goToSwaggerView();
+        const testAttempt = test.info().retry + 1;
+        await api.goToSwaggerView(testAttempt);
       });
       await test.step('Delete Resource', async () => {
         console.log('Deleting Resource');
@@ -545,11 +547,11 @@ export default function createTests() {
       });
       await test.step('Create Proxy Service from Project Explorer', async () => {
         console.log('Creating new Proxy Service from Project Explorer');
-        await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
+        await proxyService.createProxyServiceFormSidepanel("testSidePanelProxyService" + testAttempt);
       });
       await test.step('Open Diagram View of Proxy', async () => {
         console.log('Opening Diagram View of Proxy');
-        await proxyService.openDiagramView("testProxyService" + testAttempt);
+        await proxyService.openDiagramView("testSidePanelProxyService" + testAttempt);
       });
     });
 

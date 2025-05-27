@@ -13,9 +13,8 @@ import { Uri, ViewColumn } from 'vscode';
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from "../../utils/webview-utils";
 import { RPCLayer } from '../../RPCLayer';
 import { extension } from '../../BalExtensionContext';
-import { StateMachineAI } from './aiMachine';
-import { AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
-import { StateMachine } from '../../stateMachine';
+import { AIStateMachine } from './aiMachine';
+import { AIMachineEventType } from '@wso2-enterprise/ballerina-core';
 
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;
@@ -33,7 +32,7 @@ export class AiPanelWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             AiPanelWebview.viewType,
-            "WSO2 Copilot",
+            "BI Copilot",
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -119,7 +118,7 @@ export class AiPanelWebview {
 
     public dispose() {
         AiPanelWebview.currentPanel = undefined;
-        StateMachineAI.sendEvent(AI_EVENT_TYPE.DISPOSE);
+        AIStateMachine.sendEvent(AIMachineEventType.DISPOSE);
         this._panel?.dispose();
 
         while (this._disposables.length) {

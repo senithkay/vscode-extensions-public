@@ -171,6 +171,14 @@ export const allComponentModel: Project = {
             services: {},
             connections: [],
         },
+        {
+            id: "Local Bridge",
+            version: "0.2.0",
+            type: "system",
+            buildPack: "debug",
+            services: {},
+            connections: [],
+        },
     ],
     modelVersion: "0.4.0",
 };

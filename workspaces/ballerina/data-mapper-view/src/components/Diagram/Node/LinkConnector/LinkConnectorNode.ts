@@ -127,16 +127,12 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                         || STKindChecker.isSpecificField(this.parentNode)
                         || STKindChecker.isBracedExpression(this.parentNode))
                     {
-                        if (!(node instanceof MappingConstructorNode)) {
-                            const typeName = targetPortPrefix === PRIMITIVE_TYPE_TARGET_PORT_PREFIX
-                                ? node.recordField.type.typeName
-                                : targetPortPrefix === LIST_CONSTRUCTOR_TARGET_PORT_PREFIX
-                                    ? (node as ListConstructorNode | UnionTypeNode).rootName
-                                    : undefined;
-                            this.targetPort = node.getPort(
-                                `${targetPortPrefix}${typeName ? `.${typeName}` : ''}.IN`
-                            ) as RecordFieldPortModel;
-                        }
+                        const typeName = targetPortPrefix === PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+                            ? node.recordField.type.typeName
+                            : (node as MappingConstructorNode | ListConstructorNode | UnionTypeNode)?.rootName
+                        this.targetPort = node.getPort(
+                            `${targetPortPrefix}${typeName ? `.${typeName}` : ''}.IN`
+                        ) as RecordFieldPortModel;
                         this.targetMappedPort = this.targetPort;
                     } else {
                         const rootName = targetPortPrefix === LIST_CONSTRUCTOR_TARGET_PORT_PREFIX

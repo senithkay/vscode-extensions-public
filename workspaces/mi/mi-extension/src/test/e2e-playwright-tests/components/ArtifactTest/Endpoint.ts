@@ -90,7 +90,7 @@ export class Endpoint {
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).click();
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await lbEPFrame.locator('#algorithm svg').click();
-        await lbEPFrame.getByLabel('Weighted RRLC Algorithm').click();
+        await lbEPFrame.getByLabel('Weighted RRLC Algorithm').click({force: true});
         await lbEPFrame.getByRole('button', { name: 'Create' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
@@ -110,7 +110,7 @@ export class Endpoint {
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).click();
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill(newName);
         await lbEPFrame.locator('#algorithm svg').click();
-        await lbEPFrame.getByLabel('Weighted Round Robin').click();
+        await lbEPFrame.getByLabel('Weighted Round Robin').click({force: true});
         await lbEPFrame.getByRole('button', { name: 'Save Changes' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {

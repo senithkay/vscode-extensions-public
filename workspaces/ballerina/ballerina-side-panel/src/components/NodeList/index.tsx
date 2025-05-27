@@ -137,8 +137,6 @@ namespace S {
         & svg {
             height: 16px;
             width: 16px;
-            fill: ${ThemeColors.ON_SURFACE};
-            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 
@@ -276,10 +274,6 @@ export function NodeList(props: NodeListProps) {
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
             {nodes.map((node, index) => {
-                if (["MATCH"].includes(node.id)) {
-                    // HACK: Skip the MATCH and FOREACH nodes until the implementation is ready
-                    return;
-                }
                 if (["NP_FUNCTION"].includes(node.id) && !isNPSupported) {
                     return;
                 }

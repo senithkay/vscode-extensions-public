@@ -23,6 +23,7 @@ import {
     ManualTaskIcon,
     WebhookIcon,
     ExternalConsumerIcon,
+    SettingsIcon
 } from "../../../../resources/assets/icons";
 import * as icons from "../../../../resources/assets/icons"; // import all icon SVGs as an object
 import { MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
@@ -65,6 +66,8 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
                 return <WebhookIcon />;
             case ComponentType.EXTERNAL_CONSUMER:
                 return <ExternalConsumerIcon />;
+            case ComponentType.SYSTEM_COMPONENT:
+                return <SettingsIcon />;
             default:
                 return <ServiceIcon />;
         }
