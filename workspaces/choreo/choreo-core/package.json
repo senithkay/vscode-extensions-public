@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "vscode-messenger-common": "^0.4.3",
-    "vscode-messenger-webview": "^0.4.3"
+    "vscode-messenger-webview": "^0.5.1"
   },
   "repository": {
     "type": "git",

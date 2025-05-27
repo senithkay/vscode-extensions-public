@@ -168,14 +168,14 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	messenger.onRequest(SetWebviewCache, async (params: { cacheKey: string; data: any }) => {
 		await ext.context.workspaceState.update(params.cacheKey, params.data);
 	});
-	messenger.onRequest(RestoreWebviewCache, async (cacheKey: string) => {
+	messenger.onRequest(RestoreWebviewCache, async (cacheKey:string) => {
 		return ext.context.workspaceState.get(cacheKey);
 	});
-	messenger.onRequest(ClearWebviewCache, async (cacheKey:string) => {
+	messenger.onRequest(ClearWebviewCache, async (cacheKey: string) => {
 		await ext.context.workspaceState.update(cacheKey, undefined);
 	});
-	messenger.onRequest(GoToSource, async (filePath:string): Promise<void> => {
-		await goTosource(filePath, false);
+	messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
+		await goTosource(filePath as string, false);
 	});
 	messenger.onRequest(SaveFile, async (params: {
 		fileName: string;
@@ -198,8 +198,8 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			params.shouldOpen,
 		);
 	});
-	messenger.onRequest(DeleteFile, async (filePath: string) => {
-		unlinkSync(filePath);
+	messenger.onRequest(DeleteFile, async (filePath) => {
+		unlinkSync(filePath as string);
 	});
 	messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
 		const response = await window.showInformationMessage(params.message, { modal: true }, params.buttonText);
@@ -207,7 +207,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	});
 	messenger.onRequest(ReadLocalEndpointsConfig, async (componentPath: string) => readLocalEndpointsConfig(componentPath));
 	messenger.onRequest(ReadLocalProxyConfig, async (componentPath: string) => readLocalProxyConfig(componentPath));
-	messenger.onRequest(ShowQuickPick, async (params: { items: vscode.QuickPickItem[]; title?: string }) => {
+	messenger.onRequest(ShowQuickPick, async (params: { items: any[]; title?: string }) => {
 		const itemSelection = await window.showQuickPick(params.items as vscode.QuickPickItem[], {
 			title: params.title,
 		});
@@ -215,7 +215,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	});
 	messenger.onRequest(
 		ShowInputBox,
-		async (params: { [x: string]: any; regex?: { expression: string; message: string } }) => {
+		async (params: { regex?: { expression: RegExp; message: string }; [x: string]: any }) => {
 			const { regex, ...rest } = params;
 			return window.showInputBox({
 				...rest,
