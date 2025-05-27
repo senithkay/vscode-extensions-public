@@ -28,7 +28,7 @@ import {
     FormExpressionEditorProps,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
-import { convertNodePropertyToFormField, removeDuplicateDiagnostics } from "../../../../utils/bi";
+import { convertNodePropertyToFormField, injectHighlightTheme, removeDuplicateDiagnostics } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -74,6 +74,23 @@ export function ForkForm(props: ForkFormProps) {
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
+
+    useEffect(() => {
+        if (rpcClient) {
+            // Set current theme
+            rpcClient
+                .getVisualizerRpcClient()
+                .getThemeKind()
+                .then((theme) => {
+                    injectHighlightTheme(theme);
+                });
+
+            // Update highlight theme when theme changes
+            rpcClient.onThemeChanged((theme) => {
+                injectHighlightTheme(theme);
+            });
+        }
+    }, [rpcClient]);
 
     const handleFormOpen = () => {
         rpcClient
