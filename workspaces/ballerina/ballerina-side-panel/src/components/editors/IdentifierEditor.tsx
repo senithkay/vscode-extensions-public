@@ -117,10 +117,11 @@ interface IdentifierEditorProps {
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
     showWarning?: boolean;
+    onEditingStateChange?: (isEditing: boolean) => void;
 }
 
 export function IdentifierEditor(props: IdentifierEditorProps) {
-    const { field, handleOnFieldFocus, autoFocus, showWarning } = props;
+    const { field, handleOnFieldFocus, autoFocus, showWarning, onEditingStateChange } = props;
     const { form } = useFormContext();
     const { rpcClient } = useRpcContext();
     const { register, setValue } = form;
@@ -134,6 +135,7 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
     const startEditing = () => {
         setTempValue(field.value || "");
         setIsEditing(true);
+        onEditingStateChange?.(true);
     };
 
     const cancelEditing = () => {
@@ -142,6 +144,7 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
         }
         setTempValue("");
         setIsEditing(false);
+        onEditingStateChange?.(false);
     };
 
     const saveEdit = async () => {
@@ -161,9 +164,11 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
 
         setValue(field.key, tempValue);
         setIsEditing(false);
+        onEditingStateChange?.(false);
     };
 
     const validateIdentifierName = useCallback(debounce(async (value: string) => {
+        console.log("Validating identifier name:", getPropertyFromFormField(field), value);
 
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: field.lineRange?.fileName,

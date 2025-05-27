@@ -628,7 +628,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             <>
                                 {renderEditor()}
                                 <S.Footer>
-                                    <Button onClick={() => onTypeChange(type)} disabled={onValidationError || !isTypeNameValid}>Save</Button>
+                                    <Button onClick={() => onTypeChange(type)} disabled={onValidationError || !isTypeNameValid || isEditing}>Save</Button>
                                 </S.Footer>
                             </>
                         }
