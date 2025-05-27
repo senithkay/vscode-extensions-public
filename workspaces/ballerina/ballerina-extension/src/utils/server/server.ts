@@ -29,7 +29,7 @@ function findFileByPattern(directory: string, pattern: RegExp): string | null {
     }
 }
 
-function findJarsByPatterns(directory: string, patterns: string[]): string[] {
+function findJarsExcludingPatterns(directory: string, excludePatterns: string[]): string[] {
     try {
         if (!fs.existsSync(directory)) {
             return [];
@@ -37,11 +37,16 @@ function findJarsByPatterns(directory: string, patterns: string[]): string[] {
         const files = fs.readdirSync(directory);
         const matchingJars: string[] = [];
         
-        patterns.forEach(pattern => {
-            const regex = new RegExp(pattern.replace(/\*/g, '.*') + '\\.jar$');
-            const matchingFile = files.find(file => regex.test(file));
-            if (matchingFile) {
-                matchingJars.push(path.join(directory, matchingFile));
+        files.forEach(file => {
+            if (file.endsWith('.jar')) {
+                const shouldExclude = excludePatterns.some(pattern => {
+                    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+                    return regex.test(file);
+                });
+                
+                if (!shouldExclude) {
+                    matchingJars.push(path.join(directory, file));
+                }
             }
         });
         
@@ -82,21 +87,19 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
         ? ballerinaHome.substring(0, ballerinaHome.indexOf('distributions'))
         : ballerinaHome;
     
-    // ballerina jar patterns (using wildcards for version)
-    const ballerinaJarPatterns = [
-        'ballerina-lang-*',
-        'ballerina-tools-api-*',
-        'diagram-util-*',
-        'syntax-api-calls-gen-*',
-        'ballerina-parser-*',
-        'central-client-*',
-        'formatter-core-*',
-        'toml-parser-*'
+    // jar patterns to exclude
+    const excludeJarPatterns = [
+        'architecture-model-*',
+        'flow-model-*',
+        'graphql-model-*',
+        'model-generator-*',
+        'sequence-model-*',
+        'language-server-*',
     ];
 
-    // Generate paths for ballerina home jars using dynamic discovery
+    // Generate paths for ballerina home jars using dynamic discovery (excluding specified patterns)
     const ballerinaLibDir = join(ballerinaHome, 'bre', 'lib');
-    const ballerinaJarPaths = findJarsByPatterns(ballerinaLibDir, ballerinaJarPatterns);
+    const ballerinaJarPaths = findJarsExcludingPatterns(ballerinaLibDir, excludeJarPatterns);
     
     ballerinaJarPaths.forEach(jarPath => {
         if (fs.existsSync(jarPath)) {
@@ -107,7 +110,7 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
     });
 
     // language server jar - find any ballerina-language-server jar in the ls directory
-    const lsDir = join(__dirname, 'ls');
+    const lsDir = extension?.context.asAbsolutePath("ls");    
     const ballerinaLanguageServerJar = findFileByPattern(lsDir, /^ballerina-language-server.*\.jar$/);
     
     if (!ballerinaLanguageServerJar || !fs.existsSync(ballerinaLanguageServerJar)) {
@@ -137,7 +140,7 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
     
     const javaExecutable = isWindows() ? 'java.exe' : 'java';
     cmd = join(jdkDir, 'bin', javaExecutable);
-    args = ['-cp', classpath, 'org.ballerinalang.langserver.launchers.stdio.Main'];
+    args = ['-cp', classpath, `-Dballerina.home=${ballerinaHome}`, 'org.ballerinalang.langserver.launchers.stdio.Main'];
     
     console.log(">>> Found JDK:", jdkDir);
     console.log(">>> Java executable:", cmd, "exists:", fs.existsSync(cmd));
