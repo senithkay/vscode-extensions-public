@@ -556,7 +556,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             flowNode: node,
         });
         console.log(">>> Updated source code after delete", deleteNodeResponse);
-        if (!deleteNodeResponse.textEdits) {
+        if (deleteNodeResponse.artifacts.length === 0) {
             console.error(">>> Error updating source code", deleteNodeResponse);
         }
 
@@ -614,7 +614,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 flowNode: updatedNode,
             })
             .then((response) => {
-                if (response.textEdits) {
+                if (response.artifacts.length > 0) {
                     selectedNodeRef.current = undefined;
                     handleOnCloseSidePanel();
                 } else {
