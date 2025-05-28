@@ -722,21 +722,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
     }
 
-    async getThemeKind(): Promise<string> {
-        return new Promise((resolve) => {
-            const themeKind = window.activeColorTheme.kind;
-            switch (themeKind) {
-                case 1:
-                case 4:
-                    resolve("light");
-                    break;
-                default:
-                    resolve("dark");
-                    break;
-            }
-        });
-    }
-
     async handleChatSummaryError(message: string): Promise<void> {
         return handleChatSummaryFailure(message);
     }

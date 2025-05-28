@@ -10,6 +10,7 @@
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     EVENT_TYPE,
+    ColorThemeKind,
     FlowNode,
     LineRange,
     NodePosition,
@@ -55,6 +56,7 @@ import {
     getFormProperties,
     getImportsForFormFields,
     getInfoFromExpressionValue,
+    injectHighlightTheme,
     removeDuplicateDiagnostics,
     updateLineRange,
 } from "../../../../utils/bi";
@@ -162,6 +164,23 @@ export function FormGenerator(props: FormProps) {
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
+
+    useEffect(() => {
+        if (rpcClient) {
+            // Set current theme
+            rpcClient
+                .getVisualizerRpcClient()
+                .getThemeKind()
+                .then((theme) => {
+                    injectHighlightTheme(theme);
+                });
+
+            // Update highlight theme when theme changes
+            rpcClient.onThemeChanged((theme) => {
+                injectHighlightTheme(theme);
+            });
+        }
+    }, [rpcClient]);
 
     useEffect(() => {
         if (!node) {
@@ -474,7 +493,7 @@ export function FormGenerator(props: FormProps) {
             },
         });
 
-        return convertToFnSignature(signatureHelp);
+        return await convertToFnSignature(signatureHelp);
     };
 
     const handleExpressionFormDiagnostics = useCallback(
