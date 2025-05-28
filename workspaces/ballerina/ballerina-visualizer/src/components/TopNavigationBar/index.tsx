@@ -166,7 +166,6 @@ function getShortNames(name: string) {
             return "Connection";
         case MACHINE_VIEW.ViewConfigVariables:
         case MACHINE_VIEW.EditConfigVariables:
-        case MACHINE_VIEW.AddConfigVariable:
             return "Configurable Variables";
         case MACHINE_VIEW.TypeDiagram:
         case "Edit Type":
