@@ -206,6 +206,7 @@ export function TypeEditor(props: TypeEditorProps) {
     const [onValidationError, setOnValidationError] = useState<boolean>(false);
     const [isTypeNameValid, setIsTypeNameValid] = useState<boolean>(true);
     const { rpcClient } = useRpcContext();
+    const saveButtonClicked = useRef(false);
 
      useEffect(() => {
         if (props.type) {
@@ -401,6 +402,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const startEditing = () => {
         setTempName(type.name);
+        saveButtonClicked.current = false;
         setIsEditing(true);
     };
 
@@ -412,6 +414,7 @@ export function TypeEditor(props: TypeEditorProps) {
     };
 
     const editTypeName = async () => {
+        saveButtonClicked.current = true;
         if (!tempName || tempName === type.name) {
             cancelEditing();
             return;
@@ -446,7 +449,9 @@ export function TypeEditor(props: TypeEditorProps) {
     };
 
     const handleOnBlur = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        await validateTypeName(e.target.value); 
+        if (!saveButtonClicked.current) {
+            await validateTypeName(e.target.value);
+        }
     };
 
     const handleOnFieldFocus = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -454,6 +459,11 @@ export function TypeEditor(props: TypeEditorProps) {
     }
 
     const validateTypeName = useCallback(debounce(async (value: string) => {
+        // Skip validation if save button was clicked
+        if (saveButtonClicked.current) {
+            return;
+        }
+        
         const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
 
         const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
