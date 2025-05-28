@@ -14,11 +14,12 @@ import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "..
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
-import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse, SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, EVENT_TYPE, MACHINE_VIEW, PackageConfigSchema, ProjectDiagnosticsResponse, SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import { TextDocumentEdit } from "vscode-languageserver-types";
 import { modifyFileContent } from "../../utils/modification";
 import { fileURLToPath } from "url";
 import { startDebugging } from "../editor-support/codelens-provider";
+import { openView } from "../../stateMachine";
 
 const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
@@ -40,18 +41,8 @@ export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaEx
     const uri = Uri.file(context.configFilePath);
     const ignoreFile = `${context.projectPath}/.gitignore`;
 
-    await handleNewValues(
-        context,
-        newValues,
-        context.configFilePath,
-        updatedContent,
-        uri,
-        ignoreFile,
-        ballerinaExtInstance,
-        isCommand,
-        isBi,
-        includeOptional
-    );
+    
+    await handleOnUnSetValues(context, context.configFilePath, updatedContent, ignoreFile, ballerinaExtInstance, isCommand, isBi);
 }
 
 export async function checkConfigGenerationRequired(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean): Promise<ConfigRequirementResult> {
@@ -331,6 +322,66 @@ export async function handleNewValues(context: ConfigGenerationContext, newValue
         executeRunCommand(ballerinaExtInstance, configFile, isBi);
     }
 }
+
+export async function handleOnUnSetValues(context: ConfigGenerationContext, configFile: string, updatedContent: string, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean, isBi: boolean): Promise<void> {
+    let result;
+    let btnTitle: string;
+    let message: string;
+
+    if (!existsSync(configFile)) {
+        message = 'Missing Config.toml file';
+        btnTitle = 'Create Config.toml';
+    } else {
+        message = 'Missing required configurations in Config.toml file';
+        btnTitle = 'Update Configurables';
+    }
+
+    const openConfigButton = { title: btnTitle };
+    const ignoreButton = { title: 'Run Anyway' };
+    const details = "It is recommended to create/update the configurable variables with all mandatory configuration values before running the program.";
+
+    if (!isCommand) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        result = await window.showInformationMessage(message, { detail: details, modal: true }, openConfigButton, ignoreButton);
+    }
+
+    const docLink = "https://ballerina.io/learn/provide-values-to-configurable-variables/#provide-via-toml-syntax";
+    if (isCommand || result === openConfigButton) {
+        if (!existsSync(configFile)) {
+            openSync(configFile, 'w');
+            updatedContent = `
+# Configuration file for "${context.packageName}"
+# 
+# This file contains configuration values for configurable variables in your Ballerina code.
+# Both package-specific and imported module configurations are included below.
+# 
+# Learn more about configurable variables:
+# ${docLink}
+#
+# Note: This file is automatically added to .gitignore to protect sensitive information. ${updatedContent}
+
+`;
+            if (existsSync(ignoreFile)) {
+                const ignoreUri = Uri.file(ignoreFile);
+                let ignoreContent: string = readFileSync(ignoreUri.fsPath, 'utf8');
+                if (!ignoreContent.includes(BAL_CONFIG_FILE)) {
+                    ignoreContent += `\n${BAL_CONFIG_FILE}\n`;
+                    writeFile(ignoreUri.fsPath, ignoreContent, function (error) {
+                        if (error) {
+                            return window.showErrorMessage('Unable to update the .gitIgnore file: ' + error);
+                        }
+                        window.showInformationMessage('Successfully updated the .gitIgnore file.');
+                    });
+                }
+            }
+        }
+
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ViewConfigVariables });
+    } else if (!isCommand && result === ignoreButton) {
+        executeRunCommand(ballerinaExtInstance, configFile, isBi);
+    }
+}
+
 
 // Function to group config properties by module
 function groupConfigsByModule(configProperties: ConfigProperty[]): Map<string, Map<string, ConfigProperty[]>> {
