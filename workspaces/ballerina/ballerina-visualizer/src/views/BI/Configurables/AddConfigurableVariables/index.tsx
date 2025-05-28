@@ -21,10 +21,11 @@ export interface ConfigFormProps {
     filename: string;
     packageName: string;
     moduleName: string;
+    onSubmit: () => void;
 }
 
 export function AddForm(props: ConfigFormProps) {
-    const { isOpen, onClose, title, filename } = props;
+    const { isOpen, onClose, onSubmit, title, filename } = props;
     const { rpcClient } = useRpcContext();
     const [configVarNode, setCofigVarNode] = useState<FlowNode>();
 
@@ -62,11 +63,9 @@ export function AddForm(props: ConfigFormProps) {
             configVariable: node,
             packageName: props.packageName,
             moduleName: props.moduleName,
-        }).then((response: any) => {
-            console.log(">>> Config variables------", response);
         }).finally(() => {
             if (onClose) {
-                onClose();
+                onSubmit();
             }
         });
     
