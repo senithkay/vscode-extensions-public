@@ -19,6 +19,7 @@ export interface TreeViewProps {
     disableClick?: boolean;
     sx?: any;
     onSelect?: (id: string) => void;
+    expandByDefault?: boolean;
 }
 
 interface TreeContainerProps {
@@ -50,8 +51,8 @@ const EmptyContainer = styled.div`
 `;
 
 export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
-    const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId, disableClick = false, sx } = props
-    const [isExpanded, setIsExpanded] = useState(false);
+    const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId, disableClick = false, sx, expandByDefault = false } = props
+    const [isExpanded, setIsExpanded] = useState(expandByDefault);
 
     const toggleExpand = (sId: string) => {
         if (!disableClick) {
