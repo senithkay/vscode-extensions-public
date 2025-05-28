@@ -784,6 +784,13 @@ export interface UpdateConfigVariableResponse {
 
 }
 
+export interface UpdateConfigVariableRequestV2 {
+    configFilePath: string;
+    configVariable: FlowNode | FunctionNode;
+    packageName: string;
+    moduleName: string;
+}
+
 export interface OpenConfigTomlRequest {
     filePath: string
 }
@@ -1511,6 +1518,10 @@ export interface BIInterface extends BaseLangClientInterface {
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getConfigVariables: (params: ConfigVariableRequest) => Promise<ConfigVariableResponse>;
     updateConfigVariables: (params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
+    getConfigVariablesV2: (params: ConfigVariableRequest) => Promise<ConfigVariableResponse>;
+    updateConfigVariablesV2: (params: UpdateConfigVariableRequestV2) => Promise<BISourceCodeResponse>;
+    deleteConfigVariableV2: (params: UpdateConfigVariableRequestV2) => Promise<BISourceCodeResponse>;
+    getConfigVariableNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;

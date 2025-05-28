@@ -208,7 +208,8 @@ import {
     MemoryManagersRequest,
     MemoryManagersResponse,
     ArtifactsNotification,
-    OpenConfigTomlRequest
+    OpenConfigTomlRequest,
+    UpdateConfigVariableRequestV2
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug, handlePullModuleProgress } from "../utils";
@@ -285,6 +286,10 @@ enum EXTENDED_APIS {
     DATA_MAPPER_ADD_ELEMENT = 'dataMapper/addElement',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
     UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
+    VIEW_CONFIG_VARIABLES_V2 = 'configEditorV2/getConfigVariables',
+    UPDATE_CONFIG_VARIABLES_V2 = 'configEditorV2/updateConfigVariable',
+    DELETE_CONFIG_VARIABLE_V2 = 'configEditorV2/deleteConfigVariable',
+    GET_NODE_CONFIG_VARIABLES_V2 = 'configEditorV2/getNodeTemplate',
     OPEN_CONFIG_TOML = 'configEditor/openConfigToml',
     RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
     RUNNER_MAIN_FUNCTION_PARAMS = 'ballerinaRunner/mainFunctionParams',
@@ -856,6 +861,22 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
         return this.sendRequest<UpdateConfigVariableResponse>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES, params);
+    }
+
+    async getConfigVariablesV2(params: ConfigVariableRequest): Promise<ConfigVariableResponse> {
+        return this.sendRequest<ConfigVariableResponse>(EXTENDED_APIS.VIEW_CONFIG_VARIABLES_V2, params);
+    }
+
+    async updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES_V2, params);
+    }
+
+    async deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.DELETE_CONFIG_VARIABLE_V2, params);
+    }
+
+    async getConfigVariableNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
+        return this.sendRequest<BINodeTemplateResponse>(EXTENDED_APIS.GET_NODE_CONFIG_VARIABLES_V2, params);
     }
 
     async openConfigToml(params: OpenConfigTomlRequest): Promise<void> {

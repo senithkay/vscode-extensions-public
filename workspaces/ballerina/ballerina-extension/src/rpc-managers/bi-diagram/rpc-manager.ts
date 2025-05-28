@@ -103,6 +103,7 @@ import {
     TemplateId,
     TextEdit,
     UpdateConfigVariableRequest,
+    UpdateConfigVariableRequestV2,
     UpdateConfigVariableResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
@@ -642,6 +643,65 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             resolve(response);
         });
     }
+
+    async getConfigVariablesV2(): Promise<ConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const projectPath = path.join(StateMachine.context().projectUri);
+            const variables = await StateMachine.langClient().getConfigVariablesV2({ projectPath: projectPath }) as ConfigVariableResponse;
+            resolve(variables);
+        });
+    }
+
+    async updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+        return new Promise(async (resolve) => {
+            const req: UpdateConfigVariableRequestV2 = params;
+            if (!fs.existsSync(params.configFilePath)) {
+                // Create config.bal if it doesn't exist
+                writeBallerinaFileDidOpen(params.configFilePath, "\n");
+            }
+            const response = await StateMachine.langClient().updateConfigVariablesV2(req) as BISourceCodeResponse;
+            await this.updateSource(response, undefined, false);
+            resolve(response);
+        });
+    }
+
+    async deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+        return new Promise(async (resolve) => {
+            const req: UpdateConfigVariableRequestV2 = params;
+            if (!fs.existsSync(params.configFilePath)) {
+                // Create config.bal if it doesn't exist
+                writeBallerinaFileDidOpen(params.configFilePath, "\n");
+            }
+            const response = await StateMachine.langClient().deleteConfigVariableV2(req) as BISourceCodeResponse;
+            await this.updateSource(response, undefined, false);
+            resolve(response);
+        });
+    }
+
+    async getConfigVariableNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
+        // Check if the file exists
+        if (!fs.existsSync(params.filePath)) {
+            // Create the file if it does not exist
+            fs.writeFileSync(params.filePath, "");
+            console.log(`>>> Created file at ${params.filePath}`);
+        }
+
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getConfigVariableNodeTemplate(params)
+                .then((model) => {
+                    console.log(">>> bi node template from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching node template from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
+    }
+
 
     // Function to open config toml
     async openConfigToml(params: OpenConfigTomlRequest): Promise<void> {

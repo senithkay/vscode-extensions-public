@@ -47,6 +47,7 @@ import {
     ServiceClassSourceRequest,
     SignatureHelpRequest,
     UpdateConfigVariableRequest,
+    UpdateConfigVariableRequestV2,
     UpdateImportsRequest,
     UpdateRecordConfigRequest,
     UpdateTypeRequest,
@@ -60,6 +61,7 @@ import {
     createGraphqlClassType,
     createProject,
     deleteByComponentInfo,
+    deleteConfigVariableV2,
     deleteFlowNode,
     deleteOpenApiGeneratedModules,
     deployProject,
@@ -70,7 +72,9 @@ import {
     getAllImports,
     getAvailableNodes,
     getBreakpointInfo,
+    getConfigVariableNodeTemplate,
     getConfigVariables,
+    getConfigVariablesV2,
     getDesignModel,
     getDevantMetadata,
     getEnclosedFunction,
@@ -108,6 +112,7 @@ import {
     search,
     updateClassField,
     updateConfigVariables,
+    updateConfigVariablesV2,
     updateImports,
     updateRecordConfig,
     updateServiceClass,
@@ -137,6 +142,10 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
     messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());
     messenger.onRequest(updateConfigVariables, (args: UpdateConfigVariableRequest) => rpcManger.updateConfigVariables(args));
+    messenger.onRequest(getConfigVariablesV2, () => rpcManger.getConfigVariablesV2());
+    messenger.onRequest(updateConfigVariablesV2, (args: UpdateConfigVariableRequestV2) => rpcManger.updateConfigVariablesV2(args));
+    messenger.onRequest(deleteConfigVariableV2, (args: UpdateConfigVariableRequestV2) => rpcManger.deleteConfigVariableV2(args));
+    messenger.onRequest(getConfigVariableNodeTemplate, (args: BINodeTemplateRequest) => rpcManger.getConfigVariableNodeTemplate(args));
     messenger.onRequest(openConfigToml, (args: OpenConfigTomlRequest) => rpcManger.openConfigToml(args));
     messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
