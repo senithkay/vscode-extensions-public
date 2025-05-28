@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useRef } from "react";
 import { FormField } from "../Form/types";
 import { Button, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useFormContext } from "../../context";
@@ -124,30 +124,35 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
     const { field, handleOnFieldFocus, autoFocus, showWarning, onEditingStateChange } = props;
     const { form } = useFormContext();
     const { rpcClient } = useRpcContext();
-    const { register, setValue } = form;
+    const { register, setValue, getValues } = form;
     const [isEditing, setIsEditing] = useState(false);
     const [tempValue, setTempValue] = useState(field.value || "");
     const [identifierErrorMsg, setIdentifierErrorMsg] = useState<string>(field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n"));
     const [isIdentifierValid, setIsIdentifierValid] = useState<boolean>(true);
+    const saveButtonClicked = useRef(false);
 
     const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
 
     const startEditing = () => {
-        setTempValue(field.value || "");
+        const currentFormValue = getValues(field.key);
+        setTempValue(currentFormValue || field.value || "");
+        saveButtonClicked.current = false;
         setIsEditing(true);
         onEditingStateChange?.(true);
     };
 
     const cancelEditing = () => {
-        if (typeof field.value === 'string') {
+        if (typeof field.value === 'string' && !saveButtonClicked.current) {
             validateIdentifierName(field.value);
         }
         setTempValue("");
+        saveButtonClicked.current = false;
         setIsEditing(false);
         onEditingStateChange?.(false);
     };
 
     const saveEdit = async () => {
+        saveButtonClicked.current = true;
         if (!tempValue || tempValue === field.value) {
             cancelEditing();
             return;
@@ -163,11 +168,17 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
         });
 
         setValue(field.key, tempValue);
+        field.value = tempValue;
         setIsEditing(false);
         onEditingStateChange?.(false);
     };
 
     const validateIdentifierName = useCallback(debounce(async (value: string) => {
+        // Skip validation if we're saving or not editing
+        if (saveButtonClicked.current || !isEditing) {
+            return;
+        }
+        
         console.log("Validating identifier name:", getPropertyFromFormField(field), value);
 
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
@@ -185,7 +196,6 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
             }
         });
 
-
         if (response.diagnostics.length > 0) {
             setIdentifierErrorMsg(response.diagnostics[0].message);
             setIsIdentifierValid(false);
@@ -193,10 +203,12 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
             setIdentifierErrorMsg("");
             setIsIdentifierValid(true);
         }
-    }, 250), [rpcClient, field]);
+    }, 250), [rpcClient, field, isEditing]);
 
     const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-        validateIdentifierName(e.target.value);
+        if (!saveButtonClicked.current) {
+            validateIdentifierName(e.target.value);
+        }
     }
 
     const handleOnFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
