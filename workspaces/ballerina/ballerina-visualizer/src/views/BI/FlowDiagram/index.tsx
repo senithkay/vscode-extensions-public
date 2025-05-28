@@ -107,9 +107,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 return;
             }
             setShowProgressIndicator(true);
-            setTimeout(() => {
-                fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, true);
-            }, 3000); // HACK: 3 seconds delay
+            fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, true);
         });
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
             console.log(">>> on parent popup submitted", parent);
@@ -118,9 +116,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 return;
             }
             setShowProgressIndicator(true);
-            setTimeout(() => {
-                fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, false);
-            }, 3000); // HACK: 3 seconds delay
+            fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, false);
         });
     }, [rpcClient]);
 
@@ -568,6 +564,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 return;
             }
         }
+        // Get the updated component and update the location
+        const artifact = deleteNodeResponse.artifacts.at(0);
+        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: artifact.path, position: artifact.position } });
 
         selectedNodeRef.current = undefined;
         handleOnCloseSidePanel();
