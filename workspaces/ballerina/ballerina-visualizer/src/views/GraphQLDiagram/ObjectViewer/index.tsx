@@ -10,7 +10,7 @@
 import { Type, ServiceClassModel, ModelFromCodeRequest, FieldType, FunctionModel, NodePosition, STModification, removeStatement, LineRange, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { Button, Codicon, Typography, TextField, ProgressRing, Menu, MenuItem, Popover, Item, ThemeColors, LinkButton } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { LoadingContainer } from "../../styles";
 import { OperationForm } from "../../GraphQLDiagram/OperationForm";
@@ -20,6 +20,7 @@ import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { applyModifications } from "../../../utils/utils";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 import { FieldCard } from "./FieldCard";
+import { debounce } from "lodash";
 
 
 const ServiceContainer = styled.div`
@@ -75,7 +76,7 @@ const EmptyStateText = styled(Typography)`
 const EditRow = styled.div`
     display: flex;
     gap: 8px;
-    align-items: flex-end;
+    align-items: flex-start;
     width: 100%;
 `;
 
@@ -99,6 +100,7 @@ const ButtonGroup = styled.div`
     display: flex;
     gap: 8px;
     margin-bottom: 2px; 
+    margin-top: 38px;
 `;
 
 const StyledButton = styled(Button)`
@@ -147,7 +149,10 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [tempName, setTempName] = useState("");
+    const [nameError, setNameError] = useState("");
+    const [isTypeNameValid, setIsTypeNameValid] = useState(true);
     const classNameField = serviceClassModel?.properties["name"];
+    const saveButtonClicked = useRef(false);
 
     useEffect(() => {
         getServiceClassModel();
@@ -282,6 +287,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
 
     const startEditing = () => {
         setTempName(serviceClassModel.properties["name"].value);
+        saveButtonClicked.current = false;
         setIsEditing(true);
     };
 
@@ -291,6 +297,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
     };
 
     const editServiceClassName = async () => {
+        saveButtonClicked.current = true;
         if (!tempName || tempName === serviceClassModel.properties["name"].value) {
             cancelEditing();
             return;
@@ -323,6 +330,80 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
             console.error('Error renaming service class (Graphql Object):', error);
         }
     };
+
+    const validateTypeName = useCallback(debounce(async (value: string) => {
+        if (saveButtonClicked.current) {
+            return;
+        }
+        
+        console.log("Validating type name:", value, type, serviceClassModel);
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: type?.codedata?.lineRange?.fileName || "types.bal",
+            context: {
+                expression: value,
+                startLine:{
+                    line: type?.codedata?.lineRange?.startLine?.line,
+                    offset: type?.codedata?.lineRange?.startLine?.offset
+                },
+                offset: 0,
+                lineOffset: 0,
+                codedata: {
+                    node: "VARIABLE",
+                    lineRange: {
+                        startLine: {
+                            line: type?.codedata?.lineRange?.startLine?.line,
+                            offset: type?.codedata?.lineRange?.startLine?.offset
+                        },
+                        endLine: {
+                            line: type?.codedata?.lineRange?.endLine?.line,
+                            offset: type?.codedata?.lineRange?.endLine?.offset
+                        },
+                        fileName: type?.codedata?.lineRange?.fileName
+                    },  
+                },
+                property: type?.properties["name"] ? 
+                {
+                    ...type.properties["name"],
+                    valueTypeConstraint: "Global"
+                } : 
+                {
+                    metadata: {
+                        label: "",
+                        description: "",
+                    },
+                    valueType: "IDENTIFIER",
+                    value: "",
+                    valueTypeConstraint: "Global",
+                    optional: false,
+                    editable: true
+                }
+            }
+        });
+
+
+        if (response && response.diagnostics && response.diagnostics.length > 0) {
+            setNameError(response.diagnostics[0].message);
+            setIsTypeNameValid(false);
+        } else {
+            setNameError("");
+            setIsTypeNameValid(true);
+        }
+    }, 250), [rpcClient, type]);
+
+    const handleOnBlur = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!saveButtonClicked.current) {
+            await validateTypeName(e.target.value);
+        }
+    };
+
+    const handleOnFieldFocus = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        await validateTypeName(e.target.value);
+    };
+
+    const handleOnTypeNameUpdate = (value: string) => {
+        setTempName(value);
+        validateTypeName(value);
+    }
 
     return (
         <>
@@ -365,7 +446,10 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                                                 id={classNameField.value}
                                                 label={classNameField.metadata.label}
                                                 value={tempName}
-                                                onChange={(e) => setTempName(e.target.value)}
+                                                onBlur={handleOnBlur}
+                                                onFocus={handleOnFieldFocus}
+                                                onChange={(e) => handleOnTypeNameUpdate(e.target.value)}
+                                                errorMsg={nameError}
                                                 description={classNameField.metadata.description}
                                                 required={!classNameField.optional}
                                                 placeholder={classNameField.placeholder}
@@ -382,7 +466,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                                             <StyledButton
                                                 appearance="primary"
                                                 onClick={editServiceClassName}
-                                                disabled={!tempName || tempName === serviceClassModel.properties["name"].value}
+                                                disabled={!tempName || !isTypeNameValid}
                                             >
                                                 Save
                                             </StyledButton>
