@@ -11,8 +11,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, TreeViewItem, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
+import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, TreeViewItem, Typography, View, ViewContent, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { EditForm } from "../EditConfigurableVariables";
 import { AddForm } from "../AddConfigurableVariables";
 import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
@@ -141,6 +140,8 @@ export interface ConfigProps {
     variableIndex?: number;
     isExternallauncher?: boolean;
     fileName: string;
+    org: string;
+    package: string;
 }
 
 interface CategoryWithModules {
@@ -360,6 +361,9 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         }
     };
 
+    const categoryDisplay = selectedModule?.category === `${props.org}/${props.package}` ? 'Integration' : selectedModule?.category;
+    const title = selectedModule?.module ? `${categoryDisplay} : ${selectedModule?.module}` : categoryDisplay;
+
     const ConfigurablesList = () => {
         let renderVariables: ConfigVariablesState = configVariables;
         if (searchValue) {
@@ -388,9 +392,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                 <div id="TitleDiv" style={{ position: "sticky", top: 0, color: "var(--vscode-editor-foreground)", backgroundColor: "var(--vscode-editor-background)" }}>
                     <TitleContent>
                         <Typography variant="h2" sx={{ padding: "0px 0 0 20px", margin: "10px 0px", color: "var(--vscode-foreground)" }}>
-                            {selectedModule?.module
-                                ? `${selectedModule?.category} : ${selectedModule?.module}`
-                                : selectedModule?.category}
+                            {title}
                         </Typography>
                         {/* Only show Add Config button at the top when the module has configurations */}
                         {selectedModule &&
@@ -399,6 +401,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                     sx={{ display: 'flex', justifySelf: 'flex-end' }}
                                     appearance="primary"
                                     onClick={handleAddConfigVariableFormOpen}
+                                    disabled={selectedModule.category !== `${props.org}/${props.package}`}
                                 >
                                     <Codicon name="add" sx={{ marginRight: 5 }} />Add Config
                                 </Button>
@@ -441,24 +444,42 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                         <ButtonSection>
                                                             {variable?.properties?.defaultValue?.value === "" && (
                                                                 <ButtonWrapper>
-                                                                    <VSCodeButton appearance="icon" title="Value is not configured"
-                                                                        style={{ backgroundColor: 'transparent', color: 'var(--vscode-editorWarning-foreground)' }}
-                                                                    >
-                                                                        <Codicon name="warning" />
-                                                                    </VSCodeButton>
+                                                                    <Tooltip content="Value is not configured">
+                                                                        <Button 
+                                                                            appearance="icon" 
+                                                                            buttonSx={{ 
+                                                                                background: "transparent"
+                                                                            }}
+                                                                        >
+                                                                            <Codicon
+                                                                                name="warning"
+                                                                                sx={{ color: 'var(--vscode-editorWarning-foreground)'}}
+                                                                            />
+                                                                        </Button>
+                                                                    </Tooltip>
                                                                 </ButtonWrapper>
                                                             )}
-
                                                             <ButtonWrapper>
-                                                                <VSCodeButton appearance="icon" title="Edit Resource" onClick={() => handleEditConfigVariableFormOpen(index)}>
-                                                                    <Icon sx={{ paddingTop: '2px' }} name="editIcon" />
-                                                                </VSCodeButton>
+                                                                <Tooltip content="Edit Resource">
+                                                                    <Button
+                                                                        appearance="icon"
+                                                                        onClick={() => handleEditConfigVariableFormOpen(index)}
+                                                                    >
+                                                                        <Icon sx={{ paddingTop: '2px' }} name="editIcon" />
+                                                                    </Button>
+                                                                </Tooltip>
                                                             </ButtonWrapper>
 
                                                             <ButtonWrapper>
-                                                                <VSCodeButton appearance="icon" title="Delete Resource" onClick={() => handleOnDeleteConfigVariable(index)}>
-                                                                    <Codicon name="trash" />
-                                                                </VSCodeButton>
+                                                                <Tooltip content="Delete Resource">
+                                                                    <Button
+                                                                        appearance="icon"
+                                                                        disabled={selectedModule.category !== `${props.org}/${props.package}`}
+                                                                        onClick={() => handleOnDeleteConfigVariable(index)}
+                                                                    >
+                                                                        <Codicon name="trash" />
+                                                                    </Button>
+                                                                </Tooltip>
                                                             </ButtonWrapper>
                                                         </ButtonSection>
                                                     </AccordionHeader>
@@ -542,7 +563,9 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                     expandByDefault={false}
                                     content={
                                         <div style={{ display: 'flex', height: '30px', alignItems: 'center' }}>
-                                            <Typography variant="body2">{category.name}</Typography>
+                                            <Typography variant="body2">
+                                                {category.name === `${props.org}/${props.package}` ? 'Integration' : category.name}
+                                            </Typography>
                                             {categoryWarningCount(category.name) > 0 && (
                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                                     <Codicon name="warning"
