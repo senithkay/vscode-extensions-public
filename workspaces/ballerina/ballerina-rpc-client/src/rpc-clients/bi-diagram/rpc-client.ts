@@ -53,6 +53,7 @@ import {
     FunctionNodeRequest,
     FunctionNodeResponse,
     GeneratedClientSaveResponse,
+    GetConfigVariableNodeTemplateRequest,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
     GetRecordModelFromSourceRequest,
@@ -257,7 +258,7 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(deleteConfigVariableV2, HOST_EXTENSION, params);
     }
 
-    getConfigVariableNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
+    getConfigVariableNodeTemplate(params: GetConfigVariableNodeTemplateRequest): Promise<BINodeTemplateResponse> {
         return this._messenger.sendRequest(getConfigVariableNodeTemplate, HOST_EXTENSION, params);
     }
     

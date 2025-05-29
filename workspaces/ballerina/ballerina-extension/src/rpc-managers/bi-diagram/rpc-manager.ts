@@ -63,6 +63,7 @@ import {
     FunctionNodeRequest,
     FunctionNodeResponse,
     GeneratedClientSaveResponse,
+    GetConfigVariableNodeTemplateRequest,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
     GetRecordModelFromSourceRequest,
@@ -687,14 +688,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async getConfigVariableNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
-        // Check if the file exists
-        if (!fs.existsSync(params.filePath)) {
-            // Create the file if it does not exist
-            fs.writeFileSync(params.filePath, "");
-            console.log(`>>> Created file at ${params.filePath}`);
-        }
-
+    async getConfigVariableNodeTemplate(params: GetConfigVariableNodeTemplateRequest): Promise<BINodeTemplateResponse> {
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getConfigVariableNodeTemplate(params)

@@ -75,7 +75,8 @@ import {
     OpenAPIClientDeleteRequest,
     OpenAPIClientDeleteResponse,
     OpenConfigTomlRequest,
-    UpdateConfigVariableRequestV2
+    UpdateConfigVariableRequestV2,
+    GetConfigVariableNodeTemplateRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -123,7 +124,7 @@ export const updateConfigVariables: RequestType<UpdateConfigVariableRequest, Upd
 export const getConfigVariablesV2: RequestType<void, ConfigVariableResponse> = { method: `${_preFix}/getConfigVariablesV2` };
 export const updateConfigVariablesV2: RequestType<UpdateConfigVariableRequestV2, BISourceCodeResponse> = { method: `${_preFix}/updateConfigVariablesV2` };
 export const deleteConfigVariableV2: RequestType<UpdateConfigVariableRequestV2, BISourceCodeResponse> = { method: `${_preFix}/deleteConfigVariableV2` };
-export const getConfigVariableNodeTemplate: RequestType<BINodeTemplateRequest, BINodeTemplateResponse> = { method: `${_preFix}/getConfigVariableNodeTemplate` };
+export const getConfigVariableNodeTemplate: RequestType<GetConfigVariableNodeTemplateRequest, BINodeTemplateResponse> = { method: `${_preFix}/getConfigVariableNodeTemplate` };
 export const getModuleNodes: RequestType<void, BIModuleNodesResponse> = { method: `${_preFix}/getModuleNodes` };
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
