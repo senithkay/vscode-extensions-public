@@ -115,6 +115,8 @@ export interface VisualizerLocation {
     scope?: SCOPE;
     projectStructure?: ProjectStructureResponse;
     tempData?: TempData;
+    org?: string;
+    package?: string;
 }
 
 export interface TempData {
