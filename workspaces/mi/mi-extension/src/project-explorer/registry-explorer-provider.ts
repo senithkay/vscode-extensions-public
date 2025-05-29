@@ -35,8 +35,8 @@ export class RegistryExplorerEntry extends vscode.TreeItem {
 			this.iconPath = new vscode.ThemeIcon(icon);
 		} else if (icon) {
 			this.iconPath = {
-				light: path.join(extensionContext.extensionPath, 'assets', `light-${icon}.svg`),
-				dark: path.join(extensionContext.extensionPath, 'assets', `dark-${icon}.svg`)
+			  	light: vscode.Uri.file(path.join(extensionContext.extensionPath, 'assets', `light-${icon}.svg`)),
+    			dark: vscode.Uri.file(path.join(extensionContext.extensionPath, 'assets', `dark-${icon}.svg`))
 			};
 		}
 	}

@@ -62,7 +62,7 @@ export interface MIVisualizerAPI {
     goToSource: (params: GoToSourceRequest) => void;
     focusOutput: () => void;
     log: (params: LogRequest) => void;
-    updateContext: (params: UpdateContextRequest) => Promise<void>;
+    updateContext: (params: UpdateContextRequest) => void;
     retrieveContext: (params: RetrieveContextRequest) => Promise<RetrieveContextResponse>;
     showNotification: (params: NotificationRequest) => Promise<NotificationResponse>;
     getAvailableRuntimeServices: () => Promise<RuntimeServicesResponse>;

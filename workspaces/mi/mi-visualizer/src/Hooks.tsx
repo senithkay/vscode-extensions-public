@@ -29,8 +29,12 @@ export const useIOTypes = (filePath: string, functionName: string, nonMappingFil
         isFetching: isFetchingIOTypes,
         isError: isIOTypeError,
         refetch
-    } = useQuery(['getIOTypes', { filePath, functionName, nonMappingFileContent }], () => getIOTypes(), { networkMode: 'always' });
+    } = useQuery({
+        queryKey: ['getIOTypes', { filePath, functionName, nonMappingFileContent }],
+        queryFn: () => getIOTypes(),
+        networkMode: 'always'
 
+    });
     return { dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch };
 };
 

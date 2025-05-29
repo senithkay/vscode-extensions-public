@@ -57,11 +57,11 @@ const AddButtonWrapper = styled.div`
 `;
 
 type ResourceFields = {
-    resourcePath?: string;
-    resourceMethod?: string;
-    description?: string;
-    enableStreaming?: boolean;
-    returnRequestStatus?: boolean;
+    resourcePath: string;
+    resourceMethod: string;
+    description: string;
+    enableStreaming: boolean;
+    returnRequestStatus: boolean;
 };
 
 const newResource: ResourceFields = {
@@ -239,10 +239,10 @@ export const ResourceForm = ({ isOpen, onCancel, onSave, formData }: ResourceFor
                                 label="Description"
                                 {...renderProps('description')}
                             />
-                            <FormCheckBox label="Enable Streaming" control={control}
+                            <FormCheckBox label="Enable Streaming" control={control as any}
                                           {...renderProps('enableStreaming')}
                             />
-                            <FormCheckBox label="Return Request Status" control={control}
+                            <FormCheckBox label="Return Request Status" control={control as any}
                                           {...renderProps('returnRequestStatus')}
                             />
                         </>
