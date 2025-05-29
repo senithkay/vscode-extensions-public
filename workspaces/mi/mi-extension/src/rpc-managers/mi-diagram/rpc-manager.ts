@@ -4392,7 +4392,11 @@ ${keyValuesXML}`;
 
     async logoutFromMIAccount(): Promise<void> {
         const config = vscode.workspace.getConfiguration('MI');
-        const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
+        const confirm = await vscode.window.showWarningMessage(
+            'Are you sure you want to logout?',
+            { modal: true },
+            'Yes'
+        );
         if (confirm === 'Yes') {
             const token = await extension.context.secrets.get('MIAIUser');
             const clientId = config.get('authClientID') as string;
@@ -4534,28 +4538,41 @@ ${keyValuesXML}`;
             };
             const parser = new XMLParser(options);
             const projectDir = workspace.getWorkspaceFolder(Uri.file(filePath))?.uri.fsPath;
-            const artifactXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
-            if (!fs.existsSync(artifactXMLPath)) {
-                resolve(false);
-            }
-            const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
-            const artifactXMLData = parser.parse(artifactXML);
-            if (Array.isArray(artifactXMLData.artifacts.artifact)) {
-                var artifacts = artifactXMLData.artifacts.artifact;
-                artifacts.forEach((artifact: any) => {
-                    if (artifact.item.file === fileName) {
-                        artifact.item.file = `${newFileName}.xml`;
+
+            const artifactXMLPathsToCheck = [
+                path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml'),
+                path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'artifact.xml'),
+            ];
+            const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
+            let anyFileUpdated = false;
+
+            for (const artifactXMLPath of artifactXMLPathsToCheck) {
+                if (!fs.existsSync(artifactXMLPath)) {
+                    continue;
+                }
+                const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+                const artifactXMLData = parser.parse(artifactXML);
+                let fileUpdated = false;
+
+                if (Array.isArray(artifactXMLData.artifacts?.artifact)) {
+                    for (const artifact of artifactXMLData.artifacts.artifact) {
+                        if (artifact?.item?.file === fileName) {
+                            artifact.item.file = `${newFileName}.xml`;
+                            fileUpdated = true;
+                        }
                     }
-                });
-            } else {
-                if (artifactXMLData.artifacts.artifact.item.file === fileName) {
+                } else if (artifactXMLData.artifacts?.artifact?.item?.file === fileName) {
                     artifactXMLData.artifacts.artifact.item.file = `${newFileName}.xml`;
+                    fileUpdated = true;
+                }
+
+                if (fileUpdated) {
+                    const updatedXmlString = builder.build(artifactXMLData);
+                    fs.writeFileSync(artifactXMLPath, updatedXmlString);
+                    anyFileUpdated = true;
                 }
             }
-            const builder = new XMLBuilder(options);
-            const updatedXmlString = builder.build(artifactXMLData);
-            fs.writeFileSync(artifactXMLPath, updatedXmlString);
-            resolve(true);
+            resolve(anyFileUpdated);
         });
 
     }
