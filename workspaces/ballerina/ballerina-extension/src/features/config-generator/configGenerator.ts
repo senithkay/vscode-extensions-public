@@ -63,8 +63,8 @@ export async function checkConfigUpdateRequired(packageName: string, orgName: st
 
                 if (Array.isArray(moduleVars)) {
                     const hasUnsetValues = moduleVars.some(variable =>
-                        variable?.properties?.defaultValue?.value === "" &&
-                        variable?.properties?.configValue?.value === ""
+                        variable?.properties?.defaultValue?.value === null &&
+                        variable?.properties?.configValue?.value === null
                     );
 
                     if (hasUnsetValues) {
