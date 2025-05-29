@@ -274,10 +274,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         false
     );
     configs.contextValue = "configurations";
-    configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURABLE], DIRECTORY_MAP.CONFIGURABLE);
-    if (configs.children.length > 0) {
-        configs.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-    }
+    configs.collapsibleState = vscode.TreeItemCollapsibleState.None;
+
     entries.push(configs);
 
     // ---------- Natural Functions ----------
