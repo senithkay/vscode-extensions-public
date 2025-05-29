@@ -268,13 +268,12 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // ---------- Configurations ----------
     const configs = new ProjectExplorerEntry(
         "Configurations",
-        vscode.TreeItemCollapsibleState.Expanded,
+        vscode.TreeItemCollapsibleState.Collapsed,
         null,
         'config',
         false
     );
     configs.contextValue = "configurations";
-    configs.collapsibleState = vscode.TreeItemCollapsibleState.None;
 
     entries.push(configs);
 
