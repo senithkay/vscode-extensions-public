@@ -246,9 +246,10 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             return 0;
         }
 
-        return configVariables[category][module].filter(
-            variable => variable?.properties?.defaultValue?.value === ""
-        ).length;
+        return configVariables[category][module].filter(variable => (
+            variable?.properties?.defaultValue?.value === "" &&
+            variable?.properties?.configValue?.value === ""
+        )).length;
     }, [configVariables]);
 
     const categoryWarningCount = useCallback((category: string) => {
@@ -442,23 +443,24 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             </MethodPath>
                                                         </MethodSection>
                                                         <ButtonSection>
-                                                            {variable?.properties?.defaultValue?.value === "" && (
-                                                                <ButtonWrapper>
-                                                                    <Tooltip content="Value is not configured">
-                                                                        <Button 
-                                                                            appearance="icon" 
-                                                                            buttonSx={{ 
-                                                                                background: "transparent"
-                                                                            }}
-                                                                        >
-                                                                            <Codicon
-                                                                                name="warning"
-                                                                                sx={{ color: 'var(--vscode-editorWarning-foreground)'}}
-                                                                            />
-                                                                        </Button>
-                                                                    </Tooltip>
-                                                                </ButtonWrapper>
-                                                            )}
+                                                            {(variable?.properties?.defaultValue?.value === "" &&
+                                                                variable?.properties?.configValue?.value === "") && (
+                                                                    <ButtonWrapper>
+                                                                        <Tooltip content="Value is not configured">
+                                                                            <Button
+                                                                                appearance="icon"
+                                                                                buttonSx={{
+                                                                                    background: "transparent"
+                                                                                }}
+                                                                            >
+                                                                                <Codicon
+                                                                                    name="warning"
+                                                                                    sx={{ color: 'var(--vscode-editorWarning-foreground)' }}
+                                                                                />
+                                                                            </Button>
+                                                                        </Tooltip>
+                                                                    </ButtonWrapper>
+                                                                )}
                                                             <ButtonWrapper>
                                                                 <Tooltip content="Edit Resource">
                                                                     <Button

@@ -276,6 +276,7 @@ export type NodePropertyKey =
     | "collection"
     | "comment"
     | "condition"
+    | "configValue"
     | "connection"
     | "defaultable"
     | "defaultValue"
