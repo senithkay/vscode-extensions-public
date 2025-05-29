@@ -41,6 +41,7 @@ import {
     RequirementSpecification,
     STModification,
     SourceFile,
+    SubmitFeedbackRequest,
     SyntaxTree,
     TemplateId,
     TestGenerationMentions,
@@ -827,6 +828,37 @@ export class AiPanelRpcManager implements AIPanelAPI {
             resolve(fileContent);
         });
     }
+
+    async submitFeedback(content: SubmitFeedbackRequest): Promise<boolean> {
+        console.log("Feedback submitted:", content);
+        try {
+            const payload = {
+                feedback: content.feedbackText,
+                positive: content.positive,
+                messages: content.messages,
+                diagnostics: content.diagnostics
+            };
+
+            const response = await fetchData(`${BACKEND_URL}/feedback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (response.ok) {
+                console.log("Feedback submitted successfully");
+                return true;
+            } else {
+                console.error("Failed to submit feedback");
+                return false;
+            }
+        } catch (error) {
+            console.error("Error submitting feedback:", error);
+            return false;
+        }
+    }
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource): string {
@@ -920,6 +952,7 @@ function getErrorDiagnostics(diagnostics: Diagnostics[]): DiagnosticEntry[] {
                 const fileName = path.basename(diagParam.uri);
                 const msgPrefix = `[${fileName}:${diag.range.start.line},${diag.range.start.character}:${diag.range.end.line},${diag.range.end.character}] `;
                 errorDiagnostics.push({
+                    code: diag.code.toString(),
                     message: msgPrefix + diag.message
                 });
             }

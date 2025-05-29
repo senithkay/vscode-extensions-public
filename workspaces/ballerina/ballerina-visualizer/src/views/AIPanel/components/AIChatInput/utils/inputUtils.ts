@@ -155,6 +155,73 @@ export const stringifyInputArrayWithBadges = (inputs: Input[]): string => {
         .join('');
 };
 
+export const parseBadgeString = (badgeString: string): Input[] => {
+    // const badgeString: string = `<badge data-system="true" data-auth="xf42Zkpq71" data-type="command" data-command="/ask">/ask</badge> how to write a concurrent application?`;
+    
+    const inputs: Input[] = [];
+    
+    // Regex to match badge elements
+    const badgeRegex = /<badge([^>]*)>(.*?)<\/badge>/g;
+    let lastIndex = 0;
+    let match;
+    
+    // Find all badges in the string
+    while ((match = badgeRegex.exec(badgeString)) !== null) {
+        // If there's text before the badge, add it as TextInput
+        if (match.index > lastIndex) {
+            const textBefore = badgeString.substring(lastIndex, match.index).trim();
+            if (textBefore) {
+                inputs.push({ content: textBefore });
+            }
+        }
+        
+        // Extract badge attributes and content
+        const attributesStr = match[1];
+        const display = match[2];
+        
+        // Parse attributes
+        const attributes: Record<string, string> = {};
+        const attrRegex = /data-([a-z-]+)="([^"]*)"/g;
+        let attrMatch;
+        
+        while ((attrMatch = attrRegex.exec(attributesStr)) !== null) {
+            const key = attrMatch[1];
+            const value = attrMatch[2];
+            attributes[key] = value;
+        }
+        
+        // Check if this is a valid system badge
+        if (attributes.system === 'true' && attributes.auth === SYSTEM_BADGE_SECRET) {
+            if (attributes.type === 'command' && attributes.command) {
+                // Create CommandBadgeInput
+                inputs.push({
+                    badgeType: ChatBadgeType.Command,
+                    display,
+                    command: attributes.command as Command,
+                });
+            } else if (attributes.type === 'tag') {
+                // Create TagBadgeInput
+                inputs.push({
+                    badgeType: ChatBadgeType.Tag,
+                    display,
+                });
+            }
+        }
+        
+        lastIndex = match.index + match[0].length;
+    }
+    
+    // Add any remaining text after the last badge as TextInput
+    if (lastIndex < badgeString.length) {
+        const remainingText = badgeString.substring(lastIndex).trim();
+        if (remainingText) {
+            inputs.push({ content: remainingText });
+        }
+    }
+    
+    return inputs;
+}
+
 const isCommandBadge = (input: Input): input is CommandBadgeInput => {
     return (
         'badgeType' in input &&

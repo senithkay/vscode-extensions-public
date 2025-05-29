@@ -33,6 +33,7 @@ import {
     ProjectDiagnostics,
     ProjectSource,
     RequirementSpecification,
+    SubmitFeedbackRequest,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
@@ -81,6 +82,7 @@ import {
     readDeveloperMdFile,
     showSignInAlert,
     stopAIMappings,
+    submitFeedback,
     updateDevelopmentDocument,
     updateRequirementSpecification
 } from "@wso2-enterprise/ballerina-core";
@@ -280,5 +282,9 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getContentFromFile(content: GetFromFileRequest): Promise<string> {
         return this._messenger.sendRequest(getContentFromFile, HOST_EXTENSION, content);
+    }
+
+    submitFeedback(content: SubmitFeedbackRequest): Promise<boolean> {
+        return this._messenger.sendRequest(submitFeedback, HOST_EXTENSION, content);
     }
 }
