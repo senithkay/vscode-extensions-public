@@ -143,25 +143,58 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }, 10);
 
     useEffect(() => {
-        updatePosition();
+        // Position polling to detect any position changes
+        let lastPosition = { top: 0, left: 0, width: 0, height: 0 };
+        let animationFrameId: number;
 
-        // Create ResizeObserver to watch textarea size changes
-        const resizeObserver = new ResizeObserver(updatePosition);
+        const checkPositionChange = () => {
+            if (!elementRef.current) return;
+
+            const rect = elementRef.current.getBoundingClientRect();
+            const currentPosition = {
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height
+            };
+
+            // Check if position or size has changed
+            if (
+                currentPosition.top !== lastPosition.top ||
+                currentPosition.left !== lastPosition.left ||
+                currentPosition.width !== lastPosition.width ||
+                currentPosition.height !== lastPosition.height
+            ) {
+                updatePosition();
+                lastPosition = currentPosition;
+            }
+
+            // Continue polling
+            animationFrameId = requestAnimationFrame(checkPositionChange);
+        };
+
+        // Initialize position tracking
         if (elementRef.current) {
-            resizeObserver.observe(elementRef.current);
+            const rect = elementRef.current.getBoundingClientRect();
+            lastPosition = {
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height
+            };
         }
 
-        // Handle window resize
-        window.addEventListener('resize', updatePosition);
-        window.addEventListener('scroll', updatePosition);
+        // Start position polling
+        animationFrameId = requestAnimationFrame(checkPositionChange);
 
         return () => {
-            window.removeEventListener('resize', updatePosition);
-            window.removeEventListener('scroll', updatePosition);
-            resizeObserver.disconnect();
+            // Clean up
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [elementRef.current, fnSignatureElRef.current, showCompletions, isHelperPaneOpen]);
+    }, [elementRef.current]);
 
     const handleCancel = () => {
         onCancel();
