@@ -143,6 +143,7 @@ import { BACKEND_URL } from "../../features/ai/utils";
 import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { cleanAndValidateProject, getCurrentBIProject } from "../../features/config-generator/configGenerator";
 import { getRefreshedAccessToken } from "../../../src/utils/ai/auth";
+import { applyBallerinaTomlEdit } from "./utils";
 export class BiDiagramRpcManager implements BIDiagramAPI {
     OpenConfigTomlRequest: (params: OpenConfigTomlRequest) => Promise<void>;
 
@@ -226,6 +227,14 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             const fileUriString = fileUri.toString();
             const edits = value;
 
+            // Hack to handle .toml file edits. Planned to be removed once the updateSource method refactored to work on workspace edits
+            if (fileUriString.endsWith(".toml")) {
+                for (const edit of edits) {
+                    applyBallerinaTomlEdit(fileUri, edit);
+                }
+                continue;
+            }
+            
             if (edits && edits.length > 0) {
                 const modificationList: STModification[] = [];
 

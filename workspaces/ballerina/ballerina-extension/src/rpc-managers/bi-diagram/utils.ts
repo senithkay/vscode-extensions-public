@@ -11,6 +11,8 @@ import { NodeProperties } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { FunctionFindingVisitor } from "../../utils/function-finding-visitor";
+import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
+import { TextEdit } from "@wso2-enterprise/ballerina-core";
 
 export const DATA_MAPPING_FILE_NAME = "data_mappings.bal";
 
@@ -23,4 +25,15 @@ export function getFunctionNodePosition(nodeProperties: NodeProperties, syntaxTr
     const functionNode = functionFindingVisitor.getFunctionNode();
 
     return functionNode.position;
+}
+
+export async function applyBallerinaTomlEdit(tomlPath: Uri, textEdit: TextEdit) {
+    const workspaceEdit = new WorkspaceEdit();
+    const range = new Range(new Position(textEdit.range.start.line, textEdit.range.start.character),
+        new Position(textEdit.range.end.line, textEdit.range.end.character));
+
+    // Create the position and range
+    workspaceEdit.replace(tomlPath, range, textEdit.newText);
+    // Apply the edit
+    workspace.applyEdit(workspaceEdit);
 }
