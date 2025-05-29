@@ -231,7 +231,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
 
     // Set selected module to first module in filtered results when search changes
     useEffect(() => {
-        if (filteredCategoriesWithModules.length > 0 && filteredCategoriesWithModules[0].modules.length > 0) {
+        if (searchValue && filteredCategoriesWithModules.length > 0 && filteredCategoriesWithModules[0].modules.length > 0) {
             const firstCategory = filteredCategoriesWithModules[0];
             const firstModule = firstCategory.modules[0];
             setSelectedModule({
@@ -239,7 +239,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                 module: firstModule
             });
         }
-    }, [filteredCategoriesWithModules]);
+    }, [filteredCategoriesWithModules, searchValue]);
 
     const moduleWarningCount = useCallback((category: string, module: string) => {
         if (!configVariables?.[category]?.[module]) {
