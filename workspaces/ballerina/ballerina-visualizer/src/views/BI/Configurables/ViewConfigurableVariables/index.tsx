@@ -246,8 +246,10 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             return 0;
         }
 
-        return configVariables[category][module].filter(
-            variable => variable?.properties?.defaultValue?.value === ""
+        return configVariables[category][module].filter( variable => (
+                variable?.properties?.defaultValue?.value === "" && 
+                variable?.properties?.configValue?.value === ""
+            )
         ).length;
     }, [configVariables]);
 
@@ -442,7 +444,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             </MethodPath>
                                                         </MethodSection>
                                                         <ButtonSection>
-                                                            {variable?.properties?.defaultValue?.value === "" && (
+                                                            {(variable?.properties?.defaultValue?.value === "" && variable?.properties?.configValue?.value === "") && (
                                                                 <ButtonWrapper>
                                                                     <Tooltip content="Value is not configured">
                                                                         <Button 
