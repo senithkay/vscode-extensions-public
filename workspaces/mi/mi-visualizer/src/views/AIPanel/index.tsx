@@ -62,6 +62,8 @@ export const AIPanel = () => {
                 default:
                     setViewComponent(null);
             }
+        }).catch((error) => {
+            console.error("Error fetching AI visualizer state:", error);
         });
 
     }
