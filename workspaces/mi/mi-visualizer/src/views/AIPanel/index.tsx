@@ -10,14 +10,14 @@
 import React, { useEffect, useState } from 'react';
 import { AIMachineStateValue, AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Alert } from '@wso2-enterprise/ui-toolkit';
 import { LoaderWrapper, ProgressRing } from './styles';
 import { AICodeGenerator }  from './component/AICodeGenerator';
 import { SignInToCopilotMessage } from '../LoggedOutWindow';
 import { WaitingForLoginMessage } from '../WaitingForLoginWindow';
 import { DisabledMessage } from '../DisabledWindow';
 import { UpdateMIExtension } from '../UpdateExtension';
-import { MICopilotContextProvider, useMICopilotContext } from "./component/MICopilotContext";
-import { Button } from '@vscode/webview-ui-toolkit';
+import { MICopilotContextProvider } from "./component/MICopilotContext";
 
 export const AIPanel = () => {
     const { rpcClient } = useVisualizerContext();
@@ -52,6 +52,17 @@ export const AIPanel = () => {
                     break;
                 case "WaitingForLogin":
                     setViewComponent(<WaitingForLoginMessage />);
+                    break;
+                case "notSupported":
+                    setViewComponent(
+                        <div style={{ padding: "20px", textAlign: "center" }}>
+                            <Alert
+                                variant='primary'
+                                title="MI Copilot Chat is not supported when multiple workspaces are open"
+                                subTitle="We're working on bringing multiple workspace support to MI Copilot Chat in the future."
+                            />
+                        </div>
+                    )
                     break;
                 case "disabled":
                     setViewComponent(<DisabledMessage />);
