@@ -86,6 +86,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         changeHelperPaneState,
         getHelperPane,
         onChange,
+        onSelectionChange,
         onSave,
         onCancel,
         onClose,
@@ -482,6 +483,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             // update the cursor position
             cursorPositionRef.current = editor.selectionStart;
 
+            // trigger onSelectionChange callback
+            onSelectionChange?.(editor.value, cursorPositionRef.current);
+
             // check if the cursor is inside a function and perform the necessary actions
             const { cursorInFunction, functionName } = checkCursorInFunction(editor.value, cursorPositionRef.current);
             if (cursorInFunction) {
@@ -501,7 +505,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         } catch (error) {
             console.error('>>> Error in selection change handler', error);
         }
-    }, [fnSignature, onFunctionEdit, updateFnSignature]);
+    }, [fnSignature, onSelectionChange, onFunctionEdit, updateFnSignature]);
 
     useImperativeHandle(ref, () => ({
         shadowRoot: textAreaRef.current?.shadowRoot,
