@@ -14,7 +14,15 @@
  */
 module.exports = {
   hooks: {
-    readPackage
+    readPackage(pkg, context) {
+      if (pkg.dependencies) {
+        if (pkg.dependencies['vfile']) {
+          pkg.dependencies['vfile'] = '6.0.3';
+        }
+      }
+
+      return pkg;
+    }
   }
 };
 
