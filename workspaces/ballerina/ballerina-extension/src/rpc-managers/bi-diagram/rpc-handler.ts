@@ -31,6 +31,7 @@ import {
     FormDidCloseParams,
     FormDidOpenParams,
     FunctionNodeRequest,
+    GetConfigVariableNodeTemplateRequest,
     GetRecordConfigRequest,
     GetRecordModelFromSourceRequest,
     GetTypeRequest,
@@ -145,7 +146,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getConfigVariablesV2, () => rpcManger.getConfigVariablesV2());
     messenger.onRequest(updateConfigVariablesV2, (args: UpdateConfigVariableRequestV2) => rpcManger.updateConfigVariablesV2(args));
     messenger.onRequest(deleteConfigVariableV2, (args: UpdateConfigVariableRequestV2) => rpcManger.deleteConfigVariableV2(args));
-    messenger.onRequest(getConfigVariableNodeTemplate, (args: BINodeTemplateRequest) => rpcManger.getConfigVariableNodeTemplate(args));
+    messenger.onRequest(getConfigVariableNodeTemplate, (args: GetConfigVariableNodeTemplateRequest) => rpcManger.getConfigVariableNodeTemplate(args));
     messenger.onRequest(openConfigToml, (args: OpenConfigTomlRequest) => rpcManger.openConfigToml(args));
     messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());

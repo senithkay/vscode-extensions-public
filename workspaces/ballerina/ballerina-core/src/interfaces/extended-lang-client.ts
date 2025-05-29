@@ -791,6 +791,10 @@ export interface UpdateConfigVariableRequestV2 {
     moduleName: string;
 }
 
+export interface GetConfigVariableNodeTemplateRequest {
+    isNew: boolean;
+}
+
 export interface OpenConfigTomlRequest {
     filePath: string
 }
@@ -1521,7 +1525,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getConfigVariablesV2: (params: ConfigVariableRequest) => Promise<ConfigVariableResponse>;
     updateConfigVariablesV2: (params: UpdateConfigVariableRequestV2) => Promise<BISourceCodeResponse>;
     deleteConfigVariableV2: (params: UpdateConfigVariableRequestV2) => Promise<BISourceCodeResponse>;
-    getConfigVariableNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
+    getConfigVariableNodeTemplate: (params: GetConfigVariableNodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;

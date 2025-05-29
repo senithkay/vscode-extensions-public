@@ -32,23 +32,7 @@ export function AddForm(props: ConfigFormProps) {
     useEffect(() => {
         const fetchNode = async () => {
             const node = await rpcClient.getBIDiagramRpcClient().getConfigVariableNodeTemplate({
-                position: { line: 0, offset: 0 },
-                filePath: filename,
-                id: {
-                    "node": "CONFIG_VARIABLE",
-                    "isNew": true,
-                    "lineRange": {
-                        "fileName": "config.bal",
-                        "startLine": {
-                            "line": 0,
-                            "offset": 0
-                        },
-                        "endLine": {
-                            "line": 0,
-                            "offset": 0
-                        }
-                    }
-                }
+                isNew: true
             });
             setCofigVarNode(node.flowNode);
         };

@@ -78,7 +78,8 @@ import {
     OpenAPIClientDeleteRequest,
     OpenAPIClientDeleteResponse,
     OpenConfigTomlRequest,
-    UpdateConfigVariableRequestV2
+    UpdateConfigVariableRequestV2,
+    GetConfigVariableNodeTemplateRequest
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -125,7 +126,7 @@ export interface BIDiagramAPI {
     getConfigVariablesV2: () => Promise<ConfigVariableResponse>;
     updateConfigVariablesV2: (params: UpdateConfigVariableRequestV2) => Promise<BISourceCodeResponse>;
     deleteConfigVariableV2: (params: UpdateConfigVariableRequestV2) => Promise<BISourceCodeResponse>;
-    getConfigVariableNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
+    getConfigVariableNodeTemplate: (params: GetConfigVariableNodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
