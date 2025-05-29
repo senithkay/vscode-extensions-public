@@ -332,18 +332,18 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
     };
 
     const validateTypeName = useCallback(debounce(async (value: string) => {
-        if (saveButtonClicked.current) {
+        if (saveButtonClicked.current || !serviceClassModel) {
             return;
         }
         
         console.log("Validating type name:", value, type, serviceClassModel);
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
-            filePath: type?.codedata?.lineRange?.fileName || "types.bal",
+            filePath: serviceClassModel?.codedata?.lineRange?.fileName || "types.bal",
             context: {
                 expression: value,
                 startLine:{
-                    line: type?.codedata?.lineRange?.startLine?.line,
-                    offset: type?.codedata?.lineRange?.startLine?.offset
+                    line: serviceClassModel?.codedata?.lineRange?.startLine?.line,
+                    offset: serviceClassModel?.codedata?.lineRange?.startLine?.offset
                 },
                 offset: 0,
                 lineOffset: 0,
@@ -351,20 +351,27 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                     node: "VARIABLE",
                     lineRange: {
                         startLine: {
-                            line: type?.codedata?.lineRange?.startLine?.line,
-                            offset: type?.codedata?.lineRange?.startLine?.offset
+                            line: serviceClassModel?.codedata?.lineRange?.startLine?.line,
+                            offset: serviceClassModel?.codedata?.lineRange?.startLine?.offset
                         },
                         endLine: {
-                            line: type?.codedata?.lineRange?.endLine?.line,
-                            offset: type?.codedata?.lineRange?.endLine?.offset
+                            line: serviceClassModel?.codedata?.lineRange?.endLine?.line,
+                            offset: serviceClassModel?.codedata?.lineRange?.endLine?.offset
                         },
-                        fileName: type?.codedata?.lineRange?.fileName
+                        fileName: serviceClassModel?.codedata?.lineRange?.fileName
                     },  
                 },
-                property: type?.properties["name"] ? 
+                property: serviceClassModel?.properties["name"] ? 
                 {
-                    ...type.properties["name"],
-                    valueTypeConstraint: "Global"
+                    metadata: {
+                        label: serviceClassModel.properties["name"].metadata.label || "",
+                        description: serviceClassModel.properties["name"].metadata.description || ""
+                    },
+                    valueType: serviceClassModel.properties["name"].valueType || "IDENTIFIER",
+                    value: serviceClassModel.properties["name"].value || "",
+                    valueTypeConstraint: "Global",
+                    optional: serviceClassModel.properties["name"].optional || false,
+                    editable: serviceClassModel.properties["name"].editable || true
                 } : 
                 {
                     metadata: {
@@ -380,7 +387,6 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
             }
         });
 
-
         if (response && response.diagnostics && response.diagnostics.length > 0) {
             setNameError(response.diagnostics[0].message);
             setIsTypeNameValid(false);
@@ -388,7 +394,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
             setNameError("");
             setIsTypeNameValid(true);
         }
-    }, 250), [rpcClient, type]);
+    }, 250), [rpcClient, serviceClassModel]);
 
     const handleOnBlur = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!saveButtonClicked.current) {
