@@ -20,11 +20,21 @@ import { modifyFileContent } from "../../utils/modification";
 import { fileURLToPath } from "url";
 import { startDebugging } from "../editor-support/codelens-provider";
 import { openView } from "../../stateMachine";
+import * as path from "path";
 
 const UNUSED_IMPORT_ERR_CODE = "BCE2002";
 
 export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean, isBi?: boolean, executeRun: boolean = true, includeOptional: boolean = false): Promise<void> {
-    const hasWarnings = (await checkConfigUpdateRequired(ballerinaExtInstance, filePath)).hasWarnings;
+    const currentProject: BallerinaProject | undefined = await getCurrentBIProject(filePath);
+    const ignoreFile = path.join(currentProject.path, ".gitignore");
+    const configFile = path.join(currentProject.path, BAL_CONFIG_FILE);
+
+    const hasWarnings = (
+        await checkConfigUpdateRequired(
+            currentProject.packageName,
+            currentProject.orgName, ballerinaExtInstance,
+            filePath
+        )).hasWarnings;
 
     if (!hasWarnings) {
         if (!isCommand && executeRun) {
@@ -33,23 +43,17 @@ export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaEx
         return;
     }
 
-    const currentProject: BallerinaProject | undefined = await getCurrentBIProject(filePath);
-    const ignoreFile = `${currentProject.path}/.gitignore`;
-    const configFile = `${currentProject.path}/${BAL_CONFIG_FILE}`;
-
     await handleOnUnSetValues(currentProject.packageName, configFile, ignoreFile, ballerinaExtInstance, isCommand, isBi);
 }
 
-export async function checkConfigUpdateRequired(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<{ hasWarnings: boolean }> {
+export async function checkConfigUpdateRequired(packageName: string, orgName: string, ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<{ hasWarnings: boolean }> {
     try {
         const response = await ballerinaExtInstance.langClient?.getConfigVariablesV2({
             projectPath: filePath
         }) as ConfigVariableResponse;
 
         const configVariables = response?.configVariables;
-
-        const packageName = Object.keys(configVariables || {})[0];
-        const integrationConfigVariables = packageName ? configVariables[packageName] : {};
+        const integrationConfigVariables = configVariables[`${orgName}/${packageName}`] ?? {};
 
         let hasWarnings = false;
 
@@ -58,7 +62,6 @@ export async function checkConfigUpdateRequired(ballerinaExtInstance: BallerinaE
                 const moduleVars = integrationConfigVariables[moduleName];
 
                 if (Array.isArray(moduleVars)) {
-                    // Find first warning - exit early if found
                     const hasUnsetValues = moduleVars.some(variable =>
                         variable?.properties?.defaultValue?.value === "" &&
                         variable?.properties?.configValue?.value === ""
@@ -383,16 +386,16 @@ export async function handleOnUnSetValues(packageName: string, configFile: strin
     if (isCommand || result === openConfigButton) {
         if (!existsSync(configFile)) {
             const updatedContent = `
-        # Configuration file for "${packageName}"
-        # 
-        # This file contains configuration values for configurable variables in your Ballerina code.
-        # Both package-specific and imported module configurations are included below.
-        # 
-        # Learn more about configurable variables:
-        # ${docLink}
-        #
-        # Note: This file is automatically added to .gitignore to protect sensitive information.
-        `;
+# Configuration file for "${packageName}"
+# 
+# This file contains configuration values for configurable variables in your Ballerina code.
+# Both package-specific and imported module configurations are included below.
+# 
+# Learn more about configurable variables:
+# ${docLink}
+#
+# Note: This file is automatically added to .gitignore to protect sensitive information.
+`;
             // Create and write content to the config file
             writeFile(configFile, updatedContent, (error) => {
                 if (error) {
