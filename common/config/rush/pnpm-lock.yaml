@@ -2634,6 +2634,9 @@ importers:
       '@vscode/vsce':
         specifier: ^3.4.0
         version: 3.4.2
+      '@wso2-enterprise/playwright-vscode-tester':
+        specifier: workspace:*
+        version: link:../../common-libs/playwright-vscode-tester
       copy-webpack-plugin:
         specifier: ^13.0.0
         version: 13.0.0(webpack@5.99.9)
@@ -3868,6 +3871,9 @@ importers:
       mocha:
         specifier: ^11.4.0
         version: 11.5.0
+      playwright-core:
+        specifier: ~1.52.0
+        version: 1.52.0
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
