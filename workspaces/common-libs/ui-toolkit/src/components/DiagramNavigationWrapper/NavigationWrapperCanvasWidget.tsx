@@ -38,7 +38,6 @@ export function NavigationWrapperCanvasWidget(props: NavigationWrapperCanvasProp
     return (
         <CustomCanvasWidget
             engine={diagramEngine}
-            isNodeFocused={!!focusedNode}
             className={className}
             disableZoom={props.disableZoom}
             disableMouseEvents={props.disableMouseEvents}

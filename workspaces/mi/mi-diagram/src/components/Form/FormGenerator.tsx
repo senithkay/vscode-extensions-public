@@ -115,6 +115,7 @@ export interface Element {
     viewDisplayName?: string;
     expressionType?: 'xpath/jsonPath' | 'synapse';
     supportsAIValues?: boolean;
+    rowCount?: number;
 }
 
 interface ExpressionValueWithSetter {
@@ -595,6 +596,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 field.onChange(e);
                             }}
                             required={element.required === 'true'}
+                            nullable={element.required === 'false'}
                             allowItemCreate={false}
                         />
                     </>);
@@ -609,6 +611,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         labelAdornment={helpTipElement}
                         required={isRequired}
                         errorMsg={errorMsg}
+                        editorSx={{ overflow: "auto", height: element.rowCount ? `${element.rowCount * 25}px` : '100px' }}
                     />
                 );
             case 'popUp':
@@ -678,6 +681,9 @@ export function FormGenerator(props: FormGeneratorProps) {
         const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
         const matchPattern = element.value.matchPattern;
         let validateType = element.value.validateType;
+        if (matchPattern) {
+            validateType = 'regex';
+        }
         const defaultValue = getDefaultValue(element);
 
         if (getValues(name) === undefined) {
@@ -709,14 +715,12 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 return true;
                             },
                         },
-                        ...(matchPattern) && {
-                            pattern: {
-                                value: new RegExp(matchPattern),
-                                message: "Value does not match the pattern"
-                            }
-                        },
                         ...(validateType) && {
-                            validate: (value) => {
+                            validate: (valueObj) => {
+                                if (valueObj.isExpression) {
+                                    return true;
+                                }
+                                const value = valueObj.value ?? valueObj;
                                 if (typeof validateType === 'object' && 'conditionField' in validateType) {
                                     const conditionFieldValue = getValues(validateType.conditionField);
                                     validateType = validateType.mapping[conditionFieldValue];
@@ -739,6 +743,17 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     const xmlDoc = parser.parseFromString(value, "application/xml");
                                     if (xmlDoc.getElementsByTagName("parsererror").length) {
                                         return "Value should be a valid XML";
+                                    }
+                                }
+                                if (validateType === "regex") {
+                                    try {
+                                        const regex = new RegExp(matchPattern);
+                                        if (!regex.test(String(value))) {
+                                            return "Value does not match the required pattern.";
+                                        }
+                                    } catch (error) {
+                                        console.error("Invalid regex pattern:", matchPattern, error);
+                                        return "Regex validation failed.";
                                     }
                                 }
                                 return true;

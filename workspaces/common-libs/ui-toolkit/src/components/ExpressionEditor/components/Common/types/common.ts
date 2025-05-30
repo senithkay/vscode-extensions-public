@@ -11,3 +11,7 @@ export type StyleBase = {
     className?: string;
     sx?: React.CSSProperties;
 };
+
+export type DropdownContainerStyles = StyleBase & {
+    editorWidth?: string;
+};

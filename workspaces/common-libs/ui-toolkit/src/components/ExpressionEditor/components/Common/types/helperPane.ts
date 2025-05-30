@@ -106,6 +106,8 @@ export type HelperPaneBodyProps = PropsWithChildren<{
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
     title?: string;
     titleSx?: CSSProperties;
+    startAdornment?: ReactNode;
+    endAdornment?: ReactNode;
     onBack?: () => void;
     onClose?: () => void;
 };

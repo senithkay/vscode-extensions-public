@@ -20,8 +20,24 @@ import { HelperPaneOrigin, HelperPanePosition } from '../types';
 const EXPRESSION_REGEX = /\$\{([^}]+)\}/g;
 const EXPRESSION_TOKEN_REGEX = /<div[^>]*>\s*<span[^>]*>\s*([^<]+?)\s*<\/span>\s*.+\s*<\/div>/g;
 
+/**
+ * Sanitizes HTML by removing all HTML tags while preserving text content
+ * @param html - The HTML string to sanitize
+ * @returns The sanitized string with all HTML tags removed
+ */
+const sanitizeHtml = (html: string): string => {
+    // Create a temporary div element
+    const temp = document.createElement('div');
+    // Set its content to the HTML string
+    temp.innerHTML = html;
+    // Remove unwanted elements
+    temp.querySelectorAll('script, style, noscript, iframe').forEach(el => el.remove());
+    // Return only the text content
+    return temp.textContent ?? temp.innerText ?? '';
+};
+
 const wrapTextInDiv = (text: string): string => {
-    return `<div class="expression-token" contenteditable="false">
+    return `<div class="expression-token" contenteditable="false" title="${text}">
     <span class="expression-token-text">${text}</span>
     <span class="expression-token-close">×</span>
 </div>`;
@@ -37,7 +53,11 @@ export const transformExpressions = (content: string): string => {
 };
 
 export const setValue = (element: HTMLDivElement, value: string) => {
-    element.innerHTML = transformExpressions(value);
+    // First sanitize the input value to remove any HTML tags
+    const sanitizedValue = sanitizeHtml(value);
+    
+    // Then transform the sanitized value
+    element.innerHTML = transformExpressions(sanitizedValue);
 }
 
 export const extractExpressions = (content: string): string => {
@@ -52,6 +72,33 @@ export const extractExpressions = (content: string): string => {
     updatedContent = updatedContent.replace(/<div>|<\/div>/g, '');
 
     return updatedContent;
+}
+
+/**
+ * If helper pane origin is auto, calculate the best position for the helper pane based on the expression editor position
+ * @param expressionEditorRef - The ref of the expression editor
+ * @param helperPaneOrigin - The origin of the helper pane
+ * @returns The best position for the helper pane
+ */
+export const getHelperPaneWithEditorOrigin = (
+    expressionEditorRef: MutableRefObject<HTMLDivElement>,
+    helperPaneOrigin: HelperPaneOrigin
+): HelperPaneOrigin => {
+    // If the origin is specified, return it
+    if (helperPaneOrigin !== 'auto') {
+        return helperPaneOrigin;
+    }
+
+    // Rendering priority goes as left, right, bottom
+    const expressionEditor = expressionEditorRef.current!;
+    const rect = expressionEditor.getBoundingClientRect();
+    if (rect.left > HELPER_PANE_WITH_EDITOR_WIDTH + ARROW_HEIGHT) {
+        return 'left';
+    } else if (window.innerWidth - (rect.left + rect.width) > HELPER_PANE_WITH_EDITOR_WIDTH + ARROW_HEIGHT) {
+        return 'right';
+    }
+
+    return 'bottom';
 }
 
 export const getHelperPaneWithEditorPosition = (

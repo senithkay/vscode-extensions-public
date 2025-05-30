@@ -2,6 +2,13 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.2.2] - 2025-05-23
+
+### New Features
+
+Added: gRPC connector generation support ([#990](https://github.com/wso2/mi-vscode/issues/990))  
+Added: Improvements to the AI connector
+
 ## [2.2.1] - 2025-05-16
 
 ### New Features

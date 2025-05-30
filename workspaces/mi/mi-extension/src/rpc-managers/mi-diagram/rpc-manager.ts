@@ -2999,9 +2999,9 @@ ${endpointAttributes}
             // open file dialog to select the openapi spec file
             const options: vscode.OpenDialogOptions = {
                 canSelectMany: false,
-                openLabel: 'Open OpenAPI Spec',
+                openLabel: 'Open File',
                 filters: {
-                    'OpenAPI Spec': ['json', 'yaml', 'yml']
+                    'OpenAPI Spec': ['json', 'yaml', 'yml', 'proto']
                 }
             };
 
@@ -5557,6 +5557,28 @@ ${keyValuesXML}`;
             } catch (e) {
                 reject(e);
             }
+        });
+    }
+
+    async closePayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', false);
+            resolve();
+        });
+    }
+
+    async shouldDisplayPayloadAlert(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const displayPayloadAlert: boolean =
+                (await extension.context.workspaceState.get('displayPayloadAlert')) ?? true;
+            resolve(displayPayloadAlert);
+        });
+    }
+
+    async displayPayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', true);
+            resolve();
         });
     }
 }

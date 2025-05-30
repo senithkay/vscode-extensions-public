@@ -2610,6 +2610,9 @@ importers:
         specifier: ^4.38.3
         version: 4.38.3
     devDependencies:
+      '@playwright/test':
+        specifier: ~1.52.0
+        version: 1.52.0
       '@types/mocha':
         specifier: ^10.0.3
         version: 10.0.10
@@ -3690,9 +3693,6 @@ importers:
       '@iarna/toml':
         specifier: ^2.2.5
         version: 2.2.5
-      '@playwright/test':
-        specifier: 1.52.0
-        version: 1.52.0
       '@types/fs-extra':
         specifier: ~11.0.4
         version: 11.0.4
@@ -3826,6 +3826,9 @@ importers:
         specifier: ^4.38.3
         version: 4.38.3
     devDependencies:
+      '@playwright/test':
+        specifier: ~1.52.0
+        version: 1.52.0
       '@types/mocha':
         specifier: ^10.0.1
         version: 10.0.10

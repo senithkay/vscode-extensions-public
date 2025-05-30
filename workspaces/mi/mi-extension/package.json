@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.100.0"
@@ -1003,7 +1003,9 @@
     "@wso2-enterprise/wso2-platform-core": "workspace:*",
     "ts-morph": "^26.0.0",
     "await-notify": "^1.0.1",
-    "yaml": "~2.8.0"
+    "yaml": "~2.8.0",
+    "@playwright/test": "~1.52.0",
+    "playwright-core": "~1.52.0"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
@@ -1012,7 +1014,6 @@
     "vscode-messenger-common": "^0.5.1",
     "@wso2-enterprise/mi-core": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
-    "@playwright/test": "1.52.0",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "vscode-extension-tester": "~8.14.1",
     "vscode-languageclient": "^9.0.1",

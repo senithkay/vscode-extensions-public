@@ -24,7 +24,6 @@ export interface AIPanelAPI {
     getFromFile: (content: GetFromFileRequest) => Promise<string>;
     getFileExists: (content: GetFromFileRequest) => Promise<boolean>;
     deleteFromProject: (content: DeleteFromProjectRequest) => void;
-    getThemeKind: () => Promise<string>;
     generateMappings: (params: GenerateMappingsRequest) => Promise<GenerateMappingsResponse>;
     notifyAIMappings: (params: NotifyAIMappingsRequest) => Promise<boolean>;
     stopAIMappings: () => Promise<GenerateMappingsResponse>;
