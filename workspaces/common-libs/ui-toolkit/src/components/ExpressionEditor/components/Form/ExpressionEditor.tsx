@@ -174,17 +174,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             animationFrameId = requestAnimationFrame(checkPositionChange);
         };
 
-        // Initialize position tracking
-        if (elementRef.current) {
-            const rect = elementRef.current.getBoundingClientRect();
-            lastPosition = {
-                top: rect.top,
-                left: rect.left,
-                width: rect.width,
-                height: rect.height
-            };
-        }
-
         // Start position polling
         animationFrameId = requestAnimationFrame(checkPositionChange);
 
