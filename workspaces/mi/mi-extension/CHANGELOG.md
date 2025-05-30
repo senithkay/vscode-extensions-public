@@ -2,6 +2,13 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.2.3] - 2025-05-30
+
+### Fixed
+
+Fixed: Check whether Ballerina is installed globally ([#1114](https://github.com/wso2/mi-vscode/issues/1114))   
+Fixed: Issues in Project Migration ([#1115](https://github.com/wso2/mi-vscode/issues/1115))
+
 ## [2.2.2] - 2025-05-23
 
 ### New Features
