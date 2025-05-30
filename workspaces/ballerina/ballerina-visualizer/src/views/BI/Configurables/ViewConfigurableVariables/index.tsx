@@ -394,28 +394,37 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 typeof variable?.properties?.variable?.value === 'string' ?
                                                                     variable?.properties?.variable?.value : ''
                                                             }:
-                                                            <span style={{ paddingLeft: '5px', fontWeight: 700, color: 'var(--vscode-settings-headerForeground)' }}>
+                                                            <span
+                                                                style={{
+                                                                    paddingLeft: '5px',
+                                                                    fontWeight: 700,
+                                                                    color: 'var(--vscode-settings-headerForeground)'
+                                                                }}>
                                                                 {String(variable?.properties?.type?.value)}
                                                             </span>
-                                                            {(!variable?.properties?.defaultValue?.value && !variable?.properties?.configValue?.value) && (
-                                                                // Warning icon if no value is configured
-                                                                <ButtonWrapper>
-                                                                    <Tooltip content="Value is not configured">
-                                                                        <Button
-                                                                            appearance="icon"
-                                                                            buttonSx={{
-                                                                                background: "transparent"
-                                                                            }}
-                                                                        >
-                                                                            <Codicon
-                                                                                name="warning"
-                                                                                sx={{ paddingTop: '2px', color: 'var(--vscode-editorWarning-foreground)' }}
-                                                                                iconSx={{ font: "normal normal normal 13px/1 codicon" }}
-                                                                            />
-                                                                        </Button>
-                                                                    </Tooltip>
-                                                                </ButtonWrapper>
-                                                            )}
+                                                            {(!variable?.properties?.defaultValue?.value &&
+                                                                !variable?.properties?.configValue?.value) && (
+                                                                    // Warning icon if no value is configured
+                                                                    <ButtonWrapper>
+                                                                        <Tooltip content="Value is not configured">
+                                                                            <Button
+                                                                                appearance="icon"
+                                                                                buttonSx={{
+                                                                                    background: "transparent"
+                                                                                }}
+                                                                            >
+                                                                                <Codicon
+                                                                                    name="warning"
+                                                                                    sx={{ 
+                                                                                        paddingTop: '2px',
+                                                                                        color: 'var(--vscode-editorWarning-foreground)'
+                                                                                    }}
+                                                                                    iconSx={{ font: "normal normal normal 13px/1 codicon" }}
+                                                                                />
+                                                                            </Button>
+                                                                        </Tooltip>
+                                                                    </ButtonWrapper>
+                                                                )}
                                                         </div>
                                                         {selectedModule.category === `${props.org}/${props.package}` && (
                                                             // Delete button only for integration module
@@ -431,7 +440,12 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             </div>
                                                         )}
                                                     </ConfigNameTitle>
-                                                    <div style={{ fontSize: '13px', marginTop: '6px', color: 'var(--vscode-descriptionForeground)' }}>
+                                                    <div
+                                                        style={{
+                                                            fontSize: '13px',
+                                                            marginTop: '6px',
+                                                            color: 'var(--vscode-descriptionForeground)'
+                                                        }}>
                                                         {String(variable?.properties?.description?.value ?? "")} This config variable
                                                         <span
                                                             style={{
@@ -568,7 +582,12 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 color: 'var(--vscode-editorWarning-foreground)'
                                                             }}
                                                         />
-                                                        <span style={{ marginLeft: 3, color: 'var(--vscode-editorWarning-foreground)', fontSize: '0.85em' }}>
+                                                        <span
+                                                            style={{ 
+                                                                marginLeft: 3,
+                                                                color: 'var(--vscode-editorWarning-foreground)',
+                                                                fontSize: '0.85em'
+                                                            }}>
                                                             {categoryWarningCount(category.name)}
                                                         </span>
                                                     </div>
