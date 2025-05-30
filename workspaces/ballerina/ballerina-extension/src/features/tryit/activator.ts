@@ -334,7 +334,7 @@ async function generateTryItFileContent(targetDir: string, openapiSpec: OAISpec,
         const tryitContent = tryitCompiledTemplate({
             ...openapiSpec,
             port: service.port.toString(),
-            basePath: service.basePath === '/' ? '' : service.basePath, // to avoid double slashes in the URL
+            basePath: service.basePath === '/' ? '' : sanitizePath(service.basePath), // to avoid double slashes in the URL
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
             resourceMethod: isResourceMode ? resourceMetadata?.methodValue.toUpperCase() : '',
@@ -399,10 +399,9 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
 
         const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
             content.serviceName.toLowerCase() === service?.name.toLowerCase()
-            || (content.spec?.servers[0]?.url?.endsWith(service.basePath) && service?.name === '')
-            || (content.spec?.servers[0]?.url == undefined && service?.name === '' // TODO: Update the condition after fixing the issue in the OpenAPI tool
-            || extractPath(content.spec?.servers[0]?.url) === extractPath(service.basePath)
-            ));
+            || (service.basePath !== "" && service?.name === '' && content.spec?.servers[0]?.url?.endsWith(service.basePath))
+            || (service?.name === '' && content.spec?.servers[0]?.url == undefined) // TODO: Update the condition after fixing the issue in the OpenAPI tool
+            || extractPath(content.spec?.servers[0]?.url) === extractPath(service.basePath));
 
         if (matchingDefinition.length === 0) {
             throw new Error(`Failed to find matching OpenAPI definition: No service matches the base path '${service.basePath}' ${service.name !== '' ? `and service name '${service.name}'` : ''}`);
@@ -860,21 +859,31 @@ function sanitizeBallerinaPathSegment(pathSegment: string): string {
 function extractPath(url) {
     let match;
 
+    // Remove escaping backslashes
+    url = url.replace(/\\(.)/g, '$1');
+
     // If the string starts with one or more slashes, remove them.
     if (url.startsWith("/")) {
         return url.replace(/^\/+/, '');
     }
 
     if (url.includes("://")) {
-      // For URLs with a protocol, remove the protocal and host.
-      match = url.match(/^(?:[^\/]*:\/\/[^\/]+\/)(.*)$/);
-      return match ? match[1] : "";
+        // For URLs with a protocol, remove the protocal and host.
+        match = url.match(/^(?:[^\/]*:\/\/[^\/]+\/)(.*)$/);
+        return match ? match[1] : "";
     } else {
-      // For strings without a protocol, discards the part up to the first "/" and returns everything after.
-      match = url.match(/^(?:[^\/]+\/)(.*)$/);
-      return match ? match[1] : "";
+        // For strings without a protocol, discards the part up to the first "/" and returns everything after.
+        match = url.match(/^(?:[^\/]+\/)(.*)$/);
+        return match ? match[1] : "";
     }
-  }
+}
+
+function sanitizePath(path) {
+    if (!path) return '';
+
+    // Remove leading/trailing whitespace and escape backslashes
+    return path.trim().replace(/\\(.)/g, '$1');
+}
 
 // cleanup function for the watcher
 function disposeErrorWatcher() {

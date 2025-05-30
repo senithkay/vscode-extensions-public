@@ -206,5 +206,13 @@ export interface AIMachineContext {
     errorMessage?: string;
 }
 
+export enum ColorThemeKind {
+    Light = 1,
+    Dark = 2,
+    HighContrast = 3,
+    HighContrastLight = 4
+}
+
 export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
 export const sendAIStateEvent: RequestType<AIMachineEventType, void> = { method: 'sendAIStateEvent' };
+export const currentThemeChanged: NotificationType<ColorThemeKind> = { method: 'currentThemeChanged' };

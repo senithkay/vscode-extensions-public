@@ -2,6 +2,16 @@
 
 All notable changes to the "Ballerina" extension will be documented in this file.
 
+## **5.1.3** (2025-05-28)
+
+### Fixed
+
+- Resolved issues with TryIt functionality for service paths containing special characters.
+- Enhanced Data Mapper usability and visual presentation.
+- Updated the record editor to correctly use `packageName`.
+- Addressed display issues in type diagrams and improved service configuration options.
+
+
 ## **5.1.2** (2025-05-18)
 
 ### Added
