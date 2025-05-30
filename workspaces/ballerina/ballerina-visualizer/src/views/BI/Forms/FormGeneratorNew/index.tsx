@@ -38,10 +38,12 @@ import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, The
 
 import {
     convertBalCompletion,
+    convertToFnSignature,
     convertToVisibleTypes,
     filterUnsupportedDiagnostics,
     getImportsForFormFields,
     getInfoFromExpressionValue,
+    injectHighlightTheme,
     removeDuplicateDiagnostics,
     updateLineRange
 } from "../../../../utils/bi";
@@ -124,6 +126,23 @@ export function FormGeneratorNew(props: FormProps) {
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
     const [formImports, setFormImports] = useState<FormImports>({});
+
+    useEffect(() => {
+        if (rpcClient) {
+            // Set current theme
+            rpcClient
+                .getVisualizerRpcClient()
+                .getThemeKind()
+                .then((theme) => {
+                    injectHighlightTheme(theme);
+                });
+
+            // Update highlight theme when theme changes
+            rpcClient.onThemeChanged((theme) => {
+                injectHighlightTheme(theme);
+            });
+        }
+    }, [rpcClient]);
 
     useEffect(() => {
         if (fields) {
@@ -557,11 +576,33 @@ export function FormGeneratorNew(props: FormProps) {
         setTypeEditorState({ isOpen: false });
     };
 
+    const extractArgsFromFunction = async (value: string, property: ExpressionProperty, cursorPosition: number) => {
+        const { lineOffset, charOffset } = getInfoFromExpressionValue(value, cursorPosition);
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: fileName,
+            context: {
+                expression: value,
+                startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                lineOffset: lineOffset,
+                offset: charOffset,
+                codedata: undefined,
+                property: property,
+            },
+            signatureHelpContext: {
+                isRetrigger: false,
+                triggerKind: 1,
+            },
+        });
+
+        return await convertToFnSignature(signatureHelp);
+    };
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
             triggerCharacters: TRIGGER_CHARACTERS,
             retrieveCompletions: handleRetrieveCompletions,
+            extractArgsFromFunction: extractArgsFromFunction,
             types: filteredTypes,
             referenceTypes: types,
             retrieveVisibleTypes: handleGetVisibleTypes,
@@ -578,6 +619,7 @@ export function FormGeneratorNew(props: FormProps) {
         filteredCompletions,
         filteredTypes,
         handleRetrieveCompletions,
+        extractArgsFromFunction,
         handleGetVisibleTypes,
         handleGetHelperPane,
         handleCompletionItemSelect,

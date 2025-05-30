@@ -41,6 +41,7 @@ export function AIAgentPanel(props: AIAgentPanelProps) {
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard
+                    id="ai-agent-card"
                     icon={<Icon name="bi-ai-agent" />}
                     title="AI Chat Agent"
                     onClick={handleClick}
