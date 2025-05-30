@@ -9,12 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ColorThemeKind,
     HistoryEntry,
     OpenViewRequest,
     UpdateUndoRedoMangerRequest,
     VisualizerAPI,
     addToHistory,
     addToUndoStack,
+    getThemeKind,
     getHistory,
     goBack,
     goHome,
@@ -72,5 +74,9 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     updateUndoRedoManager(params: UpdateUndoRedoMangerRequest): void {
         return this._messenger.sendNotification(updateUndoRedoManager, HOST_EXTENSION, params);
+    }
+
+    getThemeKind(): Promise<ColorThemeKind> {
+        return this._messenger.sendRequest(getThemeKind, HOST_EXTENSION);
     }
 }

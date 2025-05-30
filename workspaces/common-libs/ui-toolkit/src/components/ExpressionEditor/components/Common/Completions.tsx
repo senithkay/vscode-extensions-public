@@ -14,11 +14,12 @@ import {
     CompletionDropdownItemProps,
     CompletionDropdownProps,
     DefaultCompletionDropdownItemProps,
-    StyleBase
+    DropdownContainerStyles
 } from './types';
 import { getIcon } from '../../utils';
 import { Codicon } from '../../../Codicon/Codicon';
 import Typography from '../../../Typography/Typography';
+import { DROPDOWN_DEFAULT_WIDTH, DROPDOWN_MIN_WIDTH } from '../../constants';
 
 /* Styled components */
 const StyledTag = styled(VSCodeTag)`
@@ -29,12 +30,15 @@ const StyledTag = styled(VSCodeTag)`
     }
 `;
 
-const DropdownBody = styled.div<StyleBase>`
-    width: 350px;
+const DropdownBody = styled.div<DropdownContainerStyles>`
+    width: ${(props: DropdownContainerStyles) =>
+        props.editorWidth ? props.editorWidth : `${DROPDOWN_DEFAULT_WIDTH}px`};
+    min-width: ${DROPDOWN_MIN_WIDTH}px;
+    max-width: ${DROPDOWN_DEFAULT_WIDTH}px;
     padding-top: 8px;
     border-radius: 2px;
     background-color: var(--vscode-dropdown-background);
-    ${(props: StyleBase) => props.sx}
+    ${(props: DropdownContainerStyles) => props.sx}
 `;
 
 const DropdownItemBody = styled.div`
@@ -171,13 +175,23 @@ const DropdownItem = (props: CompletionDropdownItemProps) => {
 };
 
 export const Dropdown = forwardRef<HTMLDivElement, CompletionDropdownProps>((props, ref) => {
-    const { items, showDefaultCompletion, autoSelectFirstItem, getDefaultCompletion, onCompletionSelect, onDefaultCompletionSelect, isSavable, sx } = props;
+    const {
+        items,
+        showDefaultCompletion,
+        autoSelectFirstItem,
+        getDefaultCompletion,
+        onCompletionSelect,
+        onDefaultCompletionSelect,
+        isSavable,
+        sx,
+        editorWidth
+    } = props;
     const listBoxRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => listBoxRef.current);
 
     return (
-        <DropdownBody sx={sx}>
+        <DropdownBody sx={sx} editorWidth={editorWidth}>
             {showDefaultCompletion && (
                 <DefaultCompletionItem
                     getDefaultCompletion={getDefaultCompletion}

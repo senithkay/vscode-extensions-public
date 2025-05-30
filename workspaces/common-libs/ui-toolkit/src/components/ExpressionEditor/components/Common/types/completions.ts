@@ -8,10 +8,10 @@
  */
 
 import { ReactNode } from "react";
-import { StyleBase } from "./common";
+import { DropdownContainerStyles } from "./common";
 import { CompletionItem } from "../../../types";
 
-export type CompletionDropdownProps = StyleBase & {
+export type CompletionDropdownProps = DropdownContainerStyles & {
     items: CompletionItem[];
     showDefaultCompletion?: boolean;
     autoSelectFirstItem?: boolean;
