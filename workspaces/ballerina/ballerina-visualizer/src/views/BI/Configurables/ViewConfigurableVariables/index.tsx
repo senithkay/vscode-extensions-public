@@ -65,6 +65,8 @@ const ConfigValueField = styled.div`
     height: 28px;
     padding: 5px 10px;
     cursor: pointer !important;
+    border: calc(var(--border-width) * 1px) solid var(--dropdown-border);
+    color: var(--input-foreground);
     &:hover {
         .edit-icon-container {
             display: block !important;
