@@ -12,7 +12,7 @@ import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, Overlay, ThemeColor
 import { LibraryBrowser } from './LibraryBrowser';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { LineRange, FunctionKind } from '@wso2-enterprise/ballerina-core';
+import { LineRange, FunctionKind, CompletionInsertText } from '@wso2-enterprise/ballerina-core';
 import { convertToHelperPaneFunction, extractFunctionInsertText } from '../../../utils/bi';
 import { debounce } from 'lodash';
 import { useMutation } from '@tanstack/react-query';
@@ -29,14 +29,13 @@ const LoadingContainer = styled.div`
     z-index: 5000;
 `;
 
-
 type FunctionsPageProps = {
     fieldKey: string;
     anchorRef: RefObject<HTMLDivElement>;
     fileName: string;
     targetLineRange: LineRange;
     onClose: () => void;
-    onChange: (value: string) => void;
+    onChange: (insertText: CompletionInsertText) => void;
     updateImports: (key: string, imports: {[key: string]: string}) => void;
 };
 
@@ -115,7 +114,7 @@ export const FunctionsPage = ({
             return extractFunctionInsertText(response.template);
         }
 
-        return '';
+        return { value: '' };
     };
 
     useEffect(() => {
@@ -137,8 +136,8 @@ export const FunctionsPage = ({
     };
 
     const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
-        const insertText = await onFunctionItemSelect(item);
-        onChange(insertText);
+        const { value, cursorOffset } = await onFunctionItemSelect(item);
+        onChange({ value, cursorOffset });
         onClose();
     };
 

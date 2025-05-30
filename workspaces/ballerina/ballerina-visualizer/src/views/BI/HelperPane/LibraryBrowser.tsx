@@ -10,6 +10,7 @@
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
+import { CompletionInsertText } from '@wso2-enterprise/ballerina-core';
 
 type LibraryBrowserProps = {
     anchorRef: RefObject<HTMLDivElement>;
@@ -18,8 +19,8 @@ type LibraryBrowserProps = {
     setFilterText: (filterText: string) => void;
     onBack: () => void;
     onClose: () => void;
-    onChange: (value: string) => void;
-    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>;
+    onChange: (insertText: CompletionInsertText) => void;
+    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<CompletionInsertText>;
 };
 
 export const LibraryBrowser = ({
@@ -48,8 +49,8 @@ export const LibraryBrowser = ({
     };
 
     const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
-        const response = await onFunctionItemSelect(item);
-        onChange(response);
+        const { value, cursorOffset } = await onFunctionItemSelect(item);
+        onChange({ value, cursorOffset });
         onClose();
     };
 
