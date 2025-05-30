@@ -340,7 +340,7 @@ function processRegistryResources(source: string, target: string) {
 
     const xmlContent = fs.readFileSync(artifactXMLPath, 'utf-8');
 
-    parseString(xmlContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
+    parseString(xmlContent, { explicitArray: false, ignoreAttrs: false }, (err, result) => {
         if (err) {
             console.error('Error parsing pom.xml:', err);
             return;
