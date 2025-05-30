@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { TextField, Dropdown, Button, SidePanelBody, ProgressRing, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, Button, SidePanelBody, ProgressRing, Icon, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Member, Type, UndoRedoManager, TypeNodeKind, Imports, AddImportItemResponse } from "@wso2-enterprise/ballerina-core";
@@ -205,6 +205,7 @@ export function TypeEditor(props: TypeEditorProps) {
     const [tempName, setTempName] = useState("");
     const [onValidationError, setOnValidationError] = useState<boolean>(false);
     const [isTypeNameValid, setIsTypeNameValid] = useState<boolean>(true);
+    const [isSaving, setIsSaving] = useState(false);
     const { rpcClient } = useRpcContext();
     const saveButtonClicked = useRef(false);
 
@@ -420,6 +421,7 @@ export function TypeEditor(props: TypeEditorProps) {
             return;
         }
 
+        setIsSaving(true);
         try {
             await rpcClient.getBIDiagramRpcClient().renameIdentifier({
                 fileName: type.codedata.lineRange.fileName,
@@ -445,6 +447,8 @@ export function TypeEditor(props: TypeEditorProps) {
             cancelEditing();
         } catch (error) {
             console.error('Error renaming service class:', error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -593,16 +597,28 @@ export function TypeEditor(props: TypeEditorProps) {
                                                 <StyledButton
                                                     appearance="secondary"
                                                     onClick={cancelEditing}
+                                                    disabled={isSaving}
                                                 >
                                                     Cancel
                                                 </StyledButton>
-                                                <StyledButton
-                                                    appearance="primary"
-                                                    onClick={editTypeName}
-                                                    disabled={!isTypeNameValid || !tempName}
-                                                >
-                                                    Save
-                                                </StyledButton>
+                                                {!isSaving && 
+                                                    <StyledButton
+                                                        appearance="primary"
+                                                        onClick={editTypeName}
+                                                        disabled={!isTypeNameValid || !tempName}
+                                                    >
+                                                        Save
+                                                    </StyledButton>
+                                                }
+                                                {isSaving &&
+                                                    <StyledButton
+                                                        appearance="primary"
+                                                        disabled={true}
+                                                    >
+                                                        <ProgressRing sx={{ width: 14, height: 14, marginRight: 3 }} color={ThemeColors.ON_PRIMARY} /> 
+                                                        Saving
+                                                    </StyledButton>
+                                                }
                                             </ButtonGroup>
                                         </EditRow>
 

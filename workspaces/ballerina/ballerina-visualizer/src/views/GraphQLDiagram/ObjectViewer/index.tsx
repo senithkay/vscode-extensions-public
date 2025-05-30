@@ -153,6 +153,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
     const [isTypeNameValid, setIsTypeNameValid] = useState(true);
     const classNameField = serviceClassModel?.properties["name"];
     const saveButtonClicked = useRef(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         getServiceClassModel();
@@ -304,6 +305,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
         }
 
         try {
+            setIsSaving(true);
             await rpcClient.getBIDiagramRpcClient().renameIdentifier({
                 fileName: serviceClassModel.codedata.lineRange.fileName,
                 position: {
@@ -328,6 +330,8 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
             cancelEditing();
         } catch (error) {
             console.error('Error renaming service class (Graphql Object):', error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -466,16 +470,28 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                                             <StyledButton
                                                 appearance="secondary"
                                                 onClick={cancelEditing}
+                                                disabled={isSaving}
                                             >
                                                 Cancel
                                             </StyledButton>
-                                            <StyledButton
-                                                appearance="primary"
-                                                onClick={editServiceClassName}
-                                                disabled={!tempName || !isTypeNameValid}
-                                            >
-                                                Save
-                                            </StyledButton>
+                                            {!isSaving && 
+                                                <StyledButton
+                                                    appearance="primary"
+                                                    onClick={editServiceClassName}
+                                                    disabled={!tempName || !isTypeNameValid}
+                                                >
+                                                    Save
+                                                </StyledButton>
+                                            }
+                                            {isSaving && 
+                                                <StyledButton
+                                                    appearance="primary"
+                                                    disabled={true}
+                                                >
+                                                    <ProgressRing sx={{ width: 14, height: 14, marginRight: 3 }} color={ThemeColors.ON_PRIMARY} /> 
+                                                    Saving
+                                                </StyledButton>
+                                            }
                                         </ButtonGroup>
                                     </EditRow>
 

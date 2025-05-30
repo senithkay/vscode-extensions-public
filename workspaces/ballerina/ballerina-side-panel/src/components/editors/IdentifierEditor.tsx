@@ -9,7 +9,7 @@
 
 import React, { useCallback, useState, useRef } from "react";
 import { FormField } from "../Form/types";
-import { Button, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography, Icon, ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -129,6 +129,7 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
     const [tempValue, setTempValue] = useState(field.value || "");
     const [identifierErrorMsg, setIdentifierErrorMsg] = useState<string>(field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n"));
     const [isIdentifierValid, setIsIdentifierValid] = useState<boolean>(true);
+    const [isSaving, setIsSaving] = useState(false);
     const saveButtonClicked = useRef(false);
 
     const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
@@ -158,19 +159,26 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
             return;
         }
 
-        await rpcClient.getBIDiagramRpcClient().renameIdentifier({
-            fileName: field.lineRange?.fileName,
-            position: {
-                line: field.lineRange?.startLine?.line,
-                character: field.lineRange?.startLine?.offset
-            },
-            newName: String(tempValue)
-        });
+        setIsSaving(true);
+        try {
+            await rpcClient.getBIDiagramRpcClient().renameIdentifier({
+                fileName: field.lineRange?.fileName,
+                position: {
+                    line: field.lineRange?.startLine?.line,
+                    character: field.lineRange?.startLine?.offset
+                },
+                newName: String(tempValue)
+            });
 
-        setValue(field.key, tempValue);
-        field.value = tempValue;
-        setIsEditing(false);
-        onEditingStateChange?.(false);
+            setValue(field.key, tempValue);
+            field.value = tempValue;
+            setIsEditing(false);
+            onEditingStateChange?.(false);
+        } catch (error) {
+            console.error('Error renaming identifier:', error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const validateIdentifierName = useCallback(debounce(async (value: string) => {
@@ -268,16 +276,28 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
                                 <StyledButton
                                     appearance="secondary"
                                     onClick={cancelEditing}
+                                    disabled={isSaving}
                                 >
                                     Cancel
                                 </StyledButton>
-                                <StyledButton
-                                    appearance="primary"
-                                    onClick={saveEdit}
-                                    disabled={!tempValue || !isIdentifierValid}
-                                >
-                                    Save
-                                </StyledButton>
+                                {!isSaving && 
+                                    <StyledButton
+                                        appearance="primary"
+                                        onClick={saveEdit}
+                                        disabled={!tempValue || !isIdentifierValid}
+                                    >
+                                        Save
+                                    </StyledButton>
+                                }
+                                {isSaving && 
+                                    <StyledButton
+                                        appearance="primary"
+                                        disabled={true}
+                                    >
+                                        <ProgressRing sx={{ width: 14, height: 14, marginRight: 3 }} color={ThemeColors.ON_PRIMARY} /> 
+                                        Saving
+                                    </StyledButton>
+                                }
                             </ButtonGroup>
                         </EditRow>
 
