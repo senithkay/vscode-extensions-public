@@ -879,7 +879,7 @@ function extractPath(url) {
 }
 
 function sanitizePath(path) {
-    if (!path) return '';
+    if (!path) { return ''; }
 
     // Remove leading/trailing whitespace and escape backslashes
     return path.trim().replace(/\\(.)/g, '$1');
