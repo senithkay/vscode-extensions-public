@@ -182,12 +182,9 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
     };
 
     const validateIdentifierName = useCallback(debounce(async (value: string) => {
-        // Skip validation if we're saving or not editing
         if (saveButtonClicked.current || !isEditing) {
             return;
         }
-        
-        console.log("Validating identifier name:", getPropertyFromFormField(field), value);
 
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: field.lineRange?.fileName,
@@ -280,7 +277,7 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
                                 >
                                     Cancel
                                 </StyledButton>
-                                {!isSaving && 
+                                {!isSaving &&
                                     <StyledButton
                                         appearance="primary"
                                         onClick={saveEdit}
@@ -289,12 +286,15 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
                                         Save
                                     </StyledButton>
                                 }
-                                {isSaving && 
+                                {isSaving &&
                                     <StyledButton
                                         appearance="primary"
                                         disabled={true}
                                     >
-                                        <ProgressRing sx={{ width: 14, height: 14, marginRight: 3 }} color={ThemeColors.ON_PRIMARY} /> 
+                                        <ProgressRing
+                                            sx={{ width: 14, height: 14, marginRight: 3 }}
+                                            color={ThemeColors.ON_PRIMARY}
+                                        />
                                         Saving
                                     </StyledButton>
                                 }

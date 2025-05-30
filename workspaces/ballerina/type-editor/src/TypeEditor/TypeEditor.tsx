@@ -209,10 +209,10 @@ export function TypeEditor(props: TypeEditorProps) {
     const { rpcClient } = useRpcContext();
     const saveButtonClicked = useRef(false);
 
-     useEffect(() => {
+    useEffect(() => {
         if (props.type) {
             setType(props.type);
-            
+
             const nodeKind = props.type.codedata.node;
             switch (nodeKind) {
                 case "RECORD":
@@ -234,7 +234,7 @@ export function TypeEditor(props: TypeEditorProps) {
                     setSelectedTypeKind(TypeKind.RECORD);
             }
         }
-        
+
         setIsNewType(props.newType);
     }, [props.type?.name, props.newType]);
 
@@ -409,7 +409,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const cancelEditing = () => {
         validateTypeName(type.name);
-        
+
         setIsEditing(false);
         setTempName("");
     };
@@ -463,11 +463,10 @@ export function TypeEditor(props: TypeEditorProps) {
     }
 
     const validateTypeName = useCallback(debounce(async (value: string) => {
-        // Skip validation if save button was clicked
         if (saveButtonClicked.current) {
             return;
         }
-        
+
         const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
 
         const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
@@ -478,7 +477,7 @@ export function TypeEditor(props: TypeEditorProps) {
             filePath: type?.codedata?.lineRange?.fileName || "types.bal",
             context: {
                 expression: value,
-                startLine:{
+                startLine: {
                     line: type?.codedata?.lineRange?.startLine?.line ?? endPosition.line,
                     offset: type?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
                 },
@@ -496,24 +495,24 @@ export function TypeEditor(props: TypeEditorProps) {
                             offset: type?.codedata?.lineRange?.endLine?.offset ?? endPosition.offset
                         },
                         fileName: type?.codedata?.lineRange?.fileName
-                    },  
-                },
-                property: type?.properties["name"] ? 
-                {
-                    ...type.properties["name"],
-                    valueTypeConstraint: "Global"
-                } : 
-                {
-                    metadata: {
-                        label: "",
-                        description: "",
                     },
-                    valueType: "IDENTIFIER",
-                    value: "",
-                    valueTypeConstraint: "Global",
-                    optional: false,
-                    editable: true
-                }
+                },
+                property: type?.properties["name"] ?
+                    {
+                        ...type.properties["name"],
+                        valueTypeConstraint: "Global"
+                    } :
+                    {
+                        metadata: {
+                            label: "",
+                            description: "",
+                        },
+                        valueType: "IDENTIFIER",
+                        value: "",
+                        valueTypeConstraint: "Global",
+                        optional: false,
+                        editable: true
+                    }
             }
         });
 
@@ -601,7 +600,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                 >
                                                     Cancel
                                                 </StyledButton>
-                                                {!isSaving && 
+                                                {!isSaving &&
                                                     <StyledButton
                                                         appearance="primary"
                                                         onClick={editTypeName}
@@ -615,7 +614,10 @@ export function TypeEditor(props: TypeEditorProps) {
                                                         appearance="primary"
                                                         disabled={true}
                                                     >
-                                                        <ProgressRing sx={{ width: 14, height: 14, marginRight: 3 }} color={ThemeColors.ON_PRIMARY} /> 
+                                                        <ProgressRing
+                                                            sx={{ width: 14, height: 14, marginRight: 3 }}
+                                                            color={ThemeColors.ON_PRIMARY}
+                                                        />
                                                         Saving
                                                     </StyledButton>
                                                 }
@@ -643,7 +645,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                 handleOnTypeNameChange((e.target as HTMLInputElement).value);
                                             }
                                         }}
-                                        onFocus={(e) => {e.target.select(); validateTypeName(e.target.value)}}
+                                        onFocus={(e) => { e.target.select(); validateTypeName(e.target.value) }}
                                         ref={nameInputRef}
                                     />
                                 </TextFieldWrapper>
@@ -654,7 +656,11 @@ export function TypeEditor(props: TypeEditorProps) {
                             <>
                                 {renderEditor()}
                                 <S.Footer>
-                                    <Button onClick={() => onTypeChange(type)} disabled={onValidationError || !isTypeNameValid || isEditing}>Save</Button>
+                                    <Button
+                                        onClick={() => onTypeChange(type)}
+                                        disabled={onValidationError || !isTypeNameValid || isEditing}>
+                                        Save
+                                    </Button>
                                 </S.Footer>
                             </>
                         }

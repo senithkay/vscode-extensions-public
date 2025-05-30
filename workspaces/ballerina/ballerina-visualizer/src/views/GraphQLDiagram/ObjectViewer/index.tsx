@@ -339,13 +339,12 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
         if (saveButtonClicked.current || !serviceClassModel) {
             return;
         }
-        
-        console.log("Validating type name:", value, type, serviceClassModel);
+
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: serviceClassModel?.codedata?.lineRange?.fileName || "types.bal",
             context: {
                 expression: value,
-                startLine:{
+                startLine: {
                     line: serviceClassModel?.codedata?.lineRange?.startLine?.line,
                     offset: serviceClassModel?.codedata?.lineRange?.startLine?.offset
                 },
@@ -363,31 +362,31 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                             offset: serviceClassModel?.codedata?.lineRange?.endLine?.offset
                         },
                         fileName: serviceClassModel?.codedata?.lineRange?.fileName
-                    },  
+                    },
                 },
-                property: serviceClassModel?.properties["name"] ? 
-                {
-                    metadata: {
-                        label: serviceClassModel.properties["name"].metadata.label || "",
-                        description: serviceClassModel.properties["name"].metadata.description || ""
-                    },
-                    valueType: serviceClassModel.properties["name"].valueType || "IDENTIFIER",
-                    value: serviceClassModel.properties["name"].value || "",
-                    valueTypeConstraint: "Global",
-                    optional: serviceClassModel.properties["name"].optional || false,
-                    editable: serviceClassModel.properties["name"].editable || true
-                } : 
-                {
-                    metadata: {
-                        label: "",
-                        description: "",
-                    },
-                    valueType: "IDENTIFIER",
-                    value: "",
-                    valueTypeConstraint: "Global",
-                    optional: false,
-                    editable: true
-                }
+                property: serviceClassModel?.properties["name"] ?
+                    {
+                        metadata: {
+                            label: serviceClassModel.properties["name"].metadata.label || "",
+                            description: serviceClassModel.properties["name"].metadata.description || ""
+                        },
+                        valueType: serviceClassModel.properties["name"].valueType || "IDENTIFIER",
+                        value: serviceClassModel.properties["name"].value || "",
+                        valueTypeConstraint: "Global",
+                        optional: serviceClassModel.properties["name"].optional || false,
+                        editable: serviceClassModel.properties["name"].editable || true
+                    } :
+                    {
+                        metadata: {
+                            label: "",
+                            description: "",
+                        },
+                        valueType: "IDENTIFIER",
+                        value: "",
+                        valueTypeConstraint: "Global",
+                        optional: false,
+                        editable: true
+                    }
             }
         });
 
@@ -474,7 +473,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                                             >
                                                 Cancel
                                             </StyledButton>
-                                            {!isSaving && 
+                                            {!isSaving &&
                                                 <StyledButton
                                                     appearance="primary"
                                                     onClick={editServiceClassName}
@@ -483,12 +482,15 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                                                     Save
                                                 </StyledButton>
                                             }
-                                            {isSaving && 
+                                            {isSaving &&
                                                 <StyledButton
                                                     appearance="primary"
                                                     disabled={true}
                                                 >
-                                                    <ProgressRing sx={{ width: 14, height: 14, marginRight: 3 }} color={ThemeColors.ON_PRIMARY} /> 
+                                                    <ProgressRing
+                                                        sx={{ width: 14, height: 14, marginRight: 3 }}
+                                                        color={ThemeColors.ON_PRIMARY}
+                                                    />
                                                     Saving
                                                 </StyledButton>
                                             }
