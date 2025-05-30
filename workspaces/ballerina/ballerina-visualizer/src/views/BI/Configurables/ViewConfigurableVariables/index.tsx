@@ -99,7 +99,7 @@ const MethodBox = styled.div<MethodProp>`
     margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
     text-align: center;
     padding: 3px 5px 3px 5px;
-    background-color: var(--vscode-foreground);
+    background-color: var(--vscode-checkbox-border);
     color: #FFF;
     align-items: center;
     font-weight: bold;
