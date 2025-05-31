@@ -264,9 +264,11 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         setEditConfigVariableFormOpen(false);
     };
 
-    const handleFormSubmit = () => {
+    const handleFormSubmit = async () => {
         setAddConfigVariableFormOpen(false);
         setEditConfigVariableFormOpen(false);
+        // Add 0.5 second timeout to allow ls to process the changes (libraries)
+        await new Promise(resolve => setTimeout(resolve, 500));
         getConfigVariables();
     }
 
@@ -312,16 +314,16 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             });
 
         setConfigVariables(data);
-
-        // Extract and set the available categories with their modules
-        const extractedCategories = Object.keys(data).map(category => ({
-            name: category,
-            modules: Object.keys(data[category])
-        }));
-        setCategoriesWithModules(extractedCategories);
-
+        
         // Only set initial selected module if none is selected
-        if (!selectedModule && extractedCategories.length > 0 && extractedCategories[0].modules.length > 0) {
+        if (!selectedModule) {
+            // Extract and set the available categories with their modules
+            const extractedCategories = Object.keys(data).map(category => ({
+                name: category,
+                modules: Object.keys(data[category])
+            }));
+            setCategoriesWithModules(extractedCategories);
+
             const initialCategory = extractedCategories[0].name;
             const initialModule = extractedCategories[0].modules[0];
             setSelectedModule({
@@ -417,7 +419,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                             >
                                                                                 <Codicon
                                                                                     name="warning"
-                                                                                    sx={{ 
+                                                                                    sx={{
                                                                                         paddingTop: '2px',
                                                                                         color: 'var(--vscode-editorWarning-foreground)'
                                                                                     }}
@@ -585,7 +587,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             }}
                                                         />
                                                         <span
-                                                            style={{ 
+                                                            style={{
                                                                 marginLeft: 3,
                                                                 color: 'var(--vscode-editorWarning-foreground)',
                                                                 fontSize: '0.85em'
