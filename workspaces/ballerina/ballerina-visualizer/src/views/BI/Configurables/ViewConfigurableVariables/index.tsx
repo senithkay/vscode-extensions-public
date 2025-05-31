@@ -267,8 +267,9 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     const handleFormSubmit = async () => {
         setAddConfigVariableFormOpen(false);
         setEditConfigVariableFormOpen(false);
-        // Add 0.5 second timeout to allow ls to process the changes (libraries)
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // HACK: Add 0.2 second timeout to allow ls to process the changes (libraries)
+        // TODO: Send ls notification on success
+        await new Promise(resolve => setTimeout(resolve, 200));
         getConfigVariables();
     }
 
