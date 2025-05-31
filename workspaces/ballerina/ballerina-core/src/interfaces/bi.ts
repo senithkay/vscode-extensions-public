@@ -280,6 +280,7 @@ export type NodePropertyKey =
     | "connection"
     | "defaultable"
     | "defaultValue"
+    | "description"
     | "enableModelContext"
     | "expression"
     | "functionName"

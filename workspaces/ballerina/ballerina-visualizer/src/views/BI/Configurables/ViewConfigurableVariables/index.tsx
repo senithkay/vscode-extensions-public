@@ -20,7 +20,9 @@ import { TitleBar } from "../../../../components/TitleBar";
 
 const Container = styled.div`
     width: 100%;
-    padding: 20px 0px 20px 20px;
+    padding: 10px 0px 10px 8px;
+    height: calc(100vh - 220px);
+    overflow-y: auto;
 `;
 
 const SearchStyle = {
@@ -46,41 +48,6 @@ const Description = styled(Typography)`
     color: var(--vscode-descriptionForeground);
 `;
 
-type MethodProp = {
-    hasLeftMargin?: boolean;
-};
-
-type ContainerProps = {
-    borderColor?: string;
-    haveErrors?: boolean;
-};
-
-type ButtonSectionProps = {
-    isExpanded?: boolean;
-};
-
-type HeaderProps = {
-    expandable?: boolean;
-}
-
-const AccordionContainer = styled.div<ContainerProps>`
-    margin-bottom: 10px;
-    overflow: hidden;
-    background-color: var(--vscode-editorHoverWidget-background);
-    &:hover {
-        background-color: var(--vscode-list-hoverBackground);
-        cursor: pointer;
-    }
-    border: ${(p: ContainerProps) => p.haveErrors ? "1px solid red" : "none"};
-`;
-
-const AccordionHeader = styled.div<HeaderProps>`
-    padding: 10px;
-    cursor: pointer;
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-`;
-
 const ButtonWrapper = styled.div`
     display: flex;
     justify-content: center;
@@ -90,37 +57,21 @@ const ButtonWrapper = styled.div`
     width: 40px;
 `;
 
-const MethodBox = styled.div<MethodProp>`
+const ConfigValueField = styled.div`
     display: flex;
-    justify-content: center;
-    height: 25px;
-    min-width: 70px;
     width: auto;
-    margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
-    text-align: center;
-    padding: 3px 5px 3px 5px;
-    background-color: var(--vscode-foreground);
-    color: #FFF;
-    align-items: center;
-    font-weight: bold;
-`;
-
-const MethodSection = styled.div`
-    display: flex;
-    gap: 4px;
-`;
-
-const ButtonSection = styled.div<ButtonSectionProps>`
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-    gap: ${(p: ButtonSectionProps) => p.isExpanded ? "8px" : "6px"};
-`;
-
-const MethodPath = styled.div`
-    align-self: center;
-    margin-left: 10px;
-    display: flex;
+    justify-content: space-between;
+    background-color: var(--input-background);
+    height: 28px;
+    padding: 5px 10px;
+    cursor: pointer !important;
+    border: calc(var(--border-width) * 1px) solid var(--dropdown-border);
+    color: var(--input-foreground);
+    &:hover {
+        .edit-icon-container {
+            display: block !important;
+        }
+    }
 `;
 
 const TitleBoxShadow = styled.div`
@@ -132,6 +83,27 @@ const TitleContent = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+`;
+
+const ConfigurableItem = styled.div`
+    padding: 12px 14px 18px;
+    &:hover {
+        background-color: var(--vscode-settings-rowHoverBackground);
+        
+        .delete-button-container {
+            display: block !important;
+        }
+    }
+`;
+
+const ConfigNameTitle = styled.div`
+    font-size: 13px;
+    font-weight: 600;
+    height: 20px;
+    color: var(--vscode-foreground);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 `;
 
 const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
@@ -262,8 +234,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         }, 0);
     }, [configVariables, moduleWarningCount]);
 
-
-
     const handleSearch = (e: string) => {
         setSearchValue(e);
     }
@@ -319,7 +289,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                 moduleName: selectedModule.module
             })
             .then((response) => {
-                console.log(">>> Updated source code after delete", response);
                 if (response.textEdits) {
                     console.log("Successfully deleted configurable variable");
                 } else {
@@ -397,12 +366,12 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                         </Typography>
                         {/* Only show Add Config button at the top when the module has configurations */}
                         {selectedModule &&
-                            renderVariables[selectedModule?.category]?.[selectedModule?.module]?.length > 0 && (
+                            renderVariables[selectedModule?.category]?.[selectedModule?.module]?.length > 0 &&
+                            selectedModule.category === `${props.org}/${props.package}` && (
                                 <Button
                                     sx={{ display: 'flex', justifySelf: 'flex-end' }}
                                     appearance="primary"
                                     onClick={handleAddConfigVariableFormOpen}
-                                    disabled={selectedModule.category !== `${props.org}/${props.package}`}
                                 >
                                     <Codicon name="add" sx={{ marginRight: 5 }} />Add Config
                                 </Button>
@@ -417,34 +386,27 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                             {renderVariables[selectedModule?.category] &&
                                 renderVariables[selectedModule?.category][selectedModule?.module] && (
                                     <div key={`${selectedModule?.category}-${selectedModule?.module}`}>
-                                        {/* Check if there are any variables in this module */}
                                         {renderVariables[selectedModule?.category][selectedModule?.module].length > 0 ? (
-                                            /* Variables under this module */
+                                            /* Variables under this selected module */
                                             renderVariables[selectedModule?.category][selectedModule?.module].map((variable, index) => (
-                                                <AccordionContainer
-                                                    data-testid="config-resources"
-                                                    key={`${selectedModule?.category}-${selectedModule?.module}-${index}`}
-                                                >
-                                                    <AccordionHeader>
-                                                        <MethodSection>
-                                                            <MethodBox hasLeftMargin={false}>
+                                                <ConfigurableItem>
+                                                    <ConfigNameTitle>
+                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            {
+                                                                typeof variable?.properties?.variable?.value === 'string' ?
+                                                                    variable?.properties?.variable?.value : ''
+                                                            }:
+                                                            <span
+                                                                style={{
+                                                                    paddingLeft: '5px',
+                                                                    fontWeight: 700,
+                                                                    color: 'var(--vscode-settings-headerForeground)'
+                                                                }}>
                                                                 {String(variable?.properties?.type?.value)}
-                                                            </MethodBox>
-                                                            <MethodPath>
-                                                                <div style={{ display: "flex", alignItems: "center", marginRight: "20px" }}>
-                                                                    {
-                                                                        typeof variable?.properties?.variable?.value === 'string' ?
-                                                                            variable?.properties?.variable?.value : ''
-                                                                    }
-                                                                    {variable?.diagnostics?.hasDiagnostics &&
-                                                                        <>&nbsp;&nbsp;&nbsp;&nbsp;<DiagnosticsPopUp node={variable} /></>
-                                                                    }
-                                                                </div>
-                                                            </MethodPath>
-                                                        </MethodSection>
-                                                        <ButtonSection>
+                                                            </span>
                                                             {(!variable?.properties?.defaultValue?.value &&
                                                                 !variable?.properties?.configValue?.value) && (
+                                                                    // Warning icon if no value is configured
                                                                     <ButtonWrapper>
                                                                         <Tooltip content="Value is not configured">
                                                                             <Button
@@ -455,37 +417,61 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                             >
                                                                                 <Codicon
                                                                                     name="warning"
-                                                                                    sx={{ color: 'var(--vscode-editorWarning-foreground)' }}
+                                                                                    sx={{ 
+                                                                                        paddingTop: '2px',
+                                                                                        color: 'var(--vscode-editorWarning-foreground)'
+                                                                                    }}
+                                                                                    iconSx={{ font: "normal normal normal 13px/1 codicon" }}
                                                                                 />
                                                                             </Button>
                                                                         </Tooltip>
                                                                     </ButtonWrapper>
                                                                 )}
-                                                            <ButtonWrapper>
-                                                                <Tooltip content="Edit Resource">
-                                                                    <Button
-                                                                        appearance="icon"
-                                                                        onClick={() => handleEditConfigVariableFormOpen(index)}
-                                                                    >
-                                                                        <Icon sx={{ paddingTop: '2px' }} name="editIcon" />
-                                                                    </Button>
-                                                                </Tooltip>
-                                                            </ButtonWrapper>
-
-                                                            <ButtonWrapper>
-                                                                <Tooltip content="Delete Resource">
-                                                                    <Button
-                                                                        appearance="icon"
-                                                                        disabled={selectedModule.category !== `${props.org}/${props.package}`}
-                                                                        onClick={() => handleOnDeleteConfigVariable(index)}
-                                                                    >
-                                                                        <Codicon name="trash" />
-                                                                    </Button>
-                                                                </Tooltip>
-                                                            </ButtonWrapper>
-                                                        </ButtonSection>
-                                                    </AccordionHeader>
-                                                </AccordionContainer>
+                                                        </div>
+                                                        {selectedModule.category === `${props.org}/${props.package}` && (
+                                                            // Delete button only for integration module
+                                                            <div className="delete-button-container" style={{ display: 'none' }}>
+                                                                <Button
+                                                                    appearance="icon"
+                                                                    disabled={selectedModule.category !== `${props.org}/${props.package}`}
+                                                                    onClick={() => handleOnDeleteConfigVariable(index)}
+                                                                    tooltip="Delete Configurable Variable"
+                                                                >
+                                                                    <Codicon name="trash" />
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                    </ConfigNameTitle>
+                                                    <div
+                                                        style={{
+                                                            fontSize: '13px',
+                                                            marginTop: '6px',
+                                                            color: 'var(--vscode-descriptionForeground)'
+                                                        }}>
+                                                        {String(variable?.properties?.description?.value ?? "")} This config variable
+                                                        <span
+                                                            style={{
+                                                                paddingLeft: '4px',
+                                                                color: 'var(--vscode-textLink-foreground)',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                            onClick={() => handleEditConfigVariableFormOpen(index)}
+                                                        >
+                                                            defaults to
+                                                        </span>
+                                                    </div>
+                                                    <div style={{ marginTop: '12px' }}>
+                                                        <ConfigValueField onClick={() => handleEditConfigVariableFormOpen(index)}>
+                                                            <div style={{ minWidth: '10px' }}>
+                                                                {variable?.properties?.configValue?.value ?
+                                                                    String(variable?.properties?.configValue?.value) : ''}
+                                                            </div>
+                                                            <div className="edit-icon-container" style={{ display: 'none' }}>
+                                                                <Icon sx={{ paddingTop: '2px' }} name="editIcon" />
+                                                            </div>
+                                                        </ConfigValueField>
+                                                    </div>
+                                                </ConfigurableItem>
                                             ))
                                         ) : (
                                             // No variables in this module (not search related)
@@ -540,106 +526,134 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                 </Button>
             } />
             <ViewContent padding>
-                {/* Search bar */}
-                <TextField
-                    sx={SearchStyle}
-                    placeholder="Search Configurables"
-                    value={searchValue}
-                    onTextChange={handleSearch}
-                    icon={{
-                        iconComponent: searchIcon,
-                        position: 'start',
-                    }}
-                    autoFocus={true}
-                />
-                <div style={{ width: "auto", height: "100vh" }}>
-                    <SplitView defaultWidths={[20, 80]} dynamicContainerSx={{ overflow: "visible" }}>
-                        {/* Left side tree view */}
-                        <div style={{ padding: "10px 0 50px 0" }}>
-                            {(searchValue ? filteredCategoriesWithModules : categoriesWithModules).map((category, index) => (
-                                <TreeView
-                                    key={category.name}
-                                    rootTreeView
-                                    id={category.name}
-                                    selectedId={selectedModule?.category}
-                                    expandByDefault={false}
-                                    content={
-                                        <div style={{ display: 'flex', height: '30px', alignItems: 'center' }}>
-                                            <Typography variant="body2">
-                                                {category.name === `${props.org}/${props.package}` ? 'Integration' : category.name}
-                                            </Typography>
-                                            {categoryWarningCount(category.name) > 0 && (
-                                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                    <Codicon name="warning"
-                                                        sx={{
-                                                            marginLeft: 5,
-                                                            fontSize: '0.8em',
-                                                            color: 'var(--vscode-editorWarning-foreground)'
-                                                        }}
-                                                    />
-                                                    <span style={{ marginLeft: 3, color: 'var(--vscode-editorWarning-foreground)', fontSize: '0.85em' }}>
-                                                        {categoryWarningCount(category.name)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    }
-                                >
-                                    {category.modules.map((moduleName) => (
-                                        <TreeViewItem
-                                            key={`${category.name}-${moduleName}`}
-                                            id={`${category.name}-${moduleName}`}
-                                            sx={{
-                                                backgroundColor: 'transparent',
-                                                paddingLeft: '20px',
-                                                border: selectedModule?.category === category.name && selectedModule?.module === moduleName
-                                                    ? '1px solid var(--vscode-focusBorder)'
-                                                    : 'none'
-                                            }}
-                                            selectedId={`${category.name}-${moduleName}`}
-                                        >
+                <div style={{ height: 'calc(100vh - 220px)' }}>
+                    {/* Search bar */}
+                    <TextField
+                        sx={SearchStyle}
+                        placeholder="Search Configurables"
+                        value={searchValue}
+                        onTextChange={handleSearch}
+                        icon={{
+                            iconComponent: searchIcon,
+                            position: 'start',
+                        }}
+                        autoFocus={true}
+                    />
+                    <div style={{ width: "auto" }}>
+                        <SplitView defaultWidths={[20, 80]} dynamicContainerSx={{ overflow: "visible" }}>
+                            {/* Left side tree view */}
+                            <div style={{ padding: "10px 0 50px 0" }}>
+                                {(searchValue ? filteredCategoriesWithModules : categoriesWithModules).map((category, index) => (
+                                    <TreeView
+                                        key={category.name}
+                                        rootTreeView
+                                        id={category.name}
+                                        expandByDefault={false}
+                                        onSelect={() => {
+                                            if (category.modules.length > 0) {
+                                                handleModuleSelect(category.name, category.modules[0]);
+                                            }
+                                        }}
+                                        treeViewElementSX={{
+                                            border: selectedModule?.category === category.name && selectedModule?.module === ""
+                                                ? '1px solid var(--vscode-focusBorder)'
+                                                : 'none'
+                                        }}
+                                        content={
                                             <div
-                                                style={{ display: 'flex', height: '20px', alignItems: 'center' }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleModuleSelect(category.name, moduleName);
-                                                }}
-                                            >
+                                                style={{
+                                                    display: 'flex',
+                                                    height: '22px',
+                                                    alignItems: 'center',
+                                                }}>
                                                 <Typography
-                                                    variant="body2"
+                                                    variant="body3"
                                                     sx={{
-                                                        fontWeight: selectedModule?.category === category.name && selectedModule?.module === moduleName
+                                                        fontWeight: selectedModule?.category === category.name && selectedModule?.module === ""
                                                             ? 'bold' : 'normal'
                                                     }}
                                                 >
-                                                    {moduleName || "Default Module"}
+                                                    {category.name === `${props.org}/${props.package}` ? 'Integration' : category.name}
                                                 </Typography>
-                                                {moduleWarningCount(category.name, moduleName) > 0 && (
+                                                {categoryWarningCount(category.name) > 0 && (
                                                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                        <Codicon
-                                                            name="warning"
+                                                        <Codicon name="warning"
                                                             sx={{
                                                                 marginLeft: 5,
                                                                 fontSize: '0.8em',
                                                                 color: 'var(--vscode-editorWarning-foreground)'
                                                             }}
                                                         />
-                                                        <span style={{ marginLeft: 3, color: 'var(--vscode-editorWarning-foreground)', fontSize: '0.85em' }}>
-                                                            {moduleWarningCount(category.name, moduleName)}
+                                                        <span
+                                                            style={{ 
+                                                                marginLeft: 3,
+                                                                color: 'var(--vscode-editorWarning-foreground)',
+                                                                fontSize: '0.85em'
+                                                            }}>
+                                                            {categoryWarningCount(category.name)}
                                                         </span>
                                                     </div>
                                                 )}
                                             </div>
-                                        </TreeViewItem>
-                                    ))}
-                                </TreeView>
-                            ))}
-                        </div>
-                        {/* Right side view */}
-                        <div style={{ overflowY: 'auto', height: '100%' }}>
-                            <ConfigurablesList />
-                        </div>
-                    </SplitView>
+                                        }
+                                    >
+                                        {category.modules.filter(moduleName => moduleName !== "").map((moduleName) => (
+                                            <TreeViewItem
+                                                key={`${category.name}-${moduleName}`}
+                                                id={`${category.name}-${moduleName}`}
+                                                sx={{
+                                                    backgroundColor: 'transparent',
+                                                    paddingLeft: '35px',
+                                                    height: '25px',
+                                                    border: selectedModule?.category === category.name && selectedModule?.module === moduleName
+                                                        ? '1px solid var(--vscode-focusBorder)'
+                                                        : 'none'
+                                                }}
+                                                selectedId={`${category.name}-${moduleName}`}
+                                            >
+                                                <div
+                                                    style={{ display: 'flex', height: '20px', alignItems: 'center' }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleModuleSelect(category.name, moduleName);
+                                                    }}
+                                                >
+                                                    <Typography
+                                                        variant="body3"
+                                                        sx={{
+                                                            fontWeight: selectedModule?.category === category.name && selectedModule?.module === moduleName
+                                                                ? 'bold' : 'normal'
+                                                        }}
+                                                    >
+                                                        {moduleName}
+                                                    </Typography>
+                                                    {moduleWarningCount(category.name, moduleName) > 0 && (
+                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            <Codicon
+                                                                name="warning"
+                                                                sx={{
+                                                                    marginLeft: 5,
+                                                                    fontSize: '0.8em',
+                                                                    color: 'var(--vscode-editorWarning-foreground)'
+                                                                }}
+                                                            />
+                                                            <span style={{ marginLeft: 3, color: 'var(--vscode-editorWarning-foreground)', fontSize: '0.85em' }}>
+                                                                {moduleWarningCount(category.name, moduleName)}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </TreeViewItem>
+                                        ))}
+                                    </TreeView>
+                                ))}
+                            </div>
+                            {/* Right side view */}
+                            <div style={{ height: '100%' }}>
+                                <ConfigurablesList />
+                            </div>
+                        </SplitView>
+                    </div>
                 </div>
             </ViewContent>
         </View>
