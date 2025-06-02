@@ -11,7 +11,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, TreeViewItem, Typography, View, ViewContent, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, TreeViewItem, Typography, View, ViewContent, Tooltip, Toggle } from "@wso2-enterprise/ui-toolkit";
 import { EditForm } from "../EditConfigurableVariables";
 import { AddForm } from "../AddConfigurableVariables";
 import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
@@ -26,11 +26,10 @@ const Container = styled.div`
 `;
 
 const SearchStyle = {
-    width: 'auto',
+    width: '100%',
 
     '& > vscode-text-field': {
         width: '100%',
-        paddingBottom: '10px',
         borderRadius: '5px'
     },
 };
@@ -96,6 +95,21 @@ const ConfigurableItem = styled.div`
     }
 `;
 
+const SearchContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    gap: 40px;
+`;
+
+const ToggleWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 150px;
+`;
+
 const ConfigNameTitle = styled.div`
     font-size: 13px;
     font-weight: 600;
@@ -140,8 +154,10 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     const [isAddConfigVariableFormOpen, setAddConfigVariableFormOpen] = useState<boolean>(false);
     const [configIndex, setConfigIndex] = useState<number>(null);
     const [searchValue, setSearchValue] = React.useState<string>('');
+    const [hideLibraries, setHideLibraries] = useState<boolean>(false);
     const [categoriesWithModules, setCategoriesWithModules] = useState<CategoryWithModules[]>([]);
     const [selectedModule, setSelectedModule] = useState<PackageModuleState>(null);
+    const integrationCategory = `${props.org}/${props.package}`;
 
     useEffect(() => {
         getConfigVariables();
@@ -238,6 +254,20 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         setSearchValue(e);
     }
 
+    const handleHideLibraries = (state: boolean) => {
+        if (state) {
+            // If hiding libraries, reset selected module to integration
+            if (selectedModule?.category !== integrationCategory) {
+                const integrationCategoryData = categoriesWithModules.find(
+                    category => category.name === integrationCategory
+                );
+
+                setSelectedModule({ category: integrationCategory, module: integrationCategoryData.modules[0] });
+            }
+        }
+        setHideLibraries(state);
+    }
+
     const handleModuleSelect = (category: string, module: string) => {
         setAddConfigVariableFormOpen(false);
         setEditConfigVariableFormOpen(false);
@@ -315,7 +345,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             });
 
         setConfigVariables(data);
-        
+
         // Only set initial selected module if none is selected
         if (!selectedModule) {
             // Extract and set the available categories with their modules
@@ -334,7 +364,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         }
     };
 
-    const categoryDisplay = selectedModule?.category === `${props.org}/${props.package}` ? 'Integration' : selectedModule?.category;
+    const categoryDisplay = selectedModule?.category === integrationCategory ? 'Integration' : selectedModule?.category;
     const title = selectedModule?.module ? `${categoryDisplay} : ${selectedModule?.module}` : categoryDisplay;
 
     const ConfigurablesList = () => {
@@ -370,7 +400,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                         {/* Only show Add Config button at the top when the module has configurations */}
                         {selectedModule &&
                             renderVariables[selectedModule?.category]?.[selectedModule?.module]?.length > 0 &&
-                            selectedModule.category === `${props.org}/${props.package}` && (
+                            selectedModule.category === integrationCategory && (
                                 <Button
                                     sx={{ display: 'flex', justifySelf: 'flex-end' }}
                                     appearance="primary"
@@ -431,12 +461,11 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                     </ButtonWrapper>
                                                                 )}
                                                         </div>
-                                                        {selectedModule.category === `${props.org}/${props.package}` && (
+                                                        {selectedModule.category === integrationCategory && (
                                                             // Delete button only for integration module
                                                             <div className="delete-button-container" style={{ display: 'none' }}>
                                                                 <Button
                                                                     appearance="icon"
-                                                                    disabled={selectedModule.category !== `${props.org}/${props.package}`}
                                                                     onClick={() => handleOnDeleteConfigVariable(index)}
                                                                     tooltip="Delete Configurable Variable"
                                                                 >
@@ -530,126 +559,137 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             } />
             <ViewContent padding>
                 <div style={{ height: 'calc(100vh - 220px)' }}>
-                    {/* Search bar */}
-                    <TextField
-                        sx={SearchStyle}
-                        placeholder="Search Configurables"
-                        value={searchValue}
-                        onTextChange={handleSearch}
-                        icon={{
-                            iconComponent: searchIcon,
-                            position: 'start',
-                        }}
-                        autoFocus={true}
-                    />
+                    {/* Search bar and filters */}
+                    <SearchContainer>
+                        <TextField
+                            sx={SearchStyle}
+                            placeholder="Search Configurables"
+                            value={searchValue}
+                            onTextChange={handleSearch}
+                            icon={{
+                                iconComponent: searchIcon,
+                                position: 'start',
+                            }}
+                            autoFocus={true}
+                        />
+                        <ToggleWrapper>
+                            <Toggle
+                                checked={hideLibraries}
+                                onChange={handleHideLibraries}
+                            />
+                            <Typography variant="body3">Hide libraries</Typography>
+                        </ToggleWrapper>
+                    </SearchContainer>
                     <div style={{ width: "auto" }}>
                         <SplitView defaultWidths={[20, 80]} dynamicContainerSx={{ overflow: "visible" }}>
                             {/* Left side tree view */}
                             <div style={{ padding: "10px 0 50px 0" }}>
-                                {(searchValue ? filteredCategoriesWithModules : categoriesWithModules).map((category, index) => (
-                                    <TreeView
-                                        key={category.name}
-                                        rootTreeView
-                                        id={category.name}
-                                        expandByDefault={false}
-                                        onSelect={() => {
-                                            if (category.modules.length > 0) {
-                                                handleModuleSelect(category.name, category.modules[0]);
-                                            }
-                                        }}
-                                        treeViewElementSX={{
-                                            border: selectedModule?.category === category.name && selectedModule?.module === ""
-                                                ? '1px solid var(--vscode-focusBorder)'
-                                                : 'none'
-                                        }}
-                                        content={
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    height: '22px',
-                                                    alignItems: 'center',
-                                                }}>
-                                                <Typography
-                                                    variant="body3"
-                                                    sx={{
-                                                        fontWeight: selectedModule?.category === category.name && selectedModule?.module === ""
-                                                            ? 'bold' : 'normal'
-                                                    }}
-                                                >
-                                                    {category.name === `${props.org}/${props.package}` ? 'Integration' : category.name}
-                                                </Typography>
-                                                {categoryWarningCount(category.name) > 0 && (
-                                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                        <Codicon name="warning"
-                                                            sx={{
-                                                                marginLeft: 5,
-                                                                fontSize: '0.8em',
-                                                                color: 'var(--vscode-editorWarning-foreground)'
-                                                            }}
-                                                        />
-                                                        <span
-                                                            style={{
-                                                                marginLeft: 3,
-                                                                color: 'var(--vscode-editorWarning-foreground)',
-                                                                fontSize: '0.85em'
-                                                            }}>
-                                                            {categoryWarningCount(category.name)}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        }
-                                    >
-                                        {category.modules.filter(moduleName => moduleName !== "").map((moduleName) => (
-                                            <TreeViewItem
-                                                key={`${category.name}-${moduleName}`}
-                                                id={`${category.name}-${moduleName}`}
-                                                sx={{
-                                                    backgroundColor: 'transparent',
-                                                    paddingLeft: '35px',
-                                                    height: '25px',
-                                                    border: selectedModule?.category === category.name && selectedModule?.module === moduleName
-                                                        ? '1px solid var(--vscode-focusBorder)'
-                                                        : 'none'
-                                                }}
-                                                selectedId={`${category.name}-${moduleName}`}
-                                            >
+                                {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
+                                    .filter(category => !hideLibraries || category.name === integrationCategory)
+                                    .map((category, index) => (
+                                        <TreeView
+                                            key={category.name}
+                                            rootTreeView
+                                            id={category.name}
+                                            expandByDefault={false}
+                                            onSelect={() => {
+                                                if (category.modules.length > 0) {
+                                                    handleModuleSelect(category.name, category.modules[0]);
+                                                }
+                                            }}
+                                            treeViewElementSX={{
+                                                border: selectedModule?.category === category.name && selectedModule?.module === ""
+                                                    ? '1px solid var(--vscode-focusBorder)'
+                                                    : 'none'
+                                            }}
+                                            content={
                                                 <div
-                                                    style={{ display: 'flex', height: '20px', alignItems: 'center' }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleModuleSelect(category.name, moduleName);
-                                                    }}
-                                                >
+                                                    style={{
+                                                        display: 'flex',
+                                                        height: '22px',
+                                                        alignItems: 'center',
+                                                    }}>
                                                     <Typography
                                                         variant="body3"
                                                         sx={{
-                                                            fontWeight: selectedModule?.category === category.name && selectedModule?.module === moduleName
+                                                            fontWeight: selectedModule?.category === category.name && selectedModule?.module === ""
                                                                 ? 'bold' : 'normal'
                                                         }}
                                                     >
-                                                        {moduleName}
+                                                        {category.name === integrationCategory ? 'Integration' : category.name}
                                                     </Typography>
-                                                    {moduleWarningCount(category.name, moduleName) > 0 && (
+                                                    {categoryWarningCount(category.name) > 0 && (
                                                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                            <Codicon
-                                                                name="warning"
+                                                            <Codicon name="warning"
                                                                 sx={{
                                                                     marginLeft: 5,
                                                                     fontSize: '0.8em',
                                                                     color: 'var(--vscode-editorWarning-foreground)'
                                                                 }}
                                                             />
-                                                            <span style={{ marginLeft: 3, color: 'var(--vscode-editorWarning-foreground)', fontSize: '0.85em' }}>
-                                                                {moduleWarningCount(category.name, moduleName)}
+                                                            <span
+                                                                style={{
+                                                                    marginLeft: 3,
+                                                                    color: 'var(--vscode-editorWarning-foreground)',
+                                                                    fontSize: '0.85em'
+                                                                }}>
+                                                                {categoryWarningCount(category.name)}
                                                             </span>
                                                         </div>
                                                     )}
                                                 </div>
-                                            </TreeViewItem>
-                                        ))}
-                                    </TreeView>
-                                ))}
+                                            }
+                                        >
+                                            {category.modules.filter(moduleName => moduleName !== "").map((moduleName) => (
+                                                <TreeViewItem
+                                                    key={`${category.name}-${moduleName}`}
+                                                    id={`${category.name}-${moduleName}`}
+                                                    sx={{
+                                                        backgroundColor: 'transparent',
+                                                        paddingLeft: '35px',
+                                                        height: '25px',
+                                                        border: selectedModule?.category === category.name && selectedModule?.module === moduleName
+                                                            ? '1px solid var(--vscode-focusBorder)'
+                                                            : 'none'
+                                                    }}
+                                                    selectedId={`${category.name}-${moduleName}`}
+                                                >
+                                                    <div
+                                                        style={{ display: 'flex', height: '20px', alignItems: 'center' }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleModuleSelect(category.name, moduleName);
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            variant="body3"
+                                                            sx={{
+                                                                fontWeight: selectedModule?.category === category.name && selectedModule?.module === moduleName
+                                                                    ? 'bold' : 'normal'
+                                                            }}
+                                                        >
+                                                            {moduleName}
+                                                        </Typography>
+                                                        {moduleWarningCount(category.name, moduleName) > 0 && (
+                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                <Codicon
+                                                                    name="warning"
+                                                                    sx={{
+                                                                        marginLeft: 5,
+                                                                        fontSize: '0.8em',
+                                                                        color: 'var(--vscode-editorWarning-foreground)'
+                                                                    }}
+                                                                />
+                                                                <span style={{ marginLeft: 3, color: 'var(--vscode-editorWarning-foreground)', fontSize: '0.85em' }}>
+                                                                    {moduleWarningCount(category.name, moduleName)}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </TreeViewItem>
+                                            ))}
+                                        </TreeView>
+                                    ))}
                             </div>
                             {/* Right side view */}
                             <div style={{ height: '100%' }}>
