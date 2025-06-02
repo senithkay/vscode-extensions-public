@@ -254,8 +254,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         }
     }, [fieldValue]);
 
-    const cursorPositionRef = useRef<number | undefined>(undefined);
-
     const handleFocus = async () => {
         setFocused(true);
 
@@ -266,20 +264,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const handleBlur = async () => {
         setFocused(false);
-        // Trigger actions on blur
         await onBlur?.();
-
-        // Clean up memory
-        cursorPositionRef.current = undefined;
     };
 
     const handleCompletionSelect = async (value: string, item: CompletionItem) => {
-        // Trigger actions on completion select
         await onCompletionItemSelect?.(value, field.key, item.additionalTextEdits);
-
-        // Set cursor position
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-        cursorPositionRef.current = cursorPosition;
     };
 
     const handleOpenSubPanel = (view: SubPanelView, subPanelInfo: SubPanelViewProps) => {
@@ -416,7 +405,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                                 const rawValue = rawExpression ? rawExpression(updatedValue) : updatedValue;
                                 onChange(rawValue);
                                 debouncedUpdateSubPanelData(rawValue);
-                                cursorPositionRef.current = updatedCursorPosition;
 
                                 if (getExpressionEditorDiagnostics) {
                                     getExpressionEditorDiagnostics(
