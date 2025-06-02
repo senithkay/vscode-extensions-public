@@ -2,7 +2,7 @@
     "name": "ballerina-integrator",
     "displayName": "Ballerina Integrator",
     "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "publisher": "wso2",
     "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
@@ -157,7 +157,9 @@
         "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
         "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX",
         "copyVSIX": "copyfiles *.vsix ./vsix",
-        "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../.."
+        "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
+        "compile-tests": "tsc -p .",
+        "e2e-test": "pnpm run compile-tests && pnpm exec playwright test"
     },
     "dependencies": {
         "@wso2-enterprise/ballerina-core": "workspace:*",
@@ -182,6 +184,8 @@
         "ts-loader": "^9.4.1",
         "webpack": "^5.56.0",
         "webpack-cli": "^4.10.0",
-        "webpack-permissions-plugin": "^1.0.9"
+        "webpack-permissions-plugin": "^1.0.9",
+        "@playwright/test": "~1.52.0",
+        "@wso2-enterprise/playwright-vscode-tester": "workspace:*"
     }
 }

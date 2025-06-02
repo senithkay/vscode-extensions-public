@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -13,7 +13,6 @@ import styled from "@emotion/styled";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { ConnectorStatus } from "@wso2-enterprise/mi-core";
-import { POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -32,16 +31,16 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
-export interface ImportConnectorFormProps {
+export interface ImportConnectionProps {
     goBack: () => void;
     handlePopupClose?: () => void;
     onImportSuccess: () => void;
     isPopup?: boolean;
 }
 
-export function ImportConnectorForm(props: ImportConnectorFormProps) {
+export function ImportConnectionFromProto(props: ImportConnectionProps) {
     const { rpcClient } = useVisualizerContext();
-    const [zipDir, setZipDir] = useState("");
+    const [protoDir, setProtoDir] = useState("");
     const [isImporting, setIsImporting] = useState(false);
     const [isFailedImport, setIsFailedImport] = useState(false);
     const connectionStatus = useRef(null);
@@ -50,34 +49,27 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
         rpcClient.onConnectorStatusUpdate((connectorStatus: ConnectorStatus) => {
             connectionStatus.current = connectorStatus;
         });
-
     }, []);
 
-    const handleSourceDirSelection = async () => {
-        const specDirecrory = await rpcClient.getMiDiagramRpcClient().askFileDirPath();
-        setZipDir(specDirecrory.path);
+    const handleProtoDirSelection = async () => {
+        const specDirecrory = await rpcClient.getMiDiagramRpcClient().askOpenAPIDirPath();
+        setProtoDir(specDirecrory.path);
     }
 
-    const importWithZip = async () => {
+    const importWithProto = async () => {
         setIsImporting(true);
-        const response = await rpcClient.getMiDiagramRpcClient().copyConnectorZip({ connectorPath: zipDir });
         try {
-            const newConnector: any = await waitForEvent();
+            await rpcClient.getMiVisualizerRpcClient().importOpenAPISpec({ filePath: protoDir });
 
+            const newConnector: any = await waitForEvent();
             if (newConnector?.isSuccess) {
-                rpcClient.getMiVisualizerRpcClient().openView({
-                    type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                    location: { view: null, recentIdentifier: "success" },
-                    isPopup: true
-                });
+                props.onImportSuccess();
             } else {
-                await removeInvalidConnector(response.connectorPath);
                 setIsFailedImport(true);
             }
         } catch (error) {
             console.log(error);
         }
-
         setIsImporting(false);
     };
 
@@ -98,25 +90,17 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
         });
     };
 
-    const removeInvalidConnector = async (connectorPath: string) => {
-        await rpcClient.getMiDiagramRpcClient().removeConnector({ connectorPath: connectorPath });
+    const handleCancel = () => {
+        props.goBack();
     }
 
-    const handleCancel = () => {
-        if (props.isPopup) {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                location: { view: null, recentIdentifier: "cancel" },
-                isPopup: true
-            });
-        } else {
-            props.goBack();
-        }
+    const handleOnClose = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
     return (
         <>
-            <FormView title={`Import Connector`} onClose={handleCancel}>
+            <FormView title={`Import Connection`} onClose={props.handlePopupClose ?? handleOnClose}>
                 {isImporting ?
                     (
                         <LoaderWrapper>
@@ -131,26 +115,24 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                                 </div>
                             )}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                {zipDir && !zipDir.endsWith('.zip') &&
-                                    <ErrorBanner errorMsg={"Invalid file type. Please select a connector zip file"} />
+                                {protoDir && !['proto'].includes(protoDir.split('.').pop()!) &&
+                                    <ErrorBanner errorMsg={"Invalid file type. Please select a proto file"} />
                                 }
                                 <LocationSelector
-                                    label="Choose path to connector Zip"
-                                    selectedFile={zipDir}
+                                    label="Choose path to proto file"
+                                    selectedFile={protoDir}
                                     required
-                                    onSelect={handleSourceDirSelection}
+                                    onSelect={handleProtoDirSelection}
                                 />
                             </div>
                             <FormActions>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <Button
-                                        appearance="primary"
-                                        onClick={importWithZip}
-                                        disabled={!zipDir || !zipDir.endsWith('.zip')}
-                                    >
-                                        Import
-                                    </Button>
-                                </div>
+                                <Button
+                                    appearance="primary"
+                                    onClick={importWithProto}
+                                    disabled={!protoDir || !['proto'].includes(protoDir.split('.').pop()!)}
+                                >
+                                    Import
+                                </Button>
                                 <Button
                                     appearance="secondary"
                                     onClick={handleCancel}

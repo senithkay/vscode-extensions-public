@@ -60,7 +60,6 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isLoading, setLoading] = useState(false);
-	const [isAddingElement, setIsAddingElement] = useState(false);
 
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 	const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
@@ -131,7 +130,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		setPortState(state)
 	};
 
-	const handleArrayInitialization = async () => {
+	const handleArrayInit = async () => {
 		setLoading(true);
 		try {
 			returnStatement?.remove();
@@ -142,8 +141,22 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		}
 	};
 
+	const handleArrayInitWithElement = async () => {
+		setLoading(true);
+		try {
+			returnStatement?.remove();
+			fnBody.addStatements(`return [${getDefaultValue(dmTypeWithValue.type?.memberType)}]`);
+			await context.applyModifications(fnBody.getSourceFile().getFullText());
+		} finally {
+			if(!expanded){
+				handleExpand(false);
+			}
+			setLoading(false);
+		}
+	};
+
 	const handleAddArrayElement = async () => {
-		setIsAddingElement(true);
+		setLoading(true);
 		
 		const defaultValue = getDefaultValue(dmTypeWithValue.type?.memberType);
 		const bodyNodeForgotten = body && body.wasForgotten();
@@ -165,7 +178,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			handleExpand(false);
 		}
 		
-		setIsAddingElement(false);
+		setLoading(false);
 
 	};
 
@@ -211,15 +224,17 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 
 	const valConfigMenuItems: ValueConfigMenuItem[] = [
-		isRootArray && !isReturnsArray && Object.keys(portIn.links).length === 0
-			? {
+		...(isRootArray && !isReturnsArray && Object.keys(portIn.links).length === 0
+			? [{
 				title: ValueConfigOption.InitializeArray,
-				onClick: handleArrayInitialization
-			}
-			: {
+				onClick: handleArrayInit
+			}, {
+				title: ValueConfigOption.InitializeArrayWithElement,
+				onClick: handleArrayInitWithElement
+			}] : [{
 				title: ValueConfigOption.AddElement,
 				onClick: handleAddArrayElement
-			},
+			}]),
 		{
 			title: ValueConfigOption.MakeChildFieldsOptional,
 			onClick: () => handleModifyChildFieldsOptionality(true)

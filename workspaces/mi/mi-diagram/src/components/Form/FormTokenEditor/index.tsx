@@ -130,7 +130,6 @@ export const FormTokenEditor = ({
                 onChange={onChange}
                 actionButtons={actionButtons}
                 getHelperPane={handleGetHelperPane}
-                helperPaneOrigin="left"
                 isHelperPaneOpen={isHelperPaneOpen}
                 changeHelperPaneState={setIsHelperPaneOpen}
                 getExpressionEditorIcon={getExpressionEditorIcon}

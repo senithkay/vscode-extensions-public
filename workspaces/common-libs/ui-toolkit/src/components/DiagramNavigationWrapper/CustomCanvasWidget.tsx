@@ -18,7 +18,6 @@ import { CustomTransformLayerWidget } from "./CustomTransformLayer";
 export interface DiagramProps {
     engine: CanvasEngine;
     className?: string;
-    isNodeFocused?: boolean;
     disableZoom?: boolean;
     disableMouseEvents?: boolean;
     overflow?: string;
@@ -41,6 +40,7 @@ export class CustomCanvasWidget extends React.Component<DiagramProps> {
     keyDown: any;
     canvasListener: any;
     selectedNode: any
+    isMouseClicked: boolean;
 
     constructor(props: DiagramProps) {
         super(props);
@@ -102,31 +102,38 @@ export class CustomCanvasWidget extends React.Component<DiagramProps> {
                 ref={this.ref}
                 onWheel={event => {
                     if (!this.props.disableZoom) {
+                        this.isMouseClicked = false;
                         this.props.engine.getActionEventBus().fireAction({ event });
                     }
                 }}
                 onMouseDown={event => {
                     if (!this.props.disableMouseEvents) {
+                        this.isMouseClicked = true;
                         this.props.engine.getActionEventBus().fireAction({ event });
                     }
                 }}
                 onMouseUp={event => {
                     if (!this.props.disableMouseEvents) {
+                        this.isMouseClicked = true;
                         this.props.engine.getActionEventBus().fireAction({ event });
                     }
                 }}
                 onMouseMove={event => {
                     if (!this.props.disableMouseEvents) {
+                        this.isMouseClicked = false;
                         this.props.engine.getActionEventBus().fireAction({ event });
                     }
                 }}
                 onTouchStart={event => {
+                    this.isMouseClicked = true;
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
                 onTouchEnd={event => {
+                    this.isMouseClicked = true;
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
                 onTouchMove={event => {
+                    this.isMouseClicked = false;
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
             >
@@ -135,7 +142,7 @@ export class CustomCanvasWidget extends React.Component<DiagramProps> {
                         <CustomTransformLayerWidget
                             layer={layer}
                             key={layer.getID()}
-                            isNodeFocused={this.props.isNodeFocused}
+                            isMouseClicked={this.isMouseClicked}
                         >
                             <SmartLayerWidget layer={layer} engine={this.props.engine} key={layer.getID()} />
                         </CustomTransformLayerWidget>

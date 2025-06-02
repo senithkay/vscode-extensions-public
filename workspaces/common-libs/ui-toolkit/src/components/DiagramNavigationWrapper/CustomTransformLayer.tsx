@@ -15,7 +15,7 @@ import { LayerModel } from '@projectstorm/react-canvas-core'
 
 export interface TransformLayerWidgetProps {
     layer: LayerModel;
-    isNodeFocused?: boolean;
+    isMouseClicked?: boolean;
 }
 
 // tslint:disable-next-line:no-namespace
@@ -43,7 +43,6 @@ namespace S {
 }
 
 export class CustomTransformLayerWidget extends React.Component<React.PropsWithChildren<TransformLayerWidgetProps>> {
-
     constructor(props: TransformLayerWidgetProps) {
         super(props);
         this.state = {};
@@ -65,16 +64,15 @@ export class CustomTransformLayerWidget extends React.Component<React.PropsWithC
 
     getTransformStyle(): CSSProperties {
         if (this.props.layer.getOptions().transformed) {
-            if (!this.props.isNodeFocused) {
+            if (this.props.isMouseClicked) {
                 return {
-                    transform: this.getTransform()
+                    transform: this.getTransform(),
+                    transition: 'transform 0.5s ease-in-out'
                 };
             }
             return {
-                transform: this.getTransform(),
-                transition: 'transform 0.5s ease-in-out'
+                transform: this.getTransform()
             };
-
         }
         return {};
     }

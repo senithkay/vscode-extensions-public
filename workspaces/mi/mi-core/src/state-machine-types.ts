@@ -80,6 +80,7 @@ export enum MACHINE_VIEW {
     ManageDependencies = "Manage Dependencies",
     ManageConfigurables = "Manage Configurables",
     ProjectInformationForm = "Project Information Form",
+    ImportConnectorForm = "Import Connector",
 }
 
 export enum AI_MACHINE_VIEW {
