@@ -19,7 +19,7 @@ import { Resource } from '../components/ArtifactTest/Resource';
 
 export default function createTests() {
   test.describe("Validate Mediator Tests", {
-    tag: '@group2',
+    tag: '@group3',
   }, async () => {
     initTest();
 

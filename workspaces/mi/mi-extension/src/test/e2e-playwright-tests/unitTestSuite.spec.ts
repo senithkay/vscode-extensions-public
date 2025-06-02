@@ -20,7 +20,7 @@ import { Endpoint } from './components/ArtifactTest/Endpoint';
 
 export default function createTests() {
   test.describe("Unit Test Suite Tests", {
-    tag: '@group2',
+    tag: '@group3',
   }, async () => {
     initTest();
 

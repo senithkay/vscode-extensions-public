@@ -413,7 +413,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        group: [group1, group2]
+        group: [group1, group2, group3]
     steps:
       - name: Restore build
         uses: actions/download-artifact@v4

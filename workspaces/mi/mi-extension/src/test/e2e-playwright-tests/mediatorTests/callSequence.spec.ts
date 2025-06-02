@@ -20,7 +20,7 @@ import { switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester/lib/co
 
 export default function createTests() {
   test.describe("Call Sequence Mediator Tests", {
-    tag: '@group2',
+    tag: '@group3',
   }, async () => {
     initTest();
 
