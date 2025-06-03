@@ -1,5 +1,15 @@
 # Change log
 
+## **1.0.3** (2024-05-28)
+
+### Fixes
+
+- Resolved issues with TryIt functionality for service paths containing special characters.
+- Enhanced Data Mapper usability and visual presentation.
+- Updated the record editor to correctly use `packageName`.
+- Addressed display issues in type diagrams and improved service configuration options.
+
+
 ## **1.0.2** (2024-05-18)
 
 ### Added

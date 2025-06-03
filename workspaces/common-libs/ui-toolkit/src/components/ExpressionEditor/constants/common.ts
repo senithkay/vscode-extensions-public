@@ -34,3 +34,7 @@ export const ANIMATION = {
 /* All these values are in pixels */
 export const ARROW_HEIGHT = 16;
 export const ARROW_OFFSET = 10;
+
+/* Dropdown related */
+export const DROPDOWN_DEFAULT_WIDTH = 350;
+export const DROPDOWN_MIN_WIDTH = 335;

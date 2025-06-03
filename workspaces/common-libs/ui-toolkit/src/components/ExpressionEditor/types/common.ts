@@ -96,6 +96,17 @@ export type CompletionItem = {
 };
 
 /* <------ Types related to the expression editor ------> */
+export type FnSignatureDocumentation = {
+    fn: string | ReactNode;
+    args?: string | ReactNode;
+};
+
+export type FnSignatureProps = {
+    label: string;
+    args: string[];
+    currentArgIndex: number;
+    documentation?: FnSignatureDocumentation;
+};
 
 type ExpressionEditorBaseProps = {
     autoFocus?: boolean;
@@ -136,11 +147,7 @@ type ExpressionEditorBaseProps = {
     extractArgsFromFunction?: (
         value: string,
         cursorPosition: number
-    ) => Promise<{
-        label: string;
-        args: string[];
-        currentArgIndex: number;
-    }>;
+    ) => Promise<FnSignatureProps>;
 };
 
 type DefaultCompletionConditionalProps =

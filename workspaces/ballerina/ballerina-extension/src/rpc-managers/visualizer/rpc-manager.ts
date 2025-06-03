@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ColorThemeKind,
     HistoryEntry,
     UpdateUndoRedoMangerRequest,
     VisualizerAPI,
@@ -21,7 +22,7 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { history, openView, undoRedoManager, updateView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
-import { commands } from "vscode";
+import { commands, window } from "vscode";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -78,5 +79,11 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     updateUndoRedoManager(params: UpdateUndoRedoMangerRequest): void {
         undoRedoManager.updateContent(params.filePath, params.fileContent);
+    }
+
+    async getThemeKind(): Promise<ColorThemeKind> {
+        return new Promise((resolve) => {
+            resolve(window.activeColorTheme.kind);
+        });
     }
 }

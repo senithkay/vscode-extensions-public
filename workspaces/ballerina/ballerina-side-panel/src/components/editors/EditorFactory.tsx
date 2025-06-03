@@ -43,6 +43,7 @@ interface FormFieldEditorProps {
     handleOnTypeChange?: () => void;
     visualizableFields?: string[];
     recordTypeFields?: RecordTypeField[];
+    onIdentifierEditingStateChange?: (isEditing: boolean) => void;
 }
 
 export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormFieldEditorProps>((props, ref) => {
@@ -56,7 +57,8 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         autoFocus,
         handleOnTypeChange,
         visualizableFields,
-        recordTypeFields
+        recordTypeFields,
+        onIdentifierEditingStateChange
     } = props;
     if (!field.enabled || field.hidden) {
         return <></>;
@@ -126,7 +128,12 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } else if (field.type === "REPEATABLE_PROPERTY") {
         return <FormMapEditor field={field} label={"Add Another Key-Value Pair"} />;
     } else if (field.type === "IDENTIFIER" && !field.editable && field?.lineRange) {
-        return <IdentifierEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
+        return <IdentifierEditor 
+            field={field} 
+            handleOnFieldFocus={handleOnFieldFocus} 
+            autoFocus={autoFocus} 
+            onEditingStateChange={onIdentifierEditingStateChange}
+        />;
     } else if (field.type !== "IDENTIFIER" && !field.editable) {
         return <ReadonlyField field={field} />;
     } else if (field.type === "IDENTIFIER" && field.editable) {

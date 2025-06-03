@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import { spawnSync } from 'child_process';
+import child_process, { spawnSync } from 'child_process';
 import axios from 'axios';
 import { downloadWithProgress, extractWithProgress, selectFolderDialog } from './fileOperations';
 import { extension } from '../MIExtensionContext';
@@ -33,6 +33,8 @@ const miDownloadUrls: { [key: string]: string } = {
 const miUpdateVersionCheckUrl = 'https://mi-distribution.wso2.com/versions.json';
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
+
+let ballerinaOutputChannel: vscode.OutputChannel | undefined;
 
 export async function setupEnvironment(projectUri: string, isOldProject: boolean): Promise<boolean> {
     try {
@@ -945,15 +947,16 @@ export function getDefaultProjectPath(): string {
 }
 
 export async function buildBallerinaModule(projectPath: string) {
-    if (fs.existsSync(path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin', process.platform === 'win32' ? 'bal.bat' : 'bal'))) {
-        await runBallerinaBuildsWithProgress(projectPath);
+    const isBallerinaInstalled = await isBallerinaAvailableGlobally();
+    if (isBallerinaInstalled || fs.existsSync(path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin', process.platform === 'win32' ? 'bal.bat' : 'bal'))) {
+        await runBallerinaBuildsWithProgress(projectPath, isBallerinaInstalled);
     } else {
         vscode.window.showErrorMessage('Ballerina not found. Please download Ballerina and try again.');
         showExtensionPrompt();
     }
 }
 
-async function runBallerinaBuildsWithProgress(balProjectPath: string) {
+async function runBallerinaBuildsWithProgress(projectPath: string, isBallerinaInstalled: boolean = false) {
     await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
@@ -964,7 +967,7 @@ async function runBallerinaBuildsWithProgress(balProjectPath: string) {
             progress.report({ increment: 10, message: "Pull dependencies..." });
             const balHome = path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString();
 
-            runCommand(`${balHome}${path.sep}bal tool pull mi-module-gen`, `"${balProjectPath}"`, onData, onError, buildModule);
+                runCommand(isBallerinaInstalled ? 'bal tool pull mi-module-gen' : `${balHome}${path.sep}bal tool pull mi-module-gen`, `"${projectPath}"`, onData, onError, buildModule);
 
             let isModuleAlreadyInstalled = false, commandFailed = false;
             function onData(data: string) {
@@ -995,11 +998,13 @@ async function runBallerinaBuildsWithProgress(balProjectPath: string) {
                 commandFailed = false;
                 progress.report({ increment: 40, message: "Generating module..." });
 
-                const outputChannel = vscode.window.createOutputChannel('Ballerina Module Builder');
-                outputChannel.clear();
-                runBasicCommand(`${balHome}${path.sep}bal mi-module-gen -i .`, `${balProjectPath}`,
-                    onData, onError, onComplete, outputChannel
-                );
+                    if (!ballerinaOutputChannel) {
+                        ballerinaOutputChannel = vscode.window.createOutputChannel('Ballerina Module Builder');
+                    }
+                    ballerinaOutputChannel.clear();
+                    runBasicCommand(isBallerinaInstalled ? 'bal mi-module-gen -i .' : `${balHome}${path.sep}bal mi-module-gen -i .`, `${projectPath}`,
+                        onData, onError, onComplete, ballerinaOutputChannel
+                    );
 
                 async function onComplete() {
                     try {
@@ -1008,7 +1013,7 @@ async function runBallerinaBuildsWithProgress(balProjectPath: string) {
                             return;
                         }
                         progress.report({ increment: 40, message: "Copying Ballerina module..." });
-                        const targetFolderPath = path.join(balProjectPath, 'target');
+                        const targetFolderPath = path.join(projectPath, 'target');
                         if (fs.existsSync(targetFolderPath)) {
                             fs.rmSync(targetFolderPath, { recursive: true, force: true });
                         } else {
@@ -1016,16 +1021,16 @@ async function runBallerinaBuildsWithProgress(balProjectPath: string) {
                             return vscode.window.showErrorMessage("Ballerina module build process failed.");
                         }
 
-                        const tomlContent = fs.readFileSync(path.join(balProjectPath, "Ballerina.toml"), 'utf8');
+                        const tomlContent = fs.readFileSync(path.join(projectPath, "Ballerina.toml"), 'utf8');
                         const nameMatch = tomlContent.match(/name\s*=\s*"([^"]+)"/);
                         const versionMatch = tomlContent.match(/version\s*=\s*"([^"]+)"/);
                         const name = nameMatch ? nameMatch[1] : null;
                         const version = versionMatch ? versionMatch[1] : null;
 
                         const zipName = name + "-connector-" + version + ".zip";
-                        const zipPath = path.join(balProjectPath, zipName);
+                        const zipPath = path.join(projectPath, zipName);
 
-                        const projectUri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(balProjectPath))?.uri?.fsPath;
+                        const projectUri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(projectPath))?.uri?.fsPath;
                         if (!projectUri) {
                             reject();
                             return vscode.window.showErrorMessage("Could not find the workspace folder");
@@ -1067,6 +1072,14 @@ async function showExtensionPrompt() {
             await vscode.commands.executeCommand(COMMANDS.INSTALL_EXTENSION_COMMAND, COMMANDS.BI_EXTENSION);
             await vscode.commands.executeCommand(COMMANDS.BI_OPEN_COMMAND);
         }
+    });
+}
+
+async function isBallerinaAvailableGlobally(): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+        const proc = child_process.spawn("bal version", [], { shell: true });
+        proc.on("error", () => resolve(false));
+        proc.on("exit", (code) => resolve(code === 0));
     });
 }
 
