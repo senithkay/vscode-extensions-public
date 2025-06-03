@@ -35,7 +35,8 @@ import {
     ENABLE_SEQUENCE_DIAGRAM_VIEW,
     ENABLE_BACKGROUND_DRIFT_CHECK,
     ENABLE_BALLERINA_INTEGRATOR,
-    DEFINE_BALLERINA_INTEGRATOR_SCOPE
+    DEFINE_BALLERINA_INTEGRATOR_SCOPE,
+    SHOW_LIBRARY_CONFIG_VARIABLES
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -1898,6 +1899,10 @@ export class BallerinaExtension {
 
     public enableAiSuggestions(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_AI_SUGGESTIONS);
+    }
+
+    public showLibraryConfigVariables(): boolean {
+        return <boolean>workspace.getConfiguration().get(SHOW_LIBRARY_CONFIG_VARIABLES);
     }
 
     public getDocumentContext(): DocumentContext {

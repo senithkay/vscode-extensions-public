@@ -769,6 +769,7 @@ export type ServiceFromOASResponse = {
 
 export interface ConfigVariableRequest {
     projectPath: string;
+    includeLibraries?: boolean;
 }
 
 export type ConfigVariableResponse = {

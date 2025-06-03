@@ -214,6 +214,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Enable AI suggestions from BI Copilot."
+                    },
+                    "ballerina.showLibraryConfigVariables": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Show library config variables in configurations view."
                     }
                 }
             }
