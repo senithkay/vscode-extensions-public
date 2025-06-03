@@ -217,7 +217,7 @@
                     },
                     "ballerina.showLibraryConfigVariables": {
                         "type": "boolean",
-                        "default": false,
+                        "default": true,
                         "description": "Show library config variables in configurations view."
                     }
                 }
