@@ -58,8 +58,8 @@ export const AIPanel = () => {
                         <div style={{ padding: "20px", textAlign: "center" }}>
                             <Alert
                                 variant='primary'
-                                title="MI Copilot Chat is not supported when multiple workspaces are open"
-                                subTitle="We're working on bringing multiple workspace support to MI Copilot Chat in the future."
+                                title="MI Copilot Chat is unavailable in multi-workspace mode"
+                                subTitle="Support for multiple workspaces is coming soon. Thank you for your patience!"
                             />
                         </div>
                     )
