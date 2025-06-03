@@ -304,7 +304,7 @@ export interface FormProps {
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
-    onSubmit?: (data: FormValues) => void;
+    onSubmit?: (data: FormValues, dirtyFields?: any) => void;
     isSaving?: boolean;
     openRecordEditor?: (isOpen: boolean, fields: FormValues, editingField?: FormField) => void;
     openView?: (filePath: string, position: NodePosition) => void;
@@ -373,7 +373,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors, isDirty, isValid: isFormValid },
+        formState: { isValidating, errors, isDirty, isValid: isFormValid, dirtyFields },
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -471,7 +471,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     const handleOnSave = (data: FormValues) => {
         console.log(">>> saved form fields", { data });
-        onSubmit && onSubmit(data);
+        onSubmit && onSubmit(data, dirtyFields);
     };
 
     // Expose a method to trigger the save
