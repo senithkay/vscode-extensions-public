@@ -42,6 +42,11 @@ interface RegistryArtifact {
     artifact: ArtifactInfo;
 }
 
+interface RegistryPath {
+    relativePath: string;
+    isGov: boolean;
+}
+
 interface ArtifactInfo {
     "@_name": string;
     "@_groupId": string;
@@ -176,6 +181,7 @@ async function extractCapp(source: string, extractFolderPath: string) {
 function importConfigs(source: string, directory: string) {
 
     let registryArtifactsInfo: RegistryInfo = { artifacts: [] };
+    let resourceArtifactsInfo: RegistryInfo = { artifacts: [] };
 
     const metadataPath = path.join(source, "metadata.xml");
     const artifactFilePath = path.join(source, "artifacts.xml");
@@ -218,19 +224,34 @@ function importConfigs(source: string, directory: string) {
                         if (resource["item"]) {
                             infoJson.artifact["item"] = resource["item"];
                             const resourceFileName = resource["item"]["file"];
-                            const relativePath = extractRegistryRelativePath(resource["item"]["path"])
-                            const sourceResourcePath = path.join(dependencyPath, "resources", resourceFileName);
-                            const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", relativePath, path.basename(resourceFileName));
-                            moveFile(sourceResourcePath, targetResourcePath);
+                            const registryPath = extractRegistryPath(resource["item"]["path"])
+                            if (registryPath.relativePath.includes("/mi-resources")) {
+                                const sourceResourcePath = path.join(dependencyPath, "resources", resourceFileName);
+                                const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", registryPath.relativePath.replace("/mi-resources", ""), path.basename(resourceFileName));
+                                moveFile(sourceResourcePath, targetResourcePath);
+                                resourceArtifactsInfo.artifacts.push(infoJson);
+                            } else {
+                                const sourceResourcePath = path.join(dependencyPath, "resources", resourceFileName);
+                                const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", registryPath.isGov ? "gov" : "conf", registryPath.relativePath, path.basename(resourceFileName));
+                                moveFile(sourceResourcePath, targetResourcePath);
+                                registryArtifactsInfo.artifacts.push(infoJson);
+                            }
                         } else if (resource["collection"]) {
                             infoJson.artifact["collection"] = resource["collection"];
                             const resourceDirectory = resource["collection"]["directory"];
-                            const relativePath = extractRegistryRelativePath(resource["collection"]["path"]);
-                            const sourceResourcePath = path.join(dependencyPath, "resources", resourceDirectory);
-                            const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", relativePath);
-                            moveFiles(sourceResourcePath, targetResourcePath);
+                            const registryPath = extractRegistryPath(resource["collection"]["path"]);
+                            if (registryPath.relativePath.includes("/mi-resources")) {
+                                const sourceResourcePath = path.join(dependencyPath, "resources", resourceDirectory);
+                                const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", registryPath.relativePath.replace("/mi-resources", ""), resourceDirectory);
+                                moveFile(sourceResourcePath, targetResourcePath);
+                                resourceArtifactsInfo.artifacts.push(infoJson);
+                            } else {
+                                const sourceResourcePath = path.join(dependencyPath, "resources", resourceDirectory);
+                                const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", registryPath.isGov ? "gov" : "conf", registryPath.relativePath);
+                                moveFile(sourceResourcePath, targetResourcePath);
+                                registryArtifactsInfo.artifacts.push(infoJson);
+                            }
                         }
-                        registryArtifactsInfo.artifacts.push(infoJson);
                     }
                 } else if (dependencyType === "synapse/lib") {
                     targetFilePath = path.join(directory, "src", "main", "wso2mi", "resources", "connectors", fileName);
@@ -250,9 +271,12 @@ function importConfigs(source: string, directory: string) {
                 }
             }
         }
-        const artifactXml = xmlBuilder.build(registryArtifactsInfo);
-        const targetArtifactPath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", "artifact.xml");
-        fs.writeFileSync(targetArtifactPath, artifactXml);
+        const registryArtifactXml = xmlBuilder.build(registryArtifactsInfo);
+        const registryArtifactPath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", "artifact.xml");
+        fs.writeFileSync(registryArtifactPath, registryArtifactXml);
+        const resourceArtifactXml = xmlBuilder.build(resourceArtifactsInfo);
+        const resourceArtifactPath = path.join(directory, "src", "main", "wso2mi", "resources", "artifact.xml");
+        fs.writeFileSync(resourceArtifactPath, resourceArtifactXml);
     }
 }
 
@@ -323,4 +347,11 @@ function extractRegistryRelativePath(registryPath: string): string {
         let relativePath = match ? match[3] : "/";
         return path.join('registry', isGov ? "gov" : "conf", relativePath.split("/").join(path.sep));
     }
+}
+
+function extractRegistryPath(path: string): RegistryPath {
+    const match = path.match(/\/(governance)?(config)?(\/.*)/);
+    let isGov = match ? match[1] === "governance" : false;
+    let relativePath = match ? match[3] : "/";
+    return { relativePath, isGov };
 }

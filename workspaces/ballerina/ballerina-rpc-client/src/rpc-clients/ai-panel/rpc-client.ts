@@ -68,7 +68,6 @@ import {
     getServiceSourceForName,
     getShadowDiagnostics,
     getTestDiagnostics,
-    getThemeKind,
     getTypesFromRecord,
     handleChatSummaryError,
     isCopilotSignedIn,
@@ -137,10 +136,6 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     deleteFromProject(content: DeleteFromProjectRequest): void {
         return this._messenger.sendNotification(deleteFromProject, HOST_EXTENSION, content);
-    }
-
-    getThemeKind(): Promise<string> {
-        return this._messenger.sendRequest(getThemeKind, HOST_EXTENSION);
     }
 
     generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {

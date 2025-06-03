@@ -14,22 +14,26 @@ import { CDConnection } from "@wso2-enterprise/ballerina-core";
 import { CDFunction, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
 export interface DiagramContextState {
     project: CDModel;
+    expandedNodes: Set<string>; // Track which nodes are expanded by their UUID
     onListenerSelect: (listener: CDListener) => void;
     onServiceSelect: (service: CDService) => void;
     onFunctionSelect: (func: CDFunction | CDResourceFunction) => void;
     onAutomationSelect: (automation: CDAutomation) => void;
     onConnectionSelect: (connection: CDConnection) => void;
     onDeleteComponent: (component: CDListener | CDService | CDAutomation | CDConnection) => void;
+    onToggleNodeExpansion: (nodeId: string) => void; // Toggle expansion state of a node
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
     project: { connections: [], listeners: [], services: [] },
+    expandedNodes: new Set(),
     onListenerSelect: () => {},
     onServiceSelect: () => {},
     onFunctionSelect: () => {},
     onAutomationSelect: () => {},
     onConnectionSelect: () => {},
     onDeleteComponent: () => {},
+    onToggleNodeExpansion: () => {},
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
