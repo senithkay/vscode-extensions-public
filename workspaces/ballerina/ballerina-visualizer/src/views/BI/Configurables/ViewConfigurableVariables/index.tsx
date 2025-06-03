@@ -89,7 +89,7 @@ const ConfigurableItem = styled.div`
     &:hover {
         background-color: var(--vscode-settings-rowHoverBackground);
         
-        .delete-button-container {
+        .action-button-container {
             display: block !important;
         }
     }
@@ -101,13 +101,6 @@ const SearchContainer = styled.div`
     justify-content: space-between;
     margin-bottom: 15px;
     gap: 40px;
-`;
-
-const ToggleWrapper = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 150px;
 `;
 
 const ConfigNameTitle = styled.div`
@@ -437,6 +430,14 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 }}>
                                                                 {String(variable?.properties?.type?.value)}
                                                             </span>
+                                                            <span style={{
+                                                                    paddingLeft: '5px',
+                                                                    fontWeight: 200,
+                                                                    fontSize: '12px'
+                                                                }}>
+                                                                {variable?.properties?.defaultValue?.value &&
+                                                                    ` (Defaults to: ${String(variable?.properties?.defaultValue?.value)})`}
+                                                            </span>
                                                             {(!variable?.properties?.defaultValue?.value &&
                                                                 !variable?.properties?.configValue?.value) && (
                                                                     // Warning icon if no value is configured
@@ -463,14 +464,27 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                         </div>
                                                         {selectedModule.category === integrationCategory && (
                                                             // Delete button only for integration module
-                                                            <div className="delete-button-container" style={{ display: 'none' }}>
-                                                                <Button
-                                                                    appearance="icon"
-                                                                    onClick={() => handleOnDeleteConfigVariable(index)}
-                                                                    tooltip="Delete Configurable Variable"
-                                                                >
-                                                                    <Codicon name="trash" />
-                                                                </Button>
+                                                            <div className="action-button-container" style={{ display: 'none' }}>
+                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                    <div className="edit-icon-container">
+                                                                        <Button
+                                                                            appearance="icon"
+                                                                            onClick={() => handleEditConfigVariableFormOpen(index)}
+                                                                            tooltip="Edit Configurable Variable"
+                                                                        >
+                                                                            <Codicon name="edit" />
+                                                                        </Button>
+                                                                    </div>
+                                                                    <div className="delete-button-container">
+                                                                        <Button
+                                                                            appearance="icon"
+                                                                            onClick={() => handleOnDeleteConfigVariable(index)}
+                                                                            tooltip="Delete Configurable Variable"
+                                                                        >
+                                                                            <Codicon name="trash" />
+                                                                        </Button>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </ConfigNameTitle>
@@ -480,26 +494,13 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             marginTop: '6px',
                                                             color: 'var(--vscode-descriptionForeground)'
                                                         }}>
-                                                        {String(variable?.properties?.description?.value ?? "")} This config variable
-                                                        <span
-                                                            style={{
-                                                                paddingLeft: '4px',
-                                                                color: 'var(--vscode-textLink-foreground)',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                            onClick={() => handleEditConfigVariableFormOpen(index)}
-                                                        >
-                                                            defaults to
-                                                        </span>
+                                                        {String(variable?.properties?.documentation?.value ?? "")}
                                                     </div>
                                                     <div style={{ marginTop: '12px' }}>
                                                         <ConfigValueField onClick={() => handleEditConfigVariableFormOpen(index)}>
                                                             <div style={{ minWidth: '10px' }}>
                                                                 {variable?.properties?.configValue?.value ?
                                                                     String(variable?.properties?.configValue?.value) : ''}
-                                                            </div>
-                                                            <div className="edit-icon-container" style={{ display: 'none' }}>
-                                                                <Icon sx={{ paddingTop: '2px' }} name="editIcon" />
                                                             </div>
                                                         </ConfigValueField>
                                                     </div>
@@ -572,13 +573,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                             }}
                             autoFocus={true}
                         />
-                        <ToggleWrapper>
-                            <Toggle
-                                checked={hideLibraries}
-                                onChange={handleHideLibraries}
-                            />
-                            <Typography variant="body3">Hide libraries</Typography>
-                        </ToggleWrapper>
                     </SearchContainer>
                     <div style={{ width: "auto" }}>
                         <SplitView defaultWidths={[20, 80]} dynamicContainerSx={{ overflow: "visible" }}>
