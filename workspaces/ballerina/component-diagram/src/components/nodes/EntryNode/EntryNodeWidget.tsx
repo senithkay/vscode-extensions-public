@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { EntryNodeModel } from "./EntryNodeModel";
+import { EntryNodeModel, VIEW_ALL_RESOURCES_PORT_NAME } from "./EntryNodeModel";
 import { NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover, ImageWithFallback, ThemeColors, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
@@ -156,6 +156,17 @@ const ViewAllButton = styled(FunctionBoxWrapper)`
         border: 1px solid ${ThemeColors.HIGHLIGHT};
         border-radius: 8px;
     }
+`;
+
+const ViewAllButtonWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+`;
+
+const ViewAllPortWidget = styled(PortWidget)`
 `;
 
 interface EntryNodeWidgetProps {
@@ -311,9 +322,12 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                     />
                 ))}
                 {hasMoreFunctions && (
-                    <ViewAllButton onClick={handleOnClick}>
-                        View all resources ({serviceFunctions.length})
-                    </ViewAllButton>
+                    <ViewAllButtonWrapper>
+                        <ViewAllButton onClick={handleOnClick}>
+                            View all resources ({serviceFunctions.length})
+                        </ViewAllButton>
+                        <ViewAllPortWidget port={model.getPort(VIEW_ALL_RESOURCES_PORT_NAME)!} engine={engine} />
+                    </ViewAllButtonWrapper>
                 )}
             </Box>
             <Popover

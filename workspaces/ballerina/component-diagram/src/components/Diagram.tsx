@@ -33,7 +33,7 @@ import {
     CDService,
     CDResourceFunction,
 } from "@wso2-enterprise/ballerina-core";
-import { EntryNodeModel } from "./nodes/EntryNode";
+import { EntryNodeModel, VIEW_ALL_RESOURCES_PORT_NAME } from "./nodes/EntryNode";
 import { ListenerNodeModel } from "./nodes/ListenerNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
 
@@ -115,10 +115,22 @@ export function Diagram(props: DiagramProps) {
 
             startY += nodeHeight + 16;
 
-            // create function connections
-            service.remoteFunctions?.forEach((func) => {
+            // Determine visible and hidden functions
+            const serviceFunctions = [];
+            if (service.remoteFunctions?.length > 0) {
+                serviceFunctions.push(...service.remoteFunctions);
+            }
+            if (service.resourceFunctions?.length > 0) {
+                serviceFunctions.push(...service.resourceFunctions);
+            }
+
+            const hasMoreFunctions = serviceFunctions.length > 3;
+            const visibleFunctions = serviceFunctions.slice(0, hasMoreFunctions ? 2 : serviceFunctions.length);
+            const hiddenFunctions = hasMoreFunctions ? serviceFunctions.slice(2) : [];
+
+            // Create connections for visible functions
+            visibleFunctions.forEach((func) => {
                 func.connections?.forEach((connectionUuid) => {
-                    console.log(">>> remoteservice con", { func, connectionUuid });
                     const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
                     if (connectionNode) {
                         const port = node.getFunctionPort(func);
@@ -132,23 +144,24 @@ export function Diagram(props: DiagramProps) {
                 });
             });
 
-            // create resource function connections
-            service.resourceFunctions?.forEach((func) => {
-                func.connections?.forEach((connectionUuid) => {
-                    const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
-                    console.log(">>> resource service con", { func, connectionUuid, connectionNode });
-                    if (connectionNode) {
-                        const port = node.getFunctionPort(func);
-                        console.log(">>> resource service con port", { port });
-                        if (port) {
-                            const link = createPortNodeLink(port, connectionNode);
+            // Create connections for hidden functions to the view all resources port
+            if (hiddenFunctions.length > 0) {
+                console.log(">>> hidden functions", { hiddenFunctions });
+                const viewAllPort = node.getViewAllResourcesPort();
+                console.log(">>> view all port", { viewAllPort });
+                hiddenFunctions.forEach((func) => {
+                    func.connections?.forEach((connectionUuid) => {
+                        console.log(">>> hidden func con", { func, connectionUuid });
+                        const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
+                        if (connectionNode && viewAllPort) {
+                            const link = createPortNodeLink(viewAllPort, connectionNode);
                             if (link) {
                                 links.push(link);
                             }
                         }
-                    }
+                    });
                 });
-            });
+            }
         });
 
         // create automation
