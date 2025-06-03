@@ -59,7 +59,7 @@ export function Diagram(props: DiagramProps) {
     } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
-    const [showControls, setShowControls] = useState(false);
+    const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         if (diagramEngine) {
@@ -67,7 +67,7 @@ export function Diagram(props: DiagramProps) {
             drawDiagram(nodes, links);
             autoDistribute(diagramEngine);
         }
-    }, [project]);
+    }, [project, expandedNodes]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -82,6 +82,18 @@ export function Diagram(props: DiagramProps) {
             window.removeEventListener("resize", handleResize);
         };
     }, [diagramEngine, diagramModel]);
+
+    const handleToggleNodeExpansion = (nodeId: string) => {
+        setExpandedNodes(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(nodeId)) {
+                newSet.delete(nodeId);
+            } else {
+                newSet.add(nodeId);
+            }
+            return newSet;
+        });
+    };
 
     const getDiagramData = () => {
         const nodes: NodeModel[] = [];
@@ -102,12 +114,11 @@ export function Diagram(props: DiagramProps) {
 
         // Sort services by sortText before creating nodes
         const sortedServices = sortItems(project.services || []) as CDService[];
-        sortedServices.forEach((service, index) => {
-            // Calculate height based on visible functions
+        sortedServices.forEach((service) => {
+            // Calculate height based on visible functions and expansion state
             const totalFunctions = service.remoteFunctions.length + service.resourceFunctions.length;
-            const hasMoreFunctionsForHeight = totalFunctions > 2;
-            const visibleFunctionCount = hasMoreFunctionsForHeight ? 5 : totalFunctions;
-            const nodeHeight = calculateEntryNodeHeight(visibleFunctionCount);
+            const isExpanded = expandedNodes.has(service.uuid);
+            const nodeHeight = calculateEntryNodeHeight(totalFunctions, isExpanded);
 
             // Create entry node with calculated height
             const node = new EntryNodeModel(service, "service");
@@ -117,7 +128,7 @@ export function Diagram(props: DiagramProps) {
 
             startY += nodeHeight + 16;
 
-            // Determine visible and hidden functions
+            // Determine visible and hidden functions based on expansion state
             const serviceFunctions = [];
             if (service.remoteFunctions?.length > 0) {
                 serviceFunctions.push(...service.remoteFunctions);
@@ -126,9 +137,18 @@ export function Diagram(props: DiagramProps) {
                 serviceFunctions.push(...service.resourceFunctions);
             }
 
-            const hasMoreFunctions = serviceFunctions.length > 3;
-            const visibleFunctions = serviceFunctions.slice(0, hasMoreFunctions ? 2 : serviceFunctions.length);
-            const hiddenFunctions = hasMoreFunctions ? serviceFunctions.slice(2) : [];
+            const isNodeExpanded = expandedNodes.has(service.uuid);
+            
+            let visibleFunctions, hiddenFunctions;
+            if (serviceFunctions.length <= 3 || isNodeExpanded) {
+                // Show all functions if ≤3 total or if expanded
+                visibleFunctions = serviceFunctions;
+                hiddenFunctions = [];
+            } else {
+                // Show only first 2 functions when collapsed
+                visibleFunctions = serviceFunctions.slice(0, 2);
+                hiddenFunctions = serviceFunctions.slice(2);
+            }
 
             // Create connections for visible functions
             visibleFunctions.forEach((func) => {
@@ -146,8 +166,8 @@ export function Diagram(props: DiagramProps) {
                 });
             });
 
-            // Create connections for hidden functions to the view all resources port
-            if (hiddenFunctions.length > 0) {
+            // Create connections for hidden functions to the view all resources port (only when collapsed)
+            if (hiddenFunctions.length > 0 && !isNodeExpanded) {
                 const viewAllPort = node.getViewAllResourcesPort();
                 hiddenFunctions.forEach((func) => {
                     func.connections?.forEach((connectionUuid) => {
@@ -230,12 +250,14 @@ export function Diagram(props: DiagramProps) {
 
     const context: DiagramContextState = {
         project,
+        expandedNodes,
         onListenerSelect,
         onServiceSelect,
         onFunctionSelect,
         onAutomationSelect,
         onConnectionSelect,
         onDeleteComponent,
+        onToggleNodeExpansion: handleToggleNodeExpansion,
     };
 
     return (
@@ -244,10 +266,7 @@ export function Diagram(props: DiagramProps) {
 
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
-                    <DiagramCanvas
-                        onMouseEnter={() => setShowControls(true)}
-                        onMouseLeave={() => setShowControls(false)}
-                    >
+                    <DiagramCanvas>
                         <CanvasWidget engine={diagramEngine} />
                     </DiagramCanvas>
                 </DiagramContextProvider>
