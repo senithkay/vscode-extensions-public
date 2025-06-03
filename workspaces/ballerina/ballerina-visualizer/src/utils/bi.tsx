@@ -258,7 +258,8 @@ export function getDataMappingFunctions(functions: Category[]): Category[] {
 export function updateNodeProperties(
     values: FormValues,
     nodeProperties: NodeProperties,
-    formImports: FormImports
+    formImports: FormImports,
+    dirtyFields?: any
 ): NodeProperties {
     const updatedNodeProperties: NodeProperties = { ...nodeProperties };
 
@@ -268,6 +269,7 @@ export function updateNodeProperties(
             if (expression) {
                 expression.value = values[key];
                 expression.imports = formImports[key];
+                expression.modified = dirtyFields.hasOwnProperty(key);
             }
         }
     }
