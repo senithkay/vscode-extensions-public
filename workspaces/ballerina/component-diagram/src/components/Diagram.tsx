@@ -103,9 +103,11 @@ export function Diagram(props: DiagramProps) {
         // Sort services by sortText before creating nodes
         const sortedServices = sortItems(project.services || []) as CDService[];
         sortedServices.forEach((service, index) => {
-            // Calculate height based on number of functions
-            const numFunctions = service.remoteFunctions.length + service.resourceFunctions.length;
-            const nodeHeight = calculateEntryNodeHeight(numFunctions);
+            // Calculate height based on visible functions
+            const totalFunctions = service.remoteFunctions.length + service.resourceFunctions.length;
+            const hasMoreFunctionsForHeight = totalFunctions > 2;
+            const visibleFunctionCount = hasMoreFunctionsForHeight ? 5 : totalFunctions;
+            const nodeHeight = calculateEntryNodeHeight(visibleFunctionCount);
 
             // Create entry node with calculated height
             const node = new EntryNodeModel(service, "service");
@@ -146,12 +148,9 @@ export function Diagram(props: DiagramProps) {
 
             // Create connections for hidden functions to the view all resources port
             if (hiddenFunctions.length > 0) {
-                console.log(">>> hidden functions", { hiddenFunctions });
                 const viewAllPort = node.getViewAllResourcesPort();
-                console.log(">>> view all port", { viewAllPort });
                 hiddenFunctions.forEach((func) => {
                     func.connections?.forEach((connectionUuid) => {
-                        console.log(">>> hidden func con", { func, connectionUuid });
                         const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
                         if (connectionNode && viewAllPort) {
                             const link = createPortNodeLink(viewAllPort, connectionNode);
