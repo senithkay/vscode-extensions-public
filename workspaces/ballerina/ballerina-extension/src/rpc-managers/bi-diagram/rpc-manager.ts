@@ -657,7 +657,8 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async getConfigVariablesV2(): Promise<ConfigVariableResponse> {
         return new Promise(async (resolve) => {
             const projectPath = path.join(StateMachine.context().projectUri);
-            const variables = await StateMachine.langClient().getConfigVariablesV2({ projectPath: projectPath }) as ConfigVariableResponse;
+            const showLibraryConfigVariables = ballerinaExtInstance.showLibraryConfigVariables();
+            const variables = await StateMachine.langClient().getConfigVariablesV2({ projectPath: projectPath, includeLibraries: showLibraryConfigVariables }) as ConfigVariableResponse;
             resolve(variables);
         });
     }
