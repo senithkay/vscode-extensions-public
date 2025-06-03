@@ -58,7 +58,7 @@ const ButtonWrapper = styled.div`
 
 const ConfigValueField = styled.div`
     display: flex;
-    width: auto;
+    width: 200px;
     justify-content: space-between;
     background-color: var(--input-background);
     height: 28px;
@@ -92,6 +92,9 @@ const ConfigurableItem = styled.div`
         .action-button-container {
             display: block !important;
         }
+        .default-value-container {
+            display: block !important;
+        }
     }
 `;
 
@@ -111,6 +114,7 @@ const ConfigNameTitle = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 5px;
 `;
 
 const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
@@ -430,7 +434,10 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 }}>
                                                                 {String(variable?.properties?.type?.value)}
                                                             </span>
-                                                            <span style={{
+                                                            <span
+                                                                className="default-value-container"
+                                                                style={{
+                                                                    display: 'none',
                                                                     paddingLeft: '5px',
                                                                     fontWeight: 200,
                                                                     fontSize: '12px'
@@ -462,19 +469,18 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                     </ButtonWrapper>
                                                                 )}
                                                         </div>
-                                                        {selectedModule.category === integrationCategory && (
-                                                            // Delete button only for integration module
-                                                            <div className="action-button-container" style={{ display: 'none' }}>
-                                                                <div style={{ display: 'flex', gap: '5px' }}>
-                                                                    <div className="edit-icon-container">
-                                                                        <Button
-                                                                            appearance="icon"
-                                                                            onClick={() => handleEditConfigVariableFormOpen(index)}
-                                                                            tooltip="Edit Configurable Variable"
-                                                                        >
-                                                                            <Codicon name="edit" />
-                                                                        </Button>
-                                                                    </div>
+                                                        <div className="action-button-container" style={{ display: 'none' }}>
+                                                            <div style={{ display: 'flex', gap: '5px' }}>
+                                                                <div className="edit-icon-container">
+                                                                    <Button
+                                                                        appearance="icon"
+                                                                        onClick={() => handleEditConfigVariableFormOpen(index)}
+                                                                        tooltip="Edit Configurable Variable"
+                                                                    >
+                                                                        <Codicon name="edit" />
+                                                                    </Button>
+                                                                </div>
+                                                                {selectedModule.category === integrationCategory && (
                                                                     <div className="delete-button-container">
                                                                         <Button
                                                                             appearance="icon"
@@ -484,26 +490,33 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                             <Codicon name="trash" />
                                                                         </Button>
                                                                     </div>
-                                                                </div>
+                                                                )}
                                                             </div>
-                                                        )}
+                                                        </div>
                                                     </ConfigNameTitle>
-                                                    <div
-                                                        style={{
-                                                            fontSize: '13px',
-                                                            marginTop: '6px',
-                                                            color: 'var(--vscode-descriptionForeground)'
-                                                        }}>
-                                                        {String(variable?.properties?.documentation?.value ?? "")}
-                                                    </div>
-                                                    <div style={{ marginTop: '12px' }}>
-                                                        <ConfigValueField onClick={() => handleEditConfigVariableFormOpen(index)}>
-                                                            <div style={{ minWidth: '10px' }}>
-                                                                {variable?.properties?.configValue?.value ?
-                                                                    String(variable?.properties?.configValue?.value) : ''}
-                                                            </div>
-                                                        </ConfigValueField>
-                                                    </div>
+                                                    {variable?.properties?.documentation?.value &&
+                                                        <div
+                                                            style={{
+                                                                fontSize: '13px',
+                                                                marginBottom: '10px',
+                                                                color: 'var(--vscode-descriptionForeground)'
+                                                            }}>
+                                                            {Array.isArray(variable?.properties?.documentation?.value)
+                                                                ? variable.properties.documentation.value.map((item, i) => (
+                                                                    <div
+                                                                        key={i}
+                                                                        dangerouslySetInnerHTML={{ __html: String(item) }}
+                                                                    >
+                                                                    </div>
+                                                                ))
+                                                                : String(variable?.properties?.documentation?.value ?? "")}
+                                                        </div>}
+                                                    <ConfigValueField onClick={() => handleEditConfigVariableFormOpen(index)}>
+                                                        <div style={{ minWidth: '10px' }}>
+                                                            {variable?.properties?.configValue?.value ?
+                                                                String(variable?.properties?.configValue?.value) : ''}
+                                                        </div>
+                                                    </ConfigValueField>
                                                 </ConfigurableItem>
                                             ))
                                         ) : (
