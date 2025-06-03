@@ -11,7 +11,8 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, TreeViewItem, Typography, View, ViewContent, Tooltip, Toggle } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, TreeViewItem, Typography, View, ViewContent, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { EditForm } from "../EditConfigurableVariables";
 import { AddForm } from "../AddConfigurableVariables";
 import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
@@ -58,19 +59,6 @@ const ButtonWrapper = styled.div`
 
 const ConfigValueField = styled.div`
     display: flex;
-    width: 200px;
-    justify-content: space-between;
-    background-color: var(--input-background);
-    height: 28px;
-    padding: 5px 10px;
-    cursor: pointer !important;
-    border: calc(var(--border-width) * 1px) solid var(--dropdown-border);
-    color: var(--input-foreground);
-    &:hover {
-        .edit-icon-container {
-            display: block !important;
-        }
-    }
 `;
 
 const TitleBoxShadow = styled.div`
@@ -500,22 +488,30 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 fontSize: '13px',
                                                                 marginBottom: '10px',
                                                                 color: 'var(--vscode-descriptionForeground)'
-                                                            }}>
-                                                            {Array.isArray(variable?.properties?.documentation?.value)
-                                                                ? variable.properties.documentation.value.map((item, i) => (
-                                                                    <div
-                                                                        key={i}
-                                                                        dangerouslySetInnerHTML={{ __html: String(item) }}
-                                                                    >
-                                                                    </div>
-                                                                ))
-                                                                : String(variable?.properties?.documentation?.value ?? "")}
-                                                        </div>}
-                                                    <ConfigValueField onClick={() => handleEditConfigVariableFormOpen(index)}>
-                                                        <div style={{ minWidth: '10px' }}>
-                                                            {variable?.properties?.configValue?.value ?
-                                                                String(variable?.properties?.configValue?.value) : ''}
+                                                            }}
+                                                            dangerouslySetInnerHTML={{ __html: String(variable?.properties?.documentation?.value) }}
+                                                        >
                                                         </div>
+                                                    }
+                                                    <ConfigValueField>
+                                                        <VSCodeTextArea
+                                                            rows={1}
+                                                            resize="vertical"
+                                                            value={variable?.properties?.configValue?.value ? String(variable?.properties?.configValue?.value) : ''}
+                                                            readonly={true}
+                                                            style={{ 
+                                                                width: '100%',
+                                                                maxWidth: '750px',
+                                                                minHeight: '20px'
+                                                            }}
+                                                        >
+                                                            <style>{`
+                                                                vscode-text-area::part(control) {
+                                                                    padding: 5px !important;
+                                                                    min-height: 20px !important;
+                                                                }
+                                                            `}</style>
+                                                        </VSCodeTextArea>
                                                     </ConfigValueField>
                                                 </ConfigurableItem>
                                             ))
