@@ -500,7 +500,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                     ? String(variable?.properties?.configValue?.value) 
                                                                     : '';
                                                                 if (!value) return 1;
-                                                                if (value.length < 50) return 2;
                                                                 return Math.min(5, Math.ceil(value.length / 100));
                                                             })()}
                                                             resize="vertical"
