@@ -301,20 +301,35 @@ export class API {
             throw new Error("Failed to switch to API Form iframe");
         }
         console.log("Switched to API Form iframe");
-        const apiFormFrame = apiFormWebView.locator('div#root');
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
-        console.log("Filled name and context");
-        await apiFormFrame.getByLabel('From WSDL file').click();
-        console.log("Clicked on From WSDL file");
-        await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
-        await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
-        await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('http://www.dneonline.com/calculator.asmx?wsdl');
-        const submitBtn = await getVsCodeButton(apiFormFrame, 'Create', "primary");
-        expect(await submitBtn.isEnabled()).toBeTruthy();
-        await submitBtn.click({force: true});
-        console.log("Clicked on create");
-        const webView = await switchToIFrame('Service Designer', this._page, 90000);
+        const apiForm = new Form(page.page, 'API Form');
+        await apiForm.switchToFormView();
+        await apiForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: name,
+                },
+                'Context*': {
+                    type: 'input',
+                    value: context,
+                },
+                'From WSDL file': {
+                    type: 'radio',
+                    value: 'checked',
+                },
+                'URL': {
+                    type: 'radio',
+                    value: 'checked',
+                },
+                'WSDL URL': {
+                    type: 'input',
+                    value: 'http://www.dneonline.com/calculator.asmx?wsdl',
+                }
+            },
+        });
+        await apiForm.submit();
+        console.log("Submitted API Form");
+        const webView = await switchToIFrame('Service Designer', this._page, 100000);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }
