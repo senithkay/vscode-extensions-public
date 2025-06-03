@@ -495,7 +495,14 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                     }
                                                     <ConfigValueField>
                                                         <VSCodeTextArea
-                                                            rows={1}
+                                                            rows={(() => {
+                                                                const value = variable?.properties?.configValue?.value 
+                                                                    ? String(variable?.properties?.configValue?.value) 
+                                                                    : '';
+                                                                if (!value) return 1;
+                                                                if (value.length < 50) return 2;
+                                                                return Math.min(5, Math.ceil(value.length / 100));
+                                                            })()}
                                                             resize="vertical"
                                                             value={variable?.properties?.configValue?.value ? String(variable?.properties?.configValue?.value) : ''}
                                                             readonly={true}
