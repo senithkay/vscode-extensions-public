@@ -35,13 +35,10 @@ export class EntryNodeModel extends NodeModel {
         this.addInPort("in");
         this.addOutPort("out");
         
-        const serviceFunctions = [];
-        if ((node as CDService).remoteFunctions?.length > 0) {
-            serviceFunctions.push(...(node as CDService).remoteFunctions);
-        }
-        if ((node as CDService).resourceFunctions?.length > 0) {
-            serviceFunctions.push(...(node as CDService).resourceFunctions);
-        }
+        const serviceFunctions = [
+            ...(node as CDService).remoteFunctions ?? [],
+            ...(node as CDService).resourceFunctions ?? []
+        ];
         
         // Add function ports
         serviceFunctions.forEach((func) => {

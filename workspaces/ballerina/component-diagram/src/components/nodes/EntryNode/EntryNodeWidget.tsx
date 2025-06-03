@@ -166,9 +166,6 @@ const ViewAllButtonWrapper = styled.div`
     width: 100%;
 `;
 
-const ViewAllPortWidget = styled(PortWidget)`
-`;
-
 interface EntryNodeWidgetProps {
     model: EntryNodeModel;
     engine: DiagramEngine;
@@ -326,7 +323,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                         <ViewAllButton onClick={handleOnClick}>
                             View all resources ({serviceFunctions.length})
                         </ViewAllButton>
-                        <ViewAllPortWidget port={model.getPort(VIEW_ALL_RESOURCES_PORT_NAME)!} engine={engine} />
+                        <PortWidget port={model.getPort(VIEW_ALL_RESOURCES_PORT_NAME)!} engine={engine} />
                     </ViewAllButtonWrapper>
                 )}
             </Box>

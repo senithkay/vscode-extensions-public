@@ -33,7 +33,7 @@ import {
     CDService,
     CDResourceFunction,
 } from "@wso2-enterprise/ballerina-core";
-import { EntryNodeModel, VIEW_ALL_RESOURCES_PORT_NAME } from "./nodes/EntryNode";
+import { EntryNodeModel } from "./nodes/EntryNode";
 import { ListenerNodeModel } from "./nodes/ListenerNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
 
