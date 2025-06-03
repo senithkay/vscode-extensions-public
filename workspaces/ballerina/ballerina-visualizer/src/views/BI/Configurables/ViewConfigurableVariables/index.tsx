@@ -436,7 +436,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                     fontSize: '12px'
                                                                 }}>
                                                                 {variable?.properties?.defaultValue?.value &&
-                                                                    ` (Defaults to: ${String(variable?.properties?.defaultValue?.value)})`}
+                                                                    ` (Default Value: ${String(variable?.properties?.defaultValue?.value)})`}
                                                             </span>
                                                             {(!variable?.properties?.defaultValue?.value &&
                                                                 !variable?.properties?.configValue?.value) && (
