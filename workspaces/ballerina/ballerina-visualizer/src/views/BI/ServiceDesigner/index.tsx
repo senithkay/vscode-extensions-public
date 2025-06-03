@@ -221,6 +221,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             const newArtifact = res.artifacts.find(res => res.isNew);
             if (newArtifact) {
                 fetchService(newArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: newArtifact.path, position: newArtifact.position } });
                 setIsSaving(false);
                 return;
             }
