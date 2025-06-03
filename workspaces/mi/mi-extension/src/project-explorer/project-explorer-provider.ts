@@ -121,15 +121,17 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
 		for (const workspace of workspaceFolders) {
 			const rootPath = workspace.uri.fsPath;
 
-			const langClient = await MILanguageClient.getInstance(rootPath);
-			const resp = await langClient?.languageClient?.getProjectExplorerModel(rootPath);
-			const projectDetailsRes = await langClient?.languageClient?.getProjectDetails();
-			const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
-			const projectTree = generateTreeData(workspace, resp, runtimeVersion);
+			try {
+				const langClient = await MILanguageClient.getInstance(rootPath);
+				const resp = await langClient?.languageClient?.getProjectExplorerModel(rootPath);
+				const projectDetailsRes = await langClient?.languageClient?.getProjectDetails();
+				const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+				const projectTree = generateTreeData(workspace, resp, runtimeVersion);
 
-			if (projectTree) {
-				data.push(projectTree);
-			}
+				if (projectTree) {
+					data.push(projectTree);
+				}
+			} catch {}
 		};
 		vscode.commands.executeCommand('setContext', 'projectOpened', true);
 		if (data.length > 0) {

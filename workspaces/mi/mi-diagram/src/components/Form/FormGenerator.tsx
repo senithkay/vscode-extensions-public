@@ -164,7 +164,6 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [generatingError, setGeneratingError] = useState<boolean>(false);
     const [isClickedDropDown, setIsClickedDropDown] = useState<boolean>(false);
     const [inputGenerate, setInputGenerate] = useState<string>("");
-    const [defaultValues, setDefaultValues] = useState<any>({});
     const [elementDetails, setElementDetails] = useState<any>([]);
     const [isSendButtonClicked, setIsSendButtonClicked] = useState<boolean>(false);
     const [isAutoFillBtnClicked, setIsAutoFillBtnClicked] = useState<boolean>(false);
@@ -290,7 +289,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             if (element.type === 'attributeGroup') {
                 Object.assign(defaultValues, getDefaultValues(element.value.elements));
             } else {
-                defaultValues[name] = getValues(element.value.name) ?? getDefaultValue(element);
+                defaultValues[name] = getDefaultValue(element);
 
                 if (element.value.inputType === 'connection' && documentUri && connectorName) {
                     const allowedTypes: string[] = element.value.allowedConnectionTypes;

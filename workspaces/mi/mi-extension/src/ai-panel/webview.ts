@@ -19,6 +19,7 @@ import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;
     public static readonly viewType = 'micro-integrator.ai-panel';
+    private static webviewName: string = 'AIPanel';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -26,7 +27,7 @@ export class AiPanelWebview {
         this._panel = AiPanelWebview.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
-        RPCLayer.create(this._panel, "");
+        RPCLayer.create(this._panel, AiPanelWebview.webviewName);
     }
 
     private static createWebview(): vscode.WebviewPanel {
@@ -104,6 +105,7 @@ export class AiPanelWebview {
             }
         }
 
+        RPCLayer._messengers.delete(AiPanelWebview.webviewName);
         this._panel = undefined;
     }
 }
