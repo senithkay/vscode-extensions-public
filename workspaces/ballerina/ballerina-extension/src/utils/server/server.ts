@@ -56,7 +56,7 @@ function findJarsExcludingPatterns(directory: string, excludePatterns: string[])
     }
 }
 
-export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExtension): ServerOptions {
+export function getServerOptions(ballerinaCmd: string, extension: BallerinaExtension): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
     let cmd = isWindows() ? 'cmd.exe' : ballerinaCmd;
     let args = ["start-language-server"];
