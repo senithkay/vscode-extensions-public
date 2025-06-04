@@ -84,8 +84,8 @@ export class PositionVisitor implements Visitor {
     };
     private skipChildrenVisit = false;
 
-    constructor(sequenceWidth: number) {
-        this.position.x += sequenceWidth / 2;
+    constructor(offset: number) {
+        this.position.x += offset;
     }
 
     skipChildren(): boolean {
@@ -509,7 +509,8 @@ export class PositionVisitor implements Visitor {
             const toolsList = tools?.tools;
 
             if (tools) {
-                const systemPrompt = node?.parameters?.filter((property: any) => property.name === "system")[0]?.value;
+                const systemPrompt = node.parameters?.find((p: any) => p.name === "system")?.value ||
+                    node.parameters?.find((p: any) => p.name === "instructions")?.value;
                 const prompt = node?.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
                 const systenPromptSize = getTextSizes(systemPrompt, "13px", undefined, undefined, 160, 8);
                 const promptSize = getTextSizes(prompt, "13px", undefined, undefined, 160, 8);

@@ -15,6 +15,7 @@ import {
     GoToSourceRequest,
     OpenExternalUrlRequest,
     RunExternalCommandRequest,
+    ShowErrorMessageRequest,
     WorkspaceFileRequest,
     executeCommand,
     experimentalEnabled,
@@ -23,9 +24,11 @@ import {
     getWorkspaceFiles,
     getWorkspaceRoot,
     goToSource,
+    isNPSupported,
     openExternalUrl,
     runBackgroundTerminalCommand,
     selectFileOrDirPath,
+    showErrorMessage
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { CommonRpcManager } from "./rpc-manager";
@@ -41,5 +44,7 @@ export function registerCommonRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openExternalUrl, (args: OpenExternalUrlRequest) => rpcManger.openExternalUrl(args));
     messenger.onRequest(selectFileOrDirPath, (args: FileOrDirRequest) => rpcManger.selectFileOrDirPath(args));
     messenger.onRequest(experimentalEnabled, () => rpcManger.experimentalEnabled());
+    messenger.onRequest(isNPSupported, () => rpcManger.isNPSupported());
     messenger.onRequest(getWorkspaceRoot, () => rpcManger.getWorkspaceRoot());
+    messenger.onNotification(showErrorMessage, (args: ShowErrorMessageRequest) => rpcManger.showErrorMessage(args));
 }

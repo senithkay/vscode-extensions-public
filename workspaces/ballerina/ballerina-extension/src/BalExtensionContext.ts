@@ -10,12 +10,14 @@
 
 import { ExtensionContext } from "vscode";
 import { AgentChatContext } from "./views/agent-chat/activate";
+import { AIPanelPrompt } from "@wso2-enterprise/ballerina-core";
 
 export class BalExtensionContext {
     public context!: ExtensionContext;
-    public initialPrompt?: string;
+    public aiChatDefaultPrompt?: AIPanelPrompt;
     public agentChatContext?: AgentChatContext;
-    public dataMappingFunctionName?: string;
+    public hasPullModuleNotification = false;
+    public hasPullModuleResolved = false;
 }
 
 export const extension = new BalExtensionContext();

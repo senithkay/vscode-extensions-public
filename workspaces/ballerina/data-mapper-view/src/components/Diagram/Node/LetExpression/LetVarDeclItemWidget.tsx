@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import { LetVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -113,9 +113,14 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                     )}
                     {label}
                     {isQueryExpr && isGoToQueryWithinLetExprSupported(context.ballerinaVersion) && (
-                        <div className={classes.gotoExprIcon} onClick={onClickOnExpand}>
-                            <Icon name="sign-out" />
-                        </div>
+                        <Button
+                            appearance="icon"
+                            tooltip="Map elements within sub-mapping"
+                            className={classes.gotoExprIcon}
+                            onClick={onClickOnExpand}
+                        >
+                            <Codicon name="export" />
+                        </Button>
                     )}
                 </span>
                 <span className={classes.outPort}>

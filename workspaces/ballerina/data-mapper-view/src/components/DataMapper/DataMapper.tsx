@@ -9,11 +9,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useMemo, useReducer, useState } from "react";
 
-import { css } from "@emotion/css";
+import { css, keyframes } from "@emotion/css";
 import {
     EVENT_TYPE,
     FileListEntry,
-    GenerateMappingsResponse,
     MACHINE_VIEW,
     VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
@@ -45,14 +44,18 @@ import { useFileContent, useDMMetaData, useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
-import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { QueryExprMappingType } from "../Diagram/Node/QueryExpression";
 import { AutoMapError } from "./Error/AutoMapError";
 import { AUTO_MAP_IN_PROGRESS_MSG, AUTO_MAP_TIMEOUT_MS } from "../Diagram/utils/constants";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { AutoMapErrorComponent, IOErrorComponent } from "./Error/DataMapperError";
+import { AutoMapErrorComponent, IOErrorComponent, UnsupportedIOErrorComponent } from "./Error/DataMapperError";
+
+const fadeIn = keyframes`
+    from { opacity: 0.5; }
+    to { opacity: 1; }
+`;
 
 const classes = {
     root: css({
@@ -101,6 +104,8 @@ const classes = {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
+        width: '500px',
+        animation: `${fadeIn} 0.5s ease-in-out`
     }),
     overlayWithLoader: css({
         display: 'flex',
@@ -223,17 +228,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         isFetching: isFetchingContent
     } = useFileContent(langServerRpcClient, filePath, fnST);
 
-    const targetPosition = fnST ? {
-        ...fnST.position,
-        startColumn: 0,
-        endColumn: 0
-    } : {
-        startLine: 0,
-        startColumn: 0,
-        endLine: 0,
-        endColumn: 0
-    };
-
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [isStmtEditorCanceled, setIsStmtEditorCanceled] = useState(false);
     const [showDMOverlay, setShowDMOverlay] = useState(false);
@@ -287,18 +281,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         };
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
-
-    const onConfigClose = () => {
-        if (showConfigPanel) {
-            // Close data mapper when having incomplete fnST
-            rpcClient.getVisualizerRpcClient().goHome();
-        }
-    }
-
-    const onConfigSave = (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => {
-        setInputs(inputParams);
-        setOutput(outputType);
-    }
 
     const enableStatementEditor = (expressionInfo: ExpressionInfo) => {
         setCurrentEditableField(expressionInfo);
@@ -521,7 +503,7 @@ export function DataMapperC(props: DataMapperViewProps) {
             && (output.typeNature === TypeNature.INVALID || output.typeNature === TypeNature.TYPE_UNAVAILABLE);
         if (selection.prevST.length === 0
             && typeStoreStatus === TypeStoreStatus.Loaded
-            && ((!showConfigPanel) || hasIncompleteInputs || hasIncompleteOutput)) {
+            && ((!hasInvalidIO) || hasIncompleteInputs || hasIncompleteOutput)) {
             if (fnST && selection.state === DMState.INITIALIZED) {
                 // When open the DM of an existing function using code lens
                 const hasNoParameter = fnST.functionSignature.parameters.length === 0;
@@ -552,7 +534,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         }
     }, [selection.state])
 
-    const showConfigPanel = useMemo(() => {
+    const hasInvalidIO = useMemo(() => {
         if (inputs && output) {
             const hasInvalidInputs = !inputs.length || inputs.some(input => input.isUnsupported);
             const isInvalidOutput = output.isUnsupported;
@@ -561,8 +543,8 @@ export function DataMapperC(props: DataMapperViewProps) {
     }, [inputs, output])
 
     useEffect(() => {
-        handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || showConfigPanel);
-    }, [currentEditableField, selection.selectedST, showConfigPanel])
+        handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || hasInvalidIO);
+    }, [currentEditableField, selection.selectedST, hasInvalidIO])
 
     useEffect(() => {
         resetSearchStore();
@@ -575,22 +557,6 @@ export function DataMapperC(props: DataMapperViewProps) {
     const handleBack = () => {
         rpcClient.getVisualizerRpcClient()?.goBack();
     };
-
-    const cPanelProps = {
-        fnST,
-        targetPosition,
-        importStatements,
-        projectComponents,
-        filePath,
-        inputs,
-        output,
-        ballerinaVersion,
-        onSave: onConfigSave,
-        onClose: onConfigClose,
-        applyModifications,
-        langServerRpcClient,
-        recordPanel
-    }
 
     return (
         <DataMapperErrorBoundary hasError={hasInternalError}>
@@ -639,13 +605,13 @@ export function DataMapperC(props: DataMapperViewProps) {
                         )}
                         {errorKind && <IOErrorComponent errorKind={errorKind} classes={classes} />}
                         {autoMapError && <AutoMapErrorComponent autoMapError={autoMapError} classes={classes} />}
-                        {dmNodes.length > 0 && (
+                        {dmNodes.length > 0 && !hasInvalidIO && !errorKind && (
                             <DataMapperDiagram
                                 nodes={dmNodes}
                                 onError={handleErrors}
                             />
                         )}
-                        {showConfigPanel && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
+                        {hasInvalidIO && <UnsupportedIOErrorComponent inputs={inputs} output={output} classes={classes} />}
                         {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}

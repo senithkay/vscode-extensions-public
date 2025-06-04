@@ -16,47 +16,52 @@ import { BodyText } from '../../styles';
 import ButtonCard from '../../../components/ButtonCard';
 import { useVisualizerContext } from '../../../Context';
 
-export function OtherArtifactsPanel() {
+interface OtherArtifactsPanelProps {
+    isNPSupported: boolean;
+}
+
+export function OtherArtifactsPanel(props: OtherArtifactsPanelProps) {
+    const { isNPSupported } = props;
     const { rpcClient } = useRpcContext();
     const { setPopupMessage } = useVisualizerContext();
 
     const handleClick = async (key: DIRECTORY_MAP) => {
-        if (key === DIRECTORY_MAP.CONNECTIONS) {
+        if (key === DIRECTORY_MAP.CONNECTION) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.AddConnectionWizard,
                 },
             });
-        } else if (key === DIRECTORY_MAP.DATA_MAPPERS) {
+        } else if (key === DIRECTORY_MAP.DATA_MAPPER) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIDataMapperForm,
                 },
             });
-        } else if (key === DIRECTORY_MAP.TYPES) {
+        } else if (key === DIRECTORY_MAP.TYPE) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.TypeDiagram,
                 },
             });
-        } else if (key === DIRECTORY_MAP.CONFIGURATIONS) {
+        } else if (key === DIRECTORY_MAP.CONFIGURABLE) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.ViewConfigVariables,
                 },
             });
-        } else if (key === DIRECTORY_MAP.FUNCTIONS) {
+        } else if (key === DIRECTORY_MAP.FUNCTION) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIFunctionForm,
                 },
             });
-        } else if (key === DIRECTORY_MAP.NATURAL_FUNCTIONS) {
+        } else if (key === DIRECTORY_MAP.NP_FUNCTION) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
@@ -78,35 +83,42 @@ export function OtherArtifactsPanel() {
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard
+                    data-testid="function"
                     icon={<Icon name="bi-function" />}
                     title="Function"
-                    onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
+                    onClick={() => handleClick(DIRECTORY_MAP.FUNCTION)}
                 />
+                {isNPSupported &&
+                    <ButtonCard
+                        icon={<Icon name="bi-ai-function" />}
+                        title="Natural Function"
+                        onClick={() => handleClick(DIRECTORY_MAP.NP_FUNCTION)}
+                        isBeta
+                    />
+                }
                 <ButtonCard
-                    icon={<Icon name="bi-ai-function" />}
-                    title="Natural Function"
-                    onClick={() => handleClick(DIRECTORY_MAP.NATURAL_FUNCTIONS)}
-                    isBeta
-                />
-                <ButtonCard
+                    id="data-mapper"
                     icon={<Icon name="dataMapper" />}
                     title="Data Mapper"
-                    onClick={() => handleClick(DIRECTORY_MAP.DATA_MAPPERS)}
+                    onClick={() => handleClick(DIRECTORY_MAP.DATA_MAPPER)}
                 />
                 <ButtonCard
+                    id="type"
                     icon={<Icon name="bi-type" />}
                     title="Type"
-                    onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
+                    onClick={() => handleClick(DIRECTORY_MAP.TYPE)}
                 />
                 <ButtonCard
+                    id="connection"
                     icon={<Icon name="bi-connection" />}
                     title="Connection"
-                    onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
+                    onClick={() => handleClick(DIRECTORY_MAP.CONNECTION)}
                 />
                 <ButtonCard
+                    id="configurable"
                     icon={<Icon name="bi-config" />}
                     title="Configuration"
-                    onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
+                    onClick={() => handleClick(DIRECTORY_MAP.CONFIGURABLE)}
                 />
             </CardGrid>
         </PanelViewMore>

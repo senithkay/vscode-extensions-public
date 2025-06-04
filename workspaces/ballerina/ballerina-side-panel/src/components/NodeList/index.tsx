@@ -24,6 +24,7 @@ import { BackIcon, CloseIcon, LogIcon } from "../../resources";
 import { Category, Item, Node } from "./types";
 import { cloneDeep, debounce } from "lodash";
 import GroupList from "../GroupList";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 namespace S {
     export const Container = styled.div<{}>`
@@ -118,7 +119,7 @@ namespace S {
                 enabled &&
                 `
                 background-color: ${ThemeColors.PRIMARY_CONTAINER};
-                border: 1px solid ${ThemeColors.PRIMARY};
+                border: 1px solid ${ThemeColors.HIGHLIGHT};
             `}
         }
     `;
@@ -136,8 +137,6 @@ namespace S {
         & svg {
             height: 16px;
             width: 16px;
-            fill: ${ThemeColors.ON_SURFACE};
-            stroke: ${ThemeColors.ON_SURFACE};
         }
     `;
 
@@ -205,6 +204,7 @@ interface NodeListProps {
     onAddFunction?: () => void;
     onBack?: () => void;
     onClose?: () => void;
+    searchPlaceholder?: string;
 }
 
 export function NodeList(props: NodeListProps) {
@@ -218,11 +218,20 @@ export function NodeList(props: NodeListProps) {
         onAddFunction,
         onBack,
         onClose,
+        searchPlaceholder
     } = props;
 
     const [searchText, setSearchText] = useState<string>("");
     const [showGeneratePanel, setShowGeneratePanel] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+    const { rpcClient } = useRpcContext();
+    const [isNPSupported, setIsNPSupported] = useState(false);
+
+    useEffect(() => {
+        rpcClient.getCommonRpcClient().isNPSupported().then((supported) => {
+            setIsNPSupported(supported);
+        });
+    }, []);
 
     useEffect(() => {
         if (onSearchTextChange) {
@@ -265,8 +274,7 @@ export function NodeList(props: NodeListProps) {
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
             {nodes.map((node, index) => {
-                if (["MATCH"].includes(node.id)) {
-                    // HACK: Skip the MATCH and FOREACH nodes until the implementation is ready
+                if (["NP_FUNCTION"].includes(node.id) && !isNPSupported) {
                     return;
                 }
 
@@ -509,7 +517,7 @@ export function NodeList(props: NodeListProps) {
                     <S.Row>
                         <S.StyledSearchInput
                             value={searchText}
-                            placeholder="Search"
+                            placeholder={searchPlaceholder || "Search"} 
                             autoFocus={true}
                             onChange={handleOnSearch}
                             size={60}

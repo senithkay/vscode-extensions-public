@@ -22,7 +22,8 @@ import {
     WorkspaceFileRequest,
     WorkspacesFileResponse,
     FileOrDirRequest,
-    WorkspaceRootResponse
+    WorkspaceRootResponse,
+    ShowErrorMessageRequest
 } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -36,4 +37,6 @@ export const runBackgroundTerminalCommand: RequestType<RunExternalCommandRequest
 export const openExternalUrl: NotificationType<OpenExternalUrlRequest> = { method: `${_preFix}/openExternalUrl` };
 export const selectFileOrDirPath: RequestType<FileOrDirRequest, FileOrDirResponse> = { method: `${_preFix}/selectFileOrDirPath` };
 export const experimentalEnabled: RequestType<void, boolean> = { method: `${_preFix}/experimentalEnabled` };
+export const isNPSupported: RequestType<void, boolean> = { method: `${_preFix}/isNPSupported` };
 export const getWorkspaceRoot: RequestType<void, WorkspaceRootResponse> = { method: `${_preFix}/getWorkspaceRoot` };
+export const showErrorMessage: NotificationType<ShowErrorMessageRequest> = { method: `${_preFix}/showErrorMessage` };

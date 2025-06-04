@@ -33,6 +33,7 @@ import {
     OllamaIcon,
     DefaultLlmIcon,
     MistralAIIcon,
+    DeepseekIcon
 } from "../../../resources/icons";
 import { AgentData, FlowNode, ToolData } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -71,13 +72,12 @@ export namespace NodeStyles {
             props.hasError
                 ? ThemeColors.ERROR
                 : props.hovered && !props.disabled
-                ? ThemeColors.PRIMARY
+                ? ThemeColors.HIGHLIGHT
                 : ThemeColors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${(props: NodeStyleProp) =>
             props?.isActiveBreakpoint ? ThemeColors.DEBUGGER_BREAKPOINT_BACKGROUND : ThemeColors.SURFACE_DIM};
         color: ${ThemeColors.ON_SURFACE};
-        cursor: pointer;
     `;
 
     export const Header = styled.div<{}>`
@@ -88,12 +88,20 @@ export namespace NodeStyles {
         gap: 2px;
         width: 100%;
         padding: 8px;
+        margin-top: 2px;
     `;
 
     export const StyledButton = styled(Button)`
         border-radius: 5px;
         position: absolute;
         right: 136px;
+    `;
+
+    export const FullWidthButton = styled(Button)`
+        width: 100%;
+        ::part(vscode-button) {
+            width: 100%;
+        }
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -148,6 +156,12 @@ export namespace NodeStyles {
         padding: 0 4px;
     `;
 
+    export const RolePlaceholder = styled(Role)`
+        color: ${ThemeColors.ON_SURFACE};
+        opacity: 0.5;
+        font-style: italic;
+    `;
+
     export const Instructions = styled(StyledText)`
         font-size: 12px;
         color: ${ThemeColors.ON_SURFACE};
@@ -162,11 +176,17 @@ export namespace NodeStyles {
         padding: 0 4px 4px;
     `;
 
+    export const InstructionsPlaceholder = styled(Instructions)`
+        opacity: 0.5;
+        font-style: italic;
+    `;
+
     export const InstructionsRow = styled.div`
         flex: 1;
         overflow: hidden;
         align-items: flex-start;
         margin-bottom: 6px;
+        cursor: pointer;
     `;
 
     export const Row = styled.div`
@@ -175,6 +195,7 @@ export namespace NodeStyles {
         justify-content: space-between;
         align-items: center;
         width: 100%;
+        cursor: pointer;
     `;
 
     export const Column = styled.div`
@@ -216,6 +237,58 @@ export namespace NodeStyles {
         align-items: center;
         gap: 8px;
     `;
+
+    export const MemoryButton = styled.div`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin: 8px 0;
+        padding: 8px 0;
+        border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
+        border-radius: 4px;
+        background-color: transparent;
+        color: ${ThemeColors.ON_SURFACE};
+        font-size: 14px;
+        font-family: "GilmerRegular";
+        cursor: pointer;
+        &:hover {
+            background-color: ${ThemeColors.SURFACE_BRIGHT};
+            border-color: ${ThemeColors.HIGHLIGHT};
+        }
+    `;
+
+    export const MemoryCard = styled.div`
+        width: 100%;
+        padding: 8px 6px 8px 12px;
+        border: 1px solid ${ThemeColors.OUTLINE_VARIANT};
+        border-radius: 4px;
+        background-color: transparent;
+        color: ${ThemeColors.ON_SURFACE};
+        &:hover {
+            border-color: ${ThemeColors.HIGHLIGHT};
+        }
+    `;
+
+    export const MemoryContainer = styled.div`
+        width: 100%;
+        border-bottom: 1px dashed ${ThemeColors.OUTLINE_VARIANT};
+        padding-bottom: 8px;
+    `;
+
+    export const MemoryTitle = styled.div`
+        font-size: 14px;
+        font-family: "GilmerMedium";
+        font-weight: bold;
+        margin-bottom: 4px;
+    `;
+
+    export const MemoryMeta = styled.div`
+        font-size: 12px;
+        font-family: monospace;
+        color: ${ThemeColors.ON_SURFACE};
+        opacity: 0.7;
+    `;
 }
 
 interface AgentCallNodeWidgetProps {
@@ -235,8 +308,10 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const [toolAnchorEl, setToolAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const [selectedTool, setSelectedTool] = useState<ToolData | null>(null);
+    const [memoryMenuAnchorEl, setMemoryMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
     const isToolMenuOpen = Boolean(toolAnchorEl);
+    const isMemoryMenuOpen = Boolean(memoryMenuAnchorEl);
     const hasBreakpoint = model.hasBreakpoint();
     const isActiveBreakpoint = model.isActiveBreakpoint();
 
@@ -264,6 +339,18 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
         console.log(">>> onModelEditClick", model.node);
         agentNode?.onModelSelect && agentNode.onModelSelect(model.node);
         setAnchorEl(null);
+    };
+
+    const onMemoryManagerClick = () => {
+        console.log(">>> onMemoryManagerClick", model.node);
+        agentNode?.onSelectMemoryManager && agentNode.onSelectMemoryManager(model.node);
+        setMemoryMenuAnchorEl(null);
+    };
+
+    const onMemoryManagerDeleteClick = () => {
+        console.log(">>> onMemoryManagerDeleteClick", model.node);
+        agentNode?.onDeleteMemoryManager && agentNode.onDeleteMemoryManager(model.node);
+        setMemoryMenuAnchorEl(null);
     };
 
     const onToolClick = (tool: ToolData) => {
@@ -334,6 +421,15 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
         setAnchorEl(null);
     };
 
+    const handleOnMemoryMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        event.stopPropagation();
+        setMemoryMenuAnchorEl(event.currentTarget);
+    };
+
+    const handleMemoryMenuClose = () => {
+        setMemoryMenuAnchorEl(null);
+    };
+
     const menuItems: Item[] = [
         {
             id: "edit",
@@ -348,6 +444,11 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
         {
             id: "edit",
             label: "Edit",
+            onClick: () => onToolClick(tool),
+        },
+        {
+            id: "view",
+            label: "View",
             onClick: () => onImplementTool(tool),
         },
         {
@@ -355,6 +456,15 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
             label: "Delete",
             onClick: () => onDeleteTool(tool),
         },
+    ];
+
+    const memoryMenuItems: Item[] = [
+        {
+            id: "edit",
+            label: "Edit",
+            onClick: () => onMemoryManagerClick(),
+        },
+        { id: "delete", label: "Delete", onClick: () => onMemoryManagerDeleteClick() },
     ];
 
     const disabled = model.node.suggested;
@@ -394,9 +504,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                 )}
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Column style={{ height: `${model.node.viewState?.ch}px` }}>
-                    <NodeStyles.Row
-                        style={{ borderBottom: `1px solid ${ThemeColors.OUTLINE_VARIANT}`, marginTop: "2px" }}
-                    >
+                    <NodeStyles.Row>
                         <NodeStyles.Icon onClick={handleOnClick}>
                             <NodeIcon type={model.node.codedata.node} size={24} />
                         </NodeStyles.Icon>
@@ -437,16 +545,73 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                             </Menu>
                         </Popover>
                     </NodeStyles.Row>
-                    {model.node.metadata.data?.agent?.role && (
+
+                    <NodeStyles.MemoryContainer>
+                        <NodeStyles.Row>
+                            {model.node.metadata?.data.memory ? (
+                                <NodeStyles.MemoryCard onClick={onMemoryManagerClick}>
+                                    <NodeStyles.Row>
+                                        <div style={{ flex: 1 }}>
+                                            <NodeStyles.MemoryTitle>Memory</NodeStyles.MemoryTitle>
+                                            <NodeStyles.MemoryMeta>
+                                                {model.node.metadata.data.memory?.type ||
+                                                    "MessageWindowChatMemory"}
+                                            </NodeStyles.MemoryMeta>
+                                        </div>
+                                        {!readOnly && (
+                                            <NodeStyles.MenuButton appearance="icon" onClick={handleOnMemoryMenuClick}>
+                                                <MoreVertIcon />
+                                            </NodeStyles.MenuButton>
+                                        )}
+                                    </NodeStyles.Row>
+                                </NodeStyles.MemoryCard>
+                            ) : (
+                                <NodeStyles.MemoryButton onClick={onMemoryManagerClick}>
+                                    <Icon name="bi-plus" sx={{ fontSize: "16px", marginRight: "4px" }} />
+                                    Add Memory
+                                </NodeStyles.MemoryButton>
+                            )}
+                        </NodeStyles.Row>
+                        <Popover
+                            open={isMemoryMenuOpen}
+                            anchorEl={memoryMenuAnchorEl}
+                            handleClose={handleMemoryMenuClose}
+                            sx={{
+                                padding: 0,
+                                borderRadius: 0,
+                            }}
+                        >
+                            <Menu>
+                                <>
+                                    {memoryMenuItems.map((item) => (
+                                        <MenuItem key={item.id} item={item} />
+                                    ))}
+                                </>
+                            </Menu>
+                        </Popover>
+                    </NodeStyles.MemoryContainer>
+
+                    {model.node.metadata.data?.agent?.role ? (
                         <NodeStyles.Row onClick={handleOnClick}>
                             <NodeStyles.Role>{model.node.metadata.data.agent.role}</NodeStyles.Role>
                         </NodeStyles.Row>
+                    ) : (
+                        <NodeStyles.Row onClick={handleOnClick}>
+                            <NodeStyles.RolePlaceholder>Define agent's role</NodeStyles.RolePlaceholder>
+                        </NodeStyles.Row>
                     )}
-                    {model.node.metadata.data?.agent?.instructions && (
+
+                    {model.node.metadata.data?.agent?.instructions ? (
                         <NodeStyles.InstructionsRow onClick={handleOnClick}>
                             <NodeStyles.Instructions>
                                 {model.node.metadata.data.agent.instructions}
                             </NodeStyles.Instructions>
+                        </NodeStyles.InstructionsRow>
+                    ) : (
+                        <NodeStyles.InstructionsRow onClick={handleOnClick}>
+                            <NodeStyles.InstructionsPlaceholder>
+                                Provide specific instructions on how the agent should behave.
+                            </NodeStyles.InstructionsPlaceholder>
                         </NodeStyles.InstructionsRow>
                     )}
                 </NodeStyles.Column>
@@ -474,7 +639,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         css={css`
                             cursor: pointer;
                             &:hover {
-                                stroke: ${ThemeColors.PRIMARY};
+                                stroke: ${ThemeColors.HIGHLIGHT};
                             }
                         `}
                     />
@@ -513,13 +678,13 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         css={css`
                             cursor: pointer;
                             &:hover circle {
-                                stroke: ${ThemeColors.PRIMARY};
+                                stroke: ${ThemeColors.HIGHLIGHT};
                             }
                             &:hover foreignObject .connector-icon path {
-                                fill: ${ThemeColors.PRIMARY};
+                                fill: ${ThemeColors.HIGHLIGHT};
                             }
                             &:hover text {
-                                fill: ${ThemeColors.PRIMARY};
+                                fill: ${ThemeColors.HIGHLIGHT};
                             }
                             &:hover .tool-tooltip {
                                 opacity: 1;
@@ -553,6 +718,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                                 {tool.path && (
                                     <ConnectorIcon
                                         url={tool.path}
+                                        style={{ width: 24, height: 24, fontSize: 24 }}
                                         fallbackIcon={<Icon name="bi-function" sx={{ fontSize: "24px" }} />}
                                     />
                                 )}
@@ -702,7 +868,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         css={css`
                             cursor: pointer;
                             &:hover path:last-of-type {
-                                fill: ${ThemeColors.PRIMARY};
+                                fill: ${ThemeColors.HIGHLIGHT};
                             }
                             &:hover + .custom-tooltip {
                                 opacity: 1;
@@ -812,16 +978,18 @@ function sanitizeAgentData(data: AgentData) {
 // this should replace with CDN icons
 function getLlmModelIcons(modelType: string) {
     switch (modelType) {
-        case "OpenAiModel":
+        case "OpenAiProvider":
             return <OpenAiIcon />;
-        case "AzureOpenAiModel":
+        case "AzureOpenAiProvider":
             return <AzureOpenAiIcon />;
-        case "AnthropicModel":
+        case "AnthropicProvider":
             return <AnthropicIcon />;
-        case "OllamaModel":
+        case "OllamaProvider":
             return <OllamaIcon />;
-        case "MistralAiModel":
+        case "MistralAiProvider":
             return <MistralAIIcon />;
+        case "DeepseekProvider":
+            return <DeepseekIcon />;
         default:
             return <DefaultLlmIcon />;
     }

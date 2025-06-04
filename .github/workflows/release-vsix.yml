@@ -69,7 +69,6 @@ jobs:
       mi:  ${{ inputs.mi }}
       version: ${{ inputs.version }}
       isReleaseBuild: true
-      skipBallerinaUiTests: true
 
   Release:
     name: Release VSIX
@@ -89,7 +88,7 @@ jobs:
           rm build.zip
 
       - name: Setup Rush
-        uses: gigara/setup-rush@v1.1.0
+        uses: gigara/setup-rush@v1.2.0
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -128,6 +127,8 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.mi }}" == "true" ]; then
             echo "chatAPI=${{ secrets.MI_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.inputs.bi }}" == "true" ] || [ "${{ github.event.inputs.ballerina }}" == "true" ]; then
+            echo "chatAPI=${{ secrets.EGGPLANT_EXT_CHAT_API }}" >> $GITHUB_OUTPUT
           else
             echo "chatAPI=${{ secrets.TOOLING_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
           fi
@@ -219,48 +220,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Failure Notification"
-        run: |
-          body=$(cat << EOF
-          {
-            "cards": [
-              {
-                "header": {
-                    "title": "Release Failed"
-                },
-                "sections": [
-                  {
-                    "widgets": [
-                      {
-                        "textParagraph": {
-                            "text": "<b>&#x274C; Repository: <font color=\"#ff0000\">wso2-enterprise/vscode-extensions</font></b>"
-                        }
-                      },
-                      {
-                        "keyValue": {
-                          "topLabel": "Workflow run ID",
-                          "content": "${{ github.run_id }}",
-                          "button": {
-                            "textButton": {
-                              "text": "View Workflow",
-                              "onClick": {
-                                "openLink": {
-                                  "url": "https://github.com/wso2-enterprise/vscode-extensions/actions/runs/${{ github.run_id }}"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-          EOF
-          )
-          curl \
-            -X POST \
-            -H 'Content-Type: application/json' \
-            "${{ secrets.TOOLING_TEAM_CHAT_API }}" \
-            -d "$body"
+        uses: ./.github/actions/failure-notification
+        with:
+          title: "Release Build Failed"
+          run_id: ${{ github.run_id }}
+          chat_api: ${{ secrets.TOOLING_TEAM_CHAT_API }}
+          repository: ${{ github.repository }}

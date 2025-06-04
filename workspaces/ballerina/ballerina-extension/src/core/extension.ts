@@ -20,7 +20,7 @@ import {
     UPDATE_BALLERINA_VERSION
 } from "./messages";
 import { join, sep } from 'path';
-import { exec, spawnSync } from 'child_process';
+import { exec, spawnSync, spawn } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../utils/server/server';
 import { ExtendedLangClient } from './extended-language-client';
@@ -48,7 +48,7 @@ import {
 import { BALLERINA_COMMANDS, runCommand } from "../features/project";
 import { gitStatusBarItem } from "../features/editor-support/git-status";
 import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
-import { BallerinaProject, DownloadProgress, onDownloadProgress } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, DownloadProgress, onDownloadProgress, SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
 import os, { platform } from "os";
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import AdmZip from 'adm-zip';
@@ -128,6 +128,7 @@ export class BallerinaExtension {
     private ballerinaCmd: string;
     public ballerinaVersion: string;
     public biSupported: boolean;
+    public isNPSupported: boolean;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
@@ -154,6 +155,7 @@ export class BallerinaExtension {
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
         this.biSupported = false;
+        this.isNPSupported = false;
         this.isPersist = false;
         this.ballerinaUserHomeName = '.ballerina';
         this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
@@ -237,8 +239,12 @@ export class BallerinaExtension {
             this.updateBallerinaDeveloperPack(true);
         });
 
-        commands.registerCommand('ballerina.update-ballerina', () => { // Update release pack from ballerina update tool with a terminal
-            this.updateBallerina(true);
+        commands.registerCommand('ballerina.update-ballerina', () => { // Update release pack from ballerina update tool with terminal
+            this.updateBallerina();
+        });
+
+        commands.registerCommand('ballerina.update-ballerina-visually', () => { // Update release pack from ballerina update tool with webview
+            this.updateBallerinaVisually();
         });
 
         try {
@@ -262,8 +268,9 @@ export class BallerinaExtension {
             // Validate the ballerina version.
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
-                this.ballerinaVersion = runtimeVersion.split('-')[0];
-                this.biSupported = isSupportedSLVersion(this, 2201122);
+                this.ballerinaVersion = runtimeVersion;
+                this.biSupported = isSupportedSLVersion(this, 2201123); // Minimum supported version for BI
+                this.isNPSupported = isSupportedSLVersion(this, 2201130) && this.enabledExperimentalFeatures(); // Minimum supported requirements for NP
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
@@ -283,6 +290,8 @@ export class BallerinaExtension {
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
                     this.clientOptions, this, false);
 
+                _onBeforeInit(this.langClient);
+                
                 await this.langClient.start();
 
                 // Following was put in to handle server startup failures.
@@ -391,10 +400,337 @@ export class BallerinaExtension {
             const terminal = window.createTerminal('Update Ballerina');
             terminal.show();
             terminal.sendText('bal dist update');
-            window.showInformationMessage('Ballerina update started. Please wait...');
+            window.showInformationMessage('Please proceed with the bal command to update the ballerina distribution');
         }, (reason) => {
             console.error('Error getting the ballerina version:', reason.message);
             this.showMessageSetupBallerina(restartWindow);
+        });
+    }
+
+    async updateBallerinaVisually() {
+        commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
+        const realPath = this.ballerinaHome ? fs.realpathSync.native(this.ballerinaHome) : "";
+        this.executeCommandWithProgress(realPath.includes("ballerina-home") ? 'bal dist update' : 'sudo bal dist update');
+    }
+
+    private async executeCommandWithProgress(command: string) {
+        // Check if this is a sudo command (for macOS/Linux) or needs admin rights (Windows)
+        const isSudoCommand = command.trim().startsWith('sudo');
+        window.showInformationMessage(`Executing: ${command}`);
+        if (isSudoCommand) {
+            if (isWindows()) {
+                // Windows: Use PowerShell with "Run as Administrator"
+                return this.executeWindowsAdminCommand(command);
+            } else {
+                const terminal = window.createTerminal('Update Ballerina');
+                terminal.show();
+                terminal.sendText(command);
+                window.showInformationMessage('Please proceed with the sudo command to update the ballerina distribution');
+            }
+        } else {
+            // Regular non-elevated command
+            return this.executeRegularCommand(command);
+        }
+    }
+
+    // Execute a regular (non-admin) command
+    private async executeRegularCommand(command: string): Promise<void> {
+        let progressStep = 0;
+
+        // Send initial progress notification
+        let res: DownloadProgress = {
+            message: `Starting execution of command...`,
+            percentage: 0,
+            success: false,
+            step: progressStep
+        };
+        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+
+        return new Promise((resolve, reject) => {
+            // Use exec for regular commands
+            const childProcess = exec(command, { maxBuffer: 1024 * 1024 });
+            let percentage = 0;
+            childProcess.stdout.on('data', (data) => {
+                const output = data.toString();
+                console.log('Command output:', output);
+
+                progressStep++;
+
+                // Extract version and download percentage if present
+                const downloadMatch = output.match(/Downloading\s+(\d+\.\d+\.\d+)\s+(\d+)%/);
+                const message = downloadMatch ? `Downloading ${downloadMatch[1]}` : `${output.trim()}`;
+                // Use the extracted percentage if available, otherwise calculate based on steps
+                percentage = downloadMatch && parseInt(downloadMatch[2], 10);
+
+                res = {
+                    message: message,
+                    percentage: percentage,
+                    success: false,
+                    step: progressStep
+                };
+                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+            });
+
+            childProcess.stderr.on('data', (data) => {
+                const errorOutput = data.toString();
+                console.error('Command error:', errorOutput);
+
+                res = {
+                    message: `Error: ${errorOutput.trim()}`,
+                    percentage: 0,
+                    success: false,
+                    step: -1
+                };
+                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+            });
+
+            childProcess.on('close', (code) => {
+                console.log(`Command exited with code ${code}`);
+
+                res = {
+                    message: code === 0 ? 'Command completed successfully' : `Command failed with code ${code}`,
+                    percentage: 100,
+                    success: code === 0,
+                    step: code === 0 ? progressStep + 1 : -1
+                };
+                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+
+                if (code === 0) {
+                    window.showInformationMessage('Command executed successfully');
+                    commands.executeCommand('workbench.action.reloadWindow');
+                    resolve();
+                } else {
+                    window.showErrorMessage(`Command failed with exit code ${code}`);
+                    reject(new Error(`Command failed with exit code ${code}`));
+                }
+            });
+        });
+    }
+
+    // Execute a command with administrator privileges on Windows
+    private async executeWindowsAdminCommand(command: string): Promise<void> {
+        let progressStep = 0;
+
+        // Remove 'sudo' prefix if present
+        const actualCommand = command.replace(/^sudo\s+/, '');
+
+        // Create PowerShell command to run as administrator
+        const psCommand = `powershell -Command "Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList '-NoProfile -ExecutionPolicy Bypass -Command \"${actualCommand}\"'"`;
+
+        let res: DownloadProgress = {
+            message: `Starting a powershell to update ballerina distribution...`,
+            percentage: 0,
+            success: false,
+            step: progressStep
+        };
+        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+
+        // Show a message to the user that they'll need to respond to the UAC prompt
+        window.showInformationMessage('Please confirm the User Account Control (UAC) prompt to run this command with administrator privileges');
+        await new Promise((resolve, reject) => {
+            try {
+                // Execute the PowerShell command
+                const childProcess = exec(psCommand, { maxBuffer: 1024 * 1024 });
+                childProcess.stderr.on('data', (data) => {
+                    const errorOutput = data.toString();
+                    console.error('Command error:', errorOutput);
+                    // Check for UAC cancellation
+                    if (errorOutput.includes('cancelled by the user') || errorOutput.includes('was canceled')) {
+                        const errorMessage = `Administrator privileges were denied. Command cannot be executed.`;
+                        throw new Error(errorMessage);
+                    }
+                });
+                childProcess.on('close', async (code, signal) => {
+                    // Note: with Windows UAC, the actual admin process is detached, so this code
+                    // only confirms the elevation request was successful, not the command itself
+                    if (code === 0) {
+                        // Check the versions
+                        const initialVersion = this.ballerinaVersion;
+                        // Get the current version
+                        const currentVersion = await this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome());
+                        // If version changed or timeout reached, we're done
+                        if (currentVersion !== initialVersion) {
+                            console.log(`Update completed. Version changed from ${initialVersion} to ${currentVersion}`);
+                            res = {
+                                message: `Successfully updated to version: ${currentVersion}`,
+                                percentage: 0,
+                                success: true,
+                                step: -1
+                            };
+                            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                            setTimeout(() => {
+                                commands.executeCommand('workbench.action.reloadWindow');
+                            }, 2000);
+                        }
+                    } else {
+                        const errorMessage = `Failed to execute command with administrator privileges. Exit code: ${code}`;
+                        throw new Error(errorMessage);
+                    }
+                });
+            } catch (error) {
+                const err = error instanceof Error ? error.message : String(error);
+                const errorMessage = `Error executing admin command: ${err}`;
+                console.error(errorMessage, error);
+                throw new Error(errorMessage);
+            }
+        }).catch((error) => {
+            console.error('Error executing Windows admin command:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            res = {
+                message: `${errorMessage}`,
+                percentage: 0,
+                success: false,
+                step: -1
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+            window.showErrorMessage(`Error executing admin command: ${errorMessage}`);
+        });
+    }
+
+    // TODO: This can be removed.
+    // Alternative method that uses a temporary script to execute sudo commands
+    private async executeSudoCommandWithScript(command: string): Promise<void> {
+
+        // macOS/Linux: Get password for sudo
+        const password = await window.showInputBox({
+            prompt: 'Enter your sudo password',
+            password: true,
+            ignoreFocusOut: true
+        });
+
+        if (password === undefined) {
+            window.showErrorMessage('Password required for sudo command');
+            return;
+        }
+
+        let progressStep = 0;
+
+        // Send initial progress notification
+        let res: DownloadProgress = {
+            message: `Starting execution of sudo command...`,
+            percentage: 0,
+            success: false,
+            step: progressStep
+        };
+        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+
+        return new Promise((resolve, reject) => {
+            try {
+                // Create a temporary file for the command
+                const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vscode-ballerina-'));
+                const scriptPath = path.join(tempDir, 'sudo-script.sh');
+
+                // Extract the actual command (remove 'sudo' prefix)
+                const actualCommand = command.replace(/^sudo\s+/, '');
+
+                // Create a script file that will be executed with sudo
+                fs.writeFileSync(scriptPath, `#!/bin/bash\n${actualCommand}\n`, { mode: 0o755 });
+
+                // Execute the script with sudo and pipe the password
+                console.log(`Executing sudo command using script: ${scriptPath}`);
+
+                // Use echo to pass the password to sudo
+                const sudoCmd = `echo ${password} | sudo -S ${scriptPath}`;
+                const childProcess = exec(sudoCmd);
+
+                childProcess.stdout.on('data', (data) => {
+                    const output = data.toString();
+                    console.log('Command output:', output);
+
+                    progressStep++;
+                    const percentage = Math.min(progressStep * 10, 90);
+
+                    res = {
+                        message: `Executing: ${output.trim()}`,
+                        percentage: percentage,
+                        success: false,
+                        step: progressStep
+                    };
+                    RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                });
+
+                childProcess.stderr.on('data', (data) => {
+                    const errorOutput = data.toString();
+                    console.error('Command error:', errorOutput);
+
+                    // Handle common sudo errors
+                    if (errorOutput.includes('is not in the sudoers file') || errorOutput.includes('not allowed to execute')) {
+                        res = {
+                            message: `Sudo permission error: You don't have sudo privileges for this command`,
+                            percentage: 0,
+                            success: false,
+                            step: -1
+                        };
+                        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                        window.showErrorMessage(`Sudo permission error: You don't have privileges for this command`);
+                        reject(new Error('Sudo permission error: insufficient privileges'));
+                        return;
+                    }
+
+                    if (errorOutput.includes('incorrect password') || errorOutput.includes('Sorry, try again')) {
+                        res = {
+                            message: `Sudo authentication failed: Incorrect password`,
+                            percentage: 0,
+                            success: false,
+                            step: -1
+                        };
+                        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                        window.showErrorMessage(`Sudo authentication failed: Incorrect password`);
+                        reject(new Error('Sudo authentication failed: Incorrect password'));
+                        return;
+                    }
+
+                    res = {
+                        message: `Error: ${errorOutput.trim()}`,
+                        percentage: 0,
+                        success: false,
+                        step: -1
+                    };
+                    RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                });
+
+                childProcess.on('close', (code) => {
+                    console.log(`Command exited with code ${code}`);
+
+                    // Clean up the temporary files
+                    try {
+                        fs.unlinkSync(scriptPath);
+                        fs.rmdirSync(tempDir);
+                    } catch (err) {
+                        console.error('Error cleaning up temporary files:', err);
+                    }
+
+                    res = {
+                        message: code === 0 ? 'Command completed successfully' : `Command failed with code ${code}`,
+                        percentage: 100,
+                        success: code === 0,
+                        step: code === 0 ? progressStep + 1 : -1
+                    };
+                    RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+
+                    if (code === 0) {
+                        window.showInformationMessage('Command executed successfully');
+                        commands.executeCommand('workbench.action.reloadWindow');
+                        resolve();
+                    } else {
+                        window.showErrorMessage(`Command failed with exit code ${code}`);
+                        reject(new Error(`Command failed with exit code ${code}`));
+                    }
+                });
+            } catch (error) {
+                console.error('Error executing sudo command with script:', error);
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                window.showErrorMessage(`Error executing sudo command: ${errorMessage}`);
+
+                res = {
+                    message: `Error executing sudo command: ${errorMessage}`,
+                    percentage: 0,
+                    success: false,
+                    step: -1
+                };
+                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                reject(error);
+            }
         });
     }
 
@@ -1245,6 +1581,9 @@ export class BallerinaExtension {
     }
 
     async getBallerinaVersion(ballerinaHome: string, overrideBallerinaHome: boolean): Promise<string> {
+        // Initialize with fresh environment
+        await this.syncEnvironment();
+
         // if ballerina home is overridden, use ballerina cmd inside distribution
         // otherwise use wrapper command
         if (ballerinaHome) {
@@ -1330,7 +1669,7 @@ export class BallerinaExtension {
             if (selection === update) {
                 const terminal = window.createTerminal('Update Ballerina');
                 terminal.show();
-                terminal.sendText('sudo bal dist update');
+                terminal.sendText('bal dist update');
                 window.showInformationMessage('Ballerina update started. Please wait...');
             }
         });
@@ -1522,7 +1861,7 @@ export class BallerinaExtension {
     }
 
     public enableLSDebug(): boolean {
-        return this.overrideBallerinaHome() && <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
+        return <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
     }
 
     public enabledLiveReload(): boolean {
@@ -1628,6 +1967,28 @@ export class BallerinaExtension {
     public setIsOpenedOnce(state: boolean) {
         this.isOpenedOnce = state;
     }
+
+
+    /**
+     * Synchronize process environment with the latest shell environment
+     * This is especially important after Ballerina installation when PATH has been updated
+     */
+    private async syncEnvironment(): Promise<void> {
+        try {
+            const freshEnv = await getShellEnvironment();
+            debug('Syncing process environment with shell environment');
+            updateProcessEnv(freshEnv);
+
+            // Show some debug info for PATH
+            if (isWindows()) {
+                debug(`Updated PATH: ${process.env.Path}`);
+            } else {
+                debug(`Updated PATH: ${process.env.PATH}`);
+            }
+        } catch (error) {
+            debug(`Failed to sync environment: ${error}`);
+        }
+    }
 }
 
 /**
@@ -1722,6 +2083,77 @@ export class TelemetryTracker {
     public incrementDiagramEditCount() {
         this.diagramEditCount++;
     }
+}
+
+function updateProcessEnv(newEnv: NodeJS.ProcessEnv): void {
+    // Update PATH/Path specially to preserve existing values that might not be in shell env
+    if (isWindows() && newEnv.Path) {
+        process.env.Path = newEnv.Path;
+    } else if (newEnv.PATH) {
+        process.env.PATH = newEnv.PATH;
+    }
+
+    // Update other environment variables
+    for (const key in newEnv) {
+        // Skip PATH as we've already handled it, and skip some internal variables
+        if (key !== 'PATH' && key !== 'Path' && !key.startsWith('npm_') && !key.startsWith('_')) {
+            process.env[key] = newEnv[key];
+        }
+    }
+
+    debug(`Process environment updated with fresh PATH: ${isWindows() ? process.env.Path : process.env.PATH}`);
+}
+
+function getShellEnvironment(): Promise<NodeJS.ProcessEnv> {
+    return new Promise((resolve, reject) => {
+        let command = '';
+
+        if (isWindows()) {
+            // Windows: use PowerShell to get environment
+            command = 'powershell.exe -Command "[Environment]::GetEnvironmentVariables(\'Process\') | ConvertTo-Json"';
+        } else {
+            // Unix-like systems: source profile files and print environment
+            const shell = process.env.SHELL || '/bin/bash';
+            if (shell.includes('zsh')) {
+                command = 'zsh -i -c "source ~/.zshrc > /dev/null 2>&1; env"';
+            } else {
+                command = 'bash -i -c "source ~/.bashrc > /dev/null 2>&1; env"';
+            }
+        }
+
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                debug(`Error getting shell environment: ${error.message}`);
+                return reject(error);
+            }
+
+            const env = { ...process.env }; // Start with current env
+
+            try {
+                if (isWindows()) {
+                    // Parse PowerShell JSON output
+                    const envVars = JSON.parse(stdout);
+                    Object.keys(envVars).forEach(key => {
+                        env[key] = envVars[key].toString();
+                    });
+                } else {
+                    // Parse Unix env output (KEY=value format)
+                    stdout.split('\n').forEach(line => {
+                        const match = line.match(/^([^=]+)=(.*)$/);
+                        if (match) {
+                            env[match[1]] = match[2];
+                        }
+                    });
+                }
+
+                debug('Successfully retrieved fresh environment variables');
+                resolve(env);
+            } catch (parseError) {
+                debug(`Error parsing environment output: ${parseError}`);
+                reject(parseError);
+            }
+        });
+    });
 }
 
 export const ballerinaExtInstance = new BallerinaExtension();

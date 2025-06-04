@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon, FormActions } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
@@ -46,10 +46,11 @@ interface AddConnectorProps {
     watch: any;
     getValues: any;
     dirtyFields: any;
+    isUpdate: boolean;
 }
 
 const AddConnector = (props: AddConnectorProps) => {
-    const { formData, nodePosition, control, errors, setValue, reset, watch, getValues, dirtyFields, handleSubmit, documentUri } = props;
+    const { formData, connectionName, nodePosition, control, errors, setValue, reset, watch, getValues, dirtyFields, isUpdate, handleSubmit, documentUri } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -58,24 +59,13 @@ const AddConnector = (props: AddConnectorProps) => {
     const handleOnCancelExprEditorRef = useRef(() => { });
     const [parameters, setParameters] = useState<string[]>(props.parameters);
 
-    const fetchConnections = async () => {
-        const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-            documentUri: props.documentUri,
-            connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
-        });
+    const fetchConnectionsForTemplateConnection = async () => {
+        if (!props.formData) {
+            const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                documentUri: props.documentUri,
+                connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
+            });
 
-        if (props.formData && props.formData !== "") {
-            const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
-
-            const filteredConnections = connectionsData.connections.filter(
-                connection => allowedTypes?.some(
-                    // Ignore case in checking allowed connection types
-                    type => type.toLowerCase() === connection.connectionType.toLowerCase()
-                ));
-            const connectionNames = filteredConnections.map(connection => connection.name);
-
-            setConnections(connectionNames);
-        } else {
             // Fetch connections for old connectors (No ConnectionType)
             const connectionsNames = connectionsData.connections.map(connection => connection.name);
             setConnections(connectionsNames);
@@ -103,7 +93,10 @@ const AddConnector = (props: AddConnectorProps) => {
     }, [sidePanelContext.pageStack]);
 
     useEffect(() => {
-        fetchConnections();
+        if (connectionName) {
+            setValue('configRef', connectionName);
+        }
+        setIsLoading(false);
     }, [props.formData]);
 
     useEffect(() => {
@@ -148,28 +141,6 @@ const AddConnector = (props: AddConnectorProps) => {
         return String(name).replace('.', '__dot__');
     }
 
-
-    function getInputType(formData: any, paramName: string): string {
-        let inputType = null;
-
-        function traverseElements(elements: any) {
-            for (let element of elements) {
-                if (element.type === 'attribute' && element.value.name === paramName) {
-                    inputType = element.value.inputType;
-                    return;
-                }
-
-                if (element.type === 'attributeGroup') {
-                    traverseElements(element.value.elements);
-                }
-            }
-        }
-
-        traverseElements(formData.elements);
-
-        return inputType;
-    }
-
     const addNewConnection = async (name?: string, allowedConnectionTypes?: string) => {
         const connectionTypes = allowedConnectionTypes ?? findAllowedConnectionTypes(props.formData.elements ?? "");
 
@@ -187,10 +158,14 @@ const AddConnector = (props: AddConnectorProps) => {
 
         rpcClient.onParentPopupSubmitted(async (data: ParentPopupData) => {
             if (data.recentIdentifier) {
-                await fetchConnections();
+                await fetchConnectionsForTemplateConnection();
                 setValue(name ?? 'configKey', data.recentIdentifier);
             }
         });
+    }
+
+    const handleOnClose = () => {
+        sidePanelContext.pageStack.length > 1 ? sidepanelGoBack(sidePanelContext) : clearSidePanelState(sidePanelContext);
     }
 
     const onClick = async (values: any) => {
@@ -283,14 +258,6 @@ const AddConnector = (props: AddConnectorProps) => {
                                     />
                                 </Field>
                             ))}
-                            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                                <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(onClick)}
-                                >
-                                    Submit
-                                </Button>
-                            </div>
                         </>
                     ) : (
                         // Render connection selection field when no template is present
@@ -322,14 +289,6 @@ const AddConnector = (props: AddConnectorProps) => {
                                     )}
                                 />
                             </Field>
-                            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                                <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(onClick)}
-                                >
-                                    Submit
-                                </Button>
-                            </div>
                         </>
                     ))
                 ) :
@@ -346,19 +305,24 @@ const AddConnector = (props: AddConnectorProps) => {
                             watch={watch}
                             getValues={getValues}
                             skipGeneralHeading={true}
-                            ignoreFields={props.connectionName ? ["configRef"] : []}
-                            addNewConnection={addNewConnection}
+                            disableFields={props.connectionName ? ["configRef"] : []}
                             range={props.nodePosition} />
-                        <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                            <Button
-                                appearance="primary"
-                                onClick={handleSubmit(onClick)}
-                            >
-                                Submit
-                            </Button>
-                        </div>
                     </>
             }
+            <FormActions>
+                <Button
+                    appearance="secondary"
+                    onClick={handleOnClose}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(onClick)}
+                >
+                    {isUpdate ? "Update" : "Add"}
+                </Button>
+            </FormActions>
         </FormContainer>
     );
 };

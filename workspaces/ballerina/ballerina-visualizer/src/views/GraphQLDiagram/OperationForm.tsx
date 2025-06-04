@@ -8,9 +8,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { FunctionModel, LineRange, ParameterModel, ConfigProperties, Type } from '@wso2-enterprise/ballerina-core';
+import { FunctionModel, LineRange, ParameterModel, ConfigProperties, Type, PropertyModel } from '@wso2-enterprise/ballerina-core';
 import { FormGeneratorNew } from '../BI/Forms/FormGeneratorNew';
-import { FormField, FormValues, Parameter } from '@wso2-enterprise/ballerina-side-panel';
+import { FormField, FormImports, FormValues, Parameter } from '@wso2-enterprise/ballerina-side-panel';
+import { getImportsForProperty } from '../../utils/bi';
 
 interface OperationFormProps {
     model: FunctionModel;
@@ -64,7 +65,7 @@ export function OperationForm(props: OperationFormProps) {
                 optional: typeField?.optional ?? false,
                 type: {
                     value: param.formValues['type'] as string,
-                    valueType: typeField?.type,
+                    valueType: typeField?.valueType,
                     isType: true,
                     optional: typeField?.optional,
                     advanced: typeField?.advanced,
@@ -74,7 +75,7 @@ export function OperationForm(props: OperationFormProps) {
                 },
                 name: {
                     value: param.formValues['variable'] as string,
-                    valueType: nameField?.type,
+                    valueType: nameField?.valueType,
                     isType: false,
                     optional: nameField?.optional,
                     advanced: nameField?.advanced,
@@ -84,7 +85,7 @@ export function OperationForm(props: OperationFormProps) {
                 },
                 defaultValue: {
                     value: param.formValues['defaultable'],
-                    valueType: defaultField?.type || 'string',
+                    valueType: defaultField?.valueType || 'string',
                     isType: false,
                     optional: defaultField?.optional,
                     advanced: defaultField?.advanced,
@@ -110,6 +111,7 @@ export function OperationForm(props: OperationFormProps) {
                 enabled: model.name.enabled,
                 documentation: model.name.metadata?.description || '',
                 value: model.name.value,
+                valueType: model.name.valueType,
                 valueTypeConstraint: model.name.valueTypeConstraint || '',
                 lineRange: model?.name?.codedata?.lineRange
             },
@@ -121,7 +123,7 @@ export function OperationForm(props: OperationFormProps) {
                 editable: true,
                 enabled: true,
                 documentation: '',
-                value: '',
+                value: model.parameters.map((param, index) => convertParameterToParamValue(param, index)),
                 paramManagerProps: {
                     paramValues: model.parameters.map((param, index) => convertParameterToParamValue(param, index)),
                     formFields: convertSchemaToFormFields(model.schema),
@@ -139,13 +141,14 @@ export function OperationForm(props: OperationFormProps) {
                 advanced: model.returnType.advanced,
                 documentation: model.returnType.metadata?.description || '',
                 value: model.returnType.value,
+                valueType: model.returnType.valueType,
                 valueTypeConstraint: model.returnType.valueTypeConstraint || ''
             }
         ];
         setFields(initialFields);
     }, [model]);
 
-    const handleFunctionCreate = (data: FormValues) => {
+    const handleFunctionCreate = (data: FormValues, formImports: FormImports) => {
         console.log("Function create with data:", data);
         const { name, returnType, parameters: params } = data;
         const paramList = params ? getFunctionParametersList(params) : [];
@@ -153,6 +156,7 @@ export function OperationForm(props: OperationFormProps) {
         newFunctionModel.name.value = name;
         newFunctionModel.returnType.value = returnType;
         newFunctionModel.parameters = paramList;
+        newFunctionModel.returnType.imports = getImportsForProperty('returnType', formImports);
         onSave(newFunctionModel);
     };
 
@@ -206,6 +210,7 @@ export function convertParameterToFormField(key: string, param: ParameterModel):
         advanced: key === "defaultValue" ? true : param.advanced,
         documentation: param.metadata?.description || '',
         value: param.value || '',
+        valueType: param.valueType,
         valueTypeConstraint: param?.valueTypeConstraint || '',
         enabled: param.enabled ?? true,
         lineRange: param?.codedata?.lineRange
@@ -216,11 +221,11 @@ function convertParameterToParamValue(param: ParameterModel, index: number) {
     return {
         id: index,
         key: param.name.value,
-        value: `${param.type.value} ${param.name.value}${param.defaultValue?.value ? ` = ${param.defaultValue.value}` : ''}`,
+        value: `${param.type.value} ${param.name.value}${(param.defaultValue as PropertyModel)?.value ? ` = ${(param.defaultValue as PropertyModel)?.value}` : ''}`,
         formValues: {
             variable: param.name.value,
             type: param.type.value,
-            defaultable: param.defaultValue?.value || ''
+            defaultable: (param.defaultValue as PropertyModel)?.value || ''
         },
         icon: 'symbol-variable',
         identifierEditable: param.name?.editable,

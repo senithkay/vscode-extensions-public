@@ -22,9 +22,8 @@ import {
     ProjectStructureArtifactResponse,
     PropertyModel,
 } from "@wso2-enterprise/ballerina-core";
-import { Codicon, Icon, LinkButton, ProgressRing, Typography, View } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, LinkButton, Typography, View } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ResourceAccordion } from "./components/ResourceAccordion";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { FunctionConfigForm } from "./Forms/FunctionConfigForm";
@@ -65,6 +64,13 @@ const FunctionsContainer = styled.div`
     overflow: scroll;
 `;
 
+const ButtonText = styled.span`
+    @media (max-width: 768px) {
+        display: none;
+    }
+    width: 100%;
+`;
+
 interface ServiceDesignerProps {
     filePath: string;
     position: NodePosition;
@@ -91,14 +97,19 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             startLine: { line: position.startLine, offset: position.startColumn },
             endLine: { line: position.endLine, offset: position.endColumn },
         };
-        rpcClient
-            .getServiceDesignerRpcClient()
-            .getServiceModelFromCode({ filePath, codedata: { lineRange } })
-            .then((res) => {
-                console.log("Service Model: ", res.service);
-                setServiceModel(res.service);
-                setIsSaving(false);
-            });
+        try {
+            rpcClient
+                .getServiceDesignerRpcClient()
+                .getServiceModelFromCode({ filePath, codedata: { lineRange } })
+                .then((res) => {
+                    console.log("Service Model: ", res.service);
+                    setShowForm(false);
+                    setServiceModel(res.service);
+                    setIsSaving(false);
+                });
+        } catch (error) {
+            console.log("Error fetching service model: ", error);
+        }
         getProjectListeners();
     };
 
@@ -107,7 +118,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             .getBIDiagramRpcClient()
             .getProjectStructure()
             .then((res) => {
-                const listeners = res.directoryMap[DIRECTORY_MAP.LISTENERS];
+                const listeners = res.directoryMap[DIRECTORY_MAP.LISTENER];
                 if (listeners.length > 0) {
                     setProjectListeners(listeners);
                 }
@@ -206,21 +217,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         if (isNew) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
-                .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+                .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
         } else {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
-                .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+                .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
         }
         setIsNew(false);
-        handleNewFunctionClose();
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position,
-            },
-        });
     };
 
     const handleFunctionSubmit = async (value: FunctionModel) => {
@@ -242,13 +245,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         setIsNew(false);
         handleNewFunctionClose();
         handleFunctionConfigClose();
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position,
-            },
-        });
     };
 
     const handleFunctionConfigClose = () => {
@@ -307,6 +303,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         }
     };
 
+    const haveServiceTypeName = serviceModel?.properties["serviceTypeName"]?.value;
+
     return (
         <View>
             <TopNavigationBar />
@@ -315,30 +313,30 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 subtitle="Implement and configure your service"
                 actions={
                     <>
-                        <VSCodeButton appearance="secondary" title="Edit Service" onClick={handleServiceEdit}>
-                            <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> Edit
-                        </VSCodeButton>
+                        <Button appearance="secondary" tooltip="Edit Service" onClick={handleServiceEdit}>
+                            <Icon name="bi-edit" sx={{ marginRight: 8, fontSize: 16 }} /> <ButtonText>Edit</ButtonText>
+                        </Button>
                         {serviceModel && serviceModel.moduleName === "http" && (
-                            <VSCodeButton appearance="secondary" title="Try Service" onClick={handleServiceTryIt}>
-                                <Icon name="play" isCodicon={true} sx={{ marginRight: 8, fontSize: 16 }} /> Try It
-                            </VSCodeButton>
+                            <Button appearance="secondary" tooltip="Try Service" onClick={handleServiceTryIt}>
+                                <Icon name="play" isCodicon={true} sx={{ marginRight: 8, fontSize: 16 }} /> <ButtonText>Try It</ButtonText>
+                            </Button>
                         )}
                         {serviceModel && serviceModel.moduleName === "http" && (
-                            <VSCodeButton appearance="secondary" title="Export OpenAPI Spec" onClick={handleExportOAS}>
-                                <Icon name="bi-export" sx={{ marginRight: 8, fontSize: 16 }} /> Export
-                            </VSCodeButton>
+                            <Button appearance="secondary" tooltip="Export OpenAPI Spec" onClick={handleExportOAS}>
+                                <Icon name="bi-export" sx={{ marginRight: 8, fontSize: 16 }} /> <ButtonText>Export</ButtonText>
+                            </Button>
                         )}
                         {serviceModel &&
                             serviceModel.moduleName !== "http" &&
                             serviceModel.functions.some((func) => !func.enabled) && (
-                                <VSCodeButton appearance="primary" title="Add Function" onClick={handleNewFunction}>
-                                    <Codicon name="add" sx={{ marginRight: 8 }} /> Function
-                                </VSCodeButton>
+                                <Button appearance="primary" tooltip="Add Function" onClick={handleNewFunction}>
+                                    <Codicon name="add" sx={{ marginRight: 8 }} /> <ButtonText>Function</ButtonText>
+                                </Button>
                             )}
-                        {serviceModel && serviceModel.moduleName === "http" && (
-                            <VSCodeButton appearance="primary" title="Add Resource" onClick={handleNewResourceFunction}>
-                                <Codicon name="add" sx={{ marginRight: 8 }} /> Resource
-                            </VSCodeButton>
+                        {serviceModel && serviceModel.moduleName === "http" && !haveServiceTypeName && (
+                            <Button appearance="primary" tooltip="Add Resource" onClick={handleNewResourceFunction}>
+                                <Codicon name="add" sx={{ marginRight: 8 }} /> <ButtonText>Resource</ButtonText>
+                            </Button>
                         )}
                     </>
                 }
@@ -349,17 +347,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         <LoadingRing message="Loading Service..." />
                     </LoadingContainer>
                 )}
-                {isSaving && (
-                    <LoadingContainer>
-                        <LoadingRing message="Saving..." />
-                    </LoadingContainer>
-                )}
                 {serviceModel && (
                     <>
                         <InfoContainer>
                             {Object.keys(serviceModel.properties).map(
                                 (key, index) =>
-                                    serviceModel.properties[key].value && (
+                                    serviceModel.properties[key].value &&
+                                    serviceModel.properties[key].codedata.type !== "ANNOTATION_ATTACHMENT" && (
                                         <InfoSection>
                                             <Icon
                                                 name={findIcon(serviceModel.properties[key].metadata.label)}
@@ -416,7 +410,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     <ResourceAccordion
                                         key={`${index}-${functionModel.name.value}`}
                                         functionModel={functionModel}
-                                        goToSource={() => {}}
+                                        goToSource={() => { }}
                                         onEditResource={handleFunctionEdit}
                                         onDeleteResource={handleFunctionDelete}
                                         onResourceImplement={handleOpenDiagram}
@@ -434,6 +428,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     >
                         <ResourceForm
                             model={functionModel}
+                            isSaving={isSaving}
                             onSave={handleResourceSubmit}
                             onClose={handleNewFunctionClose}
                         />

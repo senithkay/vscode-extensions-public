@@ -35,7 +35,8 @@ import {
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
-    isArrayOrRecord
+    isArrayOrRecord,
+    isIndexedExpression
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { getEnrichedRecordType } from "../../utils/type-utils";
@@ -110,7 +111,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         mappings.forEach((mapping) => {
             const { fields, value, otherVal } = mapping;
             const field = fields[fields.length - 1];
-            if (!value || !value.source) {
+            if (!value || !value.source || (otherVal && isIndexedExpression(otherVal))) {
                 // Unsupported mapping
                 return;
             }

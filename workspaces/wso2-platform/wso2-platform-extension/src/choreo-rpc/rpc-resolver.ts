@@ -49,6 +49,7 @@ import {
 } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, window } from "vscode";
 import type { Messenger } from "vscode-messenger";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChoreoRPCClient) {
 	messenger.onRequest(ChoreoRpcGetProjectsRequest, (orgID) => rpcClient.getProjects(orgID));
@@ -60,8 +61,10 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 		);
 	});
 	messenger.onRequest(ChoreoRpcCreateComponentRequest, async (params) => {
-		return window.withProgress({ title: `Creating component ${params.name}...`, location: ProgressLocation.Notification }, () =>
-			rpcClient.createComponent(params),
+		const extName = webviewStateStore.getState().state.extensionName;
+		return window.withProgress(
+			{ title: `Creating ${extName === "Devant" ? "integration" : "component"} ${params.name}...`, location: ProgressLocation.Notification },
+			() => rpcClient.createComponent(params),
 		);
 	});
 	messenger.onRequest(ChoreoRpcGetBuildPacksRequest, (params) => rpcClient.getBuildPacks(params));
@@ -69,8 +72,10 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 	messenger.onRequest(ChoreoRpcIsRepoAuthorizedRequest, (params) => rpcClient.isRepoAuthorized(params));
 	messenger.onRequest(ChoreoRpcGetCredentialsRequest, (params) => rpcClient.getCredentials(params));
 	messenger.onRequest(ChoreoRpcDeleteComponentRequest, async (params) => {
-		return window.withProgress({ title: `Deleting component ${params.componentName}...`, location: ProgressLocation.Notification }, () =>
-			rpcClient.deleteComponent(params),
+		const extName = webviewStateStore.getState().state.extensionName;
+		return window.withProgress(
+			{ title: `Deleting ${extName === "Devant" ? "integration" : "component"} ${params.componentName}...`, location: ProgressLocation.Notification },
+			() => rpcClient.deleteComponent(params),
 		);
 	});
 	messenger.onRequest(ChoreoRpcCreateBuildRequest, async (params) => {
@@ -86,8 +91,12 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 	messenger.onRequest(ChoreoRpcGetDeploymentStatusRequest, (params) => rpcClient.getDeploymentStatus(params));
 	messenger.onRequest(ChoreoRpcGetProxyDeploymentInfo, (params) => rpcClient.getProxyDeploymentInfo(params));
 	messenger.onRequest(ChoreoRpcCreateDeploymentRequest, async (params) => {
+		const extName = webviewStateStore.getState().state.extensionName;
 		return window.withProgress(
-			{ title: `Deploying component ${params.componentName} in ${params.envName} environment...`, location: ProgressLocation.Notification },
+			{
+				title: `Deploying ${extName === "Devant" ? "integration" : "component"} ${params.componentName} in ${params.envName} environment...`,
+				location: ProgressLocation.Notification,
+			},
 			() => rpcClient.createDeployment(params),
 		);
 	});

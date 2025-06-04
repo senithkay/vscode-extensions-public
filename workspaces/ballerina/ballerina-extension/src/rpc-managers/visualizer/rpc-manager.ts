@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ColorThemeKind,
     HistoryEntry,
     UpdateUndoRedoMangerRequest,
     VisualizerAPI,
@@ -16,10 +17,12 @@ import {
     MACHINE_VIEW,
     PopupVisualizerLocation,
     VisualizerLocation,
-    EVENT_TYPE
+    EVENT_TYPE,
+    SHARED_COMMANDS
 } from "@wso2-enterprise/ballerina-core";
 import { history, openView, undoRedoManager, updateView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
+import { commands, window } from "vscode";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -49,7 +52,7 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     goHome(): void {
         history.clear();
-        updateView();
+        commands.executeCommand(SHARED_COMMANDS.FORCE_UPDATE_PROJECT_ARTIFACTS);
     }
 
     goSelected(index: number): void {
@@ -76,5 +79,11 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     updateUndoRedoManager(params: UpdateUndoRedoMangerRequest): void {
         undoRedoManager.updateContent(params.filePath, params.fileContent);
+    }
+
+    async getThemeKind(): Promise<ColorThemeKind> {
+        return new Promise((resolve) => {
+            resolve(window.activeColorTheme.kind);
+        });
     }
 }

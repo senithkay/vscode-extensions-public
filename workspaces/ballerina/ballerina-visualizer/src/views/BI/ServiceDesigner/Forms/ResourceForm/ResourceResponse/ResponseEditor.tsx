@@ -14,11 +14,12 @@ import { CheckBox, Divider, Tabs, Typography } from '@wso2-enterprise/ui-toolkit
 import { EditorContainer, EditorContent } from '../../../styles';
 import { LineRange, PropertyModel, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getDefaultResponse, getTitleFromResponseCode, HTTP_METHOD } from '../../../utils';
-import { FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { FormField, FormImports, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import FormGeneratorNew from '../../../../Forms/FormGeneratorNew';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI, Utils } from 'vscode-uri';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
+import { getImportsForProperty } from '../../../../../../utils/bi';
 
 
 enum Views {
@@ -55,7 +56,7 @@ export function ResponseEditor(props: ParamProps) {
         onCancel(index);
     };
 
-    const convertPropertyToFormField = (property: PropertyModel, isArray?: boolean) => {
+    const convertPropertyToFormField = (property: PropertyModel, isArray?: boolean, items?: string[]) => {
         const converted: FormField = {
             key: "",
             label: property.metadata.label,
@@ -65,7 +66,7 @@ export function ResponseEditor(props: ParamProps) {
             enabled: property.enabled,
             documentation: property.metadata.description,
             value: isArray ? property.values || [] : property.value,
-            items: property.items,
+            items: property.items || items,
             diagnostics: property.diagnostics,
             valueTypeConstraint: property.valueTypeConstraint,
         }
@@ -73,6 +74,15 @@ export function ResponseEditor(props: ParamProps) {
     }
 
     const updateNewFields = (res: StatusCodeResponse) => {
+        const defaultItems = [
+            "",
+            "string",
+            "int",
+            "boolean",
+            "string[]",
+            "int[]",
+            "boolean[]"
+        ];
         const fields = [
             {
                 ...convertPropertyToFormField(res.statusCode),
@@ -89,7 +99,7 @@ export function ResponseEditor(props: ParamProps) {
                 key: `name`,
             },
             {
-                ...convertPropertyToFormField(res.headers, true),
+                ...convertPropertyToFormField(res.headers, true, defaultItems),
                 key: `headers`,
             }
         ];
@@ -143,7 +153,7 @@ export function ResponseEditor(props: ParamProps) {
     }
 
 
-    const handleOnNewSubmit = (dataValues: FormValues) => {
+    const handleOnNewSubmit = (dataValues: FormValues, formImports: FormImports) => {
         console.log("Add New Response: ", dataValues);
         if (isValidResponse(dataValues)) {
             // Set the values
@@ -152,13 +162,15 @@ export function ResponseEditor(props: ParamProps) {
             response.body.value = dataValues['body'];
             response.name.value = dataValues['name'];
             response.headers.values = dataValues['headers'];
+            response.body.imports = getImportsForProperty('body', formImports);
             onSave(response, index);
         }
     }
 
-    const handleOnExistingSubmit = (dataValues: FormValues) => {
+    const handleOnExistingSubmit = (dataValues: FormValues, formImports: FormImports) => {
         console.log("Add Existing Type: ", dataValues);
         response.type.value = dataValues['type'];
+        response.type.imports = getImportsForProperty('type', formImports);
         response.statusCode.value = '';
         response.body.value = '';
         response.name.value = '';

@@ -32,19 +32,33 @@ export const useStyles = () => ({
         alignItems: "flex-start",
         width: "inherit",
         background: "var(--vscode-editorWidget-background)",
-        borderRadius: "4px",
+        padding: "5px",
+    }),
+    addFieldButton: css({
+        "& > vscode-button": {
+            color: "var(--vscode-textLink-foreground)",
+            padding: "4px",
+        }
     }),
     input: css({
-        maxWidth: '120px',
+        maxWidth: '300px',
+        width: '100%',
         padding: "5px",
-        border: 0,
-        '&:hover': { outline: 0 },
-        '&:focus': { outline: 0 },
-        background: 'transparent',
+        '&:focus': { outline: 0, border: "1px solid var(--vscode-editorHoverWidget-background)" },
+        background: "var(--vscode-editorHoverWidget-background)",
+        color: 'var(--vscode-editor-foreground)',
+        border: "1px solid transparent",
         fontSize: 13,
         "&::placeholder": {
-            opacity: 0.5
-        }
+            opacity: 0.6
+        },
+        overflow: "hidden",
+        textOverflow: "ellipsis"
+    }),
+    fieldEditor: css({
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%'
     }),
     popoverRoot: css({
         padding: '5px 10px',

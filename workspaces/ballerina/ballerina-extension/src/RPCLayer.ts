@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { WebviewView, WebviewPanel } from 'vscode';
+import { WebviewView, WebviewPanel, window } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated, aiStateChanged, sendAIStateEvent, AI_EVENT_TYPE, popupStateChanged, getPopupVisualizerState, PopupVisualizerLocation, breakpointChanged } from '@wso2-enterprise/ballerina-core';
+import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated, aiStateChanged, sendAIStateEvent, popupStateChanged, getPopupVisualizerState, PopupVisualizerLocation, breakpointChanged, AIMachineEventType, currentThemeChanged } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
 import { registerLangClientRpcHandlers } from './rpc-managers/lang-client/rpc-handler';
@@ -23,7 +23,7 @@ import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/
 import { registerBiDiagramRpcHandlers } from './rpc-managers/bi-diagram/rpc-handler';
 import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler';
 import { AiPanelWebview } from './views/ai-panel/webview';
-import { StateMachineAI } from './views/ai-panel/aiMachine';
+import { AIStateMachine } from './views/ai-panel/aiMachine';
 import path from 'path';
 import { StateMachinePopup } from './stateMachinePopup';
 import { registerAiAgentRpcHandlers } from './rpc-managers/ai-agent/rpc-handler';
@@ -48,9 +48,12 @@ export class RPCLayer {
             StateMachinePopup.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(popupStateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
             });
+            window.onDidChangeActiveColorTheme((theme) => {
+                RPCLayer._messenger.sendNotification(currentThemeChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, theme.kind);
+            });
         } else {
             RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
-            StateMachineAI.service().onTransition((state) => {
+            AIStateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
             });
         }
@@ -81,7 +84,7 @@ export class RPCLayer {
 
         // ----- AI Webview RPC Methods
         registerAiPanelRpcHandlers(RPCLayer._messenger);
-        RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
+        RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AIMachineEventType) => AIStateMachine.sendEvent(event));
 
         // ----- Inline Data Mapper Webview RPC Methods
         registerInlineDataMapperRpcHandlers(RPCLayer._messenger);
@@ -112,7 +115,7 @@ async function getContext(): Promise<VisualizerLocation> {
                 haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
-                target: context.metadata?.target,
+                target: context.metadata?.target
             },
             scope: context.scope,
         });

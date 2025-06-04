@@ -58,13 +58,13 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     />
                 )}
             </BreadCrumb>
-            {!hasEditDisabled && !onClose && (
-                <RightContainer>
+            {!onClose && (
+                <RightContainer isClickable={!hasEditDisabled}>
                     <FilterBar>
                         <HeaderSearchBox selection={selection} />
                     </FilterBar>
-                    <AutoMapButton onClick={handleAutoMap} />
-                    {<EditButton onClick={onEdit} />}
+                    <AutoMapButton onClick={handleAutoMap} disabled={hasEditDisabled} />
+                    {<EditButton onClick={onEdit} disabled={hasEditDisabled} />}
                 </RightContainer>
             )}
             {onClose && (
@@ -133,8 +133,10 @@ const LeftContainer = styled.div`
     gap: 12px;
 `;
 
-const RightContainer = styled.div`
+const RightContainer = styled.div<{ isClickable: boolean }>`
     display: flex;
     align-items: center;
     gap: 12px;
+    pointer-events: ${({ isClickable }) => (isClickable ? 'auto' : 'none')};
+    opacity: ${({ isClickable }) => (isClickable ? 1 : 0.5)};
 `;

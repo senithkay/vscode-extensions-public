@@ -53,13 +53,14 @@ function registerBallerinaCommands(dataProvider: ProjectExplorerEntryProvider, i
 }
 
 function handleVisibilityChangeEvents(tree: TreeView<ProjectExplorerEntry>, dataProvider: ProjectExplorerEntryProvider, isBallerina?: boolean) {
-	tree.onDidChangeVisibility(res => handleVisibilityChange(res, dataProvider, isBallerina));
+	tree.onDidChangeVisibility(async res => await handleVisibilityChange(res, dataProvider, isBallerina));
 }
 
-function handleVisibilityChange(res: { visible: boolean }, dataProvider: ProjectExplorerEntryProvider, isBallerina?: boolean) {
+async function handleVisibilityChange(res: { visible: boolean }, dataProvider: ProjectExplorerEntryProvider, isBallerina?: boolean) {
 	if (res.visible) {
 		if (isBallerina && extension.biSupported) {
 			commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
+			await commands.executeCommand(SHARED_COMMANDS.FORCE_UPDATE_PROJECT_ARTIFACTS);
 			dataProvider.refresh();
 		} else {
 			handleNonBallerinaVisibility();

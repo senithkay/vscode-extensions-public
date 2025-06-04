@@ -13,7 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode, Tool } from "@wso2-enterprise/mi-syntax-tree/src";
-import { ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
@@ -162,15 +162,13 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                     marginLeft: "30px",
                     padding: 0
                 }}
+                handleClose={handlePopoverClose}
             >
-                <ClickAwayListener onClickAway={handlePopoverClose}>
-                    <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => { node.delete(rpcClient, setDiagramLoading) } }} />
-                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
-                    </Menu>
-                </ClickAwayListener>
+                <Menu>
+                    <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => { node.delete(rpcClient, setDiagramLoading) } }} />
+                    <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
+                </Menu>
             </Popover>
-
         </div >
     );
 }

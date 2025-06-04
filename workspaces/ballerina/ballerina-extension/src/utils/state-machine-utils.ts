@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FOCUS_FLOW_DIAGRAM_VIEW, HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { DIRECTORY_MAP, FOCUS_FLOW_DIAGRAM_VIEW, HistoryEntry, MACHINE_VIEW, ProjectStructureArtifactResponse, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
@@ -17,9 +17,46 @@ import { FindConstructByNameVisitor } from "./history/find-construct-by-name-vis
 import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-visitor";
 import { getConstructBodyString } from "./history/util";
 import { ballerinaExtInstance } from "../core";
+import path from "path";
 
 export async function getView(documentUri: string, position: NodePosition, projectUri?: string): Promise<HistoryEntry> {
+    const haveTreeData = !!StateMachine.context().projectStructure;
+    const isServiceClassFunction = await checkForServiceClassFunctions(documentUri, position);
+    if (isServiceClassFunction || path.relative(projectUri || '', documentUri).startsWith("tests")) {
+        return {
+            location: {
+                view: MACHINE_VIEW.BIDiagram,
+                documentUri: documentUri,
+                position: position
+            },
+            dataMapperDepth: 0
+        };
+    } else if (haveTreeData) {
+        return getViewByArtifacts(documentUri, position, projectUri);
+    }
+    else {
+        return await getViewBySTRange(documentUri, position, projectUri);
+    }
+}
 
+async function checkForServiceClassFunctions(documentUri: string, position: NodePosition) {
+    const currentProjectArtifacts = StateMachine.context().projectStructure;
+    if (currentProjectArtifacts) {
+        for (const dir of currentProjectArtifacts.directoryMap[DIRECTORY_MAP.TYPE]) {
+            if (dir.path === documentUri && isPositionWithinBlock(position, dir.position)) {
+                const req = getSTByRangeReq(documentUri, position);
+                const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
+                if (node.parseSuccess && STKindChecker.isObjectMethodDefinition(node.syntaxTree)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
+
+// TODO: This is not used anymore. Remove it.
+async function getViewBySTRange(documentUri: string, position: NodePosition, projectUri?: string) {
     const req = getSTByRangeReq(documentUri, position);
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
     if (node.parseSuccess) {
@@ -199,6 +236,168 @@ export async function getView(documentUri: string, position: NodePosition, proje
     }
 
     return { location: { view: MACHINE_VIEW.Overview, documentUri: documentUri } };
+
+}
+
+function getViewByArtifacts(documentUri: string, position: NodePosition, projectUri?: string) {
+    const currentProjectArtifacts = StateMachine.context().projectStructure;
+    if (currentProjectArtifacts) {
+        // Iterate through each category in the directory map
+        for (const [key, directory] of Object.entries(currentProjectArtifacts.directoryMap)) {
+            // Check each artifact in the category
+            for (const dir of directory) {
+                //  Go through the resources array if it exists
+                if (dir.resources && dir.resources.length > 0) {
+                    for (const resource of dir.resources) {
+                        const view = findViewByArtifact(resource, position, documentUri, projectUri);
+                        if (view) {
+                            return view;
+                        }
+                    }
+                }
+                // Check the current directory
+                const view = findViewByArtifact(dir, position, documentUri, projectUri);
+                if (view) {
+                    return view;
+                }
+            }
+        }
+        // If no view is found, return the overview view
+        return { location: { view: MACHINE_VIEW.Overview, documentUri: documentUri } };
+    }
+}
+
+function findViewByArtifact(dir: ProjectStructureArtifactResponse, position: NodePosition, documentUri: string, projectUri?: string) {
+    // In windows the documentUri might contain drive letter
+    const driveLetterRegex = /^[a-zA-Z]:/;
+    const normalizedDocumentUri = documentUri.replace(driveLetterRegex, '');
+    const normalizedDirPath = dir.path.replace(driveLetterRegex, '');
+    const normalizedProjectUri = projectUri?.replace(driveLetterRegex, '');
+    if (normalizedDirPath === normalizedDocumentUri && isPositionWithinRange(position, dir.position)) {
+        switch (dir.type) {
+            case DIRECTORY_MAP.SERVICE:
+                if (dir.moduleName === "graphql") {
+                    return {
+                        location: {
+                            view: MACHINE_VIEW.GraphQLDiagram,
+                            identifier: dir.name,
+                            documentUri: normalizedDocumentUri,
+                            position: position,
+                            projectUri: normalizedProjectUri
+                        }
+                    };
+                } else if (dir.moduleName === "ai") {
+                    return {
+                        location: {
+                            view: MACHINE_VIEW.BIDiagram,
+                            identifier: dir.name,
+                            documentUri: normalizedDocumentUri,
+                            position: position,
+                            projectUri: normalizedProjectUri
+                        }
+                    };
+                } else {
+                    return {
+                        location: {
+                            view: MACHINE_VIEW.ServiceDesigner,
+                            identifier: dir.name,
+                            documentUri: normalizedDocumentUri,
+                            position: position
+                        }
+                    };
+                }
+            case DIRECTORY_MAP.LISTENER:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.BIListenerConfigView,
+                        documentUri: normalizedDocumentUri,
+                        position: dir.position,
+                        identifier: dir.name,
+                    }
+                };
+            case DIRECTORY_MAP.RESOURCE:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.BIDiagram,
+                        documentUri: normalizedDocumentUri,
+                        position: dir.position,
+                        identifier: dir.id,
+                    }
+                };
+            case DIRECTORY_MAP.NP_FUNCTION:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.BIDiagram,
+                        documentUri: normalizedDocumentUri,
+                        position: dir.position,
+                        identifier: dir.name,
+                        focusFlowDiagramView: FOCUS_FLOW_DIAGRAM_VIEW.NP_FUNCTION,
+                    },
+                    dataMapperDepth: 0
+                };
+            case DIRECTORY_MAP.AUTOMATION:
+            case DIRECTORY_MAP.FUNCTION:
+            case DIRECTORY_MAP.REMOTE:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.BIDiagram,
+                        documentUri: normalizedDocumentUri,
+                        identifier: dir.name,
+                        position: dir.position,
+                        metadata: {
+                            enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+                        }
+                    },
+                    dataMapperDepth: 0
+                };
+            case DIRECTORY_MAP.LOCAL_CONNECTORS:
+            case DIRECTORY_MAP.CONNECTION:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.EditConnectionWizard,
+                        identifier: dir.name,
+                    },
+                };
+            case DIRECTORY_MAP.TYPE: // Type diagram should be shown for Type, Class, Enum, Record
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: normalizedDocumentUri,
+                        position: position,
+                        identifier: dir.name,
+                        projectUri: normalizedProjectUri
+                    }
+                };
+            case DIRECTORY_MAP.CONFIGURABLE:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.EditConfigVariables,
+                        documentUri: normalizedDocumentUri,
+                        position: dir.position,
+                        identifier: dir.name,
+                    },
+                };
+            case DIRECTORY_MAP.DATA_MAPPER:
+                return {
+                    location: {
+                        view: MACHINE_VIEW.DataMapper,
+                        identifier: dir.name,
+                        documentUri: normalizedDocumentUri,
+                        position: position
+                    },
+                    dataMapperDepth: 0
+                };
+        }
+    }
+    return null;
+}
+
+function isPositionWithinRange(position: NodePosition, artifactPosition: NodePosition) {
+    return position.startLine === artifactPosition.startLine && position.startColumn === artifactPosition.startColumn;
+}
+
+function isPositionWithinBlock(position: NodePosition, artifactPosition: NodePosition) {
+    return position.startLine > artifactPosition.startLine && position.endLine < artifactPosition.endLine;
 }
 
 export function getComponentIdentifier(node: STNode): string {

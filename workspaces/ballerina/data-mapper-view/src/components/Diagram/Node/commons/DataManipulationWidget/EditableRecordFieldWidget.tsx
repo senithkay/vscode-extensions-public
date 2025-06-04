@@ -44,7 +44,8 @@ import {
     CLEAR_EXISTING_MAPPINGS_WARNING,
     getSupportedUnionTypes,
     getUnionTypes,
-    INCOMPATIBLE_CASTING_WARNING
+    INCOMPATIBLE_CASTING_WARNING,
+    isAnydataType
 } from "../../../utils/union-type-utils";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
 import { OutputSearchHighlight } from "../Search";
@@ -272,8 +273,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             const isConnectedViaQueryExpr = hasValue && STKindChecker.isQueryExpression(specificField.valueExpr);
             const isInitializedRecord = isRecord && hasValue && !connectedViaLink;
             const isInitializedArray = isArray && hasValue && !connectedViaLink;
+            const isEmptyArray = isArray && portIn.editableRecordField?.elements?.length === 0;
 
-            if (isConnectedViaQueryExpr || isInitializedRecord || isInitializedArray) {
+            if (isConnectedViaQueryExpr || isInitializedRecord || (isInitializedArray && !isEmptyArray)) {
                 portIn?.setDescendantHasValue();
                 setIsDisabled(true);
             }
@@ -417,7 +419,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
         for (const member of field.originalType.members) {
             const memberTypeName = getTypeName(member);
-            if (!supportedTypes.includes(memberTypeName)) {
+            if (!supportedTypes.includes(memberTypeName) || isAnydataType(memberTypeName)) {
                 continue;
             }
             if (field.hasValue()) {

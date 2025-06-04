@@ -13,6 +13,9 @@ import { Button, FormGroup, OptionProps, Dropdown } from "@wso2-enterprise/ui-to
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { DownloadProgressData, EVENT_TYPE, PathDetailsResponse } from "@wso2-enterprise/mi-core";
 import { ButtonWithDescription, DownloadComponent, RuntimeStatus, Row, Column, StepDescription } from "./Components";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { EULALicenseForm } from "./EULALicense";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     display: flex;
@@ -58,11 +61,28 @@ const StepContainer = styled.div`
     gap: 20px;
 `;
 
+const LoadingContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+    z-index: 1000;
+`;
+
 
 export const EnvironmentSetup = () => {
     const { rpcClient } = useVisualizerContext();
+    const [projectUri, setProjectUri] = useState<string>("");
+    const [isLoading, setIsLoading] = useState(true);
     const [recommendedVersions, setRecommendedVersions] = useState<{ miVersion: string, javaVersion: string }>({ miVersion: "", javaVersion: "" });
-    const [miVersionStatus, setMiVersionStatus] = useState<"valid" | "missing" | "not-valid">("not-valid");
+    const [miVersionStatus, setMiVersionStatus] = useState<"valid" | "valid-not-updated" | "missing" | "not-valid">("not-valid");
     const [isJavaDownloading, setIsJavaDownloading] = useState(false);
     const [isMIDownloading, setIsMIDownloading] = useState(false);
     const [javaProgress, setJavaProgress] = useState<number>(0);
@@ -73,12 +93,21 @@ export const EnvironmentSetup = () => {
     const [supportedMIVersions, setSupportedMIVersions] = useState<OptionProps[]>([]);
     const [selectedRuntimeVersion, setSelectedRuntimeVersion] = useState<string>('');
     const [showDownloadButtons, setShowDownloadButtons] = useState<boolean>(false);
-
+    const [isDownloadUpdatedPack, setIsDownloadUpdatedPack] = useState<boolean>(false);
+    const [isLicenseAccepted, setIsLicenseAccepted] = useState<boolean>(false);
+    const [showLicense, setShowLicense] = useState<boolean>(false);
+    
     useEffect(() => {
         const fetchMIVersionAndSetup = async () => {
+            const { projectUri } = await rpcClient.getVisualizerState();
+            setProjectUri(projectUri);
+
             const { recommendedVersions, javaDetails, miDetails, miVersionStatus, showDownloadButtons } =
                 await rpcClient.getMiVisualizerRpcClient().getProjectSetupDetails();
-                setMiVersionStatus(miVersionStatus);
+            if (miDetails?.version === "4.4.0") {
+                setIsDownloadUpdatedPack(true);
+            }
+            setMiVersionStatus(miVersionStatus);
             if (miVersionStatus === "valid") {
                 setRecommendedVersions(recommendedVersions);
                 setJavaPathDetails(javaDetails);
@@ -90,9 +119,16 @@ export const EnvironmentSetup = () => {
                 setSupportedMIVersions(supportedMIVersions);
                 setSelectedRuntimeVersion(supportedMIVersions[0].value);
             }
+            setIsLoading(false);
         };
         fetchMIVersionAndSetup();
     }, [rpcClient]);
+
+    useEffect(() => {
+        if (isLicenseAccepted && !showLicense) {
+            handleMIDownload();
+        }
+    }, [showLicense]);
 
     const handleDownload = async () => {
         if (javaPathDetails?.status === "not-valid") {
@@ -116,7 +152,7 @@ export const EnvironmentSetup = () => {
                 setJavaProgress(data.percentage);
             });
             const javaPath = await rpcClient.getMiVisualizerRpcClient().downloadJavaFromMI(recommendedVersions.miVersion);
-            const javaDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'JAVA', path: javaPath });
+            const javaDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'JAVA', path: javaPath });
             setJavaPathDetails(javaDetails);
         } catch (err) {
             setError((err as Error).message);
@@ -125,14 +161,18 @@ export const EnvironmentSetup = () => {
         }
     }
     const handleMIDownload = async () => {
+        if (!isLicenseAccepted && isDownloadUpdatedPack) {
+            setShowLicense(true);
+            return;
+        }
         setIsMIDownloading(true);
         setError(undefined);
         try {
             rpcClient.onDownloadProgress((data: DownloadProgressData) => {
                 setMiProgress(data.percentage);
             });
-            const miPath = await rpcClient.getMiVisualizerRpcClient().downloadMI(recommendedVersions.miVersion);
-            const miDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'MI', path: miPath });
+            const miPath = await rpcClient.getMiVisualizerRpcClient().downloadMI({ version: recommendedVersions.miVersion, isUpdatedPack: isDownloadUpdatedPack });
+            const miDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'MI', path: miPath });
             setPathDetails(miDetails);
         } catch (err) {
             setError((err as Error).message);
@@ -144,7 +184,7 @@ export const EnvironmentSetup = () => {
     const selectMIPath = async () => {
         const selectedMIPath = await rpcClient.getMiVisualizerRpcClient().selectFolder("Select the Micro Integrator runtime path");
         if (selectedMIPath) {
-            const miDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'MI', path: selectedMIPath });
+            const miDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'MI', path: selectedMIPath });
             if (miDetails.status !== "not-valid") {
                 setPathDetails(miDetails);
             }
@@ -154,7 +194,7 @@ export const EnvironmentSetup = () => {
     const selectJavaHome = async () => {
         const selectedJavaHome = await rpcClient.getMiVisualizerRpcClient().selectFolder("Select the Java Home path");
         if (selectedJavaHome) {
-            const javaDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'JAVA', path: selectedJavaHome });
+            const javaDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'JAVA', path: selectedJavaHome });
             if (javaDetails.status !== "not-valid") {
                 setJavaPathDetails(javaDetails);
             }
@@ -171,7 +211,7 @@ export const EnvironmentSetup = () => {
             type="JAVA"
             pathDetails={javaPathDetails}
             recommendedVersion={recommendedVersions.javaVersion}
-            showInlineDownloadButton={showDownloadButtons && !(bothNotFound)}
+            showInlineDownloadButton={!bothNotFound}
             handleDownload={handleJavaDownload}
             isDownloading={isJavaDownloading || isMIDownloading}
         />
@@ -184,11 +224,41 @@ export const EnvironmentSetup = () => {
         if (isMIDownloading) {
             return <DownloadComponent title="Micro Integrator" description="Fetching the MI runtime required to run MI." progress={miProgress} />;
         }
+        if (miStatus === "not-valid" && miPathDetails?.version === "4.4.0") {
+            return (
+                <RuntimeStatus
+                    type="MI"
+                    pathDetails={miPathDetails}
+                    recommendedVersion={recommendedVersions.miVersion}
+                    showInlineDownloadButton={showDownloadButtons && !bothNotFound}
+                    handleDownload={handleMIDownload}
+                    isDownloading={isJavaDownloading || isMIDownloading}
+                >
+                    {showDownloadButtons && (
+                        <VSCodeCheckbox
+                            checked={isDownloadUpdatedPack}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIsDownloadUpdatedPack(e.target.checked)}>
+                            Download Latest Pack
+                        </VSCodeCheckbox>)}
+                </RuntimeStatus>
+            );
+        }
+        if (miStatus === "not-valid") {
+            return (<RuntimeStatus
+                type="MI"
+                pathDetails={miPathDetails}
+                recommendedVersion={recommendedVersions.miVersion}
+                showInlineDownloadButton={showDownloadButtons && !bothNotFound}
+                handleDownload={handleMIDownload}
+                isDownloading={isJavaDownloading || isMIDownloading}
+            />
+            );
+        }
         return <RuntimeStatus
             type="MI"
             pathDetails={miPathDetails}
             recommendedVersion={recommendedVersions.miVersion}
-            showInlineDownloadButton={showDownloadButtons && !(bothNotFound)}
+            showInlineDownloadButton={showDownloadButtons && !bothNotFound}
             handleDownload={handleMIDownload}
             isDownloading={isJavaDownloading || isMIDownloading}
         />
@@ -202,7 +272,7 @@ export const EnvironmentSetup = () => {
         const bothNotFound = javaStatus === "not-valid" && miStatus === "not-valid";
 
         if (isProperlySetup) {
-            return <ButtonWithDescription 
+            return <ButtonWithDescription
                 onClick={refreshProject}
                 buttonText="Continue"
                 description="Project is properly setup. Click continue to open the project."
@@ -211,7 +281,7 @@ export const EnvironmentSetup = () => {
         if (canContinue) {
             const javaDescription = "Warning: The recommended Java version for the runtime has not been used. While you can continue, please note that the project may not function as expected without the proper version."
             const miDescription = "Warning: The runtime version configured in the developer environment does not match with the runtime version configured for the project. While you can continue, please note that the project may not function as expected without the proper version."
-            return <ButtonWithDescription 
+            return <ButtonWithDescription
                 onClick={refreshProject}
                 buttonText="Continue Anyway"
                 description={miStatus !== "valid" ? miDescription : javaDescription}
@@ -240,8 +310,8 @@ export const EnvironmentSetup = () => {
         let isMISet = miPathDetails?.status !== "not-valid";
 
         if (isJavaSet && isMISet) {
-            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'MI', path: miPathDetails.path });
-            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'JAVA', path: javaPathDetails.path });
+            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'MI', path: miPathDetails.path });
+            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'JAVA', path: javaPathDetails.path });
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: EVENT_TYPE.REFRESH_ENVIRONMENT,
                 location: {},
@@ -264,6 +334,18 @@ export const EnvironmentSetup = () => {
         }
     }
 
+    if (isLoading) {
+        return (<div>
+            <LoadingContainer>
+                <ProgressRing />
+            </LoadingContainer>
+        </div>)
+    }
+
+    if (showLicense) {
+        return (<EULALicenseForm setLicenseAccepted={setIsLicenseAccepted} setShowLicense={setShowLicense} setError={setError} />);
+    }
+
     return (
         <Container>
             <TitlePanel>
@@ -271,7 +353,7 @@ export const EnvironmentSetup = () => {
                 <HeadlineSecondary>{getHeadlineDescription()}</HeadlineSecondary>
             </TitlePanel>
 
-            {miVersionStatus === "valid" ? (
+            {(miVersionStatus === "valid" || miVersionStatus === "valid-not-updated") ? (
                 <>
                     <StepContainer>
                         {renderContinue()}

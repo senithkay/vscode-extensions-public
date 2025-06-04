@@ -25,8 +25,8 @@ import {
 import { Messenger } from "vscode-messenger";
 import { MiDebuggerRpcManager } from "./rpc-manager";
 
-export function registerMiDebuggerRpcHandlers(messenger: Messenger) {
-    const rpcManger = new MiDebuggerRpcManager();
+export function registerMiDebuggerRpcHandlers(messenger: Messenger, projectUri: string): void {
+    const rpcManger = new MiDebuggerRpcManager(projectUri);
     messenger.onRequest(validateBreakpoints, (args: ValidateBreakpointsRequest) => rpcManger.validateBreakpoints(args));
     messenger.onRequest(getBreakpointInfo, (args: GetBreakpointInfoRequest) => rpcManger.getBreakpointInfo(args));
     messenger.onRequest(addBreakpointToSource, (args: AddBreakpointToSourceRequest) => rpcManger.addBreakpointToSource(args));

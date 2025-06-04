@@ -77,3 +77,7 @@ export interface FileOrDirResponse {
 export interface FileOrDirRequest {
     isFile?: boolean;
 }
+
+export interface ShowErrorMessageRequest {
+    message: string;
+}

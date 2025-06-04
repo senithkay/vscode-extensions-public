@@ -98,6 +98,7 @@ import { AiAgentNodeModel } from "../components/nodes/AIAgentNode/AiAgentNodeMod
 interface BranchData {
     name: string;
     diagnostics: Diagnostic[];
+    isStart?: boolean;
 }
 interface createNodeAndLinks {
     node: STNode;
@@ -132,6 +133,7 @@ export class NodeFactoryVisitor implements Visitor {
     private resource: DiagramService;
     private breakpointPositions?: BreakpointPosition[];
     private activatedBreakpoint?: BreakpointPosition;
+    private nodeTree: AllNodeModel[] = [];
 
 
     constructor(documentUri: string, model: DiagramService, breakpoints?: GetBreakpointsResponse) {
@@ -223,13 +225,6 @@ export class NodeFactoryVisitor implements Visitor {
 
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END;
-                const showAddButton = !isSequnceConnect &&
-                    !(previousNode instanceof EmptyNodeModel
-                        && !previousNode.visible)
-                    && type !== NodeTypes.PLUS_NODE
-                    && RESTRICTED_NODE_TYPES.indexOf(currentNodeType) < 0
-                    && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0
-                    && previousNode.getStNode().viewState?.canAddAfter;
 
                 let addPosition: NodeAddPosition;
                 if (this.currentAddPosition != undefined) {
@@ -239,18 +234,25 @@ export class NodeFactoryVisitor implements Visitor {
                         position: previousStNode.range.endTagRange?.end ?? previousStNode.range.startTagRange.end,
                         trailingSpace: previousStNode.spaces.endingTagSpace?.trailingSpace?.space ?? previousStNode.spaces.startingTagSpace.trailingSpace.space
                     };
-                } else {
+                } else if (!this.currentBranchData?.name && previousStNode?.spaces) {
                     const space = previousStNode?.spaces?.endingTagSpace?.trailingSpace?.range?.end ? previousStNode.spaces.endingTagSpace.trailingSpace : previousStNode.spaces.startingTagSpace.trailingSpace;
                     addPosition = { position: space.range.end, trailingSpace: space.space };
                 }
 
+                const showAddButton = addPosition !== undefined && !isSequnceConnect &&
+                    !(previousNode instanceof EmptyNodeModel
+                        && !previousNode.visible)
+                    && type !== NodeTypes.PLUS_NODE
+                    && RESTRICTED_NODE_TYPES.indexOf(currentNodeType) < 0
+                    && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0
+                    && previousNode.getStNode().viewState?.canAddAfter;
                 const isBrokenLine = previousStNode.viewState.isBrokenLines ?? node.viewState.isBrokenLines;
                 let linkId = "";
-                if (addPosition.position?.line != undefined && addPosition.position?.character != undefined) {
+                if (addPosition && addPosition.position?.line != undefined && addPosition.position?.character != undefined) {
                     linkId += previousStNode.viewState?.id ? `${previousStNode.viewState?.id}-` : '';
-                    linkId += `${addPosition.position.line},${addPosition.position.character}${this.currentBranchData?.name ? `,${this.currentBranchData?.name}` : ''}`;
+                    linkId += `${addPosition.position.line},${addPosition.position.character}${this.currentBranchData?.isStart && this.currentBranchData?.name ? `,${this.currentBranchData?.name}` : ''}`;
                 } else {
-                    linkId = `${previousStNode.viewState?.id}-${previousStNode.range.startTagRange.start.line},${previousStNode.range.startTagRange.start.character},${node.viewState?.id}-${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}`;
+                    linkId = `${previousStNode.viewState?.id}-${previousStNode?.range?.startTagRange?.start?.line},${previousStNode?.range?.startTagRange?.start?.character},${node.viewState?.id}-${node?.range?.startTagRange?.start?.line},${node?.range?.startTagRange?.start?.character}`;
                 }
 
                 const link = createNodesLink(
@@ -258,23 +260,40 @@ export class NodeFactoryVisitor implements Visitor {
                     diagramNode as TargetNodeModel,
                     {
                         id: linkId,
-                        label: this.currentBranchData?.name,
-                        stRange: addPosition.position,
-                        trailingSpace: addPosition.trailingSpace ?? "",
+                        label: this.currentBranchData?.isStart ? this.currentBranchData?.name : undefined,
+                        stRange: addPosition?.position,
+                        trailingSpace: addPosition?.trailingSpace ?? "",
                         brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
                         previousNode: previousStNode.tag,
                         nextNode: type !== NodeTypes.END_NODE ? node.tag : undefined,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         showArrow: !isSequnceConnect,
                         showAddButton: showAddButton,
-                        diagnostics: this.currentBranchData?.diagnostics || [],
+                        diagnostics: this.currentBranchData?.isStart ? this.currentBranchData?.diagnostics : [],
                     }
                 );
 
                 if (!dontLink) {
+                    const link = createNodesLink(
+                        previousNode as SourceNodeModel,
+                        diagramNode as TargetNodeModel,
+                        {
+                            id: linkId,
+                            label: this.currentBranchData?.name,
+                            stRange: addPosition?.position,
+                            trailingSpace: addPosition?.trailingSpace ?? "",
+                            brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
+                            previousNode: previousStNode.tag,
+                            nextNode: type !== NodeTypes.END_NODE ? node.tag : undefined,
+                            parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
+                            showArrow: !isSequnceConnect,
+                            showAddButton: showAddButton,
+                            diagnostics: this.currentBranchData?.diagnostics || [],
+                        }
+                    );
                     this.links.push(link);
                 }
-                this.currentBranchData = undefined;
+                this.currentBranchData = { ...this.currentBranchData, isStart: false };
                 this.currentAddPosition = undefined;
             }
         }
@@ -282,6 +301,35 @@ export class NodeFactoryVisitor implements Visitor {
         this.nodes.push(diagramNode);
         if (!dontLink) {
             this.previousSTNodes = [node];
+        }
+
+        if (this.parents.length > 1) {
+            const parentStNode = this.parents[this.parents.length - 1];
+            const parentNode = this.nodes.find((node) => node.getStNode() === parentStNode);
+
+            if (parentNode) {
+                if (this.currentBranchData?.name) {
+                    if (!(parentNode as any)?.branches) {
+                        (parentNode as any).branches = {};
+                    }
+                    const branch = (parentNode as any).branches[this.currentBranchData?.name];
+                    if (branch && branch.length > 0) {
+                        branch.push(diagramNode);
+                    } else {
+                        (parentNode as any).branches[this.currentBranchData?.name] = [diagramNode];
+                    }
+                } else {
+                    const children = (parentNode as any)?.childrens;
+                    if (children && children.length > 0) {
+                        children.push(diagramNode);
+                    } else {
+                        (parentNode as any).childrens = [diagramNode];
+                    }
+                }
+            }
+
+        } else {
+            this.nodeTree.push(diagramNode)
         }
     }
 
@@ -291,8 +339,11 @@ export class NodeFactoryVisitor implements Visitor {
         for (let i = 0; i < sequenceKeys.length; i++) {
             const sequence = subSequences[sequenceKeys[i]];
             if (sequence) {
-                const space = sequence.spaces.startingTagSpace.trailingSpace;
-                this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
+                const isReference = sequence.sequenceAttribute !== undefined;
+                if (!isReference) {
+                    const space = sequence.spaces.startingTagSpace.trailingSpace;
+                    this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
+                }
 
                 // add the start node for each sub flow in group node
                 const startNode = structuredClone(sequence);
@@ -303,7 +354,7 @@ export class NodeFactoryVisitor implements Visitor {
                         NODE_DIMENSIONS.START.ACTIONED.WIDTH : NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2);
                     this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.SUB_SEQUENCE });
                 } else {
-                    this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
+                    this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics, isStart: true };
                     this.previousSTNodes = [node];
                 }
 
@@ -313,14 +364,12 @@ export class NodeFactoryVisitor implements Visitor {
                     });
 
                 } else if (sequence.sequenceAttribute) {
-                    sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
-                    sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.DEFAULT.WIDTH / 2);
                     this.createNodeAndLinks({
                         node: sequence,
                         type: NodeTypes.REFERENCE_NODE,
                         name: MEDIATORS.SEQUENCE,
                         data: {
-                            referenceName: `sequence=${sequence.sequenceAttribute}`,
+                            referenceName: `${sequence.key ?? sequence}=${sequence.sequenceAttribute}`,
                             openViewName: OPEN_SEQUENCE_VIEW
                         }
                     });
@@ -362,7 +411,7 @@ export class NodeFactoryVisitor implements Visitor {
                 },
             };
 
-            this.currentBranchData = { name: "", diagnostics: [] };
+            this.currentBranchData = { name: "", diagnostics: [], isStart: true };
             if (type === NodeTypes.GROUP_NODE) {
                 this.previousSTNodes = [];
             }
@@ -383,7 +432,7 @@ export class NodeFactoryVisitor implements Visitor {
                         lastNode = subSequences[sequenceKeys[i]];
                     }
 
-                    const conditionEndNode = this.nodes.filter((node) => node.getStNode().viewState.id === `${JSON.stringify(lastNode.range.endTagRange)}_end`);
+                    const conditionEndNode = this.nodes.filter((node) => node.getStNode().viewState.id === `${JSON.stringify(lastNode?.range?.endTagRange)}_end`);
                     if (conditionEndNode.length > 0) {
                         lastNode = conditionEndNode[0].getStNode();
                     }
@@ -407,6 +456,10 @@ export class NodeFactoryVisitor implements Visitor {
 
     getLinks(): NodeLinkModel[] {
         return this.links;
+    }
+
+    getNodeTree(): AllNodeModel[]{
+        return this.nodeTree;
     }
 
     beginVisitCall = (node: Call): void => {
@@ -677,6 +730,7 @@ export class NodeFactoryVisitor implements Visitor {
             const toolsList = tools?.tools;
             if (tools) {
                 if (toolsList?.length > 0) {
+                    this.parents.push(node);
                     for (let i = 0; i < toolsList.length; i++) {
                         const toolNode = toolsList[i];
                         const isConnector = toolNode.mediator?.connectorName !== undefined;
@@ -686,6 +740,7 @@ export class NodeFactoryVisitor implements Visitor {
                             this.createNodeAndLinks({ node: toolNode, name: toolNode.mediator.tag, dontLink: true });
                         }
                     }
+                    this.parents.pop();
                 }
                 this.createNodeAndLinks(({ node: tools, name: node.tag, type: NodeTypes.PLUS_NODE, dontLink: true, data: { type: "OpenSidePanel" } }));
             }
@@ -835,6 +890,12 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.THROTTLE, type: NodeTypes.CONDITION_NODE }))
         this.parents.push(node);
 
+        if (node.onAcceptAttribute) {
+            node.onAccept.viewState.id = `${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}-onAccept`;
+        }
+        if (node.onRejectAttribute) {
+            node.onReject.viewState.id = `${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}-onReject`;
+        }
         this.visitSubSequences(node, MEDIATORS.THROTTLE, {
             OnAccept: node.onAccept,
             OnReject: node.onReject,

@@ -51,10 +51,8 @@ export const COMMANDS = {
     OPEN_DSS_SERVICE_DESIGNER: "MI.project-explorer.open-dss-service-designer",
     ADD_MEDIATOR: "MI.addMediator",
     REFRESH_COMMAND: 'MI.project-explorer.refresh',
-    REFRESH_REGISTRY_COMMAND: 'MI.registry-explorer.refresh',
     ADD_COMMAND: 'MI.project-explorer.add',
     ADD_ARTIFACT_COMMAND: 'MI.project-explorer.add.artifact',
-    ADD_TO_REGISTRY_COMMAND: 'MI.registry-explorer.add',
     ADD_API_COMMAND: 'MI.project-explorer.add-api',
     ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
     ADD_ENDPOINT_COMMAND: 'MI.project-explorer.add-endpoint',
@@ -104,9 +102,6 @@ export const COMMANDS = {
     EDIT_MOCK_SERVICE: 'MI.test.edit.mock-service',
     OPEN_RUNTIME_VIEW: 'MI.Open-runtime-service-view',
     REVEAL_TEST_PANE: 'MI.mock-services.focus',
-
-    DEVAN_DEPLOY: 'wso2.wso2-platform.create.component',
-    DEVAN_OPEN_COMPONENT: 'wso2.wso2-platform.open.component.src',
 
     BI_EXTENSION: 'WSO2.ballerina-integrator',
     BI_OPEN_COMMAND: 'ballerina.open.bi.welcome',
@@ -175,7 +170,7 @@ export * from "./swagger";
 
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector&runtimeVersion=${version}",
+    CONNECTORS_STORE: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=100&offset=0&product=MI&type=Connector&runtimeVersion=${version}",
     CONNECTOR_SEARCH: "https://apis.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI&runtimeVersion=${version}"
 }
 
@@ -183,3 +178,4 @@ export const DM_OPERATORS_FILE_NAME = "dm-utils";
 export const DM_OPERATORS_IMPORT_NAME = "dmUtils";
 export const LAST_EXPORTED_CAR_PATH = "last-exported-car-path";
 export const RUNTIME_VERSION_440 = "4.4.0";
+export const DEFAULT_ICON = "https://mi-connectors.wso2.com/icons/wordpress.gif";

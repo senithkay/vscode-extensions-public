@@ -9,26 +9,9 @@
 
 import * as vscode from 'vscode';
 import { COMMANDS } from '../constants';
-import { StateMachineAI, openAIWebview } from './aiMachine';
-import { AI_EVENT_TYPE, AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
-import { exchangeAuthCode } from './auth';
+import { openAIWebview } from './aiMachine';
 import { extension } from '../MIExtensionContext';
-
-interface FileObject {
-    fileName: string;
-    fileContent: string;
-}
-
-interface ImageObject {
-    imageName: string;
-    imageBase64: string;
-}
-
-interface PromptObject {
-    aiPrompt: string;
-    files: FileObject[];
-    images: ImageObject[];
-}
+import { PromptObject } from '@wso2-enterprise/mi-core';
 
 export function activateAiPanel(context: vscode.ExtensionContext) {
     context.subscriptions.push(

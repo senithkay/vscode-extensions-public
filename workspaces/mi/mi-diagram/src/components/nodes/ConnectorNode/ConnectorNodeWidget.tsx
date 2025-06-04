@@ -13,7 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectorNodeModel } from "./ConnectorNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode, Tool } from "@wso2-enterprise/mi-syntax-tree/src";
-import { ClickAwayListener, Icon, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
@@ -145,14 +145,18 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
 
     useEffect(() => {
         const fetchData = async () => {
+            const connectorIcon = await rpcClient.getMiDiagramRpcClient().getConnectorIcon({ 
+                connectorName: node.stNode?.connectorName,
+                documentUri: node.documentUri
+            });
+
+            setIconPath(connectorIcon.iconPath);
+
             const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
                 documentUri: node.documentUri,
                 connectorName: connectorNode.tag.split(".")[0]
             });
-
-            const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
-            setIconPath(iconPath.uri);
-
+            
             const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
                 documentUri: node.documentUri,
                 connectorName: node.stNode.tag.split(".")[0]
@@ -162,13 +166,12 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             const connection = connectionData.connections.find((connection: any) => connection.name === connectionName);
             const connectionType = connection ? connection.connectionType : null;
 
-            const connectionIconPath = connectionType ? await rpcClient.getMiDiagramRpcClient().getIconPathUri({
+            const connectionIconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({
                 path: path.join(connectorData.iconPath, 'connections'),
                 name: connectionType
-            }) : iconPath;
+            });
 
-            setConnectionIconPath(connectionIconPath.uri ?? iconPath.uri);
-
+            setConnectionIconPath(connectionIconPath.uri ?? connectorIcon.iconPath);
         }
 
         fetchData();
@@ -216,53 +219,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
 
         return nodeRange;
     }
-
-    const handleOnClick = async (e: any) => {
-        e.stopPropagation();
-        const nodeRange = { start: node.stNode.range.startTagRange.start, end: node.stNode?.range?.endTagRange?.end || node.stNode.range.startTagRange.end };
-        if (e.ctrlKey || e.metaKey) {
-            // open code and highlight the selected node
-            rpcClient.getMiDiagramRpcClient().highlightCode({
-                range: nodeRange,
-                force: true,
-            });
-        } else if (node.isSelected()) {
-            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-                documentUri: node.documentUri,
-                connectorName: connectorNode.tag.split(".")[0]
-            });
-
-            const operationName = connectorNode.tag.split(/\.(.+)/)[1];
-            const connectorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
-                range: nodeRange,
-                documentUri: node.documentUri,
-                isEdit: true
-            });
-
-            const formJSON = connectorDetails;
-
-            sidePanelContext.setSidePanelState({
-                isOpen: true,
-                operationName: "connector",
-                nodeRange: nodeRange,
-                isEditing: true,
-                formValues: {
-                    form: formJSON,
-                    title: `${FirstCharToUpperCase(operationName)} Operation`,
-                    uiSchemaPath: connectorData.uiSchemaPath,
-                    parameters: connectorNode.parameters ?? [],
-                    connectorName: connectorData.name,
-                    operationName: operationName,
-                    connectionName: connectorNode.configKey,
-                    icon: iconPath,
-                },
-                parentNode: node.mediatorName,
-                node: node,
-                tag: node.stNode.tag
-            });
-        }
-    }
-
+    
     const handleOnConnectionClick = async (e: any) => {
         e.stopPropagation();
 
@@ -310,7 +267,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     isActiveBreakpoint={isActiveBreakpoint}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={(e) => handleOnClick(e)}
+                    onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
                 >
                     {hasBreakpoint && (
                         <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
@@ -404,13 +361,12 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     marginLeft: "30px",
                     padding: 0
                 }}
+                handleClose={handlePopoverClose}
             >
-                <ClickAwayListener onClickAway={handlePopoverClose}>
-                    <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
-                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
-                    </Menu>
-                </ClickAwayListener>
+                <Menu>
+                    <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
+                    <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
+                </Menu>
             </Popover>
 
         </div >

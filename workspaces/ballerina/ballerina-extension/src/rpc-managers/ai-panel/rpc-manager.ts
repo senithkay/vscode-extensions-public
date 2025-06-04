@@ -10,12 +10,13 @@
  */
 import {
     AIChatSummary,
+    AIMachineSnapshot,
     AIPanelAPI,
-    AIVisualizerState,
-    AI_EVENT_TYPE,
+    AIPanelPrompt,
     AddToProjectRequest,
     BIModuleNodesRequest,
     BISourceCodeResponse,
+    Command,
     DeleteFromProjectRequest,
     DeveloperDocument,
     DiagnosticEntry,
@@ -29,7 +30,7 @@ import {
     GenerateTypesFromRecordRequest,
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
-    InitialPrompt,
+    GetModuleDirParams,
     LLMDiagnostics,
     NotifyAIMappingsRequest,
     PostProcessRequest,
@@ -41,31 +42,33 @@ import {
     STModification,
     SourceFile,
     SyntaxTree,
+    TemplateId,
     TestGenerationMentions,
     TestGenerationRequest,
-    TestGenerationResponse,
+    TestGenerationResponse
 } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import path from "path";
+import { parse } from 'toml';
 import { Uri, commands, window, workspace } from 'vscode';
 
 import { writeFileSync } from "fs";
 import { isNumber } from "lodash";
-import { getPluginConfig } from "../../../src/utils";
+import { URI } from "vscode-uri";
+import { AIStateMachine } from "../../../src/views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccessorNames, getServiceDeclaration, getServiceDeclarationNames } from "../../features/ai/testGenerator";
 import { BACKEND_URL, closeAllBallerinaFiles } from "../../features/ai/utils";
-import { getLLMDiagnosticArrayAsString } from "../../features/natural-programming/utils";
+import { getLLMDiagnosticArrayAsString, handleChatSummaryFailure } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
-import { loginGithubCopilot } from "../../utils/ai/auth";
+import { getAccessToken, getRefreshedAccessToken, loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
-import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
+import { PARSING_ERROR, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import {
     DEVELOPMENT_DOCUMENT,
     NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
@@ -74,7 +77,7 @@ import {
     REQ_KEY, TEST_DIR_NAME
 } from "./constants";
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
-import { handleLogin, handleStop, isErrorCode, isLoggedin, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
+import { handleStop, isErrorCode, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
 
 export let hasStopped: boolean = false;
@@ -83,82 +86,77 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
     private testGenAbortController: AbortController | null = null;
 
-    async getBackendURL(): Promise<string> {
+    // ==================================
+    // General Functions
+    // ==================================
+    async getBackendUrl(): Promise<string> {
         return new Promise(async (resolve) => {
             resolve(BACKEND_URL);
         });
     }
 
-    async updateProject(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getToken(): Promise<string> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async login(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
-    }
-
-    async logout(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.LOGOUT);
-    }
-
-    async getAIVisualizerState(): Promise<AIVisualizerState> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getAiPanelState(): Promise<AIVisualizerState> {
-        return { state: StateMachineAI.state() };
-    }
-
-    async getAccessToken(): Promise<string> {
-        // return new Promise(async (resolve) => {
-        //     resolve(StateMachineAI.context().token as string);
-        // });
+    async getProjectUuid(): Promise<string> {
         return new Promise(async (resolve) => {
-            const token = await extension.context.secrets.get('BallerinaAIUser');
-            resolve(token as string);
+            // Check if there is at least one workspace folder
+            if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
+                resolve("");
+                return;
+            }
+
+            try {
+                const workspaceFolderPath = workspace.workspaceFolders[0].uri.fsPath;
+
+                const hash = crypto.createHash('sha256')
+                    .update(workspaceFolderPath)
+                    .digest('hex');
+
+                resolve(hash);
+            } catch (error) {
+                resolve("");
+            }
         });
     }
 
-    async refreshAccessToken(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async getAccessToken(): Promise<string> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const accessToken = getAccessToken();
+                if (!accessToken) {
+                    reject(new Error("Access Token is undefined"));
+                    return;
+                }
+                resolve(accessToken);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    async getRefreshedAccessToken(): Promise<string> {
+        return new Promise(async (resolve) => {
+            const token = await getRefreshedAccessToken();
+            resolve(token);
+        });
+    }
+
+    async getDefaultPrompt(): Promise<AIPanelPrompt> {
+        const defaultPrompt = extension.aiChatDefaultPrompt;
+        return new Promise((resolve) => {
+            resolve(defaultPrompt);
+        });
+    }
+
+    async getAIMachineSnapshot(): Promise<AIMachineSnapshot> {
+        return {
+            state: AIStateMachine.state(),
+            context: AIStateMachine.context(),
+        };
     }
 
     async fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
         return {
             response: await fetchData(params.url, params.options)
         };
-    }
-
-    async getProjectUuid(): Promise<string> {
-        // ADD YOUR IMPLEMENTATION HERE
-        return new Promise(async (resolve) => {
-            console.log("Implementing getProjectUuid");
-            // Check if there is at least one workspace folder
-            if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
-                console.error("No workspace folder is open.");
-                resolve("");
-                return;
-            }
-
-            // Use the path of the first workspace folder
-            const workspaceFolderPath = workspace.workspaceFolders[0].uri.fsPath;
-
-            // Create a hash of the workspace folder path
-            const hash = crypto.createHash('sha256');
-            hash.update(workspaceFolderPath);
-            const hashedWorkspaceFolderPath = hash.digest('hex');
-
-            console.log("Workspace folder path hashed successfully.");
-            resolve(hashedWorkspaceFolderPath);
-        });
     }
 
     async addToProject(req: AddToProjectRequest): Promise<void> {
@@ -252,22 +250,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return false;
     }
 
-    async getRefreshToken(): Promise<string> {
-        return new Promise(async (resolve) => {
-            const token = await refreshAccessToken();
-            resolve(token);
-        });
-    }
-
     async generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
-        const logged = await isLoggedin();
-
-        if (!logged) {
-            return { error: UNAUTHORIZED };
-        }
-        commands.executeCommand("ballerina.close.ai.panel");
-        commands.executeCommand("ballerina.open.ai.panel", "datamap");
-
         let { filePath, position } = params;
 
         const fileUri = Uri.file(filePath).toString();
@@ -307,7 +290,16 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
 
         const functionName = fnSt.functionName?.value || "";
-        extension.dataMappingFunctionName = functionName;
+
+        commands.executeCommand("ballerina.close.ai.panel");
+        commands.executeCommand("ballerina.open.ai.panel", {
+            type: 'command-template',
+            command: Command.DataMap,
+            templateId: TemplateId.MappingsForFunction,
+            params: {
+                functionName: functionName
+            }
+        });
     }
 
     async notifyAIMappings(params: NotifyAIMappingsRequest): Promise<boolean> {
@@ -343,11 +335,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return { userAborted: true };
     }
 
-    async promptLogin(): Promise<boolean> {
-        await handleLogin();
-        return true;
-    }
-
     async getProjectSource(requestType: string): Promise<ProjectSource> {
         // Fetch the Ballerina project source
         const project: BallerinaProject = await getCurrentProjectSource(requestType);
@@ -355,7 +342,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // Initialize the ProjectSource object
         const projectSource: ProjectSource = {
             sourceFiles: [],
-            projectModules: []
+            projectModules: [],
+            projectName: project.projectName,
         };
 
         // Iterate through root-level sources
@@ -368,7 +356,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
             for (const module of project.modules) {
                 const projectModule: ProjectModule = {
                     moduleName: module.moduleName,
-                    sourceFiles: []
+                    sourceFiles: [],
+                    isGenerated: module.isGenerated
                 };
                 for (const [fileName, content] of Object.entries(module.sources)) {
                     // const filePath = `modules/${module.moduleName}/${fileName}`;
@@ -397,25 +386,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
         };
     }
 
-    async getInitialPrompt(): Promise<InitialPrompt> {
-        const initialPrompt = extension.initialPrompt;
-        if (initialPrompt) {
-            return {
-                exists: true,
-                text: initialPrompt,
-                dataMappingFunctionName: extension.dataMappingFunctionName || ""
-            };
-        } else {
-            return {
-                exists: false,
-                text: "",
-                dataMappingFunctionName: ""
-            };
-        }
-    }
-
     async clearInitialPrompt(): Promise<void> {
-        extension.initialPrompt = undefined;
+        extension.aiChatDefaultPrompt = undefined;
     }
 
     async checkSyntaxError(project: ProjectSource): Promise<boolean> {
@@ -692,16 +664,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getFromDocumentation(content: string): Promise<string> {
-        const response = await searchDocumentation(content);
-        return response.toString();
-    }
-
-    async openSettings(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.SETUP);
-    }
-
-    async openChat(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.CHAT);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await searchDocumentation(content);
+                resolve(response.toString());
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async promptGithubAuthorize(): Promise<boolean> {
@@ -723,20 +693,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return false;
     }
 
-    async isWSO2AISignedIn(): Promise<boolean> {
-        const token = await extension.context.secrets.get('BallerinaAIUser');
-        if (token && token !== '') {
-            return true;
-        }
-        return false;
-    }
-
     async showSignInAlert(): Promise<boolean> {
         const resp = await extension.context.secrets.get('LOGIN_ALERT_SHOWN');
         if (resp === 'true') {
             return false;
         }
-        const isWso2Signed = await this.isWSO2AISignedIn();
+        const isWso2Signed = await this.isCopilotSignedIn();
 
         if (isWso2Signed) {
             return false;
@@ -745,8 +707,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async markAlertShown(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        // throw new Error('Not implemented');
         await extension.context.secrets.store('LOGIN_ALERT_SHOWN', 'true');
     }
 
@@ -761,7 +721,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return Promise.resolve(files.some(file => file.toLowerCase().startsWith(REQUIREMENT_DOC_PREFIX)));
     }
 
-    async addChatSummary(filepathAndSummary: AIChatSummary): Promise<void> {
+    async addChatSummary(filepathAndSummary: AIChatSummary): Promise<boolean> {
         const filepath = filepathAndSummary.filepath;
         var summaryResponse = filepathAndSummary.summary;
 
@@ -771,11 +731,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const naturalProgrammingDirectory = path.join(filepath, NATURAL_PROGRAMMING_DIR_NAME);
 
         if (!fs.existsSync(naturalProgrammingDirectory)) {
-            fs.mkdirSync(naturalProgrammingDirectory, { recursive: true }); // Add recursive: true
+            return false;
         }
 
         const developerMdPath = path.join(naturalProgrammingDirectory, DEVELOPMENT_DOCUMENT);
         fs.writeFileSync(developerMdPath, summary, 'utf8');
+        return true;
     }
 
     async readDeveloperMdFile(directoryPath: string): Promise<string> {
@@ -833,23 +794,37 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
     }
 
-    async refreshFile(params: SourceFile): Promise<void> {
-        modifyFileContent({ filePath : params.filePath, content: params.content });
-        updateView();
+    async handleChatSummaryError(message: string): Promise<void> {
+        return handleChatSummaryFailure(message);
     }
 
-    async getThemeKind(): Promise<string> {
+    async isNaturalProgrammingDirectoryExists(projectPath: string): Promise<boolean> {
+        const dirPath = path.join(projectPath, NATURAL_PROGRAMMING_DIR_NAME);
+        if (!fs.existsSync(dirPath) || !fs.lstatSync(dirPath).isDirectory()) {
+            return false; // Directory doesn't exist or isn't a folder
+        }
+        return true;
+    }
+
+    async getModuleDirectory(params: GetModuleDirParams): Promise<string> {
         return new Promise((resolve) => {
-            const themeKind = window.activeColorTheme.kind;
-            switch (themeKind) {
-                case 1:
-                case 4:
-                    resolve("light");
-                    break;
-                default:
-                    resolve("dark");
-                    break;
+            const projectUri = params.filePath;
+            const projectFsPath = URI.parse(projectUri).fsPath;
+            const moduleName = params.moduleName;
+            const generatedPath = path.join(projectFsPath, "generated", moduleName);
+            if (fs.existsSync(generatedPath) && fs.statSync(generatedPath).isDirectory()) {
+                resolve("generated");
+            } else {
+                resolve("modules");
             }
+        });
+    }
+
+    async getContentFromFile(content: GetFromFileRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const projectFsPath = URI.parse(content.filePath).fsPath;
+            const fileContent = fs.promises.readFile(projectFsPath, 'utf-8');
+            resolve(fileContent);
         });
     }
 }
@@ -928,7 +903,7 @@ export function getProjectFromResponse(req: string): ProjectSource {
         sourceFiles.push({ filePath, content: fileContent });
     }
 
-    return { sourceFiles };
+    return { sourceFiles, projectName: "" };
 }
 
 function getContentInsideQuotes(input: string): string | null {
@@ -955,6 +930,7 @@ function getErrorDiagnostics(diagnostics: Diagnostics[]): DiagnosticEntry[] {
 }
 
 interface BallerinaProject {
+    projectName: string;
     modules?: BallerinaModule[];
     sources: { [key: string]: string };
 }
@@ -962,6 +938,7 @@ interface BallerinaProject {
 interface BallerinaModule {
     moduleName: string;
     sources: { [key: string]: string };
+    isGenerated: boolean;
 }
 
 enum CodeGenerationType {
@@ -977,9 +954,24 @@ async function getCurrentProjectSource(requestType: string): Promise<BallerinaPr
         return null;
     }
 
+    // Read the Ballerina.toml file to get package name
+    const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
+    let packageName;
+    if (fs.existsSync(ballerinaTomlPath)) {
+        const tomlContent = await fs.promises.readFile(ballerinaTomlPath, 'utf-8');
+        // Simple parsing to extract the package.name field
+        try {
+            const tomlObj = parse(tomlContent);
+            packageName = tomlObj.package.name;
+        } catch (error) {
+            packageName = '';
+        }
+    }
+
     const project: BallerinaProject = {
         modules: [],
         sources: {},
+        projectName: packageName
     };
 
     // Read root-level .bal files
@@ -1014,6 +1006,13 @@ async function getCurrentProjectSource(requestType: string): Promise<BallerinaPr
 
     // Read modules
     const modulesDir = path.join(projectRoot, 'modules');
+    const generatedDir = path.join(projectRoot, 'generated');
+    await populateModules(modulesDir, project);
+    await populateModules(generatedDir, project);
+    return project;
+}
+
+async function populateModules(modulesDir: string, project: BallerinaProject) {
     if (fs.existsSync(modulesDir)) {
         const modules = fs.readdirSync(modulesDir, { withFileTypes: true });
         for (const moduleDir of modules) {
@@ -1021,6 +1020,7 @@ async function getCurrentProjectSource(requestType: string): Promise<BallerinaPr
                 const module: BallerinaModule = {
                     moduleName: moduleDir.name,
                     sources: {},
+                    isGenerated: path.basename(modulesDir) !== 'modules'
                 };
 
                 const moduleFiles = fs.readdirSync(path.join(modulesDir, moduleDir.name));
@@ -1035,8 +1035,6 @@ async function getCurrentProjectSource(requestType: string): Promise<BallerinaPr
             }
         }
     }
-
-    return project;
 }
 
 async function getBallerinaProjectRoot(): Promise<string | null> {

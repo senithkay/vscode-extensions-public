@@ -40,6 +40,8 @@ import {
     AIUserInput,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    HandleFileRequest,
+    HandleFileResponse,
     CreateLocalEntryRequest,
     CreateLocalEntryResponse,
     FileDirResponse,
@@ -135,7 +137,8 @@ import {
     GetSelectiveArtifactsResponse,
     GetBackendRootUrlResponse,
     RegistryArtifactNamesResponse,
-    ListRegistryArtifactsRequest, RangeFormatRequest,
+    ListRegistryArtifactsRequest,
+    RangeFormatRequest,
     MigrateProjectRequest,
     MigrateProjectResponse,
     DownloadConnectorResponse,
@@ -235,7 +238,11 @@ import {
     LocalInboundConnectorsResponse,
     BuildProjectRequest,
     DeployProjectRequest,
-    DeployProjectResponse
+    DeployProjectResponse,
+    DevantMetadata,
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -305,6 +312,7 @@ export interface MiDiagramAPI {
     migrateProject: (params: MigrateProjectRequest) => Promise<MigrateProjectResponse>;
     getAIResponse: (params: AIUserInput) => Promise<string>;
     writeContentToFile: (params: WriteContentToFileRequest) => Promise<WriteContentToFileResponse>;
+    handleFileWithFS: (params: HandleFileRequest) => Promise<HandleFileResponse>;
     highlightCode: (params: HighlightCodeRequest) => void;
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
@@ -338,6 +346,7 @@ export interface MiDiagramAPI {
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
+    getConnectorIcon: (params: GetConnectorIconRequest) => Promise<GetConnectorIconResponse>
     saveInboundEPUischema: (params: SaveInboundEPUischemaRequest) => Promise<boolean>;
     getInboundEPUischema: (params: GetInboundEPUischemaRequest) => Promise<GetInboundEPUischemaResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
@@ -356,6 +365,7 @@ export interface MiDiagramAPI {
     getAllAPIcontexts: () => Promise<APIContextsResponse>;
     buildProject: (params: BuildProjectRequest) => void;
     deployProject: (params: DeployProjectRequest) => Promise<DeployProjectResponse>;
+    getDevantMetadata: () => Promise<DevantMetadata>;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
@@ -390,11 +400,15 @@ export interface MiDiagramAPI {
     getMediatorInputOutputSchema: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
-    updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
+    updateMediator: (param: UpdateMediatorRequest) => Promise<UpdateMediatorResponse>;
     getLocalInboundConnectors: () => Promise<LocalInboundConnectorsResponse>;
     getConnectionSchema: (param: GetConnectionSchemaRequest) => Promise<GetConnectionSchemaResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getHelperPaneInfo: (params: GetHelperPaneInfoRequest) => Promise<GetHelperPaneInfoResponse>;
     testConnectorConnection: (params: TestConnectorConnectionRequest) => Promise<TestConnectorConnectionResponse>;
     saveConfig: (params: SaveConfigRequest) => Promise<SaveConfigResponse>;
+    getEULALicense: () => Promise<string>;
+    shouldDisplayPayloadAlert: () => Promise<boolean>;
+    displayPayloadAlert: () => Promise<void>;
+    closePayloadAlert: () => Promise<void>;
 }

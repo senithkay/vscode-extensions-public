@@ -25,7 +25,7 @@ import { SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
 export class CodeLensProviderVisitor implements Visitor {
     activeEditorUri: Uri;
     codeLenses: CodeLens[] = [];
-    supportedServiceTypes: string[] = ["http", "ai.agent"];
+    supportedServiceTypes: string[] = ["http", "ai", "graphql"];
 
     constructor(activeEditorUri: Uri) {
         this.activeEditorUri = activeEditorUri;
@@ -110,7 +110,7 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "View this entity in the Entity Relationship diagram",
-            command: SHARED_COMMANDS.SHOW_VISUALIZER,
+            command: PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM,
             arguments: [this.activeEditorUri.fsPath, recordName]
         };
         this.codeLenses.push(codeLens);

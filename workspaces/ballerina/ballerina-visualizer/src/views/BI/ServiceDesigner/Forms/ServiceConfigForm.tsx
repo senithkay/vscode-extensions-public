@@ -9,12 +9,13 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { LineRange, Property, PropertyTypeMemberInfo, RecordTypeField, ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { LineRange, Property, RecordTypeField, ServiceModel, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
 import { FormGeneratorNew } from "../../Forms/FormGeneratorNew";
 import { FormHeader } from "../../../../components/FormHeader";
+import { getImportsForProperty } from "../../../../utils/bi";
 
 const Container = styled.div`
     /* padding: 0 20px 20px; */
@@ -54,6 +55,7 @@ interface ServiceConfigFormProps {
     serviceModel: ServiceModel;
     onSubmit: (data: ServiceModel) => void;
     openListenerForm?: () => void;
+    isSaving?: boolean;
     onBack?: () => void;
     formSubmitText?: string;
 }
@@ -62,7 +64,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [serviceFields, setServiceFields] = useState<FormField[]>([]);
-    const { serviceModel, onSubmit, onBack, openListenerForm, formSubmitText = "Next" } = props;
+    const { serviceModel, onSubmit, onBack, openListenerForm, formSubmitText = "Next", isSaving } = props;
     const [filePath, setFilePath] = useState<string>('');
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
     const [recordTypeFields, setRecordTypeFields] = useState<RecordTypeField[]>([]);
@@ -70,36 +72,74 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const createTitle = `Provide the necessary configuration details for the ${serviceModel.displayAnnotation.label} to complete the setup.`;
     const editTitle = `Update the configuration details for the ${serviceModel.displayAnnotation.label} as needed.`
 
-    useEffect(() => {
-        const recordTypeFields: RecordTypeField[] = Object.entries(serviceModel.properties)
-            .filter(([_, property]) =>
-                property.typeMembers &&
-                property.typeMembers.some(member => member.kind === "RECORD_TYPE")
-            )
-            .map(([key, property]) => ({
-                key,
-                property: {
-                    ...property,
-                    metadata: {
-                        label: property.metadata?.label || key,
-                        description: property.metadata?.description || ''
-                    },
-                    valueType: property?.valueType || 'string',
-                    diagnostics: {
-                        hasDiagnostics: property.diagnostics && property.diagnostics.length > 0,
-                        diagnostics: property.diagnostics
-                    }
-                } as Property,
-                recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
-            }));
-        console.log(">>> recordTypeFields of serviceModel", recordTypeFields);
-        setRecordTypeFields(recordTypeFields);
+    useEffect(() => {        
+        // Check if the service is HTTP protocol and any properties with choices
+        const hasPropertiesWithChoices = serviceModel?.listenerProtocol === "http" && 
+            Object.values(serviceModel.properties).some(property => property.choices);
+        
+        if (hasPropertiesWithChoices) {
+            const choiceRecordTypeFields = Object.entries(serviceModel.properties)
+                .filter(([_, property]) => property.choices)
+                .flatMap(([parentKey, property]) =>
+                    Object.entries(property.choices).flatMap(([choiceKey, choice]) =>
+                        Object.entries(choice.properties || {})
+                            .filter(([_, choiceProperty]) =>
+                                choiceProperty.typeMembers &&
+                                choiceProperty.typeMembers.some(member => member.kind === "RECORD_TYPE")
+                            )
+                            .map(([choicePropertyKey, choiceProperty]) => ({
+                                key: choicePropertyKey,
+                                property: {
+                                    ...choiceProperty,
+                                    metadata: {
+                                        label: choiceProperty.metadata?.label || choicePropertyKey,
+                                        description: choiceProperty.metadata?.description || ''
+                                    },
+                                    valueType: choiceProperty?.valueType || 'string',
+                                    diagnostics: {
+                                        hasDiagnostics: choiceProperty.diagnostics && choiceProperty.diagnostics.length > 0,
+                                        diagnostics: choiceProperty.diagnostics
+                                    }
+                                } as Property,
+                                recordTypeMembers: choiceProperty.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+                            }))
+                    )
+                );
+            console.log(">>> recordTypeFields of http serviceModel", choiceRecordTypeFields);
+
+            setRecordTypeFields(choiceRecordTypeFields);
+        } else {
+            const recordTypeFields: RecordTypeField[] = Object.entries(serviceModel.properties)
+                .filter(([_, property]) =>
+                    property.typeMembers &&
+                    property.typeMembers.some(member => member.kind === "RECORD_TYPE")
+                )
+                .map(([key, property]) => ({
+                    key,
+                    property: {
+                        ...property,
+                        metadata: {
+                            label: property.metadata?.label || key,
+                            description: property.metadata?.description || ''
+                        },
+                        valueType: property?.valueType || 'string',
+                        diagnostics: {
+                            hasDiagnostics: property.diagnostics && property.diagnostics.length > 0,
+                            diagnostics: property.diagnostics
+                        }
+                    } as Property,
+                    recordTypeMembers: property.typeMembers.filter(member => member.kind === "RECORD_TYPE")
+                }));
+            console.log(">>> recordTypeFields of serviceModel", recordTypeFields);
+
+            setRecordTypeFields(recordTypeFields);
+        }
 
         serviceModel && setServiceFields(convertConfig(serviceModel));
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [serviceModel]);
 
-    const handleListenerSubmit = async (data: FormValues) => {
+    const handleListenerSubmit = async (data: FormValues, formImports: FormImports) => {
         serviceFields.forEach(val => {
             if (val.type === "CHOICE") {
                 val.choices.forEach((choice, index) => {
@@ -114,6 +154,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
             } else if (data[val.key]) {
                 val.value = data[val.key];
             }
+            val.imports = getImportsForProperty(val.key, formImports);
         })
         const response = updateConfig(serviceFields, serviceModel);
         onSubmit(response);
@@ -145,10 +186,6 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 <>
                     {serviceFields.length > 0 &&
                         <FormContainer>
-                            {/* <Typography variant="h2" sx={{ marginTop: '16px' }}>{serviceModel.displayAnnotation.label} Configuration</Typography>
-                            <BodyText>
-                                {formSubmitText === "Save" ? editTitle : createTitle}
-                            </BodyText> */}
                             <FormHeader title={`${serviceModel.displayAnnotation.label} Configuration`} />
                             {filePath && targetLineRange &&
                                 <FormGeneratorNew
@@ -156,6 +193,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                                     targetLineRange={targetLineRange}
                                     fields={serviceFields}
                                     onBack={onBack}
+                                    isSaving={isSaving}
                                     openSubPanel={handleListenerForm}
                                     onSubmit={handleListenerSubmit}
                                     submitText={formSubmitText}

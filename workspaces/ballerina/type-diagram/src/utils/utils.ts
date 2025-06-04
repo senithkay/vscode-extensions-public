@@ -41,7 +41,7 @@ export function createEntitiesEngine(): DiagramEngine {
     const diagramEngine: DiagramEngine = createEngine({
         registerDefaultPanAndZoomCanvasAction: false,
         registerDefaultZoomCanvasAction: false,
-
+        registerDefaultDeleteItemsAction: false,
     });
     diagramEngine.getLinkFactories().registerFactory(new EntityLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());

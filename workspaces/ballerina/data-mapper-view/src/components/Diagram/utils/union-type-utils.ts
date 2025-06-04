@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { OtherBalType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, AnyType, OtherBalType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
 	ExpressionFunctionBody,
 	SelectClause,
@@ -143,7 +143,7 @@ export function getSupportedUnionTypes(typeDef: TypeField, typeDesc?: STNode): s
 
 	const filteredTypes = allUnionTypes.map(unionType => {
 		const type = unionType.trim();
-		if (!unsupportedTypes.includes(type) && type !== "()" && type !== "error") {
+		if (!unsupportedTypes.includes(type) && type !== "error") {
 			return type;
 		}
 	}).filter(type => type !== undefined);
@@ -152,12 +152,18 @@ export function getSupportedUnionTypes(typeDef: TypeField, typeDesc?: STNode): s
 }
 
 export function getUnionTypes(unionType: TypeField): string[] {
+	const unionTypes: string[] = [];
 	if (unionType?.members !== undefined) {
-		return unionType.members.map(member => {
-			return getTypeName(member);
-		});
+		for (const member of unionType.members) {
+			if (isUnsupportedType(member)) continue;
+			unionTypes.push(getTypeName(member));
+		}
 	}
-	return [];
+	return unionTypes;
+}
+
+export function isAnydataType(type: string): boolean {
+	return type === AnydataType || type === AnyType;
 }
 
 function isUnsupportedTypeDesc(typeDesc: STNode): boolean {
@@ -169,7 +175,6 @@ function isUnsupportedTypeDesc(typeDesc: STNode): boolean {
 		|| STKindChecker.isIntersectionTypeDesc(typeDesc)
 		|| STKindChecker.isMapTypeDesc(typeDesc)
 		|| STKindChecker.isNeverTypeDesc(typeDesc)
-		|| STKindChecker.isNilTypeDesc(typeDesc)
 		|| STKindChecker.isObjectTypeDesc(typeDesc)
 		|| STKindChecker.isReadonlyTypeDesc(typeDesc)
 		|| STKindChecker.isSingletonTypeDesc(typeDesc)
@@ -186,9 +191,10 @@ function isUnsupportedType(type: TypeField): boolean {
 		return type.members.some(member => {
 			return isUnsupportedType(member);
 		});
+	} else if (type.typeName === PrimitiveBalType.Array) {
+		return isUnsupportedType(getInnermostMemberTypeFromArrayType(type));
 	}
 	return type.typeName === PrimitiveBalType.Error
-		|| type.typeName === PrimitiveBalType.Nil
 		|| type.typeName === PrimitiveBalType.Enum
 		|| type.typeName === PrimitiveBalType.Json
 		|| type.typeName === PrimitiveBalType.Var
@@ -197,5 +203,4 @@ function isUnsupportedType(type: TypeField): boolean {
 		|| type.typeName === OtherBalType.Object
 		|| type.typeName === OtherBalType.Stream
 		|| type.typeName === OtherBalType.Table
-		|| type.typeName === OtherBalType.Null;
 }

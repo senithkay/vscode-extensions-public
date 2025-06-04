@@ -118,7 +118,8 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
         let requiredConfigsFound = false;
 
         // Process each root organization (ballerina, ballerinax, etc.)
-        for (const orgKey of Object.keys(allProps)) {
+        const allOrgs: string[] = Object.keys(allProps);
+        for (const orgKey of allOrgs) {
             const orgProps = allProps[orgKey].properties;
 
             // Process each package within the organization
@@ -131,7 +132,7 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
                 }
 
                 // Get existing configs for this path if available
-                const existingModuleConfigs = getExistingConfigsForPath(context, existingConfigs, orgKey, pkgKey);
+                const existingModuleConfigs = getExistingConfigsForPath(context, existingConfigs, allOrgs, orgKey, pkgKey);
 
                 // Find missing required configs
                 const moduleNewValues: ConfigProperty[] = [];
@@ -167,7 +168,7 @@ export async function checkConfigGenerationRequired(ballerinaExtInstance: Baller
 }
 
 // Helper function to navigate nested toml structure and get existing configs
-function getExistingConfigsForPath(context: ConfigGenerationContext, existingConfigs: any, orgKey: string, pkgKey: string): any {
+function getExistingConfigsForPath(context: ConfigGenerationContext, existingConfigs: any, allOrgs: string[], orgKey: string, pkgKey: string): any {
     if (!existingConfigs) {
         return {};
     }
@@ -176,7 +177,7 @@ function getExistingConfigsForPath(context: ConfigGenerationContext, existingCon
     if (!existingConfigs[orgKey] && orgKey == context.orgName && pkgKey == context.packageName) {
         const rootLevelConfigs = {};
         for (const key in existingConfigs) {
-            if (typeof existingConfigs[key] !== 'object' || existingConfigs[key] === null) {
+            if (!allOrgs.includes(key)) {
                 rootLevelConfigs[key] = existingConfigs[key];
             }
         }
@@ -433,6 +434,7 @@ function updateConfigTomlByModule(context: ConfigGenerationContext, groupedValue
                     sectionObject[prop.name] = getDefaultValueForConfig(prop.property);
                 }
             }
+            configObject[sectionKey] = sectionObject;
         }
     }
 
@@ -467,9 +469,9 @@ function getDefaultValueForConfig(property: Property): any {
         case ConfigTypes.BOOLEAN:
             return false;
         case ConfigTypes.INTEGER:
-            return 0;
+            return { type: ConfigTypes.INTEGER, value: 0 };
         case ConfigTypes.NUMBER:
-            return 0.0;
+            return { type: ConfigTypes.NUMBER, value: 0.0 };
         case ConfigTypes.STRING:
             return "";
         case ConfigTypes.ARRAY:
@@ -502,12 +504,25 @@ function getDefaultValueForConfig(property: Property): any {
 function convertConfigToToml(config: any, groupedValues: Map<string, Map<string, ConfigProperty[]>>): string {
     let result = '';
     const rootProps = Object.keys(config).filter(key =>
-        !key.includes('.') && (typeof config[key] !== 'object' || config[key] === null || Array.isArray(config[key]))
+        !key.includes('.')
     );
 
     for (const key of rootProps) {
         const value = config[key];
-        result += `${key} = ${formatTomlValue(value)}\n`;
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            // Check if this is a nested module structure or a regular object property
+            const isNestedModule = Object.values(value).some(v =>
+                typeof v === 'object' && v !== null && !Array.isArray(v) &&
+                Object.keys(v).length > 0
+            );
+
+            if (!isNestedModule) {
+                result += `${key} = ${formatTomlValue(value)}\n`;
+            }
+        } else {
+            // Handle primitive values and arrays
+            result += `${key} = ${formatTomlValue(value)}\n`;
+        }
     }
     if (rootProps.length > 0) {
         result += '\n';
@@ -610,6 +625,12 @@ function convertConfigToToml(config: any, groupedValues: Map<string, Map<string,
 function formatTomlValue(value: any): string {
     if (value === null || value === undefined) {
         return '""';
+    } else if (typeof value === 'object' && 'type' in value && 'value' in value) {
+        if (value.type === ConfigTypes.NUMBER) {
+            return value.value.toFixed(1); // Ensure it has a decimal point
+        } else if (value.type === ConfigTypes.INTEGER) {
+            return String(value.value);
+        }
     } else if (typeof value === 'string') {
         return `"${value.replace(/"/g, '\\"')}"`;
     } else if (typeof value === 'number' || typeof value === 'boolean') {

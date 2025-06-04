@@ -33,11 +33,11 @@ import {
     TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException,
     CMP_NOTEBOOK, TM_EVENT_START_NOTEBOOK_DEBUG
 } from '../telemetry';
-import { log, debug as debugLog } from "../../utils";
+import { log, debug as debugLog, isSupportedSLVersion } from "../../utils";
 import { decimal, ExecutableOptions } from 'vscode-languageclient/node';
 import { BAL_NOTEBOOK, getTempFile, NOTEBOOK_CELL_SCHEME } from '../../views/notebook';
 import fileUriToPath from 'file-uri-to-path';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { dirname, sep } from 'path';
 import { parseTomlToConfig } from '../config-generator/utils';
 import { LoggingDebugSession, OutputEvent, TerminatedEvent } from 'vscode-debugadapter';
@@ -58,6 +58,7 @@ const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
 const BALLERINA_TOML_REGEX = `**${sep}Ballerina.toml`;
 const BALLERINA_FILE_REGEX = `**${sep}*.bal`;
+const BALLERINA_TOML = `Ballerina.toml`;
 
 export enum DEBUG_REQUEST {
     LAUNCH = 'launch'
@@ -693,6 +694,10 @@ class BIRunAdapter extends LoggingDebugSession {
             buildCommand = `${buildCommand} -- ${programArgs.join(' ')}`;
         }
 
+        if (isSupportedSLVersion(ballerinaExtInstance, 2201130) && ballerinaExtInstance.enabledExperimentalFeatures()) {
+            buildCommand = `${buildCommand} --experimental`;
+        }
+
         // Get Ballerina home path from settings
         const config = workspace.getConfiguration('ballerina');
         const ballerinaHome = config.get<string>('home');
@@ -790,12 +795,14 @@ async function getCurrentRoot(): Promise<string> {
     }
 
     // If no Ballerina files are open, safe to assume that the workspace root is same as the package root in BI mode.
-    if (!file && StateMachine.context().isBI) {
+    if (!file) {
         const workspaceRoot = getWorkspaceRoot();
-        if (!workspaceRoot) {
+        if (!workspaceRoot && StateMachine.context().isBI) {
             throw new Error("Unable to determine the current workspace root.");
         }
-        return workspaceRoot;
+        if (isBallerinaProject(workspaceRoot)) {
+            return workspaceRoot;
+        }
     }
 
     const currentProject = await getCurrentBallerinaProject(file);
@@ -813,4 +820,9 @@ function findFreePort(): Promise<number> {
 function isFastRunEnabled(): boolean {
     const config = workspace.getConfiguration('ballerina');
     return config.get<boolean>('enableRunFast');
+}
+
+function isBallerinaProject(projectPath: string): boolean {
+    const ballerinaToml = path.join(projectPath, BALLERINA_TOML);
+    return existsSync(ballerinaToml);
 }

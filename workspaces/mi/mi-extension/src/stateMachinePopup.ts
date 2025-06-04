@@ -10,13 +10,14 @@
 
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { POPUP_EVENT_TYPE, PopupVisualizerLocation, webviewReady, PopupMachineStateValue, onParentPopupSubmitted } from '@wso2-enterprise/mi-core';
+import { POPUP_EVENT_TYPE, PopupVisualizerLocation, PopupMachineStateValue, onParentPopupSubmitted, popupStateChanged } from '@wso2-enterprise/mi-core';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
-import { StateMachine } from './stateMachine';
+import { getStateMachine } from './stateMachine';
 
 interface PopupMachineContext extends PopupVisualizerLocation {
     errorCode: string | null;
+    projectUri: string;
 }
 
 const stateMachinePopup = createMachine<PopupMachineContext>({
@@ -26,7 +27,8 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
     predictableActionArguments: true,
     context: {
         errorCode: null,
-        view: null
+        view: null,
+        projectUri: "",
     },
     states: {
         initialize: {
@@ -119,13 +121,18 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
         initializeData: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
-                const documentUri = StateMachine.context().projectUri;
+                const documentUri = getStateMachine(context.projectUri).context().documentUri;
                 resolve({ documentUri });
             });
         },
         notifyChange: (context, event) => {
             return new Promise((resolve, reject) => {
-                RPCLayer._messenger.sendNotification(onParentPopupSubmitted, { type: 'webview', webviewType: VisualizerWebview.viewType }, { recentIdentifier: context.recentIdentifier });
+                const messenger = RPCLayer._messengers.get(context.projectUri!);
+                if (!messenger) {
+                    reject(new Error("Messenger not found"));
+                    return;
+                }
+                messenger.sendNotification(onParentPopupSubmitted, { type: 'webview', webviewType: VisualizerWebview.viewType }, { recentIdentifier: context.recentIdentifier });
                 resolve(true);
             });
         },
@@ -141,22 +148,62 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
 
 
 // Create a service to interpret the machine
-const popupStateService = interpret(stateMachinePopup);
+// const popupStateService = interpret(stateMachinePopup);
+const popupStateMachines: Map<string, any> = new Map();
 
-// Define your API as functions
-export const StateMachinePopup = {
-    initialize: () => popupStateService.start(),
-    service: () => { return popupStateService; },
-    context: () => { return popupStateService.getSnapshot().context; },
-    state: () => { return popupStateService.getSnapshot().value as PopupMachineStateValue; },
-    sendEvent: (eventType: POPUP_EVENT_TYPE) => { popupStateService.send({ type: eventType }); },
-    resetState: () => { popupStateService.send({ type: "RESET_STATE" }); },
-    isActive: () => { 
-        const state = StateMachinePopup.state();
-        return typeof state === 'object' && 'open' in state && state.open === 'active'; 
+function setupStateMachine(projectUri: string): any {
+    const stateService = interpret(stateMachinePopup.withContext({
+        projectUri: projectUri,
+        view: null,
+        errorCode: null,
+    }));
+    stateService.start();
+
+    const messenger = RPCLayer._messengers.get(projectUri);
+    if (messenger) {
+        stateService.onTransition((state) => {
+            messenger.sendNotification(popupStateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
+        });
+    }
+    return stateService;
+}
+
+export const getPopupStateMachine = (projectUri: string): {
+    service: () => any;
+    context: () => PopupMachineContext;
+    state: () => PopupMachineStateValue;
+    sendEvent: (eventType: POPUP_EVENT_TYPE) => void;
+    resetState: () => void;
+    isActive: () => boolean;
+} => {
+    let stateService;
+    if (!popupStateMachines.has(projectUri)) {
+        stateService = setupStateMachine(projectUri);
+        popupStateMachines.set(projectUri, stateService);
+    }
+    stateService = popupStateMachines.get(projectUri);
+
+    return {
+        service: () => { return stateService; },
+        context: () => { return stateService.getSnapshot().context; },
+        state: () => { return stateService.getSnapshot().value as PopupMachineStateValue; },
+        sendEvent: (eventType: POPUP_EVENT_TYPE) => { stateService.send({ type: eventType }); },
+        resetState: () => { stateService.send({ type: "RESET_STATE" }); },
+        isActive: () => {
+            const state = stateService.state();
+            return typeof state === 'object' && 'open' in state && state.open === 'active';
+        }
     }
 };
 
-export function openPopupView(type: POPUP_EVENT_TYPE, viewLocation?: PopupVisualizerLocation) {
-    popupStateService.send({ type: type, viewLocation: viewLocation });
+export const deletePopupStateMachine = (projectUri: string) => {
+    if (popupStateMachines.has(projectUri)) {
+        const stateService = popupStateMachines.get(projectUri);
+        stateService.stop();
+        popupStateMachines.delete(projectUri);
+    }
+};
+
+export function openPopupView(projectUri: string, type: POPUP_EVENT_TYPE, viewLocation?: PopupVisualizerLocation) {
+    getPopupStateMachine(projectUri).service().send({ type: type, viewLocation: viewLocation });
 }

@@ -29,6 +29,7 @@ import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
 import { Button, Codicon, SidePanel } from "@wso2-enterprise/ui-toolkit";
 import { EmptyLocalVarPanel } from "./EmptyLocalVarPanel";
+import { hasErrorDiagnosis } from "../../../utils/st-utils";
 
 export interface LetVarDeclModel {
     index: number;
@@ -86,7 +87,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                 index: letVarDeclarations.indexOf(decl),
                 letVarDecl: decl,
                 checked: false,
-                hasDiagnostics: !!decl?.typeData?.diagnostics?.length
+                hasDiagnostics: hasErrorDiagnosis(decl)
             };
         }))
     }, [fnDef]);
@@ -180,7 +181,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
             sx={{ transition: "all 0.3s ease-in-out", width: 600 }}
         >
             <SidePanelTitleContainer>
-                <div>Local Variables</div>
+                <div>Sub Mappings</div>
                 <Button onClick={onCancel} appearance="icon"><Codicon name="close"/></Button>
             </SidePanelTitleContainer>
             <SidePanelBody>

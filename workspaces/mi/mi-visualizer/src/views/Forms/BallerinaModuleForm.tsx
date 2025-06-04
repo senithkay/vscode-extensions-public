@@ -24,16 +24,16 @@ type InputsFields = {
 
 const initialBallerinaModule: InputsFields = {
     moduleName: "",
-    version: ""
+    version: "1.0.0"
 };
 
 const schema = yup.object({
     moduleName: yup.string()
         .required("Module Name is required")
-        .matches(/^([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d-_$]*$/, "Invalid Module Name"),
+        .matches(/^[a-zA-Z0-9]*$/, "Invalid Module Name"),
     version: yup.string()
         .required("Version is required")
-        .matches(/^[a-zA-Z\d_$-\.]*$/, "Invalid Version")
+        .matches(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/, "Invalid Version")
 });
 
 export function BallerinaModuleForm(props: BallerinaModuleProps) {

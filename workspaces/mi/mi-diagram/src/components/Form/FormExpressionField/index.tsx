@@ -11,7 +11,7 @@ import { debounce } from 'lodash';
 import React, { CSSProperties, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
+import { FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import {
     Button,
@@ -28,13 +28,12 @@ import { getHelperPane } from '../HelperPane';
 import {
     enrichExpressionValue,
     extractExpressionValue,
-    filterHelperPaneCompletionItems,
-    filterHelperPaneFunctionCompletionItems,
     formatExpression,
     getExpressionValue,
     modifyCompletion
 } from './utils';
 import { Colors } from '../../../resources/constants';
+import GenerateDiv from "../GenerateComponents/GenerateDiv";
 
 type EXProps = {
     isActive: boolean;
@@ -64,6 +63,15 @@ type StyleProps = {
  * @param sx - The style to apply to the container
  */
 type FormExpressionFieldProps = {
+    numberOfDifferent?: number;
+    setNumberOfDifferent?:(value: number) => void;
+    getValues?: any;
+    element?: any;
+    generatedFormDetails?: Record<string, any>;
+    visibleDetails?: { [key: string]: boolean };
+    setIsClickedGenerateAiBtn?: any;
+    setIsGenerating?: (value: boolean) => void;
+    setVisibleDetails?: any;
     labelAdornment?: ReactNode;
     id?: string;
     disabled?: boolean;
@@ -139,6 +147,13 @@ export namespace S {
  */
 export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const {
+        numberOfDifferent,
+        setNumberOfDifferent,
+        getValues,
+        element,
+        generatedFormDetails,
+        visibleDetails,
+        setVisibleDetails,
         labelAdornment,
         id,
         disabled,
@@ -164,15 +179,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const cursorPositionRef = useRef<number>(null);
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
-    const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
     const [isExActive, setIsExActive] = useState<boolean>(false);
-    const [payloadInfo, setPayloadInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [variableInfo, setVariableInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [propertiesInfo, setPropertiesInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo>(null);
-    const [configInfo, setConfigInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [headerInfo, setHeaderInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [paramInfo, setParamInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [isAIFill, setIsAIFill] = useState<boolean>(value.fromAI);
 
     const debouncedRetrieveCompletions = useCallback(
@@ -228,54 +235,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
         handleCancel();
     };
-
-    const getHelperPaneInfo = useCallback(debounce((type: string, filterText: string) => {
-        rpcClient.getVisualizerState().then((machineView) => {
-            let position = nodeRange ? (nodeRange?.start == nodeRange?.end ? nodeRange.start :
-                { line: nodeRange.start.line, character: nodeRange.start.character + 1 }) : undefined;
-            rpcClient
-                .getMiDiagramRpcClient()
-                .getHelperPaneInfo({
-                    documentUri: machineView.documentUri,
-                    position: position,
-                })
-                .then((response) => {
-                    switch (type) {
-                        case 'payload':
-                            setPayloadInfo(filterHelperPaneCompletionItems(response.payload, filterText));
-                            break;
-                        case 'variables':
-                            setVariableInfo(filterHelperPaneCompletionItems(response.variables, filterText));
-                            break;
-                        case 'properties':
-                            setPropertiesInfo(filterHelperPaneCompletionItems(response.properties, filterText));
-                            break;
-                        case 'functions':
-                            setFunctionInfo(filterHelperPaneFunctionCompletionItems(response.functions, filterText));
-                            break;
-                        case 'configs':
-                            setConfigInfo(filterHelperPaneCompletionItems(response.configs, filterText));
-                            break;
-                        case 'headers':
-                            setHeaderInfo(filterHelperPaneCompletionItems(response.headers, filterText));
-                            break;
-                        case 'params':
-                            setParamInfo(filterHelperPaneCompletionItems(response.params, filterText));
-                            break;
-                    }
-                })
-                .finally(() => {
-                    setIsLoadingHelperPaneInfo(false);
-                });
-        });
-    }, 300),
-        [rpcClient, nodeRange?.start]
-    );
-
-    const handleGetHelperPaneInfo = useCallback((type: string, filterText: string) => {
-        setIsLoadingHelperPaneInfo(true);
-        getHelperPaneInfo(type, filterText);
-    }, [getHelperPaneInfo]);
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
         setIsHelperPaneOpen(isOpen);
@@ -410,7 +369,11 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     }, [value.value, extractExpressionValue]);
 
     return (
-        <S.Container id={id} sx={sx}>
+        <S.Container
+            id={id}
+            sx={sx}
+            data-test-id={`EX${label}${required ? '*' : ''}`}
+        >
             <S.Header>
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
@@ -418,7 +381,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             </S.Header>
             <div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    {!isAIFill && <FormExpressionEditor
+                    {!isAIFill && 
+                    <div>
+                    <FormExpressionEditor
                         ref={expressionRef}
                         disabled={disabled}
                         value={expressionValue}
@@ -428,7 +393,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                         onBlur={handleBlur}
                         onCancel={handleCancel}
                         getExpressionEditorIcon={handleGetExpressionEditorIcon}
-                        helperPaneOrigin='left'
                         actionButtons={actionButtons}
                         {...(value.isExpression && {
                             completions,
@@ -436,6 +400,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                             changeHelperPaneState: handleChangeHelperPaneState,
                             getHelperPane: handleGetHelperPane,
                             onFunctionEdit: handleFunctionEdit,
+                            helperPaneSx: { zIndex: 2101 },
                             startAdornment: (
                                 <S.AdornmentContainer>
                                     <Typography variant="h4" sx={{ margin: 0 }}>
@@ -451,8 +416,50 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                                 </S.AdornmentContainer>
                             ),
                         })}
-                    />}
+                    />
 
+                        {generatedFormDetails && visibleDetails[element.name] && generatedFormDetails[element.name]?.value !== getValues(element.name)?.value && (
+                                    <GenerateDiv
+                                        isExpression={true}
+                                        element={element}
+                                        generatedFormDetails={generatedFormDetails}
+                                        handleOnClickChecked={() => {
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                            if (generatedFormDetails) {
+                                                handleExpressionChange(generatedFormDetails[element.name]?.value, 0);
+                                                if (generatedFormDetails[element.name]?.isExpression?.toString() === 'true') {
+                                                    if (canChange) {
+                                                        onChange({
+                                                            ...value,
+                                                            isExpression: true,
+                                                            value: generatedFormDetails[element.name]?.value,
+                                                        });
+                                                    }
+                                                } else {
+                                                    if (canChange) {
+                                                        onChange({
+                                                            ...value,
+                                                            isExpression: false,
+                                                            value: generatedFormDetails[element.name]?.value,
+                                                        });
+                                                    }
+                                                }
+                                                setVisibleDetails((prev: { [key: string]: boolean }) => ({
+                                                    ...prev,
+                                                    [element.name]: false,
+                                                }));
+                                            }
+                                        }}
+                                        handleOnClickClose={async () => {
+                                            setVisibleDetails((prev: { [key: string]: boolean }) => ({
+                                                ...prev,
+                                                [element.name]: false,
+                                            }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }}
+                                    />
+                                )}
+                    </div>}
                     {isAIFill && (
                         <div style={{ width: '100%' }}>
                             <div style={{
@@ -528,14 +535,14 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                             height: '26px',
                             width: '22px',
                             borderRadius: '2px',
-                            backgroundColor: isAIFill ? Colors.PRIMARY : Colors.SECONDARY_BUTTON,
+                            backgroundColor: isAIFill ? Colors.PRIMARY : "transparent",
                         }}
                     >
                         <Codicon
                             name={"wand"}
                             iconSx={{
                                 fontSize: '12px',
-                                color: Colors.ON_PRIMARY
+                                color: isAIFill ? "white" : Colors.PRIMARY,
                             }}
                             sx={{ height: '14px', width: '16px' }}
                         />

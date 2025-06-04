@@ -14,6 +14,8 @@ import { EntryPoint, EntryPointType } from "../../../utils/types";
 import { CDFunction, CDResourceFunction, CDService } from "@wso2-enterprise/ballerina-core";
 import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
 
+export const VIEW_ALL_RESOURCES_PORT_NAME = "view-all-resources";
+
 export class EntryNodeModel extends NodeModel {
     readonly node: EntryPoint;
     readonly type: EntryPointType;
@@ -32,12 +34,21 @@ export class EntryNodeModel extends NodeModel {
         this.outPorts = [];
         this.addInPort("in");
         this.addOutPort("out");
-        (node as CDService).remoteFunctions?.forEach((func) => {
+        
+        const serviceFunctions = [
+            ...(node as CDService).remoteFunctions ?? [],
+            ...(node as CDService).resourceFunctions ?? []
+        ];
+        
+        // Add function ports
+        serviceFunctions.forEach((func) => {
             this.addOutPort(getEntryNodeFunctionPortName(func));
         });
-        (node as CDService).resourceFunctions?.forEach((func) => {
-            this.addOutPort(getEntryNodeFunctionPortName(func));
-        });
+        
+        // Add view all resources port if there are more than 3 functions
+        if (serviceFunctions.length > 3) {
+            this.addOutPort(VIEW_ALL_RESOURCES_PORT_NAME);
+        }
     }
 
     addPort<T extends NodePortModel>(port: T): T {
@@ -74,6 +85,10 @@ export class EntryNodeModel extends NodeModel {
 
     getFunctionPort(func: CDFunction | CDResourceFunction): NodePortModel | undefined {
         return this.outPorts.find((port) => port.getOptions().name === getEntryNodeFunctionPortName(func));
+    }
+
+    getViewAllResourcesPort(): NodePortModel | undefined {
+        return this.outPorts.find((port) => port.getOptions().name === VIEW_ALL_RESOURCES_PORT_NAME);
     }
 
     getHeight(): number {

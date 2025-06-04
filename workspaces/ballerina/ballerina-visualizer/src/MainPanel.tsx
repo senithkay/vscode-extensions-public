@@ -205,8 +205,10 @@ const MainPanel = () => {
                     case MACHINE_VIEW.DataMapper:
                         setViewComponent(
                             <DataMapper
+                                projectPath={value.projectUri}
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
+                                functionName={value?.identifier}
                                 applyModifications={applyModifications}
                             />
                         );

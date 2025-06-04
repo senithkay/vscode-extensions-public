@@ -18,6 +18,8 @@ import { clientManager, findRunningBallerinaProcesses, handleError, HTTPYAC_CONF
 import { BIDesignModelResponse, OpenAPISpec } from "@wso2-enterprise/ballerina-core";
 import { startDebugging } from "../editor-support/codelens-provider";
 import { v4 as uuidv4 } from "uuid";
+import { StateMachine } from "../../stateMachine";
+import { createGraphqlView } from "../../views/graphql";
 
 // File constants
 const FILE_NAMES = {
@@ -104,7 +106,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
                 }
             } else {
                 const quickPickItems = services.map(service => ({
-                    label: `'${service.basePath}' on ${service.listener}`,
+                    label: `'${service.basePath}' on ${service.listener.name}`,
                     description: `HTTP Service`,
                     service
                 }));
@@ -135,6 +137,12 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
 
             const tryitFileUri = await generateTryItFileContent(targetDir, openapiSpec, selectedService, resourceMetadata);
             await openInSplitView(tryitFileUri, 'http');
+        } else if (selectedService.type === ServiceType.GRAPHQL) {
+            const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
+            const port = selectedPort;
+            const path = serviceMetadata.basePath;
+            const service = `http://localhost:${port}${path}`;
+            await createGraphqlView(service);
         } else {
             const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
             selectedService.port = selectedPort;
@@ -239,12 +247,12 @@ async function getAvailableServices(projectDir: string): Promise<ServiceInfo[]> 
         const services = response.designModel.services
             .filter(({ type }) => {
                 const lowerType = type.toLowerCase();
-                return lowerType.includes('http') || lowerType.includes('agent');
+                return lowerType.includes('http') || lowerType.includes('ai') || lowerType.includes('graphql');
             })
             .map(({ displayName, absolutePath, location, attachedListeners, type }) => {
                 const trimmedPath = absolutePath.trim();
                 const name = displayName || (trimmedPath.startsWith('/') ? trimmedPath.substring(1) : trimmedPath);
-                const serviceType = type.toLowerCase().includes('http') ? ServiceType.HTTP : ServiceType.AGENT;
+                const serviceType = type.toLowerCase().includes('http') ? ServiceType.HTTP : type.toLowerCase().includes('graphql') ? ServiceType.GRAPHQL : ServiceType.AGENT;
                 const listener = {
                     name: attachedListeners
                         .map(listenerId => response.designModel.listeners.find(l => l.uuid === listenerId)?.symbol)
@@ -326,7 +334,7 @@ async function generateTryItFileContent(targetDir: string, openapiSpec: OAISpec,
         const tryitContent = tryitCompiledTemplate({
             ...openapiSpec,
             port: service.port.toString(),
-            basePath: service.basePath === '/' ? '' : service.basePath, // to avoid double slashes in the URL
+            basePath: service.basePath === '/' ? '' : sanitizePath(service.basePath), // to avoid double slashes in the URL
             serviceName: service.name || 'Default',
             isResourceMode: isResourceMode,
             resourceMethod: isResourceMode ? resourceMetadata?.methodValue.toUpperCase() : '',
@@ -391,9 +399,9 @@ async function getOpenAPIDefinition(service: ServiceInfo): Promise<OAISpec> {
 
         const matchingDefinition = (openapiDefinitions as OpenAPISpec).content.filter(content =>
             content.serviceName.toLowerCase() === service?.name.toLowerCase()
-            || (content.spec?.servers[0]?.url?.endsWith(service.basePath) && service?.name === '')
-            || (content.spec?.servers[0]?.url == undefined && service?.name === '' // TODO: Update the condition after fixing the issue in the OpenAPI tool
-            ));
+            || (service.basePath !== "" && service?.name === '' && content.spec?.servers[0]?.url?.endsWith(service.basePath))
+            || (service?.name === '' && content.spec?.servers[0]?.url == undefined) // TODO: Update the condition after fixing the issue in the OpenAPI tool
+            || extractPath(content.spec?.servers[0]?.url) === extractPath(service.basePath));
 
         if (matchingDefinition.length === 0) {
             throw new Error(`Failed to find matching OpenAPI definition: No service matches the base path '${service.basePath}' ${service.name !== '' ? `and service name '${service.name}'` : ''}`);
@@ -848,6 +856,35 @@ function sanitizeBallerinaPathSegment(pathSegment: string): string {
     return sanitized;
 }
 
+function extractPath(url) {
+    let match;
+
+    // Remove escaping backslashes
+    url = url.replace(/\\(.)/g, '$1');
+
+    // If the string starts with one or more slashes, remove them.
+    if (url.startsWith("/")) {
+        return url.replace(/^\/+/, '');
+    }
+
+    if (url.includes("://")) {
+        // For URLs with a protocol, remove the protocal and host.
+        match = url.match(/^(?:[^\/]*:\/\/[^\/]+\/)(.*)$/);
+        return match ? match[1] : "";
+    } else {
+        // For strings without a protocol, discards the part up to the first "/" and returns everything after.
+        match = url.match(/^(?:[^\/]+\/)(.*)$/);
+        return match ? match[1] : "";
+    }
+}
+
+function sanitizePath(path) {
+    if (!path) { return ''; }
+
+    // Remove leading/trailing whitespace and escape backslashes
+    return path.trim().replace(/\\(.)/g, '$1');
+}
+
 // cleanup function for the watcher
 function disposeErrorWatcher() {
     if (errorLogWatcher) {
@@ -859,7 +896,8 @@ function disposeErrorWatcher() {
 // Service information interface
 enum ServiceType {
     HTTP = 'http',
-    AGENT = 'agent'
+    AGENT = 'ai',
+    GRAPHQL = 'graphql'
 }
 
 interface ServiceInfo {

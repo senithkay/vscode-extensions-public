@@ -404,17 +404,24 @@ export interface ReadmeContentResponse {
 }
 export interface PathDetailsResponse {
     path?: string;
-    status: "valid" | "mismatch" | "not-valid";
+    status: "valid" | "valid-not-updated" | "mismatch" | "not-valid";
     version?: string;
 }
 export interface SetPathRequest {
+    projectUri: string;
     type: "JAVA" | "MI";
     path: string;
 }
 export interface SetupDetails {
     miVersionStatus?: "valid" | "missing" | "not-valid";
+    miVersionFromPom?: string;
     miDetails: PathDetailsResponse;
     javaDetails: PathDetailsResponse;
     showDownloadButtons?: boolean;
     recommendedVersions?: { miVersion: string, javaVersion: string }
+}
+
+export interface DownloadMIRequest {
+    version: string;
+    isUpdatedPack: boolean;
 }

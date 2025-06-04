@@ -2,18 +2,20 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, TempData } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
 import { notifyCurrentWebview, RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 import * as path from 'path';
+import * as fs from 'fs';
 import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
-import { StateMachineAI } from './views/ai-panel/aiMachine';
+import { AIStateMachine } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
 import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
+import { buildProjectArtifactsStructure, forceUpdateProjectArtifacts } from './utils/project-artifacts';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -38,7 +40,32 @@ const stateMachine = createMachine<MachineContext>(
         },
         on: {
             RESET_TO_EXTENSION_READY: {
-                target: "extensionReady"
+                target: "extensionReady",
+            },
+            UPDATE_PROJECT_STRUCTURE: {
+                actions: [
+                    assign({
+                        projectStructure: (context, event) => event.payload,
+                        tempData: (context, event) => event.stateMachineNavigate ? undefined : context.tempData // Remove temp data if the location is set
+                    }),
+                    (context, event) => {
+                        if (event.stateMachineNavigate) {
+                            if (event.location) {
+                                openView(EVENT_TYPE.OPEN_VIEW, event.location);
+                            } else {
+                                updateView();
+                            }
+                        } else {
+                            notifyCurrentWebview();
+                        }
+                        commands.executeCommand("BI.project-explorer.refresh");
+                    }
+                ]
+            },
+            SET_TEMP_DATA: {
+                actions: assign({
+                    tempData: (context, event) => event.payload
+                })
             }
         },
         states: {
@@ -62,14 +89,28 @@ const stateMachine = createMachine<MachineContext>(
                 invoke: {
                     src: 'activateLanguageServer',
                     onDone: {
-                        target: "extensionReady",
+                        target: "fetchProjectStructure",
                         actions: assign({
                             langClient: (context, event) => event.data.langClient,
                             isBISupported: (context, event) => event.data.isBISupported
                         })
                     },
                     onError: {
-                        target: "extensionReady"
+                        target: "lsError"
+                    }
+                }
+            },
+            fetchProjectStructure: {
+                invoke: {
+                    src: 'registerProjectArtifactsStructure',
+                    onDone: {
+                        target: "extensionReady",
+                        actions: assign({
+                            projectStructure: (context, event) => event.data.projectStructure
+                        })
+                    },
+                    onError: {
+                        target: "lsError"
                     }
                 }
             },
@@ -157,14 +198,7 @@ const stateMachine = createMachine<MachineContext>(
                                 })
                             },
                             FILE_EDIT: {
-                                target: "viewEditing",
-                                actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier,
-                                    type: (context, event) => event.viewLocation?.type,
-                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
-                                })
+                                target: "viewEditing"
                             },
                         }
                     },
@@ -172,13 +206,6 @@ const stateMachine = createMachine<MachineContext>(
                         on: {
                             EDIT_DONE: {
                                 target: "viewReady",
-                                actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri,
-                                    position: (context, event) => event.viewLocation.position,
-                                    identifier: (context, event) => event.viewLocation.identifier,
-                                    type: (context, event) => event.viewLocation?.type,
-                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
-                                })
                             }
                         }
                     }
@@ -193,7 +220,7 @@ const stateMachine = createMachine<MachineContext>(
                     commands.executeCommand('setContext', 'BI.status', 'loadingLS');
                     const ls = await activateBallerina();
                     fetchAndCacheLibraryData();
-                    StateMachineAI.initialize();
+                    AIStateMachine.initialize();
                     StateMachinePopup.initialize();
                     commands.executeCommand('setContext', 'BI.status', 'loadingDone');
                     if (!ls.biSupported) {
@@ -202,6 +229,27 @@ const stateMachine = createMachine<MachineContext>(
                     resolve({ langClient: ls.langClient, isBISupported: ls.biSupported });
                 } catch (error) {
                     throw new Error("LS Activation failed", error);
+                }
+            });
+        },
+        registerProjectArtifactsStructure: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    // If the project uri is not set, we don't need to build the project structure
+                    if (context.projectUri) {
+
+                        // Add a 2 second delay before registering artifacts
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        // Register the event driven listener to get the artifact changes
+                        context.langClient.registerPublishArtifacts();
+                        // Initial Project Structure
+                        const projectStructure = await buildProjectArtifactsStructure(context.projectUri, context.langClient);
+                        resolve({ projectStructure });
+                    } else {
+                        resolve({ projectStructure: undefined });
+                    }
+                } catch (error) {
+                    resolve({ projectStructure: undefined });
                 }
             });
         },
@@ -389,37 +437,43 @@ export const StateMachine = {
     context: () => { return stateService.getSnapshot().context; },
     langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
+    setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
+    setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
-    updateProjectStructure: (payload: ProjectStructureResponse) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload }); },
+    updateProjectStructure: (payload: ProjectStructureResponse, stateMachineNavigate: boolean, location?: VisualizerLocation) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, stateMachineNavigate, location }); },
+    setTempData: (payload: TempData) => { stateService.send({ type: "SET_TEMP_DATA", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
     },
 };
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
+    StateMachine.setReadyMode();
     if (resetHistory) {
         history?.clear();
     }
+    extension.hasPullModuleResolved = false;
+    extension.hasPullModuleNotification = false;
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
 export function updateView(refreshTreeView?: boolean) {
     let lastView = getLastHistory();
     // Step over to the next location if the last view is skippable
-    if (lastView.location.view.includes("SKIP")) {
+    if (!refreshTreeView && lastView?.location.view.includes("SKIP")) {
         history.pop(); // Remove the last entry
         lastView = getLastHistory(); // Get the new last entry
     }
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
     if (refreshTreeView) {
-        commands.executeCommand("BI.project-explorer.refresh");
+        forceUpdateProjectArtifacts();
     }
     notifyCurrentWebview();
 }
 
 function getLastHistory() {
     const historyStack = history?.get();
-    return historyStack[historyStack.length - 1];
+    return historyStack?.[historyStack?.length - 1];
 }
 
 async function checkForProjects(): Promise<{ isBI: boolean, projectPath: string, scope?: SCOPE }> {
@@ -441,9 +495,14 @@ async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFold
 
     if (balProjects.length > 1) {
         const projectPaths = balProjects.map(folder => folder.uri.fsPath);
-        const selectedProject = await window.showQuickPick(projectPaths, {
+        let selectedProject = await window.showQuickPick(projectPaths, {
             placeHolder: 'Select a project to load the Ballerina Integrator'
         });
+
+        if (!selectedProject) {
+            // Pick the first project if the user cancels the selection
+            selectedProject = projectPaths[0];
+        }
 
         const isBI = checkIsBI(Uri.file(selectedProject));
         const scope = isBI && fetchScope(Uri.file(selectedProject));

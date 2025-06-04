@@ -237,7 +237,13 @@ import {
     DeployProjectRequest,
     DeployProjectResponse,
     CreateBallerinaModuleResponse,
-    CreateBallerinaModuleRequest
+    CreateBallerinaModuleRequest,
+    HandleFileRequest,
+    HandleFileResponse,
+    DevantMetadata,
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -308,6 +314,7 @@ export const importProject: RequestType<ImportProjectRequest, ImportProjectRespo
 export const migrateProject: RequestType<MigrateProjectRequest, MigrateProjectResponse> = { method: `${_preFix}/migrateProject` };
 export const getAIResponse: RequestType<AIUserInput, string> = { method: `${_preFix}/getAIResponse` };
 export const writeContentToFile: RequestType<WriteContentToFileRequest, WriteContentToFileResponse> = { method: `${_preFix}/writeContentToFile` };
+export const handleFileWithFS: RequestType<HandleFileRequest, HandleFileResponse> = { method: `${_preFix}/handleFileWithFS` };
 export const highlightCode: NotificationType<HighlightCodeRequest> = { method: `${_preFix}/highlightCode` };
 export const getWorkspaceContext: RequestType<void, GetWorkspaceContextResponse> = { method: `${_preFix}/getWorkspaceContext` };
 export const getProjectUuid: RequestType<void, GetProjectUuidResponse> = { method: `${_preFix}/getProjectUuid` };
@@ -341,6 +348,7 @@ export const removeConnector: RequestType<RemoveConnectorRequest, RemoveConnecto
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
 export const getConnectionForm: RequestType<GetConnectionFormRequest, GetConnectionFormResponse> = { method: `${_preFix}/getConnectionForm` };
 export const getStoreConnectorJSON: RequestType<void, StoreConnectorJsonResponse> = { method: `${_preFix}/getStoreConnectorJSON` };
+export const getConnectorIcon: RequestType<GetConnectorIconRequest, GetConnectorIconResponse> = { method: `${_preFix}/getConnectorIcon` };
 export const saveInboundEPUischema: RequestType<SaveInboundEPUischemaRequest, boolean> = { method: `${_preFix}/saveInboundEPUischema` };
 export const getInboundEPUischema: RequestType<GetInboundEPUischemaRequest, GetInboundEPUischemaResponse> = { method: `${_preFix}/getInboundEPUischema` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
@@ -359,6 +367,7 @@ export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method:
 export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` };
 export const buildProject: NotificationType<BuildProjectRequest> = { method: `${_preFix}/buildProject` };
 export const deployProject: RequestType<DeployProjectRequest, DeployProjectResponse> = { method: `${_preFix}/deployProject` };
+export const getDevantMetadata: RequestType<void, DevantMetadata> = { method: `${_preFix}/getDevantMetadata` };
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
@@ -391,12 +400,17 @@ export const getMIVersionFromPom: RequestType<void, MiVersionResponse> = { metho
 export const getMediatorInputOutputSchema: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/getMediatorInputOutputSchema` };
 export const saveInputPayload: RequestType<SavePayloadRequest, boolean> = { method: `${_preFix}/saveInputPayload` };
 export const getInputPayloads: RequestType<GetPayloadsRequest, GetPayloadsResponse> = { method: `${_preFix}/getInputPayloads` };
+export const getAllInputDefaultPayloads: RequestType<void, Record<string, unknown>> = { method: `${_preFix}/getOutputPayloads` };
 export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
 export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
-export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };
+export const updateMediator: RequestType<UpdateMediatorRequest, UpdateMediatorResponse> = { method: `${_preFix}/updateMediator` };
 export const getLocalInboundConnectors: RequestType<void, LocalInboundConnectorsResponse> = { method: `${_preFix}/getLocalInboundConnectors` };
 export const getConnectionSchema: RequestType<GetConnectionSchemaRequest, GetConnectionSchemaResponse> = { method: `${_preFix}/getConnectionSchema` };
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
 export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperPaneInfoResponse> = { method: `${_preFix}/getHelperPaneInfo` };
 export const testConnectorConnection: RequestType<TestConnectorConnectionRequest, TestConnectorConnectionResponse> = { method: `${_preFix}/testConnectorConnection` };
 export const saveConfig: RequestType<SaveConfigRequest, SaveConfigResponse> = { method: `${_preFix}/saveConfig` };
+export const getEULALicense: RequestType<void, string> = { method: `${_preFix}/getEULALicense` };
+export const shouldDisplayPayloadAlert: RequestType<void, boolean> = { method: `${_preFix}/shouldDisplayPayloadAlert` };
+export const displayPayloadAlert: RequestType<void, void> = { method: `${_preFix}/displayPayloadAlert` };
+export const closePayloadAlert: RequestType<void, void> = { method: `${_preFix}/closePayloadAlert` };

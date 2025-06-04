@@ -9,13 +9,16 @@
 
 import styled from "@emotion/styled";
 import React, { PropsWithChildren } from "react";
+import { Codicon } from "../Codicon/Codicon";
 
 type Variant = "primary" | "secondary" | "error" | "warning";
 export interface AlertProps {
     title?: string;
     subTitle?: string;
     variant?: Variant;
+    onClose?: () => void;
     sx?: React.CSSProperties;
+    closeButtonSx?: React.CSSProperties;
 }
 
 interface ContainerProps {
@@ -51,6 +54,7 @@ const getBackgroundColor = (variant: Variant) => {
 }
 
 const Container = styled.div<ContainerProps>`
+    position: relative;
     border-left: 0.3rem solid ${(props: ContainerProps) => getBorderColor(props.variant)};
     background: ${(props: ContainerProps) => getBackgroundColor(props.variant)};
     display: flex;
@@ -76,10 +80,24 @@ const SubTitle = styled.div`
 
 
 export const Alert: React.FC<PropsWithChildren<AlertProps>> = props => {
-    const { title, subTitle, variant = "primary", children, sx } = props;
+    const { title, subTitle, variant = "primary", children, sx, onClose, closeButtonSx } = props;
 
     return (
         <Container variant={variant} sx={sx}>
+            {onClose && (
+                <Codicon
+                    name="close"
+                    onClick={onClose}
+                    sx={{
+                        margin: '8px',
+                        cursor: 'pointer',
+                        position: 'absolute',
+                        right: '0',
+                        top: '0',
+                        ...closeButtonSx
+                    }}
+                />
+            )}
             {title && <Title>{title}</Title>}
             {subTitle && <SubTitle>{subTitle}</SubTitle>}
             {children}

@@ -9,6 +9,10 @@
  */
 
 import * as vscode from 'vscode';
+import * as path from "path";
+
+const toml = require('@iarna/toml');
+const fs = require('fs');
 
 export class DebuggerConfig {
     private static commandPort: number = vscode.workspace.getConfiguration().get<number>('MI.debugger.commandPort', 9005);
@@ -21,6 +25,7 @@ export class DebuggerConfig {
     private static envVariables: { [key: string]: string } = {};
     private static vmArgs: string[] = [];
     private static vmArgsPortOffset: number = 0;
+    private static configPortOffset: number = 0;
 
     //Capps and Libs copied to the MI server
     private static copiedCappUri: string[] = [];
@@ -86,8 +91,8 @@ export class DebuggerConfig {
         if (this.vmArgsPortOffset !== 0) {
             return this.baseServerPort + this.vmArgsPortOffset - this.internalOffset;
         }
-        if (this.portOffset !== undefined) {
-            return this.baseServerPort + this.portOffset - this.internalOffset;
+        if (this.configPortOffset !== 0) {
+            return this.baseServerPort + this.configPortOffset - this.internalOffset;
         }
         return this.baseServerPort;
     }
@@ -96,8 +101,8 @@ export class DebuggerConfig {
         if (this.vmArgsPortOffset !== 0) {
             return this.serverReadinessPort + this.vmArgsPortOffset - this.internalOffset;
         }
-        if (this.portOffset !== undefined) {
-            return this.serverReadinessPort + this.portOffset - this.internalOffset;
+        if (this.configPortOffset !== 0) {
+            return this.serverReadinessPort + this.configPortOffset - this.internalOffset;
         }
         return this.serverReadinessPort;
     }
@@ -106,8 +111,8 @@ export class DebuggerConfig {
         if (this.vmArgsPortOffset !== 0) {
             return this.managementPort + this.vmArgsPortOffset - this.internalOffset;
         }
-        if (this.portOffset !== undefined) {
-            return this.managementPort + this.portOffset - this.internalOffset;
+        if (this.configPortOffset !== 0) {
+            return this.managementPort + this.configPortOffset - this.internalOffset;
         }
         return this.managementPort;
     }
@@ -143,5 +148,11 @@ export class DebuggerConfig {
                 this.vmArgsPortOffset = parseInt(match[1]);
             }
         }
+    }
+
+    public static setConfigPortOffset(projectUri: string): void {
+        const deploymentConfig = path.join(projectUri, "deployment", "deployment.toml");
+        const configs = toml.parse(fs.readFileSync(deploymentConfig, 'utf8'));
+        this.configPortOffset = configs.server?.offset ?? 0;
     }
 }

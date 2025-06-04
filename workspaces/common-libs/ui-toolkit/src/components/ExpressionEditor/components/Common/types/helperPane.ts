@@ -79,6 +79,12 @@ export type PanelsProps = PropsWithChildren<{
     sx?: CSSProperties;
 }>;
 
+export type HelperPaneCollapsibleSectionProps = PropsWithChildren<{
+    title: string;
+    titleSx?: CSSProperties;
+    defaultCollapsed?: boolean;
+}>;
+
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
     columns?: number;
@@ -100,6 +106,8 @@ export type HelperPaneBodyProps = PropsWithChildren<{
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
     title?: string;
     titleSx?: CSSProperties;
+    startAdornment?: ReactNode;
+    endAdornment?: ReactNode;
     onBack?: () => void;
     onClose?: () => void;
 };

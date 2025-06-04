@@ -25,7 +25,8 @@ import {
     WorkspaceFileRequest,
     WorkspacesFileResponse,
     FileOrDirRequest,
-    WorkspaceRootResponse
+    WorkspaceRootResponse,
+    ShowErrorMessageRequest
 } from "./interfaces";
 
 export interface CommonRPCAPI {
@@ -38,5 +39,7 @@ export interface CommonRPCAPI {
     openExternalUrl: (params: OpenExternalUrlRequest) => void;
     selectFileOrDirPath: (params: FileOrDirRequest) => Promise<FileOrDirResponse>;
     experimentalEnabled: () => Promise<boolean>;
+    isNPSupported: () => Promise<boolean>;
     getWorkspaceRoot: () => Promise<WorkspaceRootResponse>;
+    showErrorMessage: (params: ShowErrorMessageRequest) => void;
 }

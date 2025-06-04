@@ -21,6 +21,7 @@ export interface STNode {
     diagnostics?: Diagnostic[];
     hasBreakpoint?: boolean;
     isActiveBreakpoint?: boolean;
+    connectorName?: string;
 }
 
 export interface ViewState {
@@ -1133,6 +1134,7 @@ export interface DataServiceCall extends STNode {
 }
 
 export interface APIResource extends STNode {
+    api: string;
     inSequence: Sequence;
     outSequence: Sequence;
     faultSequence: Sequence;

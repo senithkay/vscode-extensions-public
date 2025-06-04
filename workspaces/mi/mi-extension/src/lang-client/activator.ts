@@ -19,6 +19,7 @@ import {
     window,
     workspace,
     RelativePattern,
+    Uri,
 } from 'vscode';
 import * as path from 'path';
 import {
@@ -41,6 +42,7 @@ import util = require('util');
 import { log } from '../util/logger';
 import { getJavaHomeFromConfig } from '../util/onboardingUtils';
 import { SELECTED_SERVER_PATH } from '../debugger/constants';
+import { extension } from '../MIExtensionContext';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
@@ -83,21 +85,38 @@ const main: string = 'org.eclipse.lemminx.XMLServerLauncher';
 const versionRegex = /(\d+\.\d+\.?\d*)/g;
 
 export class MILanguageClient {
-    private static _instance: MILanguageClient;
+    private static _instances: Map<string, MILanguageClient> = new Map();
     public languageClient: ExtendedLanguageClient | undefined;
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
     private COMPATIBLE_JDK_VERSION = "11"; // Minimum JDK version required to run the language server
     private _errorStack: ErrorType[] = [];
 
-    constructor(private context: ExtensionContext) { }
+    constructor(private projectUri: string) { }
 
-    public static async getInstance(context?: ExtensionContext) {
-        if (!this._instance && context) {
-            this._instance = new MILanguageClient(context);
-            await this._instance.launch();
+    public static async getInstance(projectUri: string): Promise<MILanguageClient> {
+        if (!this._instances.has(projectUri)) {
+            const instance = new MILanguageClient(projectUri);
+            await instance.launch(projectUri);
+            this._instances.set(projectUri, instance);
         }
-        return this._instance;
+        return this._instances.get(projectUri)!;
+    }
+
+    public static async stopInstance(projectUri: string) {
+        const instance = this._instances.get(projectUri);
+        if (instance) {
+            await instance.stop();
+            this._instances.delete(projectUri);
+        }
+    }
+
+    public static async getAllInstances(): Promise<MILanguageClient[]> {
+        const instances: MILanguageClient[] = [];
+        for (const instance of this._instances.values()) {
+            instances.push(instance);
+        }
+        return instances;
     }
 
     public getErrors() {
@@ -129,9 +148,9 @@ export class MILanguageClient {
         return isCompatible;
     }
 
-    private async launch() {
+    private async launch(projectUri: string) {
         try {
-            const JAVA_HOME= getJavaHomeFromConfig();
+            const JAVA_HOME = getJavaHomeFromConfig(this.projectUri);
             if (JAVA_HOME) {
                 const isJDKCompatible = await this.checkJDKCompatibility(JAVA_HOME);
                 if (!isJDKCompatible) {
@@ -141,8 +160,8 @@ export class MILanguageClient {
                     throw new Error(errorMessage);
                 }
                 let executable: string = path.join(JAVA_HOME, 'bin', 'java');
-                let schemaPath = this.context.asAbsolutePath(path.join("synapse-schemas", "synapse_config.xsd"));
-                let langServerCP = this.context.asAbsolutePath(path.join('ls', '*'));
+                let schemaPath = extension.context.asAbsolutePath(path.join("synapse-schemas", "synapse_config.xsd"));
+                let langServerCP = extension.context.asAbsolutePath(path.join('ls', '*'));
 
                 let schemaPathArg = '-DSCHEMA_PATH=' + schemaPath;
                 const args: string[] = [schemaPathArg, '-cp', langServerCP];
@@ -159,7 +178,11 @@ export class MILanguageClient {
                     args: [...args, main],
                     options: {},
                 };
-                let workspaceFolder = workspace.workspaceFolders![0];
+                let workspaceFolder = workspace.getWorkspaceFolder(Uri.parse(this.projectUri));
+
+                if (!workspaceFolder) {
+                    throw new Error("Workspace folder not found.");
+                }
                 // Options to control the language client
                 let clientOptions: LanguageClientOptions = {
                     initializationOptions: { "settings": getXMLSettings() },
@@ -223,7 +246,7 @@ export class MILanguageClient {
                 };
 
                 // Create the language client and start the client.
-                this.languageClient = new ExtendedLanguageClient('synapseXML', 'Synapse Language Server',
+                this.languageClient = new ExtendedLanguageClient('synapseXML', 'Synapse Language Server', this.projectUri,
                     serverOptions, clientOptions);
                 await this.languageClient.start();
 
@@ -236,8 +259,8 @@ export class MILanguageClient {
                 activateTagClosing(tagProvider, { synapseXml: true, xsl: true },
                     'xml.completion.autoCloseTags');
                 languages.setLanguageConfiguration('SynapseXml', getIndentationRules());
-                registerDefinitionProvider(this.context, this.languageClient);
-                registerFormattingProvider(this.context, this.languageClient);
+                registerDefinitionProvider(extension.context, this.languageClient);
+                registerFormattingProvider(extension.context, this.languageClient);
             } else {
                 log("Error: The JAVA_HOME environment variable is not defined. Please make sure to set the JAVA_HOME environment variable to the installation directory of your JDK.");
                 this.updateErrors(ERRORS.JAVA_HOME);
@@ -280,7 +303,7 @@ export class MILanguageClient {
 
             }
             let extensionPath = extensions.getExtension("wso2.micro-integrator")!.extensionPath;
-            const config = workspace.getConfiguration('MI');
+            const config = workspace.getConfiguration('MI', Uri.file(projectUri));
             const currentServerPath = config.get<string>(SELECTED_SERVER_PATH) || "";
             xml['xml']['extensionPath'] = [`${extensionPath}`];
             xml['xml']['miServerPath'] = currentServerPath;

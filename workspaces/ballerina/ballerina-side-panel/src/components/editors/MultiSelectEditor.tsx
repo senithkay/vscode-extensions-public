@@ -155,8 +155,9 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                         containerSx={{ width: "100%" }}
                         addNewBtnClick={field.addNewButton ? () => openSubPanel({ view: SubPanelView.ADD_NEW_FORM }) : undefined}
                         addNewBtnLabel={field.addNewButton ? (field.addNewButtonLabel || field.label) : undefined}
+                        aria-label={field.label}
                     />
-                    {
+                    {dropdownCount > 1 &&
                         <S.DeleteButton
                             appearance="icon"
                             onClick={() => onDelete(index)}

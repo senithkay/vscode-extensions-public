@@ -11,14 +11,16 @@ import vscode from 'vscode';
 import { ENABLE_BACKGROUND_DRIFT_CHECK } from "../../core/preferences";
 import { debounce } from 'lodash';
 import { StateMachine } from "../../stateMachine";
-import { addDefaultModelConfigForNaturalFunctions, getBackendURL, getLLMDiagnostics, getTokenForNaturalFunction } from "./utils";
+import { addConfigFile, getConfigFilePath, getLLMDiagnostics} from "./utils";
 import { NLCodeActionProvider, showTextOptions } from './nl-code-action-provider';
 import { BallerinaExtension } from 'src/core';
-import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, MONITERED_EXTENSIONS,
-    WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND, PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN
+import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, 
+    MONITERED_EXTENSIONS
  } from './constants';
+ import { isSupportedSLVersion } from "../../utils";
 
 let diagnosticCollection: vscode.DiagnosticCollection;
+const BALLERINA_UPDATE_13 = 2201130;
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const backgroundDriftCheckConfig = vscode.workspace.getConfiguration().get<boolean>(ENABLE_BACKGROUND_DRIFT_CHECK);
@@ -105,27 +107,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         );
     });
 
-    vscode.commands.registerCommand("ballerina.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {    
-        await vscode.window.withProgress(
-            {
-                location: vscode.ProgressLocation.Notification,
-                title: PROGRESS_BAR_MESSAGE_FOR_NP_TOKEN,
-                cancellable: false,
-            },
-            async () => {
-                try {
-                    const token: string = await getTokenForNaturalFunction();
-                    if (token == null) {
-                        vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
-                        return;
-                    }
-    
-                    addDefaultModelConfigForNaturalFunctions(projectPath, token, await getBackendURL());
-                } catch (error) {
-                    vscode.window.showWarningMessage(WARNING_MESSAGE_FOR_NP_TOKEN_NOT_FOUND);
-                    return;
-                }
-            }
-        );
+    vscode.commands.registerCommand("ballerina.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {
+        const configPath = await getConfigFilePath(ballerinaExtInstance, projectPath);
+        if (configPath != null) {
+            const isNaturalFunctionsAvailableInBallerinaOrg = 
+                        isSupportedSLVersion(ballerinaExtInstance, BALLERINA_UPDATE_13);
+            addConfigFile(configPath, isNaturalFunctionsAvailableInBallerinaOrg);
+        }
     });
 }

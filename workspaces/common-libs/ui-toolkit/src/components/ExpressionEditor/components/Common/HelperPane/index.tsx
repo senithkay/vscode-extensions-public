@@ -14,6 +14,7 @@ import {
     ArrowProps,
     HelperPaneBodyProps,
     HelperPaneCategoryItemProps,
+    HelperPaneCollapsibleSectionProps,
     HelperPaneCompletionItemProps,
     HelperPaneFooterProps,
     HelperPaneHeaderProps,
@@ -260,6 +261,21 @@ const LoadingItem = styled.div`
     }
 `;
 
+const CollapsibleSectionTitle = styled.div`
+    display: flex;
+    align-items: center;
+    padding-block: 8px;
+    cursor: pointer;
+
+    & p {
+        color: var(--vscode-button-background);
+    }
+
+    & p:hover {
+        color: var(--vscode-button-hoverBackground);
+    }
+`;
+
 const SectionBody = styled.div<{ columns?: number }>`
     display: grid;
     grid-template-columns: 1fr;
@@ -307,7 +323,6 @@ const TitleContainer = styled.div<{ isLink?: boolean }>`
 const HeaderContainer = styled.header`
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding-inline: 8px;
 `;
 
@@ -596,6 +611,26 @@ const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, labelSx, o
     );
 };
 
+const CollapsibleSection: React.FC<HelperPaneCollapsibleSectionProps> = ({
+    title,
+    titleSx,
+    defaultCollapsed = false,
+    children,
+}) => {
+    const [isCollapsed, setIsCollapsed] = useState<boolean>(defaultCollapsed);
+
+    return (
+        <>
+            <CollapsibleSectionTitle onClick={() => setIsCollapsed(!isCollapsed)}>
+                <Typography variant="body3" sx={{ fontStyle: "italic", ...titleSx }}>
+                    {isCollapsed ? "Show " : "Hide "}{title}
+                </Typography>
+            </CollapsibleSectionTitle>
+            {!isCollapsed && children}
+        </>
+    );
+};
+
 const SubSection: React.FC<HelperPaneSectionProps> = ({
     title,
     columns = 1,
@@ -673,12 +708,22 @@ const Body: React.FC<HelperPaneBodyProps> = ({ children, loading = false, classN
     );
 };
 
-const Header: React.FC<HelperPaneHeaderProps> = ({ title, titleSx, onBack, onClose, searchValue, onSearch }) => {
+const Header: React.FC<HelperPaneHeaderProps> = ({
+    title,
+    titleSx,
+    onBack,
+    onClose,
+    searchValue,
+    onSearch,
+    startAdornment,
+    endAdornment
+}) => {
     return (
         <>
             <HeaderContainerWithSearch>
                 {title && (
                     <HeaderContainer>
+                        {startAdornment && startAdornment}
                         <TitleContainer isLink={!!onBack} onClick={onBack}>
                             {onBack && <Codicon name="chevron-left" />}
                             {onBack ? (
@@ -687,7 +732,8 @@ const Header: React.FC<HelperPaneHeaderProps> = ({ title, titleSx, onBack, onClo
                                 <Typography sx={{ margin: 0, ...titleSx }}>{title}</Typography>
                             )}
                         </TitleContainer>
-                        {onClose && <Codicon name="close" onClick={onClose} />}
+                        {endAdornment && endAdornment}
+                        {onClose && <Codicon name="close" sx={{ marginLeft: 'auto' }} onClick={onClose} />}
                     </HeaderContainer>
                 )}
                 {onSearch && (
@@ -706,6 +752,7 @@ const HelperPane: React.FC<HelperPaneProps> & {
     Body: typeof Body;
     Section: typeof Section;
     SubSection: typeof SubSection;
+    CollapsibleSection: typeof CollapsibleSection;
     CategoryItem: typeof CategoryItem;
     CompletionItem: typeof CompletionItem;
     Footer: typeof Footer;
@@ -730,6 +777,7 @@ HelperPane.Header = Header;
 HelperPane.Body = Body;
 HelperPane.Section = Section;
 HelperPane.SubSection = SubSection;
+HelperPane.CollapsibleSection = CollapsibleSection;
 HelperPane.CategoryItem = CategoryItem;
 HelperPane.CompletionItem = CompletionItem;
 HelperPane.Footer = Footer;

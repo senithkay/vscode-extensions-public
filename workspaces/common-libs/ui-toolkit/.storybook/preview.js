@@ -6,6 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import "./fonts/@vscode/codicons/dist/codicon.css";
+import "./fonts/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
   controls: {
@@ -22,8 +24,6 @@ export const decorators = [
       } else if (context.globals.theme === 'Light_Theme') {
         import('../.storybook/lightTheme.css');
       }
-      import ("@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css");
-      import('@vscode/codicons/dist/codicon.css');
       return <Story />
     }
 ];

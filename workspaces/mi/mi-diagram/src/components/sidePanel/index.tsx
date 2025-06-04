@@ -1,7 +1,7 @@
 import { Codicon, Drawer, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useState, useContext, ReactNode } from 'react';
 import styled from '@emotion/styled';
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { DiagramService, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
 import { HomePage } from './mediators';
 import { getAllDataServiceForms } from './mediators/Values';
@@ -53,6 +53,7 @@ export interface SidePanelListProps {
     nodePosition: Range;
     trailingSpace: string;
     documentUri: string;
+    artifactModel: DiagramService;
 }
 
 export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: any, title?: string, icon?: string | ReactNode) => {
@@ -129,6 +130,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
+                        artifactModel={props.artifactModel}
                     />;
                     sidepanelAddPage(sidePanelContext, page, `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}`, sidePanelContext.formValues.icon);
                 } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
@@ -161,11 +163,12 @@ const SidePanelList = (props: SidePanelListProps) => {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={!isStartNode}
+                        artifactModel={props.artifactModel}
                     />;
                     sidepanelAddPage(sidePanelContext, page, title, icon);
                 }
             } else {
-                const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} />;
+                const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} artifactModel={props.artifactModel} />;
                 sidepanelAddPage(sidePanelContext, home);
             }
             setLoading(false);
@@ -204,7 +207,12 @@ const SidePanelList = (props: SidePanelListProps) => {
     const Title = () => {
         if (sidePanelContext.pageStack.length > 0) {
             const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
-            return lastPage.title !== undefined && <Typography variant='h3' sx={{ textAlign: "center", width: "fit-content" }}>{lastPage.title}</Typography>;
+            return lastPage.title !== undefined && 
+            <Typography variant='h3' sx={{ textAlign: "center", width: "fit-content" }}>
+                <div style={{ maxWidth: '320px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} >
+                    {lastPage.title}
+                </div>
+            </Typography>;
         }
     }
 

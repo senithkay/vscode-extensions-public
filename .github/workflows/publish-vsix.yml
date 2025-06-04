@@ -125,6 +125,8 @@ jobs:
         run: |
           if [ "${{ inputs.extension }}" == "micro-integrator" ]; then
             echo "chatAPI=${{ secrets.MI_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
+          elif [ "${{ inputs.extension }}" == "ballerina" ] || [ "${{ inputs.extension }}" == "ballerina-integrator" ]; then
+            echo "chatAPI=${{ secrets.EGGPLANT_EXT_CHAT_API }}" >> $GITHUB_OUTPUT
           else
             echo "chatAPI=${{ secrets.TOOLING_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
           fi

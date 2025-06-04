@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from 'react';
-import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { EVENT_TYPE, MACHINE_VIEW, SCOPE } from '@wso2-enterprise/ballerina-core';
 
@@ -45,7 +45,8 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                 </TitleWrapper>
                 <CardGrid>
                     <ButtonCard
-                        icon={<Icon name="bi-http-service" />}
+                        id="http-service-card"
+                        icon={<Icon name="bi-globe" />}
                         title="HTTP Service"
                         // description="Handle web requests and responses."
                         onClick={() => handleClick("http")}
@@ -53,20 +54,24 @@ export function IntegrationAPIPanel(props: IntegrationAPIPanelProps) {
                         tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
                     />
                     <ButtonCard
+                        data-testid="websocket-service-card"
                         icon={<Icon name="bi-graphql" sx={{ color: "#e535ab" }} />}
                         title="GraphQL Service"
                         // description="Flexible and efficient data queries."
                         onClick={() => handleClick("graphql")}
                         disabled={isDisabled}
                         tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
+                        isBeta
                     />
                     <ButtonCard
+                        data-testid="websocket-service-card"
                         icon={<Icon name="bi-tcp" />}
                         title="TCP Service"
                         // description="Process connection oriented messages."
                         onClick={() => handleClick("tcp")}
                         disabled={isDisabled}
                         tooltip={isDisabled ? OutOfScopeComponentTooltip : ""}
+                        isBeta
                     />
                     {/* TODO: Add this when GRPC is working */}
                     {/* <ButtonCard

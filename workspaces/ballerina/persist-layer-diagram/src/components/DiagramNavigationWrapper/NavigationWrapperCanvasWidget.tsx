@@ -37,8 +37,12 @@ export function NavigationWrapperCanvasWidget(props: NavigationWrapperCanvasProp
 }
 
 function focusToNode(node: NodeModel, currentZoomLevel: number, diagramEngine: DiagramEngine) {
-    const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
-    const nodeBounds = node.getBoundingBox();
+    const canvasBounds = diagramEngine?.getCanvas()?.getBoundingClientRect();
+    const nodeBounds = node?.getBoundingBox();
+
+    if (!canvasBounds || !nodeBounds) {
+        return;
+    }
 
     const zoomOffset = currentZoomLevel / 100;
     const offsetX = canvasBounds.width / 2 - (nodeBounds.getTopLeft().x + nodeBounds.getWidth() / 2) * zoomOffset;

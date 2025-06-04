@@ -14,6 +14,7 @@ import {
     FormValues,
     ParameterValue,
     Parameter,
+    FormImports,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow, ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import {
@@ -42,6 +43,8 @@ import {
     FunctionNode,
     FocusFlowDiagramView,
     FOCUS_FLOW_DIAGRAM_VIEW,
+    Imports,
+    ColorThemeKind,
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -51,8 +54,16 @@ import {
 } from "@wso2-enterprise/ballerina-side-panel";
 import { SidePanelView } from "../views/BI/FlowDiagram/PanelManager";
 import { cloneDeep } from "lodash";
-import { CompletionItem, CompletionItemKind, convertCompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import hljs from "highlight.js";
+import { CompletionItem, CompletionItemKind, convertCompletionItemKind, FnSignatureDocumentation } from "@wso2-enterprise/ui-toolkit";
 import { FunctionDefinition, STNode } from "@wso2-enterprise/syntax-tree";
+import { DocSection } from "../components/ExpressionEditor";
+
+// @ts-ignore
+import ballerina from "../languages/ballerina.js";
+hljs.registerLanguage("ballerina", ballerina);
 
 function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
     // Check if node should be filtered based on function type
@@ -100,7 +111,7 @@ function convertDiagramCategoryToSidePanelCategory(category: Category, functionT
     return {
         title: category.metadata.label,
         description: category.metadata.description,
-        icon: <ConnectorIcon url={icon} style={{ width: "20px" }} />,
+        icon: <ConnectorIcon url={icon} style={{ width: "20px", height: "20px", fontSize: "20px" }} />,
         items: items,
     };
 }
@@ -161,6 +172,7 @@ export function convertNodePropertyToFormField(
         optional: property.optional,
         advanced: property.advanced,
         placeholder: property.placeholder,
+        defaultValue: property.defaultValue as string,
         editable: isFieldEditable(property, connections, clientName),
         enabled: true,
         hidden: property.hidden,
@@ -174,6 +186,7 @@ export function convertNodePropertyToFormField(
         lineRange: property?.codedata?.lineRange,
         metadata: property.metadata,
         codedata: property.codedata,
+        imports: property.imports
     };
     return formField;
 }
@@ -242,7 +255,11 @@ export function getDataMappingFunctions(functions: Category[]): Category[] {
         .filter((category) => category.items.length > 0);
 }
 
-export function updateNodeProperties(values: FormValues, nodeProperties: NodeProperties): NodeProperties {
+export function updateNodeProperties(
+    values: FormValues,
+    nodeProperties: NodeProperties,
+    formImports: FormImports
+): NodeProperties {
     const updatedNodeProperties: NodeProperties = { ...nodeProperties };
 
     for (const key in values) {
@@ -250,6 +267,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
             const expression = updatedNodeProperties[key as NodePropertyKey];
             if (expression) {
                 expression.value = values[key];
+                expression.imports = formImports[key];
             }
         }
     }
@@ -265,6 +283,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
             return "AI Agent";
         case SidePanelView.AGENT_MODEL:
             return "Configure LLM Model";
+        case SidePanelView.AGENT_MEMORY_MANAGER:
+            return "Configure Memory";
         case SidePanelView.AGENT_TOOL:
             return "Configure Tool";
         case SidePanelView.ADD_TOOL:
@@ -555,8 +575,120 @@ export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, 
     }
     return response;
 }
-export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
-    const fnText = signatureHelp.signatures[0].label;
+
+/**
+ * Custom rendering for <code> blocks with syntax highlighting
+ */
+const MarkdownCodeRenderer = {
+    code({ inline, className, children }: { inline?: boolean; className?: string; children: React.ReactNode }) {
+        const codeContent = (Array.isArray(children) ? children.join("") : children) ?? "";
+        const match = /language-(\w+)/.exec(className || "");
+
+        if (!inline && match) {
+            const language = match[1];
+
+            // Apply syntax highlighting if language is registered
+            if (hljs.getLanguage(language)) {
+                return (
+                    <pre style={{ border: '1px solid var(--vscode-editorIndentGuide-background)' }}>
+                        <code
+                            className={`hljs ${language}`}
+                            dangerouslySetInnerHTML={{
+                                __html: hljs.highlight(codeContent.toString(), { language }).value,
+                            }}
+                        />
+                    </pre>
+                );
+            }
+
+            // Fallback: render as plain text
+            return (
+                <pre>
+                    <code className="hljs">{codeContent}</code>
+                </pre>
+            );
+        }
+
+        // Inline code with word wrapping
+        return (
+            <code className={className}>
+                {children}
+            </code>
+        );
+    },
+};
+
+export function injectHighlightTheme(theme: ColorThemeKind) {
+    let extractedTheme: string;
+    switch (theme) {
+        case ColorThemeKind.Light:
+        case ColorThemeKind.HighContrastLight:
+            extractedTheme = "light";
+            break;
+        default:
+            extractedTheme = "dark";
+            break;
+    }
+    
+    const existingTheme = document.getElementById("hljs-theme");
+    if (existingTheme) existingTheme.remove();
+
+    const themeLink = document.createElement("link");
+    themeLink.id = "hljs-theme";
+    themeLink.rel = "stylesheet";
+    themeLink.href =
+        extractedTheme === "light"
+            ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-light.min.css"
+            : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-dark.min.css";
+    document.head.appendChild(themeLink);
+
+    // Add background override once
+    if (!document.getElementById("hljs-override")) {
+        const overrideStyle = document.createElement("style");
+        overrideStyle.id = "hljs-override";
+        overrideStyle.innerHTML = `.hljs { background: var(--vscode-editor-background) !important; }`;
+        document.head.appendChild(overrideStyle);
+    }
+};
+
+async function getDocumentation(fnDescription: string, argsDescription: string[]): Promise<FnSignatureDocumentation> {
+    const extractArgDocumentation = (arg: string) => {
+        const argMatch = arg.match(/^\*\*Parameter\*\*\s*(.*)/);
+        if (argMatch) {
+            return `- ${argMatch[1]}`;
+        }
+        return `- ${arg}`;
+    };
+
+    return {
+        fn: (
+            <DocSection>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]} components={MarkdownCodeRenderer}>
+                    {fnDescription}
+                </ReactMarkdown>
+            </DocSection>
+        ),
+        args: 
+            <>
+                {argsDescription.map((arg) => (
+                    <DocSection key={arg}>
+                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                            {extractArgDocumentation(arg)}
+                        </ReactMarkdown>
+                    </DocSection>
+                ))}
+            </>
+        ,
+    };
+};
+
+export async function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
+    const currentSignature = signatureHelp.signatures[0];
+    if (!currentSignature) {
+        return undefined;
+    }
+
+    const fnText = currentSignature.label;
     const fnRegex = /^(?<label>[a-zA-Z0-9_']+)\((?<args>.*)\)$/;
     const fnMatch = fnText.match(fnRegex);
 
@@ -566,20 +698,32 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
     const label = fnMatch.groups?.label;
 
     let args: string[] = [];
-    if (fnMatch.groups?.args !== "") {
+    if (fnMatch.groups?.args !== '') {
         // For functions with arguments
-        args = fnMatch.groups?.args.split(",").map((arg) => arg.trim());
+        args = fnMatch.groups?.args.split(',').map((arg) => arg.trim());
+    }
+
+    let documentation: FnSignatureDocumentation;
+    if (signatureHelp.signatures[0]?.documentation) {
+        documentation = await getDocumentation(
+            signatureHelp.signatures[0].documentation.value,
+            signatureHelp.signatures[0].parameters?.map((param) => param.documentation?.value ?? "") ?? []
+        );
     }
 
     return {
         label,
         args,
         currentArgIndex: signatureHelp.activeParameter,
+        documentation,
     };
 }
 
-export function convertToVisibleTypes(types: VisibleTypeItem[]): CompletionItem[] {
+export function convertToVisibleTypes(types: VisibleTypeItem[], isFetchingTypesForDM?: boolean): CompletionItem[] {
     types = types.filter(type => type !== null);
+    if (isFetchingTypesForDM) {
+        types = types.filter(type => isDMSupportedType(type));
+    }
     return types.map((type) => ({
         label: type.label,
         value: type.insertText,
@@ -714,6 +858,7 @@ function createParameterValue(index: number, paramValueKey: string, paramValue: 
     const type = paramValue.value.type.value;
     const variableLineRange = (paramValue.value.variable as any).codedata?.lineRange;
     const variableEditable = (paramValue.value.variable as any).editable;
+    const parameterDescription = paramValue.value.parameterDescription?.value;
 
     return {
         id: index,
@@ -725,6 +870,7 @@ function createParameterValue(index: number, paramValueKey: string, paramValue: 
         formValues: {
             variable: name,
             type: type,
+            parameterDescription: parameterDescription,
         },
     };
 }
@@ -826,3 +972,51 @@ export function getInfoFromExpressionValue(
         charOffset: charOffset
     };
 }
+
+export const getImportsForProperty = (key: string, imports: FormImports): Imports | undefined => {
+    if (!imports) {
+        return undefined;
+    }
+
+    return imports[key];
+};
+
+export function getImportsForFormFields(formFields: FormField[]): FormImports {
+    const imports: FormImports = {};
+    for (const field of formFields) {
+        if (field.imports) {
+            imports[field.key] = field.imports;
+        }
+    }
+    return imports;
+}
+
+/**
+ * Filters the unsupported diagnostics for local connections
+ * @param diagnostics - Diagnostics to filter
+ * @returns Filtered diagnostics
+ */
+export function filterUnsupportedDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
+    return diagnostics.filter((diagnostic) => {
+        return !diagnostic.message.startsWith('unknown type') && !diagnostic.message.startsWith('undefined module');
+    });
+}
+
+/**
+ * Check if the type is supported by the data mapper
+ * 
+ * @param type - The type to check
+ * @returns Whether the type is supported by the data mapper
+ */
+export const isDMSupportedType = (type: VisibleTypeItem) => {
+    // HACK: This is a temporary solution to filter out types that are not supported by the data mapper which should be handled by the LS.
+    if (
+        type.labelDetails.description === "Nil" ||
+        type.labelDetails.description === "Byte" ||
+        type.labelDetails.description === "Map"
+    ) {
+        return false;
+    }
+
+    return true;
+};

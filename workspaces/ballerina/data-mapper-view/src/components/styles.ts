@@ -291,9 +291,48 @@ export const useUnionTypeNodeStyles = () => ({
         alignItems: 'center'
     }),
     warningText: css({
-        color:  'var(--vscode-errorForeground)',
-        fontSize: '15px',
-        fontFamily: 'Droid Sans Mono',
-        fontWeight: 'normal'
+        width: '100%',
+        color: 'var(--vscode-foreground)',
+        fontSize: '14px',
+        fontWeight: '400',
+        marginBottom: '8px',
+        padding: '5px 10px',
+        backgroundColor: 'var(--vscode-input-background)',
+        opacity: 0.8
     }),
+    treeContainer: css({
+        width: `${IO_NODE_DEFAULT_WIDTH}px`,
+        cursor: "default",
+        padding: "16px",
+        backgroundColor: "var(--vscode-input-background)",
+        border: "1px dashed var(--vscode-input-border)",
+        borderRadius: "4px"
+    }),
+    unsupportedIOBanner: css({
+        padding: "12px"
+    }),
+    infoContainer: css({
+        display: 'flex',
+        alignItems: 'center',
+        lineHeight: '1.4',
+        fontSize: '13.5px',
+        marginBottom: '8px'
+    }),
+    warningIcon: css({
+        color: 'var(--vscode-notificationsWarningIcon-foreground)',
+        fontSize: '16px',
+        marginRight: '8px'
+    }),
+    messageTitle: css({
+        fontWeight: 500
+    }),
+    divider: css({
+        margin: '12px 0'
+    }),
+    messageBody: css({
+        color: 'var(--vscode-foreground)',
+        opacity: 0.8,
+        fontSize: '13px',
+        lineHeight: '1.6'
+    })
 });

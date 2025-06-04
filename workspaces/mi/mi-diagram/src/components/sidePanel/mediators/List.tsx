@@ -21,6 +21,7 @@ import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
 import { RemoveConnectorPage } from './RemoveConnectorPage';
+import { DiagramService } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 interface MediatorProps {
     nodePosition: any;
@@ -28,6 +29,7 @@ interface MediatorProps {
     documentUri: string;
     searchValue?: string;
     clearSearch?: () => void;
+    artifactModel: DiagramService;
 }
 
 const INBUILT_MODULES = ["favourites", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
@@ -106,11 +108,14 @@ export function Mediators(props: MediatorProps) {
             if (expandedModules.length === 0) {
                 initializeExpandedModules(mediatorsList);
             }
+            setIsLoading(false);
+            return mediatorsWithConnectorIcons;
         } catch (error) {
             console.error('Error fetching mediators:', error);
             setAllMediators(undefined);
         }
         setIsLoading(false);
+        return null;
     };
 
     const fetchLocalConnectorData = async () => {
@@ -148,6 +153,7 @@ export function Mediators(props: MediatorProps) {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
+                        artifactModel={props.artifactModel}
                     />
                 </div>;
         } else {
@@ -162,6 +168,7 @@ export function Mediators(props: MediatorProps) {
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
                         showForm={true}
+                        artifactModel={props.artifactModel}
                     />
                 </div>;
         }
@@ -208,7 +215,7 @@ export function Mediators(props: MediatorProps) {
                 });
 
                 if (Object.keys(searchedCategories).length > 0) {
-                    searchedMediators[key] = { ...searchedMediators[key], items: searchedCategories };
+                    searchedMediators[key] = { ...allMediators[key], ...searchedMediators[key], items: searchedCategories };
                 } else {
                     delete searchedMediators[key];
                 }
@@ -224,7 +231,7 @@ export function Mediators(props: MediatorProps) {
                 });
 
                 if (filtered.length > 0) {
-                    searchedMediators[key] = { "items": filtered };
+                    searchedMediators[key] = { ...allMediators[key], items: filtered };
                 } else {
                     delete searchedMediators[key];
                 }
@@ -236,9 +243,9 @@ export function Mediators(props: MediatorProps) {
 
     const reloadPalette = async (connectorName?: string) => {
         props.clearSearch();
-        await fetchMediators();
+        const updatedMediatorList = await fetchMediators();
         await fetchLocalConnectorData();
-        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);
+        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(updatedMediatorList);
     };
 
     const deleteConnector = async (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => {

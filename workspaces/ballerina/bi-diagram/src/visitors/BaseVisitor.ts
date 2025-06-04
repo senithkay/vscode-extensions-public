@@ -24,6 +24,9 @@ export interface BaseVisitor {
     beginVisitIf?(node: FlowNode, parent?: FlowNode): void;
     endVisitIf?(node: FlowNode, parent?: FlowNode): void;
 
+    beginVisitMatch?(node: FlowNode, parent?: FlowNode): void;
+    endVisitMatch?(node: FlowNode, parent?: FlowNode): void;
+
     beginVisitConditional?(node: Branch, parent?: FlowNode): void;
     endVisitConditional?(node: Branch, parent?: FlowNode): void;
 
@@ -77,4 +80,10 @@ export interface BaseVisitor {
 
     beginVisitAgentCall?(node: FlowNode, parent?: FlowNode): void;
     endVisitAgentCall?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitParallelFlow?(node: FlowNode, parent?: FlowNode): void;
+    endVisitParallelFlow?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitLock?(node: FlowNode, parent?: FlowNode): void;
+    endVisitLock?(node: FlowNode, parent?: FlowNode): void;
 }

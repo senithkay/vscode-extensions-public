@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AvailableNode, Category, Item, VisibleTypeItem } from '@wso2-enterprise/ballerina-core';
+import { AvailableNode, Category, functionKinds, Item, VisibleTypeItem } from '@wso2-enterprise/ballerina-core';
 import type { TypeHelperCategory, TypeHelperItem, TypeHelperOperator } from '@wso2-enterprise/type-editor';
 import { COMPLETION_ITEM_KIND, convertCompletionItemKind } from '@wso2-enterprise/ui-toolkit';
-import { getFunctionItemKind } from '../../../utils/bi';
+import { getFunctionItemKind, isDMSupportedType } from '../../../utils/bi';
 
 // TODO: Remove this order onces the LS is fixed
 const TYPE_CATEGORY_ORDER = [
@@ -21,21 +21,29 @@ const TYPE_CATEGORY_ORDER = [
     { label: "Error Types", sortText: "4"},
     { label: "Behaviour Types", sortText: "5"},
     { label: "Other Types", sortText: "6"},
+    { label: "Used Variable Types", sortText: "7"},
 ] as const;
 
 /**
  * Get the categories for the type editor
  *
- * @param userDefinedTypes - The user defined types
+ * @param types - The types to get the categories for
+ * @param filterDMTypes - Whether to filter the types for the data mapper
  * @returns The categories for the type editor
  */
-export const getTypes = (types: VisibleTypeItem[]): TypeHelperCategory[] => {
+export const getTypes = (types: VisibleTypeItem[], filterDMTypes?: boolean): TypeHelperCategory[] => {
     const categoryRecord: Record<string, TypeHelperItem[]> = {};
 
     for (const type of types) {
         if (!type) {
             continue;
         }
+
+        // If types should be filtered for the data mapper
+        if (filterDMTypes && !isDMSupportedType(type)) {
+            continue;
+        }
+
         if (!categoryRecord[type.labelDetails.detail]) {
             categoryRecord[type.labelDetails.detail] = [];
         }
@@ -77,6 +85,60 @@ export const filterOperators = (operators: TypeHelperOperator[], searchText: str
 const isCategoryType = (item: Item): item is Category => {
     return !(item as AvailableNode)?.codedata;
 }
+
+export const getImportedTypes = (types: Category[]) => {
+    const categories: TypeHelperCategory[] = [];
+
+    for (const category of types) {
+        if (category.items.length === 0) {
+            continue;
+        }
+        
+        const categoryKind = getFunctionItemKind(category.metadata.label);
+        if (categoryKind !== functionKinds.IMPORTED) {
+            continue;
+        }
+
+        const items: TypeHelperItem[] = [];
+        const subCategories: TypeHelperCategory[] = [];
+        for (const categoryItem of category.items) {
+            if (isCategoryType(categoryItem)) {
+                if (categoryItem.items.length === 0) {
+                    continue;
+                }
+
+                subCategories.push({
+                    category: categoryItem.metadata.label,
+                    items: categoryItem.items.map((item) => ({
+                        name: item.metadata.label,
+                        insertText: item.metadata.label,
+                        type: COMPLETION_ITEM_KIND.TypeParameter,
+                        codedata: (item as AvailableNode).codedata,
+                        kind: categoryKind
+                    }))
+                });
+            } else {
+                items.push({
+                    name: categoryItem.metadata.label,
+                    insertText: categoryItem.metadata.label,
+                    type: COMPLETION_ITEM_KIND.TypeParameter,
+                    codedata: categoryItem.codedata,
+                    kind: categoryKind
+                });
+            }
+        }
+
+        const categoryItem: TypeHelperCategory = {
+            category: category.metadata.label,
+            subCategory: subCategories,
+            items: items
+        }
+
+        categories.push(categoryItem);
+    }
+
+    return categories;
+};
 
 export const getTypeBrowserTypes = (types: Category[]) => {
     const categories: TypeHelperCategory[] = [];
@@ -127,4 +189,3 @@ export const getTypeBrowserTypes = (types: Category[]) => {
 
     return categories;
 };
-

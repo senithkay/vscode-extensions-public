@@ -59,7 +59,7 @@ const Circle = styled.div<NodeStyleProp>`
     width: ${LISTENER_NODE_HEIGHT}px;
     height: ${LISTENER_NODE_HEIGHT}px;
     border: ${NODE_BORDER_WIDTH}px solid
-        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT)};
+        ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.HIGHLIGHT : ThemeColors.OUTLINE_VARIANT)};
     border-radius: 50%;
     background-color: ${ThemeColors.SURFACE_DIM};
     color: ${ThemeColors.ON_SURFACE};
@@ -94,7 +94,7 @@ const Title = styled(StyledText) <NodeStyleProp>`
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: "GilmerMedium";
-    color: ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE)};
+    color: ${(props: NodeStyleProp) => (props.hovered ? ThemeColors.HIGHLIGHT : ThemeColors.ON_SURFACE)};
     opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
 `;
 
@@ -165,7 +165,10 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
 
     const menuItems: Item[] = [
         { id: "edit", label: "Edit", onClick: () => handleOnClick() },
-        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
+
+        ...((!model.node.attachedServices || model.node.attachedServices.length === 0)
+            ? [{ id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }]
+            : [])
     ];
 
     return (

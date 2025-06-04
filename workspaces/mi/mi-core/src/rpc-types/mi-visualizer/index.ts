@@ -39,6 +39,7 @@ import {
     SetupDetails,
     SetPathRequest,
     PathDetailsResponse,
+    DownloadMIRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 
@@ -70,13 +71,14 @@ export interface MIVisualizerAPI {
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
     downloadJavaFromMI: (params: string) => Promise<string>;
-    downloadMI: (params: string) => Promise<string>;
+    downloadMI: (params: DownloadMIRequest) => Promise<string>;
     getSupportedMIVersionsHigherThan: (param:string) => Promise<string[]>;
     getProjectDetails: () => Promise<ProjectDetailsResponse>;
     updateDependencies: (params: UpdateDependenciesRequest) => Promise<boolean>;
     updatePomValues: (params: UpdatePomValuesRequest) => Promise<boolean>;
     updateConfigFileValues: (params: UpdateConfigValuesRequest) => Promise<boolean>;
     updateConnectorDependencies: () => Promise<string>;
+    updateDependenciesFromOverview: (params: UpdateDependenciesRequest) => Promise<boolean>;
     importOpenAPISpec: (params: ImportOpenAPISpecRequest) => Promise<void>;
     getProjectSetupDetails: () => Promise<SetupDetails>;
     updateRuntimeVersionsInPom: (params:string) => Promise<boolean>;

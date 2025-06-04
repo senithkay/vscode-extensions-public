@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds } from "@wso2-enterprise/wso2-platform-core";
 import * as vscode from "vscode";
 import { type ConfigurationChangeEvent, commands, window, workspace } from "vscode";
 import { PlatformExtensionApi } from "./PlatformExtensionApi";
@@ -18,6 +17,7 @@ import { continueCreateComponent } from "./cmds/create-component-cmd";
 import { activateCodeLenses } from "./code-lens";
 import { ext } from "./extensionVariables";
 import { getLogger, initLogger } from "./logger/logger";
+import { activateStatusbar } from "./status-bar";
 import { authStore } from "./stores/auth-store";
 import { contextStore } from "./stores/context-store";
 import { dataCacheStore } from "./stores/data-cache-store";
@@ -58,12 +58,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	initRPCServer()
 		.then(async () => {
 			await ext.clients.rpcClient.init();
-
 			authStore.getState().initAuth();
-
-			activateCmds(context);
-			activateURIHandlers();
-			activateCodeLenses(context);
 			continueCreateComponent();
 			getLogger().debug("WSO2 Platform Extension activated");
 		})
@@ -71,12 +66,12 @@ export async function activate(context: vscode.ExtensionContext) {
 			getLogger().error("Failed to initialize rpc client", e);
 		});
 
-	// activateStatusBarItem();
-	commands.registerCommand(CommandIds.OpenWalkthrough, () => {
-		commands.executeCommand("workbench.action.openWalkthrough", "wso2.wso2-platform#choreo.getStarted", false);
-	});
+	activateCmds(context);
+	activateURIHandlers();
+	activateCodeLenses(context);
 	registerPreInitHandlers();
 	registerYamlLanguageServer();
+	activateStatusbar(context);
 	return ext.api;
 }
 

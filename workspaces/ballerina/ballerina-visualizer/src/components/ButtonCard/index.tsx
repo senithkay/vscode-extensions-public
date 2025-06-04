@@ -24,7 +24,7 @@ const Card = styled.div<{ active?: boolean; appearance?: ButtonCardAppearance, d
     cursor: ${(props: { disabled: boolean }) => (props.disabled ? 'not-allowed' : 'pointer')};;
     &:hover {
         background-color: ${ThemeColors.PRIMARY_CONTAINER};
-        border: 1px solid ${ThemeColors.PRIMARY};
+        border: 1px solid ${ThemeColors.HIGHLIGHT};
     };
 `;
 
@@ -96,6 +96,7 @@ const IconContainer = styled.div`
 export type ButtonCardAppearance = "large" | "small";
 
 export interface ButtonCardProps {
+    id?: string;
     title: string;
     caption?: string;
     description?: string;
@@ -106,6 +107,7 @@ export interface ButtonCardProps {
     onClick: () => void;
     disabled?: boolean;
     tooltip?: string;
+    isBeta?: boolean;
 }
 
 export function ButtonCard(props: ButtonCardProps) {
@@ -119,7 +121,8 @@ export function ButtonCard(props: ButtonCardProps) {
         truncate: explicitTruncate,
         onClick,
         disabled,
-        tooltip
+        tooltip,
+        isBeta
     } = props;
 
     // Apply truncation by default for small appearance if not explicitly set
@@ -128,6 +131,7 @@ export function ButtonCard(props: ButtonCardProps) {
     return (
         <Tooltip content={tooltip}>
             <Card
+                id={props.id}
                 onClick={disabled ? undefined : onClick}
                 active={active ?? false}
                 appearance={appearance}
@@ -141,6 +145,7 @@ export function ButtonCard(props: ButtonCardProps) {
                             truncate={truncate}
                         >
                             {title}
+                            {isBeta && <BetaSVG />}
                         </Title>
                         {description && <Description truncate={truncate}>{description}</Description>}
                     </ContentContainer>

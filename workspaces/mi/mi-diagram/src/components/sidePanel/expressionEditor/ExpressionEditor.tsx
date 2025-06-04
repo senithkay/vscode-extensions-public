@@ -85,7 +85,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
                         )}
                     />
                 </div>
-                <div>
+                <div id="parameterManager-Namespace">
                     <Controller
                         name="namespaces"
                         control={control}

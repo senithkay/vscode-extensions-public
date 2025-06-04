@@ -11,10 +11,6 @@
 
 import styled from "@emotion/styled";
 
-export const Footer = styled.footer({
-    padding: "20px",
-});
-
 export const FlexRow = styled.div({
     display: "flex",
     flexDirection: "row",
@@ -49,10 +45,6 @@ export const Main = styled.main({
 export const ChatMessage = styled.div({
     padding: "20px",
     borderTop: "1px solid var(--vscode-editorWidget-border)",
-});
-
-export const Welcome = styled.div({
-    padding: "0 20px",
 });
 
 export const Badge = styled.div`
