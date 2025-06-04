@@ -10,19 +10,27 @@
 import * as vscode from 'vscode';
 import { RuntimeServicesWebview } from './webview';
 import { COMMANDS } from '../constants';
+import { askForProject } from '../util/workspace';
 
 export function activateRuntimeService(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_RUNTIME_VIEW, () => {
-            openRuntimeServicesWebview();
+        vscode.commands.registerCommand(COMMANDS.OPEN_RUNTIME_VIEW, async (projectUri: string) => {
+            if (!projectUri) {
+                projectUri = await askForProject();
+            }
+            openRuntimeServicesWebview(projectUri);
         })
     );
 }
 
-export function openRuntimeServicesWebview() {
-    if (!RuntimeServicesWebview.currentPanel) {
-        RuntimeServicesWebview.currentPanel = new RuntimeServicesWebview();
+export function openRuntimeServicesWebview(projectUri: string) {
+    if (!RuntimeServicesWebview.webviews.has(projectUri)) {
+        const webview = new RuntimeServicesWebview(projectUri);
+        RuntimeServicesWebview.webviews.set(projectUri, webview);
     } else {
-        RuntimeServicesWebview.currentPanel!.getWebview()?.reveal();
+        const webview = RuntimeServicesWebview.webviews.get(projectUri);
+        if (webview) {
+            webview.getWebview()?.reveal();
+        }
     }
 }

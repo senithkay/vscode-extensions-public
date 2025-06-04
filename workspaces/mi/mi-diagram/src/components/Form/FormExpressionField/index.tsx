@@ -33,6 +33,7 @@ import {
     modifyCompletion
 } from './utils';
 import { Colors } from '../../../resources/constants';
+import GenerateDiv from "../GenerateComponents/GenerateDiv";
 
 type EXProps = {
     isActive: boolean;
@@ -62,6 +63,15 @@ type StyleProps = {
  * @param sx - The style to apply to the container
  */
 type FormExpressionFieldProps = {
+    numberOfDifferent?: number;
+    setNumberOfDifferent?:(value: number) => void;
+    getValues?: any;
+    element?: any;
+    generatedFormDetails?: Record<string, any>;
+    visibleDetails?: { [key: string]: boolean };
+    setIsClickedGenerateAiBtn?: any;
+    setIsGenerating?: (value: boolean) => void;
+    setVisibleDetails?: any;
     labelAdornment?: ReactNode;
     id?: string;
     disabled?: boolean;
@@ -137,6 +147,13 @@ export namespace S {
  */
 export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const {
+        numberOfDifferent,
+        setNumberOfDifferent,
+        getValues,
+        element,
+        generatedFormDetails,
+        visibleDetails,
+        setVisibleDetails,
         labelAdornment,
         id,
         disabled,
@@ -352,7 +369,11 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     }, [value.value, extractExpressionValue]);
 
     return (
-        <S.Container id={id} sx={sx}>
+        <S.Container
+            id={id}
+            sx={sx}
+            data-test-id={`EX${label}${required ? '*' : ''}`}
+        >
             <S.Header>
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
@@ -360,7 +381,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             </S.Header>
             <div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    {!isAIFill && <FormExpressionEditor
+                    {!isAIFill && 
+                    <div>
+                    <FormExpressionEditor
                         ref={expressionRef}
                         disabled={disabled}
                         value={expressionValue}
@@ -393,8 +416,50 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                                 </S.AdornmentContainer>
                             ),
                         })}
-                    />}
+                    />
 
+                        {generatedFormDetails && visibleDetails[element.name] && generatedFormDetails[element.name]?.value !== getValues(element.name)?.value && (
+                                    <GenerateDiv
+                                        isExpression={true}
+                                        element={element}
+                                        generatedFormDetails={generatedFormDetails}
+                                        handleOnClickChecked={() => {
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                            if (generatedFormDetails) {
+                                                handleExpressionChange(generatedFormDetails[element.name]?.value, 0);
+                                                if (generatedFormDetails[element.name]?.isExpression?.toString() === 'true') {
+                                                    if (canChange) {
+                                                        onChange({
+                                                            ...value,
+                                                            isExpression: true,
+                                                            value: generatedFormDetails[element.name]?.value,
+                                                        });
+                                                    }
+                                                } else {
+                                                    if (canChange) {
+                                                        onChange({
+                                                            ...value,
+                                                            isExpression: false,
+                                                            value: generatedFormDetails[element.name]?.value,
+                                                        });
+                                                    }
+                                                }
+                                                setVisibleDetails((prev: { [key: string]: boolean }) => ({
+                                                    ...prev,
+                                                    [element.name]: false,
+                                                }));
+                                            }
+                                        }}
+                                        handleOnClickClose={async () => {
+                                            setVisibleDetails((prev: { [key: string]: boolean }) => ({
+                                                ...prev,
+                                                [element.name]: false,
+                                            }));
+                                            setNumberOfDifferent(numberOfDifferent - 1);
+                                        }}
+                                    />
+                                )}
+                    </div>}
                     {isAIFill && (
                         <div style={{ width: '100%' }}>
                             <div style={{

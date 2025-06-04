@@ -64,6 +64,7 @@ const ViewHeader: React.FC<ViewHeaderProps> = ({ title, children, codicon, icon,
                     {typeof title === 'string' ? <Title>{title}</Title> : title}
                     {onEdit && (
                         <Button
+                            data-testid="edit-button"
                             appearance="icon"
                             onClick={onEdit}
                             tooltip="Edit"

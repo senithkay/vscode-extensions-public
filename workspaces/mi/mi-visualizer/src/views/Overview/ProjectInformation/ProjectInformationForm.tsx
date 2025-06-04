@@ -46,7 +46,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const schema = yup.object({
         "primaryDetails-projectName": yup.string().required("Project Name is required"),
         "primaryDetails-projectDescription": yup.string(),
-        "primaryDetails-projectVersion": yup.string().required("Version is required").matches(/^[a-zA-Z0-9.]*$/, "Version cannot contain spaces or special characters"),
+        "primaryDetails-projectVersion": yup.string().required("Version is required").matches(/^[a-zA-Z0-9][a-zA-Z0-9.-]*$/, "Version cannot contain spaces or special characters"),
         "primaryDetails-runtimeVersion": yup.string().required("Runtime version is required"),
         "buildDetails-dockerDetails-dockerFileBaseImage": yup.string().required("Base image is required"),
         "buildDetails-dockerDetails-dockerName": yup.string().required("Docker name is required"),
@@ -98,7 +98,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 const response = await rpcClient?.getMiVisualizerRpcClient().getProjectDetails();
                 const isLegacyExpressionEnabled = await rpcClient.getMiVisualizerRpcClient().isLegacyExpressionSupportEnabled();
 
-                setProjectDetails(response);
                 const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setRuntimeVersions(supportedMIVersions);
@@ -128,6 +127,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "unitTest-serverDownloadLink": response.unitTest?.serverDownloadLink?.value,
                     "advanced-legacyExpressionSupport": isLegacyExpressionEnabled
                 });
+                setProjectDetails(response);
             } catch (error) {
                 console.error("Error fetching project details:", error);
             }

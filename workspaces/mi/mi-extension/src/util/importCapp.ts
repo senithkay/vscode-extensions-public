@@ -34,17 +34,17 @@ const builderOptions: XmlBuilderOptions = {
 const xmlParser = new XMLParser(parserOptions);
 const xmlBuilder = new XMLBuilder(builderOptions);
 
-interface RegistryPath {
-    relativePath: string;
-    isGov: boolean;
-}
-
 interface RegistryInfo {
     artifacts: RegistryArtifact[];
 }
 
 interface RegistryArtifact {
     artifact: ArtifactInfo;
+}
+
+interface RegistryPath {
+    relativePath: string;
+    isGov: boolean;
 }
 
 interface ArtifactInfo {
@@ -335,6 +335,18 @@ function getTargetFolder(type: string, source: string) {
             artifactFolder = type.split("/")[1] + "s";
     }
     return path.join(source, "src", "main", "wso2mi", "artifacts", artifactFolder);
+}
+
+function extractRegistryRelativePath(registryPath: string): string {
+    if (registryPath.startsWith("/_system/governance/mi-resources")) {
+        const relativePath = registryPath.replace("/_system/governance/mi-resources", "");
+        return relativePath.split("/").join(path.sep);
+    } else {
+        const match = registryPath.match(/\/(governance)?(config)?(\/.*)/);
+        let isGov = match ? match[1] === "governance" : false;
+        let relativePath = match ? match[3] : "/";
+        return path.join('registry', isGov ? "gov" : "conf", relativePath.split("/").join(path.sep));
+    }
 }
 
 function extractRegistryPath(path: string): RegistryPath {

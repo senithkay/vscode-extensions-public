@@ -46,6 +46,7 @@ interface SidePanelContext {
     pageStack: SidePanelPage[];
     setSidePanelState?: Dispatch<SetStateAction<any>>;
     newDataMapperName?: string;
+    alertMessage?: string;
 }
 
 const SidePanelContext = React.createContext<SidePanelContext>({
