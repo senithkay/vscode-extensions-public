@@ -62,13 +62,13 @@ export class ConnectorStore {
         }
     }
 
-    public async importConnector(fileName: string, isZip: boolean ) {
-        const importBtn = await this.webView.waitForSelector(`div:text("Import Connector") >> ../..`);
-        await importBtn.click();
-
+    public async importConnector(fileName: string, isZip: boolean = true ) {
         if (isZip) {
-            const zipRadioInput = await this.webView.locator('input[type="radio"][value="zip"]');
-            await zipRadioInput.click();
+            const importBtn = await this.webView.waitForSelector(`div:text("For gRPC (Proto)") >> ../..`);
+            await importBtn.click();
+        } else {
+            const importBtn = await this.webView.waitForSelector(`div:text("For REST (OpenAPI)") >> ../..`);
+            await importBtn.click();
         }
 
         const locationBtn = await this.webView.waitForSelector(`vscode-button:text("Select Location")`);

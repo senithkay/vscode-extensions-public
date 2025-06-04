@@ -277,7 +277,11 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 isPopup: true
             });
         }
-        openSequence(result.path);
+        if (props.path && props.path === result.path) {
+            handleCancel();
+        } else {
+            openSequence(result.path);
+        }
     };
 
     const handleCancel = () => {

@@ -12,3 +12,4 @@ export * from "./AnthropicIcon";
 export * from "./OllamaIcon";
 export * from "./MistralAIIcon";
 export * from "./DefaultLlmIcon"; 
+export * from "./DeepseekIcon";

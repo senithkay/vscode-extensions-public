@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
 import { Overview } from "../Overview";
 import { Form } from "../Form";
+import { page } from "../../Utils";
 
 interface ResourceDataFromTemplate {
     name: string;
@@ -73,22 +74,42 @@ export class Resource {
         if (!resWebView) {
             throw new Error("Failed to switch to Resource Form iframe");
         }
-        const resFrame = resWebView.locator('div#root');
-        await resFrame.waitFor();
-        await resFrame.getByLabel('Import from file system').click();
-        await resFrame.getByText('Browse file').click();
-        await this._page.getByLabel('input').fill(data.filePath);
-        await this._page.getByRole('button', { name: 'OK' }).click();
-        await resFrame.getByRole('textbox', { name: 'Registry Path' }).fill(data.registryPath);
-        await resFrame.getByRole('button', { name: 'Create' }).click();
+        const resourceForm = new Form(page.page, 'Resource Creation Form');
+        await resourceForm.switchToFormView();
+        await resourceForm.fill({
+            values: {
+                'Import from file system': {
+                    type: 'radio',
+                    value: 'checked',
+                },
+                'Browse file': {
+                    type: 'file',
+                    value: data.filePath
+                },
+                'Registry Path': {
+                    type: 'input',
+                    value: data.registryPath,
+                }
+            },
+        });
+        await resourceForm.submit();
     }
 
-    public async addFromTemplate(data: ResourceDataFromTemplate) {
-        const resWebView = await switchToIFrame('Resource Creation Form', this._page);
-        if (!resWebView) {
-            throw new Error("Failed to switch to Resource Form iframe");
+    public async addFromTemplate(data: ResourceDataFromTemplate, isPopUp?: boolean) {
+        let resFrame: Locator;
+        if (isPopUp) {
+            const resWebView = await switchToIFrame('Resource View', this._page);
+            if (!resWebView) {
+                throw new Error('Failed to switch to Resource View iframe');
+            }
+            resFrame = resWebView.locator('#popUpPanel');
+        } else {
+            const resWebView = await switchToIFrame('Resource Creation Form', this._page);
+            if (!resWebView) {
+                throw new Error("Failed to switch to Resource Form iframe");
+            }
+            resFrame = resWebView.locator('div#root');
         }
-        const resFrame = resWebView.locator('div#root');
         await resFrame.waitFor();
         await resFrame.getByRole('textbox', { name: 'Resource Name*' }).fill(data.name);
         await resFrame.locator('#templateType div').nth(1).click();
@@ -96,11 +117,13 @@ export class Resource {
         await resFrame.getByRole('textbox', { name: 'Registry Path' }).click();
         await resFrame.getByRole('textbox', { name: 'Registry Path' }).fill(data.registryPath);
         await resFrame.getByRole('button', { name: 'Create' }).click();
-        // after adding go to project overview page
-        // it was needed to avoid an issue when switching to Resource Form
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
+        if (!isPopUp) {
+            // after adding go to project overview page
+            // it was needed to avoid an issue when switching to Resource Form
+            const projectExplorer = new ProjectExplorer(this._page);
+            await projectExplorer.goToOverview("testProject");
+            const overviewPage = new Overview(this._page);
+            await overviewPage.init();
+        }
     }
 }

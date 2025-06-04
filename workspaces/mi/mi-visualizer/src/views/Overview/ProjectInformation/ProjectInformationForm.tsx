@@ -46,7 +46,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const schema = yup.object({
         "primaryDetails-projectName": yup.string().required("Project Name is required"),
         "primaryDetails-projectDescription": yup.string(),
-        "primaryDetails-projectVersion": yup.string().required("Version is required").matches(/^[a-zA-Z0-9.]*$/, "Version cannot contain spaces or special characters"),
+        "primaryDetails-projectVersion": yup.string().required("Version is required").matches(/^[a-zA-Z0-9][a-zA-Z0-9.-]*$/, "Version cannot contain spaces or special characters"),
         "primaryDetails-runtimeVersion": yup.string().required("Runtime version is required"),
         "buildDetails-dockerDetails-dockerFileBaseImage": yup.string().required("Base image is required"),
         "buildDetails-dockerDetails-dockerName": yup.string().required("Docker name is required"),

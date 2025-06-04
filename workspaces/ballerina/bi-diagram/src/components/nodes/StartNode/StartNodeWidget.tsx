@@ -28,13 +28,11 @@ export namespace NodeStyles {
         width: ${NODE_WIDTH / 3}px;
         min-height: ${NODE_HEIGHT / 1.5}px;
         padding: 0 ${NODE_PADDING}px;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) =>
-                props.selected ? ThemeColors.PRIMARY : props.hovered ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT};
+        border: ${NODE_BORDER_WIDTH}px solid ${ThemeColors.OUTLINE_VARIANT};
         border-radius: 40px;
         background-color: ${ThemeColors.SURFACE_DIM};
         color: ${ThemeColors.ON_SURFACE};
-        /* cursor: pointer; */
+        cursor: default;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -78,7 +76,7 @@ export function StartNodeWidget(props: StartNodeWidgetProps) {
             // onMouseLeave={() => setIsHovered(false)}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <Tooltip content={model.node.metadata.label || "Start"}>
+            <Tooltip content={model.node.metadata.label || "Start"} containerSx={{ cursor: "default" }}>
                 <NodeStyles.Title>{model.node.metadata.label || "Start"}</NodeStyles.Title>
             </Tooltip>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />

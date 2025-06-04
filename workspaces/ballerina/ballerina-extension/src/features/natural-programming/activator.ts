@@ -17,8 +17,10 @@ import { BallerinaExtension } from 'src/core';
 import { PROGRESS_BAR_MESSAGE_FOR_DRIFT, WARNING_MESSAGE, WARNING_MESSAGE_DEFAULT, 
     MONITERED_EXTENSIONS
  } from './constants';
+ import { isSupportedSLVersion } from "../../utils";
 
 let diagnosticCollection: vscode.DiagnosticCollection;
+const BALLERINA_UPDATE_13 = 2201130;
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const backgroundDriftCheckConfig = vscode.workspace.getConfiguration().get<boolean>(ENABLE_BACKGROUND_DRIFT_CHECK);
@@ -108,7 +110,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     vscode.commands.registerCommand("ballerina.configureDefaultModelForNaturalFunctions", async (...args: any[]) => {
         const configPath = await getConfigFilePath(ballerinaExtInstance, projectPath);
         if (configPath != null) {
-            addConfigFile(configPath);
+            const isNaturalFunctionsAvailableInBallerinaOrg = 
+                        isSupportedSLVersion(ballerinaExtInstance, BALLERINA_UPDATE_13);
+            addConfigFile(configPath, isNaturalFunctionsAvailableInBallerinaOrg);
         }
     });
 }

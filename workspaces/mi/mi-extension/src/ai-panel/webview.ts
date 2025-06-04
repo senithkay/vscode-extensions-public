@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { Uri, ViewColumn } from 'vscode';
+import { Uri, ViewColumn, workspace } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
@@ -19,6 +19,7 @@ import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;
     public static readonly viewType = 'micro-integrator.ai-panel';
+    private static webviewName: string = 'AIPanel';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -26,7 +27,8 @@ export class AiPanelWebview {
         this._panel = AiPanelWebview.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
-        RPCLayer.create(this._panel, "");
+        // TODO: Fix projectUri handling for multiple workspaces
+        RPCLayer.create(this._panel, workspace.workspaceFolders?.[0].uri.fsPath!);
     }
 
     private static createWebview(): vscode.WebviewPanel {
@@ -104,6 +106,7 @@ export class AiPanelWebview {
             }
         }
 
+        RPCLayer._messengers.delete(AiPanelWebview.webviewName);
         this._panel = undefined;
     }
 }

@@ -31,14 +31,14 @@ export async function switchToIFrame(
     return childFrame;
 }
 
-export async function getVsCodeButton(container: Locator, text: string, type: 'primary' | 'secondary'): Promise<Locator> {
+export async function getVsCodeButton(container: Locator | Frame, text: string, type: 'primary' | 'secondary'): Promise<Locator> {
     const btn = container.locator(`vscode-button:has-text("${text}")`);
     await btn.waitFor();
     expect(btn).toHaveAttribute('appearance', type);
     return btn;
 }
 
-export async function getWebviewInput(container: Locator, label: string): Promise<Locator> {
+export async function getWebviewInput(container: Locator | Frame, label: string): Promise<Locator> {
     const input = container.locator(`input[aria-label="${label}"]`);
     await input.waitFor();
     return input;

@@ -66,6 +66,11 @@ export enum VSCodeColors {
 
     TILE_BACKGROUND = "var(--vscode-welcomePage-tileBackground)",
     TILE_HOVER_BACKGROUND = "var(--vscode-welcomePage-tileHoverBackground)",
+
+    PRIMARY_BUTTON = "var(--vscode-button-background)",
+    PRIMARY_ICON = "var(--vscode-button-foreground)",
+    SECONDARY_BG_BUTTON = "var(--vscode-button-secondaryBackground)",
+    SECONDARY_ICON = "var(--vscode-button-secondaryForeground)"
 }
 
 export const Colors = {
@@ -114,6 +119,7 @@ export const Colors = {
 };
 
 export const SIDE_PANEL_WIDTH = 450;
+export const CANVAS_PADDING = 20;
 
 export const NODE_DIMENSIONS = {
     DEFAULT: {

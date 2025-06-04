@@ -54,7 +54,6 @@ jobs:
       choreo: false
       apk: false
       version: ${{ inputs.version }}
-      skipBallerinaUiTests: true
 
   Release:
     name: Release VSIX

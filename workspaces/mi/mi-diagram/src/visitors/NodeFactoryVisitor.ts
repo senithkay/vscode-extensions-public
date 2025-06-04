@@ -98,6 +98,7 @@ import { AiAgentNodeModel } from "../components/nodes/AIAgentNode/AiAgentNodeMod
 interface BranchData {
     name: string;
     diagnostics: Diagnostic[];
+    isStart?: boolean;
 }
 interface createNodeAndLinks {
     node: STNode;
@@ -132,6 +133,7 @@ export class NodeFactoryVisitor implements Visitor {
     private resource: DiagramService;
     private breakpointPositions?: BreakpointPosition[];
     private activatedBreakpoint?: BreakpointPosition;
+    private nodeTree: AllNodeModel[] = [];
 
 
     constructor(documentUri: string, model: DiagramService, breakpoints?: GetBreakpointsResponse) {
@@ -248,10 +250,28 @@ export class NodeFactoryVisitor implements Visitor {
                 let linkId = "";
                 if (addPosition && addPosition.position?.line != undefined && addPosition.position?.character != undefined) {
                     linkId += previousStNode.viewState?.id ? `${previousStNode.viewState?.id}-` : '';
-                    linkId += `${addPosition.position.line},${addPosition.position.character}${this.currentBranchData?.name ? `,${this.currentBranchData?.name}` : ''}`;
+                    linkId += `${addPosition.position.line},${addPosition.position.character}${this.currentBranchData?.isStart && this.currentBranchData?.name ? `,${this.currentBranchData?.name}` : ''}`;
                 } else {
                     linkId = `${previousStNode.viewState?.id}-${previousStNode?.range?.startTagRange?.start?.line},${previousStNode?.range?.startTagRange?.start?.character},${node.viewState?.id}-${node?.range?.startTagRange?.start?.line},${node?.range?.startTagRange?.start?.character}`;
                 }
+
+                const link = createNodesLink(
+                    previousNode as SourceNodeModel,
+                    diagramNode as TargetNodeModel,
+                    {
+                        id: linkId,
+                        label: this.currentBranchData?.isStart ? this.currentBranchData?.name : undefined,
+                        stRange: addPosition?.position,
+                        trailingSpace: addPosition?.trailingSpace ?? "",
+                        brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
+                        previousNode: previousStNode.tag,
+                        nextNode: type !== NodeTypes.END_NODE ? node.tag : undefined,
+                        parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
+                        showArrow: !isSequnceConnect,
+                        showAddButton: showAddButton,
+                        diagnostics: this.currentBranchData?.isStart ? this.currentBranchData?.diagnostics : [],
+                    }
+                );
 
                 if (!dontLink) {
                     const link = createNodesLink(
@@ -273,8 +293,7 @@ export class NodeFactoryVisitor implements Visitor {
                     );
                     this.links.push(link);
                 }
-
-                this.currentBranchData = undefined;
+                this.currentBranchData = { ...this.currentBranchData, isStart: false };
                 this.currentAddPosition = undefined;
             }
         }
@@ -282,6 +301,35 @@ export class NodeFactoryVisitor implements Visitor {
         this.nodes.push(diagramNode);
         if (!dontLink) {
             this.previousSTNodes = [node];
+        }
+
+        if (this.parents.length > 1) {
+            const parentStNode = this.parents[this.parents.length - 1];
+            const parentNode = this.nodes.find((node) => node.getStNode() === parentStNode);
+
+            if (parentNode) {
+                if (this.currentBranchData?.name) {
+                    if (!(parentNode as any)?.branches) {
+                        (parentNode as any).branches = {};
+                    }
+                    const branch = (parentNode as any).branches[this.currentBranchData?.name];
+                    if (branch && branch.length > 0) {
+                        branch.push(diagramNode);
+                    } else {
+                        (parentNode as any).branches[this.currentBranchData?.name] = [diagramNode];
+                    }
+                } else {
+                    const children = (parentNode as any)?.childrens;
+                    if (children && children.length > 0) {
+                        children.push(diagramNode);
+                    } else {
+                        (parentNode as any).childrens = [diagramNode];
+                    }
+                }
+            }
+
+        } else {
+            this.nodeTree.push(diagramNode)
         }
     }
 
@@ -306,7 +354,7 @@ export class NodeFactoryVisitor implements Visitor {
                         NODE_DIMENSIONS.START.ACTIONED.WIDTH : NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2);
                     this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.SUB_SEQUENCE });
                 } else {
-                    this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics };
+                    this.currentBranchData = { name: sequenceKeys[i], diagnostics: sequence.diagnostics, isStart: true };
                     this.previousSTNodes = [node];
                 }
 
@@ -363,7 +411,7 @@ export class NodeFactoryVisitor implements Visitor {
                 },
             };
 
-            this.currentBranchData = { name: "", diagnostics: [] };
+            this.currentBranchData = { name: "", diagnostics: [], isStart: true };
             if (type === NodeTypes.GROUP_NODE) {
                 this.previousSTNodes = [];
             }
@@ -408,6 +456,10 @@ export class NodeFactoryVisitor implements Visitor {
 
     getLinks(): NodeLinkModel[] {
         return this.links;
+    }
+
+    getNodeTree(): AllNodeModel[]{
+        return this.nodeTree;
     }
 
     beginVisitCall = (node: Call): void => {
@@ -678,6 +730,7 @@ export class NodeFactoryVisitor implements Visitor {
             const toolsList = tools?.tools;
             if (tools) {
                 if (toolsList?.length > 0) {
+                    this.parents.push(node);
                     for (let i = 0; i < toolsList.length; i++) {
                         const toolNode = toolsList[i];
                         const isConnector = toolNode.mediator?.connectorName !== undefined;
@@ -687,6 +740,7 @@ export class NodeFactoryVisitor implements Visitor {
                             this.createNodeAndLinks({ node: toolNode, name: toolNode.mediator.tag, dontLink: true });
                         }
                     }
+                    this.parents.pop();
                 }
                 this.createNodeAndLinks(({ node: tools, name: node.tag, type: NodeTypes.PLUS_NODE, dontLink: true, data: { type: "OpenSidePanel" } }));
             }

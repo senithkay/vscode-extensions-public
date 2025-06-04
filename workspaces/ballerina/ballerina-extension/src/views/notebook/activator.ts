@@ -27,7 +27,7 @@ import {
 import { createFile } from './utils';
 import { BallerinaDebugAdapterTrackerFactory, NotebookDebuggerController } from './debugger';
 
-const update2RegEx = /^2201.[2-9].[0-9]/g;
+const update2RegEx = /^2201.([2-9]|[1-9][0-9]).([0-9]+)/g;
 const CLEAR_ALL_CELLS_OUTPUT_COMMAND = 'notebook.clearAllCellsOutputs';
 const FOCUS_TO_OUTLINE_COMMAND = 'outline.focus';
 const FOCUS_VARIABLE_VIEW_COMMAND = 'ballerinaViewVariables.focus';

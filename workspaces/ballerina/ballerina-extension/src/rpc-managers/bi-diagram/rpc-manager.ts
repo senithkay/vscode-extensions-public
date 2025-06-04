@@ -41,6 +41,7 @@ import {
     BreakpointRequest,
     BuildMode,
     ClassFieldModifierRequest,
+    Command,
     ComponentRequest,
     ConfigVariableResponse,
     CreateComponentResponse,
@@ -97,6 +98,7 @@ import {
     SignatureHelpResponse,
     SourceEditResponse,
     SyntaxTree,
+    TemplateId,
     TextEdit,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
@@ -134,10 +136,10 @@ import { StateMachine, updateView } from "../../stateMachine";
 import { getCompleteSuggestions } from '../../utils/ai/completions';
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure } from "../../utils/bi";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
-import { refreshAccessToken } from "../ai-panel/utils";
 import { BACKEND_URL } from "../../features/ai/utils";
 import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { cleanAndValidateProject } from "../../features/config-generator/configGenerator";
+import { getRefreshedAccessToken } from "../../../src/utils/ai/auth";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -722,7 +724,11 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     openAIChat(params: AIChatRequest): void {
         if (params.readme) {
-            commands.executeCommand("ballerina.open.ai.panel", "Generate an integration according to the given Readme file");
+            commands.executeCommand("ballerina.open.ai.panel", {
+                type: 'command-template',
+                command: Command.Code,
+                templateId: TemplateId.GenerateFromReadme,
+            });
         } else {
             commands.executeCommand("ballerina.open.ai.panel");
         }
@@ -1629,7 +1635,7 @@ export async function fetchWithToken(url: string, options: RequestInit) {
     console.log("Response status: ", response.status);
     if (response.status === 401) {
         console.log("Token expired. Refreshing token...");
-        const newToken = await refreshAccessToken();
+        const newToken = await getRefreshedAccessToken();
         console.log("refreshed token : " + newToken);
         if (newToken) {
             options.headers = {

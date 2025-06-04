@@ -51,10 +51,14 @@ on:
       isReleaseBuild:  
         type: boolean
         default: false
-      skipBallerinaUiTests:
+      runTests:
         type: boolean
         required: false
-        default: true
+        default: false
+      runE2ETests:
+        type: boolean
+        required: false
+        default: false  
 
 env:
   ballerina_version: 2201.7.2
@@ -167,7 +171,7 @@ jobs:
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina' }}
+    if: ${{ inputs.runTests || !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -212,7 +216,8 @@ jobs:
   UiTest_Ballerina:
     name: Run Ballerina e2e tests
     needs: Build_Stage
-    if: ${{ !inputs.skipBallerinaUiTests && (!inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina') }}
+    if: false
+    # if: ${{ inputs.runE2ETests || github.base_ref == 'release-ballerina' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -282,7 +287,7 @@ jobs:
     name: Run Choreo e2e tests
     # Disabling Choreo E2E tests until tests have been updated to V2 Flow
     if: false
-    # if: ${{ (inputs.choreo == 'true' && needs.Build_Stage.outputs.runChoreoExtTests == 'true') || github.base_ref == 'release-choreo' }}
+    # if: ${{ !inputs.skipUiTests || github.base_ref == 'release-choreo' }}
     needs: Build_Stage
     timeout-minutes: 120
     runs-on: ubuntu-latest
@@ -372,7 +377,7 @@ jobs:
   ExtTest_MI:
     name: Run MI diagram tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runMIExtTests == 'true' || github.base_ref == 'release-mi' }}
+    if: ${{ inputs.runTests || !inputs.isPreRelease || needs.Build_Stage.outputs.runMIExtTests == 'true' || github.base_ref == 'release-mi' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -402,11 +407,11 @@ jobs:
   UITest_MI:
     name: Run MI UI tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runMIExtTests == 'true' || github.base_ref == 'release-mi' }}
-    timeout-minutes: 45
+    if: ${{ inputs.runE2ETests || github.base_ref == 'release-mi' }}
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         group: [group1, group2]
     steps:

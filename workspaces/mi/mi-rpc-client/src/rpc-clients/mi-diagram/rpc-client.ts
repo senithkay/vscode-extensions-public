@@ -195,6 +195,7 @@ import {
     browseFile,
     buildProject,
     checkOldProject,
+    closePayloadAlert,
     closeWebView,
     closeWebViewNotification,
     compareSwaggerAndAPI,
@@ -218,6 +219,7 @@ import {
     createTemplate,
     deleteArtifact,
     downloadConnector,
+    displayPayloadAlert,
     editAPI,
     editOpenAPISpec,
     executeCommand,
@@ -293,6 +295,7 @@ import {
     redo,
     refreshAccessToken,
     saveConfig,
+    shouldDisplayPayloadAlert,
     showErrorMessage,
     undo,
     updateAPIFromSwagger,
@@ -320,6 +323,7 @@ import {
     MarkAsDefaultSequenceRequest,
     markAsDefaultSequence,
     getSubFolderNames,
+    getEULALicense,
     GetSubFoldersResponse,
     GetSubFoldersRequest,
     downloadInboundConnector,
@@ -403,7 +407,10 @@ import {
     buildBallerinaModule,
     DevantMetadata,
     getDevantMetadata,
-    UpdateMediatorResponse
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse,
+    getConnectorIcon
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -847,6 +854,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getStoreConnectorJSON, HOST_EXTENSION);
     }
 
+    getConnectorIcon(params: GetConnectorIconRequest): Promise<GetConnectorIconResponse> {
+        return this._messenger.sendRequest(getConnectorIcon, HOST_EXTENSION, params);
+    }
+
     logoutFromMIAccount(): void {
         return this._messenger.sendNotification(logoutFromMIAccount, HOST_EXTENSION);
     }
@@ -1057,5 +1068,21 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     saveConfig(params: SaveConfigRequest): Promise<SaveConfigResponse> {
         return this._messenger.sendRequest(saveConfig, HOST_EXTENSION, params);
+    }
+
+    getEULALicense(): Promise<string> {
+        return this._messenger.sendRequest(getEULALicense, HOST_EXTENSION);
+    }
+
+    shouldDisplayPayloadAlert(): Promise<boolean> {
+        return this._messenger.sendRequest(shouldDisplayPayloadAlert, HOST_EXTENSION);
+    }
+
+    displayPayloadAlert(): Promise<void> {
+        return this._messenger.sendRequest(displayPayloadAlert, HOST_EXTENSION);
+    }
+
+    closePayloadAlert(): Promise<void> {
+        return this._messenger.sendRequest(closePayloadAlert, HOST_EXTENSION);
     }
 }

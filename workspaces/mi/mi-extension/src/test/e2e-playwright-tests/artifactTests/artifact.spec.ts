@@ -23,7 +23,10 @@ import { Proxy } from '../components/ArtifactTest/Proxy';
 import { DataSource } from '../components/ArtifactTest/DataSource';
 import { DataService } from '../components/ArtifactTest/DataService';
 import { API } from '../components/ArtifactTest/APITests';
+import { EventIntegration } from '../components/ArtifactTest/EventIntegration';
+import { ImportArtifact } from '../components/ImportArtifact';
 import path from 'path';
+const filePath = path.join( __dirname, '..', 'components', 'ArtifactTest', 'data', 'importApi_v1.0.0.xml');
 
 export default function createTests() {
   test.describe('Artifact Tests', {
@@ -49,7 +52,12 @@ export default function createTests() {
       });
       await test.step('Create External Trigger', async () => {
         console.log('Creating new External Trigger');
-        await automation.createExternalTrigger("TestExternalTrigger" + testAttempt);
+        const sequenceName = `SEQUENCE TestTask${testAttempt}Sequence`;
+        await automation.createExternalTrigger("TestExternalTrigger" + testAttempt, sequenceName);
+      });
+      await test.step('Open Diagram View for Automation', async () => {
+        console.log('Opening Diagram View for Automation');
+        await automation.openDiagramView("NewTestTask" + testAttempt);
       });
     });
 
@@ -80,7 +88,8 @@ export default function createTests() {
       });
       await test.step('Go to swagger view', async () => {
         console.log('Navigating to swagger view');
-        await api.goToSwaggerView();
+        const testAttempt = test.info().retry + 1;
+        await api.goToSwaggerView(testAttempt);
       });
       await test.step('Delete Resource', async () => {
         console.log('Deleting Resource');
@@ -102,6 +111,10 @@ export default function createTests() {
       await test.step('Create Open API from OpenAPI file', async () => {
         console.log('Creating new API from OpenAPI file');
         await api.createOpenApi("NewOpenAPI" + testAttempt, "/openAPI" + testAttempt);
+      });
+      await test.step('Open Diagram View for API', async () => {
+         console.log('Opening Diagram View for API');
+         await api.openDiagramView("NewOpenAPI" + testAttempt + ":v1.0.27-SNAPSHOT", "/pet/findByStatus");
       });
     });
 
@@ -161,6 +174,31 @@ export default function createTests() {
       await test.step('Create Sequence from Project Explorer', async () => {
         console.log('Create Sequence from Project Explorer');
         await sequence.createSequenceFromProjectExplorer("TestNewSequence" + testAttempt);
+      });
+      await test.step('Open Diagram View for Proxy', async () => {
+        console.log('Opening Diagram View for Proxy');
+        await sequence.openDiagramView("TestNewSequence" + testAttempt);
+      });
+    });
+
+    test('Event Integration tests ', async () => {
+      let eventIntegration: EventIntegration;
+      let name: string = "HttpEventIntegration";
+      await test.step('Add Event Integration', async () => {
+        console.log('Creating new Event Integration');
+        eventIntegration = new EventIntegration(page.page);
+        await eventIntegration.init();
+        await eventIntegration.add(name);
+      });
+
+      await test.step('Edit Event Integration', async () => {
+        console.log('Editing Event Integration');
+        await eventIntegration.edit(name);
+      });
+
+      await test.step('Open Diagram View of Event Integration', async () => {
+        console.log('Opening Diagram View');
+        await eventIntegration.openDiagramView(name);
       });
     });
 
@@ -363,12 +401,55 @@ export default function createTests() {
         console.log('Creating new Data Service');
         const dataService = new DataService(page.page);
         await dataService.init();
-        await dataService.add("testDataService" + testAttempt);
+        await dataService.addRDBMS("testDataService" + testAttempt);
       });
       await test.step('Edit Data Service', async () => {
         console.log('Editing Data Service');
         const dataService = new DataService(page.page);
-        await dataService.edit("testDataService" + testAttempt, "newTestDataService" + testAttempt);
+        await dataService.editRDBMS("testDataService" + testAttempt, "newTestDataService" + testAttempt);
+      });
+      await test.step('Add MongoDB Data Service', async () => {
+        console.log('Creating new MongoDB Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addMongoDB("testMongoDBDataService" + testAttempt);
+      });
+      await test.step('Edit MongoDB Data Service', async () => {
+        console.log('Editing MongoDB Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editMongoDB("testMongoDBDataService" + testAttempt, "newTestMongoDBDataService" + testAttempt);
+      });
+
+      await test.step('Add Cassanrda Data Service', async () => {
+        console.log('Editing Cassanrda Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addCassandraDB("testCassandraDB" + testAttempt);
+      });
+      await test.step('Edit Cassandra Data Service', async () => {
+        console.log('Editing Cassandra Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editCassandraDB("testCassandraDB" + testAttempt, "newTestCassandraDB" + testAttempt);
+      });
+
+      await test.step('Add CSV Data Service', async () => {
+        console.log('Editing Cassanrda Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addCsvDs("testCSVDs" + testAttempt);
+      });
+      await test.step('Edit CSV Data Service', async () => {
+        console.log('Editing CSV Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editCsvDs("testCSVDs" + testAttempt, "newTestCSVDs" + testAttempt);
+      });
+
+      await test.step('Add Carbon Data source', async () => {
+        console.log('Adding Carbon Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.addCarbonDs("testCarbonDs" + testAttempt);
+      });
+      await test.step('Edit Carbon Data source', async () => {
+        console.log('Editing Carbon Data Service');
+        const dataService = new DataService(page.page);
+        await dataService.editCarbonDs("testCarbonDs" + testAttempt, "newTestCarbonDs" + testAttempt);
       });
     });
 
@@ -464,10 +545,23 @@ export default function createTests() {
         console.log('Editing Proxy Service');
         await proxyService.edit("testProxyService" + testAttempt, "newTestProxyService" + testAttempt);
       });
-
       await test.step('Create Proxy Service from Project Explorer', async () => {
         console.log('Creating new Proxy Service from Project Explorer');
-        await proxyService.createProxyServiceFormSidepanel("testProxyService" + testAttempt);
+        await proxyService.createProxyServiceFormSidepanel("testSidePanelProxyService" + testAttempt);
+      });
+      await test.step('Open Diagram View of Proxy', async () => {
+        console.log('Opening Diagram View of Proxy');
+        await proxyService.openDiagramView("testSidePanelProxyService" + testAttempt);
+      });
+    });
+
+    test ('Import Artifact', async () => {
+      await test.step('Import API Artifact', async () => {
+        const importArtifact = new ImportArtifact(page.page);
+        await importArtifact.init();
+        await importArtifact.import(filePath);
+        const api = new API(page.page);
+        await api.openDiagramView('importApi:v1.0.0', "/");
       });
     });
   });

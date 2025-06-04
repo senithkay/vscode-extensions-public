@@ -53,7 +53,7 @@ export class Automation {
         await frame.getByTestId('create-task-button').click();
     }
 
-    public async createExternalTrigger(name: string) {
+    public async createExternalTrigger(name: string, seqName: string) {
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
         console.log("Navigated to project overview");
@@ -64,13 +64,24 @@ export class Automation {
             throw new Error("Failed to switch to Task Form iframe");
         }
         const frame = webView.locator('div#root');
-        await frame.getByLabel('External Trigger').click();
+        await frame.getByLabel('Startup Trigger').click();
         await frame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await frame.getByRole('heading', { name: 'Advanced Configuration' }).click();
         await frame.locator('[id="headlessui-combobox-input-\\:r0\\:"]').click();
-        await frame.getByText('SEQUENCE TestTask1Sequence').click();
+        await frame.getByText(seqName).click();
         await frame.getByLabel('Enable tracing').click();
         await frame.getByLabel('Enable statistics').click();
         await frame.getByRole('button', { name: 'Create' }).click();
+    }
+
+    public async openDiagramView(name: string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'Automations', name], true);
+        const webView = await switchToIFrame('Task View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Task View iframe");
+        }
+        await webView.getByText('Start').click();
     }
 }

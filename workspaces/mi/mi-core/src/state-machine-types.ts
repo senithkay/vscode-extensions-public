@@ -81,6 +81,7 @@ export enum MACHINE_VIEW {
     ManageConfigurables = "Manage Configurables",
     ProjectInformationForm = "Project Information Form",
     SETUP_ENVIRONMENT = "Setup Environment",
+    ImportConnectorForm = "Import Connector",
 }
 
 export enum AI_MACHINE_VIEW {
@@ -94,7 +95,7 @@ export type MachineStateValue =
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' }| { environmentSetup: 'viewReady' };
 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'updateExtension' | 'disabled';
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'updateExtension' | 'disabled' | 'notSupported';
 
 export type PopupMachineStateValue = 'initialize' | 'ready' | { open: 'active' } | { ready: 'reopen' } | { ready: 'notify' } | 'disabled';
 

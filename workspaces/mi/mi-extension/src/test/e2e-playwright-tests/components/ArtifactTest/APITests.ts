@@ -12,9 +12,11 @@ import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vsc
 import { AddArtifact } from "../AddArtifact";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { Overview } from "../Overview";
-import { closeEditorGroup, copyFile } from "../../Utils";
+import { copyFile, page } from "../../Utils";
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import path from "path";
 import os from "os";
+import { Form } from "../Form";
 
 export class API {
     private webView!: Frame;
@@ -22,17 +24,28 @@ export class API {
     constructor(private _page: Page) {
     }
 
-    public async init() {
+    public async init(projectName: string = "testProject") {
         console.log("API init");
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-        console.log("Navigated to project overview");
+        let iframeTitle;
 
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        console.log("Initialized overview page");
-        await overviewPage.goToAddArtifact();
-        console.log("Navigated to add artifact");
+        try {
+            const webview = await page.getCurrentWebview();
+            iframeTitle = webview.title;
+        } catch (error) {
+            console.error("Error retrieving iframe title:", error);
+            iframeTitle = null;
+        }                         
+        if (iframeTitle != MACHINE_VIEW.ADD_ARTIFACT) {
+            const projectExplorer = new ProjectExplorer(this._page);
+            await projectExplorer.goToOverview(projectName);
+            console.log("Navigated to project overview");
+
+            const overviewPage = new Overview(this._page);
+            await overviewPage.init();
+            console.log("Initialized overview page");
+            await overviewPage.goToAddArtifact();
+            console.log("Navigated to add artifact");
+        }
 
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
@@ -131,7 +144,7 @@ export class API {
         await frame.getByRole('button', { name: 'Update' }).click();
     }
 
-    public async goToSwaggerView() {
+    public async goToSwaggerView(attemptId: number) {
         const desWebView = await switchToIFrame('Service Designer', this._page);
         if (!desWebView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -155,6 +168,9 @@ export class API {
             throw new Error(`IFrame of Swagger View not found`);
         }
         console.log("Found swagger view frame");
+        // Save changes
+        // Save all files
+        await page.executePaletteCommand('File: Save All Files');
         const swaggerFrame = swaggerView.locator('div#root');
         console.log("Waiting for swagger frame");
         await swaggerFrame.waitFor();
@@ -168,7 +184,9 @@ export class API {
         console.log("Clicked on try it out");
         await swaggerView.getByRole('button', { name: 'Execute' }).click();
         console.log("Clicked on execute");
-        closeEditorGroup();
+        await page.executePaletteCommand('View: Close All Editor Groups');
+        // wait for the editor to close
+        // await page.page.waitForTimeout(2000);
         try {
             const saveBtn = this._page.getByRole('button', { name: 'Save', exact: true });
             await saveBtn.waitFor({ timeout: 5000 });
@@ -180,7 +198,10 @@ export class API {
         }
 
         const projectExplorer = new ProjectExplorer(this._page);
-        const item = await projectExplorer.findItem(['Project testProject', 'APIs', 'NewTestAPI1:v1.0.2']);
+        console.log("Navigating to project overview");
+        const apiProjectName = `NewTestAPI${attemptId}:v1.0.2`;
+        const item = await projectExplorer.findItem(['Project testProject', 'APIs', apiProjectName], true);
+        console.log("Found project testProject");
         await item.getByRole('button', { name: 'Open Service Designer' }).click();
     }
 
@@ -203,9 +224,13 @@ export class API {
         await overviewPage.init();
         const webview = await overviewPage.getWebView();
         console.log("Found project testProject");
-        await this._page.getByLabel('Open Project Overview').click();
+        const openProjectOverviewBtn = this._page.getByLabel('Open Project Overview');
+        await openProjectOverviewBtn.waitFor();
+        await openProjectOverviewBtn.click();
         console.log("Clicked on open project overview");
-        await webview.locator('vscode-button > svg').first().click();
+        const vscodeButton = webview.locator('vscode-button > svg').nth(1);
+        await vscodeButton.waitFor();
+        await vscodeButton.click({force: true});
         const deleteBtn = webview.getByText('Delete');
         console.log("Clicked on delete API");
         await deleteBtn.waitFor();
@@ -229,26 +254,35 @@ export class API {
         }
         console.log("Switched to API Form iframe");
 
-        const apiFormFrame = apiWebView.locator('div#root');
-        await apiFormFrame.waitFor();
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
-        console.log("Filled name and context");
-        await apiFormFrame.getByRole('radio', { name: 'From WSDL file' }).click();
-        console.log("Clicked on from WSDL file");
         const wsdlFile = path.join(__dirname, 'data', 'wsdl.xml');
         // Get the users home directory
         const homeDir = os.homedir();
         const desination = path.join(homeDir, 'wsdl.wsdl');
         console.log("Copying WSDL file to ", desination, " from ", wsdlFile);
         await copyFile(wsdlFile, desination);
-        console.log("Copied WSDL file to ", desination);
-        await apiFormFrame.getByRole('button', { name: 'Select Location' }).click();
-        await this._page.getByLabel('input').fill(desination);
-        await this._page.getByRole('button', { name: 'OK' }).click();
-        console.log("Clicked on OK");
-        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
-        console.log("Clicked on create");
+        const apiForm = new Form(page.page, 'API Form');
+        await apiForm.switchToFormView();
+        await apiForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: name,
+                },
+                'Context*': {
+                    type: 'input',
+                    value: context,
+                },
+                'From WSDL file': {
+                    type: 'radio',
+                    value: 'checked',
+                },
+                'Select Location': {
+                    type: 'file',
+                    value: desination
+                }
+            },
+        });
+        await apiForm.submit();
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
@@ -272,13 +306,15 @@ export class API {
         await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         console.log("Filled name and context");
         await apiFormFrame.getByLabel('From WSDL file').click();
-        console.log("Clicked on from WSDL file");
+        console.log("Clicked on From WSDL file");
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
         await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('http://www.dneonline.com/calculator.asmx?wsdl');
-        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
+        const submitBtn = await getVsCodeButton(apiFormFrame, 'Create', "primary");
+        expect(await submitBtn.isEnabled()).toBeTruthy();
+        await submitBtn.click({force: true});
         console.log("Clicked on create");
-        const webView = await switchToIFrame('Service Designer', this._page);
+        const webView = await switchToIFrame('Service Designer', this._page, 90000);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }
@@ -313,22 +349,50 @@ export class API {
         }
         const apiFormFrame = apiFormWebView.locator('div#root');
         await apiFormFrame.waitFor();
-        console.log("Switched to API Form iframe");
-        await apiFormFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
-        await apiFormFrame.getByRole('textbox', { name: 'Context*' }).fill(context);
         await apiFormFrame.locator('#version-type div').nth(1).click();
         await apiFormFrame.getByLabel('Context', { exact: true }).click();
-        await apiFormFrame.getByRole('textbox', { name: 'Version' }).fill('1.0.0');
-        await apiFormFrame.getByLabel('From OpenAPI definition').click();
-        await apiFormFrame.getByRole('button', { name: 'Select Location' }).click();
-        await this._page.getByLabel('input').fill(desination);
-        await this._page.getByRole('button', { name: 'OK' }).click();
-        await apiFormFrame.getByRole('button', { name: 'Create' }).click();
-        console.log("Clicked on create");
+        const apiForm = new Form(page.page, 'API Form');
+        await apiForm.switchToFormView();
+        await apiForm.fill({
+            values: {
+                'Name*': {
+                    type: 'input',
+                    value: name,
+                },
+                'Context*': {
+                    type: 'input',
+                    value: context,
+                },
+                'Version': {
+                    type: 'input',
+                    value: "1.0.0",
+                },
+                'From OpenAPI definition': {
+                    type: 'radio',
+                    value: 'checked',
+                },
+                'Select Location': {
+                    type: 'file',
+                    value: desination
+                }
+            }
+        });
+        await apiForm.submit();
         const webView = await switchToIFrame('Service Designer', this._page);
         if (!webView) {
             throw new Error("Failed to switch to Service Designer iframe");
         }
         console.log("Switched to Service Designer iframe");
+    }
+
+    public async openDiagramView(name: string, resourcePath : string) {
+        const projectExplorer = new ProjectExplorer(this._page);
+        await projectExplorer.goToOverview("testProject");
+        await projectExplorer.findItem(['Project testProject', 'APIs', name, resourcePath], true);
+        const webView = await switchToIFrame('Resource View', this._page);
+        if (!webView) {
+            throw new Error("Failed to switch to Resource View iframe");
+        }
+        await webView.getByText('Start').click();
     }
 }

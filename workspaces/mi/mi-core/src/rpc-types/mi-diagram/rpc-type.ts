@@ -241,7 +241,9 @@ import {
     HandleFileRequest,
     HandleFileResponse,
     DevantMetadata,
-    UpdateMediatorResponse
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -346,6 +348,7 @@ export const removeConnector: RequestType<RemoveConnectorRequest, RemoveConnecto
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
 export const getConnectionForm: RequestType<GetConnectionFormRequest, GetConnectionFormResponse> = { method: `${_preFix}/getConnectionForm` };
 export const getStoreConnectorJSON: RequestType<void, StoreConnectorJsonResponse> = { method: `${_preFix}/getStoreConnectorJSON` };
+export const getConnectorIcon: RequestType<GetConnectorIconRequest, GetConnectorIconResponse> = { method: `${_preFix}/getConnectorIcon` };
 export const saveInboundEPUischema: RequestType<SaveInboundEPUischemaRequest, boolean> = { method: `${_preFix}/saveInboundEPUischema` };
 export const getInboundEPUischema: RequestType<GetInboundEPUischemaRequest, GetInboundEPUischemaResponse> = { method: `${_preFix}/getInboundEPUischema` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
@@ -407,3 +410,7 @@ export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest,
 export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperPaneInfoResponse> = { method: `${_preFix}/getHelperPaneInfo` };
 export const testConnectorConnection: RequestType<TestConnectorConnectionRequest, TestConnectorConnectionResponse> = { method: `${_preFix}/testConnectorConnection` };
 export const saveConfig: RequestType<SaveConfigRequest, SaveConfigResponse> = { method: `${_preFix}/saveConfig` };
+export const getEULALicense: RequestType<void, string> = { method: `${_preFix}/getEULALicense` };
+export const shouldDisplayPayloadAlert: RequestType<void, boolean> = { method: `${_preFix}/shouldDisplayPayloadAlert` };
+export const displayPayloadAlert: RequestType<void, void> = { method: `${_preFix}/displayPayloadAlert` };
+export const closePayloadAlert: RequestType<void, void> = { method: `${_preFix}/closePayloadAlert` };

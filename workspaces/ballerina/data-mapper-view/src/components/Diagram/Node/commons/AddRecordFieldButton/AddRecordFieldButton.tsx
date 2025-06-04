@@ -7,12 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
-import React, { FC, useState } from "react";
-
-import { Button, Codicon, Icon, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import { Button, Codicon, Icon, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 import { getBalRecFieldName } from "../../../utils/dm-utils";
-
 import { useStyles } from "./styles";
 
 interface Props {
@@ -28,21 +26,40 @@ export const AddRecordFieldButton: FC<Props> = ({
     existingFieldNames,
     fieldId
 }) => {
-    const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const [newFieldName, setNewFieldName] = useState("");
+    const [isEditing, setIsEditing] = useState(false);
+
     const classes = useStyles();
-    const isError = existingFieldNames.includes(getBalRecFieldName(newFieldName));
+
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                inputRef.current && 
+                !inputRef.current.contains(event.target as Node) && 
+                !(event.target instanceof Element && event.target.closest('.codicon-pass'))
+            ) {
+                handleClose();
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const handleClose = () => {
         setNewFieldName("");
-        setPopoverAnchorEl(null);
+        setIsEditing(false);
     };
 
     const onNewFieldNameKeyUp = async (key: string) => {
         if (key === "Escape") {
             handleClose();
         }
-        if (key === "Enter" && !isError) {
+        if (key === "Enter" && isValid) {
             addField(newFieldName);
         }
     };
@@ -54,56 +71,78 @@ export const AddRecordFieldButton: FC<Props> = ({
         handleClose();
     };
 
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setPopoverAnchorEl(event.currentTarget);
+    const handleClick = () => {
+        setIsEditing(true);
     };
 
-    const open = Boolean(popoverAnchorEl);
-    const id = open ? "simple-popover" : undefined;
+    const validationMessage = useMemo(() => {
+        if (existingFieldNames.includes(getBalRecFieldName(newFieldName))) {
+            return "Field name already exists";
+        } else if (newFieldName.trim() === "") {
+            return "Field name cannot be empty";
+        } else if (/\s/.test(newFieldName)) {
+            return "Field name cannot contain spaces";
+        } else if (/^[0-9]/.test(newFieldName)) {
+            return "Field name cannot start with a number";
+        } else if (/[^a-zA-Z0-9_]/.test(newFieldName)) {
+            return "Field name can only contain letters, numbers, and underscores";
+        }
+        return "";
+    }, [newFieldName, existingFieldNames]);
+
+    const isValid = useMemo(() => {
+        return validationMessage === "";
+    }, [validationMessage]);
 
     return (
         <div className={classes.addFieldWrap} style={{ paddingLeft: indentation }}>
-            <Button
-                appearance="icon"
-                data-testid={`add-new-field-${fieldId}`}
-                aria-label="add"
-                onClick={handleClick}
-            >
-                <Codicon name="add" />
-                Add Field
-            </Button>
-            <Popover
-                id={id}
-                open={open}
-                anchorEl={popoverAnchorEl}
-            >
-                <input
-                    spellCheck={false}
-                    className={classes.input}
-                    autoFocus={true}
-                    value={newFieldName}
-                    onChange={(event) => setNewFieldName(event.target.value)}
-                    onKeyUp={(event) => onNewFieldNameKeyUp(event.key)}
-                    placeholder="New field name"
-                    data-testid={`new-field-name`}
-                />
-                {newFieldName && (
-                    <>
-                        {isError && (
-                            <Tooltip
-                                content={`Field name ${newFieldName} already exists`}
-                            >
-                                <Icon name="error-outline" iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                            </Tooltip>
-                        )}
-                        {!isError && (
-                            <Button appearance="icon" onClick={() => addField(newFieldName)}>
-                                <Codicon name="pass" />
-                            </Button>
-                        )}
-                    </>
-                )}
-            </Popover>
+            {!isEditing && (
+                <Button
+                    appearance="icon"
+                    data-testid={`add-new-field-${fieldId}`}
+                    aria-label="add"
+                    onClick={handleClick}
+                    className={classes.addFieldButton}
+                >
+                    <Codicon name="add" sx={{ marginRight: "4px" }} />
+                    Add Field
+                </Button>
+            )}
+            {isEditing && (
+                <div className={classes.fieldEditor}>
+                    <input
+                        ref={inputRef}
+                        spellCheck={false}
+                        className={classes.input}
+                        autoFocus={true}
+                        value={newFieldName}
+                        onChange={(event) => setNewFieldName(event.target.value)}
+                        onKeyUp={(event) => onNewFieldNameKeyUp(event.key)}
+                        placeholder="New field name (eg. outputField)"
+                        data-testid={`new-field-name`}
+                    />
+                    {newFieldName && (
+                        <>
+                            {!isValid && (
+                                <Tooltip
+                                    content={validationMessage}
+                                    position="bottom"
+                                >
+                                    <Codicon name="warning" iconSx={{ color: "var(--vscode-charts-red)"}} />
+                                </Tooltip>
+                            )}
+                            {isValid && (
+                                <Button
+                                    appearance="icon"
+                                    onClick={() => addField(newFieldName)}
+                                >
+                                    <Codicon name="pass" iconSx={{ color: "var(--vscode-charts-green)"}} />
+                                </Button>
+                            )}
+                        </>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

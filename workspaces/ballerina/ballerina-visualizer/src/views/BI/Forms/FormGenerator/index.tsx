@@ -10,6 +10,7 @@
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     EVENT_TYPE,
+    ColorThemeKind,
     FlowNode,
     LineRange,
     NodePosition,
@@ -55,6 +56,7 @@ import {
     getFormProperties,
     getImportsForFormFields,
     getInfoFromExpressionValue,
+    injectHighlightTheme,
     removeDuplicateDiagnostics,
     updateLineRange,
 } from "../../../../utils/bi";
@@ -71,6 +73,7 @@ import { getHelperPane } from "../../HelperPane";
 import { FormTypeEditor } from "../../TypeEditor";
 import { getTypeHelper } from "../../TypeHelper";
 import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
+import MatchForm from "../MatchForm";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -159,6 +162,23 @@ export function FormGenerator(props: FormProps) {
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
+
+    useEffect(() => {
+        if (rpcClient) {
+            // Set current theme
+            rpcClient
+                .getVisualizerRpcClient()
+                .getThemeKind()
+                .then((theme) => {
+                    injectHighlightTheme(theme);
+                });
+
+            // Update highlight theme when theme changes
+            rpcClient.onThemeChanged((theme) => {
+                injectHighlightTheme(theme);
+            });
+        }
+    }, [rpcClient]);
 
     useEffect(() => {
         if (!node) {
@@ -410,35 +430,45 @@ export function FormGenerator(props: FormProps) {
     );
 
     const debouncedGetVisibleTypes = useCallback(
-        debounce(async (value: string, cursorPosition: number, fetchReferenceTypes?: boolean) => {
-            let visibleTypes: CompletionItem[] = types;
-            if (!types.length) {
-                const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                    filePath: fileName,
-                    position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine
-                });
+        debounce(
+            async (
+                value: string,
+                cursorPosition: number,
+                fetchReferenceTypes: boolean,
+                valueTypeConstraint?: string
+            ) => {
+                let visibleTypes: CompletionItem[] = types;
+                if (!types.length) {
+                    const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                        filePath: fileName,
+                        position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                        ...(valueTypeConstraint && { typeConstraint: valueTypeConstraint })
+                    });
 
-                visibleTypes = convertToVisibleTypes(types);
-                setTypes(visibleTypes);
-            }
+                    const isFetchingTypesForDM = valueTypeConstraint === "json";
+                    visibleTypes = convertToVisibleTypes(types, isFetchingTypesForDM);
+                    setTypes(visibleTypes);
+                }
 
-            if (!fetchReferenceTypes) {
-                const effectiveText = value.slice(0, cursorPosition);
-                let filteredTypes = visibleTypes.filter((type) => {
-                    const lowerCaseText = effectiveText.toLowerCase();
-                    const lowerCaseLabel = type.label.toLowerCase();
-    
-                    return lowerCaseLabel.includes(lowerCaseText);
-                });
-                setFilteredTypes(filteredTypes);
-            }
-        }, 250),
+                if (!fetchReferenceTypes) {
+                    const effectiveText = value.slice(0, cursorPosition);
+                    let filteredTypes = visibleTypes.filter((type) => {
+                        const lowerCaseText = effectiveText.toLowerCase();
+                        const lowerCaseLabel = type.label.toLowerCase();
+
+                        return lowerCaseLabel.includes(lowerCaseText);
+                    });
+                    setFilteredTypes(filteredTypes);
+                }
+            },
+            250
+        ),
         [rpcClient, types, fileName, targetLineRange]
     );
 
     const handleGetVisibleTypes = useCallback(
-        async (value: string, cursorPosition: number, fetchReferenceTypes?: boolean) => {
-            await debouncedGetVisibleTypes(value, cursorPosition, fetchReferenceTypes);
+        async (value: string, cursorPosition: number, fetchReferenceTypes?: boolean, valueTypeConstraint?: string) => {
+            await debouncedGetVisibleTypes(value, cursorPosition, fetchReferenceTypes, valueTypeConstraint);
         },
         [debouncedGetVisibleTypes]
     );
@@ -461,7 +491,7 @@ export function FormGenerator(props: FormProps) {
             },
         });
 
-        return convertToFnSignature(signatureHelp);
+        return await convertToFnSignature(signatureHelp);
     };
 
     const handleExpressionFormDiagnostics = useCallback(
@@ -596,6 +626,7 @@ export function FormGenerator(props: FormProps) {
 
     const handleGetTypeHelper = (
         fieldKey: string,
+        valueTypeConstraint: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
@@ -617,6 +648,7 @@ export function FormGenerator(props: FormProps) {
 
         return getTypeHelper({
             fieldKey: fieldKey,
+            valueTypeConstraint: valueTypeConstraint,
             typeBrowserRef: typeBrowserRef,
             filePath: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
@@ -675,6 +707,23 @@ export function FormGenerator(props: FormProps) {
     if (node?.codedata.node === "IF") {
         return (
             <IfForm
+                fileName={fileName}
+                node={node}
+                targetLineRange={targetLineRange}
+                expressionEditor={expressionEditor}
+                onSubmit={onSubmit}
+                openSubPanel={openSubPanel}
+                updatedExpressionField={updatedExpressionField}
+                subPanelView={subPanelView}
+                resetUpdatedExpressionField={resetUpdatedExpressionField}
+            />
+        );
+    }
+
+    // handle match node form
+    if (node?.codedata.node === "MATCH") {
+        return (
+            <MatchForm
                 fileName={fileName}
                 node={node}
                 targetLineRange={targetLineRange}

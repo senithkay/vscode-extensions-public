@@ -11,7 +11,6 @@ import { Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { ProjectExplorer } from "../ProjectExplorer";
 import { AddArtifact } from "../AddArtifact";
-import { Overview } from "../Overview";
 
 export class Endpoint {
 
@@ -19,13 +18,6 @@ export class Endpoint {
     }
 
     public async init() {
-        const projectExplorer = new ProjectExplorer(this._page);
-        await projectExplorer.goToOverview("testProject");
-
-        const overviewPage = new Overview(this._page);
-        await overviewPage.init();
-        await overviewPage.goToAddArtifact();
-
         const addArtifactPage = new AddArtifact(this._page);
         await addArtifactPage.init();
         await addArtifactPage.add('Endpoint');
@@ -98,7 +90,7 @@ export class Endpoint {
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).click();
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill(name);
         await lbEPFrame.locator('#algorithm svg').click();
-        await lbEPFrame.getByLabel('Weighted RRLC Algorithm').click();
+        await lbEPFrame.getByLabel('Weighted RRLC Algorithm').click({force: true});
         await lbEPFrame.getByRole('button', { name: 'Create' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {
@@ -118,7 +110,7 @@ export class Endpoint {
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).click();
         await lbEPFrame.getByRole('textbox', { name: 'Name*' }).fill(newName);
         await lbEPFrame.locator('#algorithm svg').click();
-        await lbEPFrame.getByLabel('Weighted Round Robin').click();
+        await lbEPFrame.getByLabel('Weighted Round Robin').click({force: true});
         await lbEPFrame.getByRole('button', { name: 'Save Changes' }).click();
         const overview = await switchToIFrame('Project Overview', this._page);
         if (!overview) {

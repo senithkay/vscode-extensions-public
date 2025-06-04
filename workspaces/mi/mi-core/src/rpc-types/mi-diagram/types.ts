@@ -1527,6 +1527,15 @@ export interface StoreConnectorJsonResponse {
     connectors?: any[];
 }
 
+export interface GetConnectorIconRequest {
+    connectorName: string;
+    documentUri: string;
+}
+
+export interface GetConnectorIconResponse {
+    iconPath: string;
+}
+
 export interface LocalInboundConnectorsResponse {
     "inbound-connector-data"?: any;
 }
@@ -1701,6 +1710,7 @@ export interface SwaggerTypeRequest {
     apiPath: string;
     generatedSwagger?: string;
     existingSwagger?: string;
+    isRuntimeService?: boolean;
 }
 
 export interface SwaggerFromAPIResponse {
@@ -1712,6 +1722,7 @@ export interface SwaggerFromAPIRequest {
     swaggerPath?: string;
     isJsonIn?: boolean;
     isJsonOut?: boolean;
+    port?: number;
 }
 
 export interface CompareSwaggerAndAPIResponse {

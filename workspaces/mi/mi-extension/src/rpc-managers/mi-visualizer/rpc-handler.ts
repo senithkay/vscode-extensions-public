@@ -68,7 +68,8 @@ import {
     selectFolder,
     SetPathRequest,
     updateLegacyExpressionSupport, 
-    updateDependenciesFromOverview
+    updateDependenciesFromOverview,
+    DownloadMIRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -102,7 +103,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger, projectUri
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
     messenger.onRequest(downloadJavaFromMI, (args: string) => rpcManger.downloadJavaFromMI(args));
-    messenger.onRequest(downloadMI, (args: string) => rpcManger.downloadMI(args));
+    messenger.onRequest(downloadMI, (args: DownloadMIRequest) => rpcManger.downloadMI(args));
     messenger.onRequest(getSupportedMIVersionsHigherThan, (args: string) => rpcManger.getSupportedMIVersionsHigherThan(args));
     messenger.onRequest(getProjectDetails, () => rpcManger.getProjectDetails());
     messenger.onRequest(updateDependencies, (args: UpdateDependenciesRequest) => rpcManger.updateDependencies(args));

@@ -81,6 +81,7 @@ export namespace NodeStyles {
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: "GilmerMedium";
+        color: ${ThemeColors.ON_SURFACE};
     `;
 
     export const Description = styled(StyledText)`
@@ -90,6 +91,7 @@ export namespace NodeStyles {
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
+        opacity: 0.7;
     `;
 
     export const Row = styled.div`
@@ -227,7 +229,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                                 hasError
                                     ? ThemeColors.ERROR
                                     : isHovered && !disabled
-                                    ? ThemeColors.PRIMARY
+                                    ? ThemeColors.HIGHLIGHT
                                     : ThemeColors.OUTLINE_VARIANT
                             }
                             strokeWidth={NODE_BORDER_WIDTH}

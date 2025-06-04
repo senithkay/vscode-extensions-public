@@ -9,6 +9,7 @@
 
 import { Frame, Locator, Page, expect } from "@playwright/test";
 import { getVsCodeButton, getWebviewInput, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { DefaultParamManager, SimpleParamManager, ParamManagerWithNewCreateForm } from "./ParamManager";
 
 export interface FormFillProps {
     values: {
@@ -193,9 +194,43 @@ export class Form {
         await addNewBtn.click();
     }
 
+    public async clickExBtnForField(field: string) {
+        const parentDiv = this.container.locator(`#keylookup${field}`);
+        await parentDiv.waitFor();
+        const exBtn = parentDiv.getByRole('heading', { name: 'EX' });
+        await exBtn.click();
+    }
+
+    public async clickPencilBtnForField(field: string) {
+        const parentDiv = this.container.locator(`#keylookup${field}`);
+        await parentDiv.waitFor();
+        const pencilBtn = parentDiv.locator('a');
+        await pencilBtn.click();
+    }
+
+    public async clickHelperPaneBtnForField(field: string) {
+        const parentDiv = this.container.locator(`div[data-test-id="EX${field}"]`);
+        await parentDiv.waitFor();
+        const chipBtn = await parentDiv.getByTitle('Open Helper Pane').locator('div');
+        await chipBtn.click();
+    }
+
     public async getInputValue(key: string) {
         const input = this.container.locator(`vscode-text-field[aria-label="${key}"]`);
         return await input.getAttribute('current-value');
+    }
+
+    public async getDefaultParamManager(field: string, btnName?: string): Promise<DefaultParamManager> {
+        return new DefaultParamManager(this.container, field, btnName, this._page);
+    }
+
+    public async getSimpleParamManager(field: string): Promise<SimpleParamManager> {
+        const btnName = `Add ${field}`;
+        return new SimpleParamManager(this.container, field, btnName, this._page);
+    }
+
+    public async getParamManagerWithNewCreateForm(field: string, frameName: string): Promise<ParamManagerWithNewCreateForm> {
+        return new ParamManagerWithNewCreateForm(this.container, field, frameName, this._page);
     }
 
     public async fillParamManager(props: ParamManagerValues, paramManagerLabel: string = "Add Parameter",

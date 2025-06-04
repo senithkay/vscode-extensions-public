@@ -15,10 +15,11 @@ import { useMediaQuery } from "../utils";
 
 interface AutoMapButtonProps {
     onClick: () => void;
+    disabled?: boolean;
 }
 
 export default function AutoMapButton(props: AutoMapButtonProps) {
-    const { onClick } = props;
+    const { onClick, disabled } = props;
     const showText = useMediaQuery('(min-width:800px)');
 
     return (
@@ -26,6 +27,7 @@ export default function AutoMapButton(props: AutoMapButtonProps) {
             <Button
                 onClick={onClick}
                 appearance="secondary"
+                disabled={disabled}
             >
                 <Codicon name="wand" sx={{ marginRight: 5 }} />
                 {showText ? 'Auto Map' : null}

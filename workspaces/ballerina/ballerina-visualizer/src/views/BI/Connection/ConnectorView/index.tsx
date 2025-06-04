@@ -319,7 +319,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                                             icon={
                                                                 connector.metadata.icon ? (
                                                                     <ConnectorIcon
-                                                                        node={connector as unknown as FlowNode}
+                                                                        url={connector.metadata.icon}
                                                                     />
                                                                 ) : (
                                                                     <Codicon name="package" />
@@ -351,7 +351,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                             }
                                             icon={
                                                 connector.metadata.icon ? (
-                                                    <ConnectorIcon node={connector as unknown as FlowNode} />
+                                                    <ConnectorIcon url={connector.metadata.icon} />
                                                 ) : (
                                                     <Codicon name="package" />
                                                 )

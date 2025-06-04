@@ -121,15 +121,17 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
 		for (const workspace of workspaceFolders) {
 			const rootPath = workspace.uri.fsPath;
 
-			const langClient = await MILanguageClient.getInstance(rootPath);
-			const resp = await langClient?.languageClient?.getProjectExplorerModel(rootPath);
-			const projectDetailsRes = await langClient?.languageClient?.getProjectDetails();
-			const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
-			const projectTree = generateTreeData(workspace, resp, runtimeVersion);
+			try {
+				const langClient = await MILanguageClient.getInstance(rootPath);
+				const resp = await langClient?.languageClient?.getProjectExplorerModel(rootPath);
+				const projectDetailsRes = await langClient?.languageClient?.getProjectDetails();
+				const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+				const projectTree = generateTreeData(workspace, resp, runtimeVersion);
 
-			if (projectTree) {
-				data.push(projectTree);
-			}
+				if (projectTree) {
+					data.push(projectTree);
+				}
+			} catch {}
 		};
 		vscode.commands.executeCommand('setContext', 'projectOpened', true);
 		if (data.length > 0) {
@@ -547,15 +549,14 @@ function generateArtifacts(
 				const mediators = findJavaFiles(javaPath);
 				parentEntry.id = 'class-mediator';
 				parentEntry.children = generateTreeDataOfClassMediator(project, projectStructure);
-				parentEntry.contextValue = 'class-mediator';
+				parentEntry.contextValue = 'class-mediators';
 				break;
 			}
 			case 'Ballerina Modules': {
-				const ballerinaPath = path.join(project.uri.fsPath, 'src', 'main', 'ballerina');
 				parentEntry.id = 'ballerina-module';
 				parentEntry.children = generateTreeDataOfBallerinaModule(project, projectStructure,
 					data[key].filter(file => file.name !== "Ballerina.toml"));
-				parentEntry.contextValue = 'ballerina-module';
+				parentEntry.contextValue = 'ballerina-modules';
 				break;
 			}
 			case 'Data Mappers': {
@@ -609,6 +610,7 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
 				"arguments": [vscode.Uri.file(filePath)]
 			};
+			resourceEntry.contextValue = 'class-mediator';
 			result.push(resourceEntry);
 		}
 	}
@@ -640,6 +642,7 @@ function generateTreeDataOfBallerinaModule(project: vscode.WorkspaceFolder, data
 				"command": COMMANDS.EDIT_BALLERINA_MODULE_COMMAND,
 				"arguments": [vscode.Uri.file(filePath)]
 			};
+			resourceEntry.contextValue = 'ballerina-module';
 			result.push(resourceEntry);
 		}
 	}

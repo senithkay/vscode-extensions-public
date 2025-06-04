@@ -23,7 +23,7 @@ export class AIChatEngine {
 
     public async getHistory() {
         try {
-            this.backendUrl = await this.aiPanelRpcClient.getBackendURL();
+            this.backendUrl = await this.aiPanelRpcClient.getBackendUrl();
         } catch (error) {
             console.error('Failed to fetch backend URL:', error);
         }

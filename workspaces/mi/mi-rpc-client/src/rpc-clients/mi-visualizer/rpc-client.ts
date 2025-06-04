@@ -84,7 +84,8 @@ import {
     updateRuntimeVersionsInPom,
     PathDetailsResponse,
     updateLegacyExpressionSupport, 
-    updateDependenciesFromOverview
+    updateDependenciesFromOverview,
+    DownloadMIRequest
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -204,7 +205,7 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendRequest(downloadJavaFromMI, HOST_EXTENSION, params);
     }
 
-    downloadMI(params: string): Promise<string> {
+    downloadMI(params: DownloadMIRequest): Promise<string> {
         return this._messenger.sendRequest(downloadMI, HOST_EXTENSION, params);
     }
 

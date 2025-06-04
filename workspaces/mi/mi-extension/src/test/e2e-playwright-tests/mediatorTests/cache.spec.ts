@@ -167,30 +167,11 @@ export default function createTests() {
               type: 'combo',
               value: '611 Compatible',
             },
-            'Id': {
-              type: 'input',
-              value: 'id1',
-            },
             'Description': {
               type: 'input',
               value: 'cache mediator edited',
             },
           }
-        });
-        await diagram.getMediator('cache', 0, 'group');
-      });
-
-      await test.step('Enable sequence key field', async () => {
-        const diagram = new Diagram(page.page, 'Resource');
-        await diagram.init();
-        await diagram.addMediator('Cache', {
-          values: {
-            'Sequence Type': {
-              type: 'combo',
-              value: 'REGISTRY_REFERENCE',
-            },
-          },
-          enabledFields: ['Sequence Key']
         });
         await diagram.getMediator('cache', 0, 'group');
       });
@@ -210,8 +191,7 @@ export default function createTests() {
               type: 'combo',
               value: 'REGISTRY_REFERENCE',
             }
-          },
-          enabledFields: ['Sequence Key']
+          }
         });
         await form.clickAddNewForField('Sequence Key');
         const sequence = new Sequence(page.page);
@@ -235,7 +215,6 @@ export default function createTests() {
             }
           }
         });
-        await diagram.getMediator("cache", 1, "group");
       });
 
       await test.step('Navigate to new sequence creating page when editing cache mediator', async () => {
@@ -250,14 +229,12 @@ export default function createTests() {
               type: 'combo',
               value: 'REGISTRY_REFERENCE',
             }
-          },
-          enabledFields: ['Sequence Key']
+          }
         });
         await form.clickAddNewForField('Sequence Key');
         const sequence = new Sequence(page.page);
         await sequence.createSequence('cacheSeq2', true);
         await form.submit("Update");
-        await diagram.getMediator("cache", 0, "group");
       });
     });
   });

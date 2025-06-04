@@ -260,7 +260,10 @@ import {
     CreateBallerinaModuleResponse,
     SCOPE,
     DevantMetadata,
-    UpdateMediatorResponse
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse,
+    DependencyDetails
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -279,7 +282,7 @@ import { DiagramService, APIResource, NamedSequence, UnitTest, Proxy } from "../
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_ICON, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
 import { getStateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -290,7 +293,7 @@ import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIRes
 import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
-import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
+import { generateSwagger, getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
@@ -307,6 +310,8 @@ import { checkForDevantExt } from "../../extension";
 import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
 import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
 import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
+import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
+import { DebuggerConfig } from "../../debugger/config";
 
 const AdmZip = require('adm-zip');
 
@@ -1745,6 +1750,10 @@ ${endpointAttributes}
             let xmlData = getTemplateXmlWrapper(getTemplateParams);
             let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
+            if (params.templateType === 'Sequence Template') {
+                params.isEdit = false;
+            }
+
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else if (params.isEdit && params.range) {
@@ -2948,9 +2957,9 @@ ${endpointAttributes}
             // open file dialog to select the openapi spec file
             const options: vscode.OpenDialogOptions = {
                 canSelectMany: false,
-                openLabel: 'Open OpenAPI Spec',
+                openLabel: 'Open File',
                 filters: {
-                    'OpenAPI Spec': ['json', 'yaml', 'yml']
+                    'OpenAPI Spec': ['json', 'yaml', 'yml', 'proto']
                 }
             };
 
@@ -2965,6 +2974,20 @@ ${endpointAttributes}
         });
     }
 
+    async getEULALicense(): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            const licensePath = extension.context.asAbsolutePath(path.join('resources', 'MI_LICENSE.txt'));
+
+            try {
+                const licenseText = fs.readFileSync(licensePath, 'utf-8');
+                resolve(licenseText);
+            } catch (err) {
+                vscode.window.showErrorMessage('Failed to load license file.');
+                reject(err);
+            }
+        });
+    }
+
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
             const projectUuid = uuidv4();
@@ -2974,7 +2997,7 @@ ${endpointAttributes}
             const initialDependencies = generateInitialDependencies(httpConnectorVersion);
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", (artifactID ?? name).toLowerCase(), projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
                     '.env': '',
                     'src': {
                         'main': {
@@ -3129,13 +3152,37 @@ ${endpointAttributes}
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         const fetchConnectors = async (name) => {
-            const data = await this.getStoreConnectorJSON();
-            const connector = data?.outboundConnectors?.find(connector => connector.name === name);
+            const runtimeVersion = await getMIVersionFromPom();
+
+            const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+            const connectorStoreData = await connectorStoreResponse.json();
+            
+            const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
+            const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
+        
             if (connector) {
-                return connector.download_url;
+                const rpcClient = new MiVisualizerRpcManager(this.projectUri);
+                console.log("Connector found - ", connector);
+                const updateDependencies = async () => {
+                    const dependencies: DependencyDetails[] = [{
+                        groupId: connector.mavenGroupId,
+                        artifact: connector.mavenArtifactId,
+                        version: connector.version.tagName,
+                        type: "zip"
+                    }];
+                    
+                    await rpcClient.updateDependencies({
+                        dependencies
+                    });
+                }
+    
+                await updateDependencies();
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const response = await rpcClient.updateConnectorDependencies();
             } else {
                 console.error("Connector not found");
-                return null;
+                return null;    
             }
         };
 
@@ -3209,8 +3256,7 @@ ${endpointAttributes}
                     const tagParts = connectorMatch[1].split('.');
                     const connectorName = tagParts[0];
                     console.log('Connector name:', connectorName);
-                    const download_url = await fetchConnectors(connectorName);
-                    this.downloadConnector({ url: download_url });
+                    await fetchConnectors(connectorName);
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
@@ -3586,6 +3632,9 @@ ${endpointAttributes}
             // Copy the file from the source to the destination
             const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
             await fs.promises.copyFile(sourceFilePath, destinationFilePath);
+            if (params.artifactType === "API") {
+                await generateSwagger(destinationFilePath);
+            }
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             return { success: true }; // Return success response
         } catch (error) {
@@ -3994,6 +4043,39 @@ ${endpointAttributes}
 
     }
 
+    async getConnectorIcon(params: GetConnectorIconRequest): Promise<GetConnectorIconResponse> {
+        return new Promise(async (resolve) => {
+            const iconCache = connectorCache.get('connector-icon-data');
+
+            if (iconCache && iconCache.hasOwnProperty(params.connectorName) && iconCache[params.connectorName]) {
+                resolve ({ iconPath: iconCache[params.connectorName] });
+            } else {
+                const connectorData = await this.getAvailableConnectors({
+                    documentUri: params.documentUri,
+                    connectorName: params.connectorName
+                });
+    
+                let connectorIcon = DEFAULT_ICON;
+                if (connectorData.iconPath) {
+                    const iconPath = await this.getIconPathUri({
+                        path: connectorData.iconPath,
+                        name: "icon-small"
+                    });
+                    connectorIcon = iconPath.uri;
+                }
+    
+                // Get the latest cache state before updating
+                const latestIconCache = connectorCache.get('connector-icon-data') || {};
+                connectorCache.set('connector-icon-data', {
+                    ...latestIconCache,
+                    [params.connectorName]: connectorIcon
+                });
+    
+                resolve ({ iconPath: connectorIcon });
+            }
+        });
+    }
+
     async saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = getStateMachine(this.projectUri).context().langClient!;
@@ -4233,7 +4315,11 @@ ${keyValuesXML}`;
 
     async logoutFromMIAccount(): Promise<void> {
         const config = vscode.workspace.getConfiguration('MI');
-        const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
+        const confirm = await vscode.window.showWarningMessage(
+            'Are you sure you want to logout?',
+            { modal: true },
+            'Yes'
+        );
         if (confirm === 'Yes') {
             const token = await extension.context.secrets.get('MIAIUser');
             const clientId = config.get('authClientID') as string;
@@ -4375,28 +4461,41 @@ ${keyValuesXML}`;
             };
             const parser = new XMLParser(options);
             const projectDir = workspace.getWorkspaceFolder(Uri.file(filePath))?.uri.fsPath;
-            const artifactXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
-            if (!fs.existsSync(artifactXMLPath)) {
-                return resolve(false);
-            }
-            const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
-            const artifactXMLData = parser.parse(artifactXML);
-            if (Array.isArray(artifactXMLData.artifacts.artifact)) {
-                var artifacts = artifactXMLData.artifacts.artifact;
-                artifacts.forEach((artifact: any) => {
-                    if (artifact.item.file === fileName) {
-                        artifact.item.file = `${newFileName}.xml`;
+
+            const artifactXMLPathsToCheck = [
+                path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml'),
+                path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'artifact.xml'),
+            ];
+            const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
+            let anyFileUpdated = false;
+
+            for (const artifactXMLPath of artifactXMLPathsToCheck) {
+                if (!fs.existsSync(artifactXMLPath)) {
+                    continue;
+                }
+                const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+                const artifactXMLData = parser.parse(artifactXML);
+                let fileUpdated = false;
+
+                if (Array.isArray(artifactXMLData.artifacts?.artifact)) {
+                    for (const artifact of artifactXMLData.artifacts.artifact) {
+                        if (artifact?.item?.file === fileName) {
+                            artifact.item.file = `${newFileName}.xml`;
+                            fileUpdated = true;
+                        }
                     }
-                });
-            } else {
-                if (artifactXMLData.artifacts.artifact.item.file === fileName) {
+                } else if (artifactXMLData.artifacts?.artifact?.item?.file === fileName) {
                     artifactXMLData.artifacts.artifact.item.file = `${newFileName}.xml`;
+                    fileUpdated = true;
+                }
+
+                if (fileUpdated) {
+                    const updatedXmlString = builder.build(artifactXMLData);
+                    fs.writeFileSync(artifactXMLPath, updatedXmlString);
+                    anyFileUpdated = true;
                 }
             }
-            const builder = new XMLBuilder(options);
-            const updatedXmlString = builder.build(artifactXMLData);
-            fs.writeFileSync(artifactXMLPath, updatedXmlString);
-            resolve(true);
+            resolve(anyFileUpdated);
         });
 
     }
@@ -5012,7 +5111,12 @@ ${keyValuesXML}`;
 
     async getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
         const langClient = getStateMachine(this.projectUri).context().langClient!;
-        const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        let response;
+        if (params.isRuntimeService) {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath, port: DebuggerConfig.getServerPort() });
+        } else {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        }
         const generatedSwagger = response.swagger;
         const port = await getPortPromise({ port: 1000, stopPort: 3000 });
         const cors_proxy = require('cors-anywhere');
@@ -5381,6 +5485,28 @@ ${keyValuesXML}`;
             } catch (e) {
                 reject(e);
             }
+        });
+    }
+
+    async closePayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', false);
+            resolve();
+        });
+    }
+
+    async shouldDisplayPayloadAlert(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const displayPayloadAlert: boolean =
+                (await extension.context.workspaceState.get('displayPayloadAlert')) ?? true;
+            resolve(displayPayloadAlert);
+        });
+    }
+
+    async displayPayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', true);
+            resolve();
         });
     }
 }

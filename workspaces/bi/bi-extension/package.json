@@ -2,7 +2,7 @@
     "name": "ballerina-integrator",
     "displayName": "Ballerina Integrator",
     "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "publisher": "wso2",
     "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
@@ -39,13 +39,8 @@
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\n[Update Now](command:ballerina.update-ballerina)\nPlease restart VS Code after updating the ballerina distribution.\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
-                "when": "BI.status == 'updateNeed' && BI.distribution == 'setByBI'"
-            },
-            {
-                "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\nPlease restart VS Code after updating the ballerina distribution.\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
-                "when": "BI.status == 'updateNeed' && BI.distribution == 'setByUser'"
+                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\n[Update Now](command:ballerina.update-ballerina-visually)\nPlease restart VS Code after updating the ballerina distribution.\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "when": "BI.status == 'updateNeed'"
             },
             {
                 "view": "BI.project-explorer",
@@ -162,7 +157,9 @@
         "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
         "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX",
         "copyVSIX": "copyfiles *.vsix ./vsix",
-        "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../.."
+        "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
+        "compile-tests": "tsc -p .",
+        "e2e-test": "pnpm run compile-tests && pnpm exec playwright test"
     },
     "dependencies": {
         "@wso2-enterprise/ballerina-core": "workspace:*",
@@ -187,6 +184,8 @@
         "ts-loader": "^9.4.1",
         "webpack": "^5.56.0",
         "webpack-cli": "^4.10.0",
-        "webpack-permissions-plugin": "^1.0.9"
+        "webpack-permissions-plugin": "^1.0.9",
+        "@playwright/test": "~1.52.0",
+        "@wso2-enterprise/playwright-vscode-tester": "workspace:*"
     }
 }

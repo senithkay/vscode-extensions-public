@@ -119,6 +119,7 @@ import {
     buildProject,
     checkDBDriver,
     checkOldProject,
+    closePayloadAlert,
     closeWebView,
     closeWebViewNotification,
     compareSwaggerAndAPI,
@@ -143,6 +144,7 @@ import {
     createTemplate,
     deleteArtifact,
     deleteDriverFromLib,
+    displayPayloadAlert,
     downloadConnector,
     downloadInboundConnector,
     editAPI,
@@ -204,6 +206,7 @@ import {
     getSequenceDirectory,
     getStoreConnectorJSON,
     getSubFolderNames,
+    getEULALicense,
     getSyntaxTree,
     getTask,
     getTemplate,
@@ -230,6 +233,7 @@ import {
     renameFile,
     saveConfig,
     saveInboundEPUischema,
+    shouldDisplayPayloadAlert,
     showErrorMessage,
     testDbConnection,
     undo,
@@ -282,7 +286,9 @@ import {
     deployProject,
     DeployProjectRequest,
     CreateBallerinaModuleRequest,
-    getDevantMetadata
+    getDevantMetadata,
+    GetConnectorIconRequest,
+    getConnectorIcon
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -389,6 +395,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger, projectUri: s
     messenger.onRequest(getConnectorForm, (args: GetConnectorFormRequest) => rpcManger.getConnectorForm(args));
     messenger.onRequest(getConnectionForm, (args: GetConnectionFormRequest) => rpcManger.getConnectionForm(args));
     messenger.onRequest(getStoreConnectorJSON, () => rpcManger.getStoreConnectorJSON());
+    messenger.onRequest(getConnectorIcon, (args: GetConnectorIconRequest) => rpcManger.getConnectorIcon(args));
     messenger.onRequest(saveInboundEPUischema, (args: SaveInboundEPUischemaRequest) => rpcManger.saveInboundEPUischema(args));
     messenger.onRequest(getInboundEPUischema, (args: GetInboundEPUischemaRequest) => rpcManger.getInboundEPUischema(args));
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
@@ -449,4 +456,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger, projectUri: s
     messenger.onRequest(getHelperPaneInfo, (args: GetHelperPaneInfoRequest) => rpcManger.getHelperPaneInfo(args));
     messenger.onRequest(testConnectorConnection, (args: TestConnectorConnectionRequest) => rpcManger.testConnectorConnection(args));
     messenger.onRequest(saveConfig, (args: SaveConfigRequest) => rpcManger.saveConfig(args));
+    messenger.onRequest(getEULALicense, () => rpcManger.getEULALicense());
+    messenger.onRequest(shouldDisplayPayloadAlert, () => rpcManger.shouldDisplayPayloadAlert());
+    messenger.onRequest(displayPayloadAlert, () => rpcManger.displayPayloadAlert());
+    messenger.onRequest(closePayloadAlert, () => rpcManger.closePayloadAlert());
 }

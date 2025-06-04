@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel, NodeModel } from "@projectstorm/react-diagrams";
 import {
     traversNode,
     STNode,
@@ -26,7 +26,7 @@ import { clearSidePanelState, DefaultSidePanelState, SidePanelProvider } from ".
 import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import styled from "@emotion/styled";
-import { Colors, NODE_GAP, SIDE_PANEL_WIDTH } from "../resources/constants";
+import { CANVAS_PADDING, Colors, NODE_GAP, SIDE_PANEL_WIDTH } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -34,7 +34,10 @@ import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 import { debounce } from "lodash";
+import { Navigator } from "./Navigator/Navigator";
+import path from "path";
 import { OverlayLayerAlertWidget } from "./OverlayLoader/OverlayLayerAlertWidget";
+import { toJpeg } from "html-to-image";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -50,13 +53,11 @@ export enum DiagramType {
     FLOW = "flow",
     FAULT = "fault"
 }
-
 interface DiagramData {
     engine: DiagramEngine;
     modelType: DiagramType;
     model: STNode;
 }
-
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -76,11 +77,36 @@ namespace S {
     `;
 
     export const ControlsContainer = styled.div`
-        padding: 10px 9px 12px 5px;
+        padding: 10px 9px;
         position: fixed;
         margin-top: 20px;
+        width: 20px;
         right: 20px;
         background-color: var(--vscode-editor-background);
+        border: 1px solid var(--vscode-tree-indentGuidesStroke);
+        border-radius: 4px;
+        z-index: 1;
+    `;
+    export const DownloadBtnContainer = styled.div`
+        padding: 5px 11px 5px 7px;
+        position: fixed;
+        margin-top: 189px;
+        width: 20px;
+        right: 20px;
+        background-color: var(--vscode-editor-background);
+        border: 1px solid var(--vscode-tree-indentGuidesStroke);
+        border-radius: 4px;
+        z-index: 1;
+    `;
+
+    export const NavigatorContainer = styled.div<{ expanded: boolean }>`
+        display: flex;
+        flex-direction: row;
+        padding: 7px;
+        position: fixed;
+        margin-top: 130px;
+        right: 20px;
+        background-color: ${(props: any) => props.expanded ? 'var(--vscode-editorWidget-background)' : 'var(--vscode-editor-background)'};
         border: 1px solid var(--vscode-tree-indentGuidesStroke);
         border-radius: 4px;
         z-index: 1;
@@ -92,6 +118,9 @@ export function Diagram(props: DiagramProps) {
     const { rpcClient, isLoading, setIsLoading } = useVisualizerContext();
     const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
     const [diagramViewStateKey, setDiagramViewStateKey] = useState("");
+    const [expandedNavigator, setExpandedNavigator] = useState(false);
+
+    const [isDownloading, setIsDownloading] = useState(false);
     const scrollRef = useRef();
 
     const updateScrollPosition = debounce((e: any) => {
@@ -105,9 +134,47 @@ export function Diagram(props: DiagramProps) {
         updateScrollPosition(e);
     };
 
+    const [diagramData, setDiagramData] = useState({
+        flow: {
+            engine: generateEngine(),
+            model: null,
+            dimensions: {
+                width: 0,
+                height: 0,
+                l: 0,
+                r: 0
+            },
+            tree: null,
+            links: null
+        },
+        fault: {
+            engine: generateEngine(),
+            model: null,
+            dimensions: {
+                width: 0,
+                height: 0,
+                l: 0,
+                r: 0
+            },
+            tree: null,
+            links: null
+        }
+    });
+
     useEffect(() => {
+        const flow = isFaultFlow ? diagramData.fault : diagramData.flow;
+        const model = flow?.engine?.getModel();
+
+        if (!model) {
+            return;
+        }
+
         if (!diagramViewStateKey || diagramViewStateKey === "") {
-            return
+            const startNode = model.getNodes()?.[0];
+            if (!startNode) {
+                return;
+            }
+            return scrollIntoNode(startNode);
         }
         const storedScrollPosition = localStorage.getItem(diagramViewStateKey);
         const scroll = scrollRef?.current as any;
@@ -119,34 +186,10 @@ export function Diagram(props: DiagramProps) {
             if (scrollRef.current && 'scrollLeft' in scrollRef.current && prevScrollPosition !== undefined) {
                 scroll.scrollLeft = prevScrollPositionX;
             } else {
-                scroll.scrollLeft = scroll?.clientWidth > diagramData.flow.dimensions.width ? 0 : (scroll?.clientWidth / 2 - diagramData.flow.dimensions.l / 2);
+                scroll.scrollLeft = scroll?.clientWidth > flow.dimensions.width ? 0 : (scroll?.clientWidth / 2 - flow.dimensions.l / 2);
             }
         }
-    }, [diagramViewStateKey, canvasDimensions]);
-
-
-    const [diagramData, setDiagramData] = useState({
-        flow: {
-            engine: generateEngine(),
-            model: null,
-            dimensions: {
-                width: 0,
-                height: 0,
-                l: 0,
-                r: 0
-            }
-        },
-        fault: {
-            engine: generateEngine(),
-            model: null,
-            dimensions: {
-                width: 0,
-                height: 0,
-                l: 0,
-                r: 0
-            }
-        }
-    });
+    }, [diagramViewStateKey, canvasDimensions, diagramData]);
 
     const [sidePanelState, setSidePanelState] = useState(DefaultSidePanelState);
 
@@ -199,8 +242,8 @@ export function Diagram(props: DiagramProps) {
         updateDiagramData(flows);
 
         rpcClient?.getVisualizerState().then((state) => {
-            if (state && state.identifier !== undefined && state.identifier !== "") {
-                setDiagramViewStateKey(`diagramViewState-${props.documentUri}-${state.identifier}`);
+            if (state && state.documentUri !== undefined && state.documentUri !== "") {
+                setDiagramViewStateKey(`diagramViewState-${props.documentUri}-${state.identifier ?? ""}`);
             }
         });
 
@@ -259,12 +302,14 @@ export function Diagram(props: DiagramProps) {
             currentBreakpoints = await rpcClient.getMiDebuggerRpcClient().getBreakpoints({ filePath: props.documentUri });
         }
         data.forEach((dataItem) => {
-            const { nodes, links, dimensions } = getDiagramData(dataItem.model, currentBreakpoints);
+            const { nodes, links, dimensions, tree } = getDiagramData(dataItem.model, currentBreakpoints);
             drawDiagram(nodes as any, links, dataItem.engine, (newModel: DiagramModel) => {
                 updatedDiagramData[dataItem.modelType] = {
                     ...diagramData[dataItem.modelType],
                     model: newModel,
-                    dimensions: dimensions
+                    dimensions: dimensions,
+                    tree,
+                    links
                 };
                 canvasWidth = Math.max(canvasWidth, dimensions.width);
                 canvasHeight = Math.max(canvasHeight, dimensions.height);
@@ -285,7 +330,7 @@ export function Diagram(props: DiagramProps) {
         const dimensions = sizingVisitor.getdiagramDimensions();
 
         // run position visitor
-        const positionVisitor = new PositionVisitor(dimensions.width);
+        const positionVisitor = new PositionVisitor(dimensions.l || dimensions.width / 2);
         traversNode(model, positionVisitor);
         const height = positionVisitor.getSequenceHeight();
         dimensions.height = NODE_GAP.START_Y + height + NODE_GAP.END_Y;
@@ -295,7 +340,8 @@ export function Diagram(props: DiagramProps) {
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
-        return { nodes, links, dimensions };
+        const tree = nodeVisitor.getNodeTree();
+        return { nodes, links, dimensions, tree };
     };
 
     const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[], diagramEngine: DiagramEngine, setModel: any) => {
@@ -311,7 +357,7 @@ export function Diagram(props: DiagramProps) {
         const scroll = scrollRef?.current as any;
         const offsetWidth = scroll ? scroll.clientWidth : dimensions.width;
         const diagramZero = -(dimensions.width / 2) + dimensions.l;
-        const centerX = (offsetWidth - dimensions.width) / 2;
+        const centerX = (offsetWidth - dimensions.width) / 2 - CANVAS_PADDING;;
         diagramEngine.getModel().setOffsetX(offsetWidth >= dimensions.width ? centerX : diagramZero);
         diagramEngine.getModel().setGridSize(50);
         diagramEngine.setModel(diagramModel);
@@ -323,6 +369,7 @@ export function Diagram(props: DiagramProps) {
                     centerDiagram(false, diagramEngine, dimensions);
                 });
                 centerDiagram(false, diagramEngine, dimensions);
+
                 setTimeout(() => {
                     setIsLoading(false);
                 }, 150);
@@ -330,7 +377,21 @@ export function Diagram(props: DiagramProps) {
         }, 150);
     };
 
-    const centerDiagram = async (animate = false, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
+    const scrollIntoNode = (node: NodeModel) => {
+        const id = node?.getID();
+
+        const element = document.querySelector(`[data-nodeid="${id}"]`);
+
+        if (element) {
+            element.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+                inline: "center"
+            });
+        }
+    }
+
+    const centerDiagram = async (animate = false, diagramEngine: DiagramEngine, dimensions: DiagramDimensions, nodeModel?: MediatorNodeModel | NodeLinkModel) => {
         if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
             const canvas = diagramEngine.getCanvas();
             const canvasBounds = canvas.getBoundingClientRect();
@@ -341,10 +402,10 @@ export function Diagram(props: DiagramProps) {
                 const currentOffsetX = model.getOffsetX();
                 const currentOffsetY = model.getOffsetY();
 
-                const isSidePanelOpen = sidePanelState.isOpen || isFormOpen;
+                const isSidePanelOpen = sidePanelState.isOpen || isFormOpen || nodeModel;
                 const offsetAdjX = isSidePanelOpen ? (SIDE_PANEL_WIDTH - 20) : 0;
                 const offsetAdjY = -150;
-                const node = sidePanelState.node;
+                const node = nodeModel ?? sidePanelState.node;
 
                 const isAddBtn = node instanceof NodeLinkModel;
                 let nodeX, nodeY, nodeWidth, nodeHeight;
@@ -364,14 +425,15 @@ export function Diagram(props: DiagramProps) {
                 const centerX = isSidePanelOpen ? - ((currentOffsetX + nodeX + (nodeWidth / 2) - scrollX) - ((offsetWidth - offsetAdjX) / 2)) : 0;
                 const centerY = isSidePanelOpen ? - ((currentOffsetY + nodeY + (nodeHeight / 2) - scrollY) - ((offsetHeight) / 2)) + offsetAdjY : 0;
 
-                canvas.style.transition = "transform 0.5s";
+                canvas.style.transition = "transform 0.5s ease-in-out";
                 canvas.style.transform = `translate(${centerX}px, ${centerY}px)`;
 
             } else {
+                canvas.style.transform = `translate(0, 0)`;
                 const scroll = scrollRef?.current as any;
                 const offsetWidth = scroll ? scroll.clientWidth : dimensions.width;
                 const diagramZero = -(dimensions.width / 2) + dimensions.l;
-                const centerX = (offsetWidth - dimensions.width) / 2;
+                const centerX = (offsetWidth - dimensions.width) / 2 - CANVAS_PADDING;
                 diagramEngine.getModel().setOffsetX((dimensions.width >= offsetWidth || dimensions.l > offsetWidth / 2 || dimensions.r > offsetWidth / 2) ? diagramZero : centerX);
                 diagramEngine.getModel().setOffsetY(0);
                 diagramEngine.repaintCanvas();
@@ -379,7 +441,11 @@ export function Diagram(props: DiagramProps) {
         }
     };
 
-    const zoom = (type: "in" | "out" | "reset") => {
+    const centerNode = async (node: MediatorNodeModel | NodeLinkModel) => {
+        await centerDiagram(true, diagramData.flow.engine, undefined, node);
+    }
+
+    const zoom = async (type: "in" | "out" | "reset") => {
         const diagramEngine = isFaultFlow ? diagramData.fault.engine : diagramData.flow.engine;
         const model = diagramEngine.getModel();
         const scroll = scrollRef?.current as any;
@@ -387,9 +453,11 @@ export function Diagram(props: DiagramProps) {
         if (type === 'reset') {
             const dimensions = isFaultFlow ? diagramData.fault.dimensions : diagramData.flow.dimensions;
             model.setZoomLevel(100);
-            centerDiagram(false, diagramEngine, dimensions);
+            await centerDiagram(false, diagramEngine, dimensions);
             diagramEngine.repaintCanvas();
-            scroll.scrollLeft = scroll?.clientWidth > dimensions.width ? 0 : (scroll?.clientWidth / 2 - dimensions.l / 2);
+
+            const startNode = model.getNodes()?.[0]
+            scrollIntoNode(startNode);
             return;
         }
 
@@ -414,24 +482,62 @@ export function Diagram(props: DiagramProps) {
 
         diagramEngine.repaintCanvas();
     }
-    const handleClose = () => {
-        setSidePanelState({
-            ...sidePanelState,
-            isTryoutOpen: false,
-            inputOutput: {},
-        });
-    };
+
+    const expandNavigator = () => {
+        setExpandedNavigator(!expandedNavigator);
+        if (expandNavigator) {
+
+        }
+    }
+
+    const downloadDiagram = () => {
+        setIsDownloading(true);
+        const data = isFaultFlow ? diagramData.fault : diagramData.flow;
+        const canvas: HTMLDivElement = data.engine.getCanvas();
+        if (!canvas) {
+            setIsDownloading(false);
+            return;
+        }
+        const defaultStyle = (canvas.childNodes[0] as any).getAttribute('style');
+        (canvas.childNodes[0] as any).style = "transform: translate(20px, 0px) scale(1);";
+        (canvas.childNodes[1] as any).style = "transform: translate(20px, 0px) scale(1);";
+        const width = Math.max(data.dimensions.width, data.dimensions.l + data.dimensions.r) + 40;
+        const style = window.getComputedStyle(document.body);
+        const backgroundColor = style.getPropertyValue('--vscode-editor-background');
+
+        setTimeout(() => {
+            toJpeg(canvas, {
+                cacheBust: true,
+                quality: 1,
+                pixelRatio: 100,
+                width: width,
+                height: canvasDimensions.height,
+                backgroundColor
+            })
+                .then((dataUrl: string) => {
+                    const link = document.createElement('a');
+                    link.download = `MI-${model.tag}-diagram.jpeg`;
+                    link.href = dataUrl;
+                    link.click();
+                })
+                .catch((err: { message: any; }) => {
+                    console.error('Error generating diagram image:', err.message);
+                }).finally(() => {
+                    (canvas.childNodes[0] as any).style = defaultStyle;
+                    (canvas.childNodes[1] as any).style = defaultStyle;
+                    setIsDownloading(false);
+                });
+        }, 0);
+    }
 
     return (
         <>
+
             <S.Container ref={scrollRef} onScroll={handleScroll} data-testid={"diagram-container"}>
                 <SidePanelProvider value={{
                     ...sidePanelState,
                     setSidePanelState,
                 }}>
-                    {isLoading && <OverlayLayerWidget />}
-                    {sidePanelState.alertMessage && <OverlayLayerAlertWidget />}
-
                     {/* controls */}
                     <S.ControlsContainer>
                         <Button appearance="icon" onClick={() => zoom('in')} tooltip="Zoom In" sx={{ marginBottom: '3px' }}>
@@ -444,8 +550,27 @@ export function Diagram(props: DiagramProps) {
                             <Codicon name='layout-centered' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
                         </Button>
                     </S.ControlsContainer>
+                    <S.DownloadBtnContainer>
+                        <Button appearance="icon" onClick={() => downloadDiagram()} tooltip="Download diagram as a image" sx={{ marginBottom: '3px' }}>
+                            <Codicon name='desktop-download' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
+                        </Button>
+                    </S.DownloadBtnContainer>
+                    <S.NavigatorContainer expanded={expandedNavigator}>
+                        {expandedNavigator && <Navigator
+                            nodes={diagramData.flow.tree}
+                            links={diagramData.flow.links}
+                            centerNode={centerNode}
+                            documentUri={props.documentUri} />}
+                        <Button appearance="icon" onClick={() => expandNavigator()} tooltip="Navigator" sx={{ bottom: 0, marginTop: '3px' }}>
+                            <Codicon name='layers' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} sx={{ width: '18px', height: '18px' }} />
+                        </Button>
+                    </S.NavigatorContainer>
+                    {isLoading && <OverlayLayerWidget />}
+                    {isDownloading && <OverlayLayerWidget isDownloading />}
+
                     {/* Flow */}
-                    {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
+                    {
+                        diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
                         <DiagramCanvas height={canvasDimensions.height} width={canvasDimensions.width} type="flow">
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.flow.engine as any}
@@ -455,7 +580,8 @@ export function Diagram(props: DiagramProps) {
                     }
 
                     {/* Fault sequence */}
-                    {diagramData.fault.engine && diagramData.fault.model && isFaultFlow &&
+                    {
+                        diagramData.fault.engine && diagramData.fault.model && isFaultFlow &&
                         <DiagramCanvas height={canvasDimensions.height} width={canvasDimensions.width} type="fault">
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.fault.engine as any}
@@ -476,7 +602,7 @@ export function Diagram(props: DiagramProps) {
                     >
                         <SidePanelList nodePosition={sidePanelState.nodeRange} trailingSpace={sidePanelState.trailingSpace} documentUri={props.documentUri} artifactModel={props.model} />
                     </SidePanel>
-                </SidePanelProvider>
+                </SidePanelProvider >
             </S.Container >
         </>
     );

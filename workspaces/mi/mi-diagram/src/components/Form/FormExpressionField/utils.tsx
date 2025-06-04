@@ -166,7 +166,7 @@ export const getHelperPaneCompletionItem = (
  * @returns string
  */
 export const extractExpressionValue = (expression: string) => {
-    const synapseExRegex = /^\$\{((?:.|\s)*)\}$/;
+    const synapseExRegex = /^\$\{((?:.|\s|[\[\]\{\}\(\)])*)\}$/;
     const match = expression?.match(synapseExRegex);
     if (match) {
         return match[1];
@@ -210,7 +210,7 @@ export const enrichExpressionValue = (expression: string) => {
 };
 
 export const getExpressionValue = (expression: string, isExpression: boolean) => {
-    const synapseExRegex = /^\$\{(.*)\}$/;
+    const synapseExRegex = /^\$\{((?:.|\s|[\[\]\{\}\(\)])*)\}$/;
     const match = expression?.match(synapseExRegex);
 
     // If expression, add ${} if not already present
