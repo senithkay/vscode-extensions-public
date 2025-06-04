@@ -52,10 +52,6 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
     const [currentView, setCurrentView] = useState<string | undefined>("loading");
     const [view, setView] = useState<any>(undefined);
 
-    useEffect(() => {
-        console.log("dfdfdfde mounted with visualizerState:");
-    }, []);
-
     const goHome = () => {
         rpcClient.getMiVisualizerRpcClient().goHome();
     };
