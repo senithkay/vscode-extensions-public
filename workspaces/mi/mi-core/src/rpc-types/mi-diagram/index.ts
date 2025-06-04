@@ -240,7 +240,6 @@ import {
     DeployProjectRequest,
     DeployProjectResponse,
     DevantMetadata,
-    UpdateMediatorResponse,
     GetConnectorIconRequest,
     GetConnectorIconResponse
 } from "./types";

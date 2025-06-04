@@ -1042,8 +1042,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getMediator, HOST_EXTENSION, params);
     }
 
-    updateMediator(params: UpdateMediatorRequest): void {
-        return this._messenger.sendNotification(updateMediator, HOST_EXTENSION, params);
+    updateMediator(params: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
+        return this._messenger.sendRequest(updateMediator, HOST_EXTENSION, params);
     }
 
     getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
