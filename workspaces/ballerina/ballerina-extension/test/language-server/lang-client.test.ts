@@ -23,7 +23,7 @@ import {
     Connectors, Completion, Diagnostics,
     SyntaxTree} from '@wso2-enterprise/ballerina-core';
 import { ExtendedLangClient } from '../../src/core/extended-language-client';
-import { ballerinaExtInstance } from 'src/core/extension';
+import { ballerinaExtInstance } from '../../src/core/extension';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
