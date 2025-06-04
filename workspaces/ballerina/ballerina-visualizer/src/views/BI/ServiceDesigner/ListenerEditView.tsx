@@ -94,6 +94,7 @@ export function ListenerEditView(props: ListenerEditViewProps) {
     const onSubmit = async (value: ListenerModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().updateListenerSourceCode({ filePath, listener: value });
+        rpcClient.getVisualizerRpcClient().goBack();
     }
 
     return (
