@@ -11,27 +11,36 @@ import { CommandIds, type ComponentKind } from "@wso2-enterprise/choreo-core";
 import type vscode from "vscode";
 import { commands, window, workspace } from "vscode";
 import { getChoreoExecPath } from "./choreo-rpc/cli-install";
+import { authStore } from "./stores/auth-store";
 import { contextStore } from "./stores/context-store";
 import { dataCacheStore } from "./stores/data-cache-store";
 import { delay, getSubPath } from "./utils";
-import { authStore } from "./stores/auth-store";
 
 export class ChoreoConfigurationProvider implements vscode.DebugConfigurationProvider {
 	resolveDebugConfiguration(folder: vscode.WorkspaceFolder | undefined, config: vscode.DebugConfiguration): vscode.DebugConfiguration | undefined {
-		if (config.request === "launch" && typeof config.choreo === "object") {
+		if (config.request === "launch" && (config.choreo === true || typeof config.choreo === "object")) {
 			config.console = "integratedTerminal";
-			const choreoConfig: { project?: string; component?: string; env?: string } = config.choreo;
+			const choreoConfig: { project?: string; component?: string; env?: string; skipConnection?: string[] } | true = config.choreo;
 			let connectCmd = "connect";
-			if (choreoConfig.project) {
-				connectCmd += ` --project \"${choreoConfig.project}\"`;
-			} else if (contextStore.getState().state?.selected?.projectHandle) {
-				connectCmd += ` --project \"${contextStore.getState().state?.selected?.projectHandle}\"`;
-			}
-			if (choreoConfig.component) {
-				connectCmd += ` --component \"${choreoConfig.component}\"`;
-			}
-			if (choreoConfig.env) {
-				connectCmd += ` --env \"${choreoConfig.env}\"`;
+			if (choreoConfig === true) {
+				if (contextStore.getState().state?.selected?.projectHandle) {
+					connectCmd += ` --project \"${contextStore.getState().state?.selected?.projectHandle}\"`;
+				}
+			} else if (typeof choreoConfig === "object") {
+				if (choreoConfig.project) {
+					connectCmd += ` --project \"${choreoConfig.project}\"`;
+				} else if (contextStore.getState().state?.selected?.projectHandle) {
+					connectCmd += ` --project \"${contextStore.getState().state?.selected?.projectHandle}\"`;
+				}
+				if (choreoConfig.component) {
+					connectCmd += ` --component \"${choreoConfig.component}\"`;
+				}
+				if (choreoConfig.env) {
+					connectCmd += ` --env \"${choreoConfig.env}\"`;
+				}
+				if (choreoConfig.skipConnection && choreoConfig.skipConnection.length > 0) {
+					connectCmd += choreoConfig.skipConnection.map((item) => ` --skip-connection \"${item}\"`).join("");
+				}
 			}
 
 			config.name += `[choreo-shell]${connectCmd}`;
@@ -44,29 +53,30 @@ export class ChoreoConfigurationProvider implements vscode.DebugConfigurationPro
 export function addTerminalHandlers() {
 	window.onDidOpenTerminal(async (e) => {
 		if (e.name?.includes("[choreo-shell]")) {
-			let cliCommand = e.name.split("[choreo-shell]").pop()?.replaceAll(")","");
+			let cliCommand = e.name.split("[choreo-shell]").pop()?.replaceAll(")", "");
 			const terminalPath = (e.creationOptions as any)?.cwd;
 			const rpcPath = getChoreoExecPath();
 			const userInfo = authStore.getState().state?.userInfo;
 			if (terminalPath) {
 				if (!e.name?.includes("--project")) {
-					window.showErrorMessage(
-						"Pease link your directory with Choreo project or add you Choreo project name as choreo.project to your launch configuration", "Manage Project"
-					).then(res=>{
-						if(res==='Manage Project'){
-							commands.executeCommand(CommandIds.ManageDirectoryContext)
+					window
+						.showErrorMessage(
+							"Pease link your directory with Choreo project or add you Choreo project name as choreo.project to your launch configuration",
+							"Manage Project",
+						)
+						.then((res) => {
+							if (res === "Manage Project") {
+								commands.executeCommand(CommandIds.ManageDirectoryContext);
+							}
+						});
+					return;
+				} else if (!userInfo) {
+					window.showErrorMessage(`You must log in before connecting to the remote environment. Retry after logging in.`, "Login").then((res) => {
+						if (res === "Login") {
+							commands.executeCommand(CommandIds.SignIn);
 						}
 					});
 					return;
-				}else if(!userInfo){
-					window.showErrorMessage(
-						`You must log in before connecting to the remote environment. Retry after logging in.`, "Login"
-					).then(res=>{
-						if(res==='Login'){
-							commands.executeCommand(CommandIds.SignIn)
-						}
-					});
-					return
 				}
 				if (!e.name?.includes("--component")) {
 					let selectedComp: ComponentKind | undefined = undefined;
@@ -88,8 +98,8 @@ export function addTerminalHandlers() {
 				await commands.executeCommand("workbench.action.terminal.sendSequence", {
 					text: `export CHOREO_ENV=${workspace.getConfiguration().get("Advanced.ChoreoEnvironment")} && "${rpcPath}" ${cliCommand}\r\n`,
 				});
-				await delay(2000)
-				e.show()
+				await delay(2000);
+				e.show();
 			}
 		}
 	});
