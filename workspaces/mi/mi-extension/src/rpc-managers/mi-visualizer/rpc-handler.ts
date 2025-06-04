@@ -74,8 +74,8 @@ import {
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
 
-export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
-    const rpcManger = new MiVisualizerRpcManager();
+export function registerMiVisualizerRpcHandlers(messenger: Messenger, projectUri: string): void {
+    const rpcManger = new MiVisualizerRpcManager(projectUri);
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
     messenger.onRequest(getProjectOverview, (args: ProjectStructureRequest) => rpcManger.getProjectOverview(args));

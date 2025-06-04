@@ -98,6 +98,7 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
                 id='seqName'
                 label="Name"
                 placeholder="Name"
+                required
                 errorMsg={errors.name?.message.toString()}
                 {...register("name")}
             />
@@ -128,6 +129,7 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
                     Cancel
                 </Button>
                 <Button
+                    data-testid="update-button"
                     appearance="primary"
                     disabled={!isDirty}
                     onClick={handleSubmit((values) => onSave(values))}

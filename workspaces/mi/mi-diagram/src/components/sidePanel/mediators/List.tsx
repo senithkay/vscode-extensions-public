@@ -215,7 +215,7 @@ export function Mediators(props: MediatorProps) {
                 });
 
                 if (Object.keys(searchedCategories).length > 0) {
-                    searchedMediators[key] = { ...searchedMediators[key], items: searchedCategories };
+                    searchedMediators[key] = { ...allMediators[key], ...searchedMediators[key], items: searchedCategories };
                 } else {
                     delete searchedMediators[key];
                 }
@@ -231,7 +231,7 @@ export function Mediators(props: MediatorProps) {
                 });
 
                 if (filtered.length > 0) {
-                    searchedMediators[key] = { "items": filtered };
+                    searchedMediators[key] = { ...allMediators[key], items: filtered };
                 } else {
                     delete searchedMediators[key];
                 }

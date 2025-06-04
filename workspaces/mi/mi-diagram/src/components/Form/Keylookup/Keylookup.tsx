@@ -335,7 +335,7 @@ export const Keylookup = (props: IKeylookup) => {
     }
 
     return (
-        <Container>
+        <Container id={"keylookup" + props.label}>
             {((isExpressionFieldValue(value) && !value.isExpression) ||
                 !isExpressionFieldValue(value)) ? (
                 <AutoComplete

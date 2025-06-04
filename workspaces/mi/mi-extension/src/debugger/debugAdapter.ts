@@ -10,11 +10,11 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { checkServerReadiness, deleteCopiedCapAndLibs, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile, setManagementCredentials, stopServer } from './debugHelper';
+import { checkServerReadiness, deleteCopiedCapAndLibs, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile, setManagementCredentials, stopServer } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
-import { StateMachine, openView, refreshUI } from '../stateMachine';
-import { VisualizerWebview } from '../visualizer/webview';
+import { getStateMachine, openView, refreshUI } from '../stateMachine';
+import { webviews } from '../visualizer/webview';
 import { ViewColumn } from 'vscode';
 import { COMMANDS } from '../constants';
 import { INCORRECT_SERVER_PATH_MSG } from './constants';
@@ -38,13 +38,13 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     private variableHandles: Handles<any>;
 
-    public constructor() {
+    public constructor(private projectUri: string) {
         super();
         // debugger uses zero-based lines and columns
         this.setDebuggerLinesStartAt1(false);
         this.setDebuggerColumnsStartAt1(false);
 
-        this.debuggerHandler = new Debugger(DebuggerConfig.getCommandPort(), DebuggerConfig.getEventPort(), DebuggerConfig.getHost());
+        this.debuggerHandler = new Debugger(DebuggerConfig.getCommandPort(), DebuggerConfig.getEventPort(), DebuggerConfig.getHost(), projectUri);
         // setup event handlers
         this.debuggerHandler.on('stopOnEntry', () => {
             this.sendEvent(new StoppedEvent('entry', MiDebugAdapter.threadID));
@@ -53,28 +53,29 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendEvent(new StoppedEvent('step', MiDebugAdapter.threadID));
         });
         this.debuggerHandler.on('stopOnBreakpoint', () => {
-            const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+            const webviewPanel = webviews.get(this.projectUri);
+            const isWebviewPresent = webviewPanel !== undefined;
             // Send the native breakpoint event which opens the editor.
             this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
 
             // Check the diagram visibility
-            if (isWebviewPresent && isADiagramView()) {
+            if (isWebviewPresent && isADiagramView(this.projectUri)) {
                 setTimeout(() => {
-                    if (VisualizerWebview.currentPanel) {
-                        VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
+                    if (webviewPanel) {
+                        webviewPanel!.getWebview()?.reveal(ViewColumn.Beside);
                         setTimeout(() => {
                             // check if currentFilePath is different from the one in the context, if so we need to open the currentFile
-                            if (StateMachine.context().documentUri !== this.debuggerHandler?.getCurrentFilePath()) {
-                                const newContext = StateMachine.context();
+                            if (getStateMachine(this.projectUri).context().documentUri !== this.debuggerHandler?.getCurrentFilePath()) {
+                                const newContext = getStateMachine(this.projectUri).context();
                                 newContext.documentUri = this.debuggerHandler?.getCurrentFilePath();
                                 openView(EVENT_TYPE.OPEN_VIEW, newContext);
                             } else {
-                                refreshUI();
+                                refreshUI(this.projectUri);
                             }
                         }, 200);
                     } else {
                         extension.webviewReveal = true;
-                        const newContext = StateMachine.context();
+                        const newContext = getStateMachine(this.projectUri).context();
                         newContext.documentUri = this.debuggerHandler?.getCurrentFilePath();
                         openView(EVENT_TYPE.OPEN_VIEW, newContext);
                     }
@@ -244,7 +245,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
             }
         }
         this.sendResponse(response);
-        refreshUI();
+        refreshUI(this.projectUri);
     }
 
     protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments, request?: DebugProtocol.Request | undefined): void {
@@ -257,7 +258,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
     private currentServerPath;
     protected launchRequest(response: DebugProtocol.LaunchResponse, args?: ILaunchRequestArguments, request?: DebugProtocol.Request): void {
         this._configurationDone.wait().then(() => {
-            getServerPath().then((serverPath) => {
+            getServerPath(this.projectUri).then((serverPath) => {
                 if (!serverPath) {
                     const message = `Unable to locate the server path`;
                     this.showErrorAndExecuteChangeServerPath(message);
@@ -266,10 +267,10 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     this.currentServerPath = serverPath;
                     const isDebugAllowed = !(args?.noDebug ?? false);
                     readPortOffset(serverPath).then(async (portOffset) => {
-                        DebuggerConfig.setConfigPortOffset();
+                        DebuggerConfig.setConfigPortOffset(this.projectUri);
                         DebuggerConfig.setPortOffset(portOffset);
 
-                        DebuggerConfig.setEnvVariables(args?.env ? args?.env : {});
+                        DebuggerConfig.setEnvVariables(args?.env || {});
                         DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
 
                         DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
@@ -277,13 +278,13 @@ export class MiDebugAdapter extends LoggingDebugSession {
                         await setManagementCredentials(serverPath);
 
                         vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
-                        executeTasks(serverPath, isDebugAllowed)
+                        executeTasks(this.projectUri, serverPath, isDebugAllowed)
                             .then(async () => {
                                 if (args?.noDebug) {
                                     checkServerReadiness().then(() => {
-                                        openRuntimeServicesWebview();
+                                        openRuntimeServicesWebview(this.projectUri);
                                         extension.isServerStarted = true;
-                                        RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
+                                        RPCLayer._messengers.get(this.projectUri)?.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
 
                                         response.success = true;
                                         this.sendResponse(response);
@@ -294,9 +295,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     });
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
-                                        openRuntimeServicesWebview();
+                                        openRuntimeServicesWebview(this.projectUri);
                                         extension.isServerStarted = true;
-                                        RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
+                                        RPCLayer._messengers.get(this.projectUri)?.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
                                         response.success = true;
                                         this.sendResponse(response);
                                     }).catch(error => {
@@ -329,13 +330,13 @@ export class MiDebugAdapter extends LoggingDebugSession {
         vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
         try {
             if (process.platform === 'win32') {
-                await stopServer(this.currentServerPath, true);
+                await stopServer(this.projectUri, this.currentServerPath, true);
                 removeTempDebugBatchFile();
                 deleteCopiedCapAndLibs();
                 response.success = true;
                 this.sendResponse(response);
             } else {
-                await stopServer(this.currentServerPath);
+                await stopServer(this.projectUri, this.currentServerPath);
                 deleteCopiedCapAndLibs();
                 response.success = true;
                 this.sendResponse(response);
@@ -348,7 +349,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
         DebuggerConfig.resetCappandLibs();
         extension.isServerStarted = false;
-        RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
+        RPCLayer._messengers.get(this.projectUri)?.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, args: DebugProtocol.LaunchRequestArguments) {

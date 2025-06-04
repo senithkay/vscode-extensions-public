@@ -543,6 +543,7 @@ export function TaskForm(props: TaskFormProps) {
                                 appearance="primary"
                                 onClick={handleSubmit(handleCreateTask)}
                                 disabled={!(isDirty || isCustomPropsUpdated)}
+                                data-testid="create-task-button"
                             >
                                 {isNewTask ? "Create" : "Update"}
                             </Button>

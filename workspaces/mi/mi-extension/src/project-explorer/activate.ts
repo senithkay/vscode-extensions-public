@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { StateMachine, openView, refreshUI } from '../stateMachine';
+import { getStateMachine, openView, refreshUI } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
@@ -19,17 +19,24 @@ import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
-import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { deleteSwagger } from '../util/swagger';
 import { compareVersions } from '../util/onboardingUtils';
-import { history, removeFromHistory } from '../history';
+import { removeFromHistory } from '../history';
 import * as fs from "fs";
+import { webviews } from '../visualizer/webview';
+import { log } from '../util/logger';
+import { MILanguageClient } from '../lang-client/activator';
 
+let isProjectExplorerInitialized = false;
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
+	if (isProjectExplorerInitialized) {
+		return;
+	}
+	isProjectExplorerInitialized = true;
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
-	await projectExplorerDataProvider.refresh(lsClient);
+	await projectExplorerDataProvider.refresh();
 	let registryExplorerDataProvider;
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 
@@ -37,42 +44,13 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
 	const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
 
-	if (isRegistrySupported) {
-		registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
-		await registryExplorerDataProvider.refresh(lsClient);
-		window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
-		vscode.commands.executeCommand('setContext', 'MI.registry-explorer.isVisible', true);
-		commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });
-	}
+	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
 
-	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
-	// commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
-	// 	window.showQuickPick([
-	// 		{ label: 'New Project', description: 'Create new project' }
-	// 	], {
-	// 		placeHolder: 'Select the construct to add'
-	// 	}).then(selection => {
-	// 		if (selection?.label === 'New Project') {
-	// 			commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
-	// 		}
-	// 	});
-	// });
-	commands.registerCommand(COMMANDS.ADD_ARTIFACT_COMMAND, () => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ADD_ARTIFACT });
+	commands.registerCommand(COMMANDS.ADD_ARTIFACT_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ADD_ARTIFACT, projectUri: entry.info?.path });
 		console.log('Add Artifact');
 	});
-	commands.registerCommand(COMMANDS.ADD_TO_REGISTRY_COMMAND, () => {
-		const projectUri = StateMachine.context().projectUri;
-		if (!projectUri) {
-			window.showErrorMessage(
-				'Unable to locate Project URI. Please try again after the extension has fully initialized.'
-			);
-			return;
-		}
-		const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources');
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
-		console.log('Add Registry Resource');
-	});
+
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
 		console.log('Add API');
@@ -96,12 +74,12 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.MARK_SEQUENCE_AS_DEFAULT, async (entry: ProjectExplorerEntry) => {
 		const filePath = entry.info?.path;
 		const seqName = entry.info?.name;
-		await setDefaultSequence(filePath, false, seqName);
+		await setDefaultSequence(filePath!, false, seqName);
 	});
 
 	commands.registerCommand(COMMANDS.UNMARK_SEQUENCE_AS_DEFAULT, async (entry: ProjectExplorerEntry) => {
 		const filePath = entry.info?.path;
-		await setDefaultSequence(filePath, true);
+		await setDefaultSequence(filePath!, true);
 	});
 
 	commands.registerCommand(COMMANDS.ADD_DATAMAPPER_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -308,14 +286,16 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPView, documentUri: documentUri?.fsPath, identifier: resourceIndex });
 	});
-	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
-		const documentUri = StateMachine.context().documentUri;
-		if (documentUri) {
+	commands.registerCommand(COMMANDS.SHOW_SOURCE, () => {
+		const webview = [...webviews.values()].find(webview => webview.getWebview()?.active);
+
+		if (webview && webview?.getProjectUri()) {
+			const documentUri = getStateMachine(webview.getProjectUri()).context().documentUri;
 			const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
 			if (openedEditor) {
 				window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
 			} else {
-				commands.executeCommand('vscode.open', Uri.file(documentUri), { viewColumn: ViewColumn.Beside });
+				commands.executeCommand('vscode.open', Uri.file(documentUri!), { viewColumn: ViewColumn.Beside });
 			}
 		}
 	});
@@ -375,7 +355,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	});
 	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview, projectUri: entry.info?.path });
 	});
 	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
@@ -389,6 +369,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 	// delete
 	commands.registerCommand(COMMANDS.DELETE_PROJECT_EXPLORER_ITEM, async (item: TreeItem) => {
+		let file: string | undefined;
 		switch (item.contextValue) {
 			case 'api':
 			case 'endpoint':
@@ -410,6 +391,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						window.showErrorMessage('Resource not found.');
 						return;
 					}
+					file = fileUri.fsPath;
 					const confirmation = await window.showWarningMessage(
 						`Are you sure you want to delete ${item.contextValue} - ${item.label}?`,
 						{ modal: true },
@@ -418,15 +400,8 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 					if (confirmation === 'Yes') {
 						try {
-							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
+							await vscode.workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
 							window.showInformationMessage(`${item.label} has been deleted.`);
-							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-
-							const currentLocation = StateMachine.context();
-							if (currentLocation.documentUri === fileUri) {
-								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-							}
-							removeFromHistory(fileUri.fsPath);
 
 							if (item.contextValue === 'api') {
 								deleteSwagger(fileUri);
@@ -444,6 +419,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						window.showErrorMessage('Resource not found.');
 						return;
 					}
+					file = fileUri.fsPath;
 					const confirmation = await window.showWarningMessage(
 						`Are you sure you want to delete Datamapper ${item.label} and its related contents?`,
 						{ modal: true },
@@ -455,12 +431,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 							// delete the file and the residing folder
 							await deleteDataMapperResources(fileUri);
 							window.showInformationMessage(`${item.label} has been deleted.`);
-							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-							const currentLocation = StateMachine.context();
-							if (currentLocation.documentUri === fileUri) {
-								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-							}
-							removeFromHistory(fileUri.fsPath);
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
 						}
@@ -474,14 +444,20 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						window.showErrorMessage('Resource ID not found.');
 						return;
 					}
-					const langClient = StateMachine.context().langClient;
 					const fileUri = item.command?.arguments?.[0];
-					if (!langClient) {
-						window.showErrorMessage('Language client not found.');
-						return;
-					}
 					if (!fileUri) {
 						window.showErrorMessage('Resource not found.');
+						return;
+					}
+					file = fileUri.fsPath;
+					const workspace = vscode.workspace.getWorkspaceFolder(Uri.parse(fileUri));
+					if (!workspace) {
+						window.showErrorMessage('Cannot find workspace folder');
+						return;
+					}
+					const langClient = getStateMachine(workspace.uri.fsPath).context().langClient;
+					if (!langClient) {
+						window.showErrorMessage('Language client not found.');
 						return;
 					}
 					const syntaxTree = await langClient.getSyntaxTree({ documentIdentifier: { uri: fileUri.fsPath } });
@@ -500,7 +476,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 					if (confirmation === 'Yes') {
 						try {
-							const rpcManager = new MiDiagramRpcManager();
+							const rpcManager = new MiDiagramRpcManager("");
 							removeFromHistory(fileUri.fsPath, resourceId);
 							await rpcManager.applyEdit({
 								text: "",
@@ -528,10 +504,17 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				} else if (item.id) {
 					filePath = item.id;
 				}
+				const workspace = vscode.workspace.getWorkspaceFolder(Uri.parse(filePath));
+				if (!workspace) {
+					window.showErrorMessage('Cannot find workspace folder');
+					return;
+				}
+				file = filePath;
+
 				if (filePath !== "") {
 					const fileName = path.basename(filePath);
-					const langClient = StateMachine.context().langClient;
-					const fileUsageIdentifiers = await langClient?.getResourceUsages(filePath);
+					const langClient = await MILanguageClient.getInstance(workspace.uri.fsPath);
+					const fileUsageIdentifiers = await langClient?.languageClient?.getResourceUsages(filePath);
 					const fileUsageMessage = fileUsageIdentifiers?.length && fileUsageIdentifiers?.length > 0 ? "It is used in:\n" + fileUsageIdentifiers.join(", ") : "No usage found";
 					window.showInformationMessage("Do you want to delete : " + fileName + "\n\n" + fileUsageMessage, { modal: true }, "Yes")
 						.then(async answer => {
@@ -539,9 +522,9 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 								const res = await deleteRegistryResource(filePath);
 								if (res.status === true) {
 									window.showInformationMessage(res.info);
-									projectExplorerDataProvider.refresh(lsClient);
+									projectExplorerDataProvider.refresh();
 									if (isRegistrySupported && registryExplorerDataProvider) {
-										registryExplorerDataProvider.refresh(lsClient);
+										registryExplorerDataProvider.refresh();
 									}
 								} else {
 									window.showErrorMessage(res.info);
@@ -576,9 +559,12 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 							window.showInformationMessage(`${item.label} has been deleted.`);
 							await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
 
-							const currentLocation = StateMachine.context();
-							if (currentLocation.documentUri === fileUri) {
-								openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+							const projectUri = workspace.getWorkspaceFolder(Uri.file(fileUri))?.uri?.fsPath;
+							if (projectUri) {
+								const currentLocation = getStateMachine(projectUri).context();
+								if (currentLocation.documentUri === fileUri) {
+									openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+								}
 							}
 							removeFromHistory(fileUri.fsPath);
 						} catch (error) {
@@ -588,25 +574,38 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 					break;
 				}
 		}
-		projectExplorerDataProvider.refresh(lsClient);
+		projectExplorerDataProvider.refresh();
 		if (compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0 && registryExplorerDataProvider) {
-			registryExplorerDataProvider.refresh(lsClient);
+			registryExplorerDataProvider.refresh();
 		}
-		if (StateMachine.context().view === MACHINE_VIEW.Overview) {
-			refreshUI();
+		if (file) {
+			const projectUri = workspace.getWorkspaceFolder(Uri.file(file))?.uri?.fsPath;
+			if (projectUri) {
+				const currentLocation = getStateMachine(projectUri).context();
+				if (currentLocation.documentUri === file) {
+                    openView(EVENT_TYPE.REPLACE_VIEW, { view: MACHINE_VIEW.Overview, projectUri });
+				} else if (currentLocation?.view === MACHINE_VIEW.Overview) {
+					refreshUI(projectUri);
+				}
+			}
 		}
 	});
 
-	async function setDefaultSequence(filePath?: string, remove?: boolean, seqName?: string) {
-		const langClient = StateMachine.context().langClient;
-
+	async function setDefaultSequence(filePath: string, remove?: boolean, seqName?: string) {
 		if (!filePath) {
 			window.showErrorMessage('File path is not available');
 			throw new Error('File path is not available');
 		}
 
+		const workspace = vscode.workspace.getWorkspaceFolder(Uri.parse(filePath));
+		if (!workspace) {
+			window.showErrorMessage('Cannot find workspace folder');
+			throw new Error('Cannot find workspace folder');
+		}
+		const langClient = getStateMachine(workspace.uri.fsPath).context().langClient;
+
 		// Read the POM file
-		const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
+		const workspaceFolder = vscode.workspace.getWorkspaceFolder(Uri.file(filePath));
 		if (!workspaceFolder) {
 			window.showErrorMessage('Cannot find workspace folder');
 			throw new Error('Cannot find workspace folder');

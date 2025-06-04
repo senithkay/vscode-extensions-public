@@ -380,6 +380,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
     const [isMarkdownExpanded, setIsMarkdownExpanded] = useState(false);
+    const [isIdentifierEditing, setIsIdentifierEditing] = useState(false);
     const markdownRef = useRef<HTMLDivElement>(null);
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
@@ -638,12 +639,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
         return hasDiagnostics;
     }, [diagnosticsInfo]);
 
+    const handleIdentifierEditingStateChange = (isEditing: boolean) => {
+        setIsIdentifierEditing(isEditing);
+    };
+
     const handleConcertChange = (checked: boolean) => {
         setIsUserConcert(checked);
     };
 
     const disableSaveButton =
-        !isValid || isValidating || props.disableSaveButton || (concertMessage && concertRequired && !isUserConcert);
+        !isValid || isValidating || props.disableSaveButton || (concertMessage && concertRequired && !isUserConcert) ||
+        isIdentifierEditing;
 
     const handleShowMoreClick = () => {
         setIsMarkdownExpanded(!isMarkdownExpanded);
@@ -690,6 +696,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
                                 visualizableFields={visualizableFields}
                                 recordTypeFields={recordTypeFields}
+                                onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
                             />
                         )}
                         {typeField && !isInferredReturnType && (
@@ -703,6 +710,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 handleOnTypeChange={handleOnTypeChange}
                                 visualizableFields={visualizableFields}
                                 recordTypeFields={recordTypeFields}
+                                onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
                             />
                         )}
                     </S.CategoryRow>
@@ -736,6 +744,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(updatedField)}
                                         visualizableFields={visualizableFields}
                                         recordTypeFields={recordTypeFields}
+                                        onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
                                     />
                                 </S.Row>
                             );
@@ -784,6 +793,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                             handleOnFieldFocus={handleOnFieldFocus}
                                             visualizableFields={visualizableFields}
                                             recordTypeFields={recordTypeFields}
+                                            onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
                                         />
                                     </S.Row>
                                 );

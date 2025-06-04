@@ -206,12 +206,21 @@ export const getModelId = (nodeId: string) => {
 };
 
 // calculate entry node height based on number of functions
-export const calculateEntryNodeHeight = (numFunctions: number) => {
-    const BASE_HEIGHT = 100;
-    const FUNCTION_HEIGHT = 30;
-    const PADDING = 4;
+export const calculateEntryNodeHeight = (numFunctions: number, isExpanded: boolean) => {
+    const PADDING = 8;
+    const BASE_HEIGHT = 64 + PADDING;
+    const FUNCTION_HEIGHT = 40 + PADDING;
+    const VIEW_ALL_BUTTON_HEIGHT = 40;
 
-    return BASE_HEIGHT + numFunctions * FUNCTION_HEIGHT + PADDING * 2;
+    if (isExpanded) {
+        return BASE_HEIGHT + numFunctions * FUNCTION_HEIGHT + PADDING + VIEW_ALL_BUTTON_HEIGHT;
+    }
+
+    if (numFunctions <= 2) {
+        return BASE_HEIGHT + numFunctions * FUNCTION_HEIGHT + PADDING;
+    }
+
+    return BASE_HEIGHT + 2 * FUNCTION_HEIGHT + PADDING + VIEW_ALL_BUTTON_HEIGHT;
 };
 
 export const getEntryNodeFunctionPortName = (func: CDFunction | CDResourceFunction) => {

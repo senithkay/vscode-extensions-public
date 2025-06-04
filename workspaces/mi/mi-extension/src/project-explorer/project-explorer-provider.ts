@@ -13,9 +13,10 @@ import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, M
 import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
-import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { RUNTIME_VERSION_440 } from "../constants";
 import { compareVersions } from '../util/onboardingUtils';
+import { debounce } from 'lodash';
+import { MILanguageClient } from '../lang-client/activator';
 
 let extensionContext: vscode.ExtensionContext;
 export class ProjectExplorerEntry extends vscode.TreeItem {
@@ -50,20 +51,19 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void>
 		= this._onDidChangeTreeData.event;
 
-	refresh(langClient: ExtendedLanguageClient) {
+	refresh = debounce(async () => {
 		return window.withProgress({
 			location: { viewId: 'MI.project-explorer' },
 			title: 'Loading project structure'
 		}, async () => {
 			try {
-				this._data = await getProjectStructureData(langClient);
+				this._data = await getProjectStructureData();
 				this._onDidChangeTreeData.fire();
 			} catch (err) {
 				console.error(err);
-				this._data = [];
 			}
 		});
-	}
+	}, 300);
 
 	constructor(private context: vscode.ExtensionContext) {
 		this._data = [];
@@ -82,7 +82,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	}
 
 	getParent(element: ProjectExplorerEntry): vscode.ProviderResult<ProjectExplorerEntry> {
-		if (element.info?.path === undefined) return undefined;
+		if (element.info?.path === undefined || element.contextValue === 'project') return undefined;
 
 		const projects = (this._data);
 		for (const project of projects) {
@@ -94,7 +94,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 				return fileElement;
 			}
 		}
-		return element;
+		return undefined;
 	}
 
 	recursiveSearchParent(element: ProjectExplorerEntry, path: string): ProjectExplorerEntry | undefined {
@@ -114,24 +114,25 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	}
 }
 
-async function getProjectStructureData(langClient: ExtendedLanguageClient): Promise<ProjectExplorerEntry[]> {
+async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
 	if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
 		const data: ProjectExplorerEntry[] = [];
-		if (!!langClient) {
-			const workspaceFolders = vscode.workspace.workspaceFolders;
-			for (const workspace of workspaceFolders) {
-				const rootPath = workspace.uri.fsPath;
+		const workspaceFolders = vscode.workspace.workspaceFolders;
+		for (const workspace of workspaceFolders) {
+			const rootPath = workspace.uri.fsPath;
 
-				const resp = await langClient.getProjectExplorerModel(rootPath);
-				const projectDetailsRes = await langClient?.getProjectDetails();
+			try {
+				const langClient = await MILanguageClient.getInstance(rootPath);
+				const resp = await langClient?.languageClient?.getProjectExplorerModel(rootPath);
+				const projectDetailsRes = await langClient?.languageClient?.getProjectDetails();
 				const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
 				const projectTree = generateTreeData(workspace, resp, runtimeVersion);
 
-				if (projectTree && projectTree.children?.length! > 0) {
+				if (projectTree) {
 					data.push(projectTree);
 				}
-			};
-		}
+			} catch {}
+		};
 		vscode.commands.executeCommand('setContext', 'projectOpened', true);
 		if (data.length > 0) {
 			vscode.commands.executeCommand('setContext', 'MI.showAddArtifact', false);
@@ -625,7 +626,7 @@ function generateTreeDataOfBallerinaModule(project: vscode.WorkspaceFolder, data
 		ballerinaFiles.forEach(file => {
 			const nameWithoutExtension = file.name.replace('.bal', '');
 			modules.set(file.path, nameWithoutExtension.endsWith("-module") ?
-				nameWithoutExtension.replace('-module','') : nameWithoutExtension);
+				nameWithoutExtension.replace('-module', '') : nameWithoutExtension);
 		});;
 		for (var entry of modules.entries()) {
 			const filePath = entry[0];
