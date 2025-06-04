@@ -115,6 +115,14 @@ runs:
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 
+    - name: Download Ballerina language server
+      shell: bash
+      run: |
+        asset_id=$(curl -L GET -H "Accept: application/vnd.github.v3+json" -H "Authorization:token ${{ inputs.token }}" \
+        https://api.github.com/repos/nipunayf/ballerina-language-server/releases/latest | jq -r '.assets[] | select(.name | contains("ballerina-language-server-") and endswith(".jar")) | .id')
+        mkdir -p workspaces/ballerina/ballerina-extension/ls
+        wget -q --auth-no-challenge --header='Accept:application/octet-stream' https://${{ inputs.token }}:@api.github.com/repos/nipunayf/ballerina-language-server/releases/assets/$asset_id -O workspaces/ballerina/ballerina-extension/ls/ballerina-language-server.jar
+
     - name: Download MI language server
       shell: bash
       run: |
