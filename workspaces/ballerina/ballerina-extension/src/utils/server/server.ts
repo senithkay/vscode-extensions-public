@@ -37,12 +37,11 @@ function findJarsExcludingPatterns(directory: string, excludePatterns: string[])
         const files = fs.readdirSync(directory);
         const matchingJars: string[] = [];
         
+        const compiledPatterns = excludePatterns.map(pattern => new RegExp(pattern.replace(/\*/g, '.*')));
+        
         files.forEach(file => {
             if (file.endsWith('.jar')) {
-                const shouldExclude = excludePatterns.some(pattern => {
-                    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
-                    return regex.test(file);
-                });
+                const shouldExclude = compiledPatterns.some(regex => regex.test(file));
                 
                 if (!shouldExclude) {
                     matchingJars.push(path.join(directory, file));
