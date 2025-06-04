@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { EVENT_TYPE, POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue, Platform } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue, Platform, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { ServiceDesignerView } from './views/ServiceDesigner';
 import { DSSServiceDesignerView } from './views/Forms/DataServiceForm/ServiceDesigner';
@@ -93,27 +93,16 @@ const PopUpContainer = styled.div`
 
 const ViewContainer = styled.div({});
 
-const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
-    const { rpcClient, setIsLoading } = useVisualizerContext();
+interface MainPanelProps {
+    visualizerState: VisualizerLocation
+}
+const MainPanel = (props: MainPanelProps) => {
+    const { visualizerState } = props;
+    const isWindows = visualizerState.platform === Platform.WINDOWS;
+    const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
-    const [machineView, setMachineView] = useState<MACHINE_VIEW>();
     const [showNavigator, setShowNavigator] = useState<boolean>(true);
     const [formState, setFormState] = useState<PopupMachineStateValue>('initialize');
-    const [stateUpdated, setStateUpdated] = React.useState<boolean>(false);
-
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        if (typeof newState === 'object' && 'newProject' in newState && newState.newProject === 'viewReady') {
-            setStateUpdated(!stateUpdated);
-        }
-        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
-            handleResetError();
-            setStateUpdated(!stateUpdated);
-        }
-        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
-            setStateUpdated(!stateUpdated);
-        }
-    });
 
     rpcClient?.onPopupStateChanged((newState: PopupMachineStateValue) => {
         setFormState(newState);
@@ -121,12 +110,11 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
 
     useEffect(() => {
         fetchContext();
-    }, [stateUpdated]);
+    }, []);
 
     useEffect(() => {
-        rpcClient.getVisualizerState().then((machineView) => {
-            setMachineView(machineView.view);
-            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ['setContext', 'MI.showAddArtifact', viewComponent && machineView.view !== MACHINE_VIEW.ADD_ARTIFACT] });
+        rpcClient.getVisualizerState().then((visualizerState) => {
+            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ['setContext', 'MI.showAddArtifact', viewComponent && visualizerState.view !== MACHINE_VIEW.ADD_ARTIFACT] });
         });
     }, [viewComponent]);
 
@@ -149,244 +137,240 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
         return `${JSON.stringify(model?.range)}-${documentUri}`;
     }
 
-    const fetchContext = () => {
-        setIsLoading(true);
-        rpcClient.getVisualizerState().then(async (machineView) => {
-            const isWindows = machineView.platform === Platform.WINDOWS;
-            let shouldShowNavigator = true;
-            switch (machineView?.view) {
-                case MACHINE_VIEW.Overview:
-                    setViewComponent(<Overview />);
-                    break;
-                case MACHINE_VIEW.ADD_ARTIFACT:
-                    setViewComponent(<AddArtifactView />);
-                    break;
-                case MACHINE_VIEW.UnsupportedProject:
-                    setViewComponent(
-                        <UnsupportedProject
-                            displayOverview={(machineView.customProps as UnsupportedProjectProps)?.displayOverview}
-                        />
-                    );
-                    break;
-                case MACHINE_VIEW.ResourceView:
-                    setViewComponent(
-                        <ResourceView
-                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={machineView.stNode as APIResource}
-                            documentUri={machineView.documentUri}
-                            diagnostics={machineView.diagnostics}
-                        />
-                    );
-                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
-                    break;
-                case MACHINE_VIEW.SequenceView:
-                    setViewComponent(
-                        <SequenceView
-                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={machineView.stNode as NamedSequence}
-                            documentUri={machineView.documentUri}
-                            diagnostics={machineView.diagnostics}
-                        />
-                    );
-                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
-                    break;
-                case MACHINE_VIEW.SequenceTemplateView:
-                    setViewComponent(
-                        <SequenceTemplateView
-                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={machineView.stNode as Template}
-                            documentUri={machineView.documentUri}
-                            diagnostics={machineView.diagnostics}
-                        />
-                    );
-                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
-                    break;
-                case MACHINE_VIEW.ProxyView:
-                    setViewComponent(
-                        <ProxyView
-                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={machineView.stNode as Proxy}
-                            documentUri={machineView.documentUri}
-                            diagnostics={machineView.diagnostics}
-                        />
-                    );
-                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
-                    break;
-                case MACHINE_VIEW.DataServiceView:
-                    setViewComponent(
-                        <DataServiceView
-                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={machineView.stNode as any}
-                            href={machineView.identifier}
-                            documentUri={machineView.documentUri}
-                            diagnostics={machineView.diagnostics}
-                        />
-                    );
-                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
-                    break;
-                case MACHINE_VIEW.ServiceDesigner:
-                    setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.DataMapperView:
-                    setViewComponent(
-                        <ErrorBoundary errorMsg="An error occurred in the MI Data Mapper">
-                            <DataMapper {...machineView.dataMapperProps} />
-                        </ErrorBoundary >
-                    );
-                    const { filePath, fileContent } = machineView.dataMapperProps;
-                    await rpcClient.getMiDataMapperRpcClient().initDMUndoRedoManager({ filePath, fileContent });
-                    break;
-                case MACHINE_VIEW.APIForm:
-                    setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.EndPointForm:
-                    setViewComponent(<EndpointWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.LoadBalanceEndPointForm:
-                    setViewComponent(<LoadBalanceWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.FailoverEndPointForm:
-                    setViewComponent(<FailoverWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.RecipientEndPointForm:
-                    setViewComponent(<RecipientWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.TemplateEndPointForm:
-                    setViewComponent(<TemplateEndpointWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.SequenceForm:
-                    setViewComponent(<SequenceWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.DatamapperForm:
-                    setViewComponent(<DatamapperForm path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.InboundEPForm:
-                    setViewComponent(<InboundEPWizard
-                        path={machineView.documentUri}
-                        model={machineView.customProps?.model as InboundEndpoint} />);
-                    break;
-                case MACHINE_VIEW.InboundEPView:
-                    setViewComponent(<InboundEPView
-                        path={machineView.documentUri}
-                        model={machineView.stNode as InboundEndpoint}
-                        diagnostics={machineView.diagnostics} />);
-                    break;
-                case MACHINE_VIEW.RegistryResourceForm:
-                    setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.RegistryMetadataForm:
-                    setViewComponent(<RegistryMetadataForm path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.MessageProcessorForm:
-                    setViewComponent(<MessageProcessorWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.ProxyServiceForm:
-                    setViewComponent(<ProxyServiceWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.TaskForm:
-                    setViewComponent(<TaskForm path={machineView.documentUri} type={machineView?.customProps?.type} />);
-                    break;
-                case MACHINE_VIEW.TaskView:
-                    setViewComponent(<TaskView
-                        path={machineView.documentUri}
-                        model={machineView.stNode as Task}
-                        diagnostics={machineView.diagnostics} />);
-                    break;
-                case MACHINE_VIEW.TemplateForm:
-                    const templateType = machineView.customProps && machineView.customProps.type ? machineView.customProps.type : '';
-                    setViewComponent(<TemplateWizard path={machineView.documentUri} type={templateType} />);
-                    break;
-                case MACHINE_VIEW.HttpEndpointForm:
-                    setViewComponent(<HttpEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
-                    break;
-                case MACHINE_VIEW.AddressEndpointForm:
-                    setViewComponent(<AddressEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
-                    break;
-                case MACHINE_VIEW.WsdlEndpointForm:
-                    setViewComponent(<WsdlEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
-                    break;
-                case MACHINE_VIEW.DefaultEndpointForm:
-                    setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
-                    break;
-                case MACHINE_VIEW.DataServiceForm:
-                    setViewComponent(<DataServiceWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.DssDataSourceForm:
-                    setViewComponent(<DataServiceDataSourceWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.ProjectCreationForm:
-                    setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);
-                    shouldShowNavigator = false;
-                    break;
-                case MACHINE_VIEW.LocalEntryForm:
-                    setViewComponent(<LocalEntryWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.ImportProjectForm:
-                    setViewComponent(<ImportProjectWizard />);
-                    break;
-                case MACHINE_VIEW.MessageStoreForm:
-                    setViewComponent(<MessageStoreWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.ClassMediatorForm:
-                    setViewComponent(<ClassMediatorForm path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.BallerinaModuleForm:
-                    setViewComponent(<BallerinaModuleForm path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.DataSourceForm:
-                    setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.ImportArtifactForm:
-                    setViewComponent(<ImportArtfactForm/>);
-                    break;
-                case MACHINE_VIEW.ConnectorStore:
-                    setViewComponent(
-                        <ConnectionWizard path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.ConnectionForm:
-                    setViewComponent(
-                        <AddConnection
-                            connectionName={machineView.customProps.connectionName}
-                            connectionType={machineView.customProps.connectionType}
-                            connector={machineView.customProps}
-                            path={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.TestSuite:
-                    setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} isWindows={isWindows} />);
-                    break;
-                case MACHINE_VIEW.LoggedOut:
-                    setViewComponent(<SignInToCopilotMessage />);
-                    break;
-                case MACHINE_VIEW.UpdateExtension:
-                    setViewComponent(<UpdateMIExtension />);
-                    break;
-                case MACHINE_VIEW.TestCase:
-                    setViewComponent(<TestCaseForm
-                        filePath={machineView.documentUri}
-                        range={machineView.customProps?.range}
-                        availableTestCases={machineView.customProps?.availableTestCases}
-                        testCase={machineView.customProps?.testCase}
-                        testSuiteType={machineView.customProps?.testSuiteType}
-                    />);
-                    break;
-                case MACHINE_VIEW.MockService:
-                    setViewComponent(<MockServiceForm filePath={machineView.documentUri} stNode={machineView.stNode as MockService} isWindows={isWindows} />);
-                    break;
-                case MACHINE_VIEW.DSSServiceDesigner:
-                    setViewComponent(<DSSServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
-                    break;
-                case MACHINE_VIEW.Welcome:
-                    setViewComponent(<WelcomeView />);
-                    break;
-                case MACHINE_VIEW.Samples:
-                    setViewComponent(<SamplesView />);
-                    break;
-                default:
-                    setViewComponent(null);
-            }
-            // Update the showNavigator state based on the current view
-            setShowNavigator(shouldShowNavigator);
-        });
+    const fetchContext = async () => {
+        let shouldShowNavigator = true;
+        switch (visualizerState.view) {
+            case MACHINE_VIEW.Overview:
+                setViewComponent(<Overview />);
+                break;
+            case MACHINE_VIEW.ADD_ARTIFACT:
+                setViewComponent(<AddArtifactView />);
+                break;
+            case MACHINE_VIEW.UnsupportedProject:
+                setViewComponent(
+                    <UnsupportedProject
+                        displayOverview={(visualizerState.customProps as UnsupportedProjectProps)?.displayOverview}
+                    />
+                );
+                break;
+            case MACHINE_VIEW.ResourceView:
+                setViewComponent(
+                    <ResourceView
+                        key={getUniqueKey(visualizerState.stNode, visualizerState.documentUri)}
+                        model={visualizerState.stNode as APIResource}
+                        documentUri={visualizerState.documentUri}
+                        diagnostics={visualizerState.diagnostics}
+                    />
+                );
+                await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: visualizerState.documentUri });
+                break;
+            case MACHINE_VIEW.SequenceView:
+                setViewComponent(
+                    <SequenceView
+                        key={getUniqueKey(visualizerState.stNode, visualizerState.documentUri)}
+                        model={visualizerState.stNode as NamedSequence}
+                        documentUri={visualizerState.documentUri}
+                        diagnostics={visualizerState.diagnostics}
+                    />
+                );
+                await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: visualizerState.documentUri });
+                break;
+            case MACHINE_VIEW.SequenceTemplateView:
+                setViewComponent(
+                    <SequenceTemplateView
+                        key={getUniqueKey(visualizerState.stNode, visualizerState.documentUri)}
+                        model={visualizerState.stNode as Template}
+                        documentUri={visualizerState.documentUri}
+                        diagnostics={visualizerState.diagnostics}
+                    />
+                );
+                await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: visualizerState.documentUri });
+                break;
+            case MACHINE_VIEW.ProxyView:
+                setViewComponent(
+                    <ProxyView
+                        key={getUniqueKey(visualizerState.stNode, visualizerState.documentUri)}
+                        model={visualizerState.stNode as Proxy}
+                        documentUri={visualizerState.documentUri}
+                        diagnostics={visualizerState.diagnostics}
+                    />
+                );
+                await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: visualizerState.documentUri });
+                break;
+            case MACHINE_VIEW.DataServiceView:
+                setViewComponent(
+                    <DataServiceView
+                        key={getUniqueKey(visualizerState.stNode, visualizerState.documentUri)}
+                        model={visualizerState.stNode as any}
+                        href={visualizerState.identifier}
+                        documentUri={visualizerState.documentUri}
+                        diagnostics={visualizerState.diagnostics}
+                    />
+                );
+                await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: visualizerState.documentUri });
+                break;
+            case MACHINE_VIEW.ServiceDesigner:
+                setViewComponent(<ServiceDesignerView syntaxTree={visualizerState.stNode} documentUri={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.DataMapperView:
+                setViewComponent(
+                    <ErrorBoundary errorMsg="An error occurred in the MI Data Mapper">
+                        <DataMapper {...visualizerState.dataMapperProps} />
+                    </ErrorBoundary >
+                );
+                const { filePath, fileContent } = visualizerState.dataMapperProps;
+                await rpcClient.getMiDataMapperRpcClient().initDMUndoRedoManager({ filePath, fileContent });
+                break;
+            case MACHINE_VIEW.APIForm:
+                setViewComponent(<APIWizard apiData={(visualizerState.customProps as APIWizardProps)?.apiData} path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.EndPointForm:
+                setViewComponent(<EndpointWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.LoadBalanceEndPointForm:
+                setViewComponent(<LoadBalanceWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.FailoverEndPointForm:
+                setViewComponent(<FailoverWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.RecipientEndPointForm:
+                setViewComponent(<RecipientWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.TemplateEndPointForm:
+                setViewComponent(<TemplateEndpointWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.SequenceForm:
+                setViewComponent(<SequenceWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.DatamapperForm:
+                setViewComponent(<DatamapperForm path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.InboundEPForm:
+                setViewComponent(<InboundEPWizard
+                    path={visualizerState.documentUri}
+                    model={visualizerState.customProps?.model as InboundEndpoint} />);
+                break;
+            case MACHINE_VIEW.InboundEPView:
+                setViewComponent(<InboundEPView
+                    path={visualizerState.documentUri}
+                    model={visualizerState.stNode as InboundEndpoint}
+                    diagnostics={visualizerState.diagnostics} />);
+                break;
+            case MACHINE_VIEW.RegistryResourceForm:
+                setViewComponent(<RegistryResourceForm path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.RegistryMetadataForm:
+                setViewComponent(<RegistryMetadataForm path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.MessageProcessorForm:
+                setViewComponent(<MessageProcessorWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.ProxyServiceForm:
+                setViewComponent(<ProxyServiceWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.TaskForm:
+                setViewComponent(<TaskForm path={visualizerState.documentUri} type={visualizerState?.customProps?.type} />);
+                break;
+            case MACHINE_VIEW.TaskView:
+                setViewComponent(<TaskView
+                    path={visualizerState.documentUri}
+                    model={visualizerState.stNode as Task}
+                    diagnostics={visualizerState.diagnostics} />);
+                break;
+            case MACHINE_VIEW.TemplateForm:
+                const templateType = visualizerState.customProps && visualizerState.customProps.type ? visualizerState.customProps.type : '';
+                setViewComponent(<TemplateWizard path={visualizerState.documentUri} type={templateType} />);
+                break;
+            case MACHINE_VIEW.HttpEndpointForm:
+                setViewComponent(<HttpEndpointWizard path={visualizerState.documentUri} type={visualizerState.customProps.type} />);
+                break;
+            case MACHINE_VIEW.AddressEndpointForm:
+                setViewComponent(<AddressEndpointWizard path={visualizerState.documentUri} type={visualizerState.customProps.type} />);
+                break;
+            case MACHINE_VIEW.WsdlEndpointForm:
+                setViewComponent(<WsdlEndpointWizard path={visualizerState.documentUri} type={visualizerState.customProps.type} />);
+                break;
+            case MACHINE_VIEW.DefaultEndpointForm:
+                setViewComponent(<DefaultEndpointWizard path={visualizerState.documentUri} type={visualizerState.customProps.type} />);
+                break;
+            case MACHINE_VIEW.DataServiceForm:
+                setViewComponent(<DataServiceWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.DssDataSourceForm:
+                setViewComponent(<DataServiceDataSourceWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.ProjectCreationForm:
+                setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);
+                shouldShowNavigator = false;
+                break;
+            case MACHINE_VIEW.LocalEntryForm:
+                setViewComponent(<LocalEntryWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.ImportProjectForm:
+                setViewComponent(<ImportProjectWizard />);
+                break;
+            case MACHINE_VIEW.MessageStoreForm:
+                setViewComponent(<MessageStoreWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.ClassMediatorForm:
+                setViewComponent(<ClassMediatorForm path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.BallerinaModuleForm:
+                setViewComponent(<BallerinaModuleForm path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.DataSourceForm:
+                setViewComponent(<DataSourceWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.ImportArtifactForm:
+                setViewComponent(<ImportArtfactForm />);
+                break;
+            case MACHINE_VIEW.ConnectorStore:
+                setViewComponent(
+                    <ConnectionWizard path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.ConnectionForm:
+                setViewComponent(
+                    <AddConnection
+                        connectionName={visualizerState.customProps.connectionName}
+                        connectionType={visualizerState.customProps.connectionType}
+                        connector={visualizerState.customProps}
+                        path={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.TestSuite:
+                setViewComponent(<TestSuiteForm filePath={visualizerState.documentUri} stNode={visualizerState.stNode as UnitTest} isWindows={isWindows} />);
+                break;
+            case MACHINE_VIEW.LoggedOut:
+                setViewComponent(<SignInToCopilotMessage />);
+                break;
+            case MACHINE_VIEW.UpdateExtension:
+                setViewComponent(<UpdateMIExtension />);
+                break;
+            case MACHINE_VIEW.TestCase:
+                setViewComponent(<TestCaseForm
+                    filePath={visualizerState.documentUri}
+                    range={visualizerState.customProps?.range}
+                    availableTestCases={visualizerState.customProps?.availableTestCases}
+                    testCase={visualizerState.customProps?.testCase}
+                    testSuiteType={visualizerState.customProps?.testSuiteType}
+                />);
+                break;
+            case MACHINE_VIEW.MockService:
+                setViewComponent(<MockServiceForm filePath={visualizerState.documentUri} stNode={visualizerState.stNode as MockService} isWindows={isWindows} />);
+                break;
+            case MACHINE_VIEW.DSSServiceDesigner:
+                setViewComponent(<DSSServiceDesignerView syntaxTree={visualizerState.stNode} documentUri={visualizerState.documentUri} />);
+                break;
+            case MACHINE_VIEW.Welcome:
+                setViewComponent(<WelcomeView />);
+                break;
+            case MACHINE_VIEW.Samples:
+                setViewComponent(<SamplesView />);
+                break;
+            default:
+                setViewComponent(null);
+        }
+        // Update the showNavigator state based on the current view
+        setShowNavigator(shouldShowNavigator);
     }
 
     const handleOnClose = () => {

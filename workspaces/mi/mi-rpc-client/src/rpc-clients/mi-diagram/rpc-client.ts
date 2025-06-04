@@ -406,7 +406,11 @@ import {
     CreateBallerinaModuleResponse,
     buildBallerinaModule,
     DevantMetadata,
-    getDevantMetadata
+    getDevantMetadata,
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse,
+    getConnectorIcon
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -850,6 +854,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getStoreConnectorJSON, HOST_EXTENSION);
     }
 
+    getConnectorIcon(params: GetConnectorIconRequest): Promise<GetConnectorIconResponse> {
+        return this._messenger.sendRequest(getConnectorIcon, HOST_EXTENSION, params);
+    }
+
     logoutFromMIAccount(): void {
         return this._messenger.sendNotification(logoutFromMIAccount, HOST_EXTENSION);
     }
@@ -1034,7 +1042,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getMediator, HOST_EXTENSION, params);
     }
 
-    updateMediator(params: UpdateMediatorRequest): Promise<void> {
+    updateMediator(params: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
         return this._messenger.sendRequest(updateMediator, HOST_EXTENSION, params);
     }
 
