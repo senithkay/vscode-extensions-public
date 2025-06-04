@@ -91,10 +91,17 @@ export function ArrayEditor(props: ArrayEditorProps) {
     const values = [...Array(editorCount)]
         .map((_, index) => {
             const value = watch(`${field.key}-${index}`);
-            // Use the initial array value if available, otherwise undefined
-            return value ?? (Array.isArray(field.value) ? field.value[index] : "");
+
+            let updatedValue = value;
+            if (updatedValue === undefined) {
+                // Use the initial array value if available
+                updatedValue = Array.isArray(field.value) ? field.value[index] : "";
+                setValue(`${field.key}-${index}`, updatedValue);
+            }
+
+            return updatedValue;
         })
-        .filter(Boolean)
+        .filter(Boolean);
 
     // Update the main field.value array whenever individual fields change
     useEffect(() => {

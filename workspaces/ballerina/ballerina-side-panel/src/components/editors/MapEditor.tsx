@@ -114,6 +114,14 @@ export function MapEditor(props: MapEditorProps) {
             const key = watch(`${field.key}-${index}-key`);
             const value = watch(`${field.key}-${index}-value`);
 
+            if (key === undefined) {
+                setValue(`${field.key}-${index}-key`, "");
+            }
+
+            if (value === undefined) {
+                setValue(`${field.key}-${index}-value`, "");
+            }
+
             if (!key && !value) return undefined;
 
             return {
@@ -206,6 +214,7 @@ export function MapEditor(props: MapEditorProps) {
                             id={`${field.key}-${index}-value`}
                             fieldKey={`${field.key}-${index}-value`}
                             showHeader={false}
+                            placeholder="Value"
                         />
                     </S.KeyValueContainer>
                     <S.DeleteButton

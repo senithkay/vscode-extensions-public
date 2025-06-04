@@ -37,6 +37,7 @@ import {
 export type ContextAwareExpressionEditorProps = {
     id?: string;
     fieldKey?: string;
+    placeholder?: string;
     required?: boolean;
     showHeader?: boolean;
     field: FormField;
@@ -197,6 +198,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         control,
         field,
         id,
+        placeholder,
         required,
         showHeader = true,
         watch,
@@ -459,6 +461,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
                             growRange={growRange}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
+                            placeholder={placeholder}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>
