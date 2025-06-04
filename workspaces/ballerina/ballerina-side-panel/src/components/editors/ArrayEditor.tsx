@@ -9,11 +9,15 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Button, Codicon, TextField, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
+import { SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { SubPanel } from "@wso2-enterprise/ballerina-core";
+import { RecordTypeField } from "@wso2-enterprise/ballerina-core";
+import { ContextAwareExpressionEditor } from "./ExpressionEditor";
 
 namespace S {
     export const Container = styled.div({
@@ -66,12 +70,18 @@ namespace S {
 interface ArrayEditorProps {
     field: FormField;
     label: string;
+    openSubPanel?: (subPanel: SubPanel) => void;
+    subPanelView?: SubPanelView;
+    handleOnFieldFocus?: (key: string) => void;
+    autoFocus?: boolean;
+    visualizable?: boolean;
+    recordTypeField?: RecordTypeField;
 }
 
 export function ArrayEditor(props: ArrayEditorProps) {
-    const { field, label } = props;
+    const { field, label, ...rest } = props;
     const { form } = useFormContext();
-    const { register, unregister, setValue, watch } = form;
+    const { unregister, setValue, watch } = form;
 
     // Initialize with array values or empty array
     const initialValues = Array.isArray(field.value) ? field.value : [];
@@ -82,9 +92,9 @@ export function ArrayEditor(props: ArrayEditorProps) {
         .map((_, index) => {
             const value = watch(`${field.key}-${index}`);
             // Use the initial array value if available, otherwise undefined
-            return value ?? (Array.isArray(field.value) ? field.value[index] : undefined);
+            return value ?? (Array.isArray(field.value) ? field.value[index] : "");
         })
-        .filter(Boolean);
+        .filter(Boolean)
 
     // Update the main field.value array whenever individual fields change
     useEffect(() => {
@@ -120,27 +130,22 @@ export function ArrayEditor(props: ArrayEditorProps) {
             <S.Description>{field.documentation}</S.Description>
             {[...Array(editorCount)].map((_, index) => (
                 <S.EditorContainer key={`${field.key}-${index}`}>
-                    <TextField
+                    <ContextAwareExpressionEditor
+                        {...rest}
+                        field={field}
                         id={`${field.key}-${index}`}
-                        {...register(`${field.key}-${index}`, {
-                            required: !field.optional && index === 0,
-                            // Initialize with value from the array if available
-                            value: Array.isArray(field.value) ? field.value[index] : '',
-                        })}
+                        fieldKey={`${field.key}-${index}`}
                         required={!field.optional && index === 0}
-                        disabled={!field.editable}
-                        sx={{ width: "100%" }}
+                        showHeader={false}
                     />
-                    {
-                        <S.DeleteButton
-                            appearance="icon"
-                            onClick={() => onDelete(index)}
-                            disabled={!field.editable}
-                            tooltip="Delete"
-                        >
-                            <Codicon name="trash" />
-                        </S.DeleteButton>
-                    }
+                    <S.DeleteButton
+                        appearance="icon"
+                        onClick={() => onDelete(index)}
+                        disabled={!field.editable}
+                        tooltip="Delete"
+                    >
+                        <Codicon name="trash" />
+                    </S.DeleteButton>
                 </S.EditorContainer>
             ))}
             <S.AddNewButton appearance="icon" aria-label="add" onClick={onAddAnother}>
@@ -149,4 +154,4 @@ export function ArrayEditor(props: ArrayEditorProps) {
             </S.AddNewButton>
         </S.Container>
     );
-}
+};

@@ -35,6 +35,10 @@ import {
 } from '@wso2-enterprise/ballerina-core';
 
 export type ContextAwareExpressionEditorProps = {
+    id?: string;
+    fieldKey?: string;
+    required?: boolean;
+    showHeader?: boolean;
     field: FormField;
     openSubPanel?: (subPanel: SubPanel) => void;
     subPanelView?: SubPanelView;
@@ -192,7 +196,11 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         autoFocus,
         control,
         field,
+        id,
+        required,
+        showHeader = true,
         watch,
+        fieldKey,
         completions,
         triggerCharacters,
         retrieveCompletions,
@@ -218,6 +226,8 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         rawExpression, // original expression
         sanitizedExpression // sanitized expression that will be rendered in the editor
     } = props as ExpressionEditorProps;
+
+    const key = fieldKey ?? field.key;
     const [focused, setFocused] = useState<boolean>(false);
 
     // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
@@ -233,9 +243,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
 
     // Use to fetch initial diagnostics
     const fetchInitialDiagnostics = useRef<boolean>(true);
-    const fieldValue = rawExpression ? rawExpression(watch(field.key)) : watch(field.key);
-
-    useImperativeHandle(ref, () => exprRef.current);
+    const fieldValue = rawExpression ? rawExpression(watch(key)) : watch(key);
 
     // Initial render
     useEffect(() => {
@@ -243,9 +251,9 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         if (getExpressionEditorDiagnostics && fieldValue !== undefined && fetchInitialDiagnostics.current) {
             fetchInitialDiagnostics.current = false;
             getExpressionEditorDiagnostics(
-                !field.optional || fieldValue !== '',
+                (required ?? !field.optional) || fieldValue !== '',
                 fieldValue,
-                field.key,
+                key,
                 getPropertyFromFormField(field)
             );
         }
@@ -256,7 +264,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
 
         // Trigger actions on focus
         await onFocus?.();
-        handleOnFieldFocus?.(field.key);
+        handleOnFieldFocus?.(key);
     };
 
     const handleBlur = async () => {
@@ -265,7 +273,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
     };
 
     const handleCompletionSelect = async (value: string, item: CompletionItem) => {
-        await onCompletionItemSelect?.(value, field.key, item.additionalTextEdits);
+        await onCompletionItemSelect?.(value, key, item.additionalTextEdits);
     };
 
     const handleOpenSubPanel = (view: SubPanelView, subPanelInfo: SubPanelViewProps) => {
@@ -287,11 +295,11 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
                         line: effectiveTargetLineRange.startLine.line,
                         offset: effectiveTargetLineRange.startLine.offset
                     },
-                    propertyKey: field.key,
-                    editorKey: field.key
+                    propertyKey: key,
+                    editorKey: key
                 }
             });
-            handleOnFieldFocus?.(field.key);
+            handleOnFieldFocus?.(key);
         }
     };
 
@@ -314,7 +322,7 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         helperPaneHeight: HelperPaneHeight
     ) => {
         return getHelperPane?.(
-            field.key,
+            key,
             exprRef,
             anchorRef,
             field.placeholder,
@@ -364,29 +372,31 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
     );
 
     return (
-        <S.Container>
-            <S.HeaderContainer>
-                <S.Header>
-                    <S.LabelContainer>
-                        <S.Label>{field.label}</S.Label>
-                        {!field.optional && <RequiredFormInput />}
-                    </S.LabelContainer>
-                    <S.Description>{combinedDescription}</S.Description>
-                </S.Header>
-                {field.valueTypeConstraint && (
-                    <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
-                        {sanitizeType(field.valueTypeConstraint as string)}
-                    </S.Type>
-                )}
-            </S.HeaderContainer>
+        <S.Container id={id}>
+            {showHeader && (
+                <S.HeaderContainer>
+                    <S.Header>
+                        <S.LabelContainer>
+                            <S.Label>{field.label}</S.Label>
+                            {(required ?? !field.optional) && <RequiredFormInput />}
+                        </S.LabelContainer>
+                        <S.Description>{combinedDescription}</S.Description>
+                    </S.Header>
+                    {field.valueTypeConstraint && (
+                        <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
+                            {sanitizeType(field.valueTypeConstraint as string)}
+                        </S.Type>
+                    )}
+                </S.HeaderContainer>
+            )}
             <Controller
                 control={control}
-                name={field.key}
-                rules={{ required: !field.optional && !field.placeholder }}
+                name={key}
+                rules={{ required: required ?? (!field.optional && !field.placeholder) }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
                         <FormExpressionEditor
-                            key={field.key}
+                            key={key}
                             ref={exprRef}
                             anchorRef={anchorRef}
                             name={name}
@@ -405,9 +415,9 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
 
                                 if (getExpressionEditorDiagnostics) {
                                     getExpressionEditorDiagnostics(
-                                        !field.optional || rawValue !== '',
+                                        (required ?? !field.optional) || rawValue !== '',
                                         rawValue,
-                                        field.key,
+                                        key,
                                         getPropertyFromFormField(field)
                                     );
                                 }
@@ -456,4 +466,4 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
             />
         </S.Container>
     );
-});
+};
