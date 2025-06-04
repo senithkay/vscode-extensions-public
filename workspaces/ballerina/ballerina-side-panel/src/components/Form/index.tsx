@@ -13,7 +13,6 @@ import ReactMarkdown from "react-markdown";
 import {
     Button,
     Codicon,
-    FormExpressionEditorRef,
     LinkButton,
     ThemeColors,
     SidePanelBody,
@@ -383,8 +382,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const [isIdentifierEditing, setIsIdentifierEditing] = useState(false);
     const markdownRef = useRef<HTMLDivElement>(null);
 
-    const exprRef = useRef<FormExpressionEditorRef>(null);
-
     const [isUserConcert, setIsUserConcert] = useState(false);
 
     useEffect(() => {
@@ -732,7 +729,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             return (
                                 <S.Row key={updatedField.key}>
                                     <EditorFactory
-                                        ref={exprRef}
                                         field={updatedField}
                                         selectedNode={selectedNode}
                                         openRecordEditor={
@@ -782,7 +778,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 return (
                                     <S.Row key={updatedField.key}>
                                         <EditorFactory
-                                            ref={exprRef}
                                             field={updatedField}
                                             openRecordEditor={
                                                 openRecordEditor &&

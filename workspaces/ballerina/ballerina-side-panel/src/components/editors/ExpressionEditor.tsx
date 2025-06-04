@@ -8,7 +8,7 @@
  */
 
 import { debounce } from 'lodash';
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import styled from '@emotion/styled';
 import {
@@ -173,24 +173,21 @@ const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
     );
 };
 
-export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, ContextAwareExpressionEditorProps>(
-    (props, ref) => {
-        const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
+export const ContextAwareExpressionEditor = (props: ContextAwareExpressionEditorProps) => {
+    const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
 
-        return (
-            <ExpressionEditor
-                ref={ref}
-                fileName={fileName}
-                {...targetLineRange}
-                {...props}
-                {...form}
-                {...expressionEditor}
-            />
-        );
-    }
-);
+    return (
+        <ExpressionEditor
+            fileName={fileName}
+            targetLineRange={targetLineRange}
+            {...props}
+            {...form}
+            {...expressionEditor}
+        />
+    );
+};
 
-export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEditorProps>((props, ref) => {
+export const ExpressionEditor = (props: ExpressionEditorProps) => {
     const {
         autoFocus,
         control,
