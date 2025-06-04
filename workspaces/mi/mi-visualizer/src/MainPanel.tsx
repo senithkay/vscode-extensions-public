@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { EVENT_TYPE, POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue, Platform, VisualizerLocation } from '@wso2-enterprise/mi-core';
+import { POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, Platform, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { ServiceDesignerView } from './views/ServiceDesigner';
 import { DSSServiceDesignerView } from './views/Forms/DataServiceForm/ServiceDesigner';
@@ -35,7 +35,7 @@ import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
 import { DataMapper } from './views/DataMapper';
-import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
+import { ErrorBoundary } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
@@ -110,7 +110,7 @@ const MainPanel = (props: MainPanelProps) => {
 
     useEffect(() => {
         fetchContext();
-    }, []);
+    }, [props]);
 
     useEffect(() => {
         rpcClient.getVisualizerState().then((visualizerState) => {
