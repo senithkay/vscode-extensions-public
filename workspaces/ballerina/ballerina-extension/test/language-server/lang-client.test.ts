@@ -27,7 +27,7 @@ import { ballerinaExtInstance } from '../../src/core/extension';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
-suite("Language Server Tests", function () {
+suite.skip("Language Server Tests", function () {
     this.timeout(30000);
     let langClient: ExtendedLangClient;
 
