@@ -151,8 +151,6 @@ export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsW
                 const { top: offsetTop, left: offsetLeft } = getOffsetByPosition(position || 'bottom-end', height, width);
                 const topOffset = offset ? offsetTop + offset.top : offsetTop;
                 const leftOffset = offset ? offsetLeft + offset.left : offsetLeft;
-                console.log("offsetTop", offsetTop, "offsetLeft", offsetLeft);
-
                 // Reset the position if it overflows the window
                 const { top, left } = getPositionOnOverflow(
                     window.innerWidth,
