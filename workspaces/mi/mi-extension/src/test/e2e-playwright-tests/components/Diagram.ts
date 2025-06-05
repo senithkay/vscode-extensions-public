@@ -167,6 +167,19 @@ export class Diagram {
         await sidePanel.close();
     }
 
+    public async addDataMapper(name: string) {
+
+        await this.clickPlusButtonByIndex(0);
+
+        await this.diagramWebView.locator('[id="card-select-Data\\ Mapper"]').click();
+        await this.diagramWebView.getByText('Add new').click();
+        await this.diagramWebView.getByRole('textbox', { name: 'Name' }).click();
+        await this.diagramWebView.getByRole('textbox', { name: 'Name' }).fill(name);
+        await this.diagramWebView.getByRole('button', { name: 'Create' }).click();
+        await this.diagramWebView.getByRole('button', { name: 'Add' }).click();
+
+    }
+
     private async clickPlusButtonByPosition(line: number, column: number) {
         const link = (await this.getDiagramContainer()).locator(`g[data-linkid=${line},${column}]`);
         await link.waitFor();
@@ -223,6 +236,12 @@ class Mediator {
         }
         await this.container.getByText('Delete').click();
         await this.mediatotNode.waitFor({ state: 'detached' });
+    }
+
+    public async clickLink(linkText: string) {
+        const link = this.mediatotNode.locator(`div:text("${linkText}")`);
+        await link.waitFor();
+        await link.click();
     }
 
     public async getDescription() {
