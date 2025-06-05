@@ -11,7 +11,7 @@ import { ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useRef, useState } from "react";
 
-import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, Typography, FormCheckBox, PasswordField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, Banner, FormActions, OptionProps, ProgressIndicator, TextField, Codicon, SplitView, TreeView, Typography, FormCheckBox, PasswordField, VSCodeColors } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
@@ -26,6 +26,11 @@ const TitleBoxShadow = styled.div`
     box-shadow: var(--vscode-scrollbar-shadow) 0 6px 6px -6px inset;
     height: 3px;
 `;
+
+const selectedTreeViewStyle = {
+    cursor: "pointer",
+    border: `1px solid ${VSCodeColors.FOCUS_BORDER}`,
+};
 
 const fieldGroupStyle = { display: "flex", flexDirection: "column", gap: 24, padding: "0 0 30px", marginTop: "20px", paddingLeft: "10px" };
 const fieldStyle = {
@@ -308,7 +313,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     <TreeView
                         rootTreeView
                         id="Project Information"
-                        sx={selectedId === "Project Information" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                        sx={selectedId === "Project Information" ? selectedTreeViewStyle : { cursor: "pointer" }}
                         content={
                             <Typography sx={selectedId === "Project Information" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                                 Project Information
@@ -320,7 +325,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     <TreeView
                         rootTreeView
                         id="Build Details"
-                        sx={selectedId === "Build Details" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                        sx={selectedId === "Build Details" ? selectedTreeViewStyle : { cursor: "pointer" }}
                         content={
                             <Typography sx={selectedId === "Build Details" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                                 Build Details
@@ -332,7 +337,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     <TreeView
                         rootTreeView
                         id="Unit Test"
-                        sx={selectedId === "Unit Test" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                        sx={selectedId === "Unit Test" ? selectedTreeViewStyle : { cursor: "pointer" }}
                         content={
                             <Typography sx={selectedId === "Unit Test" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                                 Unit Test
@@ -344,7 +349,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     <TreeView
                         rootTreeView
                         id="Deployment"
-                        sx={selectedId === "Deployment" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                        sx={selectedId === "Deployment" ? selectedTreeViewStyle : { cursor: "pointer" }}
                         content={
                             <Typography sx={selectedId === "Deployment" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                                 Deployment
@@ -356,7 +361,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     <TreeView
                         rootTreeView
                         id="Advanced"
-                        sx={selectedId === "Advanced" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                        sx={selectedId === "Advanced" ? selectedTreeViewStyle : { cursor: "pointer" }}
                         content={
                             <Typography sx={selectedId === "Advanced" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                                 Advanced
