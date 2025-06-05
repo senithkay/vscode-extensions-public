@@ -287,7 +287,7 @@ export class BallerinaExtension {
 
                 // if Home is found load Language Server.
                 let serverOptions: ServerOptions;
-                serverOptions = getServerOptions(this.ballerinaCmd, this);
+                serverOptions = getServerOptions(this);
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
                     this.clientOptions, this, false);
 

@@ -56,13 +56,7 @@ function findJarsExcludingPatterns(directory: string, excludePatterns: string[])
     }
 }
 
-export function getServerOptions(ballerinaCmd: string, extension: BallerinaExtension): ServerOptions {
-    debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
-    let cmd = isWindows() ? 'cmd.exe' : ballerinaCmd;
-    let args = ["start-language-server"];
-    if (isWindows()) {
-        args = ['/c', ballerinaCmd, 'start-language-server'];
-    }
+export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     let opt: ExecutableOptions = {};
     opt.env = Object.assign({}, process.env);
 
@@ -152,8 +146,8 @@ export function getServerOptions(ballerinaCmd: string, extension: BallerinaExten
     }
     
     const javaExecutable = isWindows() ? 'java.exe' : 'java';
-    cmd = join(jdkDir, 'bin', javaExecutable);
-    args = ['-cp', classpath, `-Dballerina.home=${ballerinaHome}`, 'org.ballerinalang.langserver.launchers.stdio.Main'];
+    const cmd = join(jdkDir, 'bin', javaExecutable);
+    const args = ['-cp', classpath, `-Dballerina.home=${ballerinaHome}`, 'org.ballerinalang.langserver.launchers.stdio.Main'];
     
     log(`Found JDK: ${jdkDir}`);
     log(`Java executable: ${cmd} exists: ${fs.existsSync(cmd)}`);
