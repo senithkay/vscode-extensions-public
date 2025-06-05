@@ -160,6 +160,12 @@
             "description": "Enable legacy expression support",
             "scope": "resource"
           },
+          "MI.REMOTE_DEPLOYMENT_ENABLED": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable remote server deployment support",
+            "scope": "resource"
+          },
           "MI.Scope": {
             "type": "string",
             "default": "",

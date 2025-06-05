@@ -12,7 +12,7 @@ import { CancellationToken, DebugConfiguration, ProviderResult, WorkspaceFolder 
 import { MiDebugAdapter } from './debugAdapter';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
-import { executeBuildTask, getServerPath } from './debugHelper';
+import {executeBuildTask, executeRemoteDeployTask, getServerPath} from './debugHelper';
 import { getDockerTask } from './tasks';
 import { refreshUI } from '../stateMachine';
 import * as fs from 'fs';
@@ -52,6 +52,10 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(COMMANDS.CREATE_DOCKER_IMAGE, async () => {
         const dockerTask = getDockerTask();
         await vscode.tasks.executeTask(dockerTask);
+    });
+
+    vscode.commands.registerCommand(COMMANDS.REMOTE_DEPLOY_PROJECT, async (postBuildTask?: Function) => {
+        await executeRemoteDeployTask(postBuildTask);
     });
 
     // Register command to change the Micro Integrator server path

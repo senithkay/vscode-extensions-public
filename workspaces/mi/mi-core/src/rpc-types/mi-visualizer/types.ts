@@ -424,3 +424,20 @@ export interface DownloadMIRequest {
     version: string;
     isUpdatedPack: boolean;
 }
+
+export interface MavenDeployPluginDetails {
+    truststorePath?: string;
+    truststorePassword?: string;
+    truststoreType?: string;
+    serverUrl?: string;
+    username?: string;
+    password?: string;
+    serverType?: string;
+    content?: string;
+    range?: Range;
+}
+
+export interface ProjectConfig {
+    configName: string;
+    value: boolean;
+}

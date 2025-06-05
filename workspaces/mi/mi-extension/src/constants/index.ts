@@ -88,6 +88,7 @@ export const COMMANDS = {
     CHANGE_SERVER_PATH: 'MI.change.server',
     CHANGE_JAVA_HOME: 'MI.change.java',
     BUILD_PROJECT: 'MI.build-project',
+    REMOTE_DEPLOY_PROJECT: 'MI.remote-deploy-project',
     CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
     BUILD_BAL_MODULE: 'MI.build-bal-module',
