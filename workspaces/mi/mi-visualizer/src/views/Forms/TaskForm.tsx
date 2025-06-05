@@ -292,7 +292,7 @@ export function TaskForm(props: TaskFormProps) {
         // Hanlde the case where user do not secify a sequence 
         // Here we need to create a sequence and add the task to the sequence
         if (values.injectTo === "sequence") {
-            if (!values.sequenceName) {
+            if (!values.sequenceName.length) {
                 const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
                 const sequenceDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
                 const sequenceRequest: CreateSequenceRequest = {
@@ -306,7 +306,7 @@ export function TaskForm(props: TaskFormProps) {
                 };
                 taskRequest.sequence = sequenceRequest;
             }
-            taskProperties.push({ key: "sequenceName", value: values.sequenceName ?? generateSequenceName(values.name), isLiteral: true });
+            taskProperties.push({ key: "sequenceName", value: !values.sequenceName.length ? generateSequenceName(values.name) : values.sequenceName, isLiteral: true });
         }
         const response = await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
     };
