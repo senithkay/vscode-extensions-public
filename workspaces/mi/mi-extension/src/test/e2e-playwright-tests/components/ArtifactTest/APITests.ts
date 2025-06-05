@@ -309,7 +309,7 @@ export class API {
         console.log("Clicked on From WSDL file");
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
-        await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('http://www.dneonline.com/calculator.asmx?wsdl');
+        await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('https://www.w3schools.com/xml/tempconvert.asmx?WSDL');
         const submitBtn = await getVsCodeButton(apiFormFrame, 'Create', "primary");
         expect(await submitBtn.isEnabled()).toBeTruthy();
         await submitBtn.click({force: true});
