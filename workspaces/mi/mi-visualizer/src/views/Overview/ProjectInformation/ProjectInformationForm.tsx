@@ -68,6 +68,42 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "unitTest-serverVersion": yup.string(),
         "unitTest-serverDownloadLink": yup.string(),
         "advanced-legacyExpressionSupport": yup.boolean(),
+        "deployment-deployOnRemoteServer": yup.boolean(),
+        "deployment-truststorePath": yup.string().when("deployment-deployOnRemoteServer", {
+            is: true,
+            then: schema => schema.required("Truststore path is required when deploying on a remote server"),
+            otherwise: schema => schema.notRequired(),
+        }),
+        "deployment-truststorePassword": yup.string().when("deployment-deployOnRemoteServer", {
+            is: true,
+            then: schema => schema.required("Truststore password is required when deploying on a remote server"),
+            otherwise: schema => schema.notRequired(),
+        }),
+        "deployment-truststoreType": yup.string().when("deployment-deployOnRemoteServer", {
+            is: true,
+            then: schema => schema.required("Truststore type is required when deploying on a remote server"),
+            otherwise: schema => schema.notRequired(),
+        }),
+        "deployment-serverURL": yup.string().when("deployment-deployOnRemoteServer", {
+            is: true,
+            then: schema => schema.required("Server URL is required when deploying on a remote server"),
+            otherwise: schema => schema.notRequired(),
+        }),
+        "deployment-username": yup.string().when("deployment-deployOnRemoteServer", {
+            is: true,
+            then: schema => schema.required("Username is required when deploying on a remote server"),
+            otherwise: schema => schema.notRequired(),
+        }),
+        "deployment-password": yup.string().when("deployment-deployOnRemoteServer", {
+            is: true,
+            then: schema => schema.required("Password is required when deploying on a remote server"),
+            otherwise: schema => schema.notRequired(),
+        }),
+        "deployment-serverType": yup.string().when("deployment-deployOnRemoteServer", {
+            is: true,
+            then: schema => schema.required("Server type is required when deploying on a remote server"),
+            otherwise: schema => schema.notRequired(),
+        })
     });
 
     const {
@@ -88,6 +124,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "Project Information": useRef<HTMLDivElement | null>(null),
         "Build Details": useRef<HTMLDivElement | null>(null),
         "Unit Test": useRef<HTMLDivElement | null>(null),
+        "Deployment": useRef<HTMLDivElement | null>(null),
         "Advanced": useRef<HTMLDivElement | null>(null),
     };
     const contentRef = useRef<HTMLDivElement | null>(null); // Ref for the content div
@@ -96,8 +133,15 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         async function fetchData() {
             try {
                 const response = await rpcClient?.getMiVisualizerRpcClient().getProjectDetails();
-                const isLegacyExpressionEnabled = await rpcClient.getMiVisualizerRpcClient().isLegacyExpressionSupportEnabled();
-
+                const isLegacyExpressionEnabled = await rpcClient.getMiVisualizerRpcClient().isSupportEnabled("LEGACY_EXPRESSION_ENABLED");
+                let isRemoteDeploymentEnabled = await rpcClient.getMiVisualizerRpcClient().isSupportEnabled("REMOTE_DEPLOYMENT_ENABLED");
+                let pluginDetails = null;
+                if (isRemoteDeploymentEnabled) {
+                    pluginDetails = await rpcClient?.getMiVisualizerRpcClient().getDeployPluginDetails();
+                }
+                if (props.selectedComponent && props.selectedComponent === "Deployment") {
+                    isRemoteDeploymentEnabled = true;
+                }
                 setProjectDetails(response);
                 const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
@@ -126,7 +170,15 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "unitTest-serverType": response.unitTest?.serverType?.value,
                     "unitTest-serverVersion": response.unitTest?.serverVersion?.value,
                     "unitTest-serverDownloadLink": response.unitTest?.serverDownloadLink?.value,
-                    "advanced-legacyExpressionSupport": isLegacyExpressionEnabled
+                    "advanced-legacyExpressionSupport": isLegacyExpressionEnabled,
+                    "deployment-deployOnRemoteServer": isRemoteDeploymentEnabled,
+                    "deployment-truststorePath": pluginDetails ? pluginDetails.truststorePath : "",
+                    "deployment-truststorePassword": pluginDetails ? pluginDetails.truststorePassword : "",
+                    "deployment-truststoreType": pluginDetails ? pluginDetails.truststoreType : "JKS",
+                    "deployment-serverURL": pluginDetails ? pluginDetails.serverUrl : "https://localhost:9164",
+                    "deployment-username": pluginDetails ? pluginDetails.username : "",
+                    "deployment-password": pluginDetails ? pluginDetails.password : "",
+                    "deployment-serverType": pluginDetails ? pluginDetails.serverType : "mi"
                 });
             } catch (error) {
                 console.error("Error fetching project details:", error);
@@ -172,7 +224,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
             Object.entries(dirtyFields).forEach(async ([field]) => {
                 if (field === "advanced-legacyExpressionSupport") {
                     let isLegacyExpressionSupportEnabled = getValues("advanced-legacyExpressionSupport");
-                    await rpcClient.getMiVisualizerRpcClient().updateLegacyExpressionSupport(isLegacyExpressionSupportEnabled);
+                    await rpcClient.getMiVisualizerRpcClient().updateProjectSettingsConfig({ configName: "LEGACY_EXPRESSION_ENABLED", value: isLegacyExpressionSupportEnabled });
                 }
 
                 const fieldValue = getValues(field as any);
@@ -193,6 +245,23 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 const sortedChanges = changes.sort((a, b) => b.range.start - a.range.start);
 
                 await rpcClient.getMiVisualizerRpcClient().updatePomValues({ pomValues: sortedChanges });
+            }
+
+            let isRemoteDeploymentSupportEnabled = getValues("deployment-deployOnRemoteServer");
+            await rpcClient.getMiVisualizerRpcClient().updateProjectSettingsConfig({ configName: "REMOTE_DEPLOYMENT_ENABLED",
+                value: isRemoteDeploymentSupportEnabled });
+            if (isRemoteDeploymentSupportEnabled) {
+                await rpcClient.getMiVisualizerRpcClient().setDeployPlugin({
+                    truststorePath: getValues("deployment-truststorePath"),
+                    truststorePassword: getValues("deployment-truststorePassword"),
+                    truststoreType: getValues("deployment-truststoreType"),
+                    serverUrl: getValues("deployment-serverURL"),
+                    username: getValues("deployment-username"),
+                    password: getValues("deployment-password"),
+                    serverType: getValues("deployment-serverType"),
+                });
+            } else {
+                await rpcClient.getMiVisualizerRpcClient().removeDeployPlugin();
             }
 
             if (dirtyFields["primaryDetails-runtimeVersion"]) {
@@ -267,6 +336,18 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                         content={
                             <Typography sx={selectedId === "Unit Test" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
                                 Unit Test
+                            </Typography>
+                        }
+                        selectedId={selectedId}
+                        onSelect={handleClick}
+                    />
+                    <TreeView
+                        rootTreeView
+                        id="Deployment"
+                        sx={selectedId === "Deployment" ? { cursor: "pointer", border: "1px solid var(--vscode-focusBorder)" } : { cursor: "pointer" }}
+                        content={
+                            <Typography sx={selectedId === "Deployment" ? treeViewSelectedStyle : treeViewStyle} variant="h4">
+                                Deployment
                             </Typography>
                         }
                         selectedId={selectedId}
@@ -491,6 +572,70 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                                 sx={fieldStyle}
                                 {...register("unitTest-serverDownloadLink")}
                             />
+                        </div>
+                        <Typography variant="h1" sx={sectionTitleStyle} > Deployment </Typography>
+                        <div ref={divRefs["Deployment"]} id="Deployment" style={{ ...fieldGroupStyle, paddingBottom: 0 }}>
+                            <FormCheckBox
+                                label="Deploy to a remote server"
+                                description="Enables deploying to a remote server"
+                                descriptionSx={{ margin: "10px 0" }}
+                                control={control}
+                                sx={fieldStyle}
+                                {...register("deployment-deployOnRemoteServer")}
+                            />
+                            {watch("deployment-deployOnRemoteServer") && (
+                                <>
+                                    <TextField
+                                        label="Truststore Path"
+                                        description="File path of the truststore used in the server"
+                                        descriptionSx={{ margin: "8px 0" }}
+                                        sx={fieldStyle}
+                                        {...register("deployment-truststorePath")}
+                                    />
+                                    <PasswordField
+                                        label="Truststore Password"
+                                        description="Password of the truststore"
+                                        descriptionSx={{ margin: "8px 0" }}
+                                        sx={fieldStyle}
+                                        {...register("deployment-truststorePassword")}
+                                    />
+                                    <TextField
+                                        label="Truststore Type"
+                                        description="Type of the truststore"
+                                        descriptionSx={{ margin: "8px 0" }}
+                                        sx={fieldStyle}
+                                        {...register("deployment-truststoreType")}
+                                    />
+                                    <TextField
+                                        label="Server URL"
+                                        description="Management API URL of the server"
+                                        descriptionSx={{ margin: "8px 0" }}
+                                        sx={fieldStyle}
+                                        {...register("deployment-serverURL")}
+                                    />
+                                    <TextField
+                                        label="Username"
+                                        description="Server administrator username"
+                                        descriptionSx={{ margin: "8px 0" }}
+                                        sx={fieldStyle}
+                                        {...register("deployment-username")}
+                                    />
+                                    <PasswordField
+                                        label="Password"
+                                        description="Server administrator password"
+                                        descriptionSx={{ margin: "8px 0" }}
+                                        sx={fieldStyle}
+                                        {...register("deployment-password")}
+                                    />
+                                    <TextField
+                                        label="Server Type"
+                                        description="Type of the WSO2 server"
+                                        descriptionSx={{ margin: "8px 0" }}
+                                        sx={fieldStyle}
+                                        {...register("deployment-serverType")}
+                                    />
+                                </>
+                            )}
                         </div>
                         <Typography variant="h1" sx={sectionTitleStyle} > Advanced </Typography>
                         <div ref={divRefs["Advanced"]} id="Advanced" style={{ ...fieldGroupStyle, paddingBottom: 0 }}>

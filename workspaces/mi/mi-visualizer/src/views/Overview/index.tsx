@@ -183,6 +183,10 @@ export function Overview(props: OverviewProps) {
         rpcClient.getMiDiagramRpcClient().buildProject({ buildType: "capp" });
     };
 
+    const handleRemoteDeploy = () => {
+        rpcClient.getMiDiagramRpcClient().remoteDeploy();
+    };
+
     const goToDevant = () => {
         rpcClient.getMiDiagramRpcClient().executeCommand({
             commands: [
@@ -332,6 +336,7 @@ export function Overview(props: OverviewProps) {
                             <DeploymentOptions
                                 handleDockerBuild={handleDockerBuild}
                                 handleCAPPBuild={handleCappBuild}
+                                handleRemoteDeploy={handleRemoteDeploy}
                                 handleDeploy={handleDeploy}
                                 goToDevant={goToDevant}
                                 devantMetadata={devantMetadata} />

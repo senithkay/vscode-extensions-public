@@ -117,6 +117,7 @@ import {
     askProjectImportDirPath,
     browseFile,
     buildProject,
+    remoteDeploy,
     checkDBDriver,
     checkOldProject,
     closePayloadAlert,
@@ -411,6 +412,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts());
     messenger.onNotification(buildProject, (args: BuildProjectRequest) => rpcManger.buildProject(args));
     messenger.onRequest(deployProject, (args: DeployProjectRequest) => rpcManger.deployProject(args));
+    messenger.onRequest(remoteDeploy, () => rpcManger.remoteDeploy());
     messenger.onRequest(getDevantMetadata, () => rpcManger.getDevantMetadata());
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
