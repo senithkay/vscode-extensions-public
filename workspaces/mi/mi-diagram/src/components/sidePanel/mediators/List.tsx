@@ -290,7 +290,7 @@ export function Mediators(props: MediatorProps) {
     }
 
     const MediatorGrid = ({ mediator, key }: { mediator: Mediator; key: string }) => {
-        return <Tooltip content={mediator?.tooltip} position='bottom' key={mediator.title}>
+        return <Tooltip content={mediator?.tooltip} position='bottom' offset={{top: 16, left: 0}} key={mediator.title}>
             <GridButton
                 key={mediator.title}
                 title={mediator.title}
