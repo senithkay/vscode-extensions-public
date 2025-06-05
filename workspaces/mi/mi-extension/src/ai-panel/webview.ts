@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { Uri, ViewColumn } from 'vscode';
+import { Uri, ViewColumn, workspace } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
@@ -27,7 +27,8 @@ export class AiPanelWebview {
         this._panel = AiPanelWebview.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
-        RPCLayer.create(this._panel, AiPanelWebview.webviewName);
+        // TODO: Fix projectUri handling for multiple workspaces
+        RPCLayer.create(this._panel, workspace.workspaceFolders?.[0].uri.fsPath!);
     }
 
     private static createWebview(): vscode.WebviewPanel {

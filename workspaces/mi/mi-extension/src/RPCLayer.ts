@@ -29,6 +29,7 @@ export class RPCLayer {
 
     static create(webViewPanel: WebviewPanel, projectUri: string): void {
         if (this._messengers.has(projectUri)) {
+            this._messengers.get(projectUri)!.registerWebviewPanel(webViewPanel as WebviewPanel);
             return;
         }
         const messenger = new Messenger();
