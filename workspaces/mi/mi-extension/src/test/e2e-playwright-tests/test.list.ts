@@ -12,6 +12,7 @@ import connectionTests from './connectorTests/connection.spec';
 import connectorTests from './connectorTests/connector.spec';
 import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 import artifactTests from './artifactTests/artifact.spec';
+import dataMapperTests from './dataMapper.spec';
 import createProjectTests from './projectTests/createProject.spec';
 import artifact430Tests from './artifactTests/artifact430.spec';
 import logMediatorTests from './mediatorTests/log.spec';
@@ -37,6 +38,7 @@ test.beforeAll(async () => {
 
 test.describe(createProjectTests);
 test.describe(artifactTests);
+test.describe(dataMapperTests);
 test.describe(overviewPageTests);
 test.describe(openEntryPointArtifact);
 test.describe(connectionTests);
