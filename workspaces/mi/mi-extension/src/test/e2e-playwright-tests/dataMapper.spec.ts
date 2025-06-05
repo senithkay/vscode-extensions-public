@@ -259,6 +259,8 @@ export default function createTests() {
 
       expect(dm.verifyTsFileContent('basic/del.ts')).toBeTruthy();
 
+      console.log('Finished Testing Basic Mappings');
+
     }
 
     async function testArrayMappings() {
@@ -482,6 +484,8 @@ export default function createTests() {
       // #PAUSE_POINT
       expect(dm.verifyTsFileContent('array/del2.ts')).toBeTruthy();
 
+      console.log('Finished Testing Array Mappings');
+
     }
 
     async function testImportOptions() {
@@ -507,6 +511,8 @@ export default function createTests() {
       await dm.editSchema(IOType.Input, SchemaType.Xsd, 'schemas/schema.xsd');
 
       expect(dm.verifyTsFileContent('schemas/xsd-csv.ts')).toBeTruthy();
+
+      console.log('Finished Testing Import Options');
 
     }
 
