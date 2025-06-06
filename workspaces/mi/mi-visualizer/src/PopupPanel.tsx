@@ -35,6 +35,7 @@ import { ManageConfigurables } from './views/Overview/ProjectInformation/ManageC
 import { MessageStoreWizard } from './views/Forms/MessageStoreForm';
 import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms';
 import { DataSourceWizard } from './views/Forms/DataSourceForm';
+import { ImportConnectorForm } from './views/Forms/ConnectionForm/ImportConnector';
 
 const ViewContainer = styled.div`
     
@@ -147,6 +148,9 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     const dir = [machineSate.projectUri, "src", "main", "wso2mi", "artifacts", "messageStores"].join(machineSate.pathSeparator);
                     setViewComponent(<MessageStoreWizard onClose={props.handleClose} path={dir} isPopup={true} />);
                     break;
+                case MACHINE_VIEW.ImportConnectorForm:
+                    setViewComponent(<ImportConnectorForm handlePopupClose={props.handleClose} isPopup={true} onImportSuccess={props.handleClose} goBack={null} />);
+                    break;
                 default:
                     setViewComponent(null);
             }
@@ -154,7 +158,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
     }
 
     return (
-        <ViewContainer>
+        <ViewContainer id='popUpPanel'>
             {viewComponent}
         </ViewContainer >
     );

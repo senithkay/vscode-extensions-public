@@ -349,10 +349,11 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         paramFields: [
         {
             id: 0,
-            type: "AutoComplete",
+            type: "KeyLookup",
             label: "Service Policy",
             placeholder: "Policy",
             defaultValue: "",
+            filterType: "ws_policy",
             isRequired: true,
             values: [],
             allowItemCreate: true}]

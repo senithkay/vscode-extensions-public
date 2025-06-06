@@ -35,7 +35,9 @@ import {
     ArtifactData,
     ProjectStructureArtifactResponse,
     onArtifactUpdatedNotification,
-    onArtifactUpdatedRequest
+    onArtifactUpdatedRequest,
+    ColorThemeKind,
+    currentThemeChanged
 } from "@wso2-enterprise/ballerina-core";
 import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
@@ -209,5 +211,9 @@ export class BallerinaRpcClient {
 
     getAgentChatRpcClient(): AgentChatRpcClient {
         return this._agentChat;
+    }
+
+    onThemeChanged(callback: (kind: ColorThemeKind) => void) {
+        this.messenger.onNotification(currentThemeChanged, callback);
     }
 }

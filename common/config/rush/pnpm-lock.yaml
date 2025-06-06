@@ -1036,6 +1036,7 @@ importers:
       '@types/react': ^17.0.14
       '@types/react-dom': ^17.0.9
       '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/bi-diagram': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       dagre: ~0.8.5
@@ -1053,6 +1054,7 @@ importers:
       '@projectstorm/react-diagrams-defaults': 6.7.4_qudwbk4fbis32hnzuxpdo4wjza
       '@projectstorm/react-diagrams-routing': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/bi-diagram': link:../bi-diagram
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       dagre: 0.8.5
       lodash: 4.17.21
@@ -1938,6 +1940,7 @@ importers:
 
   ../../workspaces/bi/bi-extension:
     specifiers:
+      '@playwright/test': ~1.52.0
       '@types/mocha': ^10.0.3
       '@types/node': 18.x
       '@types/vscode': ^1.84.0
@@ -1947,6 +1950,7 @@ importers:
       '@vscode/vsce': ^2.22.0
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
+      '@wso2-enterprise/playwright-vscode-tester': workspace:*
       copy-webpack-plugin: ^11.0.0
       copyfiles: ^2.4.1
       eslint: ^8.52.0
@@ -1964,6 +1968,7 @@ importers:
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       xstate: 4.38.3
     devDependencies:
+      '@playwright/test': 1.52.0
       '@types/mocha': 10.0.6
       '@types/node': 18.19.14
       '@types/vscode': 1.86.0
@@ -1971,6 +1976,7 @@ importers:
       '@typescript-eslint/parser': 6.21.0_rszs4ssu3hjbruhzajramqeml4
       '@vscode/test-electron': 2.4.1
       '@vscode/vsce': 2.23.0
+      '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
       copy-webpack-plugin: 11.0.0_webpack@5.90.1
       copyfiles: 2.4.1
       eslint: 8.57.0
@@ -2285,7 +2291,7 @@ importers:
 
   ../../workspaces/common-libs/playwright-vscode-tester:
     specifiers:
-      '@playwright/test': ~1.46.0
+      '@playwright/test': ~1.52.0
       '@types/fs-extra': ~11.0.1
       '@types/node': ~20.4.7
       '@types/unzipper': ~0.10.6
@@ -2296,18 +2302,18 @@ importers:
       fs-extra: ~11.1.1
       got: v11.8.3
       hpagent: ~1.2.0
-      playwright-core: ~1.46.0
+      playwright-core: ~1.52.0
       targz: ~1.0.1
       typescript: ^4.9.4
       unzipper: ~0.10.14
     dependencies:
-      '@playwright/test': 1.46.1
+      '@playwright/test': 1.52.0
       '@vscode/vsce': 2.21.1
       compare-versions: 6.0.0
       fs-extra: 11.1.1
       got: 11.8.3
       hpagent: 1.2.0
-      playwright-core: 1.46.1
+      playwright-core: 1.52.0
       targz: 1.0.1
       unzipper: 0.10.14
     devDependencies:
@@ -2999,7 +3005,7 @@ importers:
       '@babel/core': ^7.24.4
       '@babel/plugin-transform-typescript': ^7.16.1
       '@iarna/toml': ^2.2.5
-      '@playwright/test': ~1.46.0
+      '@playwright/test': ~1.52.0
       '@types/fs-extra': ~11.0.4
       '@types/json-schema': 7.0.15
       '@types/lodash': ~4.14.199
@@ -3040,6 +3046,7 @@ importers:
       mustache: ~4.2.0
       node-fetch: ~2.6.2
       node-loader: ~2.0.0
+      playwright-core: ~1.52.0
       portfinder: ^1.0.32
       recast: ^0.20.5
       rimraf: ~5.0.5
@@ -3069,7 +3076,6 @@ importers:
       '@babel/core': 7.24.4
       '@babel/plugin-transform-typescript': 7.23.6_@babel+core@7.24.4
       '@iarna/toml': 2.2.5
-      '@playwright/test': 1.46.1
       '@types/fs-extra': 11.0.4
       '@types/json-schema': 7.0.15
       '@types/lodash': 4.14.202
@@ -3115,6 +3121,7 @@ importers:
       xml2js: 0.6.2
       xstate: 4.38.3
     devDependencies:
+      '@playwright/test': 1.52.0
       '@types/mocha': 10.0.6
       '@types/node': 16.18.79
       '@types/vscode': 1.86.0
@@ -3128,6 +3135,7 @@ importers:
       eslint: 8.56.0
       glob: 10.3.10
       mocha: 10.2.0
+      playwright-core: 1.52.0
       rimraf: 5.0.5
       ts-loader: 9.5.1_jkke4aekx6qisbjiah2hkrbtyy
       ts-morph: 22.0.0
@@ -15396,13 +15404,12 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /@playwright/test/1.46.1:
-    resolution: {integrity: sha512-Fq6SwLujA/DOIvNC2EL/SojJnkKf/rAwJ//APpJJHRyMi1PdKrY3Az+4XNQ51N4RTbItbIByQ0jgd1tayq1aeA==}
+  /@playwright/test/1.52.0:
+    resolution: {integrity: sha512-uh6W7sb55hl7D6vsAeA+V2p5JnlAqzhqFyF0VcJkKZXkgnFcVG9PziERRHQfPLfNGx1C292a4JqbWzhR8L4R1g==}
     engines: {node: '>=18'}
     hasBin: true
     dependencies:
-      playwright: 1.46.1
-    dev: false
+      playwright: 1.52.0
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.11_huwbmoqutg6zralpejlchsnhpu:
     resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
@@ -31721,7 +31728,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       webpack: 5.90.1_webpack-cli@4.10.0
-      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
 
   /@webpack-cli/configtest/2.1.1_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-wy0mglZpDSiSS0XHrVR+BAdId2+yxPSoJW8fsna3ZpYSlufjvxnP4YbKTCBZnNIcGN4r6ZPXV55X4mYExOfLmw==}
@@ -31749,7 +31756,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       envinfo: 7.11.1
-      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
 
   /@webpack-cli/info/2.0.2_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-zLHQdI/Qs1UyT5UBdWNqsARasIA+AaF8t+4u2aS2nEpBQh2mWIVb8qAklq0eUENnC5mOItrIB4LiS9xMtph18A==}
@@ -31781,6 +31788,7 @@ packages:
         optional: true
     dependencies:
       webpack-cli: 4.10.0_webpack@5.90.1
+    dev: true
 
   /@webpack-cli/serve/1.7.0_zlkpompfwd3ohwjpgahvnmgqqy:
     resolution: {integrity: sha512-oxnCNGj88fL+xzV+dacXs44HcDwf1ovs3AuEzvP7mqXw7fQntqIhQ1BRmynh4qEKQSSSRSWVyXRjmTbZIX9V2Q==}
@@ -31793,7 +31801,6 @@ packages:
     dependencies:
       webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
-    dev: true
 
   /@webpack-cli/serve/2.0.5_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-lqaoKnRYBdo1UgDX8uF24AfGMifWK19TxPmM5FHc2vAGxrJ/qtyUyFBWoY1tISZdelsQ5fBcOusifo5o5wSJxQ==}
@@ -50079,21 +50086,19 @@ packages:
     hasBin: true
     dev: true
 
-  /playwright-core/1.46.1:
-    resolution: {integrity: sha512-h9LqIQaAv+CYvWzsZ+h3RsrqCStkBHlgo6/TJlFst3cOTlLghBQlJwPOZKQJTKNaD3QIB7aAVQ+gfWbN3NXB7A==}
+  /playwright-core/1.52.0:
+    resolution: {integrity: sha512-l2osTgLXSMeuLZOML9qYODUQoPPnUsKsb5/P6LJ2e6uPKXUdPK5WYhN4z03G+YNbWmGDY4YENauNu4ZKczreHg==}
     engines: {node: '>=18'}
     hasBin: true
-    dev: false
 
-  /playwright/1.46.1:
-    resolution: {integrity: sha512-oPcr1yqoXLCkgKtD5eNUPLiN40rYEM39odNpIb6VE6S7/15gJmA1NzVv6zJYusV0e7tzvkU/utBFNa/Kpxmwng==}
+  /playwright/1.52.0:
+    resolution: {integrity: sha512-JAwMNMBlxJ2oD1kce4KPtMkDeKGHQstdpFPcPH3maElAXon/QZeTvtsfXmTMRyO9TslfoYOXkSsvao2nE1ilTw==}
     engines: {node: '>=18'}
     hasBin: true
     dependencies:
-      playwright-core: 1.46.1
+      playwright-core: 1.52.0
     optionalDependencies:
       fsevents: 2.3.2
-    dev: false
 
   /please-upgrade-node/3.2.0:
     resolution: {integrity: sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==}
@@ -60247,7 +60252,6 @@ packages:
       webpack: 5.90.1_webpack-cli@4.10.0
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
       webpack-merge: 5.10.0
-    dev: true
 
   /webpack-cli/4.10.0_webpack@5.90.1:
     resolution: {integrity: sha512-NLhDfH/h4O6UOy+0LSso42xvYypClINuMNBVVzX4vX98TmTaTUxwRbXdhucbFMd2qLaCTcLq/PdYrvi8onw90w==}
@@ -60282,6 +60286,7 @@ packages:
       rechoir: 0.7.1
       webpack: 5.90.1_webpack-cli@4.10.0
       webpack-merge: 5.10.0
+    dev: true
 
   /webpack-cli/5.1.4_55ctblq7vmnkc7msvxpxtdxasq:
     resolution: {integrity: sha512-pIDJHIEI9LR0yxHXQ+Qh95k2EvXpWzZ5l+d+jIo+RdSm9MiHfzazIxwwni/p7+x4eJZuvG1AJwgC4TNQ7NRgsg==}
@@ -60555,7 +60560,6 @@ packages:
       - debug
       - supports-color
       - utf-8-validate
-    dev: true
 
   /webpack-dev-server/4.15.1_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-5hbAst3h3C3L8w6W4P96L5vaV0PxSmJhxZvWKYIdgxOQm8pNZ5dEOmmSLBVpP85ReeyRt6AS1QJNyo/oFFPeVA==}
@@ -61158,7 +61162,7 @@ packages:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.10_webpack@5.90.1
       watchpack: 2.4.0
-      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'

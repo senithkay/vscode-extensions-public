@@ -51,6 +51,15 @@ const stateMachine = createMachine<MachineContext>(
                         commands.executeCommand("BI.project-explorer.refresh");
                     }
                 ]
+            },
+            UPDATE_PROJECT_LOCATION: {
+                actions: [
+                    assign({
+                        documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                        position: (context, event) => event.viewLocation.position ? event.viewLocation.position : context.position,
+                        identifier: (context, event) => event.viewLocation.identifier ? event.viewLocation.identifier : context.identifier,
+                    })
+                ]
             }
         },
         states: {
@@ -437,6 +446,7 @@ export const StateMachine = {
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
     if (resetHistory) {
+        StateMachine.setReadyMode();
         history?.clear();
     }
     extension.hasPullModuleResolved = false;

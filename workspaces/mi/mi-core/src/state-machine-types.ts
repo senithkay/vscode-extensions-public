@@ -80,6 +80,8 @@ export enum MACHINE_VIEW {
     ManageDependencies = "Manage Dependencies",
     ManageConfigurables = "Manage Configurables",
     ProjectInformationForm = "Project Information Form",
+    SETUP_ENVIRONMENT = "Setup Environment",
+    ImportConnectorForm = "Import Connector",
 }
 
 export enum AI_MACHINE_VIEW {
@@ -93,7 +95,7 @@ export type MachineStateValue =
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' }| { environmentSetup: 'viewReady' };
 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'updateExtension' | 'disabled';
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'updateExtension' | 'disabled' | 'notSupported';
 
 export type PopupMachineStateValue = 'initialize' | 'ready' | { open: 'active' } | { ready: 'reopen' } | { ready: 'notify' } | 'disabled';
 
@@ -115,8 +117,6 @@ export enum EVENT_TYPE {
     OPEN_VIEW = "OPEN_VIEW",
     REPLACE_VIEW = "REPLACE_VIEW",
     CLEAR_PROMPT = "CLEAR_PROMPT",
-    FILE_EDIT = "FILE_EDIT",
-    EDIT_DONE = "EDIT_DONE",
     REFRESH_ENVIRONMENT = "REFRESH_ENVIRONMENT",
 }
 

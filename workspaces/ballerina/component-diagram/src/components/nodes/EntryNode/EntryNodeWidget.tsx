@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { EntryNodeModel } from "./EntryNodeModel";
+import { EntryNodeModel, VIEW_ALL_RESOURCES_PORT_NAME } from "./EntryNodeModel";
 import { NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover, ImageWithFallback, ThemeColors, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
@@ -158,6 +158,14 @@ const ViewAllButton = styled(FunctionBoxWrapper)`
     }
 `;
 
+const ViewAllButtonWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+`;
+
 interface EntryNodeWidgetProps {
     model: EntryNodeModel;
     engine: DiagramEngine;
@@ -168,7 +176,14 @@ export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onServiceSelect, onAutomationSelect, onDeleteComponent, onFunctionSelect } = useDiagramContext();
+    const { 
+        onServiceSelect, 
+        onAutomationSelect, 
+        onDeleteComponent, 
+        onFunctionSelect, 
+        expandedNodes,
+        onToggleNodeExpansion 
+    } = useDiagramContext();
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
 
@@ -178,6 +193,11 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         } else {
             onAutomationSelect(model.node as CDAutomation);
         }
+    };
+
+    const handleToggleExpansion = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        onToggleNodeExpansion(model.node.uuid);
     };
 
     const getNodeIcon = () => {
@@ -239,8 +259,17 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         serviceFunctions.push(...(model.node as CDService).resourceFunctions);
     }
 
+    const isExpanded = expandedNodes.has(model.node.uuid);
     const hasMoreFunctions = serviceFunctions.length > 3;
-    const visibleFunctions = serviceFunctions.slice(0, hasMoreFunctions ? 2 : serviceFunctions.length);
+    
+    let visibleFunctions;
+    if (serviceFunctions.length <= 3 || isExpanded) {
+        // Show all functions if ≤3 total or if expanded
+        visibleFunctions = serviceFunctions;
+    } else {
+        // Show only first 2 functions when collapsed
+        visibleFunctions = serviceFunctions.slice(0, 2);
+    }
 
     if ((model.node as CDService)?.type === "ai:Service") {
         return (
@@ -310,9 +339,17 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                         engine={engine}
                     />
                 ))}
-                {hasMoreFunctions && (
-                    <ViewAllButton onClick={handleOnClick}>
-                        View all resources ({serviceFunctions.length})
+                {hasMoreFunctions && !isExpanded && (
+                    <ViewAllButtonWrapper>
+                        <ViewAllButton onClick={handleToggleExpansion}>
+                            Show More Resources
+                        </ViewAllButton>
+                        <PortWidget port={model.getPort(VIEW_ALL_RESOURCES_PORT_NAME)!} engine={engine} />
+                    </ViewAllButtonWrapper>
+                )}
+                {hasMoreFunctions && isExpanded && (
+                    <ViewAllButton onClick={handleToggleExpansion}>
+                        Show Fewer Resources
                     </ViewAllButton>
                 )}
             </Box>

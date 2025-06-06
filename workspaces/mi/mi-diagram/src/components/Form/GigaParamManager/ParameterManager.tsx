@@ -78,9 +78,10 @@ export interface ParameterManagerProps {
     parameters?: Param[];
     nodeRange?: Range;
     setParameters?: (params: Param[]) => void;
+    documentUri?: string;
 }
 const ParameterManager = (props: ParameterManagerProps) => {
-    const { formData, nodeRange, parameters, setParameters } = props;
+    const { documentUri, formData, nodeRange, parameters, setParameters } = props;
     const { addParamText, noDataText, readonly, tableKey, tableValue } = formData;
     const { control, setValue, getValues, reset, watch, handleSubmit, formState: { errors } } = useForm();
 
@@ -136,8 +137,9 @@ const ParameterManager = (props: ParameterManagerProps) => {
     }
 
     const Form = () => {
-        return <FormWrapper>
+        return <FormWrapper id='parameterManagerForm'>
             <FormGenerator
+                documentUri={documentUri}
                 formData={formData}
                 range={nodeRange}
                 control={control}
@@ -209,10 +211,10 @@ const ParameterManager = (props: ParameterManagerProps) => {
                         {!readonly && !isAdding && !isUpdate && (
                             <ActionWrapper>
                                 <ActionIconWrapper>
-                                    <EditIconWrapper>
+                                    <EditIconWrapper id='paramEdit'>
                                         <Codicon name="edit" onClick={() => handleEditParameter(param, index)} />
                                     </EditIconWrapper>
-                                    <DeleteIconWrapper>
+                                    <DeleteIconWrapper id='paramTrash'>
                                         <Codicon name="trash" onClick={() => handleDeleteParameter(param)} />
                                     </DeleteIconWrapper>
                                 </ActionIconWrapper>

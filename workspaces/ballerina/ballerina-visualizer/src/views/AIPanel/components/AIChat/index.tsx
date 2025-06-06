@@ -173,12 +173,6 @@ const AIChat: React.FC = () => {
             .then((defaultPrompt: AIPanelPrompt) => {
                 if (defaultPrompt) {
                     aiChatInputRef.current?.setInputContent(defaultPrompt);
-                } else {
-                    aiChatInputRef.current?.setInputContent({
-                        command: Command.Code,
-                        templateId: TemplateId.Wildcard,
-                        type: 'command-template',
-                    });
                 }
             });
     }, []);
@@ -2315,7 +2309,7 @@ const AIChat: React.FC = () => {
                                 <ChatMessage>
                                     {message.type !== "question" && message.type !== "label" && (
                                         <RoleContainer
-                                            icon={message.role === "User" ? "account" : "hubot"}
+                                            icon={message.role === "User" ? "bi-user" : "bi-ai-chat"}
                                             title={message.role}
                                             showPreview={false}
                                             isLoading={

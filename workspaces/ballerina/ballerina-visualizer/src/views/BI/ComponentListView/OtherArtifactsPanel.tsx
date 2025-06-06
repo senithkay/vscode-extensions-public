@@ -83,6 +83,7 @@ export function OtherArtifactsPanel(props: OtherArtifactsPanelProps) {
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard
+                    data-testid="function"
                     icon={<Icon name="bi-function" />}
                     title="Function"
                     onClick={() => handleClick(DIRECTORY_MAP.FUNCTION)}
@@ -96,21 +97,25 @@ export function OtherArtifactsPanel(props: OtherArtifactsPanelProps) {
                     />
                 }
                 <ButtonCard
+                    id="data-mapper"
                     icon={<Icon name="dataMapper" />}
                     title="Data Mapper"
                     onClick={() => handleClick(DIRECTORY_MAP.DATA_MAPPER)}
                 />
                 <ButtonCard
+                    id="type"
                     icon={<Icon name="bi-type" />}
                     title="Type"
                     onClick={() => handleClick(DIRECTORY_MAP.TYPE)}
                 />
                 <ButtonCard
+                    id="connection"
                     icon={<Icon name="bi-connection" />}
                     title="Connection"
                     onClick={() => handleClick(DIRECTORY_MAP.CONNECTION)}
                 />
                 <ButtonCard
+                    id="configurable"
                     icon={<Icon name="bi-config" />}
                     title="Configuration"
                     onClick={() => handleClick(DIRECTORY_MAP.CONFIGURABLE)}

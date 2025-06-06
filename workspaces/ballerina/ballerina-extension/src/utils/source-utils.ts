@@ -11,11 +11,12 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { workspace } from 'vscode';
 import { Uri, Position } from 'vscode';
-import { ArtifactData, LinePosition, ProjectStructureArtifactResponse, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
+import { ArtifactData, EVENT_TYPE, LinePosition, MACHINE_VIEW, ProjectStructureArtifactResponse, STModification, SyntaxTree, TextEdit } from '@wso2-enterprise/ballerina-core';
 import path from 'path';
-import { StateMachine } from '../stateMachine';
+import { openView, StateMachine } from '../stateMachine';
 import { ArtifactsUpdated, ArtifactNotificationHandler } from './project-artifacts-handler';
 import { existsSync, writeFileSync } from 'fs';
+import { notifyCurrentWebview } from '../RPCLayer';
 
 export interface UpdateSourceCodeRequest {
     textEdits: {
@@ -72,6 +73,7 @@ export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCode
 
     // Iterate through modificationRequests and apply modifications
     try {
+        const workspaceEdit = new vscode.WorkspaceEdit();
         for (const [fileUriString, request] of Object.entries(modificationRequests)) {
             const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
                 documentIdentifier: { uri: fileUriString },
@@ -80,7 +82,6 @@ export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCode
 
             if (parseSuccess) {
                 const fileUri = Uri.file(request.filePath);
-                const workspaceEdit = new vscode.WorkspaceEdit();
                 workspaceEdit.replace(
                     fileUri,
                     new vscode.Range(
@@ -89,48 +90,55 @@ export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCode
                     ),
                     source
                 );
-                await workspace.applyEdit(workspaceEdit);
+            }
+        }
 
-                return new Promise((resolve, reject) => {
-                    // Get the artifact notification handler instance
-                    const notificationHandler = ArtifactNotificationHandler.getInstance();
-                    // Subscribe to artifact updated notifications
-                    let unsubscribe = notificationHandler.subscribe(ArtifactsUpdated.method, artifactData, async (payload) => {
-                        console.log("Received notification:", payload);
-                        clearTimeout(timeoutId);
-                        if (updateSourceCodeRequest.resolveMissingDependencies) {
-                            await StateMachine.langClient().resolveMissingDependencies({
-                                documentIdentifier: { uri: fileUriString },
-                            });
-                        }
-                        resolve(payload.data);
-                        StateMachine.setReadyMode();
-                        unsubscribe();
-                    });
+        // Apply all changes at once
+        await workspace.applyEdit(workspaceEdit);
 
-                    // Set a timeout to reject if no notification is received within 10 seconds
-                    const timeoutId = setTimeout(() => {
-                        console.log("No artifact update notification received within 10 seconds");
-                        unsubscribe();
-                        StateMachine.setReadyMode();
-                        reject(new Error("Operation timed out. Please try again."));
-                    }, 10000);
-
-                    // Clear the timeout when notification is received
-                    const originalUnsubscribe = unsubscribe;
-                    unsubscribe = () => {
-                        clearTimeout(timeoutId);
-                        originalUnsubscribe();
-                    };
+        // Handle missing dependencies after all changes are applied
+        if (updateSourceCodeRequest.resolveMissingDependencies) {
+            for (const [fileUriString] of Object.entries(modificationRequests)) {
+                await StateMachine.langClient().resolveMissingDependencies({
+                    documentIdentifier: { uri: fileUriString },
                 });
             }
         }
+
+        return new Promise((resolve, reject) => {
+            // Get the artifact notification handler instance
+            const notificationHandler = ArtifactNotificationHandler.getInstance();
+            // Subscribe to artifact updated notifications
+            let unsubscribe = notificationHandler.subscribe(ArtifactsUpdated.method, artifactData, async (payload) => {
+                console.log("Received notification:", payload);
+                clearTimeout(timeoutId);
+                resolve(payload.data);
+                StateMachine.setReadyMode();
+                notifyCurrentWebview();
+                unsubscribe();
+            });
+
+            // Set a timeout to reject if no notification is received within 10 seconds
+            const timeoutId = setTimeout(() => {
+                console.log("No artifact update notification received within 10 seconds");
+                unsubscribe();
+                StateMachine.setReadyMode();
+                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+                reject(new Error("Operation timed out. Please try again."));
+            }, 10000);
+
+            // Clear the timeout when notification is received
+            const originalUnsubscribe = unsubscribe;
+            unsubscribe = () => {
+                clearTimeout(timeoutId);
+                originalUnsubscribe();
+            };
+        });
     } catch (error) {
         StateMachine.setReadyMode();
         console.log(">>> error updating source", error);
     }
 }
-
 
 export async function injectImportIfMissing(importStatement: string, filePath: string) {
     const fileContent = fs.readFileSync(filePath, 'utf8');

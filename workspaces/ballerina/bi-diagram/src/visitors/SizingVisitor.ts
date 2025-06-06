@@ -141,10 +141,21 @@ export class SizingVisitor implements BaseVisitor {
         if (!this.validateNode(node)) return;
         // first branch
         const firstBranchWidthViewState = node.branches.at(0)?.viewState;
+        if (!firstBranchWidthViewState) {
+            console.error("No first branch view state found in if node", node);
+            return;
+        }
         // last branch
         const lastBranchWidthViewState = node.branches.at(-1)?.viewState;
-        // middle branches width
+        if (!lastBranchWidthViewState) {
+            console.error("No last branch view state found in if node", node);
+            return;
+        }
         const middleBranchesWidth = node.branches.slice(1, -1).reduce((acc, branch) => {
+            if (!branch?.viewState) {
+                console.error("Branch view state is not defined", branch);
+                return acc;
+            }
             return acc + branch.viewState?.clw + branch.viewState?.crw;
         }, 0);
         // if bar width
@@ -312,6 +323,11 @@ export class SizingVisitor implements BaseVisitor {
         this.visitContainerNode(node, WHILE_NODE_WIDTH);
     }
 
+    endVisitLock(node: FlowNode, parent?: FlowNode): void {
+        if (!this.validateNode(node)) return;
+        this.visitContainerNode(node, WHILE_NODE_WIDTH);
+    }
+
     endVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (!this.validateNode(node)) return;
 
@@ -363,10 +379,22 @@ export class SizingVisitor implements BaseVisitor {
 
         // first branch
         const firstBranchWidthViewState = node.branches.at(0)?.viewState;
+        if (!firstBranchWidthViewState) {
+            console.error("No first branch view state found in fork node", node);
+            return;
+        }
         // last branch
         const lastBranchWidthViewState = node.branches.at(-1)?.viewState;
+        if (!lastBranchWidthViewState) {
+            console.error("No last branch view state found in fork node", node);
+            return;
+        }
         // middle branches width
         const middleBranchesWidth = node.branches.slice(1, -1).reduce((acc, branch) => {
+            if (!branch?.viewState) {
+                console.error("Branch view state is not defined", branch);
+                return acc;
+            }
             return acc + branch.viewState?.clw + branch.viewState?.crw;
         }, 0);
         const topBarWidth =

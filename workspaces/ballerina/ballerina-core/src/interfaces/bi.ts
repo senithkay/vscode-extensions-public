@@ -118,6 +118,7 @@ export type PropertyTypeMemberInfo = {
     type: string;
     kind: string;
     packageInfo: string;
+    packageName?: string;
     selected: boolean;
 };
 

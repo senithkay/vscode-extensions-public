@@ -108,11 +108,14 @@ export function Mediators(props: MediatorProps) {
             if (expandedModules.length === 0) {
                 initializeExpandedModules(mediatorsList);
             }
+            setIsLoading(false);
+            return mediatorsWithConnectorIcons;
         } catch (error) {
             console.error('Error fetching mediators:', error);
             setAllMediators(undefined);
         }
         setIsLoading(false);
+        return null;
     };
 
     const fetchLocalConnectorData = async () => {
@@ -212,7 +215,7 @@ export function Mediators(props: MediatorProps) {
                 });
 
                 if (Object.keys(searchedCategories).length > 0) {
-                    searchedMediators[key] = { ...searchedMediators[key], items: searchedCategories };
+                    searchedMediators[key] = { ...allMediators[key], ...searchedMediators[key], items: searchedCategories };
                 } else {
                     delete searchedMediators[key];
                 }
@@ -228,7 +231,7 @@ export function Mediators(props: MediatorProps) {
                 });
 
                 if (filtered.length > 0) {
-                    searchedMediators[key] = { "items": filtered };
+                    searchedMediators[key] = { ...allMediators[key], items: filtered };
                 } else {
                     delete searchedMediators[key];
                 }
@@ -240,9 +243,9 @@ export function Mediators(props: MediatorProps) {
 
     const reloadPalette = async (connectorName?: string) => {
         props.clearSearch();
-        await fetchMediators();
+        const updatedMediatorList = await fetchMediators();
         await fetchLocalConnectorData();
-        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(allMediators);
+        connectorName ? setExpandedModules([connectorName]) : initializeExpandedModules(updatedMediatorList);
     };
 
     const deleteConnector = async (connectorName: string, artifactId: string, version: string, iconUrl: string, connectorPath: string) => {

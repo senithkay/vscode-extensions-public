@@ -378,14 +378,17 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 <TextField
                     label="Resource Name"
                     id="resourceName"
+                    required
                     errorMsg={errors.resourceName?.message.toString()}
                     {...register("resourceName")}
                 />
                 <Dropdown
                     label="Template Type"
                     id="templateType"
+                    required
                     items={templates}
                     {...register("templateType")}
+                    dropdownContainerSx={{ position: "relative", "z-index": 1000 }}
                 />
             </>)}
             {!createOptionValue && (<>

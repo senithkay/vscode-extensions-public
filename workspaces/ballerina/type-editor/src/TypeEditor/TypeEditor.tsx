@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { TextField, Dropdown, Button, SidePanelBody, ProgressRing, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, Button, SidePanelBody, ProgressRing, Icon, Typography, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Member, Type, UndoRedoManager, TypeNodeKind, Imports, AddImportItemResponse } from "@wso2-enterprise/ballerina-core";
@@ -205,12 +205,14 @@ export function TypeEditor(props: TypeEditorProps) {
     const [tempName, setTempName] = useState("");
     const [onValidationError, setOnValidationError] = useState<boolean>(false);
     const [isTypeNameValid, setIsTypeNameValid] = useState<boolean>(true);
+    const [isSaving, setIsSaving] = useState(false);
     const { rpcClient } = useRpcContext();
+    const saveButtonClicked = useRef(false);
 
-     useEffect(() => {
+    useEffect(() => {
         if (props.type) {
             setType(props.type);
-            
+
             const nodeKind = props.type.codedata.node;
             switch (nodeKind) {
                 case "RECORD":
@@ -232,7 +234,7 @@ export function TypeEditor(props: TypeEditorProps) {
                     setSelectedTypeKind(TypeKind.RECORD);
             }
         }
-        
+
         setIsNewType(props.newType);
     }, [props.type?.name, props.newType]);
 
@@ -311,6 +313,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const onTypeChange = async (type: Type) => {
         const name = type.name;
+        setIsSaving(true);
         // IF type nodeKind is CLASS then we call graphqlEndpoint
         // TODO: for TypeDiagram we need to give a generic class creation
         if (type.codedata.node === "CLASS") {
@@ -324,6 +327,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 .updateType({ filePath: type.codedata?.lineRange?.fileName || 'types.bal', type, description: "" });
         }
         props.onTypeChange(type);
+        setIsSaving(false);
     }
 
     const handleTypeImport = (types: Type[], isXml: boolean = false) => {
@@ -401,22 +405,25 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const startEditing = () => {
         setTempName(type.name);
+        saveButtonClicked.current = false;
         setIsEditing(true);
     };
 
     const cancelEditing = () => {
         validateTypeName(type.name);
-        
+
         setIsEditing(false);
         setTempName("");
     };
 
     const editTypeName = async () => {
+        saveButtonClicked.current = true;
         if (!tempName || tempName === type.name) {
             cancelEditing();
             return;
         }
 
+        setIsSaving(true);
         try {
             await rpcClient.getBIDiagramRpcClient().renameIdentifier({
                 fileName: type.codedata.lineRange.fileName,
@@ -442,11 +449,15 @@ export function TypeEditor(props: TypeEditorProps) {
             cancelEditing();
         } catch (error) {
             console.error('Error renaming service class:', error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
     const handleOnBlur = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        await validateTypeName(e.target.value); 
+        if (!saveButtonClicked.current) {
+            await validateTypeName(e.target.value);
+        }
     };
 
     const handleOnFieldFocus = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -454,6 +465,10 @@ export function TypeEditor(props: TypeEditorProps) {
     }
 
     const validateTypeName = useCallback(debounce(async (value: string) => {
+        if (saveButtonClicked.current) {
+            return;
+        }
+
         const projectUri = await rpcClient.getVisualizerLocation().then((res) => res.projectUri);
 
         const endPosition = await rpcClient.getBIDiagramRpcClient().getEndOfFile({
@@ -464,7 +479,7 @@ export function TypeEditor(props: TypeEditorProps) {
             filePath: type?.codedata?.lineRange?.fileName || "types.bal",
             context: {
                 expression: value,
-                startLine:{
+                startLine: {
                     line: type?.codedata?.lineRange?.startLine?.line ?? endPosition.line,
                     offset: type?.codedata?.lineRange?.startLine?.offset ?? endPosition.offset
                 },
@@ -482,24 +497,24 @@ export function TypeEditor(props: TypeEditorProps) {
                             offset: type?.codedata?.lineRange?.endLine?.offset ?? endPosition.offset
                         },
                         fileName: type?.codedata?.lineRange?.fileName
-                    },  
-                },
-                property: type?.properties["name"] ? 
-                {
-                    ...type.properties["name"],
-                    valueTypeConstraint: "Global"
-                } : 
-                {
-                    metadata: {
-                        label: "",
-                        description: "",
                     },
-                    valueType: "IDENTIFIER",
-                    value: "",
-                    valueTypeConstraint: "Global",
-                    optional: false,
-                    editable: true
-                }
+                },
+                property: type?.properties["name"] ?
+                    {
+                        ...type.properties["name"],
+                        valueTypeConstraint: "Global"
+                    } :
+                    {
+                        metadata: {
+                            label: "",
+                            description: "",
+                        },
+                        valueType: "IDENTIFIER",
+                        value: "",
+                        valueTypeConstraint: "Global",
+                        optional: false,
+                        editable: true
+                    }
             }
         });
 
@@ -583,6 +598,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                 <StyledButton
                                                     appearance="secondary"
                                                     onClick={cancelEditing}
+                                                    disabled={isSaving}
                                                 >
                                                     Cancel
                                                 </StyledButton>
@@ -591,7 +607,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                     onClick={editTypeName}
                                                     disabled={!isTypeNameValid || !tempName}
                                                 >
-                                                    Save
+                                                    {isSaving ? <Typography variant="progress">Saving...</Typography> : "Save"}
                                                 </StyledButton>
                                             </ButtonGroup>
                                         </EditRow>
@@ -617,7 +633,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                                 handleOnTypeNameChange((e.target as HTMLInputElement).value);
                                             }
                                         }}
-                                        onFocus={(e) => {e.target.select(); validateTypeName(e.target.value)}}
+                                        onFocus={(e) => { e.target.select(); validateTypeName(e.target.value) }}
                                         ref={nameInputRef}
                                     />
                                 </TextFieldWrapper>
@@ -628,7 +644,11 @@ export function TypeEditor(props: TypeEditorProps) {
                             <>
                                 {renderEditor()}
                                 <S.Footer>
-                                    <Button onClick={() => onTypeChange(type)} disabled={onValidationError || !isTypeNameValid}>Save</Button>
+                                    <Button
+                                        onClick={() => onTypeChange(type)}
+                                        disabled={onValidationError || !isTypeNameValid || isEditing || isSaving}>
+                                        {isSaving ? <Typography variant="progress">Saving...</Typography> : "Save"}
+                                    </Button>
                                 </S.Footer>
                             </>
                         }

@@ -260,6 +260,9 @@ import {
     CreateBallerinaModuleResponse,
     SCOPE,
     DevantMetadata,
+    UpdateMediatorResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse,
     DependencyDetails
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
@@ -279,8 +282,8 @@ import { DiagramService, APIResource, NamedSequence, UnitTest, Proxy } from "../
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
-import { StateMachine, navigate, openView } from "../../stateMachine";
+import { APIS, COMMANDS, DEFAULT_ICON, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, RUNTIME_VERSION_440, SWAGGER_REL_DIR } from "../../constants";
+import { getStateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
 import { testFileMatchPattern } from "../../test-explorer/discover";
@@ -290,7 +293,7 @@ import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIRes
 import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
-import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
+import { generateSwagger, getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { getBallerinaModuleContent, getBallerinaConfigContent } from "../../util/template-engine/mustach-templates/ballerinaModule";
@@ -298,7 +301,7 @@ import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
 import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
-import { VisualizerWebview } from "../../visualizer/webview";
+import { VisualizerWebview, webviews } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
 import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule } from "../../util/onboardingUtils";
@@ -308,6 +311,7 @@ import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API
 import { DevantScopes, IWso2PlatformExtensionAPI } from "@wso2-enterprise/wso2-platform-core";
 import { ICreateComponentCmdParams, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
 import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
+import { DebuggerConfig } from "../../debugger/config";
 
 const AdmZip = require('adm-zip');
 
@@ -320,6 +324,8 @@ const undoRedo = new UndoRedoManager();
 const connectorCache = new Map<string, any>();
 
 export class MiDiagramRpcManager implements MiDiagramAPI {
+    constructor(private projectUri: string) { }
+
     async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
         return new Promise(async (resolve) => {
             if (params.commands.length >= 1) {
@@ -343,8 +349,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 content.requests = params.payload;
                 content.defaultRequest = params.defaultPayload;
             }
-            const projectUri = StateMachine.context().projectUri!;
-            const tryout = path.join(projectUri, ".tryout");
+            const tryout = path.join(this.projectUri, ".tryout");
             if (!fs.existsSync(tryout)) {
                 fs.mkdirSync(tryout);
             }
@@ -397,8 +402,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async getAllInputDefaultPayloads(): Promise<Record<string, any>> {
-        const projectUri = StateMachine.context().projectUri!;
-        const tryoutFolderPath = path.join(projectUri, ".tryout");
+        const tryoutFolderPath = path.join(this.projectUri, ".tryout");
         const payloadMapByArtifact: Record<string, any> = {};
 
         if (fs.existsSync(tryoutFolderPath)) {
@@ -409,7 +413,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 if (fs.statSync(filePath).isFile()) {
                     const fileContent = JSON.parse(fs.readFileSync(filePath, "utf-8"));
                     const fileNameWithoutExtension = path.basename(file, ".json");
-                    
+
                     if (fileContent.type === "API") {
                         const payloadMapByResource: Record<string, object> = {};
                         Object.keys(fileContent).forEach((key) => {
@@ -433,8 +437,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     readInputPayloadFile(name: string) {
-        const projectUri = StateMachine.context().projectUri!;
-        const tryout = path.join(projectUri, ".tryout", name + ".json");
+        const tryout = path.join(this.projectUri, ".tryout", name + ".json");
         if (fs.existsSync(tryout)) {
             return JSON.parse(fs.readFileSync(tryout, "utf8"));
         }
@@ -443,7 +446,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.tryOutMediator(params);
             resolve(res);
         });
@@ -451,7 +454,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async shutDownTryoutServer(): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.shutdownTryoutServer();
             resolve(res);
         });
@@ -466,11 +469,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async getMediatorInputOutputSchema(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return new Promise(async (resolve) => {
-            const projectUri = StateMachine.context().projectUri!;
-            const payloadPath = path.join(projectUri, ".tryout", "input.json");
+            const payloadPath = path.join(this.projectUri, ".tryout", "input.json");
             const payload = fs.readFileSync(payloadPath, "utf8");
             params.inputPayload = payload
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getMediatorInputOutputSchema(params);
             resolve(res);
         });
@@ -485,9 +487,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         if (isGetSTFromUriRequest(params)) {
             documentUri = params.documentUri;
         } else {
-            const projectUri = StateMachine.context().projectUri!;
             documentUri = path.join(
-                projectUri,
+                this.projectUri,
                 'src',
                 'main',
                 'wso2mi',
@@ -499,7 +500,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
 
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getSyntaxTree({
                 documentIdentifier: {
                     uri: documentUri
@@ -512,17 +513,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getConnectors(): Promise<ConnectorsResponse> {
         return new Promise(async (resolve) => {
             const connectorNames: Connector[] = [];
-            const workspaceFolders = workspace.workspaceFolders;
 
-            if (!workspaceFolders) {
+            if (!fs.existsSync(path.join(this.projectUri, connectorsPath))) {
                 return resolve({ data: connectorNames });
             }
 
-            if (!fs.existsSync(path.join(workspaceFolders[0].uri.path, connectorsPath))) {
-                return resolve({ data: connectorNames });
-            }
-
-            const connectorsRoot = path.join(workspaceFolders[0].uri.path, connectorsPath);
+            const connectorsRoot = path.join(this.projectUri, connectorsPath);
             const connectors = fs.readdirSync(connectorsRoot, { withFileTypes: true });
             connectors.filter(dirent => dirent.isDirectory()).forEach(connectorDir => {
                 const connectorPath = path.join(connectorsRoot, connectorDir.name);
@@ -582,13 +578,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 return result;
             };
 
-            const workspaceFolder = workspace.workspaceFolders;
-            if (workspaceFolder) {
-                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const synapseAPIPath = findSynapseAPIPath(workspaceFolderPath);
-                return synapseAPIPath;
-            }
-            resolve({ data: "" });
+            const synapseAPIPath = findSynapseAPIPath(this.projectUri);
+            return synapseAPIPath;
         });
     }
 
@@ -618,9 +609,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
             let fileName: string;
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
-            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             if (!xmlData) {
-                const langClient = StateMachine.context().langClient!;
+                const langClient = getStateMachine(this.projectUri).context().langClient!;
                 const projectDetailsRes = await langClient?.getProjectDetails();
                 const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
                 const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
@@ -664,7 +654,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
                 if (saveSwaggerDef && swaggerDefPath) {
                     const swaggerRegPath = path.join(
-                        workspacePath,
+                        this.projectUri,
                         SWAGGER_REL_DIR,
                         fileName + "_original" + path.extname(swaggerDefPath)
                     );
@@ -690,8 +680,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
-            
-            const metadataPath = path.join(workspacePath, "src", "main", "wso2mi", "resources", "metadata", name + (apiVersion == "" ? "" : "_" + apiVersion) + "_metadata.yaml");
+
+            const metadataPath = path.join(this.projectUri, "src", "main", "wso2mi", "resources", "metadata", name + (apiVersion == "" ? "" : "_" + apiVersion) + "_metadata.yaml");
             fs.writeFileSync(metadataPath, getAPIMetadata({ name: name, version: apiVersion == "" ? "1.0.0" : apiVersion, context: apiContext, versionType: apiVersionType ? (apiVersionType == "url" ? apiVersionType : false) : false }));
 
             // If WSDL is used, create an Endpoint
@@ -735,13 +725,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
             }
 
-            await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
-            await this.rangeFormat({ uri: documentUri, range: apiRange });
-
             if (sanitizedHandlersXmlData) {
                 await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
                 await this.rangeFormat({ uri: documentUri, range: handlersRange });
             }
+
+            await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
+            await this.rangeFormat({ uri: documentUri, range: apiRange });
 
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: documentUri });
@@ -782,13 +772,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 return result;
             };
 
-            const workspaceFolder = workspace.workspaceFolders;
-            if (workspaceFolder) {
-                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const synapseEndpointPath = findSynapseEndpointPath(workspaceFolderPath);
-                return synapseEndpointPath;
-            }
-            resolve({ data: "" });
+            const synapseEndpointPath = findSynapseEndpointPath(this.projectUri);
+            return synapseEndpointPath;
         });
     }
 
@@ -882,7 +867,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
+                openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -950,7 +935,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
+                openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1008,7 +993,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
+                openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1064,7 +1049,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
+                openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1496,78 +1481,54 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
         return new Promise(async (resolve) => {
-            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
-                workspace.workspaceFolders[0].uri.fsPath
-                : undefined;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+            const resp = await langClient.getProjectStructure(this.projectUri);
+            const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
 
-            if (!!rootPath) {
-                const langClient = StateMachine.context().langClient!;
-                const resp = await langClient.getProjectStructure(rootPath);
-                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
+            const endpoints: string[] = [];
+            const sequences: string[] = [];
 
-                const endpoints: string[] = [];
-                const sequences: string[] = [];
-
-                for (const endpoint of artifacts.endpoints) {
-                    endpoints.push(endpoint.name);
-                }
-
-                for (const sequence of artifacts.sequences) {
-                    sequences.push(sequence.name);
-                }
-
-                resolve({ data: [endpoints, sequences] });
+            for (const endpoint of artifacts.endpoints) {
+                endpoints.push(endpoint.name);
             }
 
-            resolve({ data: [] });
+            for (const sequence of artifacts.sequences) {
+                sequences.push(sequence.name);
+            }
+
+            resolve({ data: [endpoints, sequences] });
         });
     }
 
     async getAllAPIcontexts(): Promise<APIContextsResponse> {
         return new Promise(async (resolve) => {
-            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
-                workspace.workspaceFolders[0].uri.fsPath
-                : undefined;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+            const resp = await langClient.getProjectStructure(this.projectUri);
+            const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
 
-            if (!!rootPath) {
-                const langClient = StateMachine.context().langClient!;
-                const resp = await langClient.getProjectStructure(rootPath);
-                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
+            const contexts: string[] = [];
 
-                const contexts: string[] = [];
-
-                for (const api of artifacts.apis) {
-                    contexts.push(api.context);
-                }
-
-                resolve({ contexts: contexts });
+            for (const api of artifacts.apis) {
+                contexts.push(api.context);
             }
 
-            resolve({ contexts: [] });
+            resolve({ contexts: contexts });
         });
     }
 
     async getTemplates(): Promise<TemplatesResponse> {
         return new Promise(async (resolve) => {
-            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
-                workspace.workspaceFolders[0].uri.fsPath
-                : undefined;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+            const resp = await langClient.getProjectStructure(this.projectUri);
+            const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
 
-            if (!!rootPath) {
-                const langClient = StateMachine.context().langClient!;
-                const resp = await langClient.getProjectStructure(rootPath);
-                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
+            const templates: string[] = [];
 
-                const templates: string[] = [];
-
-                for (const template of artifacts.templates) {
-                    templates.push(template.name);
-                }
-
-                resolve({ data: templates });
+            for (const template of artifacts.templates) {
+                templates.push(template.name);
             }
 
-            resolve({ data: [] });
+            resolve({ data: templates });
         });
     }
 
@@ -1591,13 +1552,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 return result;
             };
 
-            const workspaceFolder = workspace.workspaceFolders;
-            if (workspaceFolder) {
-                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
-                const synapseSequencePath = findSynapseSequencePath(workspaceFolderPath);
-                return synapseSequencePath;
-            }
-            return "";
+            const synapseSequencePath = findSynapseSequencePath(this.projectUri);
+            return synapseSequencePath;
         });
     }
 
@@ -1794,6 +1750,10 @@ ${endpointAttributes}
             let xmlData = getTemplateXmlWrapper(getTemplateParams);
             let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
+            if (params.templateType === 'Sequence Template') {
+                params.isEdit = false;
+            }
+
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else if (params.isEdit && params.range) {
@@ -1928,7 +1888,7 @@ ${endpointAttributes}
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
+                openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -2100,7 +2060,7 @@ ${endpointAttributes}
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
+                openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -2204,7 +2164,7 @@ ${endpointAttributes}
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
+                openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -2310,7 +2270,7 @@ ${endpointAttributes}
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
+                openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -2542,7 +2502,7 @@ ${endpointAttributes}
                 },
                 text: sanitizedXmlData
             });
-            openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: getDssDataSourceParams.dataSourceName });
+            openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: getDssDataSourceParams.dataSourceName });
             resolve({ path: filePath });
         });
     }
@@ -2936,8 +2896,11 @@ ${endpointAttributes}
     }
 
     closeWebView(): void {
-        if (VisualizerWebview.currentPanel) {
-            VisualizerWebview.currentPanel.dispose();
+        if (webviews.has(this.projectUri)) {
+            const webview = webviews.get(this.projectUri);
+            if (webview) {
+                webview.dispose();
+            }
         }
     }
 
@@ -2994,9 +2957,9 @@ ${endpointAttributes}
             // open file dialog to select the openapi spec file
             const options: vscode.OpenDialogOptions = {
                 canSelectMany: false,
-                openLabel: 'Open OpenAPI Spec',
+                openLabel: 'Open File',
                 filters: {
-                    'OpenAPI Spec': ['json', 'yaml', 'yml']
+                    'OpenAPI Spec': ['json', 'yaml', 'yml', 'proto']
                 }
             };
 
@@ -3034,7 +2997,7 @@ ${endpointAttributes}
             const initialDependencies = generateInitialDependencies(httpConnectorVersion);
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
-                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
+                    'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", (artifactID ?? name).toLowerCase(), projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion, initialDependencies),
                     '.env': '',
                     'src': {
                         'main': {
@@ -3084,37 +3047,36 @@ ${endpointAttributes}
             await createGitignoreFile(path.join(directory, name));
 
             window.showInformationMessage(`Successfully created ${name} project`);
-            const projectOpened = StateMachine.context().projectOpened;
+            const projectOpened = getStateMachine(this.projectUri).context().projectOpened;
 
-            commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-            resolve({ filePath: path.join(directory, name) });
+            if (open) {
+                if (projectOpened) {
+                    const answer = await window.showInformationMessage(
+                        "Do you want to open the created project in the current window or new window?",
+                        "Current Window",
+                        "New Window"
+                    );
 
-            // FIX ME: Enable when multiproject support provided
-            // if (open) {
-            //     if (projectOpened) {
-            //         const answer = await window.showInformationMessage(
-            //             "Do you want to open the created project in the current window or new window?",
-            //             "Current Window",
-            //             "New Window"
-            //         );
+                    if (answer === "Current Window") {
+                        const folderUri = Uri.file(path.join(directory, name));
 
-            //         if (answer === "Current Window") {
-            //             const folderUri = Uri.file(path.join(directory, name));
+                        // Get the currently opened workspaces
+                        const workspaceFolders = workspace.workspaceFolders || [];
 
-            //             // Get the currently opened workspaces
-            //             const workspaceFolders = workspace.workspaceFolders || [];
+                        // Check if the folder is not already part of the workspace
+                        if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
+                            workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
+                        }
+                    } else {
+                        commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+                        resolve({ filePath: path.join(directory, name) });
+                    }
 
-            //             // Check if the folder is not already part of the workspace
-            //             if (!workspaceFolders.some(folder => folder.uri.fsPath === folderUri.fsPath)) {
-            //                 workspace.updateWorkspaceFolders(workspaceFolders.length, 0, { uri: folderUri });
-            //             }
-            //         } else {
-            //             commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
-            //             resolve({ filePath: path.join(directory, name) });
-            //         }
-
-            //     }
-
+                } else {
+                    commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, name)));
+                    resolve({ filePath: path.join(directory, name) });
+                }
+            }
             resolve({ filePath: path.join(directory, name) });
         });
     }
@@ -3127,24 +3089,16 @@ ${endpointAttributes}
 
     async getESBConfigs(): Promise<ESBConfigsResponse> {
         return new Promise(async (resolve) => {
-            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
-                workspace.workspaceFolders[0].uri.fsPath
-                : undefined;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+            const resp = await langClient.getProjectStructure(this.projectUri);
 
-            if (!!rootPath) {
-                const langClient = StateMachine.context().langClient!;
-                const resp = await langClient.getProjectStructure(rootPath);
+            const ESBConfigs: string[] = [];
 
-                const ESBConfigs: string[] = [];
-
-                for (const esbConfig of (resp.directoryMap as any).esbConfigs) {
-                    const config = esbConfig.name;
-                    ESBConfigs.push(config);
-                }
-                resolve({ data: ESBConfigs });
+            for (const esbConfig of (resp.directoryMap as any).esbConfigs) {
+                const config = esbConfig.name;
+                ESBConfigs.push(config);
             }
-
-            resolve({ data: [] });
+            resolve({ data: ESBConfigs });
         });
     }
 
@@ -3164,7 +3118,7 @@ ${endpointAttributes}
         return new Promise(async (resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
             if (workspaceFolders) {
-                resolve({ path: workspaceFolders[0].uri.fsPath });
+                resolve({ path: this.projectUri });
             }
             resolve({ path: getDefaultProjectPath() });
         });
@@ -3207,7 +3161,7 @@ ${endpointAttributes}
             const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
         
             if (connector) {
-                const rpcClient = new MiVisualizerRpcManager();
+                const rpcClient = new MiVisualizerRpcManager(this.projectUri);
                 console.log("Connector found - ", connector);
                 const updateDependencies = async () => {
                     const dependencies: DependencyDetails[] = [{
@@ -3237,8 +3191,7 @@ ${endpointAttributes}
         const { content } = params;
 
         //get current workspace folder
-        const directoryPath = StateMachine.context().projectUri;
-        console.log('Directory path:', directoryPath);
+        console.log('Directory path:', this.projectUri);
 
         const length = content.length;
         console.log('Content length:', length);
@@ -3311,14 +3264,14 @@ ${endpointAttributes}
                 if (fileType === 'apis') {
                     const version = content[i].match(/<api [^>]*version="([^"]+)"/);
                     if (version) {
-                        fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}_v${version[1]}.xml`);
+                        fullPath = path.join(this.projectUri, 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}_v${version[1]}.xml`);
                     } else {
-                        fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
+                        fullPath = path.join(this.projectUri, 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
                     }
                 } else if (fileType === 'unit-test') {
-                    fullPath = path.join(directoryPath ?? '', 'src', 'main', 'test', path.sep, `${name}.xml`);
+                    fullPath = path.join(this.projectUri, 'src', 'main', 'test', path.sep, `${name}.xml`);
                 } else {
-                    fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
+                    fullPath = path.join(this.projectUri, 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
                 }
                 try {
                     content[i] = content[i].trimStart();
@@ -3365,7 +3318,7 @@ ${endpointAttributes}
                     if (content !== undefined) {
                         await replaceFullContentToFile(filePath, content);
                         window.showInformationMessage(`Written content to ${fileName} successfully.`);
-                        return { status: true, content : content };
+                        return { status: true, content: content };
                     } else {
                         console.error("File content is undefined");
                         return { status: false, content: "File content is required for write operation" };
@@ -3384,15 +3337,15 @@ ${endpointAttributes}
                 default:
                     console.error(`Invalid file operation: ${operation}`);
                     return { status: false, content: "Invalid file operation" };
-            } 
+            }
         } catch (error) {
             console.error(`Error during file operation (${operation}) at ${filePath}:`, error);
             return { status: false, content: `Error during file operation: ${(error as Error).message}` };
         }
     }
-        
+
     async highlightCode(params: HighlightCodeRequest) {
-        const documentUri = StateMachine.context().documentUri;
+        const documentUri = getStateMachine(this.projectUri).context().documentUri;
         let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
         if (!editor && params.force && documentUri) {
             const document = await workspace.openTextDocument(Uri.file(documentUri));
@@ -3407,13 +3360,7 @@ ${endpointAttributes}
     }
 
     async getWorkspaceContext(): Promise<GetWorkspaceContextResponse> {
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders) {
-            throw new Error('No workspace is currently open');
-        }
-
-        var workspaceDir = workspaceFolders[0].uri.fsPath;
-        const artifactDirPath = workspaceDir + '/src/main/wso2mi/artifacts';
+        const artifactDirPath = path.join(this.projectUri, 'src', 'main', 'wso2mi', 'artifacts');
         const fileContents: string[] = [];
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
         for (const folder of resourceFolders) {
@@ -3433,16 +3380,11 @@ ${endpointAttributes}
                 }
             }
         }
-        return { context: fileContents, rootPath: workspaceDir };
+        return { context: fileContents, rootPath: this.projectUri };
     }
 
     async getProjectUuid(): Promise<GetProjectUuidResponse> {
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders) {
-            throw new Error('No workspace is currently open');
-        }
-        var rootPath = workspaceFolders[0].uri.fsPath;
-        const pomPath = path.join(rootPath, 'pom.xml');
+        const pomPath = path.join(this.projectUri, 'pom.xml');
 
         return new Promise((resolve, reject) => {
             fs.readFile(pomPath, 'utf8', (err, data) => {
@@ -3464,13 +3406,7 @@ ${endpointAttributes}
     async downloadConnector(params: DownloadConnectorRequest): Promise<DownloadConnectorResponse> {
         const { url } = params;
         try {
-            const workspaceFolders = workspace.workspaceFolders;
-            if (!workspaceFolders) {
-                throw new Error('No workspace is currently open');
-            }
-            const rootPath = workspaceFolders[0].uri.fsPath;
-
-            const connectorDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors');
+            const connectorDirectory = path.join(this.projectUri, 'src', 'main', 'wso2mi', 'resources', 'connectors');
 
             if (!fs.existsSync(connectorDirectory)) {
                 fs.mkdirSync(connectorDirectory, { recursive: true });
@@ -3520,14 +3456,8 @@ ${endpointAttributes}
     async downloadInboundConnector(params: DownloadInboundConnectorRequest): Promise<DownloadInboundConnectorResponse> {
         const { url, isInBuilt } = params;
         try {
-            const workspaceFolders = workspace.workspaceFolders;
-            if (!workspaceFolders) {
-                throw new Error('No workspace is currently open');
-            }
-            const rootPath = workspaceFolders[0].uri.fsPath;
-
-            const metadataDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'metadata');
-            const libDirectory = path.join(rootPath, 'deployment', 'libs');
+            const metadataDirectory = path.join(this.projectUri, 'src', 'main', 'wso2mi', 'resources', 'metadata');
+            const libDirectory = path.join(this.projectUri, 'deployment', 'libs');
 
             if (!fs.existsSync(metadataDirectory)) {
                 fs.mkdirSync(metadataDirectory, { recursive: true });
@@ -3558,7 +3488,7 @@ ${endpointAttributes}
                             };
 
                             // Notify the visualizer
-                            RPCLayer._messenger.sendNotification(
+                            RPCLayer._messengers.get(this.projectUri)?.sendNotification(
                                 onDownloadProgress,
                                 { type: 'webview', webviewType: VisualizerWebview.viewType },
                                 {
@@ -3643,13 +3573,7 @@ ${endpointAttributes}
     async copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
         const { connectorPath } = params;
         try {
-            const workspaceFolders = workspace.workspaceFolders;
-            if (!workspaceFolders) {
-                throw new Error('No workspace is currently open');
-            }
-            const rootPath = workspaceFolders[0].uri.fsPath;
-
-            const connectorDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors');
+            const connectorDirectory = path.join(this.projectUri, 'src', 'main', 'wso2mi', 'resources', 'connectors');
 
             if (!fs.existsSync(connectorDirectory)) {
                 fs.mkdirSync(connectorDirectory, { recursive: true });
@@ -3688,12 +3612,7 @@ ${endpointAttributes}
 
     async copyArtifact(params: CopyArtifactRequest): Promise<CopyArtifactResponse> {
         try {
-            const workspaceFolders = workspace.workspaceFolders;
-            if (!workspaceFolders) {
-                throw new Error('No workspace is currently open');
-            }
-            const rootPath = workspaceFolders[0].uri.fsPath;
-            const destinationDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'artifacts', params.artifactFolder);
+            const destinationDirectory = path.join(this.projectUri, 'src', 'main', 'wso2mi', 'artifacts', params.artifactFolder);
             // Determine the destination file name
             let desFileName = path.basename(params.sourceFilePath);
             // If desFileName does nto contain .xml, append .xml
@@ -3713,6 +3632,9 @@ ${endpointAttributes}
             // Copy the file from the source to the destination
             const sourceFilePath = params.sourceFilePath; // Assuming this is provided in params
             await fs.promises.copyFile(sourceFilePath, destinationFilePath);
+            if (params.artifactType === "API") {
+                await generateSwagger(destinationFilePath);
+            }
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             return { success: true }; // Return success response
         } catch (error) {
@@ -3786,7 +3708,7 @@ ${endpointAttributes}
 
     async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const definition = await langClient.getDefinition(params);
 
             resolve(definition);
@@ -3808,11 +3730,11 @@ ${endpointAttributes}
     }
 
     async getDiagnostics(params: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
-        return StateMachine.context().langClient!.getDiagnostics(params);
+        return getStateMachine(this.projectUri).context().langClient!.getDiagnostics(params);
     }
 
     async getAvailableResources(params: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
-        return StateMachine.context().langClient!.getAvailableResources(params);
+        return getStateMachine(this.projectUri).context().langClient!.getAvailableResources(params);
     }
 
     async browseFile(params: BrowseFileRequest): Promise<BrowseFileResponse> {
@@ -3857,14 +3779,6 @@ ${endpointAttributes}
                     return "/_system/config";
                 }
             }
-            const refreshRegistryResource = (registryRoot: string) => {
-                if (registryRoot === '') {
-                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                } else {
-                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                    commands.executeCommand(COMMANDS.REFRESH_REGISTRY_COMMAND);
-                }
-            }
             let registryDir = path.join(projectDir, params.registryRoot);
             let transformedPath = getTransformedRegistryRoot(params.registryRoot);;
             if (params.createOption === "import") {
@@ -3891,7 +3805,6 @@ ${endpointAttributes}
                         const mediaType = await detectMediaType(params.filePath);
                         addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false, params.registryRoot !== "");
                     }
-                    refreshRegistryResource(params.registryRoot);
                     resolve({ path: destPath });
                 }
             } else if (params.createOption === 'entryOnly') {
@@ -3908,7 +3821,6 @@ ${endpointAttributes}
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
                 addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
-                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
 
             } else {
@@ -3927,7 +3839,6 @@ ${endpointAttributes}
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
                 addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
-                refreshRegistryResource(params.registryRoot);
                 resolve({ path: destPath });
             }
         });
@@ -3958,7 +3869,7 @@ ${endpointAttributes}
             const classMediator = await vscode.workspace.openTextDocument(filePath);
             await classMediator.save();
 
-            await changeRootPomForClassMediator();
+            await changeRootPomForClassMediator(this.projectUri);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -3984,20 +3895,13 @@ ${endpointAttributes}
     }
 
     async getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders) {
-            throw new Error('No workspace is currently open');
-        }
-
-        var currentFile = StateMachine.context().documentUri;
+        var currentFile = getStateMachine(this.projectUri).context().documentUri;
         //get the current file's content
         let currentFileContent = '';
         if (currentFile && !fs.lstatSync(currentFile).isDirectory()) {
             currentFileContent = fs.readFileSync(currentFile, 'utf8');
         }
-         
-        const workspaceDir = workspaceFolders[0].uri.fsPath;;
-        const artifactDirPath = workspaceDir + '/src/main/wso2mi/artifacts';
+        const artifactDirPath = path.join(this.projectUri, 'src', 'main', 'wso2mi', 'artifacts');
         const fileContents: string[] = [];
         fileContents.push(currentFileContent);
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
@@ -4022,7 +3926,7 @@ ${endpointAttributes}
             }
         }
 
-        return { context: fileContents, rootPath: workspaceDir };
+        return { context: fileContents, rootPath: this.projectUri };
     }
 
     async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
@@ -4031,7 +3935,7 @@ ${endpointAttributes}
         const ENHANCED_ROOT_URL = config.get('enhancedRootUrl') as string;
         const RUNTIME_THRESHOLD_VERSION = RUNTIME_VERSION_440;
         const runtimeVersion = await getMIVersionFromPom();
-        
+
         const isVersionThresholdReached = runtimeVersion ? compareVersions(runtimeVersion, RUNTIME_THRESHOLD_VERSION) : -1;
 
         return isVersionThresholdReached < 0 ? { url: ROOT_URL } : { url: ENHANCED_ROOT_URL };
@@ -4039,7 +3943,7 @@ ${endpointAttributes}
 
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return new Promise(async (resolve) => {
-            const response = getAvailableRegistryResources(params.path);
+            const response = getAvailableRegistryResources(this.projectUri);
             const artifacts = response.artifacts;
             var tempArtifactNames: string[] = [];
             for (let i = 0; i < artifacts.length; i++) {
@@ -4064,7 +3968,7 @@ ${endpointAttributes}
 
     async getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getAvailableConnectors({
                 documentUri: params.documentUri,
                 connectorName: params.connectorName
@@ -4076,7 +3980,7 @@ ${endpointAttributes}
 
     async updateConnectors(params: UpdateConnectorRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.updateConnectors({
                 documentUri: params.documentUri
             });
@@ -4139,9 +4043,42 @@ ${endpointAttributes}
 
     }
 
+    async getConnectorIcon(params: GetConnectorIconRequest): Promise<GetConnectorIconResponse> {
+        return new Promise(async (resolve) => {
+            const iconCache = connectorCache.get('connector-icon-data');
+
+            if (iconCache && iconCache.hasOwnProperty(params.connectorName) && iconCache[params.connectorName]) {
+                resolve ({ iconPath: iconCache[params.connectorName] });
+            } else {
+                const connectorData = await this.getAvailableConnectors({
+                    documentUri: params.documentUri,
+                    connectorName: params.connectorName
+                });
+    
+                let connectorIcon = DEFAULT_ICON;
+                if (connectorData.iconPath) {
+                    const iconPath = await this.getIconPathUri({
+                        path: connectorData.iconPath,
+                        name: "icon-small"
+                    });
+                    connectorIcon = iconPath.uri;
+                }
+    
+                // Get the latest cache state before updating
+                const latestIconCache = connectorCache.get('connector-icon-data') || {};
+                connectorCache.set('connector-icon-data', {
+                    ...latestIconCache,
+                    [params.connectorName]: connectorIcon
+                });
+    
+                resolve ({ iconPath: connectorIcon });
+            }
+        });
+    }
+
     async saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.saveInboundEPUischema({
                 connectorName: params.connectorName,
                 uiSchema: params.uiSchema
@@ -4153,7 +4090,7 @@ ${endpointAttributes}
 
     async getInboundEPUischema(params: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getInboundEPUischema({
                 connectorName: params.connectorName,
                 documentPath: params.documentPath
@@ -4285,13 +4222,7 @@ ${endpointAttributes}
         const { url } = params;
         // Copy the file from url to the lib directory
         try {
-            const workspaceFolders = workspace.workspaceFolders;
-            if (!workspaceFolders) {
-                throw new Error('No workspace is currently open');
-            }
-            const rootPath = workspaceFolders[0].uri.fsPath;
-
-            const libDirectory = path.join(rootPath, 'deployment', 'libs');
+            const libDirectory = path.join(this.projectUri, 'deployment', 'libs');
 
             // Ensure the lib directory exists
             if (!fs.existsSync(libDirectory)) {
@@ -4314,12 +4245,7 @@ ${endpointAttributes}
     }
 
     async deleteDriverFromLib(params: AddDriverToLibRequest): Promise<void> {
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders) {
-            throw new Error('Currently no workspace is opened');
-        }
-        const rootPath = workspaceFolders[0].uri.fsPath;
-        const libDirectory = path.join(rootPath, 'deployment', 'libs');
+        const libDirectory = path.join(this.projectUri, 'deployment', 'libs');
         const fileName = path.basename(params.url);
         const filePath = path.join(libDirectory, fileName);
         if (fs.existsSync(filePath)) {
@@ -4334,10 +4260,15 @@ ${endpointAttributes}
     }
 
     async getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
-        return new Promise(async (resolve) => {
-            if (VisualizerWebview.currentPanel) {
-                let iconUri = VisualizerWebview.currentPanel.getIconPath(params.path, params.name);
-                resolve({ uri: iconUri });
+        return new Promise(async (resolve, reject) => {
+            if (webviews.has(this.projectUri)) {
+                const webview = webviews.get(this.projectUri);
+                if (webview) {
+                    const iconUri = webview.getIconPath(params.path, params.name);
+                    resolve({ uri: iconUri });
+                } else {
+                    reject(new Error('Webview not found'));
+                }
             }
         });
     }
@@ -4372,7 +4303,7 @@ ${keyValuesXML}`;
 
     async getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getConnectorConnections({
                 documentUri: params.documentUri,
                 connectorName: params.connectorName
@@ -4384,7 +4315,11 @@ ${keyValuesXML}`;
 
     async logoutFromMIAccount(): Promise<void> {
         const config = vscode.workspace.getConfiguration('MI');
-        const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
+        const confirm = await vscode.window.showWarningMessage(
+            'Are you sure you want to logout?',
+            { modal: true },
+            'Yes'
+        );
         if (confirm === 'Yes') {
             const token = await extension.context.secrets.get('MIAIUser');
             const clientId = config.get('authClientID') as string;
@@ -4408,7 +4343,7 @@ ${keyValuesXML}`;
 
     async getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getRegistryFiles(params.path);
             resolve({ registryPaths: res.map(element => element.split(path.sep).join("/")) });
         });
@@ -4416,7 +4351,7 @@ ${keyValuesXML}`;
 
     async getAllResourcePaths(): Promise<GetAllResourcePathsResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getResourceFiles();
             resolve({ resourcePaths: res });
         });
@@ -4424,7 +4359,7 @@ ${keyValuesXML}`;
 
     async getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getConfigurableEntries();
             resolve({ configurableEntries: res });
         });
@@ -4432,7 +4367,7 @@ ${keyValuesXML}`;
 
     async getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getArifactFiles(params.path);
             resolve({ artifacts: res });
         });
@@ -4440,7 +4375,7 @@ ${keyValuesXML}`;
 
     async getArtifactType(params: GetArtifactTypeRequest): Promise<GetArtifactTypeResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getArtifactType(params.filePath);
             resolve({ artifactType: res.artifactType, artifactFolder: res.artifactFolder });
         });
@@ -4500,14 +4435,14 @@ ${keyValuesXML}`;
                 await workspace.fs.delete(Uri.file(params.path));
             }
             await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
-            navigate();
+            navigate(this.projectUri);
             if (params.enableUndo && !isRegistry) {
                 undoRedo.addModification('');
                 const selection = await vscode.window.showInformationMessage('Do you want to undo the deletion?', 'Undo');
                 if (selection === 'Undo') {
                     this.undo({ path: params.path });
                     await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-                    navigate();
+                    navigate(this.projectUri);
                 }
             }
 
@@ -4526,28 +4461,41 @@ ${keyValuesXML}`;
             };
             const parser = new XMLParser(options);
             const projectDir = workspace.getWorkspaceFolder(Uri.file(filePath))?.uri.fsPath;
-            const artifactXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
-            if (!fs.existsSync(artifactXMLPath)) {
-                resolve(false);
-            }
-            const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
-            const artifactXMLData = parser.parse(artifactXML);
-            if (Array.isArray(artifactXMLData.artifacts.artifact)) {
-                var artifacts = artifactXMLData.artifacts.artifact;
-                artifacts.forEach((artifact: any) => {
-                    if (artifact.item.file === fileName) {
-                        artifact.item.file = `${newFileName}.xml`;
+
+            const artifactXMLPathsToCheck = [
+                path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml'),
+                path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'artifact.xml'),
+            ];
+            const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
+            let anyFileUpdated = false;
+
+            for (const artifactXMLPath of artifactXMLPathsToCheck) {
+                if (!fs.existsSync(artifactXMLPath)) {
+                    continue;
+                }
+                const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+                const artifactXMLData = parser.parse(artifactXML);
+                let fileUpdated = false;
+
+                if (Array.isArray(artifactXMLData.artifacts?.artifact)) {
+                    for (const artifact of artifactXMLData.artifacts.artifact) {
+                        if (artifact?.item?.file === fileName) {
+                            artifact.item.file = `${newFileName}.xml`;
+                            fileUpdated = true;
+                        }
                     }
-                });
-            } else {
-                if (artifactXMLData.artifacts.artifact.item.file === fileName) {
+                } else if (artifactXMLData.artifacts?.artifact?.item?.file === fileName) {
                     artifactXMLData.artifacts.artifact.item.file = `${newFileName}.xml`;
+                    fileUpdated = true;
+                }
+
+                if (fileUpdated) {
+                    const updatedXmlString = builder.build(artifactXMLData);
+                    fs.writeFileSync(artifactXMLPath, updatedXmlString);
+                    anyFileUpdated = true;
                 }
             }
-            const builder = new XMLBuilder(options);
-            const updatedXmlString = builder.build(artifactXMLData);
-            fs.writeFileSync(artifactXMLPath, updatedXmlString);
-            resolve(true);
+            resolve(anyFileUpdated);
         });
 
     }
@@ -4592,9 +4540,9 @@ ${keyValuesXML}`;
                 selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
             }
             if (selection === "Build CAPP" || selection === "capp") {
-                await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
+                await commands.executeCommand(COMMANDS.BUILD_PROJECT, this.projectUri, false);
             } else if (selection === "Create Docker Image" || selection === "docker") {
-                await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE);
+                await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE, this.projectUri);
             }
             resolve();
         });
@@ -4607,12 +4555,12 @@ ${keyValuesXML}`;
             }
             const params: ICreateComponentCmdParams = {
                 buildPackLang: "microintegrator",
-                name: path.basename(StateMachine.context().projectUri!),
-                componentDir: StateMachine.context().projectUri,
+                name: path.basename(this.projectUri),
+                componentDir: this.projectUri,
                 extName: "Devant",
             };
 
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
 
             let integrationType: string | undefined;
             if (params.componentDir) {
@@ -4673,32 +4621,28 @@ ${keyValuesXML}`;
         let hasComponent = false;
         let hasLocalChanges = false;
         try {
-            const projectRoot = StateMachine.context().projectUri;
-            if(projectRoot){
-                const repoRoot = getRepoRoot(projectRoot);
-                if (repoRoot) {
-                    const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
-                    if (fs.existsSync(contextYamlPath)) {
-                        hasContextYaml = true;
-                    }
+            const repoRoot = getRepoRoot(this.projectUri);
+            if (repoRoot) {
+                const contextYamlPath = path.join(repoRoot, ".choreo", "context.yaml");
+                if (fs.existsSync(contextYamlPath)) {
+                    hasContextYaml = true;
                 }
-
-                const platformExt = extensions.getExtension("wso2.wso2-platform");
-                if (!platformExt) {
-                    return { hasComponent: hasContextYaml, isLoggedIn: false };
-                }
-                const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
-                hasLocalChanges = await platformExtAPI.localRepoHasChanges(projectRoot);
-                isLoggedIn = platformExtAPI.isLoggedIn();
-                if (isLoggedIn) {
-                    const components = platformExtAPI.getDirectoryComponents(projectRoot);
-                    hasComponent = components.length > 0;
-                    return { isLoggedIn, hasComponent, hasLocalChanges };
-                }
-                return { isLoggedIn, hasComponent: hasContextYaml, hasLocalChanges };
             }
-            return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
-        } catch(err){
+
+            const platformExt = extensions.getExtension("wso2.wso2-platform");
+            if (!platformExt) {
+                return { hasComponent: hasContextYaml, isLoggedIn: false };
+            }
+            const platformExtAPI: IWso2PlatformExtensionAPI = await platformExt.activate();
+            hasLocalChanges = await platformExtAPI.localRepoHasChanges(this.projectUri);
+            isLoggedIn = platformExtAPI.isLoggedIn();
+            if (isLoggedIn) {
+                const components = platformExtAPI.getDirectoryComponents(this.projectUri);
+                hasComponent = components.length > 0;
+                return { isLoggedIn, hasComponent, hasLocalChanges };
+            }
+            return { isLoggedIn, hasComponent: hasContextYaml, hasLocalChanges };
+        } catch (err) {
             console.error("failed to call getDevantMetadata: ", err);
             return { hasComponent: hasComponent || hasContextYaml, isLoggedIn, hasLocalChanges };
         }
@@ -4765,13 +4709,13 @@ ${keyValuesXML}`;
                     }
                 }
             }
-            await commands.executeCommand(COMMANDS.BUILD_PROJECT, false, exportTask);
+            await commands.executeCommand(COMMANDS.BUILD_PROJECT, this.projectUri, false, exportTask);
         });
     }
 
     async checkOldProject(): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const oldProjectState = StateMachine.context().isOldProject;
+            const oldProjectState = getStateMachine(this.projectUri).context().isOldProject;
             if (oldProjectState !== undefined) {
                 resolve(oldProjectState);
             }
@@ -4781,9 +4725,8 @@ ${keyValuesXML}`;
     async editOpenAPISpec(params: SwaggerTypeRequest): Promise<void> {
         return new Promise(async () => {
             const { apiName, apiPath } = params;
-            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const openAPISpecPath = path.join(
-                workspacePath,
+                this.projectUri,
                 SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
@@ -4793,7 +4736,7 @@ ${keyValuesXML}`;
                 fs.mkdirSync(path.dirname(openAPISpecPath), { recursive: true });
             };
 
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const { swagger } = await langClient.swaggerFromAPI({ apiPath });
             if (!fs.existsSync(openAPISpecPath)) {
                 // Create the file if not exists
@@ -4828,7 +4771,7 @@ ${keyValuesXML}`;
                 port: port
             };
 
-            await openSwaggerWebview(swaggerData);
+            await openSwaggerWebview(this.projectUri, swaggerData);
         });
     }
 
@@ -4840,9 +4783,8 @@ ${keyValuesXML}`;
             return resolve({ swaggerExists: false });
 
             const { apiPath, apiName } = params;
-            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
-                workspacePath,
+                this.projectUri,
                 SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
@@ -4851,7 +4793,7 @@ ${keyValuesXML}`;
                 return resolve({ swaggerExists: false });
             }
 
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const { swagger: generatedSwagger } = await langClient.swaggerFromAPI({ apiPath });
             const swaggerContent = fs.readFileSync(swaggerPath, 'utf-8');
             const isEqualSwagger = isEqualSwaggers({
@@ -4870,9 +4812,8 @@ ${keyValuesXML}`;
     async updateSwaggerFromAPI(params: SwaggerTypeRequest): Promise<void> {
         return new Promise(async () => {
             const { apiName, apiPath } = params;
-            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
-                workspacePath,
+                this.projectUri,
                 SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
@@ -4880,7 +4821,7 @@ ${keyValuesXML}`;
             let generatedSwagger = params.generatedSwagger;
             let existingSwagger = params.existingSwagger;
             if (!generatedSwagger || !existingSwagger) {
-                const langClient = StateMachine.context().langClient!;
+                const langClient = getStateMachine(this.projectUri).context().langClient!;
                 const response = await langClient.swaggerFromAPI({ apiPath });
                 generatedSwagger = response.swagger;
                 existingSwagger = fs.readFileSync(swaggerPath, 'utf-8');
@@ -4898,9 +4839,8 @@ ${keyValuesXML}`;
     async updateAPIFromSwagger(params: UpdateAPIFromSwaggerRequest): Promise<void> {
         return new Promise(async () => {
             const { apiName, apiPath, resources, insertPosition } = params;
-            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
-                workspacePath,
+                this.projectUri,
                 SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
@@ -4908,7 +4848,7 @@ ${keyValuesXML}`;
             let generatedSwagger = params.generatedSwagger;
             let existingSwagger = params.existingSwagger;
             if (!generatedSwagger || !existingSwagger) {
-                const langClient = StateMachine.context().langClient!;
+                const langClient = getStateMachine(this.projectUri).context().langClient!;
                 const response = await langClient.swaggerFromAPI({ apiPath });
                 generatedSwagger = response.swagger;
                 existingSwagger = fs.readFileSync(swaggerPath, 'utf-8');
@@ -4980,9 +4920,8 @@ ${keyValuesXML}`;
                 if (!name) {
                     throw new Error('Name is required');
                 }
-                const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(artifact)) || workspace.workspaceFolders?.[0];
-                const projectRoot = workspaceFolder?.uri.fsPath;
-                const testDir = path.join(projectRoot!, 'src', 'test', "wso2mi");
+
+                const testDir = path.join(this.projectUri, 'src', 'test', "wso2mi");
                 filePath = path.join(testDir, `${name}.xml`);
 
                 if (fs.existsSync(filePath)) {
@@ -5028,7 +4967,7 @@ ${keyValuesXML}`;
 
             let range;
             if (!params.range) {
-                const langClient = StateMachine.context().langClient!;
+                const langClient = getStateMachine(this.projectUri).context().langClient!;
                 const st = await langClient.getSyntaxTree({
                     documentIdentifier: {
                         uri: filePath
@@ -5070,8 +5009,7 @@ ${keyValuesXML}`;
         return new Promise(async (resolve) => {
             const suites: any[] = [];
             if (workspace.workspaceFolders) {
-                const workspaceFolder = workspace.workspaceFolders[0];
-                const pattern = new vscode.RelativePattern(workspaceFolder, testFileMatchPattern);
+                const pattern = new vscode.RelativePattern(this.projectUri, testFileMatchPattern);
                 const files = await workspace.findFiles(pattern);
                 for (const fileX of files) {
                     const file = fileX.fsPath;
@@ -5103,8 +5041,7 @@ ${keyValuesXML}`;
                 if (!name) {
                     throw new Error('Name is required');
                 }
-                const projeectRoot = workspace.workspaceFolders![0].uri.fsPath;
-                const testDir = path.join(projeectRoot!, 'src', 'test', 'resources', 'mock-services');
+                const testDir = path.join(this.projectUri, 'src', 'test', 'resources', 'mock-services');
                 filePath = path.join(testDir, `${name}.xml`);
 
                 if (fs.existsSync(filePath)) {
@@ -5141,8 +5078,7 @@ ${keyValuesXML}`;
         return new Promise(async (resolve) => {
             const services: any[] = [];
             if (workspace.workspaceFolders) {
-                const workspaceFolder = workspace.workspaceFolders[0];
-                const pattern = new vscode.RelativePattern(workspaceFolder, mockSerivesFilesMatchPattern);
+                const pattern = new vscode.RelativePattern(this.projectUri, mockSerivesFilesMatchPattern);
                 const files = await workspace.findFiles(pattern);
                 for (const fileX of files) {
                     const file = fileX.fsPath;
@@ -5174,8 +5110,13 @@ ${keyValuesXML}`;
     }
 
     async getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
-        const langClient = StateMachine.context().langClient!;
-        const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        const langClient = getStateMachine(this.projectUri).context().langClient!;
+        let response;
+        if (params.isRuntimeService) {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath, port: DebuggerConfig.getServerPort() });
+        } else {
+            response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        }
         const generatedSwagger = response.swagger;
         const port = await getPortPromise({ port: 1000, stopPort: 3000 });
         const cors_proxy = require('cors-anywhere');
@@ -5184,7 +5125,7 @@ ${keyValuesXML}`;
             requireHeader: ['origin', 'x-requested-with']
         }).listen(port, 'localhost');
 
-        RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
+        RPCLayer._messengers.get(this.projectUri)?.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
 
         return { generatedSwagger: generatedSwagger }; // TODO: refactor rpc function with void
     }
@@ -5285,7 +5226,7 @@ ${keyValuesXML}`;
     async testDbConnection(req: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {
 
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient;
+            const langClient = getStateMachine(this.projectUri).context().langClient;
             const response = await langClient?.testDbConnection(req);
             resolve({ success: response ? response.success : false });
         });
@@ -5351,7 +5292,7 @@ ${keyValuesXML}`;
 
     async checkDBDriver(className: string): Promise<CheckDBDriverResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.checkDBDriver(className);
             resolve(res);
         });
@@ -5359,7 +5300,7 @@ ${keyValuesXML}`;
 
     async addDBDriver(params: AddDriverRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.addDBDriver(params);
             resolve(res);
         });
@@ -5367,7 +5308,7 @@ ${keyValuesXML}`;
 
     async removeDBDriver(params: AddDriverRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.removeDBDriver(params);
             resolve(res);
         });
@@ -5375,7 +5316,7 @@ ${keyValuesXML}`;
 
     async modifyDBDriver(params: AddDriverRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.modifyDBDriver(params);
             resolve(res);
         });
@@ -5384,7 +5325,7 @@ ${keyValuesXML}`;
     async generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
         const { documentUri, position, ...genQueryParams } = params;
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const xml = await langClient.generateQueries(genQueryParams);
 
             if (!xml) {
@@ -5410,7 +5351,7 @@ ${keyValuesXML}`;
 
     async fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.fetchTables({
                 ...params, tableData: "", datasourceName: ""
             });
@@ -5420,7 +5361,7 @@ ${keyValuesXML}`;
 
     async getMediators(param: GetMediatorsRequest): Promise<GetMediatorsResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             let response = await langClient.getMediators(param);
             resolve(response);
         });
@@ -5428,15 +5369,15 @@ ${keyValuesXML}`;
 
     async getMediator(param: GetMediatorRequest): Promise<GetMediatorResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             let response = await langClient.getMediator(param);
             resolve(response);
         });
     }
 
-    async updateMediator(param: UpdateMediatorRequest): Promise<void> {
+    async updateMediator(param: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             let response = await langClient.generateSynapseConfig(param);
             if (response && response.textEdits) {
                 let edits = response.textEdits;
@@ -5454,12 +5395,13 @@ ${keyValuesXML}`;
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
+            resolve(response);
         });
     }
 
     async getLocalInboundConnectors(): Promise<LocalInboundConnectorsResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             let response = await langClient.getLocalInboundConnectors();
             resolve(response);
         });
@@ -5467,7 +5409,7 @@ ${keyValuesXML}`;
 
     async getConnectionSchema(param: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             let response = await langClient.getConnectionSchema(param);
             resolve(response);
         });
@@ -5476,7 +5418,7 @@ ${keyValuesXML}`;
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return new Promise(async (resolve, reject) => {
             try {
-                const langClient = StateMachine.context().langClient!;
+                const langClient = getStateMachine(this.projectUri).context().langClient!;
                 const res = await langClient.getExpressionCompletions(params);
                 if (!res.isIncomplete) {
                     resolve(res);
@@ -5493,7 +5435,7 @@ ${keyValuesXML}`;
     async getHelperPaneInfo(params: GetHelperPaneInfoRequest): Promise<GetHelperPaneInfoResponse> {
         return new Promise(async (resolve, reject) => {
             try {
-                const langClient = StateMachine.context().langClient!;
+                const langClient = getStateMachine(this.projectUri).context().langClient!;
                 let response = await langClient.getHelperPaneInfo(params);
                 resolve(response);
             } catch (error) {
@@ -5505,7 +5447,7 @@ ${keyValuesXML}`;
 
     async testConnectorConnection(params: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.testConnectorConnection(params);
             resolve(res);
         });
@@ -5514,12 +5456,11 @@ ${keyValuesXML}`;
     async saveConfig(params: SaveConfigRequest): Promise<SaveConfigResponse> {
         return new Promise(async (resolve, reject) => {
             const { configName, configType } = params;
-            const projectUri = StateMachine.context().projectUri!;
 
             try {
                 // Read the config file content
                 const configFilePath = path.join(
-                    projectUri,
+                    this.projectUri,
                     'src',
                     'main',
                     'wso2mi',
@@ -5544,6 +5485,28 @@ ${keyValuesXML}`;
             } catch (e) {
                 reject(e);
             }
+        });
+    }
+
+    async closePayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', false);
+            resolve();
+        });
+    }
+
+    async shouldDisplayPayloadAlert(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const displayPayloadAlert: boolean =
+                (await extension.context.workspaceState.get('displayPayloadAlert')) ?? true;
+            resolve(displayPayloadAlert);
+        });
+    }
+
+    async displayPayloadAlert(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await extension.context.workspaceState.update('displayPayloadAlert', true);
+            resolve();
         });
     }
 }

@@ -11,7 +11,6 @@
 import * as vscode from 'vscode';
 import * as childprocess from 'child_process';
 import { COMMANDS } from '../constants';
-import { extension } from '../MIExtensionContext';
 import { loadEnvVariables, getBuildCommand, getRunCommand, getStopCommand } from './tasks';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -20,7 +19,7 @@ import { reject } from 'lodash';
 import axios from 'axios';
 import * as net from 'net';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { StateMachine } from '../stateMachine';
+import { getStateMachine } from '../stateMachine';
 import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
 import * as toml from "@iarna/toml";
 import { DebuggerConfig } from './config';
@@ -28,6 +27,8 @@ import { ChildProcess } from 'child_process';
 import treeKill = require('tree-kill');
 import { serverLog, showServerOutputChannel } from '../util/serverLogger';
 import { getJavaHomeFromConfig, getServerPathFromConfig } from '../util/onboardingUtils';
+import * as crypto from 'crypto';
+
 const child_process = require('child_process');
 const findProcess = require('find-process');
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
@@ -140,16 +141,31 @@ export async function executeCopyTask(task: vscode.Task) {
     });
 }
 
-export async function executeBuildTask(serverPath: string, shouldCopyTarget: boolean = true, postBuildTask?: Function) {
+export async function executeBuildTask(projectUri: string, serverPath: string, shouldCopyTarget: boolean = true, postBuildTask?: Function) {
     return new Promise<void>(async (resolve, reject) => {
-        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+
+        const isEqual = await compareFilesByMD5(path.join(serverPath, "conf", "deployment.toml"),
+            path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "deployment", "deployment.toml"));
+        if (!isEqual) {
+            const copyConf = await vscode.window.showWarningMessage(
+                'Deployment configurations in the runtime is different from the project. Do you want to copy the deployment configurations to the runtime?',
+                { modal: true },
+                'Yes'
+            );
+            if (copyConf === 'Yes') {
+                fs.copyFileSync(path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "deployment", "deployment.toml"), path.join(serverPath, "conf", "deployment.toml"));
+            } else {
+                reject('Deployment configurations in the project should be as the same as the runtime. Please copy the deployment configurations to the runtime and try again.');
+                return;
+            }
+        }
 
         const buildCommand = getBuildCommand();
         const envVariables = {
             ...process.env,
-            ...setJavaHomeInEnvironmentAndPath()
+            ...setJavaHomeInEnvironmentAndPath(projectUri)
         };
-        const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri, env: envVariables });
+        const buildProcess = await child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri, env: envVariables });
         showServerOutputChannel();
 
         buildProcess.stdout.on('data', (data) => {
@@ -171,7 +187,7 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
                     const workspaceFolders = vscode.workspace.workspaceFolders;
                     if (workspaceFolders && workspaceFolders.length > 0) {
                         // copy all the jars present in deployement/libs
-                        const workspaceLibs = vscode.Uri.joinPath(workspaceFolders[0].uri, "deployment", "libs");
+                        const workspaceLibs = vscode.Uri.joinPath(vscode.Uri.parse(projectUri), "deployment", "libs");
                         if (fs.existsSync(workspaceLibs.fsPath)) {
                             try {
                                 const jars = await getDeploymentLibJars(workspaceLibs);
@@ -187,7 +203,7 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
                                 reject(err);
                             }
                         }
-                        const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
+                        const targetDirectory = vscode.Uri.joinPath(vscode.Uri.parse(projectUri), "target");
                         if (fs.existsSync(targetDirectory.fsPath)) {
                             try {
                                 const sourceFiles = await getCarFiles(targetDirectory);
@@ -238,9 +254,8 @@ let serverProcess: ChildProcess;
 const debugConsole = vscode.debug.activeDebugConsole;
 
 // Start the server
-export async function startServer(serverPath: string, isDebug: boolean): Promise<void> {
+export async function startServer(projectUri: string, serverPath: string, isDebug: boolean): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
-        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         const filePath = path.resolve(projectUri, '.env');
         if (fs.existsSync(filePath)) {
             loadEnvVariables(filePath)
@@ -253,7 +268,7 @@ export async function startServer(serverPath: string, isDebug: boolean): Promise
             const vmArgs = DebuggerConfig.getVmArgs();
             const envVariables = {
                 ...process.env,
-                ...setJavaHomeInEnvironmentAndPath(),
+                ...setJavaHomeInEnvironmentAndPath(projectUri),
                 ...definedEnvVariables
             };
 
@@ -284,7 +299,7 @@ export async function startServer(serverPath: string, isDebug: boolean): Promise
 }
 
 // Stop the server
-export async function stopServer(serverPath: string, isWindows?: boolean): Promise<void> {
+export async function stopServer(projectUri: string, serverPath: string, isWindows?: boolean): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         if (serverProcess) {
             const stopCommand = getStopCommand(serverPath);
@@ -292,7 +307,7 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
             if (stopCommand === undefined) {
                 reject(INCORRECT_SERVER_PATH_MSG);
             } else {
-                const env = setJavaHomeInEnvironmentAndPath();
+                const env = setJavaHomeInEnvironmentAndPath(projectUri);
                 const stopProcess = child_process.spawn(`${stopCommand}`, [], { shell: true, env });
                 showServerOutputChannel();
 
@@ -342,14 +357,14 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
     });
 }
 
-export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
+export async function executeTasks(projectUri: string, serverPath: string, isDebug: boolean): Promise<void> {
     const maxTimeout = 45000;
     return new Promise<void>(async (resolve, reject) => {
-        const isTerminated = await StateMachine.context().langClient?.shutdownTryoutServer();
+        const isTerminated = await getStateMachine(projectUri).context().langClient?.shutdownTryoutServer();
         if (!isTerminated) {
             reject('Failed to terminate the tryout server. Kill the server manually and try again.');
         }
-        executeBuildTask(serverPath).then(async () => {
+        executeBuildTask(projectUri, serverPath).then(async () => {
             const isServerRunning = await checkServerLiveness();
             if (!isServerRunning) {
                 startServerWithPortCheck(resolve, reject);
@@ -384,7 +399,7 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
     });
 
     function startServerWithPortCheck(resolve: (value: void | PromiseLike<void>) => void, reject: (reason?: any) => void) {
-        startServer(serverPath, isDebug).then(() => {
+        startServer(projectUri, serverPath, isDebug).then(() => {
             if (isDebug) {
                 // check if server command port is active
                 isPortActivelyListening(DebuggerConfig.getCommandPort(), maxTimeout).then((isListening) => {
@@ -405,9 +420,9 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
     }
 }
 
-export async function getServerPath(): Promise<string | undefined> {
-    const config = vscode.workspace.getConfiguration('MI');
-    const currentPath = getServerPathFromConfig();
+export async function getServerPath(projectUri: string): Promise<string | undefined> {
+    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const currentPath = getServerPathFromConfig(projectUri);
     if (!currentPath) {
         await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
         const updatedPath = config.get(SELECTED_SERVER_PATH) as string;
@@ -418,9 +433,9 @@ export async function getServerPath(): Promise<string | undefined> {
     }
     return path.normalize(currentPath);
 }
-export function setJavaHomeInEnvironmentAndPath(): { [key: string]: string; } {
-    const config = vscode.workspace.getConfiguration('MI');
-    const javaHome = getJavaHomeFromConfig();
+export function setJavaHomeInEnvironmentAndPath(projectUri: string): { [key: string]: string; } {
+    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const javaHome = getJavaHomeFromConfig(projectUri);
     const env = { ...process.env };
     if (javaHome) {
         env['JAVA_HOME'] = javaHome;
@@ -498,8 +513,8 @@ async function getDeploymentLibJars(libDirectory) {
 }
 
 // Check and return if the current visible view is one of the diagram view which can hit a breakpoint event
-export function isADiagramView() {
-    const stateContext = StateMachine.context();
+export function isADiagramView(projectUri: string): boolean {
+    const stateContext = getStateMachine(projectUri).context();
     const diagramViews = [MACHINE_VIEW.ResourceView, MACHINE_VIEW.ProxyView, MACHINE_VIEW.SequenceView, MACHINE_VIEW.SequenceTemplateView];
     return diagramViews.indexOf(stateContext.view!) !== -1;
 }
@@ -615,4 +630,32 @@ export async function killProcessByPort(port: number): Promise<void> {
     } catch (error) {
         vscode.window.showErrorMessage(`Error finding or killing process on port ${port}: ${(error as Error).message}`);
     }
+}
+
+function getFileMD5(filePath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const hash = crypto.createHash('md5');
+        const stream = fs.createReadStream(filePath);
+        stream.on('data', (data) => hash.update(data));
+        stream.on('end', () => resolve(hash.digest('hex')));
+        stream.on('error', (err) => reject(err));
+    });
+}
+
+async function compareFilesByMD5(file1: string, file2: string): Promise<boolean> {
+    return new Promise<boolean>(async (resolve) => {
+        try {
+            const [hash1, hash2] = await Promise.all([
+                getFileMD5(file1),
+                getFileMD5(file2),
+            ]);
+            if (hash1 === hash2) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        } catch (error) {
+            console.error('Error comparing files:', error);
+        }
+    });
 }

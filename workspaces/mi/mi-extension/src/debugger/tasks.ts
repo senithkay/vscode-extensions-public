@@ -13,9 +13,9 @@ import * as fs from 'fs';
 import { createTempDebugBatchFile, setJavaHomeInEnvironmentAndPath } from './debugHelper';
 import { ERROR_LOG, logDebug } from '../util/logger';
 
-export function getBuildTask(): vscode.Task {
+export function getBuildTask(projectUri: string): vscode.Task {
     const commandToExecute = process.platform === 'win32' ? ".\\mvnw.cmd clean install" : "./mvnw clean install";
-    const env = setJavaHomeInEnvironmentAndPath();  
+    const env = setJavaHomeInEnvironmentAndPath(projectUri);  
     const buildTask = new vscode.Task(
         { type: 'mi-build' },
         vscode.TaskScope.Workspace,
@@ -32,9 +32,9 @@ export function getBuildCommand(): string {
     return process.platform === 'win32' ? ".\\mvnw.cmd clean install -Dstyle.color=never" : "./mvnw clean install -Dstyle.color=never";
 }
 
-export function getDockerTask(): vscode.Task {
+export function getDockerTask(projectUri: string): vscode.Task {
     const commandToExecute = process.platform === 'win32' ? ".\\mvnw.cmd clean install -P docker" : "./mvnw clean install -P docker";
-    const env = setJavaHomeInEnvironmentAndPath();  
+    const env = setJavaHomeInEnvironmentAndPath(projectUri);  
 
     const dockerTask = new vscode.Task(
         { type: 'mi-docker' },

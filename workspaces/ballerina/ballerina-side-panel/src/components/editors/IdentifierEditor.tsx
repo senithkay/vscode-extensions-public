@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useRef } from "react";
 import { FormField } from "../Form/types";
-import { Button, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography, Icon, ProgressRing, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -117,53 +117,74 @@ interface IdentifierEditorProps {
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
     showWarning?: boolean;
+    onEditingStateChange?: (isEditing: boolean) => void;
 }
 
 export function IdentifierEditor(props: IdentifierEditorProps) {
-    const { field, handleOnFieldFocus, autoFocus, showWarning } = props;
+    const { field, handleOnFieldFocus, autoFocus, showWarning, onEditingStateChange } = props;
     const { form } = useFormContext();
     const { rpcClient } = useRpcContext();
-    const { register, setValue } = form;
+    const { register, setValue, getValues } = form;
     const [isEditing, setIsEditing] = useState(false);
     const [tempValue, setTempValue] = useState(field.value || "");
     const [identifierErrorMsg, setIdentifierErrorMsg] = useState<string>(field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n"));
     const [isIdentifierValid, setIsIdentifierValid] = useState<boolean>(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const saveButtonClicked = useRef(false);
 
     const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
 
     const startEditing = () => {
-        setTempValue(field.value || "");
+        const currentFormValue = getValues(field.key);
+        setTempValue(currentFormValue || field.value || "");
+        saveButtonClicked.current = false;
         setIsEditing(true);
+        onEditingStateChange?.(true);
     };
 
     const cancelEditing = () => {
-        if (typeof field.value === 'string') {
+        if (typeof field.value === 'string' && !saveButtonClicked.current) {
             validateIdentifierName(field.value);
         }
         setTempValue("");
+        saveButtonClicked.current = false;
         setIsEditing(false);
+        onEditingStateChange?.(false);
     };
 
     const saveEdit = async () => {
+        saveButtonClicked.current = true;
         if (!tempValue || tempValue === field.value) {
             cancelEditing();
             return;
         }
 
-        await rpcClient.getBIDiagramRpcClient().renameIdentifier({
-            fileName: field.lineRange?.fileName,
-            position: {
-                line: field.lineRange?.startLine?.line,
-                character: field.lineRange?.startLine?.offset
-            },
-            newName: String(tempValue)
-        });
+        setIsSaving(true);
+        try {
+            await rpcClient.getBIDiagramRpcClient().renameIdentifier({
+                fileName: field.lineRange?.fileName,
+                position: {
+                    line: field.lineRange?.startLine?.line,
+                    character: field.lineRange?.startLine?.offset
+                },
+                newName: String(tempValue)
+            });
 
-        setValue(field.key, tempValue);
-        setIsEditing(false);
+            setValue(field.key, tempValue);
+            field.value = tempValue;
+            setIsEditing(false);
+            onEditingStateChange?.(false);
+        } catch (error) {
+            console.error('Error renaming identifier:', error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const validateIdentifierName = useCallback(debounce(async (value: string) => {
+        if (saveButtonClicked.current || !isEditing) {
+            return;
+        }
 
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: field.lineRange?.fileName,
@@ -180,7 +201,6 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
             }
         });
 
-
         if (response.diagnostics.length > 0) {
             setIdentifierErrorMsg(response.diagnostics[0].message);
             setIsIdentifierValid(false);
@@ -188,10 +208,12 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
             setIdentifierErrorMsg("");
             setIsIdentifierValid(true);
         }
-    }, 250), [rpcClient, field]);
+    }, 250), [rpcClient, field, isEditing]);
 
     const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-        validateIdentifierName(e.target.value);
+        if (!saveButtonClicked.current) {
+            validateIdentifierName(e.target.value);
+        }
     }
 
     const handleOnFocus = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,15 +273,16 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
                                 <StyledButton
                                     appearance="secondary"
                                     onClick={cancelEditing}
+                                    disabled={isSaving}
                                 >
                                     Cancel
                                 </StyledButton>
                                 <StyledButton
                                     appearance="primary"
                                     onClick={saveEdit}
-                                    disabled={!tempValue || !isIdentifierValid}
+                                    disabled={!tempValue || !isIdentifierValid || isSaving}
                                 >
-                                    Save
+                                    {isSaving ? <Typography variant="progress">Saving...</Typography> : "Save"}
                                 </StyledButton>
                             </ButtonGroup>
                         </EditRow>

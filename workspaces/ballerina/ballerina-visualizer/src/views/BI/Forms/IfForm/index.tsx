@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import {
     FlowNode,
@@ -38,6 +38,7 @@ interface IfFormProps {
     node: FlowNode;
     targetLineRange: LineRange;
     expressionEditor: FormExpressionEditorProps;
+    showProgressIndicator?: boolean;
     onSubmit: (node?: FlowNode) => void;
     openSubPanel: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -54,14 +55,15 @@ export function IfForm(props: IfFormProps) {
         onSubmit,
         openSubPanel,
         updatedExpressionField,
+        showProgressIndicator,
         resetUpdatedExpressionField,
         subPanelView
     } = props;
-    const { 
+    const {
         watch,
-        control, 
-        getValues, 
-        setValue, 
+        control,
+        getValues,
+        setValue,
         handleSubmit,
         setError,
         clearErrors,
@@ -93,9 +95,13 @@ export function IfForm(props: IfFormProps) {
             });
     };
 
+    const isElseBranch = (branch: Branch) => {
+        return branch.label === "Else"
+    }
+
     const hasElseBranch = branches.find(
         (branch) =>
-            branch.label === "Else" &&
+            isElseBranch(branch) &&
             ((branch.children?.length > 0 &&
                 !(branch.children[0].codedata.node === "EMPTY" && branch.children[0].metadata.draft)) ||
                 branch.children?.length === 0)
@@ -150,21 +156,33 @@ export function IfForm(props: IfFormProps) {
                 };
             }
 
-            // loop data and update branches (properties.condition.value)
-            branches.forEach((branch, index) => {
-                if (branch.label === "Else") {
-                    return;
+            // Update branches with form values and filter out draft else branches
+            const updatedBranches = branches.map((branch, index) => {
+                // Skip draft else branches
+                if (isElseBranch(branch) &&
+                    branch.children?.length > 0 &&
+                    branch.children[0].codedata.node === "EMPTY" &&
+                    branch.children[0].metadata.draft) {
+                    return null; // Will be filtered out
                 }
-                const conditionValue = data[`branch-${index}`]?.trim();
-                if (conditionValue) {
-                    branch.properties.condition.value = conditionValue;
-                    if (branch.label !== "Then") {
-                        branch.label = "";
+
+                // For non-Else branches, update with form values
+                if (branch.label !== "Else") {
+                    const conditionValue = data[`branch-${index}`]?.trim();
+                    if (conditionValue) {
+                        const branchCopy = cloneDeep(branch);
+                        branchCopy.properties.condition.value = conditionValue;
+                        if (branchCopy.label !== "Then") {
+                            branchCopy.label = "";
+                        }
+                        return branchCopy;
                     }
                 }
-            });
 
-            updatedNode.branches = branches;
+                return branch;
+            }).filter(Boolean) as Branch[];
+
+            updatedNode.branches = updatedBranches;
 
             // check all nodes and remove empty nodes
             const removeEmptyNodeVisitor = new RemoveEmptyNodesVisitor(updatedNode);
@@ -271,7 +289,7 @@ export function IfForm(props: IfFormProps) {
             handleSetDiagnosticsInfo({ key, diagnostics: [] });
             return;
         }
-        
+
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: fileName,
             context: {
@@ -315,7 +333,7 @@ export function IfForm(props: IfFormProps) {
             } else {
                 const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
                 setError(key, { type: "validate", message: diagnosticsMessage });
-    
+
                 // If the severity is not ERROR, don't invalidate
                 const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
                 if (hasErrorDiagnostics) {
@@ -329,7 +347,7 @@ export function IfForm(props: IfFormProps) {
         return hasDiagnostics;
     }, [diagnosticsInfo])
 
-    const disableSaveButton = !isValid || isValidating;
+    const disableSaveButton = !isValid || isValidating || showProgressIndicator;
 
     // TODO: support multiple type fields
     return (
@@ -386,7 +404,7 @@ export function IfForm(props: IfFormProps) {
             {onSubmit && (
                 <FormStyles.Footer>
                     <Button appearance="primary" onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                        Save
+                        {showProgressIndicator ? <Typography variant="progress">Saving...</Typography> : "Save"}
                     </Button>
                 </FormStyles.Footer>
             )}

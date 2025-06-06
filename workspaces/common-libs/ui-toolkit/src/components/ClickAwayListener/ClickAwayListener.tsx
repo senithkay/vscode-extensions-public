@@ -9,6 +9,7 @@
 
 import styled from "@emotion/styled";
 import React, { PropsWithChildren, useCallback, useEffect } from "react";
+import { Overlay } from "../Commons/Overlay";
 
 const Container = styled.div`
     height: fit-content;
@@ -17,12 +18,13 @@ const Container = styled.div`
 
 export type ClickAwayListenerProps = {
     anchorEl?: HTMLElement | SVGGElement;
+    isMenuOpen?: boolean;
     onClickAway: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
 };
 
 export const ClickAwayListener: React.FC<PropsWithChildren<ClickAwayListenerProps>> = 
     (props: PropsWithChildren<ClickAwayListenerProps>) => {
-        const { anchorEl, children, onClickAway } = props;
+        const { anchorEl, isMenuOpen, children, onClickAway } = props;
         const ref = React.useRef<HTMLDivElement>(null);
 
         const handleClickAway = useCallback((event: MouseEvent) => {
@@ -44,6 +46,9 @@ export const ClickAwayListener: React.FC<PropsWithChildren<ClickAwayListenerProp
         return (
             <Container ref={ref}>
                 {children}
+                {isMenuOpen && (
+                    <Overlay sx={{zIndex: 0}} onClose={onClickAway}/>
+                )}
             </Container>
         );
     }

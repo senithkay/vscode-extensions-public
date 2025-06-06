@@ -111,10 +111,10 @@ export function DataServiceDisplayTable(props: DataServiceDisplayTableProps) {
                     <ActionWrapper>
                         <ActionIconWrapper>
                             <EditIconWrapper>
-                                <Codicon name="edit" onClick={() => props.onEdit(rowIndex)} />
+                                <Codicon id="table-edit-icon" name="edit" onClick={() => props.onEdit(rowIndex)} />
                             </EditIconWrapper>
                             <DeleteIconWrapper>
-                                <Codicon name="trash" onClick={() => props.onDelete(rowIndex)} />
+                                <Codicon id="table-delete-icon" name="trash" onClick={() => props.onDelete(rowIndex)} />
                             </DeleteIconWrapper>
                         </ActionIconWrapper>
                     </ActionWrapper>

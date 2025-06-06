@@ -431,6 +431,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     Cancel
                 </Button>
                 <Button
+                    data-testid="create-button"
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateHttpEndpoint)}
                     disabled={!isDirty}

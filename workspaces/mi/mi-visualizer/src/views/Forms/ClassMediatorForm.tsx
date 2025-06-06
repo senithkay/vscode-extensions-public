@@ -78,12 +78,14 @@ export function ClassMediatorForm(props: ClassMediatorProps) {
             <TextField
                 id='package-input'
                 label="Package Name"
+                required
                 errorMsg={errors.packageName?.message}
                 {...register("packageName")}
             />
             <TextField
                 id='class-input'
                 label="Class Name"
+                required
                 errorMsg={errors.className?.message}
                 {...register("className")}
             />

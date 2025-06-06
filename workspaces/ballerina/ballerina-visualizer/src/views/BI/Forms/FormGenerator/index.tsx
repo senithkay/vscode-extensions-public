@@ -10,6 +10,7 @@
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     EVENT_TYPE,
+    ColorThemeKind,
     FlowNode,
     LineRange,
     NodePosition,
@@ -55,6 +56,7 @@ import {
     getFormProperties,
     getImportsForFormFields,
     getInfoFromExpressionValue,
+    injectHighlightTheme,
     removeDuplicateDiagnostics,
     updateLineRange,
 } from "../../../../utils/bi";
@@ -90,6 +92,7 @@ interface FormProps {
     editForm?: boolean;
     isGraphql?: boolean;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean, formImports?: FormImports) => void;
+    showProgressIndicator?: boolean;
     subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -135,6 +138,7 @@ export function FormGenerator(props: FormProps) {
         targetLineRange,
         projectPath,
         editForm,
+        showProgressIndicator,
         isGraphql,
         onSubmit,
         subPanelView,
@@ -160,6 +164,23 @@ export function FormGenerator(props: FormProps) {
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
+
+    useEffect(() => {
+        if (rpcClient) {
+            // Set current theme
+            rpcClient
+                .getVisualizerRpcClient()
+                .getThemeKind()
+                .then((theme) => {
+                    injectHighlightTheme(theme);
+                });
+
+            // Update highlight theme when theme changes
+            rpcClient.onThemeChanged((theme) => {
+                injectHighlightTheme(theme);
+            });
+        }
+    }, [rpcClient]);
 
     useEffect(() => {
         if (!node) {
@@ -472,7 +493,7 @@ export function FormGenerator(props: FormProps) {
             },
         });
 
-        return convertToFnSignature(signatureHelp);
+        return await convertToFnSignature(signatureHelp);
     };
 
     const handleExpressionFormDiagnostics = useCallback(
@@ -508,7 +529,7 @@ export function FormGenerator(props: FormProps) {
                             property: property,
                         },
                     });
-    
+
                     let uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
 
                     // HACK: filter unknown module and undefined type diagnostics for local connections
@@ -692,6 +713,7 @@ export function FormGenerator(props: FormProps) {
                 node={node}
                 targetLineRange={targetLineRange}
                 expressionEditor={expressionEditor}
+                showProgressIndicator={showProgressIndicator}
                 onSubmit={onSubmit}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
@@ -710,6 +732,7 @@ export function FormGenerator(props: FormProps) {
                 targetLineRange={targetLineRange}
                 expressionEditor={expressionEditor}
                 onSubmit={onSubmit}
+                showProgressIndicator={showProgressIndicator}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
                 subPanelView={subPanelView}
@@ -726,6 +749,7 @@ export function FormGenerator(props: FormProps) {
                 node={node}
                 targetLineRange={targetLineRange}
                 expressionEditor={expressionEditor}
+                showProgressIndicator={showProgressIndicator}
                 onSubmit={onSubmit}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
@@ -773,6 +797,8 @@ export function FormGenerator(props: FormProps) {
                     expressionEditor={expressionEditor}
                     targetLineRange={targetLineRange}
                     fileName={fileName}
+                    isSaving={showProgressIndicator}
+                    submitText={showProgressIndicator ? "Saving" : undefined}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}

@@ -35,7 +35,8 @@ export enum EVENT_TYPE {
     CANCEL_CREATION = "CANCEL_CREATION",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
-    CLOSE_VIEW = "CLOSE_VIEW"
+    CLOSE_VIEW = "CLOSE_VIEW",
+    UPDATE_PROJECT_LOCATION = "UPDATE_PROJECT_LOCATION"
 }
 
 export enum SCOPE {
@@ -206,5 +207,13 @@ export interface AIMachineContext {
     errorMessage?: string;
 }
 
+export enum ColorThemeKind {
+    Light = 1,
+    Dark = 2,
+    HighContrast = 3,
+    HighContrastLight = 4
+}
+
 export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
 export const sendAIStateEvent: RequestType<AIMachineEventType, void> = { method: 'sendAIStateEvent' };
+export const currentThemeChanged: NotificationType<ColorThemeKind> = { method: 'currentThemeChanged' };

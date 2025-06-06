@@ -13,6 +13,7 @@ import {
     AddFieldRequest,
     AddFunctionRequest,
     AddImportItemResponse,
+    ArtifactData,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -196,7 +197,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         const artifacts = await updateSourceCode({ textEdits: model.textEdits }, { artifactType: DIRECTORY_MAP.CONNECTION });
                         resolve({ artifacts });
                     } else {
-                        const artifacts = await updateSourceCode({ textEdits: model.textEdits }, { artifactType: this.getDirectoryMapFromNodeKind(params.flowNode.codedata.node) });
+                        const artifacts = await updateSourceCode({ textEdits: model.textEdits }, this.getArtifactDataFromNodeKind(params.flowNode.codedata.node));
                         resolve({ artifacts });
                     }
                 })
@@ -209,21 +210,21 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    private getDirectoryMapFromNodeKind(nodeKind: NodeKind): DIRECTORY_MAP {
+    private getArtifactDataFromNodeKind(nodeKind: NodeKind): ArtifactData {
         switch (nodeKind) {
             case 'FUNCTION':
-                return DIRECTORY_MAP.FUNCTION;
+                return { artifactType: DIRECTORY_MAP.FUNCTION };
             case 'FUNCTION_DEFINITION':
-                return DIRECTORY_MAP.FUNCTION;
+                return { artifactType: DIRECTORY_MAP.FUNCTION };
             case 'AUTOMATION':
-                return DIRECTORY_MAP.AUTOMATION;
+                return { artifactType: DIRECTORY_MAP.AUTOMATION };
             case 'DATA_MAPPER_DEFINITION':
-                return DIRECTORY_MAP.DATA_MAPPER;
+                return { artifactType: DIRECTORY_MAP.DATA_MAPPER };
             case 'NP_FUNCTION_DEFINITION':
-                return DIRECTORY_MAP.NP_FUNCTION;
+                return { artifactType: DIRECTORY_MAP.NP_FUNCTION };
             // Add other cases as needed
             default:
-                return DIRECTORY_MAP.FUNCTION;
+                return undefined;
         }
     }
 
@@ -508,7 +509,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .deleteFlowNode(params)
                 .then(async (model) => {
                     console.log(">>> bi delete node from ls", model);
-                    const artifacts = await updateSourceCode({ textEdits: model.textEdits }, { artifactType: DIRECTORY_MAP.FUNCTION });
+                    const artifacts = await updateSourceCode({ textEdits: model.textEdits });
                     resolve({ artifacts });
                 })
                 .catch((error) => {
