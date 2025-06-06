@@ -1,6 +1,6 @@
-# WSO2 Integrator: BI for Visual Studio Code (BI for VS Code) 
+# WSO2 Integrator: BI for Visual Studio Code (WSO2 Integrator: BI for VS Code) 
 
-WSO2 Integrator: BI Visual Studio Code extension (BI for VS Code) is a comprehensive integration solution that simplifies your digital transformation journey. It streamlines connectivity among applications, services, data, and the cloud using a user-friendly low-code graphical designing experience and revolutionizes your integration development workflow. As an integration developer, you can execute all the development lifecycle phases using this tool. When your integration solutions are production-ready, you can easily push the artifacts to your continuous integration/continuous deployment pipeline.
+WSO2 Integrator: BI Visual Studio Code extension (WSO2 Integrator: BI for VS Code) is a comprehensive integration solution that simplifies your digital transformation journey. It streamlines connectivity among applications, services, data, and the cloud using a user-friendly low-code graphical designing experience and revolutionizes your integration development workflow. As an integration developer, you can execute all the development lifecycle phases using this tool. When your integration solutions are production-ready, you can easily push the artifacts to your continuous integration/continuous deployment pipeline.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ If a different Ballerina version is installed on your local machine, you'll be p
 
 ## Get Started
 
-1. Launch VS Code with the WSO2 Integrator: BI for Visual Studio Code (BI for VS Code) extension installed. When the extension is installed properly, you can see the WSO2 Integrator: BI icon in the Activity Bar of the VS Code editor.
+1. Launch VS Code with the WSO2 Integrator: BI for Visual Studio Code (WSO2 Integrator: BI for VS Code) extension installed. When the extension is installed properly, you can see the WSO2 Integrator: BI icon in the Activity Bar of the VS Code editor.
 
 2. Click on the WSO2 Integrator: BI icon on the Activity Bar of the VS Code editor to open the extension and get started.
 <img src="https://github.com/wso2/product-ballerina-integrator/blob/main/docs/assets/img/get-started/init.png?raw=true" width="100%" />
