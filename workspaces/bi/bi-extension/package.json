@@ -34,7 +34,7 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to WSO2 Integrator: BI. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use WSO2 Integrator: BI in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "contents": "Welcome to WSO2 Integrator: BI. You can open a folder containing a BI integration or create a new integration.\n[Open BI Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use WSO2 Integrator: BI in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
