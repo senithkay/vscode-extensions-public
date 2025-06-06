@@ -673,7 +673,7 @@ class FastRunDebugAdapter extends LoggingDebugSession {
     }
 }
 
-const outputChannel = window.createOutputChannel("Ballerina Integrator Executor");
+const outputChannel = window.createOutputChannel("WSO2 Integrator: BI Executor");
 
 class BIRunAdapter extends LoggingDebugSession {
 

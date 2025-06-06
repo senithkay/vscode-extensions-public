@@ -91,7 +91,7 @@
                         "type": "boolean",
                         "default": false,
                         "scope": "resource",
-                        "description": "Activate features for Ballerina Integrator."
+                        "description": "Activate features for WSO2 Integrator: BI."
                     },
                     "ballerina.scope": {
                         "type": "string",
@@ -200,7 +200,7 @@
             },
             {
                 "type": "object",
-                "title": "Ballerina Integrator",
+                "title": "WSO2 Integrator: BI",
                 "properties": {
                     "ballerina.enableSequenceDiagramView": {
                         "type": "boolean",

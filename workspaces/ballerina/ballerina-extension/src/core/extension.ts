@@ -1337,7 +1337,7 @@ export class BallerinaExtension {
                 await window.withProgress(
                     {
                         location: ProgressLocation.Notification,
-                        title: `Downloading Ballerina Integrator distribution`,
+                        title: `Downloading WSO2 Integrator: BI distribution`,
                         cancellable: false,
                     },
                     async (progress) => {
@@ -1392,11 +1392,11 @@ export class BallerinaExtension {
             console.log(`Downloaded artifact to ${zipFilePath}`);
 
             if (restartWindow) {
-                window.showInformationMessage("Setting the Ballerina Integrator Home location...");
+                window.showInformationMessage("Setting the WSO2 Integrator: BI Home location...");
             }
             res = {
                 ...res,
-                message: `Setting the Ballerina Integrator Home location...`,
+                message: `Setting the WSO2 Integrator: BI Home location...`,
                 success: false,
                 step: 4
             };
