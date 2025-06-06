@@ -17,8 +17,8 @@ import { createFolderStructure, copyDockerResources } from '.';
 import { commands, Uri, window, workspace } from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
-import { LATEST_MI_VERSION } from './onboardingUtils';
-import { changeRootPomForClassMediator } from './fileOperations';
+import { updatePomForClassMediator, LATEST_MI_VERSION } from './onboardingUtils';
+import { SELECTED_JAVA_HOME, SELECTED_SERVER_PATH } from '../debugger/constants';
 
 enum Nature {
     MULTIMODULE,
@@ -32,63 +32,99 @@ enum Nature {
     DISTRIBUTION
 }
 
+interface ArtifactItem {
+  file: string;
+  path: string;
+  mediaType: string;
+  properties: any;
+}
+
+interface ArtifactCollection {
+  directory: string;
+  path: string;
+  properties: any;
+}
+
+interface Dependency {
+  groupId: string;
+  artifactId: string;
+  version: string;
+}
+
+interface Artifact {
+  '@_name': string;
+  '@_groupId': string;
+  '@_version': string;
+  '@_type': string;
+  '@_serverRole': string;
+  file: string;
+  item: ArtifactItem | ArtifactItem[];
+  collection: ArtifactCollection | ArtifactCollection[];
+}
+
+interface ArtifactsRoot {
+  artifacts: {
+    artifact?: Artifact | Artifact[];
+  };
+}
+
+const xmlParserOptions = {
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_',
+  parseAttributeValue: true,
+  trimValues: true,
+  parseTrueNumberOnly: false,
+  arrayMode: false,
+  parseTagValue: false,
+  parseNodeValue: false
+};
+
+const xmlBuilderOptions = {
+  ignoreAttributes: false,
+  format: true,
+  indentBy: '  ',
+  suppressEmptyNode: true,
+  suppressBooleanAttributes: false,
+  attributeNamePrefix: '@_',
+  textNodeName: '#text'
+};
+
+const SRC = 'src';
+const MAIN = 'main';
+const WSO2MI = 'wso2mi';
+const RESOURCES = 'resources';
+const ARTIFACTS = 'artifacts';
+const REGISTRY = 'registry';
+const DATA_SOURCES = 'data-sources';
+const DATA_SERVICES = 'data-services';
+const CONNECTORS = 'connectors';
+
+const SYNAPSE_TO_MI_ARTIFACT_FOLDER_MAP: Record<string, string> = {
+    'api': 'apis',
+    'endpoints': 'endpoints',
+    'inbound-endpoints': 'inbound-endpoints',
+    'local-entries': 'local-entries',
+    'message-processors': 'message-processors',
+    'message-stores': 'message-stores',
+    'proxy-services': 'proxy-services',
+    'sequences': 'sequences',
+    'tasks': 'tasks',
+    'templates': 'templates'
+};
+
 export async function importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
     const { source, directory, open } = params;
+    const projectUri = workspace.getWorkspaceFolder(Uri.file(source))?.uri?.fsPath;
+    if (!projectUri) {
+        window.showErrorMessage('Please select a valid project directory');
+        throw new Error('Invalid project directory');
+    }
 
     const projectUuid = uuidv4();
 
     let { projectName, groupId, artifactId, version, runtimeVersion } = getProjectDetails(source);
 
     if (projectName && groupId && artifactId && version) {
-        const folderStructure: FileStructure = {
-            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId.toLowerCase(), projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION, ""),
-            '.env': '',
-            'src': {
-                'main': {
-                    'java': '',
-                    'wso2mi': {
-                        'artifacts': {
-                            'apis': '',
-                            'endpoints': '',
-                            'inbound-endpoints': '',
-                            'local-entries': '',
-                            'message-processors': '',
-                            'message-stores': '',
-                            'proxy-services': '',
-                            'sequences': '',
-                            'tasks': '',
-                            'templates': '',
-                            'data-services': '',
-                            'data-sources': '',
-                        },
-                        'resources': {
-                            'registry': {
-                                'gov': '',
-                                'conf': '',
-                            },
-                            'metadata': '',
-                            'connectors': '',
-                            'conf': {
-                                'config.properties': ''
-                            }
-                        },
-                    },
-                },
-                'test': {
-                    'wso2mi': '',
-                    'resources': {
-                        "mock-services": '',
-                    }
-                }
-            },
-            'deployment': {
-                'docker': {
-                    'Dockerfile': dockerfileContent(),
-                    'resources': ''
-                },
-                'libs': '',
-            },
-        };
         // Need to close all the opened editors before migrating the project
         // if not, it will cause issues with the file operations
         await commands.executeCommand('workbench.action.closeAllEditors');
@@ -97,8 +133,33 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
         moveFiles(source, destinationFolderPath);
         deleteEmptyFoldersInPath(source);
 
-        await createFolderStructure(directory, folderStructure);
-        copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
+        const items = fs.readdirSync(destinationFolderPath, { withFileTypes: true });
+        let folderStructureCreated = false;
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.isDirectory()) {
+                const projectPath = path.join(destinationFolderPath, item.name);
+                const projectType = determineProjectType(projectPath);
+                // Only create folder structure for composite exporter (distribution) projects
+                if (projectType === Nature.DISTRIBUTION) {
+                    let { projectName, groupId, artifactId, version, runtimeVersion } = getProjectDetails(projectPath);
+                    if (projectName && groupId && artifactId && version) {
+                        const newFolderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
+                        const newProjectDir = path.join(directory, item.name);
+                        fs.mkdirSync(newProjectDir);
+                        await createFolderStructure(newProjectDir, newFolderStructure);
+                        copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), newProjectDir);
+                        folderStructureCreated = true;
+                    }
+                }
+            }
+        }
+        // If no folder structure was created, create one in the given directory
+        if (!folderStructureCreated) {
+            const folderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
+            await createFolderStructure(directory, folderStructure);
+            copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
+        }
 
         console.log("Created project structure for project: " + projectName);
         await migrateConfigs(path.join(source, ".backup"), directory);
@@ -141,30 +202,57 @@ export function getProjectDetails(filePath: string) {
             version = result?.project?.version;
             runtimeVersion = result?.project?.properties["project.runtime.version"];
         });
-    } 
+    }
     return { projectName, groupId, artifactId, version, runtimeVersion };
 }
 
-export async function migrateConfigs(source: string, target: string) {
+/**
+ * Captures the project directory from a given file path which is in ".bakcup" dir.
+ * If filePath contains ".backup", extract the segment after the last ".backup" and keep only the next directory name
+ *
+ * @param filePath - The absolute or relative file path to analyze.
+ * @returns The project directory path, with special handling for ".backup" directories.
+ */
+export function getProjectDir(filePath: string): string {
+    const normalizedPath = path.normalize(filePath);
+    const backupIndex = normalizedPath.lastIndexOf('.backup');
+    if (backupIndex !== -1) {
+        // Find the next path segment after ".backup"
+        const afterBackup = normalizedPath.substring(backupIndex + '.backup'.length);
+        const match = afterBackup.match(/[/\\]([^/\\]+)/);
+        if (match && match[1]) {
+            // Reconstruct the path up to and including ".backup/<nextDir>"
+            return normalizedPath.substring(0, backupIndex + '.backup'.length + match[0].length);
+        }
+        // If nothing after .backup, just return up to .backup
+        return normalizedPath.substring(0, backupIndex + '.backup'.length);
+    }
+    return path.dirname(normalizedPath);
+}
+
+export async function migrateConfigs(projectUri: string, source: string, target: string) {
     // determine the project type here
     const projectType = determineProjectType(source);
     let hasClassMediatorModule = false;
+
     if (projectType === Nature.MULTIMODULE) {
         const items = fs.readdirSync(source, { withFileTypes: true });
-        items.forEach(item => {
-            if (item.isDirectory()) {
-                const sourceAbsolutePath = path.join(source, item.name);
-                const moduleType = determineProjectType(path.join(source, item.name));
-                if (moduleType === Nature.ESB || moduleType === Nature.DS ||
-                    moduleType === Nature.DATASOURCE || moduleType === Nature.CONNECTOR ||
-                    moduleType === Nature.REGISTRY || moduleType === Nature.CLASS) {
-                    copyConfigsToNewProjectStructure(moduleType, sourceAbsolutePath, target);
-                }
-                if (moduleType === Nature.CLASS) {
-                    hasClassMediatorModule = true;
-                }
+        const artifactIdToFileInfoMap = generateArtifactIdToFileInfoMap(source, items);
+
+        for (const item of items) {
+            if (!item.isDirectory()) continue;
+
+            const sourcePath = path.join(source, item.name);
+            const targetPath = path.join(target, item.name);
+
+            const moduleType = determineProjectType(sourcePath);
+
+            if (moduleType === Nature.DISTRIBUTION && artifactIdToFileInfoMap) {
+                await processCompositeExporterProject(sourcePath, targetPath, artifactIdToFileInfoMap);
+                await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
             }
-        });
+        }
+        await commands.executeCommand('workbench.action.closeWindow');
     } else if (projectType === Nature.LEGACY) {
         const items = fs.readdirSync(source, { withFileTypes: true });
         items.forEach(item => {
@@ -183,55 +271,122 @@ export async function migrateConfigs(source: string, target: string) {
         copyConfigsToNewProjectStructure(projectType, source, target);
     }
     if (hasClassMediatorModule) {
-        await changeRootPomForClassMediator();
+        await updatePomForClassMediator(projectUri);
     }
 }
 
-function traverseAndIdentifyBuildArtifactsPoms(directoryPath: string): string[] {
-    const pomFiles: string[] = [];
-    const buildArtifactsPath = path.join(directoryPath, 'build-artifacts');
+type FileInfo = {
+    path: string;
+    artifact: Artifact | null;
+};
 
-    if (fs.existsSync(buildArtifactsPath) && fs.statSync(buildArtifactsPath).isDirectory()) {
-        const subDirectories = fs.readdirSync(buildArtifactsPath, { withFileTypes: true })
-            .filter(item => item.isDirectory())
-            .map(item => path.join(buildArtifactsPath, item.name));
-
-        subDirectories.forEach(subDir => {
-            collectPomFilesRecursively(subDir, pomFiles);
-        });
-    }
-
-    return pomFiles;
-}
-
-function collectPomFilesRecursively(directoryPath: string, pomFiles: string[]) {
-    const items = fs.readdirSync(directoryPath, { withFileTypes: true });
+/**
+ * Generates a mapping between artifact identifiers and their corresponding file info objects.
+ *
+ * @param source - The root directory path containing the project directories.
+ * @param items - An array of directory entries (`fs.Dirent[]`) representing the contents
+ *                of the `source` directory.
+ * @returns A `Map<string, FileInfo>` where the keys are artifact identifiers and the values
+ *          are their corresponding file info objects.
+ */
+function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Map<string, FileInfo> {
+    const artifactIdToFileInfoMap = new Map<string, FileInfo>();
     items.forEach(item => {
-        const itemPath = path.join(directoryPath, item.name);
         if (item.isDirectory()) {
-            collectPomFilesRecursively(itemPath, pomFiles);
-        } else if (item.name === 'pom.xml') {
-            pomFiles.push(itemPath);
+            const projectFilePath = path.join(source, item.name);
+            const projectPomFilePath = path.join(projectFilePath, 'pom.xml');
+            const projectId = getPomIdentifier(projectPomFilePath);
+            if (projectId) {
+                // Try to get the artifact from the pom.xml's artifact.xml if exists
+                let artifacts: Artifact[] = [];
+                const artifactXmlPath = path.join(projectFilePath, 'artifact.xml');
+                if (fs.existsSync(artifactXmlPath)) {
+                    const xml = parseXmlFile(artifactXmlPath);
+                    if (xml.artifacts && xml.artifacts.artifact) {
+                        artifacts = normalizeArtifacts(xml.artifacts.artifact);
+                    }
+                }
+                artifactIdToFileInfoMap.set(projectId, { path: projectFilePath, artifact: null });
+                // For each artifact in artifacts, map its artifactId to its file path
+                artifacts.forEach(artifact => {
+                    const artifactId = getPomIdentifierStr(
+                        artifact['@_groupId'],
+                        artifact['@_name'],
+                        artifact['@_version']
+                    );
+                    if (artifact.file) {
+                        const artifactFilePath = path.join(projectFilePath, ...artifact.file.split('/'));
+                        artifactIdToFileInfoMap.set(artifactId, { path: artifactFilePath, artifact });
+                    } else if (artifact.item) {
+                        // artifact.item can be an array or a single object
+                        const items = Array.isArray(artifact.item) ? artifact.item : [artifact.item];
+                        const firstItem = items[0];
+                        if (firstItem && firstItem.file) {
+                            const artifactFilePath = path.join(projectFilePath, ...firstItem.file.split('/'));
+                            artifactIdToFileInfoMap.set(artifactId, { path: artifactFilePath, artifact });
+                        }
+                    }
+                    const fileInfo = getFileInfoForArtifact(artifact, projectFilePath);
+                    if (fileInfo) {
+                        artifactIdToFileInfoMap.set(artifactId, fileInfo);
+                    }
+                });
+            }
         }
     });
+    return artifactIdToFileInfoMap;
+}
+
+/**
+ * Given an artifact and its project path, returns a FileInfo object containing the absolute file path and the artifact.
+ * @param artifact The artifact object from artifact.xml.
+ * @param projectFilePath The absolute path to the project directory containing the artifact.xml.
+ * @returns FileInfo object with the absolute file path and the artifact, or null if the file does not exist.
+ */
+function getFileInfoForArtifact(
+    artifact: Artifact,
+    projectFilePath: string
+): FileInfo | null {
+    if (artifact.file) {
+        const artifactFilePath = path.join(projectFilePath, ...artifact.file.split('/'));
+        if (fs.existsSync(artifactFilePath)) {
+            return { path: artifactFilePath, artifact };
+        }
+    } else if (artifact.item) {
+        // artifact.item can be an array or a single object
+        const items = Array.isArray(artifact.item) ? artifact.item : [artifact.item];
+        const firstItem = items[0];
+        if (firstItem && firstItem.file) {
+            const artifactFilePath = path.join(projectFilePath, ...firstItem.file.split('/'));
+            if (fs.existsSync(artifactFilePath)) {
+                return { path: artifactFilePath, artifact };
+            }
+        }
+    } else if (artifact.collection) {
+        // artifact.collection can be an array or a single object
+        const collections = Array.isArray(artifact.collection) ? artifact.collection : [artifact.collection];
+        const firstCollection = collections[0];
+        if (firstCollection && firstCollection.directory) {
+            const artifactPath = path.join(projectFilePath, ...firstCollection.directory.split('/'));
+            if (fs.existsSync(artifactPath)) {
+                return { path: artifactPath, artifact };
+            }
+        }
+    }
+    return null;
 }
 
 function getPomIdentifierStr(groupId: string, artifactId: string, version: string): string {
     return `${groupId}:${artifactId}:${version}`;
 }
 
-function derivePomIdentifier(identifierStr: string): { groupId: string, artifactId: string, version: string } | null {
-    const parts = identifierStr.split(':');
-    if (parts.length === 3) {
-        return {
-            groupId: parts[0],
-            artifactId: parts[1],
-            version: parts[2]
-        };
-    }
-    return null;
-}
-
+/**
+ * Retrieves the Maven POM identifier from a specified `pom.xml` file.
+ *
+ * @param pomFilePath - The file path to the `pom.xml` file.
+ * @returns The POM identifier as a string in the format `groupId:artifactId:version`, or `null` if the file
+ *          does not exist or the required fields are not found.
+ */
 function getPomIdentifier(pomFilePath: string): string | null {
     if (!fs.existsSync(pomFilePath)) {
         return null;
@@ -255,6 +410,65 @@ function getPomIdentifier(pomFilePath: string): string | null {
         return `${groupId}:${artifactId}:${version}`;
     }
     return null;
+}
+
+function getFolderStructure(
+    projectName: string,
+    groupId: string,
+    artifactId: string,
+    projectUuid: string,
+    version: string,
+    runtimeVersion: string | undefined
+): FileStructure {
+    return {
+        'pom.xml': rootPomXmlContent(projectName, groupId, artifactId.toLowerCase(), projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION, ""),
+        '.env': '',
+        'src': {
+            'main': {
+                'java': '',
+                'wso2mi': {
+                    'artifacts': {
+                        'apis': '',
+                        'endpoints': '',
+                        'inbound-endpoints': '',
+                        'local-entries': '',
+                        'message-processors': '',
+                        'message-stores': '',
+                        'proxy-services': '',
+                        'sequences': '',
+                        'tasks': '',
+                        'templates': '',
+                        'data-services': '',
+                        'data-sources': '',
+                    },
+                    'resources': {
+                        'registry': {
+                            'gov': '',
+                            'conf': '',
+                        },
+                        'metadata': '',
+                        'connectors': '',
+                        'conf': {
+                            'config.properties': ''
+                        }
+                    },
+                },
+            },
+            'test': {
+                'wso2mi': '',
+                'resources': {
+                    "mock-services": '',
+                }
+            }
+        },
+        'deployment': {
+            'docker': {
+                'Dockerfile': dockerfileContent(),
+                'resources': ''
+            },
+            'libs': '',
+        },
+    };
 }
 
 function determineProjectType(source: string): Nature | undefined {
@@ -309,6 +523,33 @@ function determineProjectType(source: string): Nature | undefined {
     return configType;
 }
 
+function copyConfigToNewProjectStructure(nature: Nature, sourceFileInfo: FileInfo, target: string) {
+    switch (nature) {
+        case Nature.ESB:
+            const artifactType = getArtifactType(sourceFileInfo.path);
+            const subDir = SYNAPSE_TO_MI_ARTIFACT_FOLDER_MAP[artifactType ?? ''] ?? '';
+            copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, subDir));
+            processMetaData(sourceFileInfo.path, target);
+            processTests(sourceFileInfo.path, target);
+            break;
+        case Nature.DATASOURCE:
+            copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, DATA_SOURCES));
+            break;
+        case Nature.DS:
+            copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, DATA_SERVICES));
+            break;
+        case Nature.CONNECTOR:
+            copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, RESOURCES, CONNECTORS));
+            break;
+        case Nature.REGISTRY:
+            copyRegistryFile(sourceFileInfo, target);
+            break;
+        case Nature.CLASS:
+            processClassMediators(sourceFileInfo.path, target);
+            break;
+    }
+}
+
 function copyConfigsToNewProjectStructure(nature: Nature, source: string, target: string) {
     switch (nature) {
         case Nature.ESB:
@@ -332,6 +573,24 @@ function copyConfigsToNewProjectStructure(nature: Nature, source: string, target
             processClassMediators(source, target);
             break;
     }
+}
+
+/**
+ * Extracts the artifact type (e.g., 'api', 'sequences', 'endpoints') from a given Synapse config file path.
+ *
+ * @param sourceFilePath Full file path to the artifact.
+ * @returns The artifact folder name under synapse-config (e.g., 'api').
+ */
+export function getArtifactType(sourceFilePath: string): string | null {
+    const normalizedPath = path.normalize(sourceFilePath);
+    const parts = normalizedPath.split(path.sep);
+
+    const synapseIndex = parts.indexOf('synapse-config');
+    if (synapseIndex !== -1 && parts.length > synapseIndex + 1) {
+        return parts[synapseIndex + 1];  // The folder name immediately under synapse-config
+    }
+
+    return null; // If synapse-config not found or no folder under it
 }
 
 function processArtifactsFolder(source: string, target: string) {
@@ -371,11 +630,76 @@ function processArtifactsFolder(source: string, target: string) {
 
 }
 
+/**
+ * Processes and copies metadata files associated with a given source file to a target project's metadata directory.
+ *
+ * This function locates the `src/main/resources/metadata` directory relative to the provided `sourceFilePath`,
+ * finds all files in that directory that start with the base name of the source file, and copies them to the
+ * corresponding metadata directory in the target project structure.
+ *
+ * @param sourceFilePath - The absolute path to the source file whose metadata files should be processed.
+ * @param targetProjectDir - The root directory of the target project where metadata files should be copied.
+ *
+ * @remarks
+ * - The function expects the source file to reside within a directory structure containing `src/main`.
+ * - If the `src/main/resources/metadata` directory is not found in the source file's path, a warning is logged.
+ * - Only files (not directories) whose names start with the source file's base name are copied.
+ */
+function processMetaData(sourceFilePath: string, targetProjectDir: string) {
+    const newMetaDataPath = path.join(targetProjectDir, 'src', 'main', 'wso2mi', 'resources', 'metadata');
+
+    const fileName = path.basename(sourceFilePath, path.extname(sourceFilePath));
+
+    // Normalize the path and split into segments
+    const pathSegments = path.normalize(sourceFilePath).split(path.sep);
+
+    // Loop in reverse to find the last occurrence of src/main
+    let mainIndex = -1;
+    for (let i = pathSegments.length - 1; i > 0; i--) {
+        if (pathSegments[i] === 'main' && pathSegments[i - 1] === 'src') {
+            mainIndex = i;
+            break;
+        }
+    }
+
+    if (mainIndex !== -1) {
+        const pathUptoSrcMain = pathSegments.slice(0, mainIndex + 1).join(path.sep);
+        const metadataDir = path.join(pathUptoSrcMain, 'resources', 'metadata');
+        if (fs.existsSync(metadataDir) && fs.statSync(metadataDir).isDirectory()) {
+            const files = fs.readdirSync(metadataDir);
+            files.forEach(file => {
+                if (file.startsWith(fileName)) {
+                    const sourceFile = path.join(metadataDir, file);
+                    const targetFile = path.join(newMetaDataPath, file);
+                    if (!fs.statSync(sourceFile).isDirectory()) {
+                        copyFile(sourceFile, targetFile);
+                    }
+                }
+            });
+        }
+    } else {
+        console.warn('src/main not found in path:', sourceFilePath);
+    }
+}
+
 function processMetaDataFolder(source: string, target: string) {
     const oldMetaDataPath = path.join(source, 'src', 'main', 'resources', 'metadata');
     const newMetaDataPath = path.join(target, 'src', 'main', 'wso2mi', 'resources', 'metadata');
 
     copy(oldMetaDataPath, newMetaDataPath);
+}
+
+/**
+ * Copies a single artifact file to a specific subdirectory under the target project's artifacts directory.
+ * @param sourceFilePath - The absolute path to the source artifact file.
+ * @param targetProjectDir - The root directory of the target project.
+ * @param artifactSubDir - The subdirectory under 'artifacts' (e.g., 'data-sources', 'data-services').
+ */
+function copyArtifactFileToTargetDir(sourceFilePath: string, targetDir: string) {
+    if (!fs.statSync(sourceFilePath).isDirectory()) {
+        const fileName = path.basename(sourceFilePath);
+        copyFile(sourceFilePath, path.join(targetDir, fileName));
+    }
 }
 
 function processDataSourcesFolder(source: string, target: string) {
@@ -409,6 +733,163 @@ function processConnectors(source: string, target: string) {
             }
         });
     });
+}
+
+function createInitialArtifactXml(): string {
+    return `<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>`;
+}
+
+function ensureRegistryDirectory(targetProjectDir: string): string {
+    const registryPath = path.join(targetProjectDir, 'src', 'main', 'wso2mi', 'resources', 'registry');
+
+    if (!fs.existsSync(registryPath)) {
+        fs.mkdirSync(registryPath, { recursive: true });
+    }
+
+    return registryPath;
+}
+
+function ensureArtifactXmlExists(registryPath: string): string {
+    const artifactXmlPath = path.join(registryPath, 'artifact.xml');
+
+    if (!fs.existsSync(artifactXmlPath)) {
+        fs.writeFileSync(artifactXmlPath, createInitialArtifactXml(), 'utf-8');
+    }
+
+    return artifactXmlPath;
+}
+
+function parseXmlFile(filePath: string): ArtifactsRoot {
+    try {
+        const xmlContent = fs.readFileSync(filePath, 'utf-8');
+        const parser = new XMLParser(xmlParserOptions);
+        const result = parser.parse(xmlContent);
+
+        // Handle case where artifacts is empty and parsed as empty string
+        if (!result.artifacts || typeof result.artifacts === 'string') {
+            return {
+                artifacts: {}
+            };
+        }
+
+        return result as ArtifactsRoot;
+    } catch (error) {
+        throw new Error(`Failed to parse XML file ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+}
+
+function normalizeArtifacts(artifactsData: any): Artifact[] {
+    if (!artifactsData) return [];
+    return Array.isArray(artifactsData) ? artifactsData : [artifactsData];
+}
+
+function writeUpdatedArtifactXml(filePath: string, artifactsRoot: ArtifactsRoot): void {
+    try {
+        const builder = new XMLBuilder(xmlBuilderOptions);
+        const updatedXml = builder.build(artifactsRoot);
+        fs.writeFileSync(filePath, updatedXml, 'utf-8');
+    } catch (error) {
+        throw new Error(`Failed to write XML file ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+}
+
+function copyRegistryFile(sourceFileInfo: FileInfo, targetProjectDir: string): void {
+    const registryPath = path.join(targetProjectDir, SRC, MAIN, WSO2MI, RESOURCES, REGISTRY);
+    try {
+        // Get the first item's path from the artifact
+        const artifact = sourceFileInfo.artifact;
+        if (artifact) {
+            if (artifact.item) {
+                const items = Array.isArray(artifact.item) ? artifact.item : [artifact.item];
+                const firstItem = items[0];
+                const relativePath = firstItem.path;
+                const targetDir = getTargetPath(relativePath, registryPath);
+                const targetFile = path.join(targetDir, firstItem.file.split('/').pop()!);
+                fs.mkdirSync(targetDir, { recursive: true });
+                copyFile(sourceFileInfo.path, targetFile);
+            } else if (artifact.collection) {
+                const collections = Array.isArray(artifact.collection) ? artifact.collection : [artifact.collection];
+                const firstCollection = collections[0];
+                const relativePath = firstCollection.path;
+                const targetDir = getTargetPath(relativePath, registryPath);
+                fs.mkdirSync(targetDir, { recursive: true });
+                copy(sourceFileInfo.path, targetDir);
+            } else {
+                throw new Error('Artifact does not have item or collection for registry resource.');
+            }
+        }
+    } catch (error) {
+        console.error(`Failed to copy registry file: ${error instanceof Error ? error.message : error}`);
+    }
+}
+
+function getTargetPath(relativePath: string, registryPath: string): string {
+    if (relativePath.startsWith('/_system/governance')) {
+        return path.join(registryPath, path.normalize(relativePath.replace(/^\/_system\/governance/, 'gov')));
+    } else if (relativePath.startsWith('/_system/config')) {
+        return path.join(registryPath, path.normalize(relativePath.replace(/^\/_system\/config/, 'conf')));
+    } else {
+        // For other paths, use them as-is under registry directory
+        return path.join(registryPath, path.normalize(relativePath));
+    }
+}
+
+function updateRegistryArtifactXml(projectDir: string, artifacts: Artifact[]) {
+    const targetRegistryPath = ensureRegistryDirectory(projectDir);
+    const targetArtifactXmlPath = ensureArtifactXmlExists(targetRegistryPath);
+
+    // Parse the existing artifact.xml
+    const targetXml = parseXmlFile(targetArtifactXmlPath);
+
+    // Ensure artifacts structure exists
+    if (!targetXml.artifacts || typeof targetXml.artifacts === 'string') {
+        targetXml.artifacts = {};
+    }
+    if (!targetXml.artifacts.artifact) {
+        targetXml.artifacts.artifact = [];
+    } else if (!Array.isArray(targetXml.artifacts.artifact)) {
+        targetXml.artifacts.artifact = [targetXml.artifacts.artifact];
+    }
+
+    // Process and add new artifacts
+    artifacts.forEach(artifact => {
+        processArtifactForWrite(artifact);
+        (targetXml.artifacts.artifact as Artifact[]).push(artifact);
+    });
+
+    writeUpdatedArtifactXml(targetArtifactXmlPath, targetXml);
+}
+
+function processArtifactForWrite(artifact: Artifact): void {
+    if (artifact) {
+        if (artifact.item) {
+            const items = Array.isArray(artifact.item) ? artifact.item : [artifact.item];
+            items.forEach(item => {
+            if (item.file && typeof item.file === 'string') {
+                const parts = item.file.split('/');
+                item.file = parts[parts.length - 1];
+            }
+            });
+            artifact.item = Array.isArray(artifact.item) ? items : items[0];
+        } else if (artifact.collection) {
+            const collections = Array.isArray(artifact.collection) ? artifact.collection : [artifact.collection];
+            collections.forEach(collection => {
+            if (collection.directory && typeof collection.directory === 'string') {
+                const parts = collection.directory.split('/');
+                collection.directory = parts[parts.length - 1];
+            }
+            });
+            collections.forEach(collection => {
+                if (collection.path && typeof collection.path === 'string') {
+                    const lastSlashIndex = collection.path.lastIndexOf('/');
+                    if (lastSlashIndex !== -1) {
+                        collection.path = collection.path.substring(0, lastSlashIndex);
+                    }
+                }
+            });
+            artifact.collection = Array.isArray(artifact.collection) ? collections : collections[0];
+        }
+    }
 }
 
 function processRegistryResources(source: string, target: string) {
@@ -452,6 +933,70 @@ function processRegistryResources(source: string, target: string) {
     });
 }
 
+/**
+ * Processes test files and associated mock services for a given artifact and target directory.
+ *
+ * This function scans the `test` directory within the source project directory (derived from the given artifact file path),
+ * and for each XML test file, parses its contents to determine if it is associated with the provided artifact.
+ * If so, the test file is copied to the target test directory. Additionally, if the test file references any mock services,
+ * those mock service files are also copied to the appropriate mock services directory within the target.
+ *
+ * @param artifactFilePath - The file path to the artifact whose tests are to be processed.
+ * @param target - The target directory where test files and mock services should be copied.
+ *
+ * @remarks
+ * - Only XML files in the `test` directory are processed.
+ * - Test files are copied if their `test-artifact` matches the artifact file path.
+ * - Mock service files referenced in the test XML are also copied to the target mock services directory.
+ */
+function processTests(artifactFilePath: string, target: string) {
+    const sourceProjectDir = getProjectDir(artifactFilePath);
+    const rootDir = path.dirname(sourceProjectDir);
+    const testDir = path.join(sourceProjectDir, 'test');
+    const targetMockServicesDir = path.join(target, 'src', 'test', 'resources', 'mock-services');
+    const targetTestDir = path.join(target, 'src', 'test', 'wso2mi');
+    if (fs.existsSync(testDir) && fs.statSync(testDir).isDirectory()) {
+        const files = fs.readdirSync(testDir);
+        files.forEach(file => {
+            const sourceFile = path.join(testDir, file);
+            if (fs.statSync(sourceFile).isFile()) {
+                if (path.extname(sourceFile).toLowerCase() === '.xml') {
+                    const fileContent = fs.readFileSync(sourceFile, 'utf-8');
+                    parseString(fileContent, { explicitArray: false, ignoreAttrs: false }, (err, result) => {
+                        if (err) {
+                            console.error(`Error parsing XML in file ${sourceFile}:`, err);
+                            return;
+                        }
+                        const value = result?.['unit-test']?.artifacts?.['test-artifact']?.artifact;
+                        const normalizedArtifactFilePath = artifactFilePath.split(path.sep).join('/');
+                        if (typeof value === 'string' && normalizedArtifactFilePath.endsWith(value)) {
+                            const destFile = path.join(targetTestDir, file);
+                            copyFile(sourceFile, destFile);
+                        }
+                        const mockServices = result?.['unit-test']?.['mock-services']?.['mock-service'];
+                        if (mockServices) {
+                            const mockServiceFiles = Array.isArray(mockServices) ? mockServices : [mockServices];
+                            mockServiceFiles.forEach((mockServicePath: string) => {
+                                const firstSlash = mockServicePath.indexOf('/');
+                                const secondSlash = mockServicePath.indexOf('/', firstSlash + 1);
+                                let relativeMockServicePath = mockServicePath;
+                                if (secondSlash !== -1) {
+                                    relativeMockServicePath = mockServicePath.substring(secondSlash);
+                                }
+                                const absoluteMockServicePath = path.join(rootDir, relativeMockServicePath);
+                                if (fs.existsSync(absoluteMockServicePath) && fs.statSync(absoluteMockServicePath).isFile()) {
+                                    const destMockServiceFile = path.join(targetMockServicesDir, path.basename(mockServicePath));
+                                    copyFile(absoluteMockServicePath, destMockServiceFile);
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+}
+
 function processTestsFolder(source: string, target: string) {
     const oldTestPath = path.join(source, 'test');
     const newTestPath = path.join(target, 'src', 'test', 'wso2mi');
@@ -488,6 +1033,99 @@ function processClassMediators(source: string, target: string) {
 
         copyRecursive(oldClassMediatorPath, newClassMediatorPath);
     }
+}
+
+/**
+ * Processes a given dependency by determining its project type and performing necessary actions
+ * such as copying configuration files to a new project structure. Returns information about
+ * whether the dependency is a class mediator module or a registry artifact.
+ *
+ * @param dependency - The dependency to process.
+ * @param artifactIdToFileInfoMap - A map from dependency identifiers to their corresponding file information.
+ * @param target - The target directory or path for copying configuration files.
+ * @returns An object indicating whether the dependency is a class mediator module and, if applicable, a registry artifact.
+ */
+function processDependency(
+    dependency: Dependency,
+    artifactIdToFileInfoMap: Map<string, FileInfo>,
+    target: string
+): { hasClassMediatorModule: boolean; registryArtifact?: Artifact | null } {
+    const depId = getPomIdentifierStr(dependency.groupId, dependency.artifactId, dependency.version);
+    const sourceFileInfo = artifactIdToFileInfoMap.get(depId);
+
+    if (!sourceFileInfo) {
+        return { hasClassMediatorModule: false };
+    }
+
+    const sourceProjectDir = getProjectDir(sourceFileInfo.path);
+    const projectType = determineProjectType(sourceProjectDir);
+
+    if (projectType === Nature.ESB || projectType === Nature.DS || projectType === Nature.DATASOURCE ||
+        projectType === Nature.CONNECTOR || projectType === Nature.REGISTRY || projectType === Nature.CLASS) {
+        copyConfigToNewProjectStructure(projectType, sourceFileInfo, target);
+        if (projectType === Nature.CLASS) {
+            return { hasClassMediatorModule: true };
+        } else if (projectType === Nature.REGISTRY) {
+            return { hasClassMediatorModule: false, registryArtifact: sourceFileInfo.artifact ?? null };
+        }
+    }
+    return { hasClassMediatorModule: false };
+}
+
+function readPomDependencies(pomFilePath: string): Dependency[] {
+    if (!fs.existsSync(pomFilePath)) {
+        throw new Error(`pom.xml file not found: ${pomFilePath}`);
+    }
+
+    const pomContent = fs.readFileSync(pomFilePath, 'utf-8');
+    const parser = new XMLParser({ ignoreAttributes: false });
+    const parsed = parser.parse(pomContent);
+
+    const deps = parsed?.project?.dependencies?.dependency;
+
+    if (!deps) return [];
+    return Array.isArray(deps) ? deps : [deps];
+}
+
+/**
+ * Processes a composite exporter project by reading its `pom.xml` file, resolving dependencies,
+ * and updating the target project accordingly. Specifically, it checks for class mediator modules
+ * among the dependencies and updates the target project's `pom.xml` if any are found.
+ * Also, it fixes test file paths in the target directory.
+ *
+ * @param source - The path to the source project directory containing the `pom.xml` file.
+ * @param target - The path to the target project directory where updates will be applied.
+ * @param artifactIdToFileInfoMap - A map of artifact IDs to their corresponding file information,
+ *                                  used to resolve dependency source file paths.
+ * @returns A promise that resolves when processing is complete.
+ */
+async function processCompositeExporterProject(source: string, target: string, artifactIdToFileInfoMap: Map<string, FileInfo>) {
+    // read the `pom.xml` file from the source directory
+    const pomFilePath = path.join(source, 'pom.xml');
+    if (!fs.existsSync(pomFilePath)) {
+        console.error(`pom.xml file not found in the source directory: ${source}`);
+        return;
+    }
+    const dependencies = readPomDependencies(pomFilePath);
+
+    let hasClassMediatorModule = false;
+    let registryArtifactsList: Artifact[] = [];
+    for (const dependency of dependencies) {
+        const result = processDependency(dependency, artifactIdToFileInfoMap, target);
+        if (result.hasClassMediatorModule) {
+            hasClassMediatorModule = true;
+        }
+        if (result.registryArtifact) {
+            registryArtifactsList.push(result.registryArtifact);
+        }
+    }
+    if (hasClassMediatorModule) {
+        await changeRootPomForClassMediator(target);
+    }
+    if (registryArtifactsList.length > 0) {
+        updateRegistryArtifactXml(target, registryArtifactsList);
+    }
+    fixTestFilePaths(target);
 }
 
 function fixTestFilePaths(source: string) {
