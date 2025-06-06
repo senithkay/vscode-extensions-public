@@ -18,7 +18,7 @@ import { promises as fsp } from 'fs';
 import { readFile } from 'fs/promises';
 import { Page } from "@playwright/test";
 
-const dataFolder = path.join(__dirname, 'data');
+export const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
 const vscodeVersion = 'latest';
 export const resourcesFolder = path.join(__dirname, '..', 'test-resources');
@@ -81,6 +81,8 @@ export async function createProject(page: ExtendedPage, projectName?: string, ru
 
 async function resumeVSCode() {
     if (vscode && page) {
+        console.log('Reloading VSCode');
+        await page.page.waitForTimeout(1000);
         await page.executePaletteCommand('Reload Window');
     } else {
         console.log('Starting VSCode');
@@ -94,6 +96,13 @@ export async function clearNotificationAlerts() {
     console.log(`Clearing notifications`);
     if (page) {
         await page.executePaletteCommand("Notifications: Clear All Notifications");
+    }
+}
+
+export async function clearNotificationsByCloseButton(page: ExtendedPage) {
+    const notificationsCloseButton = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
+    while (await notificationsCloseButton.count() > 0) {
+        await notificationsCloseButton.first().click({ force: true });
     }
 }
 
