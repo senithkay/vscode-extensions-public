@@ -313,6 +313,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const onTypeChange = async (type: Type) => {
         const name = type.name;
+        setIsSaving(true);
         // IF type nodeKind is CLASS then we call graphqlEndpoint
         // TODO: for TypeDiagram we need to give a generic class creation
         if (type.codedata.node === "CLASS") {
@@ -326,6 +327,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 .updateType({ filePath: type.codedata?.lineRange?.fileName || 'types.bal', type, description: "" });
         }
         props.onTypeChange(type);
+        setIsSaving(false);
     }
 
     const handleTypeImport = (types: Type[], isXml: boolean = false) => {
@@ -600,27 +602,13 @@ export function TypeEditor(props: TypeEditorProps) {
                                                 >
                                                     Cancel
                                                 </StyledButton>
-                                                {!isSaving &&
-                                                    <StyledButton
-                                                        appearance="primary"
-                                                        onClick={editTypeName}
-                                                        disabled={!isTypeNameValid || !tempName}
-                                                    >
-                                                        Save
-                                                    </StyledButton>
-                                                }
-                                                {isSaving &&
-                                                    <StyledButton
-                                                        appearance="primary"
-                                                        disabled={true}
-                                                    >
-                                                        <ProgressRing
-                                                            sx={{ width: 14, height: 14, marginRight: 3 }}
-                                                            color={ThemeColors.ON_PRIMARY}
-                                                        />
-                                                        Saving
-                                                    </StyledButton>
-                                                }
+                                                <StyledButton
+                                                    appearance="primary"
+                                                    onClick={editTypeName}
+                                                    disabled={!isTypeNameValid || !tempName}
+                                                >
+                                                    {isSaving ? <Typography variant="progress">Saving...</Typography> : "Save"}
+                                                </StyledButton>
                                             </ButtonGroup>
                                         </EditRow>
 
@@ -658,8 +646,8 @@ export function TypeEditor(props: TypeEditorProps) {
                                 <S.Footer>
                                     <Button
                                         onClick={() => onTypeChange(type)}
-                                        disabled={onValidationError || !isTypeNameValid || isEditing}>
-                                        Save
+                                        disabled={onValidationError || !isTypeNameValid || isEditing || isSaving}>
+                                        {isSaving ? <Typography variant="progress">Saving...</Typography> : "Save"}
                                     </Button>
                                 </S.Footer>
                             </>

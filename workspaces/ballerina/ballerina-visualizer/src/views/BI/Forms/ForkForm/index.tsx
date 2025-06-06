@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import {
     FlowNode,
@@ -228,26 +228,26 @@ export function ForkForm(props: ForkFormProps) {
         key: string,
         property: ExpressionProperty
     ) => {
-            if (!showDiagnostics) {
-                handleSetDiagnosticsInfo({ key, diagnostics: [] });
-                return;
-            }
+        if (!showDiagnostics) {
+            handleSetDiagnosticsInfo({ key, diagnostics: [] });
+            return;
+        }
 
-            const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
-                filePath: fileName,
-                context: {
-                    expression: expression,
-                    startLine: targetLineRange.startLine,
-                    lineOffset: 0,
-                    offset: 0,
-                    codedata: undefined,
-                    property: property,
-                },
-            });
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: fileName,
+            context: {
+                expression: expression,
+                startLine: targetLineRange.startLine,
+                lineOffset: 0,
+                offset: 0,
+                codedata: undefined,
+                property: property,
+            },
+        });
 
-            const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
-            handleSetDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
-        }, 250),
+        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+        handleSetDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
+    }, 250),
         [rpcClient, fileName, targetLineRange, node, handleSetDiagnosticsInfo]
     );
 
@@ -336,7 +336,7 @@ export function ForkForm(props: ForkFormProps) {
             {onSubmit && (
                 <FormStyles.Footer>
                     <Button appearance="primary" onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                        {showProgressIndicator ? "Saving" : "Save"}
+                        {showProgressIndicator ? <Typography variant="progress">Saving...</Typography> : "Save"}
                     </Button>
                 </FormStyles.Footer>
             )}

@@ -473,27 +473,13 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                                             >
                                                 Cancel
                                             </StyledButton>
-                                            {!isSaving &&
-                                                <StyledButton
-                                                    appearance="primary"
-                                                    onClick={editServiceClassName}
-                                                    disabled={!tempName || !isTypeNameValid}
-                                                >
-                                                    Save
-                                                </StyledButton>
-                                            }
-                                            {isSaving &&
-                                                <StyledButton
-                                                    appearance="primary"
-                                                    disabled={true}
-                                                >
-                                                    <ProgressRing
-                                                        sx={{ width: 14, height: 14, marginRight: 3 }}
-                                                        color={ThemeColors.ON_PRIMARY}
-                                                    />
-                                                    Saving
-                                                </StyledButton>
-                                            }
+                                            <StyledButton
+                                                appearance="primary"
+                                                onClick={editServiceClassName}
+                                                disabled={!tempName || !isTypeNameValid || isSaving}
+                                            >
+                                                {isSaving ? <Typography variant="progress">Saving...</Typography> : "Save"}
+                                            </StyledButton>
                                         </ButtonGroup>
                                     </EditRow>
 

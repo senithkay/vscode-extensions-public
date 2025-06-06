@@ -815,16 +815,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 {cancelText || "Cancel"}{" "}
                             </Button>
                         )}
-                        {!isSaving &&
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                                {submitText || "Save"}
-                            </S.PrimaryButton>
-                        }
-                        {isSaving &&
-                            <S.PrimaryButton disabled={true}>
-                                <ProgressRing sx={{ width: 16, height: 16, marginRight: 8 }} color={ThemeColors.ON_PRIMARY} /> <Typography variant="body2">{submitText}...</Typography>
-                            </S.PrimaryButton>
-                        }
+                        <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton || isSaving}>
+                            {isSaving ? <Typography variant="progress">{submitText || "Saving..."}</Typography> : "Save"}
+                        </S.PrimaryButton>
                     </S.Footer>
                 )}
             </S.Container>
