@@ -32,24 +32,24 @@ interface CommonObject {
 }
 
 type InputsFields = {
-    name: string;
-    description: string;
-    type: string;
-    dataSourceProvider: string;
-    dbEngine: string;
-    hostname: string;
-    port: string;
-    databaseName: string;
-    username: string;
-    password: string;
-    driverClassName: string;
-    url: string;
-    customDSType: string;
-    customDSConfiguration: string;
-    externalDSClassName: string;
-    dataSourceConfigParameters: {},
-    jndiName: string;
-    useDatasourceFactory: boolean;
+    name?: string;
+    description?: string;
+    type?: string;
+    dataSourceProvider?: string;
+    dbEngine?: string;
+    hostname?: string;
+    port?: string;
+    databaseName?: string;
+    username?: string;
+    password?: string;
+    driverClassName?: string;
+    url?: string;
+    customDSType?: string;
+    customDSConfiguration?: string;
+    externalDSClassName?: string;
+    dataSourceConfigParameters?: {},
+    jndiName?: string;
+    useDatasourceFactory?: boolean;
 };
 
 const newDataSource: InputsFields = {
@@ -170,6 +170,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
         watch,
         setValue,
         setError,
+        getValues,
         clearErrors
     } = formMethods;
 
@@ -210,6 +211,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
             (async () => {
                 const response = await rpcClient.getMiDiagramRpcClient().getDataSource({ path: props.path });
                 reset(response);
+                const formValues = getValues();
                 if (response.type === "RDBMS") {
                     if (response.driverClassName) {
                         if (response.driverClassName.includes("mysql")) {
@@ -259,6 +261,9 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                             }));
                         }
                         
+                    }
+                    if (!formValues.dataSourceProvider){
+                        setValue("dataSourceProvider", "default");
                     }
                     if (response.externalDSClassName) {
                         setValue("dataSourceProvider", "External Datasource");
