@@ -551,7 +551,7 @@
             },
             {
                 "command": "ballerina.open.bi.new",
-                "title": "New BI Integration",
+                "title": "New Integration",
                 "category": "BI"
             },
             {
@@ -1063,7 +1063,7 @@
                     "isDefault": true
                 },
                 "label": "bal: build",
-                "detail": "Build BI Integration"
+                "detail": "Build Integration"
             }
         ]
     },

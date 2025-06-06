@@ -81,7 +81,7 @@ export function ProjectForm() {
             <IconButton onClick={gotToWelcome}>
                 <Icon name="bi-arrow-back" iconSx={{ color: "var(--vscode-foreground)" }} />
             </IconButton>
-            <Typography variant="h2">Create Your BI Integration</Typography>
+            <Typography variant="h2">Create Your Integration</Typography>
             <BodyText>
                 Name your integration and select a location to start building.
             </BodyText>
