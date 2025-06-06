@@ -25,8 +25,8 @@ export class DebuggerConfig {
     private static internalOffset = 10;
     private static envVariables: { [key: string]: string } = {};
     private static vmArgs: string[] = [];
-    private static vmArgsPortOffset: number = 0;
-    private static configPortOffset: number = 0;
+    private static vmArgsPortOffset: number | null = null;
+    private static configPortOffset: number | null = null;
 
     //Capps and Libs copied to the MI server
     private static copiedCappUri: string[] = [];
@@ -89,30 +89,30 @@ export class DebuggerConfig {
     }
 
     public static getServerPort(): number {
-        if (this.vmArgsPortOffset !== 0) {
+        if (this.vmArgsPortOffset !== null) {
             return this.baseServerPort + this.vmArgsPortOffset - this.internalOffset;
         }
-        if (this.configPortOffset !== 0) {
+        if (this.configPortOffset !== null) {
             return this.baseServerPort + this.configPortOffset - this.internalOffset;
         }
         return this.baseServerPort;
     }
 
     public static getServerReadinessPort(): number {
-        if (this.vmArgsPortOffset !== 0) {
+        if (this.vmArgsPortOffset !== null) {
             return this.serverReadinessPort + this.vmArgsPortOffset - this.internalOffset;
         }
-        if (this.configPortOffset !== 0) {
+        if (this.configPortOffset !== null) {
             return this.serverReadinessPort + this.configPortOffset - this.internalOffset;
         }
         return this.serverReadinessPort;
     }
 
     public static getManagementPort(): number {
-        if (this.vmArgsPortOffset !== 0) {
+        if (this.vmArgsPortOffset !== null) {
             return this.managementPort + this.vmArgsPortOffset - this.internalOffset;
         }
-        if (this.configPortOffset !== 0) {
+        if (this.configPortOffset !== null) {
             return this.managementPort + this.configPortOffset - this.internalOffset;
         }
         return this.managementPort;
@@ -154,6 +154,6 @@ export class DebuggerConfig {
     public static setConfigPortOffset(): void {
         const deploymentConfig = path.join(StateMachine.context().projectUri!, "deployment", "deployment.toml");
         const configs = toml.parse(fs.readFileSync(deploymentConfig, 'utf8'));
-        this.configPortOffset = configs.server?.offset ?? 0;
+        this.configPortOffset = configs.server?.offset ?? null;
     }
 }

@@ -127,12 +127,13 @@ function DeploymentOption({
 interface DeploymentOptionsProps {
     handleDockerBuild: () => void;
     handleCAPPBuild: () => void;
+    handleRemoteDeploy: () => void;
     handleDeploy: (params: DeployProjectRequest) => void;
     goToDevant: () => void;
     devantMetadata?: DevantMetadata;
 }
 
-export function DeploymentOptions({ handleDockerBuild, handleCAPPBuild, handleDeploy, goToDevant, devantMetadata }: DeploymentOptionsProps) {
+export function DeploymentOptions({ handleDockerBuild, handleCAPPBuild, handleRemoteDeploy, handleDeploy, goToDevant, devantMetadata }: DeploymentOptionsProps) {
     const [expandedOptions, setExpandedOptions] = useState<Set<string>>(new Set(['cloud', 'devant']));
     const { rpcClient } = useVisualizerContext();
 
@@ -179,7 +180,16 @@ export function DeploymentOptions({ handleDockerBuild, handleCAPPBuild, handleDe
             />
 
             <DeploymentOption
-                title="Deploy with Docker"
+                title="Deploy on a Remote Server"
+                description="Build and deploy an Integration Application (CApp) to a remote WSO2 Micro Integrator Server."
+                buttonText="Deploy"
+                isExpanded={expandedOptions.has('remote')}
+                onToggle={() => toggleOption('remote')}
+                onDeploy={handleRemoteDeploy}
+            />
+
+            <DeploymentOption
+                title="Build Docker Image"
                 description="Create a Docker image of your integration and deploy it to any Docker-enabled system."
                 buttonText="Create Docker Image"
                 isExpanded={expandedOptions.has('docker')}
@@ -188,7 +198,7 @@ export function DeploymentOptions({ handleDockerBuild, handleCAPPBuild, handleDe
             />
 
             <DeploymentOption
-                title="Deploy on a Micro Integrator Server"
+                title="Build CAPP"
                 description="Create an Integration Application (CApp) that runs on WSO2 Micro Integrator Server."
                 buttonText="Create CAPP"
                 isExpanded={expandedOptions.has('vm')}

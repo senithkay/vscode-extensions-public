@@ -55,6 +55,8 @@ export enum VSCodeColors {
     ERROR = "var(--vscode-errorForeground)",
 
     HIGHLIGHT = "var(--vscode-contrastActiveBorder, var(--vscode-button-background))",
+
+    FOCUS_BORDER = "var(--vscode-focusBorder)"
 }
 
 export const ThemeColors = {

@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -158,6 +158,12 @@
             "type": "boolean",
             "default": false,
             "description": "Enable legacy expression support",
+            "scope": "resource"
+          },
+          "MI.REMOTE_DEPLOYMENT_ENABLED": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable remote server deployment support",
             "scope": "resource"
           },
           "MI.Scope": {
