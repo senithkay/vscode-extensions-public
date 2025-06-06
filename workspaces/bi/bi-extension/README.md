@@ -23,7 +23,7 @@ When you open the extension for the first time, you'll see the **Create Integrat
 
 ## WSO2 Integrator: BI Designer
 
-WSO2 Integrator: BI (BI) Designer is a graphical tool that allows you to design your integration projects visually. You can create, edit, and manage your integration projects using the BI Designer. 
+WSO2 Integrator: BI Designer is a graphical tool that allows you to design your integration projects visually. You can create, edit, and manage your integration projects using the WSO2 Integrator: BI Designer. 
 Click on the **+ Add Artifact** button to add artifacts to your integration project.
 
 <img src="https://github.com/wso2/product-ballerina-integrator/blob/main/docs/assets/img/get-started/overview.png?raw=true" width="100%" />
