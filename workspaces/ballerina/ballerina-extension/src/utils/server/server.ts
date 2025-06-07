@@ -148,6 +148,13 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     const javaExecutable = isWindows() ? 'java.exe' : 'java';
     const cmd = join(jdkDir, 'bin', javaExecutable);
     const args = ['-cp', classpath, `-Dballerina.home=${ballerinaHome}`, 'org.ballerinalang.langserver.launchers.stdio.Main'];
+
+    // Add custom JVM arguments from LS_CUSTOM_ARGS environment variable
+    // Example: LS_CUSTOM_ARGS="-arg1 -arg2=value"
+    if (process.env.LS_CUSTOM_ARGS) {
+        log(`LS_CUSTOM_ARGS: ${process.env.LS_CUSTOM_ARGS}`);
+        args.push(...process.env.LS_CUSTOM_ARGS.split(' '));
+    }
     
     log(`Found JDK: ${jdkDir}`);
     log(`Java executable: ${cmd} exists: ${fs.existsSync(cmd)}`);
