@@ -7,6 +7,12 @@
 LS_DIR="./ls"
 GITHUB_REPO_URL="https://api.github.com/repos/wso2/mi-language-server"
 
+# Check if any files already exist in the ls directory
+if [ -d "$LS_DIR" ] && [ "$(ls -A "$LS_DIR" 2>/dev/null)" ]; then
+    echo "MI language server files already exist in $LS_DIR"
+    exit 0
+fi
+
 # Check if jq is available
 if ! command -v jq &> /dev/null; then
     echo "Error: jq is required but not installed. Please install jq first."
@@ -23,12 +29,6 @@ fi
 if ! command -v unzip &> /dev/null; then
     echo "Error: unzip is required but not installed. Please install unzip first."
     exit 1
-fi
-
-# Check if any files already exist in the ls directory
-if [ -d "$LS_DIR" ] && [ "$(ls -A "$LS_DIR" 2>/dev/null)" ]; then
-    echo "MI language server files already exist in $LS_DIR"
-    exit 0
 fi
 
 echo "Downloading MI language server..."
