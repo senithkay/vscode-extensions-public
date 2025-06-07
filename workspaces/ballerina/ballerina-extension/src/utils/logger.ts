@@ -50,44 +50,35 @@ export function getOutputChannel() {
 // Log initial extension information including Ballerina version and language server details
 export function logExtensionInitInfo(extension: BallerinaExtension): void {
     try {
-        log("=".repeat(60));
-        log("Ballerina Extension Initialization Complete");
-        log("=".repeat(60));
+        // For all users - show only essential information
+        debug("=".repeat(60));
+        log(`Plugin version: ${extension.getVersion()}`);
+        log(`Ballerina version: ${extension.ballerinaVersion}`);
         
-        // Log Ballerina version
-        log(`Ballerina Version: ${extension.ballerinaVersion}`);
-        log(`Ballerina Home: ${extension.getBallerinaHome()}`);
-        log(`Ballerina Command: ${extension.getBallerinaCmd()}`);
+        // For debug users - show detailed information
+        debug(`Ballerina Home: ${extension.getBallerinaHome()}`);
+        debug(`Plugin Dev Mode: ${extension.overrideBallerinaHome()}`);
+        debug(`Debug Mode: ${extension.enableLSDebug()}`);
+        debug(`Experimental Features: ${extension.enabledExperimentalFeatures()}`);
         
-        // Log Java version information
+        // Log detailed Java and Language server information for debug users
+        logLanguageServerInfo(extension);
         logJavaInfo(extension);
         
-        // Log language server information
-        logLanguageServerInfo(extension);
-        
-        // Log extension version
-        log(`Extension Version: ${extension.getVersion()}`);
-        log(`Extension ID: ${extension.getID()}`);
-        
-        // Log configuration settings
-        log(`Plugin Dev Mode: ${extension.overrideBallerinaHome()}`);
-        log(`Debug Mode: ${extension.enableLSDebug()}`);
-        log(`Experimental Features: ${extension.enabledExperimentalFeatures()}`);
-        
-        log("=".repeat(60));
+        debug("=".repeat(60));
     } catch (error) {
         log(`Error logging extension init info: ${error}`);
     }
 }
 
-export function logLanguageServerInfo(extension: BallerinaExtension): void {
+function logLanguageServerInfo(extension: BallerinaExtension): void {
     try {
         const configuredLangServerPath = extension.getConfiguredLangServerPath();
         
         if (configuredLangServerPath && configuredLangServerPath.trim() !== "") {
             // Custom language server path
-            log(`Language Server: Custom JAR`);
-            log(`Language Server Path: ${configuredLangServerPath}`);
+            debug(`Language Server: Custom JAR`);
+            debug(`Language Server Path: ${configuredLangServerPath}`);
             
             // Extract version from JAR name if possible
             const jarName = path.basename(configuredLangServerPath);
@@ -95,11 +86,11 @@ export function logLanguageServerInfo(extension: BallerinaExtension): void {
             if (versionMatch) {
                 log(`Language Server Version: ${versionMatch[1]}`);
             } else {
-                log(`Language Server JAR: ${jarName}`);
+                debug(`Language Server JAR: ${jarName}`);
             }
         } else {
             // Bundled language server
-            log(`Language Server: Bundled JAR`);
+            debug(`Language Server: Bundled JAR`);
             
             if (extension.context) {
                 const lsDir = extension.context.asAbsolutePath("ls");
@@ -108,8 +99,8 @@ export function logLanguageServerInfo(extension: BallerinaExtension): void {
                     const langServerJar = files.find(file => file.startsWith('ballerina-language-server') && file.endsWith('.jar'));
                     
                     if (langServerJar) {
-                        log(`Language Server JAR: ${langServerJar}`);
-                        log(`Language Server Path: ${path.join(lsDir, langServerJar)}`);
+                        debug(`Language Server JAR: ${langServerJar}`);
+                        debug(`Language Server Path: ${path.join(lsDir, langServerJar)}`);
                         
                         // Extract version from JAR name
                         const versionMatch = langServerJar.match(/ballerina-language-server-(.+)\.jar$/);
@@ -117,21 +108,21 @@ export function logLanguageServerInfo(extension: BallerinaExtension): void {
                             log(`Language Server Version: ${versionMatch[1]}`);
                         }
                     } else {
-                        log(`Language Server JAR: Not found in ${lsDir}`);
+                        debug(`Language Server JAR: Not found in ${lsDir}`);
                     }
                 } catch (error) {
-                    log(`Error reading language server directory: ${error}`);
+                    debug(`Error reading language server directory: ${error}`);
                 }
             } else {
-                log(`Language Server: Context not available`);
+                debug(`Language Server: Context not available`);
             }
         }
     } catch (error) {
-        log(`Error logging language server info: ${error}`);
+        debug(`Error logging language server info: ${error}`);
     }
 }
 
-export function logJavaInfo(extension: BallerinaExtension): void {
+function logJavaInfo(extension: BallerinaExtension): void {
     try {
         const ballerinaHome = extension.getBallerinaHome();
         
@@ -149,9 +140,7 @@ export function logJavaInfo(extension: BallerinaExtension): void {
                 const jdkDir = files.find(file => file.match(/^jdk-.*-jre$/));
                 
                 if (jdkDir) {
-                    log(`Java Runtime: Bundled JDK`);
-                    log(`JDK Directory: ${jdkDir}`);
-                    log(`JDK Path: ${path.join(dependenciesDir, jdkDir)}`);
+                    debug(`JDK Path: ${path.join(dependenciesDir, jdkDir)}`);
                     
                     // Extract Java version from directory name
                     const versionMatch = jdkDir.match(/^jdk-(.+)-jre$/);
@@ -164,85 +153,20 @@ export function logJavaInfo(extension: BallerinaExtension): void {
                     const javaPath = path.join(dependenciesDir, jdkDir, 'bin', javaExecutable);
                     
                     if (fs.existsSync(javaPath)) {
-                        log(`Java Executable: ${javaPath}`);
-                        getDetailedJavaVersion(javaPath);
+                        debug(`Java Executable: ${javaPath}`);
                     } else {
-                        log(`Java Executable: Not found at ${javaPath}`);
+                        debug(`Java Executable: Not found at ${javaPath}`);
                     }
                 } else {
-                    log(`Java Runtime: No bundled JDK found in dependencies`);
-                    // Fall back to system Java
-                    getSystemJavaVersion();
+                    debug(`Java Runtime: No bundled JDK found in dependencies`);
                 }
             } catch (error) {
-                log(`Error reading dependencies directory: ${error}`);
-                getSystemJavaVersion();
+                debug(`Error reading dependencies directory: ${error}`);
             }
         } else {
-            log(`Java Runtime: Dependencies directory not found, checking system Java`);
-            getSystemJavaVersion();
+            debug(`Java Runtime: Dependencies directory not found, checking system Java`);
         }
     } catch (error) {
-        log(`Error logging Java info: ${error}`);
-    }
-}
-
-export function getDetailedJavaVersion(javaPath: string): void {
-    try {
-        exec(`"${javaPath}" -version`, { timeout: 5000 }, (error, stdout, stderr) => {
-            if (error) {
-                log(`Error getting Java version: ${error.message}`);
-                return;
-            }
-            
-            // Java version info is typically in stderr
-            const output = stderr || stdout;
-            if (output) {
-                const lines = output.split('\n').filter(line => line.trim());
-                if (lines.length > 0) {
-                    // First line usually contains the main version info
-                    log(`Java Version Details: ${lines[0].trim()}`);
-                    
-                    // Log additional info if available
-                    if (lines.length > 1) {
-                        log(`Java Runtime Details: ${lines[1].trim()}`);
-                    }
-                    if (lines.length > 2) {
-                        log(`Java VM Details: ${lines[2].trim()}`);
-                    }
-                }
-            }
-        });
-    } catch (error) {
-        log(`Error executing Java version command: ${error}`);
-    }
-}
-
-export function getSystemJavaVersion(): void {
-    try {
-        log(`Java Runtime: System Java`);
-        
-        // Check JAVA_HOME environment variable
-        if (process.env.JAVA_HOME) {
-            log(`JAVA_HOME: ${process.env.JAVA_HOME}`);
-            
-            const javaExecutable = isWindows() ? 'java.exe' : 'java';
-            const javaPath = path.join(process.env.JAVA_HOME, 'bin', javaExecutable);
-            
-            if (fs.existsSync(javaPath)) {
-                log(`Java Executable: ${javaPath}`);
-                getDetailedJavaVersion(javaPath);
-            } else {
-                log(`Java Executable: Not found at ${javaPath}`);
-                // Try system java command
-                getDetailedJavaVersion('java');
-            }
-        } else {
-            log(`JAVA_HOME: Not set`);
-            // Try system java command
-            getDetailedJavaVersion('java');
-        }
-    } catch (error) {
-        log(`Error getting system Java info: ${error}`);
+        debug(`Error logging Java info: ${error}`);
     }
 }

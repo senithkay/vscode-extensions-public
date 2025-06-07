@@ -105,32 +105,27 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     
     if (configuredLangServerPath && configuredLangServerPath.trim() !== "") {
         // User provided custom language server path
-        log(`Using configured language server path: ${configuredLangServerPath}`);
         if (fs.existsSync(configuredLangServerPath)) {
             ballerinaLanguageServerJar = configuredLangServerPath;
-            log(`Custom language server jar found: ${ballerinaLanguageServerJar}`);
         } else {
-            log(`Configured language server jar not found: ${configuredLangServerPath}`);
+            debug(`Configured language server jar not found: ${configuredLangServerPath}`);
             throw new Error(`Configured language server JAR not found: ${configuredLangServerPath}`);
         }
     } else {
         // Use bundled language server from ls directory
-        log(`Using bundled language server from ls directory`);
         const lsDir = extension?.context.asAbsolutePath("ls");    
         ballerinaLanguageServerJar = findFileByPattern(lsDir, /^ballerina-language-server.*\.jar$/);
         
         if (!ballerinaLanguageServerJar || !fs.existsSync(ballerinaLanguageServerJar)) {
-            log(`No ballerina language server jar found in: ${lsDir}`);
+            debug(`No ballerina language server jar found in: ${lsDir}`);
             throw new Error(`Language server JAR not found in ${lsDir}`);
         }
-        
-        log(`Found bundled language server jar: ${ballerinaLanguageServerJar}`);
     }
 
     // join paths and add to args
     const customPaths = [...ballerinaJarPaths, ballerinaLanguageServerJar];
     if (process.env.LS_CUSTOM_CLASSPATH) {
-        log(`LS_CUSTOM_CLASSPATH: ${process.env.LS_CUSTOM_CLASSPATH}`);
+        debug(`LS_CUSTOM_CLASSPATH: ${process.env.LS_CUSTOM_CLASSPATH}`);
         customPaths.push(process.env.LS_CUSTOM_CLASSPATH);
     }
     
@@ -141,7 +136,7 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     const jdkDir = findFileByPattern(dependenciesDir, /^jdk-.*-jre$/);
     
     if (!jdkDir) {
-        log(`No JDK found in dependencies directory: ${dependenciesDir}`);
+        debug(`No JDK found in dependencies directory: ${dependenciesDir}`);
         throw new Error(`JDK not found in ${dependenciesDir}`);
     }
     
@@ -152,12 +147,9 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     // Add custom JVM arguments from LS_CUSTOM_ARGS environment variable
     // Example: LS_CUSTOM_ARGS="-arg1 -arg2=value"
     if (process.env.LS_CUSTOM_ARGS) {
-        log(`LS_CUSTOM_ARGS: ${process.env.LS_CUSTOM_ARGS}`);
+        debug(`LS_CUSTOM_ARGS: ${process.env.LS_CUSTOM_ARGS}`);
         args.push(...process.env.LS_CUSTOM_ARGS.split(' '));
     }
-    
-    log(`Found JDK: ${jdkDir}`);
-    log(`Java executable: ${cmd} exists: ${fs.existsSync(cmd)}`);
     
     // Create the final command line that will be executed
     const serverOptions = {
@@ -165,8 +157,6 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
         args,
         options: opt
     };
-    
-    log(`Final command: ${cmd} ${args.join(" ")}`);
     
     return serverOptions;
 }
