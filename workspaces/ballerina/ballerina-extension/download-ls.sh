@@ -7,6 +7,12 @@
 LS_DIR="./ls"
 GITHUB_REPO_URL="https://api.github.com/repos/nipunayf/ballerina-language-server"
 
+# Check if any JAR file already exists in the ls directory
+if ls "$LS_DIR"/*.jar 1> /dev/null 2>&1; then
+    echo "Ballerina language server JAR already exists in $LS_DIR"
+    exit 0
+fi
+
 # Check if jq is available
 if ! command -v jq &> /dev/null; then
     echo "Error: jq is required but not installed. Please install jq first."
@@ -17,12 +23,6 @@ fi
 if ! command -v curl &> /dev/null; then
     echo "Error: curl is required but not installed. Please install curl first."
     exit 1
-fi
-
-# Check if any JAR file already exists in the ls directory
-if ls "$LS_DIR"/*.jar 1> /dev/null 2>&1; then
-    echo "Ballerina language server JAR already exists in $LS_DIR"
-    exit 0
 fi
 
 echo "Downloading Ballerina language server..."

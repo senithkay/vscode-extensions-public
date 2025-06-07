@@ -244,7 +244,6 @@
     * The list of shell commands to run after the Rush build command finishes
     */
     "postRushBuild": [
-      "cd workspaces/ballerina/ballerina-extension && pnpm run download-ls",
       "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/wso2-platform/wso2-platform-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
