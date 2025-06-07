@@ -238,13 +238,13 @@
      * The list of shell commands to run before the Rush build command starts
      */
     "preRushBuild": [
-      "npm run init-submodules",
-      "cd workspaces/ballerina/ballerina-extension && pnpm run download-ls"
+      "npm run init-submodules"
     ],
     /**
-     * The list of shell commands to run after the Rush build command finishes
-     */
+    * The list of shell commands to run after the Rush build command finishes
+    */
     "postRushBuild": [
+      "cd workspaces/ballerina/ballerina-extension && pnpm run download-ls",
       "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/wso2-platform/wso2-platform-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
