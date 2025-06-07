@@ -9,7 +9,7 @@
 
 import { Page } from "@playwright/test";
 import { Form } from "./Form";
-import { Explorer } from "./Explorer";
+import { ProjectExplorer } from "./ProjectExplorer";
 
 interface PropertyData {
     name: string,
@@ -410,14 +410,14 @@ export class UnitTest {
     }
 
     private async openAddTestCaseViewOfUnitTest(name: string) {
-        const testExplorer = new Explorer(this._page, 'Test Explorer');
+        const testExplorer = new ProjectExplorer(this._page, 'Test Explorer');
         await testExplorer.init();
         await testExplorer.findItem([`${this.projectName} (Not yet run)`, `${name} (Not yet run)`], true);
         await this._page.getByRole('button', { name: 'Add test case' }).click();
     }
 
     private async openEditViewOfUnitTest(name: string) {
-        const testExplorer = new Explorer(this._page, 'Test Explorer');
+        const testExplorer = new ProjectExplorer(this._page, 'Test Explorer');
         await testExplorer.init();
         await testExplorer.findItem([`${this.projectName} (Not yet run)`, `${name} (Not yet run)`]);
         await this._page.getByText(name, { exact: true }).click();
@@ -425,14 +425,14 @@ export class UnitTest {
     }
 
     private async openEditViewOfMockService(name: string) {
-        const mockServiceExplorer = new Explorer(this._page, 'Mock Services'); 
+        const mockServiceExplorer = new ProjectExplorer(this._page, 'Mock Services'); 
         await mockServiceExplorer.init();
         await mockServiceExplorer.findItem([this.projectName + ' ', name + ' '], true);
         await this._page.getByRole('button', { name: 'Edit mock service' }).click();
     }
 
     public async addMockServiceFromSidePanel(data: MockServiceData) {
-        const mockServiceExplorer = new Explorer(this._page, 'Mock Services'); 
+        const mockServiceExplorer = new ProjectExplorer(this._page, 'Mock Services'); 
         await mockServiceExplorer.init();
         await mockServiceExplorer.findItem([this.projectName + ' '], true);
         await this._page.getByLabel('Add mock service').click();
