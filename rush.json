@@ -248,12 +248,10 @@
       "cd workspaces/wso2-platform/wso2-platform-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/mi/mi-extension && pnpm run download-ls",
       "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/api-designer/api-designer-extension && pnpm run copyVSIXToRoot"
-
     ]
   },
   /**
