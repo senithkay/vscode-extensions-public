@@ -52,9 +52,10 @@ const ButtonWrapper = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
+    flex-direction: row;
     font-size: 10px;
-    width: 40px;
+    width: auto;
+    margin-left: 15px;
 `;
 
 const ConfigValueField = styled.div`
@@ -422,7 +423,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 }}>
                                                                 {String(variable?.properties?.type?.value)}
                                                             </span>
-                                                            <span
+                                                            {variable?.properties?.defaultValue?.value && <span
                                                                 className="default-value-container"
                                                                 style={{
                                                                     display: 'none',
@@ -432,13 +433,12 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 }}>
                                                                 {variable?.properties?.defaultValue?.value &&
                                                                     ` (Default Value: ${String(variable?.properties?.defaultValue?.value)})`}
-                                                            </span>
+                                                            </span>}
                                                             {(!variable?.properties?.defaultValue?.value &&
                                                                 !variable?.properties?.configValue?.value) && (
                                                                     // Warning icon if no value is configured
                                                                     <ButtonWrapper>
-                                                                        <Tooltip content="Value is not configured">
-                                                                            <Button
+                                                                        <Button
                                                                                 appearance="icon"
                                                                                 buttonSx={{
                                                                                     background: "transparent"
@@ -453,7 +453,14 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                                     iconSx={{ font: "normal normal normal 13px/1 codicon" }}
                                                                                 />
                                                                             </Button>
-                                                                        </Tooltip>
+                                                                            <span style={{
+                                                                                color: 'var(--vscode-editorWarning-foreground)',
+                                                                                fontSize: '12px',
+                                                                                whiteSpace: 'nowrap',
+                                                                                fontWeight: 400
+                                                                            }}>
+                                                                                Not configured
+                                                                            </span>
                                                                     </ButtonWrapper>
                                                                 )}
                                                         </div>
@@ -507,7 +514,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             readonly={true}
                                                             style={{ 
                                                                 width: '100%',
-                                                                maxWidth: '750px',
+                                                                maxWidth: '350px',
                                                                 minHeight: '20px'
                                                             }}
                                                         >
