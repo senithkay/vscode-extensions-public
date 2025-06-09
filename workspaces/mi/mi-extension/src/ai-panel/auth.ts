@@ -79,7 +79,8 @@ export async function exchangeAuthCode(authCode: string) {
             await extension.context.secrets.store('MIAIUser', response.accessToken);
             await extension.context.secrets.store('MIAIRefreshToken', response.refreshToken ?? '');
 
-            const rpcManager = new MiDiagramRpcManager();
+            // TODO: This is a temporary fix to get the backend root url. Once multiple workspace support is added, this should be removed.
+            const rpcManager = new MiDiagramRpcManager(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? "");
             const backendRootUrlResponse = await rpcManager.getBackendRootUrl();
             const url = backendRootUrlResponse.url + USER_CHECK_BACKEND_URL;
             

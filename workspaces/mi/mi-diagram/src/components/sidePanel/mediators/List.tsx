@@ -215,7 +215,7 @@ export function Mediators(props: MediatorProps) {
                 });
 
                 if (Object.keys(searchedCategories).length > 0) {
-                    searchedMediators[key] = { ...searchedMediators[key], items: searchedCategories };
+                    searchedMediators[key] = { ...allMediators[key], ...searchedMediators[key], items: searchedCategories };
                 } else {
                     delete searchedMediators[key];
                 }
@@ -231,7 +231,7 @@ export function Mediators(props: MediatorProps) {
                 });
 
                 if (filtered.length > 0) {
-                    searchedMediators[key] = { "items": filtered };
+                    searchedMediators[key] = { ...allMediators[key], items: filtered };
                 } else {
                     delete searchedMediators[key];
                 }
@@ -290,7 +290,7 @@ export function Mediators(props: MediatorProps) {
     }
 
     const MediatorGrid = ({ mediator, key }: { mediator: Mediator; key: string }) => {
-        return <Tooltip content={mediator?.tooltip} position='bottom' key={mediator.title}>
+        return <Tooltip content={mediator?.tooltip} position='bottom' offset={{top: 16, left: 0}} key={mediator.title}>
             <GridButton
                 key={mediator.title}
                 title={mediator.title}

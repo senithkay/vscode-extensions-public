@@ -140,7 +140,7 @@ export function ParamEditor(props: ParamProps) {
     return (
         <>
             {!openInDrawer && (
-                <EditorContainer>
+                <EditorContainer id='parameterManagerForm'>
                     <EditorContent>
                         {parameters?.parameters.map(param => getParamComponent({ ...param, label: getParamFieldLabelFromParamId(paramFields, param.id) }))}
                     </EditorContent>

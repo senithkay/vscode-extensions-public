@@ -10,14 +10,14 @@
 import React, { useEffect, useState } from 'react';
 import { AIMachineStateValue, AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Alert } from '@wso2-enterprise/ui-toolkit';
 import { LoaderWrapper, ProgressRing } from './styles';
 import { AICodeGenerator }  from './component/AICodeGenerator';
 import { SignInToCopilotMessage } from '../LoggedOutWindow';
 import { WaitingForLoginMessage } from '../WaitingForLoginWindow';
 import { DisabledMessage } from '../DisabledWindow';
 import { UpdateMIExtension } from '../UpdateExtension';
-import { MICopilotContextProvider, useMICopilotContext } from "./component/MICopilotContext";
-import { Button } from '@vscode/webview-ui-toolkit';
+import { MICopilotContextProvider } from "./component/MICopilotContext";
 
 export const AIPanel = () => {
     const { rpcClient } = useVisualizerContext();
@@ -53,6 +53,17 @@ export const AIPanel = () => {
                 case "WaitingForLogin":
                     setViewComponent(<WaitingForLoginMessage />);
                     break;
+                case "notSupported":
+                    setViewComponent(
+                        <div style={{ padding: "20px", textAlign: "center" }}>
+                            <Alert
+                                variant='primary'
+                                title="MI Copilot Chat is unavailable in multi-workspace mode"
+                                subTitle="Support for multiple workspaces is coming soon. Thank you for your patience!"
+                            />
+                        </div>
+                    )
+                    break;
                 case "disabled":
                     setViewComponent(<DisabledMessage />);
                     break;
@@ -62,6 +73,8 @@ export const AIPanel = () => {
                 default:
                     setViewComponent(null);
             }
+        }).catch((error) => {
+            console.error("Error fetching AI visualizer state:", error);
         });
 
     }

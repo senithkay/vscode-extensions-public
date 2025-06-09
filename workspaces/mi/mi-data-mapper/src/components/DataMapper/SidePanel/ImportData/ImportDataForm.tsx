@@ -125,7 +125,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
-            <SidePanelBody>
+            <SidePanelBody  data-testid="import-data-form">
                 {!selectedImportType && <ImportDataButtons onImportTypeChange={handleImportTypeChange} />}
                 {selectedImportType && (
                     <ImportDataPanel
@@ -133,6 +133,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                         extension={fileExtension}
                         rowRange={{ start: 15, offset: 10 }}
                         onSave={handleFileUpload}
+                        data-testid="import-data-panel"
                     />
                 )}
             </SidePanelBody>
