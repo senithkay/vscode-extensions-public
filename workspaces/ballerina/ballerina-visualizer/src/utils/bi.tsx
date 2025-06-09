@@ -269,7 +269,7 @@ export function updateNodeProperties(
             if (expression) {
                 expression.value = values[key];
                 expression.imports = formImports[key];
-                expression.modified = dirtyFields.hasOwnProperty(key);
+                expression.modified = dirtyFields?.hasOwnProperty(key);
             }
         }
     }
