@@ -439,43 +439,43 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                     // Warning icon if no value is configured
                                                                     <ButtonWrapper>
                                                                         <Button
-                                                                                appearance="icon"
-                                                                                buttonSx={{
-                                                                                    background: "transparent"
+                                                                            appearance="icon"
+                                                                            buttonSx={{
+                                                                                background: "transparent"
+                                                                            }}
+                                                                        >
+                                                                            <Codicon
+                                                                                name="warning"
+                                                                                sx={{
+                                                                                    paddingTop: '2px',
+                                                                                    color: 'var(--vscode-editorWarning-foreground)'
                                                                                 }}
-                                                                            >
-                                                                                <Codicon
-                                                                                    name="warning"
-                                                                                    sx={{
-                                                                                        paddingTop: '2px',
-                                                                                        color: 'var(--vscode-editorWarning-foreground)'
-                                                                                    }}
-                                                                                    iconSx={{ font: "normal normal normal 13px/1 codicon" }}
-                                                                                />
-                                                                            </Button>
-                                                                            <span style={{
-                                                                                color: 'var(--vscode-editorWarning-foreground)',
-                                                                                fontSize: '12px',
-                                                                                whiteSpace: 'nowrap',
-                                                                                fontWeight: 400
-                                                                            }}>
-                                                                                Not configured
-                                                                            </span>
+                                                                                iconSx={{ font: "normal normal normal 13px/1 codicon" }}
+                                                                            />
+                                                                        </Button>
+                                                                        <span style={{
+                                                                            color: 'var(--vscode-editorWarning-foreground)',
+                                                                            fontSize: '12px',
+                                                                            whiteSpace: 'nowrap',
+                                                                            fontWeight: 400
+                                                                        }}>
+                                                                            Not configured
+                                                                        </span>
                                                                     </ButtonWrapper>
                                                                 )}
                                                         </div>
-                                                        <div className="action-button-container" style={{ display: 'none' }}>
-                                                            <div style={{ display: 'flex', gap: '5px' }}>
-                                                                <div className="edit-icon-container">
-                                                                    <Button
-                                                                        appearance="icon"
-                                                                        onClick={() => handleEditConfigVariableFormOpen(index)}
-                                                                        tooltip="Edit Configurable Variable"
-                                                                    >
-                                                                        <Codicon name="edit" />
-                                                                    </Button>
-                                                                </div>
-                                                                {selectedModule.category === integrationCategory && (
+                                                        {selectedModule.category === integrationCategory && (
+                                                            <div className="action-button-container" style={{ display: 'none' }}>
+                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                    <div className="edit-icon-container">
+                                                                        <Button
+                                                                            appearance="icon"
+                                                                            onClick={() => handleEditConfigVariableFormOpen(index)}
+                                                                            tooltip="Edit Configurable Variable"
+                                                                        >
+                                                                            <Codicon name="edit" />
+                                                                        </Button>
+                                                                    </div>
                                                                     <div className="delete-button-container">
                                                                         <Button
                                                                             appearance="icon"
@@ -485,9 +485,9 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                             <Codicon name="trash" />
                                                                         </Button>
                                                                     </div>
-                                                                )}
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        )}
                                                     </ConfigNameTitle>
                                                     {variable?.properties?.documentation?.value &&
                                                         <div
@@ -503,8 +503,8 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                     <ConfigValueField>
                                                         <VSCodeTextArea
                                                             rows={(() => {
-                                                                const value = variable?.properties?.configValue?.value 
-                                                                    ? String(variable?.properties?.configValue?.value) 
+                                                                const value = variable?.properties?.configValue?.value
+                                                                    ? String(variable?.properties?.configValue?.value)
                                                                     : '';
                                                                 if (!value) return 1;
                                                                 return Math.min(5, Math.ceil(value.length / 100));
@@ -512,7 +512,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             resize="vertical"
                                                             value={variable?.properties?.configValue?.value ? String(variable?.properties?.configValue?.value) : ''}
                                                             readonly={true}
-                                                            style={{ 
+                                                            style={{
                                                                 width: '100%',
                                                                 maxWidth: '350px',
                                                                 minHeight: '20px'
@@ -567,7 +567,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                             moduleName={selectedModule.module}
                         />
                     }
-                </Container>
+                </Container >
             </>
         )
     }
