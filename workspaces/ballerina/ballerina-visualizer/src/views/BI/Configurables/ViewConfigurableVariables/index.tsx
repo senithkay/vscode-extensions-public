@@ -97,9 +97,9 @@ const SearchContainer = styled.div`
 
 const ConfigNameTitle = styled.div`
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     height: 20px;
-    color: var(--vscode-foreground);
+    color: var(--vscode-settings-headerForeground);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -418,8 +418,8 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             <span
                                                                 style={{
                                                                     paddingLeft: '5px',
-                                                                    fontWeight: 700,
-                                                                    color: 'var(--vscode-settings-headerForeground)'
+                                                                    fontWeight: 500,
+                                                                    color: 'var(--vscode-foreground)'
                                                                 }}>
                                                                 {String(variable?.properties?.type?.value)}
                                                             </span>
