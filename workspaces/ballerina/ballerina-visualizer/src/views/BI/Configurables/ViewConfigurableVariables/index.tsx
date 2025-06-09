@@ -109,8 +109,6 @@ const ConfigNameTitle = styled.div`
 const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
 
 export interface ConfigProps {
-    variableIndex?: number;
-    isExternallauncher?: boolean;
     fileName: string;
     org: string;
     package: string;
@@ -147,7 +145,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
 
     useEffect(() => {
         getConfigVariables();
-    }, []);
+    }, [props]);
 
     useEffect(() => {
         if (categoriesWithModules.length > 0 && !selectedModule) {

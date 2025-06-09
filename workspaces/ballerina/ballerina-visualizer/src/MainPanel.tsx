@@ -319,15 +319,13 @@ const MainPanel = () => {
                         />);
                         break;
                     case MACHINE_VIEW.ViewConfigVariables:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
+                        setViewComponent(
                                 <ViewConfigurableVariables
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath}
+                                    fileName={Utils.joinPath(URI.file(value.projectUri), 'config.bal').fsPath}
                                     org={value?.org}
                                     package={value?.package}
                                 />
                             );
-                        });
                         break;
                     default:
                         setNavActive(false);
