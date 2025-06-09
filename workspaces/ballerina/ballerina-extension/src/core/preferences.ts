@@ -27,3 +27,4 @@ export const ENABLE_AI_SUGGESTIONS = "ballerina.enableAiSuggestions";
 export const ENABLE_BALLERINA_INTEGRATOR = "ballerina.isBI";
 export const DEFINE_BALLERINA_INTEGRATOR_SCOPE = "ballerina.scope";
 export const SHOW_LIBRARY_CONFIG_VARIABLES = "ballerina.showLibraryConfigVariables";
+export const LANG_SERVER_PATH = "ballerina.langServerPath"; // this setting is not visible to the extension user
