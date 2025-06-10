@@ -64,7 +64,6 @@ import {
     CheckDBDriverResponse,
     RemoveDBDriverResponse,
     LocalInboundConnectorsResponse,
-    LocalInboundConnectorsResponse,
     MavenDeployPluginDetails
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
