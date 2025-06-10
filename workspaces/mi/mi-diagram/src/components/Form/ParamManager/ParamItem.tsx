@@ -255,10 +255,10 @@ export function ParamItem(props: ParamItemProps) {
             <ActionWrapper>
                 {!readonly && (
                     <ActionIconWrapper>
-                        <EditIconWrapper>
+                        <EditIconWrapper id="paramEdit">
                             <Codicon name="edit" onClick={handleEdit} />
                         </EditIconWrapper>
-                        <DeleteIconWrapper>
+                        <DeleteIconWrapper id="paramTrash">
                             <Codicon name="trash" onClick={handleDelete} />
                         </DeleteIconWrapper>
                     </ActionIconWrapper>

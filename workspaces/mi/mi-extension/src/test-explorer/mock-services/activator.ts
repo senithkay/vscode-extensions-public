@@ -19,6 +19,7 @@ import { openView } from '../../stateMachine';
 export interface MockServiceItem {
     name: string;
     path: string;
+    hasChildren?: boolean;
 }
 class MockServiceTreeProvider implements TreeDataProvider<MockServiceItem> {
     private _onDidChangeTreeData: EventEmitter<MockServiceItem | undefined | void> = new EventEmitter<MockServiceItem | undefined | void>();
@@ -33,19 +34,57 @@ class MockServiceTreeProvider implements TreeDataProvider<MockServiceItem> {
     }
 
     getTreeItem(element: MockServiceItem): TreeItem {
-        return {
-            label: element.name,
-            collapsibleState: TreeItemCollapsibleState.None,
-            iconPath: new ThemeIcon('notebook-open-as-text'),
-            id: element.path
-        };
+        if (element.hasChildren) {
+            // This is a workspace folder
+            return {
+                label: element.name,
+                collapsibleState: TreeItemCollapsibleState.Expanded,
+                iconPath: {
+                    light: path.join(this.context.extensionPath, 'assets', `light-project.svg`),
+                    dark: path.join(this.context.extensionPath, 'assets', `dark-project.svg`)
+                },
+                id: element.path,
+                contextValue: 'workspace'
+            };
+        } else {
+            // This is a mock service file
+            return {
+                label: element.name,
+                collapsibleState: TreeItemCollapsibleState.None,
+                iconPath: new ThemeIcon('notebook-open-as-text'),
+                id: element.path,
+                contextValue: 'mockService'
+            };
+        }
     }
 
     async getChildren(element?: MockServiceItem): Promise<MockServiceItem[]> {
         if (!element) {
-            return this.getWorkspaceFolders();
+            // Return workspace folders as top-level items
+            const folders = workspace.workspaceFolders;
+            if (!folders) {
+                return [];
+            }
+            return folders.map(folder => ({
+                name: folder.name,
+                path: folder.uri.fsPath,
+                hasChildren: true
+            }));
+        } else {
+            // This is a workspace folder, return its mock service files
+            const folder = workspace.workspaceFolders?.find(f => f.uri.fsPath === element.path);
+            if (!folder) {
+                return [];
+            }
+
+            const pattern = new RelativePattern(folder, mockSerivesFilesMatchPattern);
+            const files = await workspace.findFiles(pattern);
+
+            return files.map(file => ({
+                name: path.basename(file.fsPath).split(".xml")[0],
+                path: file.fsPath
+            }));
         }
-        return [];
     }
 
     private async getWorkspaceFolders(): Promise<MockServiceItem[]> {
@@ -54,18 +93,10 @@ class MockServiceTreeProvider implements TreeDataProvider<MockServiceItem> {
             return [];
         }
 
-        const mockServiceItems: MockServiceItem[] = [];
-        for (const folder of folders) {
-            const pattern = new RelativePattern(folder, mockSerivesFilesMatchPattern);
-            const files = await workspace.findFiles(pattern);
-            files.forEach(file => {
-                mockServiceItems.push({
-                    name: path.basename(file.fsPath).split(".xml")[0],
-                    path: file.fsPath
-                });
-            });
-        }
-        return mockServiceItems;
+        return folders.map(folder => ({
+            name: folder.name,
+            path: folder.name // Using name as path for workspace folders to identify them
+        }));
     }
 }
 
@@ -81,8 +112,8 @@ export function activateMockServiceTreeView(context: ExtensionContext): void {
 
     window.createTreeView('MI.mock-services', { treeDataProvider: mockServiceTreeProvider });
 
-    commands.registerCommand(COMMANDS.ADD_MOCK_SERVICE, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService });
+    commands.registerCommand(COMMANDS.ADD_MOCK_SERVICE, (args: any) => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService, projectUri: args.path });
         console.log('Add Mock Service');
     });
 

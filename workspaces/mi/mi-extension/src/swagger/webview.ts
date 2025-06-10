@@ -16,27 +16,32 @@ import { extension } from '../MIExtensionContext';
 import { SwaggerData } from '@wso2-enterprise/mi-core';
 
 export class SwaggerWebview {
-    public static currentPanel: SwaggerWebview | undefined;
+    public static webviews: Map<string, SwaggerWebview> = new Map();
     public static readonly viewType = 'micro-integrator.swagger-panel';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
     private _port: number;;
     private _spec: any;
 
-    constructor(data: SwaggerData) {
+    constructor(data: SwaggerData, private projectUri: string) {
         this._spec = data.generatedSwagger;
         this._port = data.port;
-        this._panel = SwaggerWebview.createWebview();
+        this._panel = this.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
-        RPCLayer.create(this._panel);
+        RPCLayer.create(this._panel, projectUri);
     }
 
-
-    private static createWebview(): vscode.WebviewPanel {
+    private createWebview(): vscode.WebviewPanel {
+        let title = "Swagger View";
+        const workspaces = vscode.workspace.workspaceFolders;
+        const projectName = workspaces && workspaces.length > 1 ? path.basename(this.projectUri) : '';
+        if (projectName) {
+            title = `${title} - ${projectName}`;
+        }
         const panel = vscode.window.createWebviewPanel(
             SwaggerWebview.viewType,
-            "Swagger View",
+            title,
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -102,7 +107,7 @@ export class SwaggerWebview {
     }
 
     public dispose() {
-        SwaggerWebview.currentPanel = undefined;
+        SwaggerWebview.webviews.delete(this.projectUri);
         this._panel?.dispose();
 
         while (this._disposables.length) {

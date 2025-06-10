@@ -64,9 +64,8 @@ import * as os from 'os';
 import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
-import { StateMachine, navigate, openView } from "../../stateMachine";
+import { getStateMachine, navigate, openView, refreshUI } from "../../stateMachine";
 import { goToSource, handleOpenFile, appendContent, selectFolderDialog } from "../../util/fileOperations";
-import { openAIWebview } from "../../ai-panel/aiMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { SwaggerServer } from "../../swagger/server";
 import { log, outputChannel } from "../../util/logger";
@@ -81,6 +80,8 @@ import { rangeFormat } from '../../util/fileOperations';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
+    constructor(private projectUri: string) { }
+
     async getWorkspaces(): Promise<WorkspacesResponse> {
         return new Promise(async (resolve) => {
             const workspaces = workspace.workspaceFolders;
@@ -95,23 +96,16 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
-                workspace.workspaceFolders[0].uri.fsPath
-                : undefined;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
 
-            if (rootPath === undefined) {
-                throw new Error("Error identifying workspace root");
-            }
-            const projectUrl = params.documentUri ? params.documentUri : rootPath;
-            const res = await langClient.getProjectStructure(projectUrl);
+            const res = await langClient.getProjectStructure(this.projectUri);
             resolve(res);
         });
     }
 
     async getProjectDetails(): Promise<ProjectDetailsResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getProjectDetails();
             resolve(res);
         });
@@ -147,7 +141,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
 
             const projectDetails = await langClient.getProjectDetails();
             const existingDependencies = projectDetails.dependencies || [];
@@ -204,8 +198,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const projectRoom = StateMachine.context().projectUri!;
-            const configFilePath = [projectRoom, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+            const configFilePath = [this.projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
             const configDir = path.dirname(configFilePath);
             if (!fs.existsSync(configDir)) {
                 // Create the directory structure for the config file if it doesn't exist
@@ -219,7 +212,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
             const content = params.configValues.map(configValue => `${configValue.key}:${configValue.value}`).join('\n');
             fs.writeFileSync(configFilePath, content);
-            navigate();
+            navigate(this.projectUri);
 
             resolve(true);
         });
@@ -227,7 +220,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async updateConnectorDependencies(): Promise<string> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.updateConnectorDependencies();
             resolve(res);
         });
@@ -235,7 +228,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async updateDependenciesFromOverview(params: UpdateDependenciesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.updateDependencies({ dependencies: params.dependencies });
             await this.updatePom(res.textEdits);
             resolve(true);
@@ -243,13 +236,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     openView(params: OpenViewRequest): void {
+        (params.location as VisualizerLocation).projectUri = this.projectUri;
         if (params.isPopup) {
             const view = params.location.view;
 
             if (view && view === MACHINE_VIEW.Overview) {
-                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, params.location as PopupVisualizerLocation);
+                openPopupView(this.projectUri, POPUP_EVENT_TYPE.CLOSE_VIEW, params.location as PopupVisualizerLocation);
             } else {
-                openPopupView(params.type as POPUP_EVENT_TYPE, params.location as PopupVisualizerLocation);
+                openPopupView(this.projectUri, params.type as POPUP_EVENT_TYPE, params.location as PopupVisualizerLocation);
             }
         } else {
             openView(params.type as EVENT_TYPE, params.location as VisualizerLocation);
@@ -257,11 +251,11 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     goBack(): void {
-        if (!StateMachine.context().view?.includes("Form")) {
+        if (!getStateMachine(this.projectUri).context().view?.includes("Form")) {
             const entry = history.pop();
-            navigate(entry);
+            navigate(this.projectUri, entry);
         } else {
-            navigate();
+            navigate(this.projectUri);
         }
     }
 
@@ -314,13 +308,12 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
-        handleOpenFile(params.zipFileName, url);
+        handleOpenFile(this.projectUri, params.zipFileName, url);
     }
 
     async addConfigurable(params: AddConfigurableRequest): Promise<void> {
-        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
-        const configPropertiesFilePath = [projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
-        const envFilePath = [projectUri, '.env'].join(path.sep);
+        const configPropertiesFilePath = [this.projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+        const envFilePath = [this.projectUri, '.env'].join(path.sep);
         await appendContent(configPropertiesFilePath, `${params.configurableName}:${params.configurableType}\n`);
         await appendContent(envFilePath, `${params.configurableName}\n`);
     }
@@ -334,17 +327,17 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     goHome(): void {
         history.clear();
-        navigate();
+        navigate(this.projectUri);
     }
 
     goSelected(index: number): void {
         history.select(index);
-        navigate();
+        navigate(this.projectUri);
     }
 
     addToHistory(entry: HistoryEntry): void {
         history.push(entry);
-        navigate();
+        navigate(this.projectUri);
     }
 
     async getCurrentThemeKind(): Promise<ColorThemeKind> {
@@ -535,11 +528,11 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
     async downloadJavaFromMI(miVersion: string): Promise<string> {
-        const javaPath = await downloadJavaFromMI(miVersion);
+        const javaPath = await downloadJavaFromMI(this.projectUri, miVersion);
         return javaPath;
     }
     async downloadMI(params: DownloadMIRequest): Promise<string> {
-        const miPath = await downloadMI(params.version, params.isUpdatedPack);
+        const miPath = await downloadMI(this.projectUri, params.version, params.isUpdatedPack);
         return miPath;
     }
     async getSupportedMIVersionsHigherThan(miVersion: string): Promise<string[]> {
@@ -565,7 +558,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     async getProjectSetupDetails(): Promise<SetupDetails> {
-        return getProjectSetupDetails();
+        return getProjectSetupDetails(this.projectUri);
     }
     async updateRuntimeVersionsInPom(version: string): Promise<boolean> {
         try {
@@ -578,21 +571,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
     async getProjectOverview(params: ProjectStructureRequest): Promise<ProjectOverviewResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getOverviewModel();
             resolve(res);
         });
     }
 
     openReadme(): void {
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length === 0) {
-            window.showErrorMessage("No workspace folder is open.");
-            return;
-        }
-
-        const projectRoot = workspaceFolders[0].uri.fsPath;
-        const readmePath = path.join(projectRoot, "README.md");
+        const readmePath = path.join(this.projectUri, "README.md");
 
         if (!fs.existsSync(readmePath)) {
             // Create README.md if it doesn't exist
@@ -607,14 +593,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async getReadmeContent(): Promise<ReadmeContentResponse> {
         return new Promise((resolve) => {
-            const workspaceFolders = workspace.workspaceFolders;
-            if (!workspaceFolders || workspaceFolders.length === 0) {
-                resolve({ content: "" });
-                return;
-            }
-
-            const projectRoot = workspaceFolders[0].uri.fsPath;
-            const readmePath = path.join(projectRoot, "README.md");
+            const readmePath = path.join(this.projectUri, "README.md");
 
             if (!fs.existsSync(readmePath)) {
                 resolve({ content: "" });
@@ -633,8 +612,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     private async updatePom(textEdits: TextEdit[]) {
-        const projectRoom = StateMachine.context().projectUri!;
-        const pomPath = path.join(projectRoom, 'pom.xml');
+        const pomPath = path.join(this.projectUri, 'pom.xml');
 
         if (!fs.existsSync(pomPath)) {
             throw new Error("pom.xml not found");
@@ -655,6 +633,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             const document = await workspace.openTextDocument(pomPath);
             await document.save();
             await rangeFormat({ uri: pomPath });
+            if (getStateMachine(this.projectUri).context().view === MACHINE_VIEW.Overview) {
+                refreshUI(this.projectUri);
+            }
         } else {
             throw new Error("Failed to apply edits to pom.xml");
         }
@@ -662,20 +643,15 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
         const { filePath } = params;
-        const langClient = StateMachine.context().langClient!;
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders) {
-            throw new Error('No workspace is currently open');
-        }
-        const workspaceFolder = workspaceFolders[0].uri.fsPath;
+        const langClient = getStateMachine(this.projectUri).context().langClient!;
         if (filePath && filePath.length > 0) {
             const connectorGenRequest = {
                 openAPIPath: filePath,
-                connectorProjectPath: path.join(workspaceFolder, 'target')
+                connectorProjectPath: path.join(this.projectUri, 'target')
             };
             const { buildStatus, connectorPath } = await langClient.generateConnector(connectorGenRequest);
             if (buildStatus) {
-                await copy(connectorPath, path.join(workspaceFolder, 'src', 'main', 'wso2mi', 'resources', 'connectors', path.basename(connectorPath)));
+                await copy(connectorPath, path.join(this.projectUri, 'src', 'main', 'wso2mi', 'resources', 'connectors', path.basename(connectorPath)));
                 vscode.window.showInformationMessage("Connector generated successfully");
             } else {
                 vscode.window.showErrorMessage("Error while generating connector");

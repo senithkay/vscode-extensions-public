@@ -72,7 +72,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
 
             try {
                 // delete cars
-                const serverPath = await getServerPath();
+                const serverPath = await getServerPath(projectRoot);
                 if (!serverPath) {
                     window.showErrorMessage("MI server path not found");
                     failAllTests();

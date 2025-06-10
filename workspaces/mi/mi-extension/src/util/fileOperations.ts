@@ -41,7 +41,7 @@ async function selectFileDownloadPath(): Promise<string> {
     return "";
 }
 
-async function downloadFile(url: string, filePath: string, progressCallback?: (downloadProgress: DownloadProgressData) => void) {
+async function downloadFile(projectUri: string, url: string, filePath: string, progressCallback?: (downloadProgress: DownloadProgressData) => void) {
     const writer = fs.createWriteStream(filePath);
     let totalBytes = 0;
     try {
@@ -69,7 +69,7 @@ async function downloadFile(url: string, filePath: string, progressCallback?: (d
                     progressCallback(progress);
                 }
                 // Notify the visualizer
-                RPCLayer._messenger.sendNotification(
+                RPCLayer._messengers.get(projectUri)?.sendNotification(
                     onDownloadProgress,
                     { type: 'webview', webviewType: VisualizerWebview.viewType },
                     progress
@@ -93,12 +93,12 @@ async function downloadFile(url: string, filePath: string, progressCallback?: (d
     }
 }
 
-async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: string, progress: Progress<ProgressMessage>, cancelled: boolean) {
+async function handleDownloadFile(projectUri: string, rawFileLink: string, defaultDownloadsPath: string, progress: Progress<ProgressMessage>, cancelled: boolean) {
     const handleProgress = (progressPercentage) => {
         progress.report({ message: "Downloading file...", increment: progressPercentage });
     };
     try {
-        await downloadFile(rawFileLink, defaultDownloadsPath, handleProgress);
+        await downloadFile(projectUri, rawFileLink, defaultDownloadsPath, handleProgress);
     } catch (error) {
         window.showErrorMessage(`Failed to download file: ${error}`);
     }
@@ -117,7 +117,7 @@ export function appendContent(path: string, content: string): Promise<boolean> {
     });
 }
 
-export async function handleOpenFile(sampleName: string, repoUrl: string) {
+export async function handleOpenFile(projectUri: string, sampleName: string, repoUrl: string) {
     const rawFileLink = repoUrl + sampleName + '/' + sampleName + '.zip';
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
     const pathFromDialog = await selectFileDownloadPath();
@@ -144,7 +144,7 @@ export async function handleOpenFile(sampleName: string, repoUrl: string) {
             });
 
             try {
-                await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
+                await handleDownloadFile(projectUri, rawFileLink, filePath, progress, cancelled);
                 isSuccess = true;
                 return;
             } catch (error) {
@@ -849,8 +849,8 @@ export function findJavaFiles(folderPath): Map<string, string> {
  * Change the packaging of the root pom.xml file to the given value.
  * @param projectDir project directory.     
  */
-export async function changeRootPomForClassMediator() {
-    const rpcManager = new MiVisualizerRpcManager();
+export async function changeRootPomForClassMediator(projectDir: string) {
+    const rpcManager = new MiVisualizerRpcManager(projectDir);
     const pomValues = await rpcManager.getProjectDetails();
     const packagingValue = pomValues.primaryDetails.projectPackaging;
     if (packagingValue.range) {
@@ -918,7 +918,7 @@ export function goToSource(filePath: string, position?: Range) {
     }
 }
 
-export async function downloadWithProgress(url: string, downloadPath: string, title: string) {
+export async function downloadWithProgress(projectUri: string, url: string, downloadPath: string, title: string) {
     await window.withProgress({
         location: ProgressLocation.Notification,
         title: title,
@@ -932,7 +932,7 @@ export async function downloadWithProgress(url: string, downloadPath: string, ti
                 lastPercentageReported = percentCompleted;
             }
         };
-        await downloadFile(url, downloadPath, handleProgress).catch((error) => {
+        await downloadFile(projectUri, url, downloadPath, handleProgress).catch((error) => {
             if (fs.existsSync(downloadPath)) {
                 fs.unlinkSync(downloadPath);
             }

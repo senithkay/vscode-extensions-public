@@ -855,7 +855,7 @@ export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: P
         return suffix;
     }
     return '';
-};
+}
 
 export function expandArrayFn(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext){
     

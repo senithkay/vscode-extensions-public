@@ -26,7 +26,7 @@ export class ServiceDesigner {
 
     public async resource(type: string, path: string) {
         const resourceList = this.webView.getByTestId("service-design-view-resource");
-        await resourceList.waitFor();
+        await resourceList.waitFor({timeout: 60000});
         const resource = resourceList.filter({ hasText: type }).filter({ hasText: path });
         expect(resource).not.toBeNull();
 

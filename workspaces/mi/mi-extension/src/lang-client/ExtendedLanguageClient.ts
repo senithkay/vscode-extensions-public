@@ -55,9 +55,6 @@ import {
     GetConnectionSchemaResponse,
     GenerateConnectorRequest,
     GenerateConnectorResponse,
-    DependencyDetails,
-    PomNodeDetails,
-    UpdateConfigValuesResponse,
     UpdateDependenciesResponse,
     UpdateDependenciesRequest,
     GetHelperPaneInfoResponse,
@@ -66,6 +63,7 @@ import {
     TestConnectorConnectionResponse,
     CheckDBDriverResponse,
     RemoveDBDriverResponse,
+    LocalInboundConnectorsResponse,
     LocalInboundConnectorsResponse,
     MavenDeployPluginDetails
 } from "@wso2-enterprise/mi-core";
@@ -147,12 +145,12 @@ export interface ArtifactType {
 
 export class ExtendedLanguageClient extends LanguageClient {
 
-    constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
+    constructor(id: string, name: string, private projectUri: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
         super(id, name, serverOptions, clientOptions);
 
         this.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
             // Notify the visualizer
-            RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
+            RPCLayer._messengers.get(this.projectUri)?.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
         });
     }
 
@@ -187,7 +185,7 @@ export class ExtendedLanguageClient extends LanguageClient {
     async getResourceFiles(): Promise<string[]> {
         return this.sendRequest("synapse/getResourceFiles");
     }
-    
+
     async getConfigurableEntries(): Promise<{ name: string, type: string }[]> {
         return this.sendRequest("synapse/getConfigurableEntries");
     }
@@ -316,11 +314,11 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async removeDBDriver(req: AddDriverRequest): Promise<boolean> {
-        return this.sendRequest("synapse/removeDBDriver", req );
+        return this.sendRequest("synapse/removeDBDriver", req);
     }
 
     async modifyDBDriver(req: AddDriverRequest): Promise<boolean> {
-        return this.sendRequest("synapse/modifyDBDriver", req );
+        return this.sendRequest("synapse/modifyDBDriver", req);
     }
 
     async generateQueries(req: DSSQueryGenRequest): Promise<string> {
@@ -369,16 +367,10 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getSequencePath(sequenceName: string): Promise<string | undefined> {
         return new Promise(async (resolve) => {
-            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
-                workspace.workspaceFolders[0].uri.fsPath
-                : undefined;
-
-            if (!!rootPath) {
-                const resp = await this.getProjectStructure(rootPath);
-                const sequences = resp.directoryMap.src.main.wso2mi.artifacts.sequences;
-                const match = sequences.find((sequence: any) => sequence.name === sequenceName);
-                resolve(match ? match.path : undefined);
-            }
+            const resp = await this.getProjectStructure(this.projectUri);
+            const sequences = resp.directoryMap.src.main.wso2mi.artifacts.sequences;
+            const match = sequences.find((sequence: any) => sequence.name === sequenceName);
+            resolve(match ? match.path : undefined);
 
             resolve(undefined);
         });
@@ -413,7 +405,7 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getConnectionSchema(request: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
         if (request.documentUri) {
-            return this.sendRequest("synapse/getConnectionUISchema" , { documentUri: Uri.file(request.documentUri).toString(), });
+            return this.sendRequest("synapse/getConnectionUISchema", { documentUri: Uri.file(request.documentUri).toString(), });
         }
 
         return this.sendRequest("synapse/getConnectionUISchema", { connectorName: request.connectorName, connectionType: request.connectionType });

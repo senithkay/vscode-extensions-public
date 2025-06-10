@@ -39,6 +39,7 @@ export interface TooltipProps {
     sx?: any;
     containerSx?: any;
     containerPosition?: string;
+    offset?: Position;
 }
 
 export interface TooltipConatinerProps {
@@ -133,7 +134,7 @@ const getPositionOnOverflow = (
 }
 
 export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsWithChildren<TooltipProps>) => {
-    const { id, className, content, position, children, sx, containerPosition, containerSx } = props;
+    const { id, className, content, position, offset, children, sx, containerPosition, containerSx } = props;
 
     const tooltipEl = React.useRef<HTMLDivElement>(null);
 
@@ -148,13 +149,14 @@ export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsW
             if (!isHovering && tooltipEl.current) {
                 const { height, width } = tooltipEl.current.getBoundingClientRect() as ElementProperties;
                 const { top: offsetTop, left: offsetLeft } = getOffsetByPosition(position || 'bottom-end', height, width);
-
+                const topOffset = offset ? offsetTop + offset.top : offsetTop;
+                const leftOffset = offset ? offsetLeft + offset.left : offsetLeft;
                 // Reset the position if it overflows the window
                 const { top, left } = getPositionOnOverflow(
                     window.innerWidth,
                     window.innerHeight,
-                    e.clientY + offsetTop,
-                    e.clientX + offsetLeft,
+                    e.clientY + topOffset,
+                    e.clientX + leftOffset,
                     height,
                     width
                 );

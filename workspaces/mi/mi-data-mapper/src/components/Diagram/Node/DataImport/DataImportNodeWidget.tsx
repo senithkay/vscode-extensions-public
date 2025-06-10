@@ -44,7 +44,7 @@ export function DataImportNodeWidget(props: DataImportNodeWidgetProps) {
     };
 
     return (
-        <DataImportContainer onClick={handleOnClick}>
+        <DataImportContainer onClick={handleOnClick} data-testid={`${ioType}-data-import-node`}>
             <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', backgroundColor: 'var(--vscode-activityBarTop.activeForeground' }}>
             <div style={{padding: '100px', justifyContent: 'space-between'}}>
                 <Codicon sx={{ margin: 5, zoom: 5}}  name="new-file" />

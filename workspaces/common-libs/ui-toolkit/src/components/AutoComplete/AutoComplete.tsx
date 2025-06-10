@@ -209,7 +209,8 @@ interface BaseProps {
     hideDropdown?: boolean;
     errorMsg?: string;
     labelAdornment?: ReactNode,
-    requireValidation?: boolean
+    requireValidation?: boolean,
+    disabled?: boolean;
 }
 
 // Define the conditional properties
@@ -348,7 +349,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
 
     return (
         <Container sx={sx}>
-            <Combobox value={value} onChange={handleChange} name={name} {...(nullable && { nullable })}>
+            <Combobox disabled={props.disabled} value={value} onChange={handleChange} name={name} {...(nullable && { nullable })}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     {label && (
                         <LabelContainer>
