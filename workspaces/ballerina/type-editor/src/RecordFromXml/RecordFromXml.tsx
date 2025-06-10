@@ -19,7 +19,7 @@ import styled from '@emotion/styled';
 interface RecordFromXmlProps {
     name: string;
     onImport: (types: Type[]) => void;
-    onCancel: () => void;
+    onCancel?: () => void;
     rpcClient: BallerinaRpcClient;
 }
 
@@ -97,7 +97,7 @@ export const RecordFromXml = (props: RecordFromXmlProps) => {
 
     return (
         <>
-            <h4>Import Record From XML</h4>
+            {/* <h4>Import Record From XML</h4> */}
             <FileSelect>
                 <FileSelector label="Select XML file" extension="xml" onReadFile={onXmlUpload} />
             </FileSelect>
@@ -108,7 +108,7 @@ export const RecordFromXml = (props: RecordFromXmlProps) => {
                 errorMsg={error}
             />
             <S.Footer>
-                <Button appearance="secondary" onClick={onCancel}>Cancel</Button>
+                {/* <Button appearance="secondary" onClick={onCancel}>Cancel</Button> */}
                 <Button onClick={importXmlAsRecord} disabled={!!error || !xml.trim()}>Import</Button>
             </S.Footer>
         </>

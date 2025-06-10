@@ -18,7 +18,8 @@ import { Type, TypeDataWithReferences, UpdateTypesResponse } from '@wso2-enterpr
 interface RecordFromJsonProps {
     name: string;
     onImport: (types: Type[]) => void;
-    onCancel: () => void;
+    isTypeNameValid: boolean;
+    onCancel?: () => void;
     rpcClient: BallerinaRpcClient;
 }
 
@@ -41,7 +42,7 @@ namespace S {
 }
 
 export const RecordFromJson = (props: RecordFromJsonProps) => {
-    const { name, onImport, onCancel, rpcClient } = props;
+    const { name, onImport, onCancel, rpcClient, isTypeNameValid } = props;
     const [json, setJson] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [isClosed, setIsClosed] = useState<boolean>(false);
@@ -102,7 +103,7 @@ export const RecordFromJson = (props: RecordFromJsonProps) => {
 
     return (
         <>
-            <h4>Import Record From JSON</h4>
+            {/* <h4>Import Record From JSON</h4> */}
             <FileSelect>
                 <FileSelector label="Select JSON file" extension="json" onReadFile={onJsonUpload} />
             </FileSelect>
@@ -112,11 +113,11 @@ export const RecordFromJson = (props: RecordFromJsonProps) => {
                 onChange={onJsonChange}
                 errorMsg={error}
             />
-            <CheckBox label="Is Closed" checked={isClosed} onChange={setIsClosed} />
-            <CheckBox label="Is Separate Definitions" checked={isSeparateDefinitions} onChange={setIsSeparateDefinitions} />
+            {/* <CheckBox label="Is Closed" checked={isClosed} onChange={setIsClosed} />
+            <CheckBox label="Is Separate Definitions" checked={isSeparateDefinitions} onChange={setIsSeparateDefinitions} /> */}
             <S.Footer>
-                <Button appearance="secondary" onClick={onCancel}>Cancel</Button>
-                <Button onClick={importJsonAsRecord} disabled={!!error || !json.trim()}>Import</Button>
+                {/* <Button appearance="secondary" onClick={onCancel}>Cancel</Button> */}
+                <Button onClick={importJsonAsRecord} disabled={!!error || !json.trim() || !isTypeNameValid}>Import</Button>
             </S.Footer>
         </>
     );
