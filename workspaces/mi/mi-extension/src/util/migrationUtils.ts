@@ -19,6 +19,7 @@ import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { updatePomForClassMediator, LATEST_MI_VERSION } from './onboardingUtils';
 import { SELECTED_JAVA_HOME, SELECTED_SERVER_PATH } from '../debugger/constants';
+import { config } from 'process';
 
 enum Nature {
     MULTIMODULE,
@@ -100,6 +101,7 @@ const WSO2MI = 'wso2mi';
 const RESOURCES = 'resources';
 const ARTIFACTS = 'artifacts';
 const REGISTRY = 'registry';
+const METADATA = 'metadata';
 const DATA_SOURCES = 'data-sources';
 const DATA_SERVICES = 'data-services';
 const CONNECTORS = 'connectors';
@@ -529,8 +531,8 @@ function copyConfigToNewProjectStructure(nature: Nature, sourceFileInfo: FileInf
             const artifactType = getArtifactType(sourceFileInfo.path);
             const subDir = SYNAPSE_TO_MI_ARTIFACT_FOLDER_MAP[artifactType ?? ''] ?? '';
             copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, subDir));
-            processMetaData(sourceFileInfo.path, target);
-            processTests(sourceFileInfo.path, target);
+            // processMetaData(sourceFileInfo.path, target);
+            // processTests(sourceFileInfo.path, target);
             break;
         case Nature.DATASOURCE:
             copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, DATA_SOURCES));
@@ -631,54 +633,38 @@ function processArtifactsFolder(source: string, target: string) {
 }
 
 /**
- * Processes and copies metadata files associated with a given source file to a target project's metadata directory.
+ * Copies metadata files associated with the given configuration files into a target directory.
  *
- * This function locates the `src/main/resources/metadata` directory relative to the provided `sourceFilePath`,
- * finds all files in that directory that start with the base name of the source file, and copies them to the
- * corresponding metadata directory in the target project structure.
+ * For each configuration file in `configFiles`, this function locates the corresponding project directory,
+ * searches for metadata files in the standard metadata directory, and copies those whose filenames start
+ * with the configuration file's base name to the destination metadata directory under `targetDir`.
  *
- * @param sourceFilePath - The absolute path to the source file whose metadata files should be processed.
- * @param targetProjectDir - The root directory of the target project where metadata files should be copied.
- *
- * @remarks
- * - The function expects the source file to reside within a directory structure containing `src/main`.
- * - If the `src/main/resources/metadata` directory is not found in the source file's path, a warning is logged.
- * - Only files (not directories) whose names start with the source file's base name are copied.
+ * @param configFiles - An array of absolute paths to configuration files whose metadata should be copied.
+ * @param targetDir - The absolute path to the target directory where metadata files will be copied.
  */
-function processMetaData(sourceFilePath: string, targetProjectDir: string) {
-    const newMetaDataPath = path.join(targetProjectDir, 'src', 'main', 'wso2mi', 'resources', 'metadata');
-
-    const fileName = path.basename(sourceFilePath, path.extname(sourceFilePath));
-
-    // Normalize the path and split into segments
-    const pathSegments = path.normalize(sourceFilePath).split(path.sep);
-
-    // Loop in reverse to find the last occurrence of src/main
-    let mainIndex = -1;
-    for (let i = pathSegments.length - 1; i > 0; i--) {
-        if (pathSegments[i] === 'main' && pathSegments[i - 1] === 'src') {
-            mainIndex = i;
-            break;
+function copyMetaDataFor(configFiles: string[], targetDir: string) {
+    const destDir = path.join(targetDir, SRC, MAIN, WSO2MI, RESOURCES, METADATA);
+    const metaDataMap = new Map<string, string[]>();
+    for (const configFile of configFiles) {
+        const projectDir = getProjectDir(configFile);
+        const metadataDir = path.join(projectDir, SRC, MAIN, RESOURCES, METADATA);
+        if (!metaDataMap.has(projectDir) && fs.existsSync(metadataDir) && fs.statSync(metadataDir).isDirectory()) {
+            const files = fs.readdirSync(metadataDir)
+                .filter(file => fs.statSync(path.join(metadataDir, file)).isFile())
+                .map(file => path.join(metadataDir, file));
+            metaDataMap.set(projectDir, files);
         }
     }
-
-    if (mainIndex !== -1) {
-        const pathUptoSrcMain = pathSegments.slice(0, mainIndex + 1).join(path.sep);
-        const metadataDir = path.join(pathUptoSrcMain, 'resources', 'metadata');
-        if (fs.existsSync(metadataDir) && fs.statSync(metadataDir).isDirectory()) {
-            const files = fs.readdirSync(metadataDir);
-            files.forEach(file => {
-                if (file.startsWith(fileName)) {
-                    const sourceFile = path.join(metadataDir, file);
-                    const targetFile = path.join(newMetaDataPath, file);
-                    if (!fs.statSync(sourceFile).isDirectory()) {
-                        copyFile(sourceFile, targetFile);
-                    }
-                }
-            });
-        }
-    } else {
-        console.warn('src/main not found in path:', sourceFilePath);
+    for (const configFile of configFiles) {
+        const projectDir = getProjectDir(configFile);
+        const metaFiles = metaDataMap.get(projectDir) || [];
+        const configFileName = path.basename(configFile, path.extname(configFile));
+        metaFiles.forEach(metaFile => {
+            if (path.basename(metaFile).startsWith(configFileName)) {
+                const destFile = path.join(destDir, path.basename(metaFile));
+                copyFile(metaFile, destFile);
+            }
+        });
     }
 }
 
@@ -1049,7 +1035,7 @@ function processDependency(
     dependency: Dependency,
     artifactIdToFileInfoMap: Map<string, FileInfo>,
     target: string
-): { hasClassMediatorModule: boolean; registryArtifact?: Artifact | null } {
+): { hasClassMediatorModule: boolean; registryArtifact?: Artifact | null; configFile?: string } {
     const depId = getPomIdentifierStr(dependency.groupId, dependency.artifactId, dependency.version);
     const sourceFileInfo = artifactIdToFileInfoMap.get(depId);
 
@@ -1068,6 +1054,8 @@ function processDependency(
             return { hasClassMediatorModule: true };
         } else if (projectType === Nature.REGISTRY) {
             return { hasClassMediatorModule: false, registryArtifact: sourceFileInfo.artifact ?? null };
+        } else if (projectType === Nature.ESB) {
+            return { hasClassMediatorModule: false, configFile: sourceFileInfo.path };
         }
     }
     return { hasClassMediatorModule: false };
@@ -1111,6 +1099,7 @@ async function processCompositeExporterProject(source: string, target: string, a
 
     let hasClassMediatorModule = false;
     let registryArtifactsList: Artifact[] = [];
+    let configFiles: string[] = [];
     for (const dependency of dependencies) {
         const result = processDependency(dependency, artifactIdToFileInfoMap, target);
         if (result.hasClassMediatorModule) {
@@ -1119,6 +1108,9 @@ async function processCompositeExporterProject(source: string, target: string, a
         if (result.registryArtifact) {
             registryArtifactsList.push(result.registryArtifact);
         }
+        if (result.configFile) {
+            configFiles.push(result.configFile);
+        }
     }
     if (hasClassMediatorModule) {
         await changeRootPomForClassMediator(target);
@@ -1126,6 +1118,7 @@ async function processCompositeExporterProject(source: string, target: string, a
     if (registryArtifactsList.length > 0) {
         updateRegistryArtifactXml(target, registryArtifactsList);
     }
+    copyMetaDataFor(configFiles, target);
     fixTestFilePaths(target);
     logUnusedFiles(dependencies, artifactIdToFileInfoMap);
 }
