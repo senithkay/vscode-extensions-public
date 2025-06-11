@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from "react";
-import { SidePanelBody, ProgressRing, Tabs } from "@wso2-enterprise/ui-toolkit";
+import { SidePanelBody, ProgressRing, Tabs, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { Member, Type, TypeNodeKind, Imports, AddImportItemResponse } from "@wso2-enterprise/ballerina-core";
@@ -112,12 +112,28 @@ export function TypeEditor(props: TypeEditorProps) {
                 ) : newType ? (
                     <Tabs
                         views={[
-                            { id: 'create-from-scratch', name: 'Create from scratch' },
-                            { id: 'import', name: 'Import' }
+                            {
+                                id: 'create-from-scratch',
+                                name: 'Create from scratch',
+                                icon: <Icon
+                                    name="bi-edit"
+                                    sx={{ marginRight: '2px' }}
+                                    iconSx={{ fontSize: '12px', display: 'flex', alignItems: 'center', paddingTop: '2px', paddingRight: '6px' }}
+                                />
+                            },
+                            {
+                                id: 'import',
+                                name: 'Import',
+                                icon: <Codicon
+                                    name="arrow-up"
+                                    sx={{ marginRight: '2px' }}
+                                    iconSx={{ fontSize: '12px', display: 'flex', alignItems: 'center', paddingTop: '2px', paddingRight: '6px' }}
+                                />
+                            }
                         ]}
                         currentViewId={activeTab}
                         onViewChange={handleTabChange}
-                        childrenSx={{padding: 10}}
+                        childrenSx={{ padding: 10 }}
                     >
                         <div id="create-from-scratch">
                             <TypeCreatorTab
