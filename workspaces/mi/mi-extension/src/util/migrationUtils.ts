@@ -66,6 +66,7 @@ interface Artifact {
 type FileInfo = {
     path: string;
     artifact: Artifact | null;
+    projectType?: Nature;
 };
 
 interface ArtifactsRoot {
@@ -296,9 +297,11 @@ function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Ma
     items.forEach(item => {
         if (item.isDirectory()) {
             const projectFilePath = path.join(source, item.name);
+            const projectType = determineProjectType(projectFilePath);
             const projectPomFilePath = path.join(projectFilePath, 'pom.xml');
             const projectId = getPomIdentifier(projectPomFilePath);
             if (projectId) {
+                artifactIdToFileInfoMap.set(projectId, { path: projectFilePath, artifact: null, projectType });
                 // Try to get the artifact from the pom.xml's artifact.xml if exists
                 let artifacts: Artifact[] = [];
                 const artifactXmlPath = path.join(projectFilePath, 'artifact.xml');
@@ -308,7 +311,6 @@ function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Ma
                         artifacts = normalizeArtifacts(xml.artifacts.artifact);
                     }
                 }
-                artifactIdToFileInfoMap.set(projectId, { path: projectFilePath, artifact: null });
                 // For each artifact in artifacts, map its artifactId to its file path
                 artifacts.forEach(artifact => {
                     const artifactId = getPomIdentifierStr(
@@ -316,19 +318,7 @@ function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Ma
                         artifact['@_name'],
                         artifact['@_version']
                     );
-                    if (artifact.file) {
-                        const artifactFilePath = path.join(projectFilePath, ...artifact.file.split('/'));
-                        artifactIdToFileInfoMap.set(artifactId, { path: artifactFilePath, artifact });
-                    } else if (artifact.item) {
-                        // artifact.item can be an array or a single object
-                        const items = Array.isArray(artifact.item) ? artifact.item : [artifact.item];
-                        const firstItem = items[0];
-                        if (firstItem && firstItem.file) {
-                            const artifactFilePath = path.join(projectFilePath, ...firstItem.file.split('/'));
-                            artifactIdToFileInfoMap.set(artifactId, { path: artifactFilePath, artifact });
-                        }
-                    }
-                    const fileInfo = getFileInfoForArtifact(artifact, projectFilePath);
+                    const fileInfo = getFileInfoForArtifact(artifact, projectFilePath, projectType);
                     if (fileInfo) {
                         artifactIdToFileInfoMap.set(artifactId, fileInfo);
                     }
@@ -347,12 +337,13 @@ function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Ma
  */
 function getFileInfoForArtifact(
     artifact: Artifact,
-    projectFilePath: string
+    projectFilePath: string,
+    projectType: Nature | undefined
 ): FileInfo | null {
     if (artifact.file) {
         const artifactFilePath = path.join(projectFilePath, ...artifact.file.split('/'));
         if (fs.existsSync(artifactFilePath)) {
-            return { path: artifactFilePath, artifact };
+            return { path: artifactFilePath, artifact, projectType };
         }
     } else if (artifact.item) {
         // artifact.item can be an array or a single object
@@ -361,7 +352,7 @@ function getFileInfoForArtifact(
         if (firstItem && firstItem.file) {
             const artifactFilePath = path.join(projectFilePath, ...firstItem.file.split('/'));
             if (fs.existsSync(artifactFilePath)) {
-                return { path: artifactFilePath, artifact };
+                return { path: artifactFilePath, artifact, projectType };
             }
         }
     } else if (artifact.collection) {
@@ -371,7 +362,7 @@ function getFileInfoForArtifact(
         if (firstCollection && firstCollection.directory) {
             const artifactPath = path.join(projectFilePath, ...firstCollection.directory.split('/'));
             if (fs.existsSync(artifactPath)) {
-                return { path: artifactPath, artifact };
+                return { path: artifactPath, artifact, projectType };
             }
         }
     }
@@ -1022,43 +1013,25 @@ function processClassMediators(source: string, target: string) {
 }
 
 /**
- * Processes a given dependency by determining its project type and performing necessary actions
- * such as copying configuration files to a new project structure. Returns information about
- * whether the dependency is a class mediator module or a registry artifact.
+ * Processes a project dependency by determining its type and copying its configuration
+ * to a new project structure if applicable.
  *
- * @param dependency - The dependency to process.
- * @param artifactIdToFileInfoMap - A map from dependency identifiers to their corresponding file information.
- * @param target - The target directory or path for copying configuration files.
- * @returns An object indicating whether the dependency is a class mediator module and, if applicable, a registry artifact.
+ * @param depId - The identifier of the dependency to process.
+ * @param sourceFileInfo - Information about the source file associated with the dependency.
+ * @param target - The target directory or path for the migrated configuration.
  */
-function processDependency(
-    dependency: Dependency,
-    artifactIdToFileInfoMap: Map<string, FileInfo>,
-    target: string
-): { hasClassMediatorModule: boolean; registryArtifact?: Artifact | null; configFile?: string } {
-    const depId = getPomIdentifierStr(dependency.groupId, dependency.artifactId, dependency.version);
-    const sourceFileInfo = artifactIdToFileInfoMap.get(depId);
-
+function processDependency(depId: string, sourceFileInfo: FileInfo | undefined, target: string) {
     if (!sourceFileInfo) {
         console.warn(`Dependency '${depId}' selected for the composite exporter project was not found. Skipping migration for this dependency.`);
-        return { hasClassMediatorModule: false };
-    }
+    } else {
+        const sourceProjectDir = getProjectDir(sourceFileInfo.path);
+        const projectType = determineProjectType(sourceProjectDir);
 
-    const sourceProjectDir = getProjectDir(sourceFileInfo.path);
-    const projectType = determineProjectType(sourceProjectDir);
-
-    if (projectType === Nature.ESB || projectType === Nature.DS || projectType === Nature.DATASOURCE ||
-        projectType === Nature.CONNECTOR || projectType === Nature.REGISTRY || projectType === Nature.CLASS) {
-        copyConfigToNewProjectStructure(projectType, sourceFileInfo, target);
-        if (projectType === Nature.CLASS) {
-            return { hasClassMediatorModule: true };
-        } else if (projectType === Nature.REGISTRY) {
-            return { hasClassMediatorModule: false, registryArtifact: sourceFileInfo.artifact ?? null };
-        } else if (projectType === Nature.ESB) {
-            return { hasClassMediatorModule: false, configFile: sourceFileInfo.path };
+        if (projectType === Nature.ESB || projectType === Nature.DS || projectType === Nature.DATASOURCE ||
+            projectType === Nature.CONNECTOR || projectType === Nature.REGISTRY || projectType === Nature.CLASS) {
+            copyConfigToNewProjectStructure(projectType, sourceFileInfo, target);
         }
     }
-    return { hasClassMediatorModule: false };
 }
 
 function readPomDependencies(pomFilePath: string): Dependency[] {
@@ -1089,7 +1062,6 @@ function readPomDependencies(pomFilePath: string): Dependency[] {
  * @returns A promise that resolves when processing is complete.
  */
 async function processCompositeExporterProject(source: string, target: string, artifactIdToFileInfoMap: Map<string, FileInfo>) {
-    // read the `pom.xml` file from the source directory
     const pomFilePath = path.join(source, 'pom.xml');
     if (!fs.existsSync(pomFilePath)) {
         console.error(`pom.xml file not found in the source directory: ${source}`);
@@ -1101,15 +1073,19 @@ async function processCompositeExporterProject(source: string, target: string, a
     let registryArtifactsList: Artifact[] = [];
     let configFiles: string[] = [];
     for (const dependency of dependencies) {
-        const result = processDependency(dependency, artifactIdToFileInfoMap, target);
-        if (result.hasClassMediatorModule) {
+        const depId = getPomIdentifierStr(dependency.groupId, dependency.artifactId, dependency.version);
+        const sourceFileInfo = artifactIdToFileInfoMap.get(depId);
+        processDependency(depId, sourceFileInfo, target);
+        if (sourceFileInfo?.projectType === Nature.CLASS) {
             hasClassMediatorModule = true;
         }
-        if (result.registryArtifact) {
-            registryArtifactsList.push(result.registryArtifact);
+        if (sourceFileInfo?.projectType === Nature.REGISTRY) {
+            if (sourceFileInfo.artifact) {
+                registryArtifactsList.push(sourceFileInfo.artifact);
+            }
         }
-        if (result.configFile) {
-            configFiles.push(result.configFile);
+        if (sourceFileInfo?.projectType === Nature.ESB) {
+            configFiles.push(sourceFileInfo.path);
         }
     }
     if (hasClassMediatorModule) {
