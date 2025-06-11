@@ -157,17 +157,12 @@ export function ImportTab(props: ImportTabProps) {
                         const value = e.target.value;
                         if (value === "JSON") {
                             setImportFormat(ImportFormat.JSON);
-                            // onEditorStateChange(ConfigState.IMPORT_FROM_JSON);
                         } else {
                             setImportFormat(ImportFormat.XML);
-                            // onEditorStateChange(ConfigState.IMPORT_FROM_XML);
                         }
                     }}
                 />
-            </CategoryRow>
-
-            {importFormat === ImportFormat.JSON && (
-                <CategoryRow>
+                {importFormat === ImportFormat.JSON && (
                     <TextFieldWrapper>
                         <TextField
                             label="Name"
@@ -187,8 +182,8 @@ export function ImportTab(props: ImportTabProps) {
                             ref={nameInputRef}
                         />
                     </TextFieldWrapper>
-                </CategoryRow>
-            )}
+                )}
+            </CategoryRow>
 
             {importFormat === ImportFormat.JSON && (
                 <RecordFromJson
