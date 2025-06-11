@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Progress, window, ProgressLocation, commands, workspace, Uri, TextEditorRevealType, Selection, Range as VSCodeRange, ViewColumn, TextEditor, WorkspaceEdit, Position } from "vscode";
+import { Progress, window, ProgressLocation, commands, workspace, Uri, TextEditorRevealType, Selection, Range as VSCodeRange, ViewColumn, TextEditor, WorkspaceEdit, Position, TextEdit } from "vscode";
 import * as fs from 'fs';
 import * as os from 'os';
 import axios from "axios";
 import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import * as unzipper from 'unzipper';
-import { DownloadProgressData, ListRegistryArtifactsResponse, onDownloadProgress, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
+import { DownloadProgressData, ListRegistryArtifactsResponse, onDownloadProgress, Range, RegistryArtifact, UpdateRegistryMetadataRequest, ApplyEditResponse, RangeFormatRequest} from "@wso2-enterprise/mi-core";
 import { rm } from 'node:fs/promises';
 import { existsSync } from "fs";
 import { spawn } from "child_process";
@@ -1042,5 +1042,31 @@ export async function selectFolderDialog(title: string, defaultUri?: Uri): Promi
         title: title
     }).then((uris) => {
         return uris ? uris[0] : undefined;
+    });
+}
+
+export async function rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
+    return new Promise(async (resolve) => {
+        const editorConfig = workspace.getConfiguration('editor');
+        if (editorConfig.get('formatOnSave')) {
+            resolve({ status: true });
+            return;
+        }
+        let formattingOptions = {
+            tabSize: editorConfig.get("tabSize") ?? 4,
+            insertSpaces: editorConfig.get("insertSpaces") ?? false,
+            trimTrailingWhitespace: editorConfig.get("trimTrailingWhitespace") ?? false
+        };
+        const uri = Uri.file(req.uri);
+        let edits: TextEdit[];
+        if (req.range) {
+            edits = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range, formattingOptions);
+        } else {
+            edits = await commands.executeCommand("vscode.executeFormatDocumentProvider", uri, formattingOptions);
+        }
+        const workspaceEdit = new WorkspaceEdit();
+        workspaceEdit.set(uri, edits);
+        await workspace.applyEdit(workspaceEdit);
+        resolve({ status: true });
     });
 }
