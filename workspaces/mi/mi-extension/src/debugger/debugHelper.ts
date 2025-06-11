@@ -145,17 +145,22 @@ export async function executeBuildTask(projectUri: string, serverPath: string, s
     return new Promise<void>(async (resolve, reject) => {
 
         const isEqual = await compareFilesByMD5(path.join(serverPath, "conf", "deployment.toml"),
-            path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "deployment", "deployment.toml"));
+            path.join(projectUri, "deployment", "deployment.toml"));
         if (!isEqual) {
             const copyConf = await vscode.window.showWarningMessage(
-                'Deployment configurations in the runtime is different from the project. Do you want to copy the deployment configurations to the runtime?',
+                'Deployment configurations in the runtime is different from the project. How do you want to proceed?',
                 { modal: true },
-                'Yes'
+                "Use Project Configurations", "Use Server Configurations"
             );
-            if (copyConf === 'Yes') {
-                fs.copyFileSync(path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "deployment", "deployment.toml"), path.join(serverPath, "conf", "deployment.toml"));
+            if (copyConf === 'Use Project Configurations') {
+                fs.copyFileSync(path.join(serverPath, "conf", "deployment.toml"), path.join(serverPath, "conf", "deployment-backup.toml"));
+                fs.copyFileSync(path.join(projectUri, "deployment", "deployment.toml"), path.join(serverPath, "conf", "deployment.toml"));
+                vscode.window.showInformationMessage("A backup of the server configuration is stored at conf/deployment-backup.toml.");
+            } else if (copyConf === 'Use Server Configurations') {
+                fs.copyFileSync(path.join(serverPath, "conf", "deployment.toml"), path.join(projectUri, "deployment", "deployment.toml"));
+                DebuggerConfig.setConfigPortOffset(projectUri);
             } else {
-                reject('Deployment configurations in the project should be as the same as the runtime. Please copy the deployment configurations to the runtime and try again.');
+                reject('Deployment configurations in the project should be as the same as the runtime.');
                 return;
             }
         }
@@ -231,6 +236,39 @@ export async function executeBuildTask(projectUri: string, serverPath: string, s
                 }
             });
         } else if (postBuildTask) {
+            buildProcess.on('exit', async (code) => {
+                if (code === 0) {
+                    postBuildTask();
+                    resolve();
+                } else {
+                    reject(`Build process failed`);
+                }
+            });
+        }
+    });
+}
+
+export async function executeRemoteDeployTask(projectUri: string, postBuildTask?: Function) {
+    return new Promise<void>(async (resolve, reject) => {
+
+        const buildCommand = process.platform === 'win32' ? ".\\mvnw.cmd clean deploy -Dmaven.deploy.skip=true -Dmaven.car.deploy.skip=false -Dstyle.color=never" :
+            "./mvnw clean deploy -Dmaven.deploy.skip=true -Dmaven.car.deploy.skip=false -Dstyle.color=never";;
+        const envVariables = {
+            ...process.env,
+            ...setJavaHomeInEnvironmentAndPath(projectUri)
+        };
+        const buildProcess = await child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri, env: envVariables });
+        showServerOutputChannel();
+
+        buildProcess.stdout.on('data', (data) => {
+            serverLog(data.toString('utf8'));
+        });
+
+        buildProcess.stderr.on('data', (data) => {
+            serverLog(`Build error:\n${data.toString('utf8')}`);
+        });
+
+        if (postBuildTask) {
             buildProcess.on('exit', async (code) => {
                 if (code === 0) {
                     postBuildTask();
