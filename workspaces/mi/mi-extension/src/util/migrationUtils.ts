@@ -246,6 +246,7 @@ export async function migrateConfigs(projectUri: string, source: string, target:
     if (projectType === Nature.MULTIMODULE) {
         const items = fs.readdirSync(source, { withFileTypes: true });
         const artifactIdToFileInfoMap = generateArtifactIdToFileInfoMap(source, items);
+        const { configToTests, configToMockServices } = buildConfigToTestAndMockServiceMaps(source, items);
 
         for (const item of items) {
             if (!item.isDirectory()) continue;
@@ -256,7 +257,7 @@ export async function migrateConfigs(projectUri: string, source: string, target:
             const moduleType = determineProjectType(sourcePath);
 
             if (moduleType === Nature.DISTRIBUTION && artifactIdToFileInfoMap) {
-                await processCompositeExporterProject(sourcePath, targetPath, artifactIdToFileInfoMap);
+                await processCompositeExporterProject(sourcePath, targetPath, artifactIdToFileInfoMap, configToTests, configToMockServices);
                 await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
             }
         }
@@ -327,6 +328,73 @@ function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Ma
         }
     });
     return artifactIdToFileInfoMap;
+}
+
+/**
+ * Builds mappings from config files to their associated test files and mock service files.
+ *
+ * @param source - The root project directory.
+ * @param items - Array of fs.Dirent representing directories in the project.
+ * @returns An object with two maps:
+ *   - configToTests: Map<string, string[]> mapping config file path to its test file paths.
+ *   - configToMockServices: Map<string, string[]> mapping config file path to its mock service file paths.
+ */
+function buildConfigToTestAndMockServiceMaps(
+    source: string,
+    items: fs.Dirent[]
+): {
+    configToTests: Map<string, string[]>,
+    configToMockServices: Map<string, string[]>
+} {
+    const configToTests = new Map<string, string[]>();
+    const configToMockServices = new Map<string, string[]>();
+
+    for (const item of items) {
+        if (!item.isDirectory()) continue;
+        const projectDir = path.join(source, item.name);
+        // Only process if the project type is ESB
+        const projectType = determineProjectType(projectDir);
+        if (projectType !== Nature.ESB) continue;
+
+        const testDir = path.join(projectDir, 'test');
+        if (!fs.existsSync(testDir) || !fs.statSync(testDir).isDirectory()) continue;
+
+        const testFiles = fs.readdirSync(testDir)
+            .filter(f => f.endsWith('.xml'))
+            .map(f => path.join(testDir, f));
+
+        for (const testFile of testFiles) {
+            const fileContent = fs.readFileSync(testFile, 'utf-8');
+            let testArtifact: string | undefined;
+            let mockServices: string[] = [];
+            parseString(fileContent, { explicitArray: false, ignoreAttrs: false }, (err, result) => {
+                if (err) return;
+                testArtifact = result?.['unit-test']?.artifacts?.['test-artifact']?.artifact;
+                const mocks = result?.['unit-test']?.['mock-services']?.['mock-service'];
+                if (mocks) {
+                    mockServices = Array.isArray(mocks) ? mocks : [mocks];
+                }
+            });
+            if (testArtifact) {
+                const configFile = path.join(source, testArtifact);
+                if (!configToTests.has(configFile)) configToTests.set(configFile, []);
+                configToTests.get(configFile)!.push(testFile);
+
+                if (!configToMockServices.has(configFile)) configToMockServices.set(configFile, []);
+                for (const mockService of mockServices) {
+                    const firstSlash = mockService.indexOf('/');
+                    const secondSlash = mockService.indexOf('/', firstSlash + 1);
+                    let relativeMockServicePath = mockService;
+                    if (secondSlash !== -1) {
+                        relativeMockServicePath = mockService.substring(secondSlash);
+                    }
+                    const absoluteMockServicePath = path.join(source, relativeMockServicePath);
+                    configToMockServices.get(configFile)!.push(absoluteMockServicePath);
+                }
+            }
+        }
+    }
+    return { configToTests, configToMockServices };
 }
 
 /**
@@ -656,6 +724,30 @@ function copyMetaDataFor(configFiles: string[], targetDir: string) {
                 copyFile(metaFile, destFile);
             }
         });
+    }
+}
+
+function copyTestFor(
+    configFiles: string[],
+    targetDir: string,
+    configToTests: Map<string, string[]>,
+    configToMockServices: Map<string, string[]>
+) {
+    const testTargetDir = path.join(targetDir, 'src', 'test', 'wso2mi');
+    const mockServicesTargetDir = path.join(targetDir, 'src', 'test', 'resources', 'mock-services');
+
+    for (const configFile of configFiles) {
+        const testFiles = configToTests.get(configFile) || [];
+        for (const testFile of testFiles) {
+            const fileName = path.basename(testFile);
+            copyFile(testFile, path.join(testTargetDir, fileName));
+        }
+
+        const mockServiceFiles = configToMockServices.get(configFile) || [];
+        for (const mockServiceFile of mockServiceFiles) {
+            const fileName = path.basename(mockServiceFile);
+            copyFile(mockServiceFile, path.join(mockServicesTargetDir, fileName));
+        }
     }
 }
 
@@ -1061,7 +1153,13 @@ function readPomDependencies(pomFilePath: string): Dependency[] {
  *                                  used to resolve dependency source file paths.
  * @returns A promise that resolves when processing is complete.
  */
-async function processCompositeExporterProject(source: string, target: string, artifactIdToFileInfoMap: Map<string, FileInfo>) {
+async function processCompositeExporterProject(
+    source: string,
+    target: string,
+    artifactIdToFileInfoMap: Map<string, FileInfo>,
+    configToTests: Map<string, string[]> = new Map(),
+    configToMockServices: Map<string, string[]> = new Map()
+) {
     const pomFilePath = path.join(source, 'pom.xml');
     if (!fs.existsSync(pomFilePath)) {
         console.error(`pom.xml file not found in the source directory: ${source}`);
@@ -1079,10 +1177,8 @@ async function processCompositeExporterProject(source: string, target: string, a
         if (sourceFileInfo?.projectType === Nature.CLASS) {
             hasClassMediatorModule = true;
         }
-        if (sourceFileInfo?.projectType === Nature.REGISTRY) {
-            if (sourceFileInfo.artifact) {
-                registryArtifactsList.push(sourceFileInfo.artifact);
-            }
+        if (sourceFileInfo?.projectType === Nature.REGISTRY && sourceFileInfo.artifact) {
+            registryArtifactsList.push(sourceFileInfo.artifact);
         }
         if (sourceFileInfo?.projectType === Nature.ESB) {
             configFiles.push(sourceFileInfo.path);
@@ -1091,10 +1187,9 @@ async function processCompositeExporterProject(source: string, target: string, a
     if (hasClassMediatorModule) {
         await changeRootPomForClassMediator(target);
     }
-    if (registryArtifactsList.length > 0) {
-        updateRegistryArtifactXml(target, registryArtifactsList);
-    }
+    updateRegistryArtifactXml(target, registryArtifactsList);
     copyMetaDataFor(configFiles, target);
+    copyTestFor(configFiles, target, configToTests, configToMockServices);
     fixTestFilePaths(target);
     logUnusedFiles(dependencies, artifactIdToFileInfoMap);
 }
