@@ -2,6 +2,51 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.2.3] - 2025-05-30
+
+### Fixed
+
+Fixed: Check whether Ballerina is installed globally ([#1114](https://github.com/wso2/mi-vscode/issues/1114))   
+Fixed: Issues in Project Migration ([#1115](https://github.com/wso2/mi-vscode/issues/1115))
+
+## [2.2.2] - 2025-05-23
+
+### New Features
+
+Added: gRPC connector generation support ([#990](https://github.com/wso2/mi-vscode/issues/990))  
+Added: Improvements to the AI connector
+
+## [2.2.1] - 2025-05-16
+
+### New Features
+
+Added: Support Custom Inbound-Connectors ([#1049](https://github.com/wso2/mi-vscode/issues/1049))  
+Added: Improve Ballerina Module build process ([#1075](https://github.com/wso2/mi-vscode/issues/1075))  
+Added: Improvements to the AI connector
+
+### Fixed
+
+Fixed: Issue with opening projects created with the older version of Integration Studio ([#1031](https://github.com/wso2/mi-vscode/issues/1031))  
+Fixed: Cannot edit Sequence Templates ([#1047](https://github.com/wso2/mi-vscode/issues/1047))  
+Fixed: Docker image build doesn't allow project names with uppercase letters ([#1055](https://github.com/wso2/mi-vscode/issues/1055))  
+Fixed: Runtime services panel always call the default port ([#1076](https://github.com/wso2/mi-vscode/issues/1076))  
+Fixed: Cannot add a policy via the Advanced Configurations in the Edit Proxy form ([#1091](https://github.com/wso2/mi-vscode/issues/1091))  
+Fixed: ID attribute is not getting updated in the Cache mediator ([#1092](https://github.com/wso2/mi-vscode/issues/1092))  
+Fixed: Swagger file not getting generated when importing APIs ([#1097](https://github.com/wso2/mi-vscode/issues/1097))
+
+## [2.2.0] - 2025-04-26
+
+### New Features
+
+Added: Add option to download the diagram as a image  
+Added: Add support to update MI Server ([#1056](https://github.com/wso2/mi-vscode/issues/1056))
+
+### Fixed
+
+Fixed: Table type values not parsing into Synapse XML in MI Inbound Endpoint form ([#1054](https://github.com/wso2/mi-vscode/issues/1054))  
+Fixed: Update connector form submit buttons for consistency ([#1048](https://github.com/wso2/mi-vscode/issues/1048))
+Fixed: Show all available modules in listing
+
 ## [2.1.5] - 2025-04-11
 
 ### Improvements

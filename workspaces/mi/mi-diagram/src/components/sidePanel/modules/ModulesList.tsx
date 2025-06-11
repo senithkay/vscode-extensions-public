@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AutoComplete, Codicon, ProgressRing, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Codicon, ProgressRing, TextField, Typography, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { FirstCharToUpperCase } from '../../../utils/commons';
-import { sidepanelAddPage } from '..';
+import { sidepanelAddPage, sidepanelGoBack } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 import { ButtonGroup } from '../commons/ButtonGroup';
@@ -22,6 +22,7 @@ import { debounce } from 'lodash';
 import styled from '@emotion/styled';
 import { VSCodeLink } from '@vscode/webview-ui-toolkit/react';
 import { OperationsList } from './OperationsList';
+import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
 
 const SearchStyle = {
     width: 'auto',
@@ -50,7 +51,7 @@ interface ModuleProps {
     trailingSpace: string;
     documentUri: string;
     localConnectors: any;
-    reloadMediatorPalette: (connectorName: string) => void;
+    reloadMediatorPalette: (connectorName?: string) => void;
 }
 export function Modules(props: ModuleProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -65,6 +66,24 @@ export function Modules(props: ModuleProps) {
     useEffect(() => {
         fetchModules();
     }, [props.documentUri, props.nodePosition, rpcClient]);
+
+    const importConnector = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+            location: {
+                documentUri: props.documentUri,
+                view: MACHINE_VIEW.ImportConnectorForm
+            },
+            isPopup: true
+        });
+
+        rpcClient.onParentPopupSubmitted(async (data: ParentPopupData) => {
+            if (data.recentIdentifier === "success") {
+                props.reloadMediatorPalette();
+                sidepanelGoBack(sidePanelContext, sidePanelContext.pageStack.length - 1);
+            }
+        });
+    }
 
     const fetchModules = async () => {
         try {
@@ -192,6 +211,11 @@ export function Modules(props: ModuleProps) {
         <div style={{ padding: "20px" }}>
             <div style={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}>
                 <Typography variant="body3">A collection of reusable modules for efficient software development.</Typography>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'end', marginTop: '-10px', marginBottom: '10px', alignItems: 'center' }}>
+                <LinkButton onClick={importConnector}>
+                    <Codicon name="plus" />Import Module
+                </LinkButton>
             </div>
             {/* Search bar */}
             {allModules && getFilteredStoreModules(allModules).length > 0 &&

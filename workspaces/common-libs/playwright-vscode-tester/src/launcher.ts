@@ -13,7 +13,6 @@ export const startVSCode = async (resourcesFolder: string, vscodeVersion: string
 
     // run in headless mode if running in CI
     if (process.env.CI) {
-        args.push('--headless');
         args.push('--disable-gpu');
     }
 
@@ -34,7 +33,14 @@ export const startVSCode = async (resourcesFolder: string, vscodeVersion: string
     const window = await vscode.firstWindow();
 
     // Direct Electron console to Node terminal.
-    window.on('console', console.log);
+    const fs = require('fs');
+    const logFilePath = path.join(resourcesFolder, 'videos', 'extension.log');
+
+    window.on('console', (msg) => {
+        if (!/^Received response for untracked message id:|^Received notification with unknown method:/.test(msg.text())) {
+            fs.appendFileSync(logFilePath, `${msg.text()}\n`);
+        }
+    });
 
     // wait for the window to be ready
     await window.waitForEvent('domcontentloaded');

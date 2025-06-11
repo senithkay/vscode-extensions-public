@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import Editor, { Monaco } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import React, { forwardRef, useImperativeHandle } from 'react';
+import styled from '@emotion/styled';
+import Editor, { Monaco } from '@monaco-editor/react';
 import { getIsDarkThemeActive } from '../../utils';
 
 interface MonacoEditorProps {
@@ -18,13 +19,18 @@ interface MonacoEditorProps {
     onValidate?: (markers: monaco.editor.IMarker[]) => void;
 }
 
+const MonacoEditorWrapper = styled.div`
+    width: 100%;
+    padding-block: 10px;
+    background-color: var(--vscode-editor-background);
+`;
+
 export interface MonacoEditorHandle {
     addFunction: (functionSignature: string, wrapCurrentValue: boolean) => void;
 }
 
 export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({ value, onChange, onValidate }, ref) => {
     const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-    const [height, setHeight] = React.useState<number>(value ? value.split('\n').length * 24 : 24); // Set initial height based on number of lines
 
     const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco) => {
         editorRef.current = editor;
@@ -52,7 +58,7 @@ export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({
             // check if function aruments are missing
             const functionMatch = content.match(/^(\w+)\s*\((.*)\)$/);
             if (functionMatch) {
-                const [_fullMatch, fnName, args] = functionMatch;
+                const [, fnName, args] = functionMatch;
                 const argList = args.split(',');
                 argList.forEach((arg, index) => {
                     if (arg.trim().length === 0) {
@@ -78,10 +84,6 @@ export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({
         editor.onDidChangeModelContent(() => {
             validateContent();
             onChange?.(editor.getValue());
-
-            // Update height
-            const contentHeight = editor.getContentHeight();
-            setHeight(contentHeight);
         });
 
         // Enable undo/redo
@@ -106,6 +108,7 @@ export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({
                     [/\bconfigs\.\w+\b/, 'variable.configs'],
                     [/\b\d+\b/, 'number'],
                     [/".*?"/, 'string'],
+                    // eslint-disable-next-line no-useless-escape
                     [/[{}()\[\]]/, '@brackets'],
                     [/[;,.]/, 'delimiter'],
                     [/\b\w+(?=\s*\()/, 'function.name'],
@@ -290,30 +293,36 @@ export const MonacoEditor = forwardRef<MonacoEditorHandle, MonacoEditorProps>(({
     }));
 
     return (
-        <Editor
-            height={height + 10}
-            defaultLanguage="customLanguage"
-            value={value}
-            theme={getIsDarkThemeActive() ? 'vs-dark' : 'vs'}
-            options={{
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                folding: false,
-                lineNumbers: 'off',
-                wordWrap: 'on',
-                automaticLayout: true,
-                scrollbar: {
-                    vertical: 'hidden',
-                    horizontal: 'hidden',
-                    handleMouseWheel: false,
-                    alwaysConsumeMouseWheel: false,
-                    useShadows: false
-                },
-                overviewRulerBorder: false,
-                overviewRulerLanes: 0,
-                padding: { top: 10 }
-            }}
-            onMount={handleEditorDidMount}
-        />
+        /* Wrap the editor in a div to add padding to the editor */
+        <MonacoEditorWrapper className="monaco-editor monaco-diff-editor">
+            <Editor
+                height={36} // display two lines of code
+                defaultLanguage="customLanguage"
+                value={value}
+                theme={getIsDarkThemeActive() ? 'vs-dark' : 'vs'}
+                options={{
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    folding: false,
+                    lineNumbers: 'off',
+                    wordWrap: 'on',
+                    automaticLayout: true,
+                    renderLineHighlight: 'none',
+                    scrollbar: {
+                        vertical: 'auto',
+                        horizontal: 'hidden',
+                        handleMouseWheel: false,
+                        alwaysConsumeMouseWheel: false,
+                        useShadows: false,
+                        verticalScrollbarSize: 10
+                    },
+                    overviewRulerBorder: false,
+                    overviewRulerLanes: 0
+                }}
+                onMount={handleEditorDidMount}
+            />
+        </MonacoEditorWrapper>
     );
 });
+
+MonacoEditor.displayName = 'MonacoEditor';

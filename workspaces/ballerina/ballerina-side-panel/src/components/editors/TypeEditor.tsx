@@ -84,6 +84,7 @@ export function TypeEditor(props: TypeEditorProps) {
     const { control } = form;
     const {
         types,
+        referenceTypes,
         helperPaneOrigin: typeHelperOrigin,
         helperPaneHeight: typeHelperHeight,
         retrieveVisibleTypes,
@@ -104,11 +105,11 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const [isTypeHelperOpen, setIsTypeHelperOpen] = useState<boolean>(false);
 
-    const handleFocus = async () => {
+    const handleFocus = async (value: string) => {
         setFocused(true);
         // Trigger actions on focus
         await onFocus?.();
-        await retrieveVisibleTypes(field.valueTypeConstraint as string);
+        await retrieveVisibleTypes(value, value.length, true, field.valueTypeConstraint as string);
         handleOnFieldFocus?.(field.key);
     };
 
@@ -167,6 +168,7 @@ export function TypeEditor(props: TypeEditorProps) {
     ) => {
         return getTypeHelper(
             field.key,
+            field.valueTypeConstraint as string,
             typeBrowserRef,
             value,
             cursorPositionRef.current,
@@ -235,7 +237,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             anchorRef={typeBrowserRef}
                             name={name}
                             startAdornment={<EditorRibbon onClick={toggleTypeHelperPaneState} />}
-                            completions={[]}
+                            completions={types}
                             showDefaultCompletion={showDefaultCompletion}
                             getDefaultCompletion={() => getDefaultCompletion(value)}
                             value={value}
@@ -249,17 +251,25 @@ export function TypeEditor(props: TypeEditorProps) {
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Set show default completion
-                                const typeExists = types.find((type) => type.label === updatedValue);
+                                const typeExists = referenceTypes.find((type) => type.label === updatedValue);
                                 const validTypeForCreation = updatedValue.match(/^[a-zA-Z_'][a-zA-Z0-9_]*$/);
                                 if (updatedValue && !typeExists && validTypeForCreation) {
                                     setShowDefaultCompletion(true);
                                 } else {
                                     setShowDefaultCompletion(false);
                                 }
+
+                                // Retrieve types
+                                await retrieveVisibleTypes(
+                                    updatedValue,
+                                    updatedCursorPosition,
+                                    false,
+                                    field.valueTypeConstraint as string
+                                );
                             }}
                             onCompletionSelect={handleCompletionSelect}
                             onDefaultCompletionSelect={handleDefaultCompletionSelect}
-                            onFocus={handleFocus}
+                            onFocus={() => handleFocus(value)}
                             enableExIcon={false}
                             isHelperPaneOpen={isTypeHelperOpen}
                             changeHelperPaneState={handleChangeTypeHelperState}

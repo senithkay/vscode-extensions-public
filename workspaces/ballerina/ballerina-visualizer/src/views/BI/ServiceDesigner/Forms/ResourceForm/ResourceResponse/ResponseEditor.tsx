@@ -56,7 +56,7 @@ export function ResponseEditor(props: ParamProps) {
         onCancel(index);
     };
 
-    const convertPropertyToFormField = (property: PropertyModel, isArray?: boolean) => {
+    const convertPropertyToFormField = (property: PropertyModel, isArray?: boolean, items?: string[]) => {
         const converted: FormField = {
             key: "",
             label: property.metadata.label,
@@ -66,7 +66,7 @@ export function ResponseEditor(props: ParamProps) {
             enabled: property.enabled,
             documentation: property.metadata.description,
             value: isArray ? property.values || [] : property.value,
-            items: property.items,
+            items: property.items || items,
             diagnostics: property.diagnostics,
             valueTypeConstraint: property.valueTypeConstraint,
         }
@@ -74,6 +74,15 @@ export function ResponseEditor(props: ParamProps) {
     }
 
     const updateNewFields = (res: StatusCodeResponse) => {
+        const defaultItems = [
+            "",
+            "string",
+            "int",
+            "boolean",
+            "string[]",
+            "int[]",
+            "boolean[]"
+        ];
         const fields = [
             {
                 ...convertPropertyToFormField(res.statusCode),
@@ -90,7 +99,7 @@ export function ResponseEditor(props: ParamProps) {
                 key: `name`,
             },
             {
-                ...convertPropertyToFormField(res.headers, true),
+                ...convertPropertyToFormField(res.headers, true, defaultItems),
                 key: `headers`,
             }
         ];

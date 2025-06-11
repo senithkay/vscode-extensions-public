@@ -18,6 +18,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 
 import { UnionTypeListItem } from "./UnionTypeListItem";
+import { UnionTypeInfo } from "../../utils/union-type-utils";
 
 export interface UnionTypesListProps {
     unionTypes: string[];
@@ -25,10 +26,11 @@ export interface UnionTypesListProps {
     hasInvalidTypeCast: boolean;
     innermostExpr: STNode;
     typeCastExpr: STNode;
+    unionTypeInfo: UnionTypeInfo;
 }
 
 export function UnionTypesList(props: UnionTypesListProps) {
-    const { unionTypes, context, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
+    const { unionTypes, context, hasInvalidTypeCast, innermostExpr, typeCastExpr, unionTypeInfo } = props;
 
     return (
         <>
@@ -41,6 +43,7 @@ export function UnionTypesList(props: UnionTypesListProps) {
                         hasInvalidTypeCast={hasInvalidTypeCast}
                         innermostExpr={innermostExpr}
                         typeCastExpr={typeCastExpr}
+                        unionTypeInfo={unionTypeInfo}
                     />
                 ))
             }

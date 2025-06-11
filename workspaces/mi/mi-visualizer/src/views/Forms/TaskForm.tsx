@@ -354,13 +354,14 @@ export function TaskForm(props: TaskFormProps) {
             {!props.type && <RadioButtonGroup
                 id="triggerType"
                 label="Please select a trigger"
-                options={[{ content: "Internal Trigger", value: "internal" }, { content: "External Trigger", value: "external" }]}
+                options={[{ content: "Scheduled Trigger", value: "internal" }, { content: "Startup Trigger", value: "external" }]}
                 value={isInternalTrigger ? "internal" : "external"}
                 onChange={(e) => setIsInternalTrigger(e.target.value === "internal")}
             />}
             {
                 isInternalTrigger ? (
                     <>
+                        <span>Scheduled trigger runs the task repeatedly based on a defined interval or a cron expression.</span>
                         <TextField
                             id="name"
                             required
@@ -374,7 +375,7 @@ export function TaskForm(props: TaskFormProps) {
                             <RadioButtonGroup
                                 id="triggerType"
                                 label="Trigger Type"
-                                options={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
+                                options={[{ content: "Fixed Interval", value: "simple" }, { content: "Cron", value: "cron" }]}
                                 {...register("triggerType")}
                             />
                             {watch("triggerType") === 'simple' ? (
@@ -544,7 +545,10 @@ export function TaskForm(props: TaskFormProps) {
                         </FormActions>
                     </>
                 ) : (
-                    <SequenceWizard path={props.path} isExternalTrigger={true} />
+                    <>
+                        <span>Startup trigger runs the sequence once and terminates the server when the Micro Integrator starts in automation mode.</span>
+                        <SequenceWizard path={props.path} isExternalTrigger={true} />
+                    </>
                 )
             }
         </FormView >

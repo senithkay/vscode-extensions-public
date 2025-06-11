@@ -498,7 +498,7 @@ export interface NotebookCellMetaInfo {
 }
 
 export interface ExtendedClientCapabilities extends ClientCapabilities {
-    experimental: { introspection: boolean, showTextDocument: boolean };
+    experimental: { introspection: boolean, showTextDocument: boolean, experimentalLanguageFeatures?: boolean };
 }
 
 export interface PackageSummary {

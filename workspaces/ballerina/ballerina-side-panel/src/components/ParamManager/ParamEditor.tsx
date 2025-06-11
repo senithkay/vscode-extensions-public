@@ -62,6 +62,7 @@ export function ParamEditor(props: ParamProps) {
 
     const getTypeHelper = (
         fieldKey: string,
+        valueTypeConstraint: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
@@ -73,6 +74,7 @@ export function ParamEditor(props: ParamProps) {
     ) => {
         return expressionEditor?.getTypeHelper(
             propertyKey,
+            valueTypeConstraint,
             typeBrowserRef,
             currentType,
             currentCursorPosition,
@@ -108,6 +110,7 @@ export function ParamEditor(props: ParamProps) {
                     onCompletionItemSelect: onCompletionItemSelect,
                     getHelperPane: getHelperPane,
                     types: expressionEditor?.types,
+                    referenceTypes: expressionEditor?.referenceTypes,
                     retrieveVisibleTypes: expressionEditor?.retrieveVisibleTypes,
                     getTypeHelper: getTypeHelper,
                     helperPaneHeight: expressionEditor?.helperPaneHeight

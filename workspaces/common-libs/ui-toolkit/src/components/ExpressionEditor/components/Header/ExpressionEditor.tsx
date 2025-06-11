@@ -18,14 +18,14 @@ import React, {
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
 import { ANIMATION } from '../../constants';
-import { CompletionItem } from '../../types/common';
+import { CompletionItem, FnSignatureProps } from '../../types/common';
 import { HeaderExpressionEditorProps, HeaderExpressionEditorRef } from '../../types/header';
 import { addClosingBracketIfNeeded, checkCursorInFunction, setCursor } from '../../utils';
 import { Codicon } from '../../../Codicon/Codicon';
 import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator';
 import { TextField } from '../../../TextField/TextField';
 import { Dropdown, FnSignatureEl } from '../Common';
-import { StyleBase, FnSignatureProps } from '../Common/types';
+import { StyleBase } from '../Common/types';
 import { createPortal } from 'react-dom';
 
 /* Styled components */

@@ -96,6 +96,17 @@ export type CompletionItem = {
 };
 
 /* <------ Types related to the expression editor ------> */
+export type FnSignatureDocumentation = {
+    fn: string | ReactNode;
+    args?: string | ReactNode;
+};
+
+export type FnSignatureProps = {
+    label: string;
+    args: string[];
+    currentArgIndex: number;
+    documentation?: FnSignatureDocumentation;
+};
 
 type ExpressionEditorBaseProps = {
     autoFocus?: boolean;
@@ -136,12 +147,7 @@ type ExpressionEditorBaseProps = {
     extractArgsFromFunction?: (
         value: string,
         cursorPosition: number
-    ) => Promise<{
-        label: string;
-        args: string[];
-        currentArgIndex: number;
-    }>;
-    codeActions?: ReactNode[];
+    ) => Promise<FnSignatureProps>;
 };
 
 type DefaultCompletionConditionalProps =
@@ -174,7 +180,7 @@ export type ExpressionEditorRef = {
 
 /* <------ Types related to the helper pane ------> */
 
-export type HelperPaneOrigin = 'bottom' | 'left' | 'right';
+export type HelperPaneOrigin = 'bottom' | 'left' | 'right' | 'auto';
 
 export type HelperPaneHeight = 'full' | '3/4' | 'default';
 

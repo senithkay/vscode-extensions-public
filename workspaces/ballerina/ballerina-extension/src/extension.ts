@@ -76,8 +76,24 @@ function onBeforeInit(langClient: ExtendedLangClient) {
         }
     }
 
+    class ExperimentalLanguageFeatures implements StaticFeature {
+        getState(): FeatureState {
+            throw new Error('Method not implemented.');
+        }
+        fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
+        dispose(): void {
+        }
+        fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
+            capabilities.experimental = capabilities.experimental || { introspection: false, showTextDocument: false };
+            capabilities.experimental.experimentalLanguageFeatures = ballerinaExtInstance.enabledExperimentalFeatures();
+        }
+        initialize(_capabilities: ServerCapabilities, _documentSelector: DocumentSelector | undefined): void {
+        }
+    }
+
     langClient.registerFeature(new TraceLogsFeature());
     langClient.registerFeature(new ShowFileFeature());
+    langClient.registerFeature(new ExperimentalLanguageFeatures());
 }
 
 export async function activate(context: ExtensionContext) {
@@ -152,15 +168,6 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         langClient.onNotification('window/showTextDocument', (location: Location) => {
             if (location.uri !== undefined) {
                 window.showTextDocument(Uri.parse(location.uri.toString()), { selection: location.range });
-            }
-        });
-        // Handle pull module progress notifications
-        langClient.onNotification('$/progress', (params: any) => {
-            if (params.token && params.token.startsWith('pull-module')) {
-                extension.hasPullModuleNotification = true;
-                if (params.value.kind === 'report') {
-                    extension.hasPullModuleResolved = true;
-                }
             }
         });
         isPluginStartup = false;

@@ -101,4 +101,7 @@ export * from "./utils/identifier-utils"
 export * from "./components"
 export * from "./icons"
 
+// ------ AI Panel Related Interfaces -------->
+export * from "./interfaces/ai-panel";
+
 export { Diagnostic } from "vscode-languageserver-types";

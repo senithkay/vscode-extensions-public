@@ -59,6 +59,7 @@ export function AutomationPanel(props: AutomationPanelProps) {
             </TitleWrapper>
             <CardGrid>
                 <ButtonCard
+                    id="automation"
                     icon={<Icon name="bi-task" />}
                     title="Automation"
                     onClick={handleClick}

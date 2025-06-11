@@ -10,7 +10,7 @@
 import { FileStructure, ImportProjectRequest, ImportProjectResponse } from '@wso2-enterprise/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
-import { parseString } from 'xml2js';
+import { parseString, Builder } from 'xml2js';
 import { v4 as uuidv4 } from 'uuid';
 import { dockerfileContent, rootPomXmlContent } from './templates';
 import { createFolderStructure, copyDockerResources } from '.';
@@ -27,7 +27,8 @@ enum Nature {
     DATASOURCE,
     CONNECTOR,
     REGISTRY,
-    CLASS
+    CLASS,
+    LEGACY
 }
 
 export async function importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
@@ -39,7 +40,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
 
     if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
-            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION, ""),
+            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId.toLowerCase(), projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION, ""),
             '.env': '',
             'src': {
                 'main': {
@@ -93,6 +94,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
 
         const destinationFolderPath = path.join(source, ".backup");
         moveFiles(source, destinationFolderPath);
+        deleteEmptyFoldersInPath(source);
 
         await createFolderStructure(directory, folderStructure);
         copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
@@ -158,6 +160,22 @@ export async function migrateConfigs(source: string, target: string) {
                 }
             }
         });
+    } else if (projectType === Nature.LEGACY) {
+        const items = fs.readdirSync(source, { withFileTypes: true });
+        items.forEach(item => {
+            if (item.isDirectory()) {
+                const sourceAbsolutePath = path.join(source, item.name);
+                const moduleType = determineProjectType(path.join(source, item.name));
+                if (moduleType === Nature.LEGACY) {
+                    processArtifactsFolder(sourceAbsolutePath, target);
+                    processMetaDataFolder(sourceAbsolutePath, target);
+                    processTestsFolder(sourceAbsolutePath, target);
+                }
+            }
+        });
+    } else if (projectType === Nature.ESB || projectType === Nature.DS || projectType === Nature.DATASOURCE ||
+        projectType === Nature.CONNECTOR || projectType === Nature.REGISTRY || projectType === Nature.CLASS) {
+        copyConfigsToNewProjectStructure(projectType, source, target);
     }
     if (hasClassMediatorModule) {
         await changeRootPomForClassMediator();
@@ -202,6 +220,9 @@ function determineProjectType(source: string): Nature | undefined {
                         break;
                     case 'org.wso2.developerstudio.eclipse.artifact.mediator.project.nature':
                         configType = Nature.CLASS;
+                        break;
+                    case 'org.eclipse.m2e.core.maven2Nature':
+                        configType = Nature.LEGACY;
                         break;
                 }
             }
@@ -316,12 +337,10 @@ function processConnectors(source: string, target: string) {
 function processRegistryResources(source: string, target: string) {
     const artifactXMLPath = path.join(source, 'artifact.xml');
     const newRegistryPath = path.join(target, 'src', 'main', 'wso2mi', 'resources', 'registry');
-    copyFile(artifactXMLPath, path.join(newRegistryPath, 'artifact.xml'));
 
-    //read artifact.xml
     const xmlContent = fs.readFileSync(artifactXMLPath, 'utf-8');
 
-    parseString(xmlContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
+    parseString(xmlContent, { explicitArray: false, ignoreAttrs: false }, (err, result) => {
         if (err) {
             console.error('Error parsing pom.xml:', err);
             return;
@@ -340,15 +359,19 @@ function processRegistryResources(source: string, target: string) {
             } else if (relativePath.startsWith('/_system/config')) {
                 targetAbsolutePath = path.join(newRegistryPath, path.normalize(relativePath.replace(/^\/_system\/config/, 'conf')));
             }
-            const sourceFile = path.join(source, fileName);
-            const targetFile = path.join(targetAbsolutePath, fileName);
+            const sourceFile = path.join(source, ...fileName.split("/"));
+            const targetFile = path.join(targetAbsolutePath, fileName.split("/").pop());
             try {
                 fs.mkdirSync(targetAbsolutePath, { recursive: true });
                 copyFile(sourceFile, targetFile);
+                artifact.item.file = artifact.item.file.split("/").pop();
             } catch (err) {
                 console.error(`Failed to create folder structure ${targetAbsolutePath}`, err);
             }
         });
+        const builder = new Builder({ headless: false });
+        const updatedXml = builder.buildObject(result);
+        fs.writeFileSync(path.join(newRegistryPath, 'artifact.xml'), updatedXml, 'utf-8');
     });
 }
 
@@ -530,7 +553,7 @@ function moveFiles(sourcePath: string, destinationPath: string) {
     const items = fs.readdirSync(sourcePath);
 
     items.forEach(item => {
-        if (item === '.backup') {
+        if (item === '.backup' || item === '.git') {
             return;
         }
         const sourceItemPath = path.join(sourcePath, item);
@@ -544,4 +567,21 @@ function moveFiles(sourcePath: string, destinationPath: string) {
             fs.renameSync(sourceItemPath, destinationItemPath);
         }
     });
+}
+
+function deleteEmptyFoldersInPath(basePath: string): void {
+    
+    if (!fs.existsSync(basePath)) {
+        return;
+    }
+    const items = fs.readdirSync(basePath);
+    for (const item of items) {
+        const fullPath = path.join(basePath, item);
+        if (fs.statSync(fullPath).isDirectory()) {
+            const contents = fs.readdirSync(fullPath);
+            if (contents.length === 0) {
+                fs.rmdirSync(fullPath);
+            }
+        }
+    }
 }

@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { OtherBalType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
+import { AnydataType, AnyType, OtherBalType, PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import {
 	ExpressionFunctionBody,
 	SelectClause,
@@ -152,12 +152,18 @@ export function getSupportedUnionTypes(typeDef: TypeField, typeDesc?: STNode): s
 }
 
 export function getUnionTypes(unionType: TypeField): string[] {
+	const unionTypes: string[] = [];
 	if (unionType?.members !== undefined) {
-		return unionType.members.map(member => {
-			return getTypeName(member);
-		});
+		for (const member of unionType.members) {
+			if (isUnsupportedType(member)) continue;
+			unionTypes.push(getTypeName(member));
+		}
 	}
-	return [];
+	return unionTypes;
+}
+
+export function isAnydataType(type: string): boolean {
+	return type === AnydataType || type === AnyType;
 }
 
 function isUnsupportedTypeDesc(typeDesc: STNode): boolean {
@@ -185,6 +191,8 @@ function isUnsupportedType(type: TypeField): boolean {
 		return type.members.some(member => {
 			return isUnsupportedType(member);
 		});
+	} else if (type.typeName === PrimitiveBalType.Array) {
+		return isUnsupportedType(getInnermostMemberTypeFromArrayType(type));
 	}
 	return type.typeName === PrimitiveBalType.Error
 		|| type.typeName === PrimitiveBalType.Enum

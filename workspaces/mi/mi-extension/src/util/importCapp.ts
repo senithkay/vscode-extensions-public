@@ -73,7 +73,8 @@ interface RegistryCollection {
 
 
 export async function importCapp(params: ImportProjectRequest): Promise<ImportProjectResponse> {
-    const { source, directory, open } = params;
+    const { directory, open } = params;
+    const source = params.source.replace(/\.car(?=\.zip$)/, '');
 
     const projectUuid = uuidv4();
 
@@ -160,7 +161,7 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
 
 function getProjectDetails(source: string): { projectName: any; groupId: any; artifactId: any; version: any; } {
 
-    const match = source.match(/^(.+)_(\d+(?:\.\d+){0,2})\.zip$/);
+    const match = source.match(/^(.+?)_(\d+(?:\.\d+){0,2}(?:-[\w\d]+)?)\.(zip|car)$/);
     const projectName = match ? match[1] : "sample";
     const version = match ? match[2] : "1.0.0";
     return { projectName: projectName, groupId: "org.wso2", artifactId: projectName, version: version };
@@ -180,6 +181,7 @@ async function extractCapp(source: string, extractFolderPath: string) {
 function importConfigs(source: string, directory: string) {
 
     let registryArtifactsInfo: RegistryInfo = { artifacts: [] };
+    let resourceArtifactsInfo: RegistryInfo = { artifacts: [] };
 
     const metadataPath = path.join(source, "metadata.xml");
     const artifactFilePath = path.join(source, "artifacts.xml");
@@ -223,18 +225,33 @@ function importConfigs(source: string, directory: string) {
                             infoJson.artifact["item"] = resource["item"];
                             const resourceFileName = resource["item"]["file"];
                             const registryPath = extractRegistryPath(resource["item"]["path"])
-                            const sourceResourcePath = path.join(dependencyPath, "resources", resourceFileName);
-                            const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", registryPath.isGov ? "gov" : "conf", registryPath.relativePath, path.basename(resourceFileName));
-                            moveFile(sourceResourcePath, targetResourcePath);
+                            if (registryPath.relativePath.includes("/mi-resources")) {
+                                const sourceResourcePath = path.join(dependencyPath, "resources", resourceFileName);
+                                const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", registryPath.relativePath.replace("/mi-resources", ""), path.basename(resourceFileName));
+                                moveFile(sourceResourcePath, targetResourcePath);
+                                resourceArtifactsInfo.artifacts.push(infoJson);
+                            } else {
+                                const sourceResourcePath = path.join(dependencyPath, "resources", resourceFileName);
+                                const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", registryPath.isGov ? "gov" : "conf", registryPath.relativePath, path.basename(resourceFileName));
+                                moveFile(sourceResourcePath, targetResourcePath);
+                                registryArtifactsInfo.artifacts.push(infoJson);
+                            }
                         } else if (resource["collection"]) {
                             infoJson.artifact["collection"] = resource["collection"];
                             const resourceDirectory = resource["collection"]["directory"];
                             const registryPath = extractRegistryPath(resource["collection"]["path"]);
-                            const sourceResourcePath = path.join(dependencyPath, "resources", resourceDirectory);
-                            const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", registryPath.isGov ? "gov" : "conf", registryPath.relativePath);
-                            moveFiles(sourceResourcePath, targetResourcePath);
+                            if (registryPath.relativePath.includes("/mi-resources")) {
+                                const sourceResourcePath = path.join(dependencyPath, "resources", resourceDirectory);
+                                const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", registryPath.relativePath.replace("/mi-resources", ""), resourceDirectory);
+                                moveFile(sourceResourcePath, targetResourcePath);
+                                resourceArtifactsInfo.artifacts.push(infoJson);
+                            } else {
+                                const sourceResourcePath = path.join(dependencyPath, "resources", resourceDirectory);
+                                const targetResourcePath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", registryPath.isGov ? "gov" : "conf", registryPath.relativePath);
+                                moveFile(sourceResourcePath, targetResourcePath);
+                                registryArtifactsInfo.artifacts.push(infoJson);
+                            }
                         }
-                        registryArtifactsInfo.artifacts.push(infoJson);
                     }
                 } else if (dependencyType === "synapse/lib") {
                     targetFilePath = path.join(directory, "src", "main", "wso2mi", "resources", "connectors", fileName);
@@ -254,9 +271,12 @@ function importConfigs(source: string, directory: string) {
                 }
             }
         }
-        const artifactXml = xmlBuilder.build(registryArtifactsInfo);
-        const targetArtifactPath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", "artifact.xml");
-        fs.writeFileSync(targetArtifactPath, artifactXml);
+        const registryArtifactXml = xmlBuilder.build(registryArtifactsInfo);
+        const registryArtifactPath = path.join(directory, "src", "main", "wso2mi", "resources", "registry", "artifact.xml");
+        fs.writeFileSync(registryArtifactPath, registryArtifactXml);
+        const resourceArtifactXml = xmlBuilder.build(resourceArtifactsInfo);
+        const resourceArtifactPath = path.join(directory, "src", "main", "wso2mi", "resources", "artifact.xml");
+        fs.writeFileSync(resourceArtifactPath, resourceArtifactXml);
     }
 }
 

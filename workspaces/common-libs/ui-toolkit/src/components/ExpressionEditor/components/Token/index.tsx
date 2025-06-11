@@ -22,11 +22,12 @@ import { StyleBase } from '../Common/types';
 import {
     extractExpressions,
     getHelperPaneWithEditorArrowPosition,
+    getHelperPaneWithEditorOrigin,
     getHelperPaneWithEditorPosition,
     setValue,
     transformExpressions
 } from '../../utils';
-import { HelperPanePosition, TokenEditorProps } from '../../types';
+import { HelperPaneOrigin, HelperPanePosition, TokenEditorProps } from '../../types';
 
 import { Button } from '../../../Button/Button';
 import { Icon } from '../../../Icon/Icon';
@@ -84,6 +85,8 @@ namespace S {
         outline: none;
         resize: vertical;
         white-space: pre-wrap;
+        word-wrap: break-word;
+        word-break: break-word;
 
         * {
             font-family: monospace !important;
@@ -100,10 +103,11 @@ namespace S {
             padding-left: 4px;
             border-radius: 2px;
             margin-inline: 4px;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
             line-height: normal;
             user-select: none;
-            white-space: normal;
+            max-width: 200px;
             cursor: pointer;
         }
 
@@ -111,13 +115,22 @@ namespace S {
             background-color: var(--button-primary-hover-background);
         }
 
+        .expression-token-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
         .expression-token-close {
             opacity: 0.7;
             font-size: 12px;
             padding: 0 4px;
+            margin: 2px 0 2px 4px;
             border-left: 1px solid var(--vscode-button-foreground);
             color: color-mix(in srgb, var(--vscode-button-foreground) 70%, transparent);
             background-color: color-mix(in srgb, var(--vscode-button-background) 70%, transparent);
+            flex-shrink: 0;
 
             &:hover {
                 color: var(--vscode-button-foreground);
@@ -165,8 +178,6 @@ namespace S {
     `;
 
     export const Adornment = styled.div`
-        padding-top: 3.75px;
-        padding-bottom: 2.5px;
         height: 100%;
     `;
 
@@ -185,7 +196,7 @@ export const TokenEditor = ({
     endAdornment,
     onChange,
     getHelperPane,
-    helperPaneOrigin,
+    helperPaneOrigin = 'auto',
     isHelperPaneOpen,
     changeHelperPaneState,
     onFocus,
@@ -205,13 +216,16 @@ export const TokenEditor = ({
     const selectedTokenRef = useRef<HTMLSpanElement | null>(null);
     const [helperPanePosition, setHelperPanePosition] = useState<HelperPanePosition>({ top: 0, left: 0 });
     const [helperPaneArrowPosition, setHelperPaneArrowPosition] = useState<HelperPanePosition>({ top: 0, left: 0 });
+    const [calculatedHelperPaneOrigin, setCalculatedHelperPaneOrigin] = useState<HelperPaneOrigin>('auto');
     const monacoEditorRef = useRef();
 
     const updatePosition = throttle(() => {
         if (containerRef.current) {
-            setHelperPanePosition(getHelperPaneWithEditorPosition(containerRef, helperPaneOrigin));
+            const calculatedHelperPaneOrigin = getHelperPaneWithEditorOrigin(containerRef, helperPaneOrigin);
+            setCalculatedHelperPaneOrigin(calculatedHelperPaneOrigin);
+            setHelperPanePosition(getHelperPaneWithEditorPosition(containerRef, calculatedHelperPaneOrigin));
             setHelperPaneArrowPosition(
-                getHelperPaneWithEditorArrowPosition(containerRef, helperPaneOrigin, helperPanePosition)
+                getHelperPaneWithEditorArrowPosition(containerRef, calculatedHelperPaneOrigin, helperPanePosition)
             );
         }
     }, 10);
@@ -234,6 +248,26 @@ export const TokenEditor = ({
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isHelperPaneOpen]);
+
+    const updateNodeInfo = () => {
+        const selection = window.getSelection();
+        if (!selection) return;
+        const range = selection.getRangeAt(0);
+
+        if (
+            range.startContainer !== editorRef.current &&
+            !editorRef.current?.contains(range.startContainer)
+        ) {
+            // If selection is outside of the editor, do nothing
+            return;
+        } else if (
+            range.startContainer.nodeType === Node.TEXT_NODE ||
+            range.startContainer.nodeType === Node.ELEMENT_NODE
+        ) {
+            currentNodeRef.current = range.startContainer;
+            currentNodeOffsetRef.current = range.startOffset;
+        }
+    };
 
     const addEventListeners = () => {
         const editor = editorRef.current;
@@ -264,6 +298,7 @@ export const TokenEditor = ({
             token.querySelector('.expression-token-close')!.addEventListener('click', e => {
                 e.stopPropagation();
                 token.remove();
+                updateNodeInfo();
                 selectedTokenRef.current = null;
                 onChange?.(extractExpressions(editor.innerHTML));
             });
@@ -468,6 +503,9 @@ export const TokenEditor = ({
         // Update the value
         onChange?.(extractExpressions(editor.innerHTML));
 
+        // Update the node info
+        updateNodeInfo();
+
         // Clearing operations
         changeHelperPaneState?.(false);
         setTokenValue('');
@@ -518,17 +556,10 @@ export const TokenEditor = ({
                     />
                     <Typography variant='body1' sx={{ marginLeft: '4px' }}>Expression Editor</Typography>
                     <Button
-                        appearance='icon'
-                        onClick={() => console.log("info")}
-                        sx={{ marginLeft: 'auto' }}
-                        tooltip='Edit Expression'
-                    >
-                        <Codicon name="info" />
-                    </Button>
-                    <Button
                         appearance="icon"
                         onClick={handleHelperPaneWithEditorClose}
                         tooltip='Close helper pane'
+                        sx={{ marginLeft: 'auto' }}
                     >
                         <Codicon name="close" />
                     </Button>
@@ -573,7 +604,7 @@ export const TokenEditor = ({
 
                 {/* Side arrow of the helper pane */}
                 {helperPaneArrowPosition && (
-                    <HelperPane.Arrow origin={helperPaneOrigin} sx={{ ...helperPaneArrowPosition }} />
+                    <HelperPane.Arrow origin={calculatedHelperPaneOrigin} sx={{ ...helperPaneArrowPosition }} />
                 )}
             </S.HelperPane>,
             document.body
@@ -582,32 +613,6 @@ export const TokenEditor = ({
 
     const handleHelperPaneToggle = () => {
         changeHelperPaneState?.(!isHelperPaneOpen);
-    };
-
-    const handleSelectionChange = () => {
-        const selection = window.getSelection();
-        if (!selection) return;
-        const range = selection.getRangeAt(0);
-
-        // if (range.startContainer.contains(textAreaRef.current)) {
-        //     // Update cursor position for text area
-        //     textAreaCursorPositionRef.current =
-        //         textAreaRef.current?.getPosition().?.querySelector('textarea')?.selectionStart;
-        // }
-
-        if (
-            range.startContainer !== editorRef.current &&
-            !editorRef.current?.contains(range.startContainer)
-        ) {
-            // If selection is outside of the editor, do nothing
-            return;
-        } else if (
-            range.startContainer.nodeType === Node.TEXT_NODE ||
-            range.startContainer.nodeType === Node.ELEMENT_NODE
-        ) {
-            currentNodeRef.current = range.startContainer;
-            currentNodeOffsetRef.current = range.startOffset;
-        }
     };
 
     useEffect(() => {
@@ -652,25 +657,20 @@ export const TokenEditor = ({
     useEffect(() => {
         const editor = editorRef.current;
         if (!editor) return;
-
-        if (value) {
-            setValue(editor, value);
-            addEventListeners();
-        }
-
+        
         const onInput = () => handleInput();
         const onKeyDown = (e: KeyboardEvent) => handleKeyDown(e);
 
         editor.addEventListener('input', onInput);
         editor.addEventListener('keydown', onKeyDown);
         editor.addEventListener('focus', handleFocus);
-        document.addEventListener('selectionchange', handleSelectionChange);
+        document.addEventListener('selectionchange', updateNodeInfo);
 
         return () => {
             editor.removeEventListener('input', onInput);
             editor.removeEventListener('keydown', onKeyDown);
             editor.removeEventListener('focus', onFocus);
-            document.removeEventListener('selectionchange', handleSelectionChange);
+            document.removeEventListener('selectionchange', updateNodeInfo);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -678,7 +678,9 @@ export const TokenEditor = ({
     useEffect(() => {
         if (!isFocused) {
             setValue(editorRef.current, value);
+            addEventListeners();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value, isFocused]);
 
     return (

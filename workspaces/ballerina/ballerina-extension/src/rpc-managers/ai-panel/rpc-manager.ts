@@ -10,12 +10,13 @@
  */
 import {
     AIChatSummary,
+    AIMachineSnapshot,
     AIPanelAPI,
-    AIVisualizerState,
-    AI_EVENT_TYPE,
+    AIPanelPrompt,
     AddToProjectRequest,
     BIModuleNodesRequest,
     BISourceCodeResponse,
+    Command,
     DeleteFromProjectRequest,
     DeveloperDocument,
     DiagnosticEntry,
@@ -30,7 +31,6 @@ import {
     GenerateTypesFromRecordResponse,
     GetFromFileRequest,
     GetModuleDirParams,
-    InitialPrompt,
     LLMDiagnostics,
     NotifyAIMappingsRequest,
     PostProcessRequest,
@@ -42,6 +42,7 @@ import {
     STModification,
     SourceFile,
     SyntaxTree,
+    TemplateId,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse
@@ -57,6 +58,7 @@ import { Uri, commands, window, workspace } from 'vscode';
 import { writeFileSync } from "fs";
 import { isNumber } from "lodash";
 import { URI } from "vscode-uri";
+import { AIStateMachine } from "../../../src/views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
@@ -64,10 +66,9 @@ import { generateTest, getDiagnostics, getResourceAccessorDef, getResourceAccess
 import { BACKEND_URL, closeAllBallerinaFiles } from "../../features/ai/utils";
 import { getLLMDiagnosticArrayAsString, handleChatSummaryFailure } from "../../features/natural-programming/utils";
 import { StateMachine, updateView } from "../../stateMachine";
-import { loginGithubCopilot } from "../../utils/ai/auth";
+import { getAccessToken, getRefreshedAccessToken, loginGithubCopilot } from "../../utils/ai/auth";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
-import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
+import { PARSING_ERROR, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import {
     DEVELOPMENT_DOCUMENT,
     NATURAL_PROGRAMMING_DIR_NAME, REQUIREMENT_DOC_PREFIX,
@@ -76,7 +77,7 @@ import {
     REQ_KEY, TEST_DIR_NAME
 } from "./constants";
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
-import { handleLogin, handleStop, isErrorCode, isLoggedin, refreshAccessToken, requirementsSpecification, searchDocumentation } from "./utils";
+import { handleStop, isErrorCode, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
 
 export let hasStopped: boolean = false;
@@ -85,82 +86,77 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
     private testGenAbortController: AbortController | null = null;
 
-    async getBackendURL(): Promise<string> {
+    // ==================================
+    // General Functions
+    // ==================================
+    async getBackendUrl(): Promise<string> {
         return new Promise(async (resolve) => {
             resolve(BACKEND_URL);
         });
     }
 
-    async updateProject(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getToken(): Promise<string> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async login(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
-    }
-
-    async logout(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.LOGOUT);
-    }
-
-    async getAIVisualizerState(): Promise<AIVisualizerState> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getAiPanelState(): Promise<AIVisualizerState> {
-        return { state: StateMachineAI.state() };
-    }
-
-    async getAccessToken(): Promise<string> {
-        // return new Promise(async (resolve) => {
-        //     resolve(StateMachineAI.context().token as string);
-        // });
+    async getProjectUuid(): Promise<string> {
         return new Promise(async (resolve) => {
-            const token = await extension.context.secrets.get('BallerinaAIUser');
-            resolve(token as string);
+            // Check if there is at least one workspace folder
+            if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
+                resolve("");
+                return;
+            }
+
+            try {
+                const workspaceFolderPath = workspace.workspaceFolders[0].uri.fsPath;
+
+                const hash = crypto.createHash('sha256')
+                    .update(workspaceFolderPath)
+                    .digest('hex');
+
+                resolve(hash);
+            } catch (error) {
+                resolve("");
+            }
         });
     }
 
-    async refreshAccessToken(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async getAccessToken(): Promise<string> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const accessToken = getAccessToken();
+                if (!accessToken) {
+                    reject(new Error("Access Token is undefined"));
+                    return;
+                }
+                resolve(accessToken);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    async getRefreshedAccessToken(): Promise<string> {
+        return new Promise(async (resolve) => {
+            const token = await getRefreshedAccessToken();
+            resolve(token);
+        });
+    }
+
+    async getDefaultPrompt(): Promise<AIPanelPrompt> {
+        const defaultPrompt = extension.aiChatDefaultPrompt;
+        return new Promise((resolve) => {
+            resolve(defaultPrompt);
+        });
+    }
+
+    async getAIMachineSnapshot(): Promise<AIMachineSnapshot> {
+        return {
+            state: AIStateMachine.state(),
+            context: AIStateMachine.context(),
+        };
     }
 
     async fetchData(params: FetchDataRequest): Promise<FetchDataResponse> {
         return {
             response: await fetchData(params.url, params.options)
         };
-    }
-
-    async getProjectUuid(): Promise<string> {
-        // ADD YOUR IMPLEMENTATION HERE
-        return new Promise(async (resolve) => {
-            console.log("Implementing getProjectUuid");
-            // Check if there is at least one workspace folder
-            if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
-                console.error("No workspace folder is open.");
-                resolve("");
-                return;
-            }
-
-            // Use the path of the first workspace folder
-            const workspaceFolderPath = workspace.workspaceFolders[0].uri.fsPath;
-
-            // Create a hash of the workspace folder path
-            const hash = crypto.createHash('sha256');
-            hash.update(workspaceFolderPath);
-            const hashedWorkspaceFolderPath = hash.digest('hex');
-
-            console.log("Workspace folder path hashed successfully.");
-            resolve(hashedWorkspaceFolderPath);
-        });
     }
 
     async addToProject(req: AddToProjectRequest): Promise<void> {
@@ -254,22 +250,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return false;
     }
 
-    async getRefreshToken(): Promise<string> {
-        return new Promise(async (resolve) => {
-            const token = await refreshAccessToken();
-            resolve(token);
-        });
-    }
-
     async generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
-        const logged = await isLoggedin();
-
-        if (!logged) {
-            return { error: UNAUTHORIZED };
-        }
-        commands.executeCommand("ballerina.close.ai.panel");
-        commands.executeCommand("ballerina.open.ai.panel", "datamap");
-
         let { filePath, position } = params;
 
         const fileUri = Uri.file(filePath).toString();
@@ -309,7 +290,16 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
 
         const functionName = fnSt.functionName?.value || "";
-        extension.dataMappingFunctionName = functionName;
+
+        commands.executeCommand("ballerina.close.ai.panel");
+        commands.executeCommand("ballerina.open.ai.panel", {
+            type: 'command-template',
+            command: Command.DataMap,
+            templateId: TemplateId.MappingsForFunction,
+            params: {
+                functionName: functionName
+            }
+        });
     }
 
     async notifyAIMappings(params: NotifyAIMappingsRequest): Promise<boolean> {
@@ -345,11 +335,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return { userAborted: true };
     }
 
-    async promptLogin(): Promise<boolean> {
-        await handleLogin();
-        return true;
-    }
-
     async getProjectSource(requestType: string): Promise<ProjectSource> {
         // Fetch the Ballerina project source
         const project: BallerinaProject = await getCurrentProjectSource(requestType);
@@ -372,7 +357,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
                 const projectModule: ProjectModule = {
                     moduleName: module.moduleName,
                     sourceFiles: [],
-                    isGenerated : module.isGenerated
+                    isGenerated: module.isGenerated
                 };
                 for (const [fileName, content] of Object.entries(module.sources)) {
                     // const filePath = `modules/${module.moduleName}/${fileName}`;
@@ -401,25 +386,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
         };
     }
 
-    async getInitialPrompt(): Promise<InitialPrompt> {
-        const initialPrompt = extension.initialPrompt;
-        if (initialPrompt) {
-            return {
-                exists: true,
-                text: initialPrompt,
-                dataMappingFunctionName: extension.dataMappingFunctionName || ""
-            };
-        } else {
-            return {
-                exists: false,
-                text: "",
-                dataMappingFunctionName: ""
-            };
-        }
-    }
-
     async clearInitialPrompt(): Promise<void> {
-        extension.initialPrompt = undefined;
+        extension.aiChatDefaultPrompt = undefined;
     }
 
     async checkSyntaxError(project: ProjectSource): Promise<boolean> {
@@ -696,16 +664,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getFromDocumentation(content: string): Promise<string> {
-        const response = await searchDocumentation(content);
-        return response.toString();
-    }
-
-    async openSettings(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.SETUP);
-    }
-
-    async openChat(): Promise<void> {
-        StateMachineAI.service().send(AI_EVENT_TYPE.CHAT);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await searchDocumentation(content);
+                resolve(response.toString());
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async promptGithubAuthorize(): Promise<boolean> {
@@ -727,20 +693,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return false;
     }
 
-    async isWSO2AISignedIn(): Promise<boolean> {
-        const token = await extension.context.secrets.get('BallerinaAIUser');
-        if (token && token !== '') {
-            return true;
-        }
-        return false;
-    }
-
     async showSignInAlert(): Promise<boolean> {
         const resp = await extension.context.secrets.get('LOGIN_ALERT_SHOWN');
         if (resp === 'true') {
             return false;
         }
-        const isWso2Signed = await this.isWSO2AISignedIn();
+        const isWso2Signed = await this.isCopilotSignedIn();
 
         if (isWso2Signed) {
             return false;
@@ -834,21 +792,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!fs.existsSync(testDirName)) {
             fs.mkdirSync(testDirName, { recursive: true }); // Add recursive: true
         }
-    }
-
-    async getThemeKind(): Promise<string> {
-        return new Promise((resolve) => {
-            const themeKind = window.activeColorTheme.kind;
-            switch (themeKind) {
-                case 1:
-                case 4:
-                    resolve("light");
-                    break;
-                default:
-                    resolve("dark");
-                    break;
-            }
-        });
     }
 
     async handleChatSummaryError(message: string): Promise<void> {

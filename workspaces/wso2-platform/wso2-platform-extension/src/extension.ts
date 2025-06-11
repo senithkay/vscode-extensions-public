@@ -17,6 +17,7 @@ import { continueCreateComponent } from "./cmds/create-component-cmd";
 import { activateCodeLenses } from "./code-lens";
 import { ext } from "./extensionVariables";
 import { getLogger, initLogger } from "./logger/logger";
+import { activateStatusbar } from "./status-bar";
 import { authStore } from "./stores/auth-store";
 import { contextStore } from "./stores/context-store";
 import { dataCacheStore } from "./stores/data-cache-store";
@@ -70,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateCodeLenses(context);
 	registerPreInitHandlers();
 	registerYamlLanguageServer();
-	// activateStatusbar(context);
+	activateStatusbar(context);
 	return ext.api;
 }
 

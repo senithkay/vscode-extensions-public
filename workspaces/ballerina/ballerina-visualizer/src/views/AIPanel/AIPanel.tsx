@@ -12,12 +12,11 @@ import { AIMachineStateValue } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
-import { AIChat } from './AIChat';
-import { SignInToCopilotMessage } from './SignInWindow';
-import { WaitingForLoginMessage } from './WaitingForSignIn';
-import { DisabledWindow } from './DisabledWindow';
-import DocumentOutput from './DocumentOutput';
-import { SettingsPanel } from './SettingsPanel';
+import AIChat from './components/AIChat';
+import { DisabledWindow } from './DisabledSection';
+import LoginPanel from './LoginPanel';
+import { LoadingRing } from '../../components/Loader';
+import WaitingForLogin from './WaitingForLoginSection';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -43,28 +42,27 @@ const AIPanel = (props: { state: AIMachineStateValue }) => {
     }, [props.state]);
 
     const fetchContext = () => {
-        rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView) => {
-            switch (machineView.state) {
-                case "Ready":
+        rpcClient.getAiPanelRpcClient().getAIMachineSnapshot().then((snapshot) => {
+            switch (snapshot.state) {
+                case "Initialize":
+                    setViewComponent(<LoadingRing />);
+                    break;
+                case "Unauthenticated":
+                    setViewComponent(<LoginPanel />);
+                    break;
+                case "Authenticating":
+                    setViewComponent(<WaitingForLogin />);
+                    break;
+                case "Authenticated":
                     setViewComponent(<AIChat />);
                     break;
-                case "loggedOut":
-                    setViewComponent(<SignInToCopilotMessage />);
-                    break;
-                case "WaitingForLogin":
-                    setViewComponent(<WaitingForLoginMessage />);
-                    break;
-                case "disabled":
+                case "Disabled":
                     setViewComponent(<DisabledWindow />);
                     break;
-                case "Settings":
-                    setViewComponent(<SettingsPanel />);
-                    break;
                 default:
-                    setViewComponent(<h1>{machineView.state}</h1>);
+                    setViewComponent(<h1>{snapshot.state}</h1>);
             }
         });
-
     }
 
     return (

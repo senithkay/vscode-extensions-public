@@ -38,9 +38,12 @@ import { CompletionItem, FormExpressionEditorRef, HelperPaneHeight, Overlay, The
 
 import {
     convertBalCompletion,
+    convertToFnSignature,
     convertToVisibleTypes,
+    filterUnsupportedDiagnostics,
     getImportsForFormFields,
     getInfoFromExpressionValue,
+    injectHighlightTheme,
     removeDuplicateDiagnostics,
     updateLineRange
 } from "../../../../utils/bi";
@@ -118,11 +121,28 @@ export function FormGeneratorNew(props: FormProps) {
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
-    const triggerCompletionOnNextRequest = useRef<boolean>(false);
+    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const expressionOffsetRef = useRef<number>(0); // To track the expression offset on adding import statements
 
     const [fieldsValues, setFields] = useState<FormField[]>(fields);
     const [formImports, setFormImports] = useState<FormImports>({});
+
+    useEffect(() => {
+        if (rpcClient) {
+            // Set current theme
+            rpcClient
+                .getVisualizerRpcClient()
+                .getThemeKind()
+                .then((theme) => {
+                    injectHighlightTheme(theme);
+                });
+
+            // Update highlight theme when theme changes
+            rpcClient.onThemeChanged((theme) => {
+                injectHighlightTheme(theme);
+            });
+        }
+    }, [rpcClient]);
 
     useEffect(() => {
         if (fields) {
@@ -170,8 +190,7 @@ export function FormGeneratorNew(props: FormProps) {
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
-        setTypes([]);
-        triggerCompletionOnNextRequest.current = false;
+        setFilteredTypes([]);
     };
 
     const debouncedRetrieveCompletions = useCallback(
@@ -264,25 +283,45 @@ export function FormGeneratorNew(props: FormProps) {
     }, [debouncedRetrieveCompletions]);
 
     const debouncedGetVisibleTypes = useCallback(
-        debounce(async (typeConstraint?: string) => {
-            let visibleTypes: CompletionItem[] = types;
-            if (!types.length) {
-                const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                    filePath: fileName,
-                    position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
-                    typeConstraint: typeConstraint,
-                });
+        debounce(
+            async (
+                value: string,
+                cursorPosition: number,
+                fetchReferenceTypes?: boolean,
+                valueTypeConstraint?: string
+            ) => {
+                let visibleTypes: CompletionItem[] = types;
+                if (!types.length) {
+                    const types = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                        filePath: fileName,
+                        position: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                        ...(valueTypeConstraint && { typeConstraint: valueTypeConstraint })
+                    });
 
-                visibleTypes = convertToVisibleTypes(types);
-                setTypes(visibleTypes);
-            }
-        }, 250),
+                    const isFetchingTypesForDM = valueTypeConstraint === "json";
+                    visibleTypes = convertToVisibleTypes(types, isFetchingTypesForDM);
+                    setTypes(visibleTypes);
+                }
+
+                if (!fetchReferenceTypes) {
+                    const effectiveText = value.slice(0, cursorPosition);
+                    let filteredTypes = visibleTypes.filter((type) => {
+                        const lowerCaseText = effectiveText.toLowerCase();
+                        const lowerCaseLabel = type.label.toLowerCase();
+
+                        return lowerCaseLabel.includes(lowerCaseText);
+                    });
+                    setFilteredTypes(filteredTypes);
+                }
+            },
+            250
+        ),
         [rpcClient, types, fileName, targetLineRange]
     );
 
     const handleGetVisibleTypes = useCallback(
-        async (typeConstraint?: string) => {
-            await debouncedGetVisibleTypes(typeConstraint);
+        async (value: string, cursorPosition: number, fetchReferenceTypes?: boolean, valueTypeConstraint?: string) => {
+            await debouncedGetVisibleTypes(value, cursorPosition, fetchReferenceTypes, valueTypeConstraint);
         },
         [debouncedGetVisibleTypes]
     );
@@ -346,7 +385,10 @@ export function FormGeneratorNew(props: FormProps) {
                             },
                         });
 
-                        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                        let uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+                        // HACK: filter unknown module and undefined type diagnostics for local connections
+                        uniqueDiagnostics = filterUnsupportedDiagnostics(uniqueDiagnostics);
+                        
                         setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
                     }
                 } catch (error) {
@@ -397,6 +439,7 @@ export function FormGeneratorNew(props: FormProps) {
 
     const handleGetTypeHelper = (
         fieldKey: string,
+        valueTypeConstraint: string,
         typeBrowserRef: RefObject<HTMLDivElement>,
         currentType: string,
         currentCursorPosition: number,
@@ -404,16 +447,22 @@ export function FormGeneratorNew(props: FormProps) {
         onChange: (newType: string, newCursorPosition: number) => void,
         changeHelperPaneState: (isOpen: boolean) => void,
         typeHelperHeight: HelperPaneHeight,
-        closeCompletions: () => void
+        onTypeCreate: () => void,
     ) => {
         const formField = fieldsValues.find(f => f.key === fieldKey);
         const handleCreateNewType = (typeName: string) => {
-            closeCompletions();
+            onTypeCreate();
             setTypeEditorState({ isOpen: true, newTypeValue: typeName, field: formField });
+        }
+
+        const handleCloseCompletions = () => {
+            debouncedGetVisibleTypes.cancel();
+            handleExpressionEditorCancel();
         }
 
         return getTypeHelper({
             fieldKey: fieldKey,
+            valueTypeConstraint: valueTypeConstraint,
             typeBrowserRef: typeBrowserRef,
             filePath: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
@@ -424,7 +473,8 @@ export function FormGeneratorNew(props: FormProps) {
             onChange: onChange,
             changeTypeHelperState: changeHelperPaneState,
             updateImports: handleUpdateImports,
-            onTypeCreate: handleCreateNewType
+            onTypeCreate: handleCreateNewType,
+            onCloseCompletions: handleCloseCompletions
         });
     }
 
@@ -526,12 +576,35 @@ export function FormGeneratorNew(props: FormProps) {
         setTypeEditorState({ isOpen: false });
     };
 
+    const extractArgsFromFunction = async (value: string, property: ExpressionProperty, cursorPosition: number) => {
+        const { lineOffset, charOffset } = getInfoFromExpressionValue(value, cursorPosition);
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: fileName,
+            context: {
+                expression: value,
+                startLine: updateLineRange(targetLineRange, expressionOffsetRef.current).startLine,
+                lineOffset: lineOffset,
+                offset: charOffset,
+                codedata: undefined,
+                property: property,
+            },
+            signatureHelpContext: {
+                isRetrigger: false,
+                triggerKind: 1,
+            },
+        });
+
+        return await convertToFnSignature(signatureHelp);
+    };
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
             triggerCharacters: TRIGGER_CHARACTERS,
             retrieveCompletions: handleRetrieveCompletions,
-            types: types,
+            extractArgsFromFunction: extractArgsFromFunction,
+            types: filteredTypes,
+            referenceTypes: types,
             retrieveVisibleTypes: handleGetVisibleTypes,
             getHelperPane: handleGetHelperPane,
             getTypeHelper: handleGetTypeHelper,
@@ -544,8 +617,9 @@ export function FormGeneratorNew(props: FormProps) {
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
-        types,
+        filteredTypes,
         handleRetrieveCompletions,
+        extractArgsFromFunction,
         handleGetVisibleTypes,
         handleGetHelperPane,
         handleCompletionItemSelect,

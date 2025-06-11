@@ -114,6 +114,7 @@ export const Colors = {
 };
 
 export const SIDE_PANEL_WIDTH = 450;
+export const CANVAS_PADDING = 20;
 
 export const NODE_DIMENSIONS = {
     DEFAULT: {

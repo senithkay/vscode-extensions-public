@@ -90,7 +90,10 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 					);
 
 					const components = await window.withProgress(
-						{ title: `Fetching components of ${selectedProject.name}...`, location: ProgressLocation.Notification },
+						{
+							title: `Fetching ${extensionName === "Devant" ? "integrations" : "components"} of project ${selectedProject.name}...`,
+							location: ProgressLocation.Notification,
+						},
 						() =>
 							ext?.clients?.rpcClient?.getComponentList({
 								orgId: selectedOrg?.id?.toString(),

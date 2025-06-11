@@ -24,7 +24,7 @@ const Card = styled.div<{ active?: boolean; appearance?: ButtonCardAppearance, d
     cursor: ${(props: { disabled: boolean }) => (props.disabled ? 'not-allowed' : 'pointer')};;
     &:hover {
         background-color: ${ThemeColors.PRIMARY_CONTAINER};
-        border: 1px solid ${ThemeColors.PRIMARY};
+        border: 1px solid ${ThemeColors.HIGHLIGHT};
     };
 `;
 
@@ -96,6 +96,7 @@ const IconContainer = styled.div`
 export type ButtonCardAppearance = "large" | "small";
 
 export interface ButtonCardProps {
+    id?: string;
     title: string;
     caption?: string;
     description?: string;
@@ -130,6 +131,7 @@ export function ButtonCard(props: ButtonCardProps) {
     return (
         <Tooltip content={tooltip}>
             <Card
+                id={props.id}
                 onClick={disabled ? undefined : onClick}
                 active={active ?? false}
                 appearance={appearance}

@@ -16,7 +16,6 @@ export enum SHARED_COMMANDS {
     OPEN_SERVICE_FORM = 'ballerina.open.service.form',
     OPEN_AI_PANEL = 'ballerina.open.ai.panel',
     CLOSE_AI_PANEL = 'ballerina.close.ai.panel',
-    CLEAR_AI_PROMPT = 'ballerina.clear.ai.prompt',
     OPEN_AGENT_CHAT = 'ballerina.open.agent.chat'
 }
 

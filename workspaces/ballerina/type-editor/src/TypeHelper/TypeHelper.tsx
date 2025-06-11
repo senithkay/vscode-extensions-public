@@ -34,6 +34,7 @@ type TypeHelperComponentProps = {
     currentCursorPosition: number;
     loading?: boolean;
     loadingTypeBrowser?: boolean;
+    referenceTypes: TypeHelperCategory[];
     basicTypes: TypeHelperCategory[];
     importedTypes: TypeHelperCategory[];
     operators: TypeHelperOperator[];
@@ -46,6 +47,7 @@ type TypeHelperComponentProps = {
     onTypeItemClick: (item: TypeHelperItem) => Promise<string>;
     onTypeCreate?: (typeName?: string) => void;
     onClose: () => void;
+    onCloseCompletions?: () => void;
 };
 
 type StyleBase = {
@@ -126,6 +128,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
         typeBrowserRef,
         loading = false,
         loadingTypeBrowser = false,
+        referenceTypes,
         basicTypes,
         importedTypes,
         operators,
@@ -135,7 +138,8 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
         onSearchTypeBrowser,
         onTypeItemClick,
         onTypeCreate,
-        onClose
+        onClose,
+        onCloseCompletions
     } = props;
     const [searchValue, setSearchValue] = useState<string>('');
     const [isTypeBrowserOpen, setIsTypeBrowserOpen] = useState<boolean>(false);
@@ -180,6 +184,8 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
             currentType.slice(0, prefixCursorPosition) + item.insertText + currentType.slice(suffixCursorPosition),
             prefixCursorPosition + item.insertText.length
         );
+
+        onCloseCompletions?.();
     };
 
     const handleTypeBrowserItemClick = async (item: TypeHelperItem) => {
@@ -204,6 +210,8 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
 
         // Close the type browser
         onClose();
+
+        onCloseCompletions?.();
     }
 
     const handleHelperPaneSearch = (searchText: string) => {
@@ -319,7 +327,7 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
                 <S.FooterContainer>
                     {onTypeCreate && (
                         <HelperPane.IconButton
-                            title={getTypeCreateText(currentType, basicTypes, newTypeName)}
+                            title={getTypeCreateText(currentType, referenceTypes, newTypeName)}
                             getIcon={() => <Codicon name="add" />}
                             onClick={() => onTypeCreate(newTypeName.current)}
                         />
@@ -336,13 +344,10 @@ export const TypeHelperComponent = (props: TypeHelperComponentProps) => {
             {isTypeBrowserOpen && (
                 <TypeBrowser
                     typeBrowserRef={typeBrowserRef}
-                    currentType={currentType}
-                    currentCursorPosition={currentCursorPosition}
                     loadingTypeBrowser={loadingTypeBrowser}
                     typeBrowserTypes={typeBrowserTypes}
                     onSearchTypeBrowser={onSearchTypeBrowser}
                     onTypeItemClick={handleTypeBrowserItemClick}
-                    onChange={onChange}
                     onClose={() => setIsTypeBrowserOpen(false)}
                 />
             )}

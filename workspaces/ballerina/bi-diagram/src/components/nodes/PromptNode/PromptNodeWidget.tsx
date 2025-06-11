@@ -48,7 +48,7 @@ export namespace NodeStyles {
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
         border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
         border-color: ${(props: NodeStyleProp) =>
-            props.hasError ? ThemeColors.ERROR : props.hovered && !props.disabled ? ThemeColors.PRIMARY : ThemeColors.OUTLINE_VARIANT};
+            props.hasError ? ThemeColors.ERROR : props.hovered && !props.disabled ? ThemeColors.HIGHLIGHT : ThemeColors.OUTLINE_VARIANT};
         border-radius: 10px;
     `;
 
@@ -226,7 +226,7 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
 
     const handleSave = () => {
         const clonedNode = cloneDeep(model.node);
-        clonedNode.properties['prompt'].value = getRawTemplate(bodyTextTemplate);
+        clonedNode.properties['prompt'].value = bodyTextTemplate;
         clonedNode.codedata.node = "NP_FUNCTION_DEFINITION";
         onNodeSave?.(clonedNode);
         toggleEditable();
@@ -310,7 +310,7 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
 
     const handleCompletionSelect = async (value: string, item: CompletionItem) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(getRawTemplate(value), item.additionalTextEdits);
+        await onCompletionItemSelect?.(value, item.additionalTextEdits);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -325,7 +325,7 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
             cursorPosition > 0 ? triggerCharacters.find((char) => bodyTextTemplate[cursorPosition - 1] === char) : undefined;
         if (triggerCharacter) {
             await retrieveCompletions(
-                getRawTemplate(bodyTextTemplate),
+                bodyTextTemplate,
                 field,
                 cursorPosition + 1,
                 true,
@@ -333,7 +333,7 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
             );
         } else {
             await retrieveCompletions(
-                getRawTemplate(bodyTextTemplate),
+                bodyTextTemplate,
                 field,
                 cursorPosition + 1,
                 true
@@ -383,7 +383,7 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
                 : undefined;
         if (triggerCharacter) {
             await retrieveCompletions(
-                getRawTemplate(newValue),
+                newValue,
                 field,
                 updatedCursorPosition + 1,
                 invalidateCacheRef.current,
@@ -391,7 +391,7 @@ export function PromptNodeWidget(props: PromptNodeWidgetProps) {
             );
         } else {
             await retrieveCompletions(
-                getRawTemplate(newValue),
+                newValue,
                 field,
                 updatedCursorPosition + 1,
                 invalidateCacheRef.current

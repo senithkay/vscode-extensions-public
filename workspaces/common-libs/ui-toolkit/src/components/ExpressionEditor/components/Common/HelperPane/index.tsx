@@ -323,7 +323,6 @@ const TitleContainer = styled.div<{ isLink?: boolean }>`
 const HeaderContainer = styled.header`
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding-inline: 8px;
 `;
 
@@ -709,12 +708,22 @@ const Body: React.FC<HelperPaneBodyProps> = ({ children, loading = false, classN
     );
 };
 
-const Header: React.FC<HelperPaneHeaderProps> = ({ title, titleSx, onBack, onClose, searchValue, onSearch }) => {
+const Header: React.FC<HelperPaneHeaderProps> = ({
+    title,
+    titleSx,
+    onBack,
+    onClose,
+    searchValue,
+    onSearch,
+    startAdornment,
+    endAdornment
+}) => {
     return (
         <>
             <HeaderContainerWithSearch>
                 {title && (
                     <HeaderContainer>
+                        {startAdornment && startAdornment}
                         <TitleContainer isLink={!!onBack} onClick={onBack}>
                             {onBack && <Codicon name="chevron-left" />}
                             {onBack ? (
@@ -723,7 +732,8 @@ const Header: React.FC<HelperPaneHeaderProps> = ({ title, titleSx, onBack, onClo
                                 <Typography sx={{ margin: 0, ...titleSx }}>{title}</Typography>
                             )}
                         </TitleContainer>
-                        {onClose && <Codicon name="close" onClick={onClose} />}
+                        {endAdornment && endAdornment}
+                        {onClose && <Codicon name="close" sx={{ marginLeft: 'auto' }} onClick={onClose} />}
                     </HeaderContainer>
                 )}
                 {onSearch && (

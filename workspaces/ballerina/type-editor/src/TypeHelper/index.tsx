@@ -75,9 +75,12 @@ type TypeHelperProps = {
     onChange: (newType: string, newCursorPosition: number) => void;
     // Callback function to close the helper pane
     onClose: () => void;
+    // Callback function to close the completions
+    onCloseCompletions?: () => void;
     /* Context props */
     loading?: boolean;
     loadingTypeBrowser?: boolean;
+    referenceTypes: TypeHelperCategory[];
     basicTypes: TypeHelperCategory[];
     importedTypes: TypeHelperCategory[];
     operators: TypeHelperOperator[];
@@ -168,9 +171,6 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
         typeBrowserRef,
         positionOffset = { top: 0, left: 0 },
         open,
-        currentType,
-        currentCursorPosition,
-        onChange,
         onClose,
         ...rest
     } = props;
@@ -232,10 +232,7 @@ export const TypeHelper = forwardRef<HTMLDivElement, TypeHelperProps>((props, re
                         <Transition show={open} {...ANIMATION}>
                             <TypeHelperComponent
                                 open={open}
-                                currentType={currentType}
-                                currentCursorPosition={currentCursorPosition}
                                 typeBrowserRef={typeBrowserRef}
-                                onChange={onChange}
                                 onClose={onClose}
                                 {...rest}
                             />

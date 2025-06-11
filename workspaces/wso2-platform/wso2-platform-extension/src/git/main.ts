@@ -124,7 +124,11 @@ export async function initGit(context: ExtensionContext): Promise<Git | undefine
 		}
 		console.warn(err.message);
 		commands.executeCommand("setContext", "git.missing", true);
-		warnAboutMissingGit();
+		const shownGitNotInstalled = context.workspaceState.get("SHOWN_GIT_NOT_INSTALLED");
+		if(!shownGitNotInstalled){
+			context.workspaceState.update("SHOWN_GIT_NOT_INSTALLED", true);
+			warnAboutMissingGit();
+		}
 	}
 	return git;
 }

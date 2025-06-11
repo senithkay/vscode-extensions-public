@@ -332,6 +332,7 @@ export class SizingVisitor implements Visitor {
 
         if (isSequnce) {
             this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
+            this.calculateSequenceHeight(node, StartNodeType.IN_SEQUENCE);
         } else {
             this.calculateBasicMediator(node, NODE_DIMENSIONS.REFERENCE.WIDTH, NODE_DIMENSIONS.REFERENCE.HEIGHT);
         }
@@ -377,6 +378,7 @@ export class SizingVisitor implements Visitor {
     }
 
     private calculateSequenceHeight(node: Sequence, startNodeType: StartNodeType) {
+        const isSequnce = node.tag === "sequence";
         if (node.mediatorList && node.mediatorList.length > 0) {
             let fh = (startNodeType === StartNodeType.IN_SEQUENCE ? NODE_DIMENSIONS.START.EDITABLE.HEIGHT : NODE_DIMENSIONS.START.DISABLED.HEIGHT) + NODE_GAP.Y;
             for (const mediator of node.mediatorList) {
@@ -392,14 +394,14 @@ export class SizingVisitor implements Visitor {
                 fw: this.diagramDimensions.width,
                 l: this.diagramDimensions.l,
                 r: this.diagramDimensions.r,
-                fh
+                fh: isSequnce ? 0 : fh,
             };
         } else {
             const fh = (startNodeType === StartNodeType.IN_SEQUENCE ? NODE_DIMENSIONS.START.EDITABLE.HEIGHT : NODE_DIMENSIONS.START.DISABLED.HEIGHT) + NODE_GAP.Y * 2;
 
             node.viewState = {
                 ...node.viewState,
-                fh
+                fh: isSequnce ? 0 : fh,
             };
         }
     }
@@ -575,7 +577,8 @@ export class SizingVisitor implements Visitor {
         if (node.connectorName === 'ai') {
             const tools = node.tools;
             const toolsList = tools?.tools;
-            const systemPrompt = node?.parameters?.filter((property: any) => property.name === "system")[0]?.value;
+            const systemPrompt = node.parameters?.find((p: any) => p.name === "system")?.value ||
+                node.parameters?.find((p: any) => p.name === "instructions")?.value;
             const prompt = node?.parameters?.filter((property: any) => property.name === "prompt")[0]?.value;
             let toolsWidth = 0;
             let toolsHeight = 0;
