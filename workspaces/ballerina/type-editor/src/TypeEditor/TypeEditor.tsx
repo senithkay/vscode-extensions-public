@@ -50,10 +50,9 @@ interface TypeEditorProps {
 
 
 export function TypeEditor(props: TypeEditorProps) {
-    console.log("===TypeEditorProps===", props);
     const { isGraphql, newType } = props;
 
-    let initialTypeKind = props.type?.codedata?.node;// TODO: RECHECK LOGIC HERE
+    let initialTypeKind = props.type?.codedata?.node ?? "RECORD" as TypeNodeKind;
 
     const type: Type = (() => {
         if (props.type) {
@@ -77,9 +76,7 @@ export function TypeEditor(props: TypeEditorProps) {
             includes: [] as string[],
             allowAdditionalFields: false
         };
-        if (!initialTypeKind) {
-            initialTypeKind = defaultType.codedata.node;
-        }
+
         return defaultType as unknown as Type;
     })();
 
@@ -115,13 +112,14 @@ export function TypeEditor(props: TypeEditorProps) {
                 ) : newType ? (
                     <Tabs
                         views={[
-                            { id: 'create-from-scratch', name: 'Create from Scratch' },
+                            { id: 'create-from-scratch', name: 'Create from scratch' },
                             { id: 'import', name: 'Import' }
                         ]}
                         currentViewId={activeTab}
                         onViewChange={handleTabChange}
+                        childrenSx={{padding: 10}}
                     >
-                        <div id="create-from-scratch" style={{ padding: '10px' }}>
+                        <div id="create-from-scratch">
                             <TypeCreatorTab
                                 editingType={type}
                                 newType={newType}
@@ -130,7 +128,7 @@ export function TypeEditor(props: TypeEditorProps) {
                                 onTypeSave={onTypeSave}
                             />
                         </div>
-                        <div id="import" style={{ padding: '10px' }}>
+                        <div id="import">
                             <ImportTab
                                 type={type}
                                 onTypeSave={onTypeSave}
