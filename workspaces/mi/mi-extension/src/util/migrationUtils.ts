@@ -62,6 +62,11 @@ interface Artifact {
   collection: ArtifactCollection | ArtifactCollection[];
 }
 
+type FileInfo = {
+    path: string;
+    artifact: Artifact | null;
+};
+
 interface ArtifactsRoot {
   artifacts: {
     artifact?: Artifact | Artifact[];
@@ -274,11 +279,6 @@ export async function migrateConfigs(projectUri: string, source: string, target:
         await updatePomForClassMediator(projectUri);
     }
 }
-
-type FileInfo = {
-    path: string;
-    artifact: Artifact | null;
-};
 
 /**
  * Generates a mapping between artifact identifiers and their corresponding file info objects.
@@ -1054,6 +1054,7 @@ function processDependency(
     const sourceFileInfo = artifactIdToFileInfoMap.get(depId);
 
     if (!sourceFileInfo) {
+        console.warn(`Dependency '${depId}' selected for the composite exporter project was not found. Skipping migration for this dependency.`);
         return { hasClassMediatorModule: false };
     }
 
@@ -1126,6 +1127,33 @@ async function processCompositeExporterProject(source: string, target: string, a
         updateRegistryArtifactXml(target, registryArtifactsList);
     }
     fixTestFilePaths(target);
+    logUnusedFiles(dependencies, artifactIdToFileInfoMap);
+}
+
+/**
+ * Logs information about files that were not added to the project because they were not selected for the composite exporter.
+ *
+ * @param dependencies - An array of `Dependency` objects representing the selected dependencies.
+ * @param artifactIdToFileInfoMap - A map where the key is an artifact ID string and the value is a `FileInfo` object.
+ */
+function logUnusedFiles(dependencies: Dependency[], artifactIdToFileInfoMap: Map<string, FileInfo>) {
+    const foundDepIds = new Set<string>();
+    for (const dependency of dependencies) {
+        const depId = getPomIdentifierStr(dependency.groupId, dependency.artifactId, dependency.version);
+        foundDepIds.add(depId);
+    }
+    const unusedFileInfos: FileInfo[] = [];
+    for (const [artifactId, fileInfo] of artifactIdToFileInfoMap.entries()) {
+        if (!foundDepIds.has(artifactId)) {
+            unusedFileInfos.push(fileInfo);
+        }
+    }
+    if (unusedFileInfos.length > 0) {
+        console.log('The following files were not added to this project (if needed, they can be found in the ".backup" directory):');
+        unusedFileInfos.forEach(info => {
+            console.log(info.path);
+        });
+    }
 }
 
 function fixTestFilePaths(source: string) {
