@@ -4550,9 +4550,9 @@ ${keyValuesXML}`;
 
     async remoteDeploy(): Promise<void> {
         return new Promise(async (resolve) => {
-            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-            if (workspaceFolder) {
-                const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+            const workspaceFolderUri = vscode.Uri.file(path.resolve(this.projectUri));
+            if (workspaceFolderUri) {
+                const config = vscode.workspace.getConfiguration('MI', workspaceFolderUri);
                 const isRemoteDeploymentEnabled = config.get<string>("REMOTE_DEPLOYMENT_ENABLED");
                 if (isRemoteDeploymentEnabled) {
                     await commands.executeCommand(COMMANDS.REMOTE_DEPLOY_PROJECT, false);
@@ -4563,7 +4563,7 @@ ${keyValuesXML}`;
                         'Yes'
                     );
                     if (configure === 'Yes') {
-                        const rpcClient = new MiVisualizerRpcManager();
+                        const rpcClient = new MiVisualizerRpcManager(this.projectUri);
                         rpcClient.openView({
                             type: POPUP_EVENT_TYPE.OPEN_VIEW,
                             location: {

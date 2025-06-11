@@ -64,7 +64,8 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     });
 
     vscode.commands.registerCommand(COMMANDS.REMOTE_DEPLOY_PROJECT, async (postBuildTask?: Function) => {
-        await executeRemoteDeployTask(postBuildTask);
+        const projectUri = await askForProject();
+        await executeRemoteDeployTask(projectUri, postBuildTask);
     });
 
     // Register command to change the Micro Integrator server path

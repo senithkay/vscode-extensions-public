@@ -145,7 +145,7 @@ export async function executeBuildTask(projectUri: string, serverPath: string, s
     return new Promise<void>(async (resolve, reject) => {
 
         const isEqual = await compareFilesByMD5(path.join(serverPath, "conf", "deployment.toml"),
-            path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "deployment", "deployment.toml"));
+            path.join(projectUri, "deployment", "deployment.toml"));
         if (!isEqual) {
             const copyConf = await vscode.window.showWarningMessage(
                 'Deployment configurations in the runtime is different from the project. How do you want to proceed?',
@@ -154,11 +154,11 @@ export async function executeBuildTask(projectUri: string, serverPath: string, s
             );
             if (copyConf === 'Use Project Configurations') {
                 fs.copyFileSync(path.join(serverPath, "conf", "deployment.toml"), path.join(serverPath, "conf", "deployment-backup.toml"));
-                fs.copyFileSync(path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "deployment", "deployment.toml"), path.join(serverPath, "conf", "deployment.toml"));
+                fs.copyFileSync(path.join(projectUri, "deployment", "deployment.toml"), path.join(serverPath, "conf", "deployment.toml"));
                 vscode.window.showInformationMessage("A backup of the server configuration is stored at conf/deployment-backup.toml.");
             } else if (copyConf === 'Use Server Configurations') {
-                fs.copyFileSync(path.join(serverPath, "conf", "deployment.toml"), path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "deployment", "deployment.toml"));
-                DebuggerConfig.setConfigPortOffset();
+                fs.copyFileSync(path.join(serverPath, "conf", "deployment.toml"), path.join(projectUri, "deployment", "deployment.toml"));
+                DebuggerConfig.setConfigPortOffset(projectUri);
             } else {
                 reject('Deployment configurations in the project should be as the same as the runtime.');
                 return;
@@ -248,15 +248,14 @@ export async function executeBuildTask(projectUri: string, serverPath: string, s
     });
 }
 
-export async function executeRemoteDeployTask(postBuildTask?: Function) {
+export async function executeRemoteDeployTask(projectUri: string, postBuildTask?: Function) {
     return new Promise<void>(async (resolve, reject) => {
-        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
 
         const buildCommand = process.platform === 'win32' ? ".\\mvnw.cmd clean deploy -Dmaven.deploy.skip=true -Dmaven.car.deploy.skip=false -Dstyle.color=never" :
             "./mvnw clean deploy -Dmaven.deploy.skip=true -Dmaven.car.deploy.skip=false -Dstyle.color=never";;
         const envVariables = {
             ...process.env,
-            ...setJavaHomeInEnvironmentAndPath()
+            ...setJavaHomeInEnvironmentAndPath(projectUri)
         };
         const buildProcess = await child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri, env: envVariables });
         showServerOutputChannel();

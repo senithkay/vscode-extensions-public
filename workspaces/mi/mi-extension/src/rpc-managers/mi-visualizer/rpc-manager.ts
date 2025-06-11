@@ -113,7 +113,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async setDeployPlugin(params: MavenDeployPluginDetails): Promise<MavenDeployPluginDetails> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.setDeployPlugin(params);
             await this.updatePom([res.textEdit]);
             resolve(res);
@@ -122,7 +122,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async getDeployPluginDetails(): Promise<MavenDeployPluginDetails> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getDeployPluginDetails();
             resolve(res);
         });
@@ -130,7 +130,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async removeDeployPlugin(): Promise<MavenDeployPluginDetails> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.removeDeployPlugin();
             if (res.range.start.line !== 0 && res.range.start.character !== 0) {
                 await this.updatePom([res]);
