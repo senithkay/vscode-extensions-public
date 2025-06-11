@@ -200,7 +200,7 @@ export function WelcomeView(props: WelcomeViewProps) {
                     <Column>
                         <StepTitle>Get Started Quickly</StepTitle>
                         <StepDescription>
-                            New to WSO2 Integrator: BI? Start here! Explore step-by-step tutorials to help you get up and running with
+                            New to WSO2 Integrator? Start here! Explore step-by-step tutorials to help you get up and running with
                             ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the guide</VSCodeLink>.
                         </StepDescription>
                     </Column>
