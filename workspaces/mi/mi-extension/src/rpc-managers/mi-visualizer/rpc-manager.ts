@@ -52,6 +52,8 @@ import {
     ImportOpenAPISpecRequest,
     PathDetailsResponse,
     DownloadMIRequest,
+    MavenDeployPluginDetails,
+    ProjectConfig
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
@@ -74,6 +76,7 @@ import { copy } from 'fs-extra';
 const fs = require('fs');
 import { TextEdit } from "vscode-languageclient";
 import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
+import { rangeFormat } from '../../util/fileOperations';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -104,6 +107,34 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         return new Promise(async (resolve) => {
             const langClient = getStateMachine(this.projectUri).context().langClient!;
             const res = await langClient.getProjectDetails();
+            resolve(res);
+        });
+    }
+
+    async setDeployPlugin(params: MavenDeployPluginDetails): Promise<MavenDeployPluginDetails> {
+        return new Promise(async (resolve) => {
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+            const res = await langClient.setDeployPlugin(params);
+            await this.updatePom([res.textEdit]);
+            resolve(res);
+        });
+    }
+
+    async getDeployPluginDetails(): Promise<MavenDeployPluginDetails> {
+        return new Promise(async (resolve) => {
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+            const res = await langClient.getDeployPluginDetails();
+            resolve(res);
+        });
+    }
+
+    async removeDeployPlugin(): Promise<MavenDeployPluginDetails> {
+        return new Promise(async (resolve) => {
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+            const res = await langClient.removeDeployPlugin();
+            if (res.range.start.line !== 0 && res.range.start.character !== 0) {
+                await this.updatePom([res]);
+            }
             resolve(res);
         });
     }
@@ -601,6 +632,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         if (success) {
             const document = await workspace.openTextDocument(pomPath);
             await document.save();
+            await rangeFormat({ uri: pomPath });
             if (getStateMachine(this.projectUri).context().view === MACHINE_VIEW.Overview) {
                 refreshUI(this.projectUri);
             }
@@ -627,16 +659,16 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         }
     }
 
-    async updateLegacyExpressionSupport(value: boolean): Promise<void> {
+    async updateProjectSettingsConfig(params: ProjectConfig): Promise<void> {
         const config = workspace.getConfiguration('MI');
-        await config.update("LEGACY_EXPRESSION_ENABLED", value, vscode.ConfigurationTarget.Workspace);
+        await config.update(params.configName, params.value, vscode.ConfigurationTarget.Workspace);
     }
 
-    async isLegacyExpressionSupportEnabled(): Promise<boolean> {
+    async isSupportEnabled(configName: string): Promise<boolean> {
         return new Promise((resolve, reject) => {
             try {
                 const config = workspace.getConfiguration('MI');
-                resolve(config.get("LEGACY_EXPRESSION_ENABLED") || false);
+                resolve(config.get(configName) || false);
             } catch (error) {
                 reject(error);
             }

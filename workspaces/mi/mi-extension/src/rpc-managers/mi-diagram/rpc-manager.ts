@@ -4548,6 +4548,39 @@ ${keyValuesXML}`;
         });
     }
 
+    async remoteDeploy(): Promise<void> {
+        return new Promise(async (resolve) => {
+            const workspaceFolderUri = vscode.Uri.file(path.resolve(this.projectUri));
+            if (workspaceFolderUri) {
+                const config = vscode.workspace.getConfiguration('MI', workspaceFolderUri);
+                const isRemoteDeploymentEnabled = config.get<string>("REMOTE_DEPLOYMENT_ENABLED");
+                if (isRemoteDeploymentEnabled) {
+                    await commands.executeCommand(COMMANDS.REMOTE_DEPLOY_PROJECT, false);
+                } else {
+                    const configure = await vscode.window.showWarningMessage(
+                        'Remote deployment is not enabled. Do you want to enable and configure it now?',
+                        { modal: true },
+                        'Yes'
+                    );
+                    if (configure === 'Yes') {
+                        const rpcClient = new MiVisualizerRpcManager(this.projectUri);
+                        rpcClient.openView({
+                            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+                            location: {
+                                view: MACHINE_VIEW.ProjectInformationForm,
+                                customProps: "Deployment"
+                            },
+                            isPopup: true
+                        });
+                    } else {
+                        return;
+                    }
+                }
+            }
+            resolve();
+        });
+    }
+
     async deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {
         return new Promise(async (resolve) => {
             if (!checkForDevantExt()) {
