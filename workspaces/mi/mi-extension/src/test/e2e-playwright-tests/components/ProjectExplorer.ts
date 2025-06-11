@@ -42,7 +42,11 @@ export class ProjectExplorer {
     public async goToOverview(projectName: string, timeout?: number) {
         // wait for 1s
         const projectExplorerRoot = this.explorer.locator(`div[role="treeitem"][aria-label="Project ${projectName}"]`);
-        await projectExplorerRoot.waitFor(timeout ? { timeout } : undefined);
+        if (timeout) {
+            await projectExplorerRoot.waitFor({ timeout });
+        } else {
+            await projectExplorerRoot.waitFor();
+        }
         await projectExplorerRoot.hover();
         const locator = projectExplorerRoot.getByLabel('Open Project Overview');
         await locator.waitFor();
