@@ -42,7 +42,7 @@ export function render(data: any, webView: Webview)
              }
          `;
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("Graphql", webView), body, scripts, styles, bodyCss,
+        ...getComposerWebViewOptions("Graphql", webView, { disableComDebug: true }), body, scripts, styles, bodyCss,
     };
 
     return getLibraryWebViewContent(webViewOptions, webView);
