@@ -18,8 +18,6 @@ import { commands, Uri, window, workspace } from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { updatePomForClassMediator, LATEST_MI_VERSION } from './onboardingUtils';
-import { SELECTED_JAVA_HOME, SELECTED_SERVER_PATH } from '../debugger/constants';
-import { config } from 'process';
 
 enum Nature {
     MULTIMODULE,
@@ -246,7 +244,8 @@ export async function migrateConfigs(projectUri: string, source: string, target:
     if (projectType === Nature.MULTIMODULE) {
         const items = fs.readdirSync(source, { withFileTypes: true });
         const artifactIdToFileInfoMap = generateArtifactIdToFileInfoMap(source, items);
-        const { configToTests, configToMockServices } = buildConfigToTestAndMockServiceMaps(source, items);
+        const { configToTests, configToMockServices } = generateConfigToTestAndMockServiceMaps(source, items);
+        const projectDirToMetaFilesMap = generateProjectDirToMetaFilesMap(source, items);
 
         for (const item of items) {
             if (!item.isDirectory()) continue;
@@ -257,7 +256,7 @@ export async function migrateConfigs(projectUri: string, source: string, target:
             const moduleType = determineProjectType(sourcePath);
 
             if (moduleType === Nature.DISTRIBUTION && artifactIdToFileInfoMap) {
-                await processCompositeExporterProject(sourcePath, targetPath, artifactIdToFileInfoMap, configToTests, configToMockServices);
+                await processCompositeExporterProject(sourcePath, targetPath, artifactIdToFileInfoMap, configToTests, configToMockServices, projectDirToMetaFilesMap);
                 await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
             }
         }
@@ -285,6 +284,26 @@ export async function migrateConfigs(projectUri: string, source: string, target:
 }
 
 /**
+ * Retrieves a list of project directories from the given source directory,
+ * along with their determined project types.
+ *
+ * @param source - The path to the source directory containing potential project directories.
+ * @param items - An array of `fs.Dirent` objects representing the contents of the source directory.
+ * @returns An array of objects, each containing:
+ *   - `projectDir`: The absolute path to the project directory.
+ *   - `projectType`: The type of the project as determined by `determineProjectType`.
+ */
+function getProjectDirectoriesWithType(source: string, items: fs.Dirent[]) {
+    return items
+        .filter(item => item.isDirectory())
+        .map(item => {
+            const projectDir = path.join(source, item.name);
+            const projectType = determineProjectType(projectDir);
+            return { projectDir, projectType };
+        });
+}
+
+/**
  * Generates a mapping between artifact identifiers and their corresponding file info objects.
  *
  * @param source - The root directory path containing the project directories.
@@ -295,43 +314,41 @@ export async function migrateConfigs(projectUri: string, source: string, target:
  */
 function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Map<string, FileInfo> {
     const artifactIdToFileInfoMap = new Map<string, FileInfo>();
-    items.forEach(item => {
-        if (item.isDirectory()) {
-            const projectFilePath = path.join(source, item.name);
-            const projectType = determineProjectType(projectFilePath);
-            const projectPomFilePath = path.join(projectFilePath, 'pom.xml');
-            const projectId = getPomIdentifier(projectPomFilePath);
-            if (projectId) {
-                artifactIdToFileInfoMap.set(projectId, { path: projectFilePath, artifact: null, projectType });
-                // Try to get the artifact from the pom.xml's artifact.xml if exists
-                let artifacts: Artifact[] = [];
-                const artifactXmlPath = path.join(projectFilePath, 'artifact.xml');
-                if (fs.existsSync(artifactXmlPath)) {
-                    const xml = parseXmlFile(artifactXmlPath);
-                    if (xml.artifacts && xml.artifacts.artifact) {
-                        artifacts = normalizeArtifacts(xml.artifacts.artifact);
-                    }
+    const projectDirs = getProjectDirectoriesWithType(source, items);
+
+    projectDirs.forEach(({ projectDir, projectType }) => {
+        const projectPomFilePath = path.join(projectDir, 'pom.xml');
+        const projectId = getPomIdentifier(projectPomFilePath);
+        if (projectId) {
+            artifactIdToFileInfoMap.set(projectId, { path: projectDir, artifact: null, projectType });
+            // Try to get the artifact from the pom.xml's artifact.xml if exists
+            let artifacts: Artifact[] = [];
+            const artifactXmlPath = path.join(projectDir, 'artifact.xml');
+            if (fs.existsSync(artifactXmlPath)) {
+                const xml = parseXmlFile(artifactXmlPath);
+                if (xml.artifacts && xml.artifacts.artifact) {
+                    artifacts = normalizeArtifacts(xml.artifacts.artifact);
                 }
-                // For each artifact in artifacts, map its artifactId to its file path
-                artifacts.forEach(artifact => {
-                    const artifactId = getPomIdentifierStr(
-                        artifact['@_groupId'],
-                        artifact['@_name'],
-                        artifact['@_version']
-                    );
-                    const fileInfo = getFileInfoForArtifact(artifact, projectFilePath, projectType);
-                    if (fileInfo) {
-                        artifactIdToFileInfoMap.set(artifactId, fileInfo);
-                    }
-                });
             }
+            // For each artifact in artifacts, map its artifactId to its file path
+            artifacts.forEach(artifact => {
+                const artifactId = getPomIdentifierStr(
+                    artifact['@_groupId'],
+                    artifact['@_name'],
+                    artifact['@_version']
+                );
+                const fileInfo = getFileInfoForArtifact(artifact, projectDir, projectType);
+                if (fileInfo) {
+                    artifactIdToFileInfoMap.set(artifactId, fileInfo);
+                }
+            });
         }
     });
     return artifactIdToFileInfoMap;
 }
 
 /**
- * Builds mappings from config files to their associated test files and mock service files.
+ * Generates mappings from config files to their associated test files and mock service files.
  *
  * @param source - The root project directory.
  * @param items - Array of fs.Dirent representing directories in the project.
@@ -339,7 +356,7 @@ function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Ma
  *   - configToTests: Map<string, string[]> mapping config file path to its test file paths.
  *   - configToMockServices: Map<string, string[]> mapping config file path to its mock service file paths.
  */
-function buildConfigToTestAndMockServiceMaps(
+function generateConfigToTestAndMockServiceMaps(
     source: string,
     items: fs.Dirent[]
 ): {
@@ -348,21 +365,15 @@ function buildConfigToTestAndMockServiceMaps(
 } {
     const configToTests = new Map<string, string[]>();
     const configToMockServices = new Map<string, string[]>();
+    const projectDirs = getProjectDirectoriesWithType(source, items);
 
-    for (const item of items) {
-        if (!item.isDirectory()) continue;
-        const projectDir = path.join(source, item.name);
-        // Only process if the project type is ESB
-        const projectType = determineProjectType(projectDir);
-        if (projectType !== Nature.ESB) continue;
-
+    projectDirs.forEach(({ projectDir, projectType }) => {
+        if (projectType !== Nature.ESB) return;
         const testDir = path.join(projectDir, 'test');
-        if (!fs.existsSync(testDir) || !fs.statSync(testDir).isDirectory()) continue;
-
+        if (!fs.existsSync(testDir) || !fs.statSync(testDir).isDirectory()) return;
         const testFiles = fs.readdirSync(testDir)
             .filter(f => f.endsWith('.xml'))
             .map(f => path.join(testDir, f));
-
         for (const testFile of testFiles) {
             const fileContent = fs.readFileSync(testFile, 'utf-8');
             let testArtifact: string | undefined;
@@ -379,7 +390,6 @@ function buildConfigToTestAndMockServiceMaps(
                 const configFile = path.join(source, testArtifact);
                 if (!configToTests.has(configFile)) configToTests.set(configFile, []);
                 configToTests.get(configFile)!.push(testFile);
-
                 if (!configToMockServices.has(configFile)) configToMockServices.set(configFile, []);
                 for (const mockService of mockServices) {
                     const firstSlash = mockService.indexOf('/');
@@ -393,15 +403,48 @@ function buildConfigToTestAndMockServiceMaps(
                 }
             }
         }
-    }
+    });
     return { configToTests, configToMockServices };
 }
 
 /**
- * Given an artifact and its project path, returns a FileInfo object containing the absolute file path and the artifact.
- * @param artifact The artifact object from artifact.xml.
- * @param projectFilePath The absolute path to the project directory containing the artifact.xml.
- * @returns FileInfo object with the absolute file path and the artifact, or null if the file does not exist.
+ * Generates a map where the key is the project directory and the value is an array of files in its metadata directory.
+ *
+ * @param source - The root directory containing project subdirectories.
+ * @param items - Array of fs.Dirent representing directories in the source.
+ * @returns Map<string, string[]> where key is projectDir and value is array of absolute file paths in metadata dir.
+ */
+function generateProjectDirToMetaFilesMap(
+    source: string,
+    items: fs.Dirent[]
+): Map<string, string[]> {
+    const metaDataMap = new Map<string, string[]>();
+    const projectDirs = getProjectDirectoriesWithType(source, items);
+    projectDirs.forEach(({ projectDir, projectType }) => {
+        if (projectType === Nature.ESB) {
+            const metadataDir = path.join(projectDir, SRC, MAIN, RESOURCES, METADATA);
+            if (fs.existsSync(metadataDir) && fs.statSync(metadataDir).isDirectory()) {
+                const files = fs.readdirSync(metadataDir)
+                    .filter(file => fs.statSync(path.join(metadataDir, file)).isFile())
+                    .map(file => path.join(metadataDir, file));
+                metaDataMap.set(projectDir, files);
+            }
+        }
+    });
+    return metaDataMap;
+}
+
+/**
+ * Retrieves file information for a given artifact within a project.
+ *
+ * This function attempts to resolve the file or directory path associated with the provided artifact,
+ * based on its structure (`file`, `item`, or `collection`). It checks for the existence of the resolved
+ * path and, if found, returns a `FileInfo` object containing the path, artifact, and project type.
+ *
+ * @param artifact - The artifact object which may contain a file, item, or collection property.
+ * @param projectFilePath - The root file path of the project to resolve artifact paths against.
+ * @param projectType - The type of the project, or `undefined` if not specified.
+ * @returns A `FileInfo` object if a valid file or directory is found, otherwise `null`.
  */
 function getFileInfoForArtifact(
     artifact: Artifact,
@@ -590,8 +633,6 @@ function copyConfigToNewProjectStructure(nature: Nature, sourceFileInfo: FileInf
             const artifactType = getArtifactType(sourceFileInfo.path);
             const subDir = SYNAPSE_TO_MI_ARTIFACT_FOLDER_MAP[artifactType ?? ''] ?? '';
             copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, subDir));
-            // processMetaData(sourceFileInfo.path, target);
-            // processTests(sourceFileInfo.path, target);
             break;
         case Nature.DATASOURCE:
             copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, DATA_SOURCES));
@@ -692,31 +733,23 @@ function processArtifactsFolder(source: string, target: string) {
 }
 
 /**
- * Copies metadata files associated with the given configuration files into a target directory.
+ * Copies metadata files associated with the given configuration files to a target directory.
  *
- * For each configuration file in `configFiles`, this function locates the corresponding project directory,
- * searches for metadata files in the standard metadata directory, and copies those whose filenames start
- * with the configuration file's base name to the destination metadata directory under `targetDir`.
+ * For each configuration file in `configFiles`, this function:
+ * - Determines the project directory using `getProjectDir`.
+ * - Retrieves the list of metadata files for that project from `projectDirToMetaFilesMap`.
+ * - For each metadata file whose basename starts with the configuration file's name,
+ *   copies it to the destination metadata directory under `targetDir`.
  *
- * @param configFiles - An array of absolute paths to configuration files whose metadata should be copied.
- * @param targetDir - The absolute path to the target directory where metadata files will be copied.
+ * @param configFiles - An array of absolute paths to configuration files.
+ * @param targetDir - The base directory where metadata files should be copied.
+ * @param projectDirToMetaFilesMap - A map from project directory paths to arrays of metadata file paths.
  */
-function copyMetaDataFor(configFiles: string[], targetDir: string) {
+function copyMetaDataFor(configFiles: string[], targetDir: string, projectDirToMetaFilesMap: Map<string, string[]>) {
     const destDir = path.join(targetDir, SRC, MAIN, WSO2MI, RESOURCES, METADATA);
-    const metaDataMap = new Map<string, string[]>();
     for (const configFile of configFiles) {
         const projectDir = getProjectDir(configFile);
-        const metadataDir = path.join(projectDir, SRC, MAIN, RESOURCES, METADATA);
-        if (!metaDataMap.has(projectDir) && fs.existsSync(metadataDir) && fs.statSync(metadataDir).isDirectory()) {
-            const files = fs.readdirSync(metadataDir)
-                .filter(file => fs.statSync(path.join(metadataDir, file)).isFile())
-                .map(file => path.join(metadataDir, file));
-            metaDataMap.set(projectDir, files);
-        }
-    }
-    for (const configFile of configFiles) {
-        const projectDir = getProjectDir(configFile);
-        const metaFiles = metaDataMap.get(projectDir) || [];
+        const metaFiles = projectDirToMetaFilesMap.get(projectDir) || [];
         const configFileName = path.basename(configFile, path.extname(configFile));
         metaFiles.forEach(metaFile => {
             if (path.basename(metaFile).startsWith(configFileName)) {
@@ -727,6 +760,15 @@ function copyMetaDataFor(configFiles: string[], targetDir: string) {
     }
 }
 
+/**
+ * Copies test files and mock service files associated with the given configuration files
+ * into their respective target directories within the specified target directory.
+ *
+ * @param configFiles - An array of configuration file paths for which associated test and mock service files should be copied.
+ * @param targetDir - The root directory where the test and mock service files should be copied to.
+ * @param configToTests - A map associating each configuration file path with an array of test file paths to be copied.
+ * @param configToMockServices - A map associating each configuration file path with an array of mock service file paths to be copied.
+ */
 function copyTestFor(
     configFiles: string[],
     targetDir: string,
@@ -804,25 +846,12 @@ function processConnectors(source: string, target: string) {
     });
 }
 
-function createInitialArtifactXml(): string {
-    return `<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>`;
-}
-
-function ensureRegistryDirectory(targetProjectDir: string): string {
-    const registryPath = path.join(targetProjectDir, 'src', 'main', 'wso2mi', 'resources', 'registry');
-
-    if (!fs.existsSync(registryPath)) {
-        fs.mkdirSync(registryPath, { recursive: true });
-    }
-
-    return registryPath;
-}
-
 function ensureArtifactXmlExists(registryPath: string): string {
     const artifactXmlPath = path.join(registryPath, 'artifact.xml');
 
     if (!fs.existsSync(artifactXmlPath)) {
-        fs.writeFileSync(artifactXmlPath, createInitialArtifactXml(), 'utf-8');
+        const artifactXmlContent = '<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>';
+        fs.writeFileSync(artifactXmlPath, artifactXmlContent, 'utf-8');
     }
 
     return artifactXmlPath;
@@ -858,7 +887,7 @@ function writeUpdatedArtifactXml(filePath: string, artifactsRoot: ArtifactsRoot)
         const updatedXml = builder.build(artifactsRoot);
         fs.writeFileSync(filePath, updatedXml, 'utf-8');
     } catch (error) {
-        throw new Error(`Failed to write XML file ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(`Failed to write XML file ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
 
@@ -904,7 +933,7 @@ function getTargetPath(relativePath: string, registryPath: string): string {
 }
 
 function updateRegistryArtifactXml(projectDir: string, artifacts: Artifact[]) {
-    const targetRegistryPath = ensureRegistryDirectory(projectDir);
+    const targetRegistryPath = path.join(projectDir, SRC, MAIN, WSO2MI, RESOURCES, REGISTRY);
     const targetArtifactXmlPath = ensureArtifactXmlExists(targetRegistryPath);
 
     // Parse the existing artifact.xml
@@ -1116,21 +1145,14 @@ function processDependency(depId: string, sourceFileInfo: FileInfo | undefined, 
     if (!sourceFileInfo) {
         console.warn(`Dependency '${depId}' selected for the composite exporter project was not found. Skipping migration for this dependency.`);
     } else {
-        const sourceProjectDir = getProjectDir(sourceFileInfo.path);
-        const projectType = determineProjectType(sourceProjectDir);
-
-        if (projectType === Nature.ESB || projectType === Nature.DS || projectType === Nature.DATASOURCE ||
-            projectType === Nature.CONNECTOR || projectType === Nature.REGISTRY || projectType === Nature.CLASS) {
-            copyConfigToNewProjectStructure(projectType, sourceFileInfo, target);
+        if (sourceFileInfo.projectType === Nature.ESB || sourceFileInfo.projectType === Nature.DS || sourceFileInfo.projectType === Nature.DATASOURCE ||
+            sourceFileInfo.projectType === Nature.CONNECTOR || sourceFileInfo.projectType === Nature.REGISTRY || sourceFileInfo.projectType === Nature.CLASS) {
+            copyConfigToNewProjectStructure(sourceFileInfo.projectType, sourceFileInfo, target);
         }
     }
 }
 
 function readPomDependencies(pomFilePath: string): Dependency[] {
-    if (!fs.existsSync(pomFilePath)) {
-        throw new Error(`pom.xml file not found: ${pomFilePath}`);
-    }
-
     const pomContent = fs.readFileSync(pomFilePath, 'utf-8');
     const parser = new XMLParser({ ignoreAttributes: false });
     const parsed = parser.parse(pomContent);
@@ -1142,23 +1164,38 @@ function readPomDependencies(pomFilePath: string): Dependency[] {
 }
 
 /**
- * Processes a composite exporter project by reading its `pom.xml` file, resolving dependencies,
- * and updating the target project accordingly. Specifically, it checks for class mediator modules
- * among the dependencies and updates the target project's `pom.xml` if any are found.
- * Also, it fixes test file paths in the target directory.
+ * Processes a composite exporter (distribution) project by reading its `pom.xml` dependencies,
+ * migrating each dependency's configuration to the target project, and handling special cases such as
+ * class mediator modules, registry artifacts, metadata, and test/mock service files.
+ *
+ * For each dependency in the `pom.xml`, this function:
+ * - Resolves the dependency using the provided artifactId-to-FileInfo map.
+ * - Migrates the configuration based on its project type (ESB, DS, datasource, connector, registry, class).
+ * - Tracks and updates class mediator modules if present.
+ * - Collects registry artifacts and ESB config files for further processing.
+ *
+ * After processing all dependencies, it:
+ * - Updates the registry artifact.xml in the target project.
+ * - Copies relevant metadata and test/mock service files.
+ * - Fixes test file paths in the target directory.
+ * - Logs any unused files that were not included in the migration.
  *
  * @param source - The path to the source project directory containing the `pom.xml` file.
  * @param target - The path to the target project directory where updates will be applied.
  * @param artifactIdToFileInfoMap - A map of artifact IDs to their corresponding file information,
  *                                  used to resolve dependency source file paths.
+ * @param configToTests - Map of config file paths to their associated test file paths.
+ * @param configToMockServices - Map of config file paths to their associated mock service file paths.
+ * @param projectDirToMetaFilesMap - Map of project directory paths to arrays of metadata file paths.
  * @returns A promise that resolves when processing is complete.
  */
 async function processCompositeExporterProject(
     source: string,
     target: string,
     artifactIdToFileInfoMap: Map<string, FileInfo>,
-    configToTests: Map<string, string[]> = new Map(),
-    configToMockServices: Map<string, string[]> = new Map()
+    configToTests: Map<string, string[]>,
+    configToMockServices: Map<string, string[]>,
+    projectDirToMetaFilesMap: Map<string, string[]>
 ) {
     const pomFilePath = path.join(source, 'pom.xml');
     if (!fs.existsSync(pomFilePath)) {
@@ -1188,7 +1225,7 @@ async function processCompositeExporterProject(
         await changeRootPomForClassMediator(target);
     }
     updateRegistryArtifactXml(target, registryArtifactsList);
-    copyMetaDataFor(configFiles, target);
+    copyMetaDataFor(configFiles, target, projectDirToMetaFilesMap);
     copyTestFor(configFiles, target, configToTests, configToMockServices);
     fixTestFilePaths(target);
     logUnusedFiles(dependencies, artifactIdToFileInfoMap);
