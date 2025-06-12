@@ -147,12 +147,12 @@ export function ServiceEditView(props: ServiceEditViewProps) {
                     <Container>
                         {step === 0 &&
                             <>
-                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={onBack} formSubmitText={saving ? "Creating" : "Create"} isSaving={saving} />
+                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={onBack} formSubmitText={saving ? "Creating..." : "Create"} isSaving={saving} />
                             </>
                         }
                         {step === 1 &&
                             <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} openListenerForm={openListenerForm} formSubmitText={saving ? "Saving" : "Save"} isSaving={saving} />
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} openListenerForm={openListenerForm} formSubmitText={saving ? "Saving..." : "Save"} isSaving={saving} />
                             </>
                         }
                     </Container>

@@ -110,7 +110,7 @@ export function ListenerEditView(props: ListenerEditViewProps) {
                 }
                 {listenerModel &&
                     <Container>
-                        <ListenerConfigForm listenerModel={listenerModel} onSubmit={onSubmit} formSubmitText={saving ? "Saving" : "Save"} isSaving={saving} />
+                        <ListenerConfigForm listenerModel={listenerModel} onSubmit={onSubmit} formSubmitText={saving ? "Saving..." : "Save"} isSaving={saving} />
                     </Container>
                 }
             </ViewContent>

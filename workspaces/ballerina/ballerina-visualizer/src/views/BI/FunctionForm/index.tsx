@@ -369,7 +369,7 @@ export function FunctionForm(props: FunctionFormProps) {
                                 fields={functionFields}
                                 isSaving={saving}
                                 onSubmit={handleFormSubmit}
-                                submitText={saving ? (functionName ? "Saving" : "Creating") : (functionName ? "Save" : "Create")}
+                                submitText={saving ? (functionName ? "Saving..." : "Creating...") : (functionName ? "Save" : "Create")}
                                 selectedNode={functionNode?.codedata?.node}
                             />
                         }
