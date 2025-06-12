@@ -247,14 +247,15 @@ export function TypeDiagram(props: TypeDiagramProps) {
             {/* Panel for editing and creating types */}
             {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node !== "CLASS" && (
                 <PanelContainer
-                    title={editingTypeId ?
-                        `Edit Type${getTypeKindDisplayName(editingType?.codedata?.node) ? ` : ${getTypeKindDisplayName(editingType?.codedata?.node)}` : ''}` :
+                    title={editingTypeId ? 
+                        `Edit Type${getTypeKindDisplayName(editingType?.codedata?.node) ? ` : ${getTypeKindDisplayName(editingType?.codedata?.node)}` : ''}` : 
                         "New Type"
                     }
                     show={true}
                     onClose={onTypeEditorClosed}
                 >
                     <FormTypeEditor
+                        key={editingTypeId || 'new-type'}
                         type={findSelectedType(editingTypeId)}
                         newType={editingTypeId ? false : true}
                         onTypeChange={onTypeChange}

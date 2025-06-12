@@ -276,6 +276,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                     onClose={onTypeEditorClosed}
                 >
                     <FormTypeEditor
+                        key={editingType.name}
                         type={editingType}
                         onTypeChange={onTypeChange}
                         newType={false}
