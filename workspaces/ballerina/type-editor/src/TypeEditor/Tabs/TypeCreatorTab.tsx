@@ -90,12 +90,6 @@ const EditRow = styled.div`
     width: 100%;
 `;
 
-enum ConfigState {
-    CREATE_FROM_SCRATCH,
-    IMPORT_FROM_JSON,
-    IMPORT_FROM_XML,
-}
-
 enum TypeKind {
     RECORD = "Record",
     ENUM = "Enum",
@@ -206,6 +200,10 @@ export function TypeCreatorTab(props: TypeCreatorTabProps) {
             selectedKind = value as TypeKind;
         }
         setSelectedTypeKind(selectedKind);
+
+        // Reset validation error state when changing type kinds
+        setOnValidationError(false);
+
         const typeValue = selectedKind === TypeKind.CLASS ? "CLASS" : selectedKind.toUpperCase();
 
         // Always create a new type with the selected kind

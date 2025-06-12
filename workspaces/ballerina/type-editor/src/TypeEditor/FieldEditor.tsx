@@ -185,8 +185,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                         isAnonymous={true}
                         type={member.type as Type}
                         onChange={(type: Type) => onChange({ ...member, type })}
-                        onImportJson={() => { }}
-                        onImportXml={() => { }}
                         onValidationError={(hasError) => onRecordValidation(hasError)}
                     />
                     <AdvancedOptions type={member.type as Type} onChange={(type: Type) => onChange({ ...member, type })} />
