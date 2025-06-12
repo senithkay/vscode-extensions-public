@@ -768,7 +768,11 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                         height: '25px',
                                                         border: selectedModule?.category === category.name
                                                             ? '1px solid var(--vscode-focusBorder)'
-                                                            : 'none'
+                                                            : 'none',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        boxSizing: 'border-box'
                                                     }}
                                                     selectedId={category.name}
                                                 >
@@ -776,7 +780,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                         style={{
                                                             display: 'flex',
                                                             height: '22px',
-                                                            alignItems: 'center',
+                                                            alignItems: 'center'
                                                         }}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
