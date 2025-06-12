@@ -3965,8 +3965,8 @@ ${endpointAttributes}
             await replaceFullContentToFile(filePath, content);
             const classMediator = await vscode.workspace.openTextDocument(filePath);
             await classMediator.save();
-
-            await updatePomForClassMediator(this.projectUri);
+            const projectUri = StateMachine.context().projectUri!;
+            await updatePomForClassMediator(projectUri);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });

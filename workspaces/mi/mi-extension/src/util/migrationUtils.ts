@@ -1296,7 +1296,7 @@ async function processCompositeExporterProject(
         usedDependencyIds.push(depId);
     }
     if (hasClassMediatorModule) {
-        await changeRootPomForClassMediator(target);
+        await updatePomForClassMediator(target);
     }
     updateRegistryArtifactXml(target, registryArtifactsList);
     copyConfigMetaData(configFiles, target, projectDirToMetaFilesMap);
