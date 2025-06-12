@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from "react";
-import { SidePanelBody, ProgressRing, Tabs, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { SidePanelBody, ProgressRing, Tabs, Icon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { Member, Type, TypeNodeKind, Imports, AddImportItemResponse } from "@wso2-enterprise/ballerina-core";
@@ -117,17 +117,17 @@ export function TypeEditor(props: TypeEditorProps) {
                                 name: 'Create from scratch',
                                 icon: <Icon
                                     name="bi-edit"
-                                    sx={{ marginRight: '2px' }}
-                                    iconSx={{ fontSize: '12px', display: 'flex', alignItems: 'center', paddingTop: '2px', paddingRight: '6px' }}
+                                    sx={{ marginRight: '5px' }}
+                                    iconSx={{ fontSize: '12px', display: 'flex', alignItems: 'center', paddingTop: '2px' }}
                                 />
                             },
                             {
                                 id: 'import',
                                 name: 'Import',
-                                icon: <Codicon
-                                    name="arrow-up"
-                                    sx={{ marginRight: '2px' }}
-                                    iconSx={{ fontSize: '12px', display: 'flex', alignItems: 'center', paddingTop: '2px', paddingRight: '6px' }}
+                                icon: <Icon
+                                    name="bi-import"
+                                    sx={{ marginRight: '5px' }}
+                                    iconSx={{ fontSize: '14px', display: 'flex', alignItems: 'center', paddingTop: '2px' }}
                                 />
                             }
                         ]}
