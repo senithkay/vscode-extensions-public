@@ -47,7 +47,7 @@ export class ProjectExplorer {
         } else {
             await projectExplorerRoot.waitFor();
         }
-        await projectExplorerRoot.hover();
+        await projectExplorerRoot.first().hover();
         const locator = projectExplorerRoot.getByLabel('Open Project Overview');
         await locator.waitFor();
         await this.page.waitForTimeout(500); // To fix intermittent issues
