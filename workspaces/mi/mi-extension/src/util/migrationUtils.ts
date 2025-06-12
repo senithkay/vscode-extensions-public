@@ -675,8 +675,10 @@ function copyConfigToNewProjectStructure(sourceFileInfo: FileInfo, target: strin
     switch (sourceFileInfo.projectType) {
         case Nature.ESB:
             const artifactType = getArtifactType(sourceFileInfo.path);
-            const subDir = SYNAPSE_TO_MI_ARTIFACT_FOLDER_MAP[artifactType ?? ''] ?? '';
-            copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, subDir));
+            const subDir = SYNAPSE_TO_MI_ARTIFACT_FOLDER_MAP[artifactType ?? ''];
+            if (subDir) {
+                copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, subDir));
+            }
             break;
         case Nature.DATASOURCE:
             copyArtifactFileToTargetDir(sourceFileInfo.path, path.join(target, SRC, MAIN, WSO2MI, ARTIFACTS, DATA_SOURCES));
