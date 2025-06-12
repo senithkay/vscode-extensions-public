@@ -21,7 +21,7 @@ export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
     public static readonly viewType = "ballerina.visualizer";
     public static readonly ballerinaTitle = "Ballerina Visualizer";
-    public static readonly biTitle = "Ballerina Integrator";
+    public static readonly biTitle = "WSO2 Integrator: BI";
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 

@@ -52,12 +52,12 @@ export async function toggleNotifications(disable: boolean) {
 }
 
 export async function setupBallerinaIntegrator() {
-    await page.selectSidebarItem('Ballerina Integrator');
-    const webview = await switchToIFrame('Ballerina Integrator', page.page);
+    await page.selectSidebarItem('WSO2 Integrator: BI');
+    const webview = await switchToIFrame('WSO2 Integrator: BI', page.page);
     if (!webview) {
-        throw new Error('Ballerina Integrator webview not found');
+        throw new Error('WSO2 Integrator: BI webview not found');
     }
-    const txt = webview.locator('text=Ballerina Integrator for VS');
+    const txt = webview.locator('text=WSO2 Integrator: BI for VS');
     await txt.waitFor({ timeout: 30000 });
     const createNewIntegrationBtn = webview.getByRole('button', { name: 'Create New Integration' });
     try {
@@ -80,11 +80,11 @@ export async function setupBallerinaIntegrator() {
 export async function createProject(page: ExtendedPage, projectName?: string) {
     console.log('Creating new project');
     await setupBallerinaIntegrator();
-    const webview = await switchToIFrame('Ballerina Integrator', page.page, 60000);
+    const webview = await switchToIFrame('WSO2 Integrator: BI', page.page, 60000);
     if (!webview) {
-        throw new Error('Ballerina Integrator webview not found');
+        throw new Error('WSO2 Integrator: BI webview not found');
     }
-    const form = new Form(page.page, 'Ballerina Integrator', webview);
+    const form = new Form(page.page, 'WSO2 Integrator: BI', webview);
     await form.switchToFormView(false, webview);
     await form.fill({
         values: {
@@ -99,9 +99,9 @@ export async function createProject(page: ExtendedPage, projectName?: string) {
         }
     });
     await form.submit('Create Integration');
-    const artifactWebView = await switchToIFrame('Ballerina Integrator', page.page);
+    const artifactWebView = await switchToIFrame('WSO2 Integrator: BI', page.page);
     if (!artifactWebView) {
-        throw new Error('Ballerina Integrator webview not found');
+        throw new Error('WSO2 Integrator: BI webview not found');
     }
     const integrationName = artifactWebView.locator('text=sample');
     await integrationName.waitFor({ timeout: 200000 });
@@ -139,9 +139,9 @@ export function initTest(newProject: boolean = false, skipProjectCreation: boole
 
 export async function addArtifact(artifactName: string, testId: string) {
     console.log(`Adding artifact: ${artifactName}`);
-    const artifactWebView = await switchToIFrame('Ballerina Integrator', page.page);
+    const artifactWebView = await switchToIFrame('WSO2 Integrator: BI', page.page);
     if (!artifactWebView) {
-        throw new Error('Ballerina Integrator webview not found');
+        throw new Error('WSO2 Integrator: BI webview not found');
     }
     // Navigate to the overview page
     await artifactWebView.getByRole('button', { name: ' Add Artifact' }).click();
