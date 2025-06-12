@@ -76,7 +76,6 @@ import { copy } from 'fs-extra';
 const fs = require('fs');
 import { TextEdit } from "vscode-languageclient";
 import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
-import { rangeFormat } from '../../util/fileOperations';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -632,7 +631,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         if (success) {
             const document = await workspace.openTextDocument(pomPath);
             await document.save();
-            await rangeFormat({ uri: pomPath });
             if (getStateMachine(this.projectUri).context().view === MACHINE_VIEW.Overview) {
                 refreshUI(this.projectUri);
             }
