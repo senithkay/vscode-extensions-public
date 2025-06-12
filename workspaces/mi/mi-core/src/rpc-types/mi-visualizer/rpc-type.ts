@@ -44,7 +44,6 @@ import {
     UpdateAiDependenciesRequest,
     ProjectConfig,
     MavenDeployPluginDetails
-    UpdateAiDependenciesRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";

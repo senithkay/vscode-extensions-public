@@ -72,12 +72,8 @@ import {
     DownloadMIRequest,
     updateAiDependencies,
     UpdateAiDependenciesRequest,
-    UpdateAiDependenciesResponse
-,
-    updateAiDependencies,
-    UpdateAiDependenciesRequest,
-    UpdateAiDependenciesResponse
-, ProjectConfig,
+    UpdateAiDependenciesResponse,
+    ProjectConfig,
     MavenDeployPluginDetails,
     setDeployPlugin,
     getDeployPluginDetails,

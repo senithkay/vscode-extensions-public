@@ -242,8 +242,6 @@ import {
     DevantMetadata,
     GetCodeDiagnosticsReqeust,
     GetCodeDiagnosticsResponse,
-    GetCodeDiagnosticsReqeust,
-    GetCodeDiagnosticsResponse,
     UpdateMediatorResponse,
     GetConnectorIconRequest,
     GetConnectorIconResponse
@@ -416,5 +414,4 @@ export interface MiDiagramAPI {
     shouldDisplayPayloadAlert: () => Promise<boolean>;
     displayPayloadAlert: () => Promise<void>;
     closePayloadAlert: () => Promise<void>;
-    getCodeDiagnostics: (params: GetCodeDiagnosticsReqeust) => Promise<GetCodeDiagnosticsResponse>;
 }
