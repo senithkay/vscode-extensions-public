@@ -106,6 +106,7 @@ export const RecordFromXml = (props: RecordFromXmlProps) => {
                 value={xml}
                 onChange={onXmlChange}
                 errorMsg={error}
+                placeholder='Paste or type your XML here...'
             />
             <S.Footer>
                 {/* <Button appearance="secondary" onClick={onCancel}>Cancel</Button> */}
