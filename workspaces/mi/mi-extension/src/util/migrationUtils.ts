@@ -168,7 +168,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
         }
 
         console.log("Created project structure for project: " + projectName);
-        await migrateConfigs(path.join(source, ".backup"), directory);
+        await migrateConfigs(projectUri, path.join(source, ".backup"), directory);
 
         window.showInformationMessage(`Successfully imported ${projectName} project`);
 
@@ -213,7 +213,7 @@ export function getProjectDetails(filePath: string) {
 }
 
 /**
- * Captures the project directory from a given file path which is in ".bakcup" dir.
+ * Captures the project directory from a given file path which is in ".bakcup" dir. 
  * If filePath contains ".backup", extract the segment after the last ".backup" and keep only the next directory name
  *
  * @param filePath - The absolute or relative file path to analyze.
@@ -325,7 +325,7 @@ function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Ma
             let artifacts: Artifact[] = [];
             const artifactXmlPath = path.join(projectDir, 'artifact.xml');
             if (fs.existsSync(artifactXmlPath)) {
-                const xml = parseXmlFile(artifactXmlPath);
+                const xml = parseArtifactsXmlFile(artifactXmlPath);
                 if (xml.artifacts && xml.artifacts.artifact) {
                     artifacts = normalizeArtifacts(xml.artifacts.artifact);
                 }
@@ -846,6 +846,13 @@ function processConnectors(source: string, target: string) {
     });
 }
 
+/**
+ * Ensures that an `artifact.xml` file exists at the specified registry path.
+ * If the file does not exist, it creates a new `artifact.xml` file with a default XML structure.
+ *
+ * @param registryPath - The path to the registry directory where `artifact.xml` should exist.
+ * @returns The full path to the `artifact.xml` file.
+ */
 function ensureArtifactXmlExists(registryPath: string): string {
     const artifactXmlPath = path.join(registryPath, 'artifact.xml');
 
@@ -857,30 +864,63 @@ function ensureArtifactXmlExists(registryPath: string): string {
     return artifactXmlPath;
 }
 
-function parseXmlFile(filePath: string): ArtifactsRoot {
+/**
+ * Reads and parses an XML file containing artifact definitions, returning the result as an `ArtifactsRoot` object.
+ *
+ * @param filePath - The path to the XML file to be parsed.
+ * @returns The parsed `ArtifactsRoot` object, or an object with an empty `artifacts` property if parsing fails.
+ */
+function parseArtifactsXmlFile(filePath: string): ArtifactsRoot {
     try {
         const xmlContent = fs.readFileSync(filePath, 'utf-8');
         const parser = new XMLParser(xmlParserOptions);
         const result = parser.parse(xmlContent);
 
-        // Handle case where artifacts is empty and parsed as empty string
+        // Normalize structure so result.artifacts.artifact is always an array
         if (!result.artifacts || typeof result.artifacts === 'string') {
-            return {
-                artifacts: {}
-            };
+            result.artifacts = {};
+        }
+        if (!result.artifacts.artifact) {
+            result.artifacts.artifact = [];
+        } else if (!Array.isArray(result.artifacts.artifact)) {
+            result.artifacts.artifact = [result.artifacts.artifact];
         }
 
         return result as ArtifactsRoot;
     } catch (error) {
-        throw new Error(`Failed to parse XML file ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(`Failed to parse XML file ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        return {
+            artifacts: { artifact: [] }
+        };
     }
 }
 
+/**
+ * Normalizes the input artifact data to always return an array of `Artifact` objects.
+ *
+ * If the input is `null` or `undefined`, returns an empty array.
+ * If the input is already an array, returns it as-is.
+ * If the input is a single object, wraps it in an array.
+ *
+ * @param artifactsData - The artifact data to normalize, which can be an array, a single object, or null/undefined.
+ * @returns An array of `Artifact` objects.
+ */
 function normalizeArtifacts(artifactsData: any): Artifact[] {
     if (!artifactsData) return [];
     return Array.isArray(artifactsData) ? artifactsData : [artifactsData];
 }
 
+/**
+ * Writes the updated artifact XML to the specified file path.
+ *
+ * This function serializes the provided `artifactsRoot` object into XML format
+ * using the configured XML builder, and writes the resulting XML string to the
+ * file at `filePath`. If an error occurs during the process, it logs an error
+ * message to the console.
+ *
+ * @param filePath - The path to the file where the updated XML should be written.
+ * @param artifactsRoot - The root object representing the artifacts to be serialized into XML.
+ */
 function writeUpdatedArtifactXml(filePath: string, artifactsRoot: ArtifactsRoot): void {
     try {
         const builder = new XMLBuilder(xmlBuilderOptions);
@@ -891,17 +931,31 @@ function writeUpdatedArtifactXml(filePath: string, artifactsRoot: ArtifactsRoot)
     }
 }
 
+/**
+ * Copies a registry file or collection from the source location to the target project's registry directory.
+ *
+ * This function determines whether the provided `sourceFileInfo` contains an artifact of type `item` or `collection`.
+ * - If the artifact is an `item`, it copies the file to the appropriate target directory, preserving the relative path.
+ * - If the artifact is a `collection`, it copies the entire collection directory to the target location.
+ * The function creates any necessary directories in the target path.
+ *
+ * @param sourceFileInfo - Information about the source file, including its path and artifact metadata.
+ * @param targetProjectDir - The root directory of the target project where the registry file or collection should be copied.
+ *
+ * @remarks
+ * - Logs an error if the artifact does not contain an `item` or `collection`.
+ * - Logs an error if the copy operation fails.
+ */
 function copyRegistryFile(sourceFileInfo: FileInfo, targetProjectDir: string): void {
     const registryPath = path.join(targetProjectDir, SRC, MAIN, WSO2MI, RESOURCES, REGISTRY);
     try {
-        // Get the first item's path from the artifact
         const artifact = sourceFileInfo.artifact;
         if (artifact) {
             if (artifact.item) {
                 const items = Array.isArray(artifact.item) ? artifact.item : [artifact.item];
                 const firstItem = items[0];
                 const relativePath = firstItem.path;
-                const targetDir = getTargetPath(relativePath, registryPath);
+                const targetDir = resolveRegistryTargetPath(relativePath, registryPath);
                 const targetFile = path.join(targetDir, firstItem.file.split('/').pop()!);
                 fs.mkdirSync(targetDir, { recursive: true });
                 copyFile(sourceFileInfo.path, targetFile);
@@ -909,11 +963,11 @@ function copyRegistryFile(sourceFileInfo: FileInfo, targetProjectDir: string): v
                 const collections = Array.isArray(artifact.collection) ? artifact.collection : [artifact.collection];
                 const firstCollection = collections[0];
                 const relativePath = firstCollection.path;
-                const targetDir = getTargetPath(relativePath, registryPath);
+                const targetDir = resolveRegistryTargetPath(relativePath, registryPath);
                 fs.mkdirSync(targetDir, { recursive: true });
                 copy(sourceFileInfo.path, targetDir);
             } else {
-                throw new Error('Artifact does not have item or collection for registry resource.');
+                console.error('Artifact does not have item or collection for registry resource.');
             }
         }
     } catch (error) {
@@ -921,7 +975,19 @@ function copyRegistryFile(sourceFileInfo: FileInfo, targetProjectDir: string): v
     }
 }
 
-function getTargetPath(relativePath: string, registryPath: string): string {
+/**
+ * Resolves a target path within the registry directory based on a given relative path.
+ *
+ * This function maps specific system paths to their corresponding directories:
+ * - Paths starting with `/_system/governance` are mapped to the `gov` directory.
+ * - Paths starting with `/_system/config` are mapped to the `conf` directory.
+ * - All other paths are used as-is under the registry directory.
+ *
+ * @param relativePath - The relative path to resolve, typically starting with a system prefix.
+ * @param registryPath - The base path of the registry directory.
+ * @returns The resolved absolute path within the registry directory.
+ */
+function resolveRegistryTargetPath(relativePath: string, registryPath: string): string {
     if (relativePath.startsWith('/_system/governance')) {
         return path.join(registryPath, path.normalize(relativePath.replace(/^\/_system\/governance/, 'gov')));
     } else if (relativePath.startsWith('/_system/config')) {
@@ -932,22 +998,21 @@ function getTargetPath(relativePath: string, registryPath: string): string {
     }
 }
 
+/**
+ * Updates the `artifact.xml` file in the registry resources directory of the given project
+ * by adding the provided artifacts to it.
+ *
+ * This function ensures that the `artifact.xml` file exists, parses its contents,
+ * processes each new artifact, and appends them to the existing list of artifacts.
+ * Finally, it writes the updated XML back to disk.
+ *
+ * @param projectDir - The root directory of the project where the registry artifacts are located.
+ * @param artifacts - An array of `Artifact` objects to be added to the `artifact.xml`.
+ */
 function updateRegistryArtifactXml(projectDir: string, artifacts: Artifact[]) {
     const targetRegistryPath = path.join(projectDir, SRC, MAIN, WSO2MI, RESOURCES, REGISTRY);
     const targetArtifactXmlPath = ensureArtifactXmlExists(targetRegistryPath);
-
-    // Parse the existing artifact.xml
-    const targetXml = parseXmlFile(targetArtifactXmlPath);
-
-    // Ensure artifacts structure exists
-    if (!targetXml.artifacts || typeof targetXml.artifacts === 'string') {
-        targetXml.artifacts = {};
-    }
-    if (!targetXml.artifacts.artifact) {
-        targetXml.artifacts.artifact = [];
-    } else if (!Array.isArray(targetXml.artifacts.artifact)) {
-        targetXml.artifacts.artifact = [targetXml.artifacts.artifact];
-    }
+    const targetXml = parseArtifactsXmlFile(targetArtifactXmlPath);
 
     // Process and add new artifacts
     artifacts.forEach(artifact => {
@@ -958,6 +1023,19 @@ function updateRegistryArtifactXml(projectDir: string, artifacts: Artifact[]) {
     writeUpdatedArtifactXml(targetArtifactXmlPath, targetXml);
 }
 
+/**
+ * Processes an `Artifact` object to prepare its file and directory paths for writing.
+ *
+ * - For `artifact.item` (or array of items), it modifies the `file` property by extracting only the filename
+ *   (removing any preceding directory paths).
+ * - For `artifact.collection` (or array of collections), it modifies:
+ *   - The `directory` property by extracting only the last directory name.
+ *   - The `path` property by removing the last segment
+ *
+ * The function mutates the input `artifact` object in place.
+ *
+ * @param artifact - The `Artifact` object to process. Can contain either `item` or `collection` properties.
+ */
 function processArtifactForWrite(artifact: Artifact): void {
     if (artifact) {
         if (artifact.item) {
@@ -1031,70 +1109,6 @@ function processRegistryResources(source: string, target: string) {
     });
 }
 
-/**
- * Processes test files and associated mock services for a given artifact and target directory.
- *
- * This function scans the `test` directory within the source project directory (derived from the given artifact file path),
- * and for each XML test file, parses its contents to determine if it is associated with the provided artifact.
- * If so, the test file is copied to the target test directory. Additionally, if the test file references any mock services,
- * those mock service files are also copied to the appropriate mock services directory within the target.
- *
- * @param artifactFilePath - The file path to the artifact whose tests are to be processed.
- * @param target - The target directory where test files and mock services should be copied.
- *
- * @remarks
- * - Only XML files in the `test` directory are processed.
- * - Test files are copied if their `test-artifact` matches the artifact file path.
- * - Mock service files referenced in the test XML are also copied to the target mock services directory.
- */
-function processTests(artifactFilePath: string, target: string) {
-    const sourceProjectDir = getProjectDir(artifactFilePath);
-    const rootDir = path.dirname(sourceProjectDir);
-    const testDir = path.join(sourceProjectDir, 'test');
-    const targetMockServicesDir = path.join(target, 'src', 'test', 'resources', 'mock-services');
-    const targetTestDir = path.join(target, 'src', 'test', 'wso2mi');
-    if (fs.existsSync(testDir) && fs.statSync(testDir).isDirectory()) {
-        const files = fs.readdirSync(testDir);
-        files.forEach(file => {
-            const sourceFile = path.join(testDir, file);
-            if (fs.statSync(sourceFile).isFile()) {
-                if (path.extname(sourceFile).toLowerCase() === '.xml') {
-                    const fileContent = fs.readFileSync(sourceFile, 'utf-8');
-                    parseString(fileContent, { explicitArray: false, ignoreAttrs: false }, (err, result) => {
-                        if (err) {
-                            console.error(`Error parsing XML in file ${sourceFile}:`, err);
-                            return;
-                        }
-                        const value = result?.['unit-test']?.artifacts?.['test-artifact']?.artifact;
-                        const normalizedArtifactFilePath = artifactFilePath.split(path.sep).join('/');
-                        if (typeof value === 'string' && normalizedArtifactFilePath.endsWith(value)) {
-                            const destFile = path.join(targetTestDir, file);
-                            copyFile(sourceFile, destFile);
-                        }
-                        const mockServices = result?.['unit-test']?.['mock-services']?.['mock-service'];
-                        if (mockServices) {
-                            const mockServiceFiles = Array.isArray(mockServices) ? mockServices : [mockServices];
-                            mockServiceFiles.forEach((mockServicePath: string) => {
-                                const firstSlash = mockServicePath.indexOf('/');
-                                const secondSlash = mockServicePath.indexOf('/', firstSlash + 1);
-                                let relativeMockServicePath = mockServicePath;
-                                if (secondSlash !== -1) {
-                                    relativeMockServicePath = mockServicePath.substring(secondSlash);
-                                }
-                                const absoluteMockServicePath = path.join(rootDir, relativeMockServicePath);
-                                if (fs.existsSync(absoluteMockServicePath) && fs.statSync(absoluteMockServicePath).isFile()) {
-                                    const destMockServiceFile = path.join(targetMockServicesDir, path.basename(mockServicePath));
-                                    copyFile(absoluteMockServicePath, destMockServiceFile);
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-        });
-    }
-}
-
 function processTestsFolder(source: string, target: string) {
     const oldTestPath = path.join(source, 'test');
     const newTestPath = path.join(target, 'src', 'test', 'wso2mi');
@@ -1152,6 +1166,17 @@ function processDependency(depId: string, sourceFileInfo: FileInfo | undefined, 
     }
 }
 
+/**
+ * Reads and parses the dependencies from a Maven `pom.xml` file.
+ *
+ * @param pomFilePath - The file path to the `pom.xml` file.
+ * @returns An array of `Dependency` objects extracted from the `pom.xml` file.
+ *
+ * @remarks
+ * This function reads the specified `pom.xml` file, parses its XML content,
+ * and extracts the list of dependencies defined within the `<dependencies>` section.
+ * If no dependencies are found, it returns an empty array.
+ */
 function readPomDependencies(pomFilePath: string): Dependency[] {
     const pomContent = fs.readFileSync(pomFilePath, 'utf-8');
     const parser = new XMLParser({ ignoreAttributes: false });
