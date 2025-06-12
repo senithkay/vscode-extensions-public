@@ -816,7 +816,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             </Button>
                         )}
                         <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton || isSaving}>
-                            {isSaving ? <Typography variant="progress">{submitText || "Saving..."}</Typography> : "Save"}
+                            {isSaving ? <Typography variant="progress">{submitText || "Saving..."}</Typography> : submitText || "Save"}
                         </S.PrimaryButton>
                     </S.Footer>
                 )}
