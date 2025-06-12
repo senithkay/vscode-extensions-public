@@ -115,6 +115,7 @@ export type Property = {
     imports?: Imports;
     advancedValue?: string;
     modified?: boolean;
+    oldValue?: string;
 };
 
 export type PropertyTypeMemberInfo = {

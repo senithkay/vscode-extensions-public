@@ -40,7 +40,20 @@ export function EditForm(props: ConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const handleSave = async (data: FlowNode) => {
-
+        // update the variable with the previous variable name value if modified
+        if (data?.properties?.variable?.modified) {
+            data = {
+                ...data,
+                properties: {
+                    ...data.properties,
+                    variable: {
+                        ...data.properties.variable,
+                        oldValue: String(variable.properties.variable.value)
+                    }
+                }
+            };
+        }
+        
         await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
             configFilePath: props.filename,
             configVariable: data,
