@@ -14,7 +14,8 @@ import {
     GetGraphqlTypeResponse,
     GetGraphqlTypeRequest,
     EVENT_TYPE,
-    MACHINE_VIEW
+    MACHINE_VIEW,
+    TypeNodeKind
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
@@ -76,6 +77,24 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
     const [isTypeEditorOpen, setIsTypeEditorOpen] = useState(false);
     const [editingType, setEditingType] = useState<Type>();
     const [focusedNodeId, setFocusedNodeId] = useState<string | undefined>(undefined);
+
+    // Helper function to convert TypeNodeKind to display name
+    const getTypeKindDisplayName = (typeNodeKind?: TypeNodeKind): string => {
+        switch (typeNodeKind) {
+            case "RECORD":
+                return "Input Object";
+            case "ENUM":
+                return "Enum";
+            case "CLASS":
+                return "Object";
+            case "UNION":
+                return "Union";
+            case "ARRAY":
+                return "Array";
+            default:
+                return "";
+        }
+    };
 
     const fetchGraphqlTypeModel = async () => {
         if (!filePath) return null;
@@ -251,7 +270,11 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                 />
             )}
             {isTypeEditorOpen && editingType && editingType.codedata.node !== "CLASS" && (
-                <PanelContainer title={`Edit Type`} show={true} onClose={onTypeEditorClosed}>
+                <PanelContainer 
+                    title={`Edit Type${getTypeKindDisplayName(editingType?.codedata?.node) ? ` : ${getTypeKindDisplayName(editingType?.codedata?.node)}` : ''}`} 
+                    show={true} 
+                    onClose={onTypeEditorClosed}
+                >
                     <FormTypeEditor
                         type={editingType}
                         onTypeChange={onTypeChange}

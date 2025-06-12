@@ -423,7 +423,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                 </LoadingContainer>
             )}
             {serviceClassModel && !editingFunction && (
-                <PanelContainer title={"Edit Object"} show={true} onClose={onClose} onBack={onClose} width={400}>
+                <PanelContainer title={"Edit Type : Object"} show={true} onClose={onClose} onBack={onClose} width={400}>
                     <ServiceContainer>
 
 
