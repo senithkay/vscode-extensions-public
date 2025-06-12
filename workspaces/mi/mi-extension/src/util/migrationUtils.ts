@@ -250,6 +250,7 @@ export async function migrateConfigs(projectUri: string, source: string, target:
         const { configToTests, configToMockServices } = generateConfigToTestAndMockServiceMaps(source, items);
         const projectDirToMetaFilesMap = generateProjectDirToMetaFilesMap(source, items);
 
+        const allUsedDependencyIds = new Set<string>();
         for (const item of items) {
             if (!item.isDirectory()) continue;
 
@@ -259,10 +260,19 @@ export async function migrateConfigs(projectUri: string, source: string, target:
             const moduleType = determineProjectType(sourcePath);
 
             if (moduleType === Nature.DISTRIBUTION && artifactIdToFileInfoMap) {
-                await processCompositeExporterProject(sourcePath, targetPath, artifactIdToFileInfoMap, configToTests, configToMockServices, projectDirToMetaFilesMap);
+                const usedDepIds = await processCompositeExporterProject(
+                    sourcePath,
+                    targetPath,
+                    artifactIdToFileInfoMap,
+                    configToTests,
+                    configToMockServices,
+                    projectDirToMetaFilesMap
+                );
+                usedDepIds.forEach(depId => allUsedDependencyIds.add(depId));
                 await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
             }
         }
+        writeUnusedFileInfos(allUsedDependencyIds, artifactIdToFileInfoMap, source)
         await commands.executeCommand('workbench.action.closeWindow');
     } else if (projectType === Nature.LEGACY) {
         const items = fs.readdirSync(source, { withFileTypes: true });
@@ -283,6 +293,34 @@ export async function migrateConfigs(projectUri: string, source: string, target:
     }
     if (hasClassMediatorModule) {
         await updatePomForClassMediator(projectUri);
+    }
+}
+
+/**
+ * Writes the file paths of unused files (those whose artifact IDs are not present in the set of used dependency IDs)
+ * to a text file in the backup directory.
+ *
+ * @param allUsedDependencyIds - A set containing the artifact IDs of all dependencies that are used.
+ * @param artifactIdToFileInfoMap - A map from artifact IDs to their corresponding file information.
+ * @param backupDir - The directory where the output file listing unused file paths will be written.
+ */
+function writeUnusedFileInfos(
+    allUsedDependencyIds: Set<string>,
+    artifactIdToFileInfoMap: Map<string, FileInfo>,
+    backupDir: string
+): void {
+    const unusedFilePaths: string[] = [];
+    for (const [artifactId, fileInfo] of artifactIdToFileInfoMap.entries()) {
+        // Only consider entries with an artifact (i.e., config files that could be selected for a composite exporter)
+        if (fileInfo.artifact && !allUsedDependencyIds.has(artifactId)) {
+            unusedFilePaths.push(fileInfo.path);
+        }
+    }
+    const outputFilePath = path.join(backupDir, 'unused-during-migration.txt');
+    try {
+        fs.writeFileSync(outputFilePath, unusedFilePaths.join('\n'), 'utf-8');
+    } catch (err) {
+        console.error(`Failed to write unused file infos to ${outputFilePath}:`, err);
     }
 }
 
@@ -633,8 +671,8 @@ function determineProjectType(source: string): Nature | undefined {
     return configType;
 }
 
-function copyConfigToNewProjectStructure(nature: Nature, sourceFileInfo: FileInfo, target: string) {
-    switch (nature) {
+function copyConfigToNewProjectStructure(sourceFileInfo: FileInfo, target: string) {
+    switch (sourceFileInfo.projectType) {
         case Nature.ESB:
             const artifactType = getArtifactType(sourceFileInfo.path);
             const subDir = SYNAPSE_TO_MI_ARTIFACT_FOLDER_MAP[artifactType ?? ''] ?? '';
@@ -751,7 +789,7 @@ function processArtifactsFolder(source: string, target: string) {
  * @param targetDir - The base directory where metadata files should be copied.
  * @param projectDirToMetaFilesMap - A map from project directory paths to arrays of metadata file paths.
  */
-function copyMetaDataFor(configFiles: string[], targetDir: string, projectDirToMetaFilesMap: Map<string, string[]>) {
+function copyConfigMetaData(configFiles: string[], targetDir: string, projectDirToMetaFilesMap: Map<string, string[]>) {
     const destDir = path.join(targetDir, SRC, MAIN, WSO2MI, RESOURCES, METADATA);
     for (const configFile of configFiles) {
         const projectDir = getProjectDir(configFile);
@@ -775,7 +813,7 @@ function copyMetaDataFor(configFiles: string[], targetDir: string, projectDirToM
  * @param configToTests - A map associating each configuration file path with an array of test file paths to be copied.
  * @param configToMockServices - A map associating each configuration file path with an array of mock service file paths to be copied.
  */
-function copyTestFor(
+function copyConfigTests(
     configFiles: string[],
     targetDir: string,
     configToTests: Map<string, string[]>,
@@ -1167,7 +1205,7 @@ function processDependency(depId: string, sourceFileInfo: FileInfo | undefined, 
     } else {
         if (sourceFileInfo.projectType === Nature.ESB || sourceFileInfo.projectType === Nature.DS || sourceFileInfo.projectType === Nature.DATASOURCE ||
             sourceFileInfo.projectType === Nature.CONNECTOR || sourceFileInfo.projectType === Nature.REGISTRY || sourceFileInfo.projectType === Nature.CLASS) {
-            copyConfigToNewProjectStructure(sourceFileInfo.projectType, sourceFileInfo, target);
+            copyConfigToNewProjectStructure(sourceFileInfo, target);
         }
     }
 }
@@ -1218,7 +1256,7 @@ function readPomDependencies(pomFilePath: string): Dependency[] {
  * @param configToTests - Map of config file paths to their associated test file paths.
  * @param configToMockServices - Map of config file paths to their associated mock service file paths.
  * @param projectDirToMetaFilesMap - Map of project directory paths to arrays of metadata file paths.
- * @returns A promise that resolves when processing is complete.
+ * @returns A promise that resolves to an array of dependency IDs that were used in the migration.
  */
 async function processCompositeExporterProject(
     source: string,
@@ -1227,17 +1265,19 @@ async function processCompositeExporterProject(
     configToTests: Map<string, string[]>,
     configToMockServices: Map<string, string[]>,
     projectDirToMetaFilesMap: Map<string, string[]>
-) {
+): Promise<string[]> {
     const pomFilePath = path.join(source, 'pom.xml');
     if (!fs.existsSync(pomFilePath)) {
         console.error(`pom.xml file not found in the source directory: ${source}`);
-        return;
+        return [];
     }
     const dependencies = readPomDependencies(pomFilePath);
 
     let hasClassMediatorModule = false;
     let registryArtifactsList: Artifact[] = [];
     let configFiles: string[] = [];
+    const usedDependencyIds: string[] = [];
+
     for (const dependency of dependencies) {
         const depId = getPomIdentifierStr(dependency.groupId, dependency.artifactId, dependency.version);
         const sourceFileInfo = artifactIdToFileInfoMap.get(depId);
@@ -1251,41 +1291,17 @@ async function processCompositeExporterProject(
         if (sourceFileInfo?.projectType === Nature.ESB) {
             configFiles.push(sourceFileInfo.path);
         }
+        usedDependencyIds.push(depId);
     }
     if (hasClassMediatorModule) {
         await changeRootPomForClassMediator(target);
     }
     updateRegistryArtifactXml(target, registryArtifactsList);
-    copyMetaDataFor(configFiles, target, projectDirToMetaFilesMap);
-    copyTestFor(configFiles, target, configToTests, configToMockServices);
+    copyConfigMetaData(configFiles, target, projectDirToMetaFilesMap);
+    copyConfigTests(configFiles, target, configToTests, configToMockServices);
     fixTestFilePaths(target);
-    logUnusedFiles(dependencies, artifactIdToFileInfoMap);
-}
 
-/**
- * Logs information about files that were not added to the project because they were not selected for the composite exporter.
- *
- * @param dependencies - An array of `Dependency` objects representing the selected dependencies.
- * @param artifactIdToFileInfoMap - A map where the key is an artifact ID string and the value is a `FileInfo` object.
- */
-function logUnusedFiles(dependencies: Dependency[], artifactIdToFileInfoMap: Map<string, FileInfo>) {
-    const foundDepIds = new Set<string>();
-    for (const dependency of dependencies) {
-        const depId = getPomIdentifierStr(dependency.groupId, dependency.artifactId, dependency.version);
-        foundDepIds.add(depId);
-    }
-    const unusedFileInfos: FileInfo[] = [];
-    for (const [artifactId, fileInfo] of artifactIdToFileInfoMap.entries()) {
-        if (!foundDepIds.has(artifactId)) {
-            unusedFileInfos.push(fileInfo);
-        }
-    }
-    if (unusedFileInfos.length > 0) {
-        console.log('The following files were not added to this project (if needed, they can be found in the ".backup" directory):');
-        unusedFileInfos.forEach(info => {
-            console.log(info.path);
-        });
-    }
+    return usedDependencyIds;
 }
 
 function fixTestFilePaths(source: string) {
