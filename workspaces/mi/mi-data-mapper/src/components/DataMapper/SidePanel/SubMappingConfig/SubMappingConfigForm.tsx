@@ -38,6 +38,7 @@ const Field = styled.div`
 `;
 
 import { css } from "@emotion/css";
+import { useShallow } from "zustand/react/shallow";
 
 const ALLOWED_TYPES = ['string', 'number', 'boolean', 'object'];
 const ADD_NEW_SUB_MAPPING_HEADER = "Add New Sub Mapping";
@@ -68,12 +69,15 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         resetSubMappingConfig,
         subMappingConfigFormData,
         setSubMappingConfigFormData
-    } = useDMSubMappingConfigPanelStore(state => ({
-        subMappingConfig: state.subMappingConfig,
-        resetSubMappingConfig: state.resetSubMappingConfig,
-        subMappingConfigFormData: state.subMappingConfigFormData,
-        setSubMappingConfigFormData: state.setSubMappingConfigFormData
-    })
+    } = useDMSubMappingConfigPanelStore(
+        useShallow(
+                state => ({
+                subMappingConfig: state.subMappingConfig,
+                resetSubMappingConfig: state.resetSubMappingConfig,
+                subMappingConfigFormData: state.subMappingConfigFormData,
+                setSubMappingConfigFormData: state.setSubMappingConfigFormData
+            })
+        )
     );
 
     let defaultValues: { mappingName: string; mappingType: string | null; isArray: boolean };

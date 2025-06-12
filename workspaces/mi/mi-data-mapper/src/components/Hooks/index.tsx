@@ -26,6 +26,7 @@ import { ArrayFnConnectorNode } from '../Diagram/Node/ArrayFnConnector';
 import { FocusedInputNode } from '../Diagram/Node/FocusedInput';
 import { PrimitiveOutputNode } from '../Diagram/Node/PrimitiveOutput';
 import { isInputNode, isOutputNode } from '../Diagram/Actions/utils'
+import { useShallow } from 'zustand/react/shallow';
 
 export const useRepositionedNodes = (
     nodes: DataMapperNodeModel[],
@@ -109,10 +110,12 @@ export const useDiagramModel = (
 	const focusedSrc = focusedST ? focusedST.getText() : undefined;
     const lastView = views ? views[views.length - 1] : undefined;
 
-    const {collapsedObjectFields, expandedArrayFields} = useDMCollapsedFieldsStore(state => ({
-        collapsedObjectFields: state.collapsedObjectFields,
-        expandedArrayFields: state.expandedArrayFields
-    })); // Subscribe to collapsedFields
+    const {collapsedObjectFields, expandedArrayFields} = useDMCollapsedFieldsStore(
+            useShallow(state => ({
+            collapsedObjectFields: state.collapsedObjectFields,
+            expandedArrayFields: state.expandedArrayFields
+        }))
+    ); // Subscribe to collapsedFields
 
     const { inputSearch, outputSearch } = useDMSearchStore();
     const prevScreenWidth = useRef(screenWidth);
