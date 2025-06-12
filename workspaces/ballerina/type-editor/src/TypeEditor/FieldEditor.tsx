@@ -16,6 +16,7 @@ import { RecordEditor } from './RecordEditor';
 import { AdvancedOptions } from './AdvancedOptions';
 import { IdentifierField } from './IdentifierField';
 import { TypeField } from './TypeField';
+import { OptionalFieldIcon, CurlyBracesIcon } from '../assets/icons';
 
 interface FieldEditorProps {
     member: Member;
@@ -35,8 +36,6 @@ const ButtonActive = styled.div<{}>`
     opacity: 1;
     color: 'var(--vscode-editorWarning-foreground)';
 `;
-
-
 
 const ExpandIconButton = styled(Button)`
     padding: 4px;
@@ -82,7 +81,6 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
             name: value
         });
     }
-
 
     const handleTypeChange = (value: string) => {
         onChange({
@@ -133,7 +131,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
 
     return (
         <>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'start' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <ExpandIconButton
                     appearance="icon"
                     onClick={() => setPanelOpened(!panelOpened)}
@@ -155,27 +153,27 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                     rootType={type}
                     isAnonymousRecord={isRecord(member.type)}
                 />
-                {isRecord(member.type) &&
-                    <Button appearance="icon" onClick={() => recordEditorRef.current?.addMember()}>
-                        <Codicon name="add" />
+                <div style={{ display: 'flex', gap: '1px' }}>
+                    {isRecord(member.type) &&
+                        <Button appearance="icon" onClick={() => recordEditorRef.current?.addMember()}>
+                            <Codicon name="add" />
+                        </Button>
+                    }
+                    <Button appearance="icon" onClick={toggleRecord}>
+                        <CurlyBracesIcon isActive={isRecord(member.type)} />
                     </Button>
-                }
-                <Button appearance="icon" onClick={toggleRecord}>
-                    {isRecord(member.type) ? <ButtonActive>{`{`}&nbsp;{`}`}</ButtonActive> : <ButtonDeactivated>{`{`}&nbsp;{`}`}</ButtonDeactivated>}
-                </Button>
-                <Button appearance="icon" onClick={onDelete}>
-                    <Codicon name="trash" />
-                </Button>
+                    <Button appearance="icon" onClick={toggleOptional}>
+                        <OptionalFieldIcon isActive={member?.optional} />
+                    </Button>
+                    <Button appearance="icon" onClick={onDelete}>
+                        <Codicon name="trash" />
+                    </Button>
+                </div>
             </div>
             {panelOpened && (
                 <CollapsibleSection>
                     <TextField label='Default Value' value={member.defaultValue} onChange={handleMemberDefaultValueChange} style={{ width: '180px' }} />
                     <TextField label='Description' value={member.docs} onChange={handleDescriptionChange} style={{ width: '180px' }} />
-                    <CheckBox
-                        label="Is Optional Field"
-                        checked={member?.optional}
-                        onChange={toggleOptional}
-                    />
                 </CollapsibleSection>
             )}
             {isRecord(member.type) && typeof member.type !== 'string' && (
