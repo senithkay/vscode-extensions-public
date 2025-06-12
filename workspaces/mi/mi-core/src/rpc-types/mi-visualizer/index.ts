@@ -40,6 +40,7 @@ import {
     SetPathRequest,
     PathDetailsResponse,
     DownloadMIRequest,
+    UpdateAiDependenciesRequest,
     ProjectConfig,
     MavenDeployPluginDetails
 } from "./types";
@@ -91,4 +92,5 @@ export interface MIVisualizerAPI {
     setDeployPlugin: (params: MavenDeployPluginDetails) => Promise<MavenDeployPluginDetails>;
     getDeployPluginDetails: () => Promise<MavenDeployPluginDetails>;
     removeDeployPlugin: () => Promise<MavenDeployPluginDetails>;
+    updateAiDependencies: (params: UpdateAiDependenciesRequest) => Promise<boolean>;
 }

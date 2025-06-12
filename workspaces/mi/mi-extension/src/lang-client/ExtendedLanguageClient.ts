@@ -67,6 +67,8 @@ import {
     GetCodeDiagnosticsReqeust,
     GetCodeDiagnosticsResponse,
     XmlCode,
+    UpdateAiDependenciesResponse,
+    UpdateAiDependenciesRequest,
     MavenDeployPluginDetails
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
@@ -435,5 +437,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getCodeDiagnostics(req: XmlCode): Promise<GetDiagnosticsResponse> {
         return this.sendRequest("synapse/codeDiagnostic", req);
+    }
+
+    async updateAiDependencies(req: UpdateAiDependenciesRequest): Promise<UpdateAiDependenciesResponse> {
+        return this.sendRequest('synapse/updateAiDependencies', req);
     }
 }

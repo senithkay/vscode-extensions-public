@@ -128,7 +128,7 @@ const AIChatMessage: React.FC<ChatMessageProps> = ({ message, index }) => {
                 {message.role === Role.MIUser ? <Codicon name="account" /> : <Codicon name="hubot" />}
                 <h3 style={{ margin: 0 }}>{message.role}</h3>
                 {message.role === Role.MICopilot && isRuntimeVersionThresholdReached ? (
-                    <PreviewContainerRole>V2-Preview</PreviewContainerRole>
+                    <PreviewContainerRole>V3-Preview</PreviewContainerRole>
                 ) : null}
             </RoleContainer>
 
