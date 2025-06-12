@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -128,6 +128,16 @@ type ConfigVariablesState = {
 interface PackageModuleState {
     category: string;
     module: string;
+}
+
+function useDebouncedCallback(callback: (...args: any[]) => void, delay: number) {
+    const timer = React.useRef<number | null>(null);
+    return React.useCallback((...args: any[]) => {
+        if (timer.current) window.clearTimeout(timer.current);
+        timer.current = window.setTimeout(() => {
+            callback(...args);
+        }, delay);
+    }, [callback, delay]);
 }
 
 export function ViewConfigurableVariables(props?: ConfigProps) {
@@ -272,6 +282,35 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         await new Promise(resolve => setTimeout(resolve, 200));
         getConfigVariables();
     }
+
+    const handleUpdateConfigValue = async (newValue: any, prevNode: ConfigVariable) => {
+        const newConfigVarNode: ConfigVariable = {
+            ...prevNode,
+            properties: {
+                ...prevNode.properties,
+                configValue: {
+                    ...prevNode.properties.configValue,
+                    value: newValue.target.value,
+                    modified: true
+                }
+            }
+        };
+        
+        await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
+            configFilePath: props.fileName,
+            configVariable: newConfigVarNode,
+            packageName: selectedModule.category,
+            moduleName: selectedModule.module,
+        });
+
+        // HACK: Add 0.2 second timeout to allow ls to process the changes (libraries)
+        // TODO: Send ls notification on success
+        await new Promise(resolve => setTimeout(resolve, 200));
+        getConfigVariables();
+        
+    }
+    
+    const debouncedUpdateConfigValue = useDebouncedCallback(handleUpdateConfigValue, 1000);
 
     const handleOnDeleteConfigVariable = async (index: number) => {
         if (!selectedModule) return;
@@ -495,12 +534,12 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             })()}
                                                             resize="vertical"
                                                             value={variable?.properties?.configValue?.value ? String(variable?.properties?.configValue?.value) : ''}
-                                                            readonly={true}
                                                             style={{
                                                                 width: '100%',
                                                                 maxWidth: '350px',
                                                                 minHeight: '20px'
                                                             }}
+                                                            onInput={(e: any) => debouncedUpdateConfigValue(e, variable)}
                                                         >
                                                             <style>{`
                                                                 vscode-text-area::part(control) {
