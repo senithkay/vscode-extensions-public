@@ -189,6 +189,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
         setEditingTypeId(undefined);
         setEditingType(undefined);
         setIsTypeCreatorOpen(false);
+        setHighlightedNodeId(type.name); // Highlight the newly created type
     };
 
     return (
