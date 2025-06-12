@@ -238,20 +238,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         setSearchValue(e);
     }
 
-    const handleHideLibraries = (state: boolean) => {
-        if (state) {
-            // If hiding libraries, reset selected module to integration
-            if (selectedModule?.category !== integrationCategory) {
-                const integrationCategoryData = categoriesWithModules.find(
-                    category => category.name === integrationCategory
-                );
-
-                setSelectedModule({ category: integrationCategory, module: integrationCategoryData.modules[0] });
-            }
-        }
-        setHideLibraries(state);
-    }
-
     const handleModuleSelect = (category: string, module: string) => {
         setAddConfigVariableFormOpen(false);
         setEditConfigVariableFormOpen(false);
@@ -598,14 +584,15 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                         <SplitView defaultWidths={[20, 80]} dynamicContainerSx={{ overflow: "visible" }}>
                             {/* Left side tree view */}
                             <div style={{ padding: "10px 0 50px 0" }}>
+                                {/* Display integration category first */}
                                 {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
-                                    .filter(category => !hideLibraries || category.name === integrationCategory)
+                                    .filter(category => category.name === integrationCategory)
                                     .map((category, index) => (
                                         <TreeView
                                             key={category.name}
                                             rootTreeView
                                             id={category.name}
-                                            expandByDefault={false}
+                                            expandByDefault={true}
                                             onSelect={() => {
                                                 if (category.modules.length > 0) {
                                                     handleModuleSelect(category.name, category.modules[0]);
@@ -630,7 +617,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 ? 'bold' : 'normal'
                                                         }}
                                                     >
-                                                        {category.name === integrationCategory ? 'Integration' : category.name}
+                                                        Integration
                                                     </Typography>
                                                     {categoryWarningCount(category.name) > 0 && (
                                                         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -704,6 +691,73 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                             ))}
                                         </TreeView>
                                     ))}
+
+                                {/* Group all other categories under "Imported libraries" */}
+                                {!hideLibraries && (
+                                    <TreeView
+                                        rootTreeView
+                                        id="imported-libraries"
+                                        expandByDefault={searchValue? true : false}
+                                        content={
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    height: '22px',
+                                                    alignItems: 'center',
+                                                }}>
+                                                <Typography
+                                                    variant="body3"
+                                                    sx={{
+                                                        fontWeight: 'normal'
+                                                    }}
+                                                >
+                                                    Imported libraries
+                                                </Typography>
+                                            </div>
+                                        }
+                                    >
+                                        {/* Map all non-integration categories */}
+                                        {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
+                                            .filter(category => category.name !== integrationCategory)
+                                            .map((category, index) => (
+                                                <TreeViewItem
+                                                    key={category.name}
+                                                    id={category.name}
+                                                    sx={{
+                                                        backgroundColor: 'transparent',
+                                                        paddingLeft: '35px',
+                                                        height: '25px',
+                                                        border: selectedModule?.category === category.name
+                                                            ? '1px solid var(--vscode-focusBorder)'
+                                                            : 'none'
+                                                    }}
+                                                    selectedId={category.name}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            height: '22px',
+                                                            alignItems: 'center',
+                                                        }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleModuleSelect(category.name, "");
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            variant="body3"
+                                                            sx={{
+                                                                fontWeight: selectedModule?.category === category.name && selectedModule?.module === ""
+                                                                    ? 'bold' : 'normal'
+                                                            }}
+                                                        >
+                                                            {category.name}
+                                                        </Typography>
+                                                    </div>
+                                                </TreeViewItem>
+                                            ))}
+                                    </TreeView>
+                                )}
                             </div>
                             {/* Right side view */}
                             <div style={{ height: '100%' }}>
