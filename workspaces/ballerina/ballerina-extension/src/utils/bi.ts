@@ -21,7 +21,7 @@ export const FUNCTIONS_FILE = "functions.bal";
 export const DATA_MAPPING_FILE = "data_mappings.bal";
 
 export function openBIProject() {
-    window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open BI Project' })
+    window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open Integration' })
         .then(uri => {
             if (uri && uri[0]) {
                 commands.executeCommand('vscode.openFolder', uri[0]);

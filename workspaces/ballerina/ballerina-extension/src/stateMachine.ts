@@ -496,7 +496,7 @@ async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFold
     if (balProjects.length > 1) {
         const projectPaths = balProjects.map(folder => folder.uri.fsPath);
         let selectedProject = await window.showQuickPick(projectPaths, {
-            placeHolder: 'Select a project to load the Ballerina Integrator'
+            placeHolder: 'Select a project to load the WSO2 Integrator'
         });
 
         if (!selectedProject) {

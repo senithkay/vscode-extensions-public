@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import { HistoryEntry } from "../../history";
+import { ColorThemeKind } from "../../state-machine-types";
 import { OpenViewRequest, UpdateUndoRedoMangerRequest } from "./interfaces";
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
@@ -23,3 +24,4 @@ export const undo: RequestType<void, string> = { method: `${_preFix}/undo` };
 export const redo: RequestType<void, string> = { method: `${_preFix}/redo` };
 export const addToUndoStack: NotificationType<string> = { method: `${_preFix}/addToUndoStack` };
 export const updateUndoRedoManager: NotificationType<UpdateUndoRedoMangerRequest> = { method: `${_preFix}/updateUndoRedoManager` };
+export const getThemeKind: RequestType<void, ColorThemeKind> = { method: `${_preFix}/getThemeKind` };
