@@ -196,7 +196,6 @@ export function ImportTab(props: ImportTabProps) {
             {importFormat === ImportFormat.XML && (
                 <RecordFromXml
                     rpcClient={rpcClient}
-                    name={importTypeName}
                     onImport={onImport}
                 />
             )}

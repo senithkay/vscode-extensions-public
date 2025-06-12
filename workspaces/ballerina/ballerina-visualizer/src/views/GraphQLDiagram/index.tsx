@@ -270,9 +270,11 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                 />
             )}
             {isTypeEditorOpen && editingType && editingType.codedata.node !== "CLASS" && (
-                <PanelContainer 
-                    title={`Edit Type${getTypeKindDisplayName(editingType?.codedata?.node) ? ` : ${getTypeKindDisplayName(editingType?.codedata?.node)}` : ''}`} 
-                    show={true} 
+                <PanelContainer
+                    title={`Edit Type${getTypeKindDisplayName(editingType?.codedata?.node) ?
+                        ` : ${getTypeKindDisplayName(editingType?.codedata?.node)}` :
+                        ''}`}
+                    show={true}
                     onClose={onTypeEditorClosed}
                 >
                     <FormTypeEditor
