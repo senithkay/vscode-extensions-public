@@ -138,10 +138,11 @@ interface GraphqlObjectViewerProps {
     onClose: () => void;
     onImplementation: (type: Type) => void;
     projectUri: string;
+    serviceIdentifier: string;
 }
 
 export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
-    const { onClose, type, projectUri, onImplementation } = props;
+    const { onClose, type, projectUri, onImplementation, serviceIdentifier } = props;
     const { rpcClient } = useRpcContext();
     const [serviceClassModel, setServiceClassModel] = useState<ServiceClassModel>();
     const [editingFunction, setEditingFunction] = useState<FunctionModel>(undefined);
@@ -215,10 +216,11 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
 
     const handleFunctionSave = async (updatedFunction: FunctionModel) => {
         try {
-            let lsResponse;
+            setIsSaving(true);
+            let artifacts;
             const currentFilePath = Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath;
             if (isNew) {
-                lsResponse = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
+                artifacts = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
                     filePath: currentFilePath,
                     codedata: {
                         lineRange: {
@@ -235,7 +237,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                     function: updatedFunction
                 });
             } else {
-                lsResponse = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
+                artifacts = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
                     filePath: currentFilePath,
                     codedata: {
                         lineRange: {
@@ -253,6 +255,10 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                 });
             }
 
+            const serviceArtifact = artifacts.artifacts.find(artifact => artifact.name === serviceIdentifier);
+            // Update the state machine context to the updated service artifact
+            await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+
             if (isNew) {
                 setIsNew(false);
             }
@@ -260,6 +266,8 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
             getServiceClassModel();
         } catch (error) {
             console.error('Error updating function:', error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -543,6 +551,7 @@ export function GraphqlObjectViewer(props: GraphqlObjectViewerProps) {
                     width={400}
                 >
                     <OperationForm
+                        isSaving={isSaving}
                         model={editingFunction}
                         filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
                         lineRange={serviceClassModel.codedata.lineRange}
