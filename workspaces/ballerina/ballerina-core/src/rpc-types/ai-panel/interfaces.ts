@@ -248,16 +248,11 @@ export interface SubmitFeedbackRequest {
     positive: boolean;
     messages: FeedbackMessage[];
     feedbackText : string;
-    diagnostics: FeedbackDiagnostic[];
+    diagnostics: DiagnosticEntry[];
 }
 
 export interface FeedbackMessage {
     command?: string;
     content: string;
     role : string;
-}
-
-export interface FeedbackDiagnostic {
-    code: string;
-    message: string;
 }

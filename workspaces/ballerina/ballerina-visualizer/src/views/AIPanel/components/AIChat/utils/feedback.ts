@@ -7,22 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagnosticEntry, FeedbackDiagnostic, FeedbackMessage } from "@wso2-enterprise/ballerina-core";
+import { FeedbackMessage } from "@wso2-enterprise/ballerina-core";
 import { Input, parseBadgeString } from "../../AIChatInput/utils/inputUtils";
-
-export function getDiagnosticsForFeedback(entries: DiagnosticEntry[]): FeedbackDiagnostic[] {
-    return entries.map(entry => ({
-        code: entry.code || "",
-        message: entry.message,
-    }));
-}
 
 export function getConvoHistoryForFeedback(messages: Array<{ role: string; content: string; type: string }> ,index:number, isPositive: boolean):FeedbackMessage[] {
     if (isPositive) {
         return []
     }
     const parsedInputs = messages.slice(0, index + 1).map(msg => {
-        // console.log("Parsing message content:", msg.content);
         const inputs: Input[] = parseBadgeString(msg.content);
         const role = msg.role === "User" ? "USER" : msg.role === "Copilot" ? "ASSISTANT" : msg.role.toUpperCase();
         let content;

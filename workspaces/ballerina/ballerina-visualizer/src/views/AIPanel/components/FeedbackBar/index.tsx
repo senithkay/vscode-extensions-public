@@ -7,16 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-
-import React, { useState } from 'react';
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import React, { useState } from "react";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import FeedbackDialog from '../FeedbackDialog';
+import FeedbackDialog from "../FeedbackDialog";
 
 interface FeedbackBarProps {
     messageIndex: number;
     onFeedback: (messageIndex: number, isPositive: boolean, detailedFeedback?: string) => void;
-    currentFeedback: 'positive' | 'negative' | null;
+    currentFeedback: "positive" | "negative" | null;
 }
 
 const FeedbackContainer = styled.div`
@@ -27,7 +26,7 @@ const FeedbackContainer = styled.div`
     border: 1px solid var(--vscode-input-border, #cccccc);
     border-radius: 6px;
     background: var(--vscode-editor-background, #fff);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 `;
 
 const FeedbackText = styled.span`
@@ -44,24 +43,28 @@ const FeedbackButton = styled.button<{ $active?: boolean }>`
     border-radius: 4px;
     color: var(--vscode-foreground);
     background-color: transparent;
-    
-    ${(props: { $active: any; }) => props.$active && `
+
+    ${(props: { $active: any }) =>
+        props.$active &&
+        `
         border: 1px solid var(--vscode-button-background);
         padding: 3px 3px; /* Adjust padding to compensate for border */
     `}
     &:hover {
         background-color: transparent;
     }
-    
+
     &:hover .codicon {
         color: var(--vscode-button-hoverBackground);
     }
     &:focus {
         outline: 1px solid var(--vscode-focusBorder);
     }
-    
+
     .codicon {
-        ${(props: { $active: any; }) => props.$active && `
+        ${(props: { $active: any }) =>
+            props.$active &&
+            `
             color: var(--vscode-button-background);
         `}
     }
@@ -77,11 +80,11 @@ const CenteredBlock = styled.div`
 
 const FeedbackBar: React.FC<FeedbackBarProps> = ({ messageIndex, onFeedback, currentFeedback }) => {
     const [showDialog, setShowDialog] = useState(false);
-    const [dialogFeedbackType, setDialogFeedbackType] = useState<'positive' | 'negative'>('positive');
+    const [dialogFeedbackType, setDialogFeedbackType] = useState<"positive" | "negative">("positive");
     const [showThanks, setShowThanks] = useState(false);
 
     const handleFeedbackButtonClick = (isPositive: boolean) => {
-        setDialogFeedbackType(isPositive ? 'positive' : 'negative');
+        setDialogFeedbackType(isPositive ? "positive" : "negative");
         setShowDialog(true);
     };
 
@@ -90,7 +93,7 @@ const FeedbackBar: React.FC<FeedbackBarProps> = ({ messageIndex, onFeedback, cur
     };
 
     const handleDialogSubmit = (detailedFeedback: string) => {
-        onFeedback(messageIndex, dialogFeedbackType === 'positive', detailedFeedback);
+        onFeedback(messageIndex, dialogFeedbackType === "positive", detailedFeedback);
         setShowDialog(false);
         setShowThanks(true);
     };
@@ -109,16 +112,16 @@ const FeedbackBar: React.FC<FeedbackBarProps> = ({ messageIndex, onFeedback, cur
         <CenteredBlock>
             <FeedbackContainer>
                 <FeedbackText>Was this response helpful?</FeedbackText>
-                <FeedbackButton 
+                <FeedbackButton
                     onClick={() => handleFeedbackButtonClick(true)}
-                    $active={currentFeedback === 'positive'}
+                    $active={currentFeedback === "positive"}
                     title="Thumbs up"
                 >
                     <Codicon name="thumbsup" />
                 </FeedbackButton>
-                <FeedbackButton 
+                <FeedbackButton
                     onClick={() => handleFeedbackButtonClick(false)}
-                    $active={currentFeedback === 'negative'}
+                    $active={currentFeedback === "negative"}
                     title="Thumbs down"
                 >
                     <Codicon name="thumbsdown" />
@@ -126,7 +129,7 @@ const FeedbackBar: React.FC<FeedbackBarProps> = ({ messageIndex, onFeedback, cur
             </FeedbackContainer>
             {showDialog && (
                 <FeedbackDialog
-                    isPositive={dialogFeedbackType === 'positive'}
+                    isPositive={dialogFeedbackType === "positive"}
                     messageIndex={messageIndex}
                     onCancel={handleDialogCancel}
                     onSubmit={handleDialogSubmit}

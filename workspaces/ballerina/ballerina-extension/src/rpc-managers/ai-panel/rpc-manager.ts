@@ -78,7 +78,7 @@ import {
     REQ_KEY, TEST_DIR_NAME
 } from "./constants";
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
-import { handleStop, isErrorCode, requirementsSpecification, searchDocumentation } from "./utils";
+import { cleanDiagnosticMessages, handleStop, isErrorCode, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
 
 export let hasStopped: boolean = false;
@@ -830,34 +830,34 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async submitFeedback(content: SubmitFeedbackRequest): Promise<boolean> {
-        console.log("Feedback submitted:", content);
-        try {
-            const payload = {
-                feedback: content.feedbackText,
-                positive: content.positive,
-                messages: content.messages,
-                diagnostics: content.diagnostics
-            };
+        return new Promise(async (resolve) => {
+            try {
+                const payload = {
+                    feedback: content.feedbackText,
+                    positive: content.positive,
+                    messages: content.messages,
+                    diagnostics: cleanDiagnosticMessages(content.diagnostics)
+                };
 
-            const response = await fetchData(`${BACKEND_URL}/feedback`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-            
-            if (response.ok) {
-                console.log("Feedback submitted successfully");
-                return true;
-            } else {
-                console.error("Failed to submit feedback");
-                return false;
+                const response = await fetchData(`${BACKEND_URL}/feedback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok) {
+                    resolve(true);
+                } else {
+                    console.error("Failed to submit feedback");
+                    resolve(false);
+                }
+            } catch (error) {
+                console.error("Error submitting feedback:", error);
+                resolve(false);
             }
-        } catch (error) {
-            console.error("Error submitting feedback:", error);
-            return false;
-        }
+        });
     }
 }
 

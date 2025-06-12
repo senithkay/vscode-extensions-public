@@ -23,8 +23,6 @@ import {
     AIPanelPrompt,
     Command,
     TemplateId,
-    FeedbackMessage,
-    FeedbackDiagnostic,
 } from "@wso2-enterprise/ballerina-core";
 
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -70,10 +68,10 @@ import Footer from "./Footer";
 import { useFooterLogic } from "./Footer/useFooterLogic";
 import { SettingsPanel } from "../../SettingsPanel";
 import WelcomeMessage from "./Welcome";
-import { getConvoHistoryForFeedback, getDiagnosticsForFeedback } from "./utils/feedback";
 import { getOnboardingOpens, incrementOnboardingOpens } from "./utils/utils";
 
 import FeedbackBar from "./../FeedbackBar";
+import { useFeedback } from "./utils/useFeedback";
 
 /* REFACTORED CODE START [1] */
 /* REFACTORED CODE END [1] */
@@ -153,7 +151,6 @@ const AIChat: React.FC = () => {
         null
     );
 
-    const [feedbackGiven, setFeedbackGiven] = useState<'positive' | 'negative' | null>(null);
     const [showSettings, setShowSettings] = useState(false);
 
     //TODO: Need a better way of storing data related to last generation to be in the repair state.
@@ -168,6 +165,11 @@ const AIChat: React.FC = () => {
     // custom hooks: commands + attachments
     const { loadGeneralTags, injectPlaceholderTags } = useFooterLogic({
         rpcClient,
+    });
+
+    const { feedbackGiven, setFeedbackGiven, handleFeedback } = useFeedback({
+        messages,
+        currentDiagnosticsRef
     });
 
     /**
@@ -2274,28 +2276,6 @@ const AIChat: React.FC = () => {
         }
     };
 
-    const handleFeedback = async (index: number, isPositive: boolean, detailedFeedback?: string) => {
-        // Store feedback in local state
-        setFeedbackGiven(isPositive ? 'positive' : 'negative');
-
-        // Send feedback to backend if needed
-        try {
-            // Parse all messages up to the current index to extract input badges
-            console.log("messages:", messages);
-            // const parsedMessages = [];
-            const parsedInputs = getConvoHistoryForFeedback(messages, index, isPositive);
-            console.log("Current diags", currentDiagnosticsRef.current);
-            await rpcClient.getAiPanelRpcClient().submitFeedback({
-                positive: isPositive,
-                messages: parsedInputs,
-                feedbackText : detailedFeedback,
-                diagnostics: getDiagnosticsForFeedback(currentDiagnosticsRef.current)
-            });
-            console.log("Feedback sent successfully");
-        } catch (error) {
-            console.error("Failed to send feedback:", error);
-        }
-    };
     return (
         <>
             {!showSettings && (
