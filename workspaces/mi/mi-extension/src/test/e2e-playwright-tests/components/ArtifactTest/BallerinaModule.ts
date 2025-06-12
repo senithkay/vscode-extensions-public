@@ -94,8 +94,8 @@ export class BallerinaModule {
             await showNotifications();
             await currentPage.getByRole('button', { name: 'Install Now' }).click();
             await clearNotificationAlerts();
-            const webview = await switchToIFrame('Ballerina Integrator', this._page, 24000);
-            console.log("Switching to Ballerina Integrator iframe");
+            const webview = await switchToIFrame('WSO2 Integrator: BI', this._page, 24000);
+            console.log("Switching to WSO2 Integrator: BI iframe");
             if (!webview) {
                 throw new Error("Failed to switch to the Ballerina Module Form iframe");
             }
@@ -104,7 +104,7 @@ export class BallerinaModule {
             const restartButton = webview.locator('vscode-button').locator('div:has-text("Restart VS Code")');
             await expect(restartButton).toBeVisible({ timeout: 600000 });
             console.log("Ballerina download completed");
-            await currentPage.getByRole('tab', { name: 'Ballerina Integrator', exact: true }).getByLabel('Close').click();
+            await currentPage.getByRole('tab', { name: 'WSO2 Integrator: BI', exact: true }).getByLabel('Close').click();
             await clearNotificationAlerts();
             await currentPage.getByLabel('Build Ballerina Module').click();
             const updatedNotification = currentPage.getByText('Ballerina module build successful', { exact: true });

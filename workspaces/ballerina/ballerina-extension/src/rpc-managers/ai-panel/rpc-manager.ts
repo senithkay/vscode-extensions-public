@@ -41,6 +41,7 @@ import {
     RequirementSpecification,
     STModification,
     SourceFile,
+    SubmitFeedbackRequest,
     SyntaxTree,
     TemplateId,
     TestGenerationMentions,
@@ -77,7 +78,7 @@ import {
     REQ_KEY, TEST_DIR_NAME
 } from "./constants";
 import { attemptRepairProject, checkProjectDiagnostics } from "./repair-utils";
-import { handleStop, isErrorCode, requirementsSpecification, searchDocumentation } from "./utils";
+import { cleanDiagnosticMessages, handleStop, isErrorCode, requirementsSpecification, searchDocumentation } from "./utils";
 import { fetchData } from "./utils/fetch-data-utils";
 
 export let hasStopped: boolean = false;
@@ -827,6 +828,37 @@ export class AiPanelRpcManager implements AIPanelAPI {
             resolve(fileContent);
         });
     }
+
+    async submitFeedback(content: SubmitFeedbackRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            try {
+                const payload = {
+                    feedback: content.feedbackText,
+                    positive: content.positive,
+                    messages: content.messages,
+                    diagnostics: cleanDiagnosticMessages(content.diagnostics)
+                };
+
+                const response = await fetchData(`${BACKEND_URL}/feedback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok) {
+                    resolve(true);
+                } else {
+                    console.error("Failed to submit feedback");
+                    resolve(false);
+                }
+            } catch (error) {
+                console.error("Error submitting feedback:", error);
+                resolve(false);
+            }
+        });
+    }
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource): string {
@@ -920,6 +952,7 @@ function getErrorDiagnostics(diagnostics: Diagnostics[]): DiagnosticEntry[] {
                 const fileName = path.basename(diagParam.uri);
                 const msgPrefix = `[${fileName}:${diag.range.start.line},${diag.range.start.character}:${diag.range.end.line},${diag.range.end.character}] `;
                 errorDiagnostics.push({
+                    code: diag.code.toString(),
                     message: msgPrefix + diag.message
                 });
             }
