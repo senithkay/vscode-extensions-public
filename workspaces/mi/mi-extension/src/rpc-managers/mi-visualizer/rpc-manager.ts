@@ -77,8 +77,6 @@ import { copy } from 'fs-extra';
 const fs = require('fs');
 import { TextEdit } from "vscode-languageclient";
 import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
-import { rangeFormat } from '../../util/fileOperations';
-import { MILanguageCm "../../lang-client/activator";
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {

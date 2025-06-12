@@ -3152,10 +3152,6 @@ ${endpointAttributes}
         }
     }
 
-
-
-
-
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
