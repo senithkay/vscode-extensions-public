@@ -35,5 +35,5 @@ export async function applyBallerinaTomlEdit(tomlPath: Uri, textEdit: TextEdit) 
     // Create the position and range
     workspaceEdit.replace(tomlPath, range, textEdit.newText);
     // Apply the edit
-    workspace.applyEdit(workspaceEdit);
+    await workspace.applyEdit(workspaceEdit);
 }

@@ -231,8 +231,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             // Hack to handle .toml file edits. Planned to be removed once the updateSource method refactored to work on workspace edits
             if (fileUriString.endsWith(".toml")) {
                 for (const edit of edits) {
-                    applyBallerinaTomlEdit(fileUri, edit);
+                    await applyBallerinaTomlEdit(fileUri, edit);
                 }
+                StateMachine.setReadyMode();
                 continue;
             }
             
