@@ -94,10 +94,13 @@ const xmlBuilderOptions = {
   textNodeName: '#text'
 };
 
+const BACKUP_DIR = '.backup';
 const SRC = 'src';
 const MAIN = 'main';
 const WSO2MI = 'wso2mi';
+const TEST = 'test';
 const RESOURCES = 'resources';
+const MOCK_SERVICES = 'mock-services';
 const ARTIFACTS = 'artifacts';
 const REGISTRY = 'registry';
 const METADATA = 'metadata';
@@ -221,17 +224,17 @@ export function getProjectDetails(filePath: string) {
  */
 export function getProjectDir(filePath: string): string {
     const normalizedPath = path.normalize(filePath);
-    const backupIndex = normalizedPath.lastIndexOf('.backup');
+    const backupIndex = normalizedPath.lastIndexOf(BACKUP_DIR);
     if (backupIndex !== -1) {
         // Find the next path segment after ".backup"
-        const afterBackup = normalizedPath.substring(backupIndex + '.backup'.length);
+        const afterBackup = normalizedPath.substring(backupIndex + BACKUP_DIR.length);
         const match = afterBackup.match(/[/\\]([^/\\]+)/);
         if (match && match[1]) {
             // Reconstruct the path up to and including ".backup/<nextDir>"
-            return normalizedPath.substring(0, backupIndex + '.backup'.length + match[0].length);
+            return normalizedPath.substring(0, backupIndex + BACKUP_DIR.length + match[0].length);
         }
         // If nothing after .backup, just return up to .backup
-        return normalizedPath.substring(0, backupIndex + '.backup'.length);
+        return normalizedPath.substring(0, backupIndex + BACKUP_DIR.length);
     }
     return path.dirname(normalizedPath);
 }
@@ -369,7 +372,7 @@ function generateConfigToTestAndMockServiceMaps(
 
     projectDirs.forEach(({ projectDir, projectType }) => {
         if (projectType !== Nature.ESB) return;
-        const testDir = path.join(projectDir, 'test');
+        const testDir = path.join(projectDir, TEST);
         if (!fs.existsSync(testDir) || !fs.statSync(testDir).isDirectory()) return;
         const testFiles = fs.readdirSync(testDir)
             .filter(f => f.endsWith('.xml'))
@@ -387,18 +390,21 @@ function generateConfigToTestAndMockServiceMaps(
                 }
             });
             if (testArtifact) {
-                const configFile = path.join(source, testArtifact);
+                // Split with '/' because testArtifact uses forward slashes regardless of OS.
+                const configFile = path.join(source, ...testArtifact.split('/'));
                 if (!configToTests.has(configFile)) configToTests.set(configFile, []);
                 configToTests.get(configFile)!.push(testFile);
                 if (!configToMockServices.has(configFile)) configToMockServices.set(configFile, []);
                 for (const mockService of mockServices) {
-                    const firstSlash = mockService.indexOf('/');
-                    const secondSlash = mockService.indexOf('/', firstSlash + 1);
+                    // mockService starts with "/<multi-module-dir>/<project-dir>/...", so we get substring from the second slash
+                    const firstProjectSlash = mockService.indexOf('/');
+                    const afterBackupSlash = mockService.indexOf('/', firstProjectSlash + 1);
                     let relativeMockServicePath = mockService;
-                    if (secondSlash !== -1) {
-                        relativeMockServicePath = mockService.substring(secondSlash);
+                    if (afterBackupSlash !== -1) {
+                        relativeMockServicePath = mockService.substring(afterBackupSlash);
                     }
-                    const absoluteMockServicePath = path.join(source, relativeMockServicePath);
+                    // Split by '/' because relativeMockServicePath uses forward slashes regardless of OS
+                    const absoluteMockServicePath = path.join(source, ...relativeMockServicePath.split('/'));
                     configToMockServices.get(configFile)!.push(absoluteMockServicePath);
                 }
             }
@@ -775,8 +781,8 @@ function copyTestFor(
     configToTests: Map<string, string[]>,
     configToMockServices: Map<string, string[]>
 ) {
-    const testTargetDir = path.join(targetDir, 'src', 'test', 'wso2mi');
-    const mockServicesTargetDir = path.join(targetDir, 'src', 'test', 'resources', 'mock-services');
+    const testTargetDir = path.join(targetDir, SRC, TEST, WSO2MI);
+    const mockServicesTargetDir = path.join(testTargetDir, SRC, TEST, RESOURCES, MOCK_SERVICES);
 
     for (const configFile of configFiles) {
         const testFiles = configToTests.get(configFile) || [];
