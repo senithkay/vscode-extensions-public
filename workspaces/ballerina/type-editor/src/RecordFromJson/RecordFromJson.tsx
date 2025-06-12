@@ -77,7 +77,7 @@ export const RecordFromJson = (props: RecordFromJsonProps) => {
             jsonString: json,
             recordName: name,
             isClosed,
-            isRecordTypeDesc: !isSeparateDefinitions,
+            isRecordTypeDesc: false, // by default, we will create separate definitions
             prefix: ""
         });
 
