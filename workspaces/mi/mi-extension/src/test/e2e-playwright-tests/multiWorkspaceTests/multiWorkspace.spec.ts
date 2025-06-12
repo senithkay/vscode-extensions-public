@@ -125,7 +125,7 @@ export default function createTests() {
                 console.log("Initializing project explorer");
                 await project1Explorer.goToOverview("project1", 120000);
                 console.log("Navigated to project1 overview");
-                await page.executePaletteCommand('Close All Editor Groups');
+                await page.executePaletteCommand('View: Close All Editors');
                 console.log("Closed editor groups");
                 const projectExplorer = new ProjectExplorer(page.page);
                 console.log("Initializing project explorer");
