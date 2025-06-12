@@ -380,7 +380,8 @@ export async function fetchCodeGenerationsWithRetry(
     images: ImageObject[],
     rpcClient: RpcClientType,
     controller: AbortController,
-    view?: string
+    view?: string,
+    thinking?: boolean
 ): Promise<Response> {
 
     const context = await getContext(rpcClient, view);
@@ -394,7 +395,7 @@ export async function fetchCodeGenerationsWithRetry(
         files: fileList,
         images: imageList,
         payloads: defaultPayloads,
-    }, rpcClient, controller, chatHistory);
+    }, rpcClient, controller, chatHistory, thinking);
 }
 
 export async function fetchWithRetry(
@@ -403,11 +404,17 @@ export async function fetchWithRetry(
     body: {},
     rpcClient: RpcClientType,
     controller: AbortController,
-    chatHistory?: CopilotChatEntry[]
+    chatHistory?: CopilotChatEntry[],
+    thinking?: boolean
 ): Promise<Response> {
     let retryCount = 0;
     const maxRetries = 2;
     const token = await rpcClient?.getMiDiagramRpcClient().getUserAccessToken();
+
+    const bodyWithThinking = {
+        ...body,
+        thinking: thinking || false
+    };
 
     let response = await fetch(url, {
         method: "POST",
@@ -415,7 +422,7 @@ export async function fetchWithRetry(
             "Content-Type": "application/json",
             Authorization: `Bearer ${token.token}`,
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(bodyWithThinking),
         signal: controller.signal,
     });
 
@@ -447,7 +454,7 @@ export async function fetchWithRetry(
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${newToken.token}`,
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify(bodyWithThinking),
             signal: controller.signal,
         });
     } else if (response.status == 404) {
@@ -455,7 +462,7 @@ export async function fetchWithRetry(
             retryCount++;
             const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
             await new Promise((resolve) => setTimeout(resolve, delay));
-            return fetchWithRetry(type, url, body, rpcClient, controller); // Retry the request
+            return fetchWithRetry(type, url, body, rpcClient, controller, chatHistory, thinking); // Retry the request with all parameters
         } else {
             openUpdateExtensionView(rpcClient);
             throw new Error("Resource not found : Check backend URL");
@@ -590,13 +597,15 @@ export const isDarkMode = (): boolean => {
 
 /**
  * Function to send diagnostics to the LLM backend and get a response
- * @param diagnostics The diagnostics array received from the code diagnostics
+ * @param diagnostics The diagnostics response received from the code diagnostics
+ * @param xmlCodes The XML code content for each file
  * @param rpcClient The RPC client instance
  * @param controller The abort controller for the fetch request
  * @returns Promise with the response from the LLM backend
  */
 export async function getDiagnosticsReponseFromLlm(
     diagnostics: any,
+    xmlCodes: any,
     rpcClient: RpcClientType,
     controller: AbortController
 ): Promise<Response> {
@@ -618,7 +627,8 @@ export async function getDiagnosticsReponseFromLlm(
         
         // Prepare the request body
         const requestBody = {
-            diagnostics: diagnostics,
+            diagnostics: diagnostics.diagnostics,
+            xmlCodes: xmlCodes,
             context: context[0].context
         };
         
@@ -628,10 +638,47 @@ export async function getDiagnosticsReponseFromLlm(
             url,
             requestBody,
             rpcClient,
-            controller
+            controller,
+            undefined,
+            false // Not in thinking mode for diagnostics
         );
     } catch (error) {
         console.error("Error sending diagnostics to LLM:", error);
         throw error;
     }
+}
+
+/**
+ * Utility function to replace code blocks in chat messages
+ * @param content The original content of the message
+ * @param fileName The name of the file to replace
+ * @param correctedCode The corrected code to replace with
+ * @returns The updated content with the code block replaced
+ */
+export function replaceCodeBlock(content: string, fileName: string, correctedCode: string): string {
+    // Normalize the file name for consistent matching
+    const normalizedFileName = fileName.endsWith('.xml') ? fileName : `${fileName}.xml`;
+    const fileNameWithoutExt = normalizedFileName.replace('.xml', '');
+    
+    // Try to find code blocks in the content
+    const codeBlockRegex = /```xml\s*([\s\S]*?)```/g;
+    let match;
+    let modifiedContent = content;
+    
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+        const xmlContent = match[1];
+        
+        // Check if this XML block contains the target API/artifact name
+        const nameMatch = xmlContent.match(/name="([^"]+)"/);
+        if (nameMatch && nameMatch[1] === fileNameWithoutExt) {
+            // Found the right code block, replace it
+            const originalBlock = match[0]; // The complete ```xml ... ``` block
+            const newBlock = `\`\`\`xml\n${correctedCode}\n\`\`\``;
+            
+            return modifiedContent.replace(originalBlock, newBlock);
+        }
+    }
+    
+    // If no matching code block was found, append the corrected code
+    return modifiedContent + `\n\n**Updated ${normalizedFileName}**\n\`\`\`xml\n${correctedCode}\n\`\`\``;
 }

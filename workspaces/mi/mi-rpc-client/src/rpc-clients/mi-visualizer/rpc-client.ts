@@ -85,7 +85,9 @@ import {
     PathDetailsResponse,
     updateLegacyExpressionSupport, 
     updateDependenciesFromOverview,
-    DownloadMIRequest
+    DownloadMIRequest,
+    updateAiDependencies,
+    UpdateAiDependenciesRequest,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -253,5 +255,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     isLegacyExpressionSupportEnabled(): Promise<boolean> {
         return this._messenger.sendRequest(isLegacyExpressionSupportEnabled, HOST_EXTENSION);
+    }
+    updateAiDependencies(params: UpdateAiDependenciesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateAiDependencies, HOST_EXTENSION, params);
     }
 }

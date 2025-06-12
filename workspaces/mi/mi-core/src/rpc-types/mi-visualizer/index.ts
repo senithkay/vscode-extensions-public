@@ -39,7 +39,8 @@ import {
     SetupDetails,
     SetPathRequest,
     PathDetailsResponse,
-    DownloadMIRequest
+    DownloadMIRequest,
+    UpdateAiDependenciesRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 
@@ -86,4 +87,5 @@ export interface MIVisualizerAPI {
     selectFolder: (params: string) => Promise<string | undefined>;
     updateLegacyExpressionSupport: (value: boolean) => Promise<void>;
     isLegacyExpressionSupportEnabled: () => Promise<boolean>;
+    updateAiDependencies: (params: UpdateAiDependenciesRequest) => Promise<boolean>;
 }

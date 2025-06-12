@@ -323,6 +323,49 @@ const undoRedo = new UndoRedoManager();
 
 const connectorCache = new Map<string, any>();
 
+const fetchConnectors = async (name, operation: 'add' | 'remove') => {
+    const runtimeVersion = await getMIVersionFromPom();
+
+    const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+    const connectorStoreData = await connectorStoreResponse.json();
+
+    const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
+    const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
+
+    if (connector) {
+        const rpcClient = new MiVisualizerRpcManager();
+        const updateDependencies = async () => {
+            const dependencies: DependencyDetails[] = [{
+                groupId: connector.mavenGroupId,
+                artifact: connector.mavenArtifactId,
+                version: connector.version.tagName,
+                type: "zip"
+            }];
+            
+            const response = await rpcClient.updateAiDependencies({
+                dependencies,
+                operation: operation
+            });
+
+            return response;
+        }
+
+        const dependenciesResponse = await updateDependencies();
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const connectorResponse = await rpcClient.updateConnectorDependencies();
+        
+        return {
+            dependenciesResponse,
+            connectorResponse
+        };
+    } else {
+        console.error("Connector not found");
+        return null;    
+    }
+};
+
+
 export class MiDiagramRpcManager implements MiDiagramAPI {
     async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
         return new Promise(async (resolve) => {
@@ -501,7 +544,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             );
         }
 
-
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getSyntaxTree({
@@ -509,8 +551,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: documentUri
                 },
             });
-            console.log("Test Diagnostics");
-            console.log(await this.getCodeDiagnostics({"xmlCodes": [{fileName: "test.xml", code: "<test><format//></test>"}]}));
             resolve(res);
         });
     }
@@ -3206,42 +3246,9 @@ ${endpointAttributes}
         }
     }
 
-    async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
-        const fetchConnectors = async (name) => {
-            const runtimeVersion = await getMIVersionFromPom();
-
-            const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
-            const connectorStoreData = await connectorStoreResponse.json();
-            
-            const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
-            const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
-        
-            if (connector) {
-                const rpcClient = new MiVisualizerRpcManager();
-                console.log("Connector found - ", connector);
-                const updateDependencies = async () => {
-                    const dependencies: DependencyDetails[] = [{
-                        groupId: connector.mavenGroupId,
-                        artifact: connector.mavenArtifactId,
-                        version: connector.version.tagName,
-                        type: "zip"
-                    }];
-                    
-                    await rpcClient.updateDependencies({
-                        dependencies
-                    });
-                }
     
-                await updateDependencies();
 
-                await new Promise(resolve => setTimeout(resolve, 500));
-                const response = await rpcClient.updateConnectorDependencies();
-            } else {
-                console.error("Connector not found");
-                return null;    
-            }
-        };
-
+    async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content } = params;
@@ -3313,7 +3320,7 @@ ${endpointAttributes}
                     const tagParts = connectorMatch[1].split('.');
                     const connectorName = tagParts[0];
                     console.log('Connector name:', connectorName);
-                    await fetchConnectors(connectorName);
+                    await fetchConnectors(connectorName, 'add');
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
@@ -5568,14 +5575,31 @@ ${keyValuesXML}`;
     async getCodeDiagnostics(params: GetCodeDiagnosticsReqeust): Promise<GetCodeDiagnosticsResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
+            let added_connectors: string[] = [];
+            let add_response: any = null;
+            let connectorName: string = '';
             //Empty array to store the diagnostics
             const diagnostics: GetCodeDiagnosticsResponse = {diagnostics: []};
             for(const xmlCode of params.xmlCodes){
+                const connectorMatch = xmlCode.code.match(/<(\w+\.\w+)\b/);
+                if (connectorMatch) {
+                    const tagParts = connectorMatch[1].split('.');
+                    connectorName = tagParts[0];
+                    add_response = await fetchConnectors(connectorName, 'add');
+                    if(add_response.dependenciesResponse) {
+                        added_connectors.push(connectorName);
+                    }
+                }
                 const res = await langClient.getCodeDiagnostics(xmlCode);
                 diagnostics.diagnostics.push({
                     fileName: xmlCode.fileName,
                     diagnostics: res.diagnostics
                 });
+            }
+            if(added_connectors.length > 0) {
+                for(const connector of added_connectors) {
+                    const remove_response = await fetchConnectors(connector, 'remove');
+                }
             }
             resolve(diagnostics);
         });

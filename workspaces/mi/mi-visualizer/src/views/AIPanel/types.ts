@@ -35,8 +35,8 @@ export interface FileHistoryEntry {
 // Define enums for role and type
 export enum Role {
     // UI roles
-    MIUser = "User",
-    MICopilot = "MI Copilot",
+    MIUser = "You",
+    MICopilot = "Copilot",
     default = "",
     
     // Copilot roles
@@ -83,4 +83,16 @@ export enum BackendRequestType {
     QuestionClick = "question_click",
     UserPrompt = "user_prompt",
     Suggestions = "suggestions",
+}
+
+// Types for handling fixed/corrected code from LLM
+export interface FixedConfigItem {
+    name: string;
+    configuration?: string;
+    code?: string;
+}
+
+export interface CorrectedCodeItem {
+    fileName: string;
+    code: string;
 }

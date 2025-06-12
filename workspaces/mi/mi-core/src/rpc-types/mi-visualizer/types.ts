@@ -424,3 +424,12 @@ export interface DownloadMIRequest {
     version: string;
     isUpdatedPack: boolean;
 }
+
+export interface UpdateAiDependenciesRequest {
+    dependencies: DependencyDetails[];
+    operation: "add" | "remove";
+}
+
+export interface UpdateAiDependenciesResponse {
+    textEdits: TextEdit[];
+}

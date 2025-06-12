@@ -69,7 +69,9 @@ import {
     LocalInboundConnectorsResponse,
     GetCodeDiagnosticsReqeust,
     GetCodeDiagnosticsResponse,
-    XmlCode
+    XmlCode,
+    UpdateAiDependenciesResponse,
+    UpdateAiDependenciesRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -431,5 +433,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getCodeDiagnostics(req: XmlCode): Promise<GetDiagnosticsResponse> {
         return this.sendRequest("synapse/codeDiagnostic", req);
+    }
+
+    async updateAiDependencies(req: UpdateAiDependenciesRequest): Promise<UpdateAiDependenciesResponse> {
+        return this.sendRequest('synapse/updateAiDependencies', req);
     }
 }

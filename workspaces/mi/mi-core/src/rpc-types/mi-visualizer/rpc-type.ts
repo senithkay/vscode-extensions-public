@@ -41,6 +41,7 @@ import {
     SetPathRequest,
     PathDetailsResponse,
     DownloadMIRequest,
+    UpdateAiDependenciesRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -89,3 +90,4 @@ export const setPathsInWorkSpace: RequestType<SetPathRequest, PathDetailsRespons
 export const selectFolder: RequestType<string, string | undefined> = { method: `${_preFix}/selectFolder` };
 export const updateLegacyExpressionSupport: RequestType<boolean, void> = { method: `${_preFix}/updateLegacyExpressionSupport` };
 export const isLegacyExpressionSupportEnabled: RequestType<void, boolean> = { method: `${_preFix}/isLegacyExpressionSupportEnabled` };
+export const updateAiDependencies: RequestType<UpdateAiDependenciesRequest, boolean> = { method: `${_preFix}/updateAiDependencies` };
