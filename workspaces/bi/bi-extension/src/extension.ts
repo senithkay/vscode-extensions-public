@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
 		StateMachine.initialize();
 		return;
 	}
-	vscode.window.showErrorMessage('Ballerina extension is required to operate Ballerina Integrator extension effectively. Please install it from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wso2.ballerina).');
+	vscode.window.showErrorMessage('Ballerina extension is required to operate WSO2 Integrator: BI extension effectively. Please install it from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wso2.ballerina).');
 }
 
 export function deactivate() { }
