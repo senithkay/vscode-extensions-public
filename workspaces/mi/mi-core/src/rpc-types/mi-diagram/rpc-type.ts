@@ -243,6 +243,8 @@ import {
     DevantMetadata,
     GetCodeDiagnosticsReqeust,
     GetCodeDiagnosticsResponse,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse,
     UpdateMediatorResponse,
     GetConnectorIconRequest,
     GetConnectorIconResponse
@@ -418,3 +420,5 @@ export const getCodeDiagnostics: RequestType<GetCodeDiagnosticsReqeust, GetCodeD
 export const shouldDisplayPayloadAlert: RequestType<void, boolean> = { method: `${_preFix}/shouldDisplayPayloadAlert` };
 export const displayPayloadAlert: RequestType<void, void> = { method: `${_preFix}/displayPayloadAlert` };
 export const closePayloadAlert: RequestType<void, void> = { method: `${_preFix}/closePayloadAlert` };
+
+export const getCodeDiagnostics: RequestType<GetCodeDiagnosticsReqeust, GetCodeDiagnosticsResponse> = { method: `${_preFix}/getCodeDiagnostics` };

@@ -42,7 +42,8 @@ import {
     DownloadMIRequest,
     UpdateAiDependenciesRequest,
     ProjectConfig,
-    MavenDeployPluginDetails
+    MavenDeployPluginDetails,
+    UpdateAiDependenciesRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 

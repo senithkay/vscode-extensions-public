@@ -451,3 +451,12 @@ export interface ProjectConfig {
     configName: string;
     value: boolean;
 }
+
+export interface UpdateAiDependenciesRequest {
+    dependencies: DependencyDetails[];
+    operation: "add" | "remove";
+}
+
+export interface UpdateAiDependenciesResponse {
+    textEdits: TextEdit[];
+}

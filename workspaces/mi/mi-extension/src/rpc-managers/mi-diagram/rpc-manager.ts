@@ -326,6 +326,49 @@ const undoRedo = new UndoRedoManager();
 
 const connectorCache = new Map<string, any>();
 
+const fetchConnectors = async (name, operation: 'add' | 'remove') => {
+    const runtimeVersion = await getMIVersionFromPom();
+
+    const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+    const connectorStoreData = await connectorStoreResponse.json();
+
+    const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
+    const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
+
+    if (connector) {
+        const rpcClient = new MiVisualizerRpcManager();
+        const updateDependencies = async () => {
+            const dependencies: DependencyDetails[] = [{
+                groupId: connector.mavenGroupId,
+                artifact: connector.mavenArtifactId,
+                version: connector.version.tagName,
+                type: "zip"
+            }];
+            
+            const response = await rpcClient.updateAiDependencies({
+                dependencies,
+                operation: operation
+            });
+
+            return response;
+        }
+
+        const dependenciesResponse = await updateDependencies();
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const connectorResponse = await rpcClient.updateConnectorDependencies();
+        
+        return {
+            dependenciesResponse,
+            connectorResponse
+        };
+    } else {
+        console.error("Connector not found");
+        return null;    
+    }
+};
+
+
 export class MiDiagramRpcManager implements MiDiagramAPI {
     constructor(private projectUri: string) { }
 
@@ -3152,9 +3195,7 @@ ${endpointAttributes}
         }
     }
 
-
-
-
+    
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         let status = true;

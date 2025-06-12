@@ -73,6 +73,10 @@ import {
     updateAiDependencies,
     UpdateAiDependenciesRequest,
     UpdateAiDependenciesResponse
+,
+    updateAiDependencies,
+    UpdateAiDependenciesRequest,
+    UpdateAiDependenciesResponse
 , ProjectConfig,
     MavenDeployPluginDetails,
     setDeployPlugin,
@@ -129,5 +133,6 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger, projectUri
     messenger.onRequest(setDeployPlugin, (args: MavenDeployPluginDetails) => rpcManger.setDeployPlugin(args));
     messenger.onRequest(getDeployPluginDetails, () => rpcManger.getDeployPluginDetails());
     messenger.onRequest(removeDeployPlugin, () => rpcManger.removeDeployPlugin());
+    messenger.onRequest(updateAiDependencies, (args: UpdateAiDependenciesRequest) => rpcManger.updateAiDependencies(args));
     messenger.onRequest(updateAiDependencies, (args: UpdateAiDependenciesRequest) => rpcManger.updateAiDependencies(args));
 }

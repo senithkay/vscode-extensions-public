@@ -15,6 +15,7 @@ import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 import { USER_CHECK_BACKEND_URL } from '../constants';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
+import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
 
 export interface AccessToken {
     accessToken: string;
