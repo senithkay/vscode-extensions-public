@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -130,6 +130,16 @@ interface PackageModuleState {
     module: string;
 }
 
+function useDebouncedCallback(callback: (...args: any[]) => void, delay: number) {
+    const timer = React.useRef<number | null>(null);
+    return React.useCallback((...args: any[]) => {
+        if (timer.current) window.clearTimeout(timer.current);
+        timer.current = window.setTimeout(() => {
+            callback(...args);
+        }, delay);
+    }, [callback, delay]);
+}
+
 export function ViewConfigurableVariables(props?: ConfigProps) {
 
     const { rpcClient } = useRpcContext();
@@ -238,20 +248,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         setSearchValue(e);
     }
 
-    const handleHideLibraries = (state: boolean) => {
-        if (state) {
-            // If hiding libraries, reset selected module to integration
-            if (selectedModule?.category !== integrationCategory) {
-                const integrationCategoryData = categoriesWithModules.find(
-                    category => category.name === integrationCategory
-                );
-
-                setSelectedModule({ category: integrationCategory, module: integrationCategoryData.modules[0] });
-            }
-        }
-        setHideLibraries(state);
-    }
-
     const handleModuleSelect = (category: string, module: string) => {
         setAddConfigVariableFormOpen(false);
         setEditConfigVariableFormOpen(false);
@@ -286,6 +282,35 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         await new Promise(resolve => setTimeout(resolve, 200));
         getConfigVariables();
     }
+
+    const handleUpdateConfigValue = async (newValue: any, prevNode: ConfigVariable) => {
+        const newConfigVarNode: ConfigVariable = {
+            ...prevNode,
+            properties: {
+                ...prevNode.properties,
+                configValue: {
+                    ...prevNode.properties.configValue,
+                    value: newValue.target.value,
+                    modified: true
+                }
+            }
+        };
+        
+        await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
+            configFilePath: props.fileName,
+            configVariable: newConfigVarNode,
+            packageName: selectedModule.category,
+            moduleName: selectedModule.module,
+        });
+
+        // HACK: Add 0.2 second timeout to allow ls to process the changes (libraries)
+        // TODO: Send ls notification on success
+        await new Promise(resolve => setTimeout(resolve, 200));
+        getConfigVariables();
+        
+    }
+    
+    const debouncedUpdateConfigValue = useDebouncedCallback(handleUpdateConfigValue, 1000);
 
     const handleOnDeleteConfigVariable = async (index: number) => {
         if (!selectedModule) return;
@@ -509,12 +534,12 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             })()}
                                                             resize="vertical"
                                                             value={variable?.properties?.configValue?.value ? String(variable?.properties?.configValue?.value) : ''}
-                                                            readonly={true}
                                                             style={{
                                                                 width: '100%',
                                                                 maxWidth: '350px',
                                                                 minHeight: '20px'
                                                             }}
+                                                            onInput={(e: any) => debouncedUpdateConfigValue(e, variable)}
                                                         >
                                                             <style>{`
                                                                 vscode-text-area::part(control) {
@@ -598,14 +623,15 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                         <SplitView defaultWidths={[20, 80]} dynamicContainerSx={{ overflow: "visible" }}>
                             {/* Left side tree view */}
                             <div style={{ padding: "10px 0 50px 0" }}>
+                                {/* Display integration category first */}
                                 {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
-                                    .filter(category => !hideLibraries || category.name === integrationCategory)
+                                    .filter(category => category.name === integrationCategory)
                                     .map((category, index) => (
                                         <TreeView
                                             key={category.name}
                                             rootTreeView
                                             id={category.name}
-                                            expandByDefault={false}
+                                            expandByDefault={true}
                                             onSelect={() => {
                                                 if (category.modules.length > 0) {
                                                     handleModuleSelect(category.name, category.modules[0]);
@@ -630,7 +656,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 ? 'bold' : 'normal'
                                                         }}
                                                     >
-                                                        {category.name === integrationCategory ? 'Integration' : category.name}
+                                                        Integration
                                                     </Typography>
                                                     {categoryWarningCount(category.name) > 0 && (
                                                         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -704,6 +730,73 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                             ))}
                                         </TreeView>
                                     ))}
+
+                                {/* Group all other categories under "Imported libraries" */}
+                                {!hideLibraries && (
+                                    <TreeView
+                                        rootTreeView
+                                        id="imported-libraries"
+                                        expandByDefault={searchValue? true : false}
+                                        content={
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    height: '22px',
+                                                    alignItems: 'center',
+                                                }}>
+                                                <Typography
+                                                    variant="body3"
+                                                    sx={{
+                                                        fontWeight: 'normal'
+                                                    }}
+                                                >
+                                                    Imported libraries
+                                                </Typography>
+                                            </div>
+                                        }
+                                    >
+                                        {/* Map all non-integration categories */}
+                                        {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
+                                            .filter(category => category.name !== integrationCategory)
+                                            .map((category, index) => (
+                                                <TreeViewItem
+                                                    key={category.name}
+                                                    id={category.name}
+                                                    sx={{
+                                                        backgroundColor: 'transparent',
+                                                        paddingLeft: '35px',
+                                                        height: '25px',
+                                                        border: selectedModule?.category === category.name
+                                                            ? '1px solid var(--vscode-focusBorder)'
+                                                            : 'none'
+                                                    }}
+                                                    selectedId={category.name}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            height: '22px',
+                                                            alignItems: 'center',
+                                                        }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleModuleSelect(category.name, "");
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            variant="body3"
+                                                            sx={{
+                                                                fontWeight: selectedModule?.category === category.name && selectedModule?.module === ""
+                                                                    ? 'bold' : 'normal'
+                                                            }}
+                                                        >
+                                                            {category.name}
+                                                        </Typography>
+                                                    </div>
+                                                </TreeViewItem>
+                                            ))}
+                                    </TreeView>
+                                )}
                             </div>
                             {/* Right side view */}
                             <div style={{ height: '100%' }}>

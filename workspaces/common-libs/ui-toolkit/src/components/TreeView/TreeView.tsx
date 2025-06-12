@@ -82,11 +82,10 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
             });
         };
     
-        // Expand if this TreeView is selected or contains the selected item
-        if (selectedId === id || (children && hasSelectedChild(children))) {
+        if ((selectedId === id || (children && hasSelectedChild(children))) && expandByDefault !== false) {
             setIsExpanded(true);
         }
-    }, [selectedId, id, children]);
+    }, [selectedId, id, children, expandByDefault]);
 
     return (
         <TreeContainer isRootTreeView={isRootTreeView} sx={sx}>
