@@ -87,7 +87,7 @@ import {
     updateDependenciesFromOverview,
     DownloadMIRequest,
     updateAiDependencies,
-    UpdateAiDependenciesRequest,,
+    UpdateAiDependenciesRequest,
     ProjectConfig,
     setDeployPlugin,
     getDeployPluginDetails,

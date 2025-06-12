@@ -326,49 +326,6 @@ const undoRedo = new UndoRedoManager();
 
 const connectorCache = new Map<string, any>();
 
-const fetchConnectors = async (name, operation: 'add' | 'remove') => {
-    const runtimeVersion = await getMIVersionFromPom();
-
-    const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
-    const connectorStoreData = await connectorStoreResponse.json();
-
-    const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
-    const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
-
-    if (connector) {
-        const rpcClient = new MiVisualizerRpcManager();
-        const updateDependencies = async () => {
-            const dependencies: DependencyDetails[] = [{
-                groupId: connector.mavenGroupId,
-                artifact: connector.mavenArtifactId,
-                version: connector.version.tagName,
-                type: "zip"
-            }];
-            
-            const response = await rpcClient.updateAiDependencies({
-                dependencies,
-                operation: operation
-            });
-
-            return response;
-        }
-
-        const dependenciesResponse = await updateDependencies();
-
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const connectorResponse = await rpcClient.updateConnectorDependencies();
-        
-        return {
-            dependenciesResponse,
-            connectorResponse
-        };
-    } else {
-        console.error("Connector not found");
-        return null;    
-    }
-};
-
-
 export class MiDiagramRpcManager implements MiDiagramAPI {
     constructor(private projectUri: string) { }
 
@@ -3195,9 +3152,9 @@ ${endpointAttributes}
         }
     }
 
-    
 
-    
+
+
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         let status = true;
@@ -3270,7 +3227,7 @@ ${endpointAttributes}
                     const tagParts = connectorMatch[1].split('.');
                     const connectorName = tagParts[0];
                     console.log('Connector name:', connectorName);
-                    await fetchConnectors(connectorName, 'add');
+                    await this.fetchConnectors(connectorName, 'add');
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
@@ -4062,13 +4019,13 @@ ${endpointAttributes}
             const iconCache = connectorCache.get('connector-icon-data');
 
             if (iconCache && iconCache.hasOwnProperty(params.connectorName) && iconCache[params.connectorName]) {
-                resolve ({ iconPath: iconCache[params.connectorName] });
+                resolve({ iconPath: iconCache[params.connectorName] });
             } else {
                 const connectorData = await this.getAvailableConnectors({
                     documentUri: params.documentUri,
                     connectorName: params.connectorName
                 });
-    
+
                 let connectorIcon = DEFAULT_ICON;
                 if (connectorData.iconPath) {
                     const iconPath = await this.getIconPathUri({
@@ -4077,15 +4034,15 @@ ${endpointAttributes}
                     });
                     connectorIcon = iconPath.uri;
                 }
-    
+
                 // Get the latest cache state before updating
                 const latestIconCache = connectorCache.get('connector-icon-data') || {};
                 connectorCache.set('connector-icon-data', {
                     ...latestIconCache,
                     [params.connectorName]: connectorIcon
                 });
-    
-                resolve ({ iconPath: connectorIcon });
+
+                resolve({ iconPath: connectorIcon });
             }
         });
     }
@@ -5537,19 +5494,20 @@ ${keyValuesXML}`;
 
     async getCodeDiagnostics(params: GetCodeDiagnosticsReqeust): Promise<GetCodeDiagnosticsResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+
             let added_connectors: string[] = [];
             let add_response: any = null;
             let connectorName: string = '';
             //Empty array to store the diagnostics
-            const diagnostics: GetCodeDiagnosticsResponse = {diagnostics: []};
-            for(const xmlCode of params.xmlCodes){
+            const diagnostics: GetCodeDiagnosticsResponse = { diagnostics: [] };
+            for (const xmlCode of params.xmlCodes) {
                 const connectorMatch = xmlCode.code.match(/<(\w+\.\w+)\b/);
                 if (connectorMatch) {
                     const tagParts = connectorMatch[1].split('.');
                     connectorName = tagParts[0];
-                    add_response = await fetchConnectors(connectorName, 'add');
-                    if(add_response.dependenciesResponse) {
+                    add_response = await this.fetchConnectors(connectorName, 'add');
+                    if (add_response.dependenciesResponse) {
                         added_connectors.push(connectorName);
                     }
                 }
@@ -5559,9 +5517,9 @@ ${keyValuesXML}`;
                     diagnostics: res.diagnostics
                 });
             }
-            if(added_connectors.length > 0) {
-                for(const connector of added_connectors) {
-                    const remove_response = await fetchConnectors(connector, 'remove');
+            if (added_connectors.length > 0) {
+                for (const connector of added_connectors) {
+                    const remove_response = await this.fetchConnectors(connector, 'remove');
                 }
             }
             resolve(diagnostics);
@@ -5590,6 +5548,50 @@ ${keyValuesXML}`;
             resolve();
         });
     }
+
+
+    async fetchConnectors(name, operation: 'add' | 'remove') {
+        const runtimeVersion = await getMIVersionFromPom();
+
+        const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+        const connectorStoreData = await connectorStoreResponse.json();
+
+        const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
+        const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
+
+        if (connector) {
+            const rpcClient = new MiVisualizerRpcManager(this.projectUri);
+            const updateDependencies = async () => {
+                const dependencies: DependencyDetails[] = [{
+                    groupId: connector.mavenGroupId,
+                    artifact: connector.mavenArtifactId,
+                    version: connector.version.tagName,
+                    type: "zip"
+                }];
+
+                const response = await rpcClient.updateAiDependencies({
+                    dependencies,
+                    operation: operation
+                });
+
+                return response;
+            }
+
+            const dependenciesResponse = await updateDependencies();
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const connectorResponse = await rpcClient.updateConnectorDependencies();
+
+            return {
+                dependenciesResponse,
+                connectorResponse
+            };
+        } else {
+            console.error("Connector not found");
+            return null;
+        }
+    };
+
 }
 
 export function getRepoRoot(projectRoot: string): string | undefined {

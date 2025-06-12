@@ -41,7 +41,7 @@ import {
     SetPathRequest,
     PathDetailsResponse,
     DownloadMIRequest,
-    UpdateAiDependenciesRequest
+    UpdateAiDependenciesRequest,
     ProjectConfig,
     MavenDeployPluginDetails
 } from "./types";

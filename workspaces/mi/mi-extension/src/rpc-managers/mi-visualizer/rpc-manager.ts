@@ -52,7 +52,7 @@ import {
     ImportOpenAPISpecRequest,
     PathDetailsResponse,
     DownloadMIRequest,
-    UpdateAiDependenciesRequest
+    UpdateAiDependenciesRequest,
     MavenDeployPluginDetails,
     ProjectConfig
 } from "@wso2-enterprise/mi-core";
@@ -78,6 +78,7 @@ const fs = require('fs');
 import { TextEdit } from "vscode-languageclient";
 import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
 import { rangeFormat } from '../../util/fileOperations';
+import { MILanguageClient } from "../../lang-client/activator";
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -678,7 +679,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async updateAiDependencies(params: UpdateAiDependenciesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
 
             const projectDetails = await langClient.getProjectDetails();
             const existingDependencies = projectDetails.dependencies || [];
