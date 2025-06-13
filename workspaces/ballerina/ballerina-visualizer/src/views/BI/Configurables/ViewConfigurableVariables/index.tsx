@@ -303,6 +303,8 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             moduleName: selectedModule.module,
         });
 
+        await new Promise(resolve => setTimeout(resolve, 400));
+
         getConfigVariables();
 
     }
@@ -791,6 +793,25 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                         >
                                                             {category.name}
                                                         </Typography>
+                                                        {categoryWarningCount(category.name) > 0 && (
+                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                <Codicon name="warning"
+                                                                    sx={{
+                                                                        marginLeft: 5,
+                                                                        fontSize: '0.8em',
+                                                                        color: 'var(--vscode-editorWarning-foreground)'
+                                                                    }}
+                                                                />
+                                                                <span
+                                                                    style={{
+                                                                        marginLeft: 3,
+                                                                        color: 'var(--vscode-editorWarning-foreground)',
+                                                                        fontSize: '0.85em'
+                                                                    }}>
+                                                                    {categoryWarningCount(category.name)}
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </TreeViewItem>
                                             ))}

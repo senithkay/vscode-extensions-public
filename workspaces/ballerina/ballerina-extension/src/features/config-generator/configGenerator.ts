@@ -31,8 +31,7 @@ export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaEx
 
     const hasWarnings = (
         await checkConfigUpdateRequired(
-            currentProject.packageName,
-            currentProject.orgName, ballerinaExtInstance,
+            ballerinaExtInstance,
             filePath
         )).hasWarnings;
 
@@ -46,33 +45,41 @@ export async function prepareAndGenerateConfig(ballerinaExtInstance: BallerinaEx
     await handleOnUnSetValues(currentProject.packageName, configFile, ignoreFile, ballerinaExtInstance, isCommand, isBi);
 }
 
-export async function checkConfigUpdateRequired(packageName: string, orgName: string, ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<{ hasWarnings: boolean }> {
+export async function checkConfigUpdateRequired(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<{ hasWarnings: boolean }> {
     try {
+        const showLibraryConfigVariables = ballerinaExtInstance.showLibraryConfigVariables();
+
         const response = await ballerinaExtInstance.langClient?.getConfigVariablesV2({
-            projectPath: filePath
+            projectPath: filePath,
+            includeLibraries: showLibraryConfigVariables
         }) as ConfigVariableResponse;
 
         const configVariables = response?.configVariables;
-        const integrationConfigVariables = configVariables[`${orgName}/${packageName}`] ?? {};
 
+        const configVariablesMap = configVariables || {};
         let hasWarnings = false;
 
-        if (integrationConfigVariables) {
-            for (const moduleName of Object.keys(integrationConfigVariables)) {
-                const moduleVars = integrationConfigVariables[moduleName];
+        // Check if any config variable has warnings
+        for (const pkgKey of Object.keys(configVariablesMap)) {
+            const pkgModules = configVariablesMap[pkgKey];
+            if (!pkgModules) continue;
+
+            for (const moduleName of Object.keys(pkgModules)) {
+                const moduleVars = pkgModules[moduleName];
 
                 if (Array.isArray(moduleVars)) {
                     const hasUnsetValues = moduleVars.some(variable =>
                         !variable?.properties?.defaultValue?.value &&
                         !variable?.properties?.configValue?.value
                     );
-
                     if (hasUnsetValues) {
                         hasWarnings = true;
                         break;
                     }
                 }
             }
+
+            if (hasWarnings) break;
         }
 
         return { hasWarnings };
