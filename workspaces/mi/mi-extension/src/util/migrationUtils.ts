@@ -822,7 +822,7 @@ function copyConfigTests(
     configToMockServices: Map<string, string[]>
 ) {
     const testTargetDir = path.join(targetDir, SRC, TEST, WSO2MI);
-    const mockServicesTargetDir = path.join(testTargetDir, SRC, TEST, RESOURCES, MOCK_SERVICES);
+    const mockServicesTargetDir = path.join(targetDir, SRC, TEST, RESOURCES, MOCK_SERVICES);
 
     for (const configFile of configFiles) {
         const testFiles = configToTests.get(configFile) || [];
