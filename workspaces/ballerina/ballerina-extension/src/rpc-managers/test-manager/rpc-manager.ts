@@ -37,10 +37,9 @@ export class TestServiceManagerRpcManager implements TestManagerServiceAPI {
                     startColumn: params.function.codedata.lineRange.startLine.offset
                 };
                 const res: TestSourceEditResponse = await context.langClient.updateTestFunction(params);
-                const position = await updateSourceCode({ textEdits: res.textEdits });
+                const artifacts = await updateSourceCode({ textEdits: res.textEdits });
                 const result: SourceUpdateResponse = {
-                    filePath: targetFile,
-                    position: null
+                    artifacts: artifacts
                 };
                 resolve(result);
             } catch (error) {
@@ -57,10 +56,9 @@ export class TestServiceManagerRpcManager implements TestManagerServiceAPI {
                 const targetFile = params.filePath;
                 params.filePath = targetFile;
                 const res: TestSourceEditResponse = await context.langClient.addTestFunction(params);
-                const position = await updateSourceCode({ textEdits: res.textEdits });
+                const artifacts = await updateSourceCode({ textEdits: res.textEdits });
                 const result: SourceUpdateResponse = {
-                    filePath: targetFile,
-                    position: null
+                    artifacts: artifacts
                 };
                 resolve(result);
             } catch (error) {
