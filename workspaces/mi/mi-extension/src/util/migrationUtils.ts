@@ -316,11 +316,11 @@ function writeUnusedFileInfos(
             unusedFilePaths.push(fileInfo.path);
         }
     }
-    const outputFilePath = path.join(backupDir, 'unused-during-migration.txt');
+    const outputFilePath = path.join(backupDir, 'skipped-files-during-migration.txt');
     try {
         fs.writeFileSync(outputFilePath, unusedFilePaths.join('\n'), 'utf-8');
     } catch (err) {
-        console.error(`Failed to write unused file infos to ${outputFilePath}:`, err);
+        console.error(`Failed to write skipped files during migration to ${outputFilePath}:`, err);
     }
 }
 
