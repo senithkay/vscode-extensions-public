@@ -303,14 +303,9 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             moduleName: selectedModule.module,
         });
 
-        // HACK: Add 0.2 second timeout to allow ls to process the changes (libraries)
-        // TODO: Send ls notification on success
-        await new Promise(resolve => setTimeout(resolve, 200));
         getConfigVariables();
 
     }
-
-    const debouncedUpdateConfigValue = useDebouncedCallback(handleUpdateConfigValue, 1000);
 
     const handleOnDeleteConfigVariable = async (index: number) => {
         if (!selectedModule) return;
@@ -539,7 +534,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 maxWidth: '350px',
                                                                 minHeight: '20px'
                                                             }}
-                                                            onChange={(e: any) => debouncedUpdateConfigValue(e, variable)}
+                                                            onChange={(e: any) => handleUpdateConfigValue(e, variable)}
                                                         >
                                                             <style>{`
                                                                 vscode-text-area::part(control) {
