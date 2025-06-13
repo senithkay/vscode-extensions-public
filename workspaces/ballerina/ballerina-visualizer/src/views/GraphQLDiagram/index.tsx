@@ -66,10 +66,11 @@ interface GraphQLDiagramProps {
     filePath: string;
     position: NodePosition;
     projectUri?: string;
+    serviceIdentifier: string;
 }
 
 export function GraphQLDiagram(props: GraphQLDiagramProps) {
-    const { filePath, position, projectUri } = props;
+    const { filePath, position, projectUri, serviceIdentifier } = props;
     const { rpcClient } = useRpcContext();
     const queryClient = useQueryClient();
     const [isServiceEditorOpen, setIsServiceEditorOpen] = useState<boolean>(false);
@@ -236,6 +237,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
             </View>
             {isServiceEditorOpen && (
                 <GraphqlServiceEditor
+                    serviceIdentifier={serviceIdentifier}
                     filePath={filePath}
                     lineRange={{
                         startLine: {
@@ -262,6 +264,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
             )}
             {isTypeEditorOpen && editingType && editingType.codedata.node === "CLASS" && (
                 <GraphqlObjectViewer
+                    serviceIdentifier={serviceIdentifier}
                     onClose={onTypeEditorClosed}
                     type={editingType}
                     projectUri={projectUri}

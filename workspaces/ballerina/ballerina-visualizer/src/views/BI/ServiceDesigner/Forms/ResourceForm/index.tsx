@@ -88,8 +88,8 @@ export function ResourceForm(props: ResourceFormProps) {
 				<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
 				<ResourceResponse method={functionModel.accessor.value.toUpperCase() as HTTP_METHOD} response={functionModel.returnType} onChange={handleResponseChange} />
 				<ActionButtons
-					primaryButton={{ text: isSaving ? "Saving..." : "Save", onClick: handleSave, tooltip: isSaving ? "Saving" : "Save", disabled: !isPathValid || isSaving }}
-					secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
+					primaryButton={{ text: isSaving ? "Saving..." : "Save", onClick: handleSave, tooltip: isSaving ? "Saving..." : "Save", disabled: !isPathValid || isSaving, loading: isSaving }}
+					secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel", disabled: isSaving }}
 					sx={{ justifyContent: "flex-end" }}
 				/>
 			</SidePanelBody>

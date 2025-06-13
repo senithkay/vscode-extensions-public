@@ -1,7 +1,7 @@
 {
     "name": "@wso2-enterprise/type-editor",
     "version": "1.0.0",
-    "description": "Type Editor for Ballerina Integrator",
+    "description": "Type Editor for WSO2 Integrator: BI",
     "files": [
         "lib"
     ],

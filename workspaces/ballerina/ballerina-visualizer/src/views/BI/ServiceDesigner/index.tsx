@@ -74,10 +74,11 @@ const ButtonText = styled.span`
 interface ServiceDesignerProps {
     filePath: string;
     position: NodePosition;
+    serviceIdentifier: string;
 }
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { filePath, position } = props;
+    const { filePath, position, serviceIdentifier } = props;
     const { rpcClient } = useRpcContext();
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [functionModel, setFunctionModel] = useState<FunctionModel>(undefined);
@@ -222,10 +223,10 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
-            const newArtifact = res.artifacts.find(res => res.isNew);
-            if (newArtifact) {
-                fetchService(newArtifact.position);
-                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: newArtifact.path, position: newArtifact.position } });
+            const serviceArtifact = res.artifacts.find(res => res.isNew && res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
                 setIsSaving(false);
                 return;
             }
@@ -233,6 +234,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
+            const serviceArtifact = res.artifacts.find(res => res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+                setIsSaving(false);
+                return;
+            }
         }
         setIsNew(false);
     };
@@ -248,14 +256,25 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .addFunctionSourceCode({ filePath, codedata: { lineRange }, function: value });
+            const serviceArtifact = res.artifacts.find(res => res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+            }
         } else {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+            const serviceArtifact = res.artifacts.find(res => res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+            }
         }
         setIsNew(false);
         handleNewFunctionClose();
         handleFunctionConfigClose();
+        setIsSaving(false);
     };
 
     const handleFunctionConfigClose = () => {
@@ -467,6 +486,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         onClose={handleFunctionConfigClose}
                     >
                         <FunctionConfigForm
+                            isSaving={isSaving}
                             serviceModel={serviceModel}
                             onSubmit={handleFunctionSubmit}
                             onBack={handleFunctionConfigClose}
