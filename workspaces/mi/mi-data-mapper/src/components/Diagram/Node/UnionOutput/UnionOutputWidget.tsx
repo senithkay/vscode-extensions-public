@@ -31,6 +31,7 @@ import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../comm
 import { modifyChildFieldsOptionality } from '../../utils/modification-utils';
 import { getDefaultValue } from '../../utils/common-utils';
 import { UnionTypeSelector } from './UnionTypeSelector';
+import { useShallow } from 'zustand/react/shallow';
 export interface UnionOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	dmTypeWithValue: DMTypeWithValue;
@@ -66,16 +67,22 @@ export function UnionOutputWidget(props: UnionOutputWidgetProps) {
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
-		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType,
-		setIsSchemaOverridden: state.setIsSchemaOverridden
-	}));
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(
+		useShallow(state => ({
+			setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+			setIOConfigPanelType: state.setIOConfigPanelType,
+			setIsSchemaOverridden: state.setIsSchemaOverridden
+		}))
+	);
 
-	const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
-		subMappingConfig: state.subMappingConfig,
-		setSubMappingConfig: state.setSubMappingConfig
-	}));
+	const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(
+		useShallow(
+			state => ({
+				subMappingConfig: state.subMappingConfig,
+				setSubMappingConfig: state.setSubMappingConfig
+			})
+		)
+	);
 
 	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 

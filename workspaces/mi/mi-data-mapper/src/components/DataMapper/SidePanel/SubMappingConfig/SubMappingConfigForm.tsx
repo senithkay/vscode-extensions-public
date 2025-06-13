@@ -70,14 +70,14 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         subMappingConfigFormData,
         setSubMappingConfigFormData
     } = useDMSubMappingConfigPanelStore(
-        useShallow(
-                state => ({
-                subMappingConfig: state.subMappingConfig,
-                resetSubMappingConfig: state.resetSubMappingConfig,
-                subMappingConfigFormData: state.subMappingConfigFormData,
-                setSubMappingConfigFormData: state.setSubMappingConfigFormData
-            })
-        )
+            useShallow(
+                    state => ({
+                    subMappingConfig: state.subMappingConfig,
+                    resetSubMappingConfig: state.resetSubMappingConfig,
+                    subMappingConfigFormData: state.subMappingConfigFormData,
+                    setSubMappingConfigFormData: state.setSubMappingConfigFormData
+                })
+            )
     );
 
     let defaultValues: { mappingName: string; mappingType: string | null; isArray: boolean };
