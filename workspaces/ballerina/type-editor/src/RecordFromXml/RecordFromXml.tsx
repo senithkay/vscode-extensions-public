@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { Button, SidePanelBody, TextArea } from '@wso2-enterprise/ui-toolkit';
+import { Button, SidePanelBody, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { FileSelect } from '../style';
 import { FileSelector } from '../components/FileSelector';
@@ -19,6 +19,8 @@ import styled from '@emotion/styled';
 interface RecordFromXmlProps {
     onImport: (types: Type[]) => void;
     rpcClient: BallerinaRpcClient;
+    isSaving: boolean;
+    setIsSaving: (isSaving: boolean) => void;
 }
 
 namespace S {
@@ -40,7 +42,7 @@ namespace S {
 }
 
 export const RecordFromXml = (props: RecordFromXmlProps) => {
-    const { onImport, rpcClient } = props;
+    const { onImport, rpcClient, isSaving, setIsSaving } = props;
     const [xml, setXml] = useState<string>("");
     const [error, setError] = useState<string>("");
 
@@ -69,6 +71,7 @@ export const RecordFromXml = (props: RecordFromXmlProps) => {
     }
 
     const importXmlAsRecord = async () => {
+        setIsSaving(true);
         const resp: TypeDataWithReferences = await rpcClient.getRecordCreatorRpcClient().convertXmlToRecordType({
             xmlValue: xml,
             prefix: ""
@@ -106,7 +109,9 @@ export const RecordFromXml = (props: RecordFromXmlProps) => {
                 placeholder='Paste or type your XML here...'
             />
             <S.Footer>
-                <Button onClick={importXmlAsRecord} disabled={!!error || !xml.trim()}>Import</Button>
+                <Button onClick={importXmlAsRecord} disabled={!!error || !xml.trim() || isSaving}>
+                    {isSaving ? <Typography variant="progress">Importing...</Typography> : "Import"}
+                </Button>
             </S.Footer>
         </>
     );

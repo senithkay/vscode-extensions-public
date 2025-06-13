@@ -41,12 +41,16 @@ enum ImportFormat {
 interface ImportTabProps {
     type: Type;
     onTypeSave: (type: Type) => void;
+    isSaving: boolean;
+    setIsSaving: (isSaving: boolean) => void;
 }
 
 export function ImportTab(props: ImportTabProps) {
     const {
         type,
         onTypeSave,
+        isSaving,
+        setIsSaving,
     } = props;
 
     const nameInputRef = useRef<HTMLInputElement | null>(null);
@@ -191,12 +195,16 @@ export function ImportTab(props: ImportTabProps) {
                     name={importTypeName}
                     isTypeNameValid={isTypeNameValid}
                     onImport={onImport}
+                    isSaving={isSaving}
+                    setIsSaving={setIsSaving}
                 />
             )}
             {importFormat === ImportFormat.XML && (
                 <RecordFromXml
                     rpcClient={rpcClient}
                     onImport={onImport}
+                    isSaving={isSaving}
+                    setIsSaving={setIsSaving}
                 />
             )}
         </>

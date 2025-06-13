@@ -146,12 +146,15 @@ export function TypeEditor(props: TypeEditorProps) {
                                 initialTypeKind={initialTypeKind}
                                 onTypeSave={onTypeSave}
                                 isSaving={isSaving}
+                                setIsSaving={setIsSaving}
                             />
                         </div>
                         <div id="import">
                             <ImportTab
                                 type={type}
                                 onTypeSave={onTypeSave}
+                                isSaving={isSaving}
+                                setIsSaving={setIsSaving}
                             />
                         </div>
                     </Tabs>
@@ -164,6 +167,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             initialTypeKind={initialTypeKind}
                             onTypeSave={onTypeSave}
                             isSaving={isSaving}
+                            setIsSaving={setIsSaving}
                         />
                     </div>
                 )}

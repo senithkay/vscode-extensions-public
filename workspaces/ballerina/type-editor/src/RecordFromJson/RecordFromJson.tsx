@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { Button, SidePanelBody, TextArea, CheckBox } from '@wso2-enterprise/ui-toolkit';
+import { Button, SidePanelBody, TextArea, CheckBox, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { FileSelect } from '../style';
 import { FileSelector } from '../components/FileSelector';
@@ -20,6 +20,8 @@ interface RecordFromJsonProps {
     onImport: (types: Type[]) => void;
     isTypeNameValid: boolean;
     rpcClient: BallerinaRpcClient;
+    isSaving: boolean;
+    setIsSaving: (isSaving: boolean) => void;
 }
 
 namespace S {
@@ -41,7 +43,7 @@ namespace S {
 }
 
 export const RecordFromJson = (props: RecordFromJsonProps) => {
-    const { name, onImport, rpcClient, isTypeNameValid } = props;
+    const { name, onImport, rpcClient, isTypeNameValid, isSaving, setIsSaving } = props;
     const [json, setJson] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [isClosed, setIsClosed] = useState<boolean>(false);
@@ -72,6 +74,7 @@ export const RecordFromJson = (props: RecordFromJsonProps) => {
     }
 
     const importJsonAsRecord = async () => {
+        setIsSaving(true);
         const resp: TypeDataWithReferences = await rpcClient.getRecordCreatorRpcClient().convertJsonToRecordType({
             jsonString: json,
             recordName: name,
@@ -115,7 +118,9 @@ export const RecordFromJson = (props: RecordFromJsonProps) => {
             {/* <CheckBox label="Is Closed" checked={isClosed} onChange={setIsClosed} />
             <CheckBox label="Is Separate Definitions" checked={isSeparateDefinitions} onChange={setIsSeparateDefinitions} /> */}
             <S.Footer>
-                <Button onClick={importJsonAsRecord} disabled={!!error || !json.trim() || !isTypeNameValid}>Import</Button>
+                <Button onClick={importJsonAsRecord} disabled={!!error || !json.trim() || !isTypeNameValid || isSaving}>
+                    {isSaving ? <Typography variant="progress">Importing...</Typography> : "Import"}
+                </Button>
             </S.Footer>
         </>
     );
