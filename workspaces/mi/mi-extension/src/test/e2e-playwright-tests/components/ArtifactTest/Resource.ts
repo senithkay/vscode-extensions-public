@@ -58,11 +58,19 @@ export class Resource {
         console.log("Opening Resource Form from Side Panel");
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
+        const resWebView = await switchToIFrame('Project Overview', this._page);
+        if (!resWebView) {
+            throw new Error("Failed to switch to Project Overview iframe");
+        }
+        console.log("Switched to Project Overview iframe");
+        await resWebView.getByRole('heading', { name: 'Deployment Options' }).waitFor({ timeout: 60000 });
+        console.log("Waiting for Deployment Options to load");
         await projectExplorer.findItem(['Project testProject', 'Resources'], true);
         console.log("Navigated to Resources in Project Explorer");
         await this._page.getByLabel('Add Resource').click();
         console.log("Clicked on Add Resource");
         await switchToIFrame('Resource Creation Form', this._page);
+        console.log("Switched to Resource Creation Form iframe");
     }
 
     public async cancelForm() {
@@ -75,6 +83,13 @@ export class Resource {
         console.log("Opening Resource from Project Explorer");
         const projectExplorer = new ProjectExplorer(this._page);
         await projectExplorer.goToOverview("testProject");
+        const resWebView = await switchToIFrame('Project Overview', this._page);
+        if (!resWebView) {
+            throw new Error("Failed to switch to Project Overview iframe");
+        }
+        console.log("Switched to Project Overview iframe");
+        await resWebView.getByRole('heading', { name: 'Deployment Options' }).waitFor({ timeout: 60000 });
+        console.log("Waiting for Deployment Options to load");
         await projectExplorer.findItem(['Project testProject', 'Resources', dirName, resName], true);
         console.log(`Opened Resource: ${resName} from directory: ${dirName}`);
     }
