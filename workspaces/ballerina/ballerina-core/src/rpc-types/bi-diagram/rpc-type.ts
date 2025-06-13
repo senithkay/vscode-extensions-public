@@ -75,7 +75,8 @@ import {
     OpenAPIClientDeleteResponse,
     OpenConfigTomlRequest,
     UpdateConfigVariableRequestV2,
-    GetConfigVariableNodeTemplateRequest
+    GetConfigVariableNodeTemplateRequest,
+    BISourceCodeResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,

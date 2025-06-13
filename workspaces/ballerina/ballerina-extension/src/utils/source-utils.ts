@@ -17,6 +17,7 @@ import { openView, StateMachine } from '../stateMachine';
 import { ArtifactsUpdated, ArtifactNotificationHandler } from './project-artifacts-handler';
 import { existsSync, writeFileSync } from 'fs';
 import { notifyCurrentWebview } from '../RPCLayer';
+import { applyBallerinaTomlEdit } from '../rpc-managers/bi-diagram/utils';
 
 export interface UpdateSourceCodeRequest {
     textEdits: {
@@ -44,6 +45,15 @@ export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCode
             });
         }
         const edits = value;
+
+        // Hack to handle .toml file edits. Planned to be removed once the updateSource method refactored to work on workspace edits
+        if (fileUriString.endsWith(".toml")) {
+            for (const edit of edits) {
+                await applyBallerinaTomlEdit(fileUri, edit);
+            }
+            StateMachine.setReadyMode();
+            continue;
+        }
 
         if (edits && edits.length > 0) {
             const modificationList: STModification[] = [];

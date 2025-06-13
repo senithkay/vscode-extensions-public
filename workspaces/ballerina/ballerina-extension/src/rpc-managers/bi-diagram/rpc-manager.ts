@@ -608,7 +608,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 writeBallerinaFileDidOpen(params.configFilePath, "\n");
             }
             const response = await StateMachine.langClient().updateConfigVariablesV2(req) as BISourceCodeResponse;
-            await this.updateSource(response, undefined, false);
+            await updateSourceCode({ textEdits: response.textEdits }, { artifactType: DIRECTORY_MAP.CONFIGURABLE });
             resolve(response);
         });
     }
@@ -621,7 +621,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 writeBallerinaFileDidOpen(params.configFilePath, "\n");
             }
             const response = await StateMachine.langClient().deleteConfigVariableV2(req) as BISourceCodeResponse;
-            await this.updateSource(response, undefined, false);
+            await updateSourceCode({ textEdits: response.textEdits }, { artifactType: DIRECTORY_MAP.CONFIGURABLE });
             resolve(response);
         });
     }
