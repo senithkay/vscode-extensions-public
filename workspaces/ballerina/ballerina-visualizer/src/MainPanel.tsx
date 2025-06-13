@@ -175,6 +175,7 @@ const MainPanel = () => {
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
                             <ServiceDesigner
+                                serviceIdentifier={value.identifier}
                                 filePath={value.documentUri}
                                 position={value?.position}
                             />
@@ -235,7 +236,7 @@ const MainPanel = () => {
                         );
                         break;
                     case MACHINE_VIEW.GraphQLDiagram:
-                        setViewComponent(<GraphQLDiagram filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri} />);
+                        setViewComponent(<GraphQLDiagram serviceIdentifier={value?.identifier} filePath={value?.documentUri} position={value?.position} projectUri={value?.projectUri} />);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(

@@ -211,3 +211,10 @@ export function findRegexMatches(input: string): MatchResult[] {
 
     return matches;
 }
+
+export const isPositionChanged = (prev: NodePosition, current: NodePosition) => {
+    return prev.startLine !== current.startLine ||
+        prev.startColumn !== current.startColumn ||
+        prev.endLine !== current.endLine ||
+        prev.endColumn !== current.endColumn;
+};

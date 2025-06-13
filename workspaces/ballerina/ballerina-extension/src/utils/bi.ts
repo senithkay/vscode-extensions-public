@@ -336,7 +336,7 @@ export async function handleFunctionCreation(targetFile: string, params: Compone
     return res;
 }
 // <---------- Function Source Generation END-------->
-
+// Test_Integration test_integration   Test Integration testIntegration -> testintegration
 export function sanitizeName(name: string): string {
     return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); // Replace invalid characters with underscores
 }

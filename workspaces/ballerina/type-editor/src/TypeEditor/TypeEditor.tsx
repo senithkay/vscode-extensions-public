@@ -53,6 +53,7 @@ export function TypeEditor(props: TypeEditorProps) {
     const { isGraphql, newType } = props;
 
     let initialTypeKind = props.type?.codedata?.node ?? "RECORD" as TypeNodeKind;
+    const [isSaving, setIsSaving] = useState(false);
 
     const type: Type = (() => {
         if (props.type) {
@@ -85,6 +86,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const onTypeSave = async (type: Type) => {
         const name = type.name;
+        setIsSaving(true);
         // IF type nodeKind is CLASS then we call graphqlEndpoint
         // TODO: for TypeDiagram we need to give a generic class creation
         if (type.codedata.node === "CLASS") {
@@ -98,6 +100,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 .updateType({ filePath: type.codedata?.lineRange?.fileName || 'types.bal', type, description: "" });
         }
         props.onTypeChange(type);
+        setIsSaving(false);
     }
 
     const handleTabChange = (tabId: string) => {
@@ -142,12 +145,16 @@ export function TypeEditor(props: TypeEditorProps) {
                                 isGraphql={isGraphql}
                                 initialTypeKind={initialTypeKind}
                                 onTypeSave={onTypeSave}
+                                isSaving={isSaving}
+                                setIsSaving={setIsSaving}
                             />
                         </div>
                         <div id="import">
                             <ImportTab
                                 type={type}
                                 onTypeSave={onTypeSave}
+                                isSaving={isSaving}
+                                setIsSaving={setIsSaving}
                             />
                         </div>
                     </Tabs>
@@ -159,6 +166,8 @@ export function TypeEditor(props: TypeEditorProps) {
                             isGraphql={isGraphql}
                             initialTypeKind={initialTypeKind}
                             onTypeSave={onTypeSave}
+                            isSaving={isSaving}
+                            setIsSaving={setIsSaving}
                         />
                     </div>
                 )}

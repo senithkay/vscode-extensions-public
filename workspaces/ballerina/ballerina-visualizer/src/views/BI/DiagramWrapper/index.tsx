@@ -99,9 +99,9 @@ const WrappedTooltip = ({ content, children }: WrappedTooltipProps) => {
     // Format content by replacing commas or pipes with line breaks
     const formatContent = (text: string) => {
         if (!text) return "";
-        
+
         let formattedItems: string[] = [];
-        
+
         if (text.includes(",")) {
             formattedItems = text
                 .split(",")
@@ -113,7 +113,7 @@ const WrappedTooltip = ({ content, children }: WrappedTooltipProps) => {
         } else {
             return text;
         }
-        
+
         // Return JSX with proper line breaks
         return (
             <>
@@ -128,9 +128,9 @@ const WrappedTooltip = ({ content, children }: WrappedTooltipProps) => {
     };
 
     return (
-        <Tooltip 
-            content={formatContent(content)} 
-            containerSx={{ cursor: "default" }} 
+        <Tooltip
+            content={formatContent(content)}
+            containerSx={{ cursor: "default" }}
             sx={{
                 wordBreak: "break-word",
                 whiteSpace: "normal",
@@ -179,28 +179,30 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                     findClass: true,
                 })
                 .then((serviceLocation) => {
-                    rpcClient
-                        .getServiceDesignerRpcClient()
-                        .getServiceModelFromCode({
-                            filePath: serviceLocation.filePath,
-                            codedata: {
-                                lineRange: {
-                                    startLine: {
-                                        line: serviceLocation?.startLine.line,
-                                        offset: serviceLocation?.startLine.offset,
-                                    },
-                                    endLine: {
-                                        line: serviceLocation?.endLine.line,
-                                        offset: serviceLocation?.endLine.offset,
+                    if (serviceLocation) {
+                        rpcClient
+                            .getServiceDesignerRpcClient()
+                            .getServiceModelFromCode({
+                                filePath: serviceLocation.filePath,
+                                codedata: {
+                                    lineRange: {
+                                        startLine: {
+                                            line: serviceLocation?.startLine.line,
+                                            offset: serviceLocation?.startLine.offset,
+                                        },
+                                        endLine: {
+                                            line: serviceLocation?.endLine.line,
+                                            offset: serviceLocation?.endLine.offset,
+                                        },
                                     },
                                 },
-                            },
-                        })
-                        .then((serviceModel) => {
-                            setServiceType(serviceModel.service?.type);
-                            setBasePath(serviceModel.service?.properties?.basePath?.value?.trim());
-                            setListener(serviceModel.service?.properties?.listener?.value?.trim());
-                        });
+                            })
+                            .then((serviceModel) => {
+                                setServiceType(serviceModel.service?.type);
+                                setBasePath(serviceModel.service?.properties?.basePath?.value?.trim());
+                                setListener(serviceModel.service?.properties?.listener?.value?.trim());
+                            });
+                    }
                 });
         });
     }, [rpcClient]);

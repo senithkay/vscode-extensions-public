@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { ProjectStructureResponse } from "../../interfaces/bi";
+import { ProjectStructureResponse, UpdatedArtifactsResponse } from "../../interfaces/bi";
 import { LinePosition } from "../../interfaces/common";
 import {
     BIAvailableNodesRequest,
@@ -17,7 +17,6 @@ import {
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
-    BISourceCodeResponse,
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -101,8 +100,8 @@ import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "bi-diagram";
 export const getFlowModel: RequestType<void, BIFlowModelResponse> = { method: `${_preFix}/getFlowModel` };
-export const getSourceCode: RequestType<BISourceCodeRequest, BISourceCodeResponse> = { method: `${_preFix}/getSourceCode` };
-export const deleteFlowNode: RequestType<BISourceCodeRequest, BISourceCodeResponse> = { method: `${_preFix}/deleteFlowNode` };
+export const getSourceCode: RequestType<BISourceCodeRequest, UpdatedArtifactsResponse> = { method: `${_preFix}/getSourceCode` };
+export const deleteFlowNode: RequestType<BISourceCodeRequest, UpdatedArtifactsResponse> = { method: `${_preFix}/deleteFlowNode` };
 export const deleteByComponentInfo: RequestType<BIDeleteByComponentInfoRequest, BIDeleteByComponentInfoResponse> = { method: `${_preFix}/deleteByComponentInfo` };
 export const getAvailableNodes: RequestType<BIAvailableNodesRequest, BIAvailableNodesResponse> = { method: `${_preFix}/getAvailableNodes` };
 export const getEnclosedFunction: RequestType<BIGetEnclosedFunctionRequest, BIGetEnclosedFunctionResponse> = { method: `${_preFix}/getEnclosedFunction` };

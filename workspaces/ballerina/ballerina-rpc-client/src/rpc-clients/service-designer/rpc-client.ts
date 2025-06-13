@@ -29,9 +29,9 @@ import {
     ServiceModelRequest,
     ServiceModelResponse,
     ServiceSourceCodeRequest,
-    SourceUpdateResponse,
     TriggerModelsRequest,
     TriggerModelsResponse,
+    UpdatedArtifactsResponse,
     addFunctionSourceCode,
     addListenerSourceCode,
     addResourceSourceCode,
@@ -75,11 +75,11 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
         return this._messenger.sendRequest(getListenerModel, HOST_EXTENSION, params);
     }
 
-    addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
+    addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return this._messenger.sendRequest(addListenerSourceCode, HOST_EXTENSION, params);
     }
 
-    updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
+    updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return this._messenger.sendRequest(updateListenerSourceCode, HOST_EXTENSION, params);
     }
 
@@ -95,11 +95,11 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
         return this._messenger.sendRequest(getFunctionModel, HOST_EXTENSION, params);
     }
 
-    addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
+    addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return this._messenger.sendRequest(addServiceSourceCode, HOST_EXTENSION, params);
     }
 
-    updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
+    updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return this._messenger.sendRequest(updateServiceSourceCode, HOST_EXTENSION, params);
     }
 
@@ -111,15 +111,15 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
         return this._messenger.sendRequest(getHttpResourceModel, HOST_EXTENSION, params);
     }
 
-    addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
+    addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return this._messenger.sendRequest(addResourceSourceCode, HOST_EXTENSION, params);
     }
 
-    addFunctionSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
+    addFunctionSourceCode(params: FunctionSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return this._messenger.sendRequest(addFunctionSourceCode, HOST_EXTENSION, params);
     }
 
-    updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
+    updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return this._messenger.sendRequest(updateResourceSourceCode, HOST_EXTENSION, params);
     }
 }

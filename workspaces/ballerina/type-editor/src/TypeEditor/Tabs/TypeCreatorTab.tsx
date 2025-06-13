@@ -104,6 +104,8 @@ interface TypeCreatorTabProps {
     isGraphql: boolean;
     initialTypeKind: TypeNodeKind;
     onTypeSave: (type: Type) => Promise<void>;
+    isSaving: boolean;
+    setIsSaving: (isSaving: boolean) => void;
 }
 
 export function TypeCreatorTab(props: TypeCreatorTabProps) {
@@ -112,7 +114,9 @@ export function TypeCreatorTab(props: TypeCreatorTabProps) {
         isGraphql,
         newType,
         initialTypeKind,
-        onTypeSave
+        onTypeSave,
+        isSaving,
+        setIsSaving
     } = props;
 
     const [type, setType] = useState<Type>(editingType);
@@ -140,7 +144,6 @@ export function TypeCreatorTab(props: TypeCreatorTabProps) {
 
     const [isNewType, setIsNewType] = useState<boolean>(newType);
     const [isTypeNameValid, setIsTypeNameValid] = useState<boolean>(true);
-    const [isSaving, setIsSaving] = useState(false);
     const [onValidationError, setOnValidationError] = useState<boolean>(false);
     const [nameError, setNameError] = useState<string>("");
     const [isEditing, setIsEditing] = useState(false);
@@ -500,27 +503,13 @@ export function TypeCreatorTab(props: TypeCreatorTabProps) {
                                     >
                                         Cancel
                                     </StyledButton>
-                                    {!isSaving &&
-                                        <StyledButton
-                                            appearance="primary"
-                                            onClick={editTypeName}
-                                            disabled={!isTypeNameValid || !tempName}
-                                        >
-                                            Save
-                                        </StyledButton>
-                                    }
-                                    {isSaving &&
-                                        <StyledButton
-                                            appearance="primary"
-                                            disabled={true}
-                                        >
-                                            <ProgressRing
-                                                sx={{ width: 14, height: 14, marginRight: 3 }}
-                                                color={ThemeColors.ON_PRIMARY}
-                                            />
-                                            Saving
-                                        </StyledButton>
-                                    }
+                                    <StyledButton
+                                        appearance="primary"
+                                        onClick={editTypeName}
+                                        disabled={!isTypeNameValid || !tempName || isSaving}
+                                    >
+                                        {isSaving ? <Typography variant="progress">Saving...</Typography> : "Save"}
+                                    </StyledButton>
                                 </ButtonGroup>
                             </EditRow>
 
@@ -554,8 +543,8 @@ export function TypeCreatorTab(props: TypeCreatorTabProps) {
             <Footer>
                 <Button
                     onClick={() => onTypeSave(type)}
-                    disabled={onValidationError || !isTypeNameValid || isEditing}>
-                    Save
+                    disabled={onValidationError || !isTypeNameValid || isEditing || isSaving}>
+                    {isSaving ? <Typography variant="progress">Saving...</Typography> : "Save"}
                 </Button>
             </Footer>
         </>
