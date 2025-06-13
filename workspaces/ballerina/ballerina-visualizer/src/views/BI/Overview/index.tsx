@@ -474,7 +474,7 @@ function IntegrationControlPlane({ enabled, handleICP }: IntegrationControlPlane
             <CheckBox
                 checked={enabled}
                 onChange={handleICP}
-                label="Enable ICP"
+                label="Enable WSO2 Integrator: ICP"
             />
         </div>
     );
