@@ -184,9 +184,10 @@ export class API {
         console.log("Clicked on try it out");
         await swaggerView.getByRole('button', { name: 'Execute' }).click();
         console.log("Clicked on execute");
+        await page.page.waitForTimeout(500);
         await page.executePaletteCommand('View: Close All Editor Groups');
         // wait for the editor to close
-        // await page.page.waitForTimeout(2000);
+        await page.page.waitForTimeout(500);
         try {
             const saveBtn = this._page.getByRole('button', { name: 'Save', exact: true });
             await saveBtn.waitFor({ timeout: 5000 });
