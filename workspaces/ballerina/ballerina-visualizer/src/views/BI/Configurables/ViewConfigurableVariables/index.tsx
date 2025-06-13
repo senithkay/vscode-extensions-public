@@ -18,6 +18,8 @@ import { AddForm } from "../AddConfigurableVariables";
 import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
 import { TopNavigationBar } from "../../../../components/TopNavigationBar";
 import { TitleBar } from "../../../../components/TitleBar";
+import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 
 const Container = styled.div`
     width: 100%;
@@ -303,8 +305,8 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             moduleName: selectedModule.module,
         });
 
-        await new Promise(resolve => setTimeout(resolve, 400));
-
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
         getConfigVariables();
 
     }
@@ -516,8 +518,10 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 marginBottom: '10px',
                                                                 color: 'var(--vscode-descriptionForeground)'
                                                             }}
-                                                            dangerouslySetInnerHTML={{ __html: String(variable?.properties?.documentation?.value) }}
                                                         >
+                                                            <ReactMarkdown remarkPlugins={[remarkBreaks]}>
+                                                                {String(variable?.properties?.documentation?.value)}
+                                                            </ReactMarkdown>
                                                         </div>
                                                     }
                                                     <ConfigValueField>
