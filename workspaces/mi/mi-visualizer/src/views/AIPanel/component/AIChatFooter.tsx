@@ -65,12 +65,9 @@ const AIChatFooter: React.FC = () => {
     // Reference to store code blocks for the current chat
     const currentChatCodeBlocksRef = useRef<string[]>([]);
 
-    // List of programming languages to filter for actual code files
+    // List of programming languages to filter for actual code files (Kept it as a list for extensibility)
     const codeLanguages = [
-        'typescript', 'ts', 'javascript', 'js', 'jsx', 'tsx',
-        'java', 'python', 'py', 'c', 'cpp', 'cs', 'go', 'rust',
-        'php', 'ruby', 'swift', 'kotlin', 'scala', 'html', 'css',
-        'xml', 'yaml', 'yml', 'bash', 'sh', 'sql'
+        'xml'
     ];
 
     // Function to extract code content from a code block
@@ -348,7 +345,8 @@ const AIChatFooter: React.FC = () => {
                                                     // Find the corresponding XML code block in the current chat
                                                     const xmlCodeIndex = xmlCodes.findIndex(xml => 
                                                         xml.fileName === fileName || 
-                                                        xml.fileName === fileName.replace('.xml', '') + '.xml'
+                                                        (!fileName.endsWith('.xml') && xml.fileName === fileName + '.xml') ||
+                                                        (fileName.endsWith('.xml') && xml.fileName === fileName.slice(0, -4))
                                                     );
                                                     
                                                     if (xmlCodeIndex !== -1) {

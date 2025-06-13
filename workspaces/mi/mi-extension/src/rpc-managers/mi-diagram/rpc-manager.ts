@@ -5575,7 +5575,6 @@ ${keyValuesXML}`;
 
             const dependenciesResponse = await updateDependencies();
 
-            await new Promise(resolve => setTimeout(resolve, 500));
             const connectorResponse = await rpcClient.updateConnectorDependencies();
 
             return {

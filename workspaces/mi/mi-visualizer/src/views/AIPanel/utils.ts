@@ -644,8 +644,17 @@ export async function getDiagnosticsReponseFromLlm(
         );
     } catch (error) {
         console.error("Error sending diagnostics to LLM:", error);
-        throw error;
-    }
+        
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : "Unknown error occurred when analyzing diagnostics";
+        
+        return Promise.reject({
+            status: "error",
+            message: `Failed to analyze diagnostics: ${errorMessage}`,
+            originalError: error
+    });
+}
 }
 
 /**
