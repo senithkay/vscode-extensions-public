@@ -27,6 +27,7 @@ export interface UpdateSourceCodeRequest {
 }
 
 export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCodeRequest, artifactData?: ArtifactData): Promise<ProjectStructureArtifactResponse[]> {
+    let tomlFilesUpdated = false;
     StateMachine.setEditMode();
     const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
     for (const [key, value] of Object.entries(updateSourceCodeRequest.textEdits)) {
@@ -48,6 +49,7 @@ export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCode
 
         // Hack to handle .toml file edits. Planned to be removed once the updateSource method refactored to work on workspace edits
         if (fileUriString.endsWith(".toml")) {
+            tomlFilesUpdated = true;
             for (const edit of edits) {
                 await applyBallerinaTomlEdit(fileUri, edit);
             }
@@ -116,6 +118,10 @@ export async function updateSourceCode(updateSourceCodeRequest: UpdateSourceCode
         }
 
         return new Promise((resolve, reject) => {
+            if (tomlFilesUpdated) {
+                resolve([]);
+                return;
+            }
             // Get the artifact notification handler instance
             const notificationHandler = ArtifactNotificationHandler.getInstance();
             // Subscribe to artifact updated notifications
