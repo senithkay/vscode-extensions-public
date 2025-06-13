@@ -89,7 +89,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
-                    if (response.textEdits) {
+                    if (response.artifacts.length > 0) {
                         // clear memory
                         if (onClose) {
                             onClose();

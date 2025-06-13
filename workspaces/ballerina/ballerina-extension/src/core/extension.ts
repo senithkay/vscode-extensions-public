@@ -291,7 +291,7 @@ export class BallerinaExtension {
                     this.clientOptions, this, false);
 
                 _onBeforeInit(this.langClient);
-                
+
                 await this.langClient.start();
 
                 // Following was put in to handle server startup failures.
@@ -1338,7 +1338,7 @@ export class BallerinaExtension {
                 await window.withProgress(
                     {
                         location: ProgressLocation.Notification,
-                        title: `Downloading Ballerina Integrator distribution`,
+                        title: `Downloading Ballerina distribution`,
                         cancellable: false,
                     },
                     async (progress) => {
@@ -1393,11 +1393,11 @@ export class BallerinaExtension {
             console.log(`Downloaded artifact to ${zipFilePath}`);
 
             if (restartWindow) {
-                window.showInformationMessage("Setting the Ballerina Integrator Home location...");
+                window.showInformationMessage("Setting the Ballerina distribution Home location...");
             }
             res = {
                 ...res,
-                message: `Setting the Ballerina Integrator Home location...`,
+                message: `Setting the Ballerina distribution Home location...`,
                 success: false,
                 step: 4
             };

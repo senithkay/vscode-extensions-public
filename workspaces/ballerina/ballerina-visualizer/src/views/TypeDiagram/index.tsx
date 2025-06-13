@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation, NodePosition, Type, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, NodePosition, Type, EVENT_TYPE, MACHINE_VIEW, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
 import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
@@ -189,6 +189,25 @@ export function TypeDiagram(props: TypeDiagramProps) {
         setEditingTypeId(undefined);
         setEditingType(undefined);
         setIsTypeCreatorOpen(false);
+        setHighlightedNodeId(type.name); // Highlight the newly created type
+    };
+
+    // Helper function to convert TypeNodeKind to display name
+    const getTypeKindDisplayName = (typeNodeKind?: TypeNodeKind): string => {
+        switch (typeNodeKind) {
+            case "RECORD":
+                return "Record";
+            case "ENUM":
+                return "Enum";
+            case "CLASS":
+                return "Service Class";
+            case "UNION":
+                return "Union";
+            case "ARRAY":
+                return "Array";
+            default:
+                return "";
+        }
     };
 
     return (
@@ -228,11 +247,17 @@ export function TypeDiagram(props: TypeDiagramProps) {
             {/* Panel for editing and creating types */}
             {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node !== "CLASS" && (
                 <PanelContainer
-                    title={editingTypeId ? `Edit Type` : "New Type"}
+                    title={editingTypeId ?
+                        `Edit Type${getTypeKindDisplayName(editingType?.codedata?.node) ?
+                            ` : ${getTypeKindDisplayName(editingType?.codedata?.node)}` :
+                            ''}` :
+                        "New Type"
+                    }
                     show={true}
                     onClose={onTypeEditorClosed}
                 >
                     <FormTypeEditor
+                        key={editingTypeId || 'new-type'}
                         type={findSelectedType(editingTypeId)}
                         newType={editingTypeId ? false : true}
                         onTypeChange={onTypeChange}

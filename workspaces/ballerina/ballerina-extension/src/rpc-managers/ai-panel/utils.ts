@@ -8,7 +8,7 @@
  */
 
 import { ArrayTypeDesc, FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { ErrorCode, FormField, STModification, SyntaxTree, Attachment, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords, AIMachineEventType } from "@wso2-enterprise/ballerina-core";
+import { ErrorCode, FormField, STModification, SyntaxTree, Attachment, AttachmentStatus, RecordDefinitonObject, ParameterMetadata, ParameterDefinitions, MappingFileRecord, keywords, AIMachineEventType, DiagnosticEntry } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 import { UNKNOWN_ERROR } from '../../views/ai-panel/errorCodes';
 
@@ -2142,4 +2142,11 @@ export async function fetchWithToken(url: string, options: RequestInit) {
         }
     }
     return response;
+}
+
+export function cleanDiagnosticMessages(entries: DiagnosticEntry[]): DiagnosticEntry[] {
+    return entries.map(entry => ({
+        code: entry.code || "",
+        message: entry.message,
+    }));
 }

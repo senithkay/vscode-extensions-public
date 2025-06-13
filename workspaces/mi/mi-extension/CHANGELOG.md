@@ -2,6 +2,17 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.2.4] - 2025-06-06
+
+### New Features
+
+Added: Support to deploy CApps in a remote server ([#936](https://github.com/wso2/mi-vscode/issues/936))
+
+### Fixed
+
+Fixed: Issues in server execution ([#1129](https://github.com/wso2/mi-vscode/issues/1129))   
+Fixed: Minor issues in data service resource generation and file event-integration creation form fields
+
 ## [2.2.3] - 2025-05-30
 
 ### Fixed

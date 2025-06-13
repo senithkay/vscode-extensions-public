@@ -194,6 +194,7 @@ import {
     askProjectImportDirPath,
     browseFile,
     buildProject,
+    remoteDeploy,
     checkOldProject,
     closePayloadAlert,
     closeWebView,
@@ -892,6 +893,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     buildProject(params: BuildProjectRequest): void {
         return this._messenger.sendNotification(buildProject, HOST_EXTENSION, params);
+    }
+
+    remoteDeploy(): void {
+        return this._messenger.sendNotification(remoteDeploy, HOST_EXTENSION);
     }
 
     deployProject(params: DeployProjectRequest): Promise<DeployProjectResponse> {

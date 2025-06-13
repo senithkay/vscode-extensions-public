@@ -305,10 +305,36 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             moduleName: selectedModule.module,
         });
 
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        getConfigVariables();
+        const configVarName = newConfigVarNode.properties.variable.value;
 
+        // Update the configVariables state with the new value
+        setConfigVariables(prevState => {
+            if (!prevState[selectedModule.category] || !prevState[selectedModule.category][selectedModule.module]) {
+                return prevState;
+            }
+            const updatedVariables = prevState[selectedModule.category][selectedModule.module].map(variable => {
+                if (variable.properties.variable.value === configVarName) {
+                    return {
+                        ...variable,
+                        properties: {
+                            ...variable.properties,
+                            configValue: {
+                                ...variable.properties.configValue,
+                                value: newValue.target.value
+                            }
+                        }
+                    };
+                }
+                return variable;
+            });
+            return {
+                ...prevState,
+                [selectedModule.category]: {
+                    ...prevState[selectedModule.category],
+                    [selectedModule.module]: updatedVariables
+                }
+            };
+        });
     }
 
     const handleOnDeleteConfigVariable = async (index: number) => {

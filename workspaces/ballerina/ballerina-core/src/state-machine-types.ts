@@ -11,8 +11,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./interfaces/common";
 import { Type } from "./interfaces/extended-lang-client";
-import { FlowNode, ProjectStructureResponse } from "./interfaces/bi";
-import { ServiceModel } from "./interfaces/service";
+import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "./interfaces/bi";
 
 export type MachineStateValue =
     | 'initialize'
@@ -36,7 +35,8 @@ export enum EVENT_TYPE {
     CANCEL_CREATION = "CANCEL_CREATION",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
-    CLOSE_VIEW = "CLOSE_VIEW"
+    CLOSE_VIEW = "CLOSE_VIEW",
+    UPDATE_PROJECT_LOCATION = "UPDATE_PROJECT_LOCATION"
 }
 
 export enum SCOPE {
@@ -114,15 +114,12 @@ export interface VisualizerLocation {
     metadata?: VisualizerMetadata;
     scope?: SCOPE;
     projectStructure?: ProjectStructureResponse;
-    tempData?: TempData;
     org?: string;
     package?: string;
 }
 
-export interface TempData {
-    flowNode?: FlowNode;
-    serviceModel?: ServiceModel;
-    isNewService?: boolean;
+export interface ArtifactData {
+    artifactType: DIRECTORY_MAP;
     identifier?: string;
 }
 
@@ -156,6 +153,10 @@ export const onDownloadProgress: NotificationType<DownloadProgress> = { method: 
 export const projectContentUpdated: NotificationType<boolean> = { method: 'projectContentUpdated' };
 export const getVisualizerLocation: RequestType<void, VisualizerLocation> = { method: 'getVisualizerLocation' };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
+
+// Artifact updated request and notification
+export const onArtifactUpdatedNotification: NotificationType<ProjectStructureArtifactResponse[]> = { method: 'onArtifactUpdatedNotification' };
+export const onArtifactUpdatedRequest: RequestType<ArtifactData, void> = { method: 'onArtifactUpdatedRequest' };
 
 // Popup machine methods
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };

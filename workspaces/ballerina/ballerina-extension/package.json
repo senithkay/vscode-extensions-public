@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "5.1.3",
+    "version": "5.1.5",
     "publisher": "wso2",
     "icon": "resources/images/ballerina.png",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
@@ -91,7 +91,7 @@
                         "type": "boolean",
                         "default": false,
                         "scope": "resource",
-                        "description": "Activate features for Ballerina Integrator."
+                        "description": "Activate features for WSO2 Integrator: BI."
                     },
                     "ballerina.scope": {
                         "type": "string",
@@ -200,7 +200,7 @@
             },
             {
                 "type": "object",
-                "title": "Ballerina Integrator",
+                "title": "WSO2 Integrator: BI",
                 "properties": {
                     "ballerina.enableSequenceDiagramView": {
                         "type": "boolean",
@@ -556,7 +556,7 @@
             },
             {
                 "command": "ballerina.open.bi.new",
-                "title": "New Ballerina Integration",
+                "title": "New Integration",
                 "category": "BI"
             },
             {
@@ -927,21 +927,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f172"
+                    "fontCharacter": "\\f173"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1e6"
+                    "fontCharacter": "\\f1e7"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f16d"
+                    "fontCharacter": "\\f16e"
                 }
             },
             "distro-source-view": {
@@ -955,7 +955,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1c1"
+                    "fontCharacter": "\\f1c2"
                 }
             },
             "distro-cached-rounded": {
@@ -1068,7 +1068,7 @@
                     "isDefault": true
                 },
                 "label": "bal: build",
-                "detail": "Build Ballerina Integration"
+                "detail": "Build Integration"
             }
         ]
     },

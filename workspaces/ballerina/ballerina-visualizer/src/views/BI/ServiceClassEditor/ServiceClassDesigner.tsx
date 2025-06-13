@@ -96,6 +96,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
     const [editingFunction, setEditingFunction] = useState<FunctionModel>(undefined);
     const [editingVariable, setEditingVariable] = useState<FieldType>(undefined);
     const [isNew, setIsNew] = useState<boolean>(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement | null>(null);
 
     useEffect(() => {
@@ -180,6 +181,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
     }
 
     const handleFunctionSave = async (updatedFunction: FunctionModel) => {
+        setIsSaving(true);
         try {
             let lsResponse;
             const currentFilePath = Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath;
@@ -215,6 +217,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
         } catch (error) {
             console.error('Error updating function:', error);
         }
+        setIsSaving(false);
     };
 
     const handleEditVariable = (variable: FieldType) => {
@@ -222,7 +225,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
     };
 
     const handleVariableSave = async (updatedVariable: FieldType) => {
-
+        setIsSaving(true);
         try {
             const currentFilePath = Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath;
             if (isNew) {
@@ -252,7 +255,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
         } catch (error) {
             console.error('Error updating variable:', error);
         }
-
+        setIsSaving(false);
     };
 
     const handleAddFunction = async (type: 'init' | 'resource' | 'remote') => {
@@ -583,6 +586,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                             filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
                             lineRange={serviceClassModel.codedata.lineRange}
                             isGraphqlView={isGraphql}
+                            isSaving={isSaving}
                             isServiceClass={true}
                             onClose={handleCloseFunctionForm}
                             onSave={handleFunctionSave}
@@ -602,6 +606,7 @@ export function ServiceClassDesigner(props: ServiceClassDesignerProps) {
                             filePath={Utils.joinPath(URI.file(projectUri), serviceClassModel.codedata.lineRange.fileName).fsPath}
                             lineRange={serviceClassModel.codedata.lineRange}
                             onClose={handleCloseVariableForm}
+                            isSaving={isSaving}
                             onSave={handleVariableSave}
                             isGraphqlEditor={isGraphql}
                         />
