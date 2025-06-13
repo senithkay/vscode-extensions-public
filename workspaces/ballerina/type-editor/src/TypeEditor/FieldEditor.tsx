@@ -162,7 +162,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
                     <Button appearance="icon" onClick={toggleRecord}>
                         <CurlyBracesIcon isActive={isRecord(member.type)} />
                     </Button>
-                    <Button appearance="icon" onClick={toggleOptional}>
+                    <Button appearance="icon" onClick={toggleOptional} tooltip='Optional Field'>
                         <OptionalFieldIcon isActive={member?.optional} />
                     </Button>
                     <Button appearance="icon" onClick={onDelete}>
