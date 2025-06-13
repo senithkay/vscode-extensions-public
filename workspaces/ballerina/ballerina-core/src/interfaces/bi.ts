@@ -246,7 +246,14 @@ export interface ProjectStructureArtifactResponse {
     moduleName?: string;
     position?: NodePosition;
     resources?: ProjectStructureArtifactResponse[];
+    isNew?: boolean;
 }
+
+export interface UpdatedArtifactsResponse {
+    artifacts: ProjectStructureArtifactResponse[];
+    error?: string;
+}
+
 export type Item = Category | AvailableNode;
 
 export type Category = {

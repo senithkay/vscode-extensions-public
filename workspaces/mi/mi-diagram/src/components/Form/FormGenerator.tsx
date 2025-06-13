@@ -219,7 +219,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     useEffect(() => {
         rpcClient
             .getMiVisualizerRpcClient()
-            .isLegacyExpressionSupportEnabled()
+            .isSupportEnabled("LEGACY_EXPRESSION_ENABLED")
             .then(isEnabled => {
                 setIsLegacyExpressionEnabled(isEnabled);
             })

@@ -41,6 +41,8 @@ import {
     SetPathRequest,
     PathDetailsResponse,
     DownloadMIRequest,
+    ProjectConfig,
+    MavenDeployPluginDetails
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -87,5 +89,8 @@ export const getProjectSetupDetails: RequestType<void, SetupDetails> = { method:
 export const updateRuntimeVersionsInPom: RequestType<string, boolean> = { method: `${_preFix}/updateRuntimeVersionsInPom` };
 export const setPathsInWorkSpace: RequestType<SetPathRequest, PathDetailsResponse> = { method: `${_preFix}/setPathsInWorkSpace` };
 export const selectFolder: RequestType<string, string | undefined> = { method: `${_preFix}/selectFolder` };
-export const updateLegacyExpressionSupport: RequestType<boolean, void> = { method: `${_preFix}/updateLegacyExpressionSupport` };
-export const isLegacyExpressionSupportEnabled: RequestType<void, boolean> = { method: `${_preFix}/isLegacyExpressionSupportEnabled` };
+export const updateProjectSettingsConfig: RequestType<ProjectConfig, void> = { method: `${_preFix}/updateProjectSettingsConfig` };
+export const isSupportEnabled: RequestType<string, boolean> = { method: `${_preFix}/isSupportEnabled` };
+export const setDeployPlugin: RequestType<MavenDeployPluginDetails, MavenDeployPluginDetails> = { method: `${_preFix}/setDeployPlugin` };
+export const getDeployPluginDetails: RequestType<void, MavenDeployPluginDetails> = { method: `${_preFix}/getDeployPluginDetails` };
+export const removeDeployPlugin: RequestType<void, MavenDeployPluginDetails> = { method: `${_preFix}/removeDeployPlugin` };

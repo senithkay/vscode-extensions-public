@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodePropertyKey } from "@wso2-enterprise/ballerina-core";
+import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodePropertyKey, DIRECTORY_MAP, ProjectStructureArtifactResponse, MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -259,9 +259,20 @@ export function FunctionForm(props: FunctionFormProps) {
             .getBIDiagramRpcClient()
             .getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
 
-        if (!sourceCode.textEdits) {
+        if (sourceCode.artifacts.length === 0) {
             setSaving(false);
             showErrorNotification();
+        } else {
+            const newArtifact = sourceCode.artifacts.find(res => res.isNew);
+            if (newArtifact) {
+                rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: newArtifact.path, position: newArtifact.position } });
+                return;
+            }
+            const updatedArtifact = sourceCode.artifacts.find(res => !res.isNew && (res.name === functionName || res.context === functionName));
+            if (updatedArtifact) {
+                rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: updatedArtifact.path, position: updatedArtifact.position } });
+                return;
+            }
         }
     };
 
@@ -358,7 +369,7 @@ export function FunctionForm(props: FunctionFormProps) {
                                 fields={functionFields}
                                 isSaving={saving}
                                 onSubmit={handleFormSubmit}
-                                submitText={saving ? (functionName ? "Saving" : "Creating") : (functionName ? "Save" : "Create")}
+                                submitText={saving ? (functionName ? "Saving..." : "Creating...") : (functionName ? "Save" : "Create")}
                                 selectedNode={functionNode?.codedata?.node}
                             />
                         }

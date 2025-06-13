@@ -17,11 +17,12 @@ interface FunctionConfigFormProps {
     serviceModel: ServiceModel;
     onSubmit?: (model: FunctionModel) => void;
     onBack?: () => void;
+    isSaving: boolean;
 }
 
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
 
-    const { serviceModel, onSubmit, onBack } = props;
+    const { serviceModel, onSubmit, onBack, isSaving } = props;
 
     const options = serviceModel.functions.filter(func => !func.enabled).map((func, index) => ({ id: index.toString(), value: func.name.value }));
     const [functionName, setFunctionName] = useState<string>(options.length > 0 ? options[0].value : undefined);
@@ -49,8 +50,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
                     value={functionName}
                 />
                 <ActionButtons
-                    primaryButton={{ text: "Save", onClick: handleConfigSave }}
-                    secondaryButton={{ text: "Cancel", onClick: onBack }}
+                    primaryButton={{ text: isSaving ? "Saving..." : "Save", onClick: handleConfigSave, disabled: isSaving, loading: isSaving }}
+                    secondaryButton={{ text: "Cancel", onClick: onBack, disabled: isSaving }}
                     sx={{ justifyContent: "flex-end" }}
                 />
             </EditorContentColumn>

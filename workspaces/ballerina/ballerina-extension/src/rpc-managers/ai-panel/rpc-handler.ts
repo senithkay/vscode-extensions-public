@@ -23,6 +23,7 @@ import {
     PostProcessRequest,
     ProjectSource,
     RequirementSpecification,
+    SubmitFeedbackRequest,
     TestGenerationRequest,
     TestGenerationResponse,
     abortTestGeneration,
@@ -70,6 +71,7 @@ import {
     readDeveloperMdFile,
     showSignInAlert,
     stopAIMappings,
+    submitFeedback,
     updateDevelopmentDocument,
     updateRequirementSpecification
 } from "@wso2-enterprise/ballerina-core";
@@ -125,4 +127,5 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(createTestDirecoryIfNotExists, (args: string) => rpcManger.createTestDirecoryIfNotExists(args));
     messenger.onRequest(getModuleDirectory, (args: GetModuleDirParams) => rpcManger.getModuleDirectory(args));
     messenger.onRequest(getContentFromFile, (args: GetFromFileRequest) => rpcManger.getContentFromFile(args));
+    messenger.onRequest(submitFeedback, (args: SubmitFeedbackRequest) => rpcManger.submitFeedback(args));
 }

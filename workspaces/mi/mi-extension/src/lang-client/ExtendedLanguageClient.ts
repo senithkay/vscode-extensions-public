@@ -62,7 +62,9 @@ import {
     TestConnectorConnectionRequest,
     TestConnectorConnectionResponse,
     CheckDBDriverResponse,
-    LocalInboundConnectorsResponse
+    RemoveDBDriverResponse,
+    LocalInboundConnectorsResponse,
+    MavenDeployPluginDetails
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -348,6 +350,18 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getProjectDetails(): Promise<any> {
         return this.sendRequest('synapse/getOverviewPageDetails');
+    }
+
+    async setDeployPlugin(req: MavenDeployPluginDetails): Promise<any> {
+        return this.sendRequest('synapse/updateMavenDeployPlugin', req);
+    }
+
+    async getDeployPluginDetails(): Promise<any> {
+        return this.sendRequest('synapse/getMavenDeployPluginDetails');
+    }
+
+    async removeDeployPlugin(): Promise<any> {
+        return this.sendRequest('synapse/removeMavenDeployPlugin');
     }
 
     async getSequencePath(sequenceName: string): Promise<string | undefined> {

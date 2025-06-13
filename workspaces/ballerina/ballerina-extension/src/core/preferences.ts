@@ -26,3 +26,4 @@ export const ENABLE_SEQUENCE_DIAGRAM_VIEW = "ballerina.enableSequenceDiagramView
 export const ENABLE_AI_SUGGESTIONS = "ballerina.enableAiSuggestions";
 export const ENABLE_BALLERINA_INTEGRATOR = "ballerina.isBI";
 export const DEFINE_BALLERINA_INTEGRATOR_SCOPE = "ballerina.scope";
+export const LANG_SERVER_PATH = "ballerina.langServerPath"; // this setting is not visible to the extension user
