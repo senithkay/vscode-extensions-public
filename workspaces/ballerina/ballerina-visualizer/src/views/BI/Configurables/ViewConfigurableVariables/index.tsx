@@ -83,9 +83,6 @@ const ConfigurableItem = styled.div`
         .action-button-container {
             display: block !important;
         }
-        .default-value-container {
-            display: block !important;
-        }
     }
 `;
 
@@ -141,6 +138,15 @@ function useDebouncedCallback(callback: (...args: any[]) => void, delay: number)
         }, delay);
     }, [callback, delay]);
 }
+
+const Overlay = styled.div`
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: var(--vscode-settings-rowHoverBackground);
+    z-index: 1000;
+    pointer-events: all;
+`;
 
 export function ViewConfigurableVariables(props?: ConfigProps) {
 
@@ -474,7 +480,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                             {variable?.properties?.defaultValue?.value && <span
                                                                 className="default-value-container"
                                                                 style={{
-                                                                    display: 'none',
                                                                     paddingLeft: '5px',
                                                                     fontWeight: 200,
                                                                     fontSize: '12px'
@@ -507,7 +512,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                             whiteSpace: 'nowrap',
                                                                             fontWeight: 400
                                                                         }}>
-                                                                            Not configured
+                                                                            Required
                                                                         </span>
                                                                     </ButtonWrapper>
                                                                 )}
@@ -630,6 +635,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                     <Icon sx={{ marginRight: 5, paddingTop: '2px' }} name="editIcon" />Edit in config.toml
                 </Button>
             } />
+            {(isEditConfigVariableFormOpen || isAddConfigVariableFormOpen) && <Overlay data-testid="config-overlay" />}
             <ViewContent padding>
                 <div style={{ height: 'calc(100vh - 220px)' }}>
                     {/* Search bar and filters */}
