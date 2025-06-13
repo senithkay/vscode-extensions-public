@@ -256,14 +256,25 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .addFunctionSourceCode({ filePath, codedata: { lineRange }, function: value });
+            const serviceArtifact = res.artifacts.find(res => res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+            }
         } else {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+            const serviceArtifact = res.artifacts.find(res => res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+            }
         }
         setIsNew(false);
         handleNewFunctionClose();
         handleFunctionConfigClose();
+        setIsSaving(false);
     };
 
     const handleFunctionConfigClose = () => {
@@ -475,6 +486,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         onClose={handleFunctionConfigClose}
                     >
                         <FunctionConfigForm
+                            isSaving={isSaving}
                             serviceModel={serviceModel}
                             onSubmit={handleFunctionSubmit}
                             onBack={handleFunctionConfigClose}
