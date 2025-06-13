@@ -295,7 +295,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                 }
             }
         };
-        
+
         await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
             configFilePath: props.fileName,
             configVariable: newConfigVarNode,
@@ -307,9 +307,9 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         // TODO: Send ls notification on success
         await new Promise(resolve => setTimeout(resolve, 200));
         getConfigVariables();
-        
+
     }
-    
+
     const debouncedUpdateConfigValue = useDebouncedCallback(handleUpdateConfigValue, 1000);
 
     const handleOnDeleteConfigVariable = async (index: number) => {
@@ -539,7 +539,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 maxWidth: '350px',
                                                                 minHeight: '20px'
                                                             }}
-                                                            onInput={(e: any) => debouncedUpdateConfigValue(e, variable)}
+                                                            onChange={(e: any) => debouncedUpdateConfigValue(e, variable)}
                                                         >
                                                             <style>{`
                                                                 vscode-text-area::part(control) {
@@ -736,7 +736,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                     <TreeView
                                         rootTreeView
                                         id="imported-libraries"
-                                        expandByDefault={searchValue? true : false}
+                                        expandByDefault={true}
                                         content={
                                             <div
                                                 style={{
