@@ -76,7 +76,7 @@ interface ArtifactsRoot {
 const xmlParserOptions = {
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
-  parseAttributeValue: true,
+  parseAttributeValue: false,
   trimValues: true,
   parseTrueNumberOnly: false,
   arrayMode: false,
