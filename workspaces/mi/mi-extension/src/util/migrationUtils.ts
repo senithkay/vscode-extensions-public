@@ -435,11 +435,11 @@ function generateConfigToTestAndMockServiceMaps(
                 if (!configToMockServices.has(configFile)) configToMockServices.set(configFile, []);
                 for (const mockService of mockServices) {
                     // mockService starts with "/<multi-module-dir>/<project-dir>/...", so we get substring from the second slash
-                    const firstProjectSlash = mockService.indexOf('/');
-                    const afterBackupSlash = mockService.indexOf('/', firstProjectSlash + 1);
+                    const firstSlash = mockService.indexOf('/');
+                    const secondSlash = mockService.indexOf('/', firstSlash + 1);
                     let relativeMockServicePath = mockService;
-                    if (afterBackupSlash !== -1) {
-                        relativeMockServicePath = mockService.substring(afterBackupSlash);
+                    if (secondSlash !== -1) {
+                        relativeMockServicePath = mockService.substring(secondSlash);
                     }
                     // Split by '/' because relativeMockServicePath uses forward slashes regardless of OS
                     const absoluteMockServicePath = path.join(source, ...relativeMockServicePath.split('/'));
