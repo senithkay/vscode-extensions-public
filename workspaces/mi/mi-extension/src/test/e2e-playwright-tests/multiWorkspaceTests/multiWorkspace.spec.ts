@@ -119,12 +119,15 @@ export default function createTests() {
 
             await test.step('Add API to second project', async () => {
                 console.log("Adding API to second project");
-                await resumeVSCode();
+                // Wait for the project explorer to be ready
+                await page.executePaletteCommand('Reload Window');
                 console.log("Reloaded window");
                 const project1Explorer = new ProjectExplorer(page.page);
                 console.log("Initializing project explorer");
                 await project1Explorer.goToOverview("project1", 120000);
                 console.log("Navigated to project1 overview");
+                // Timeout to ensure the project explorer is loaded
+                await page.page.waitForTimeout(500);
                 await page.executePaletteCommand('View: Close All Editors');
                 console.log("Closed editor groups");
                 const projectExplorer = new ProjectExplorer(page.page);
