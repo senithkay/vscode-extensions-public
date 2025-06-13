@@ -51,7 +51,7 @@ export async function checkConfigUpdateRequired(ballerinaExtInstance: BallerinaE
 
         const response = await ballerinaExtInstance.langClient?.getConfigVariablesV2({
             projectPath: filePath,
-            includeLibraries: showLibraryConfigVariables
+            includeLibraries: showLibraryConfigVariables !== false
         }) as ConfigVariableResponse;
 
         const configVariables = response?.configVariables;
@@ -62,7 +62,7 @@ export async function checkConfigUpdateRequired(ballerinaExtInstance: BallerinaE
         // Check if any config variable has warnings
         for (const pkgKey of Object.keys(configVariablesMap)) {
             const pkgModules = configVariablesMap[pkgKey];
-            if (!pkgModules) continue;
+            if (!pkgModules) { continue; }
 
             for (const moduleName of Object.keys(pkgModules)) {
                 const moduleVars = pkgModules[moduleName];
@@ -79,7 +79,7 @@ export async function checkConfigUpdateRequired(ballerinaExtInstance: BallerinaE
                 }
             }
 
-            if (hasWarnings) break;
+            if (hasWarnings) { break; }
         }
 
         return { hasWarnings };

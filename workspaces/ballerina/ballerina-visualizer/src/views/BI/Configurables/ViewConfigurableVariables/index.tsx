@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -15,7 +15,6 @@ import { Button, Codicon, ErrorBanner, Icon, SplitView, TextField, TreeView, Tre
 import { VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { EditForm } from "../EditConfigurableVariables";
 import { AddForm } from "../AddConfigurableVariables";
-import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
 import { TopNavigationBar } from "../../../../components/TopNavigationBar";
 import { TitleBar } from "../../../../components/TitleBar";
 import ReactMarkdown from "react-markdown";
@@ -156,7 +155,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     const [isAddConfigVariableFormOpen, setAddConfigVariableFormOpen] = useState<boolean>(false);
     const [configIndex, setConfigIndex] = useState<number>(null);
     const [searchValue, setSearchValue] = React.useState<string>('');
-    const [hideLibraries, setHideLibraries] = useState<boolean>(false);
     const [categoriesWithModules, setCategoriesWithModules] = useState<CategoryWithModules[]>([]);
     const [selectedModule, setSelectedModule] = useState<PackageModuleState>(null);
     const integrationCategory = `${props.org}/${props.package}`;
@@ -765,7 +763,8 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                     ))}
 
                                 {/* Group all other categories under "Imported libraries" */}
-                                {!hideLibraries && (
+                                {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
+                                    .filter(category => category.name !== integrationCategory).length > 0 && (
                                     <TreeView
                                         rootTreeView
                                         id="imported-libraries"
