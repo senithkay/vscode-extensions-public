@@ -82,12 +82,14 @@ export class UnitTest {
     }
 
     public async init() {
+        console.log('Selecting Testing section in VS Code');
         const testBtn = this._page.getByRole('tab', { name: 'Testing' }).locator('a');
         await testBtn.waitFor();
         await testBtn.click();
     }
 
     public async openUnitTestFormByMainBtn() {
+        console.log('Opening Unit Test Form by "Add Unit Test" button');
         await this._page.getByRole('button', { name: 'Add Unit Test', exact: true }).click();
     }
 
@@ -98,27 +100,31 @@ export class UnitTest {
     }
 
     private async getUniTestForm(): Promise<Form> {
+        console.log('Opening Unit Test Form');
         const form = new Form(this._page, 'Test Suite Form');
         await form.switchToFormView();
         return form;
     }
 
     private async getTestCaseForm(): Promise<Form> {
+        console.log('Opening Test Case Form');
         const form = new Form(this._page, 'Test Case Form');
         await form.switchToFormView();
         return form;
     }
 
     private async getMockServiceForm(): Promise<Form> {
+        console.log('Opening Mock Service Form');
         const form = new Form(this._page, 'Mock Service');
         await form.switchToFormView();
         return form;    
     }
 
     private async addSupportiveArtifacts(parentForm: Form, artifacts: string[]) {
+        console.log('Adding supportive artifacts to Unit Test');
         for (const artifact of artifacts) {
             console.log('Adding supportive artifact: ', artifact);
-            const paramManager = await parentForm.getSimpleParamManager('Supportive Artifact');
+            const paramManager = await parentForm.getSimpleParamManager('Supportive Artifact', 'testSuiteSupportiveArtifactsSection');
             const form = await paramManager.getAddNewForm();      
             await form.fill({
             values: {
@@ -133,9 +139,10 @@ export class UnitTest {
     }
 
     private async addRegistryResources(parentForm: Form, resources: string[]) {
+        console.log('Adding registry resources to Unit Test');
         for (const resource of resources) {
             console.log('Adding registry resource: ', resource);
-            const paramManager = await parentForm.getSimpleParamManager('Registry Resources');
+            const paramManager = await parentForm.getSimpleParamManager('Registry Resources', 'testSuiteRegistryResourcesSection');
             const form = await paramManager.getAddNewForm();
             await form.fill({
                 values: {
@@ -150,16 +157,17 @@ export class UnitTest {
     }
 
     public async fillTestCaseForm(form: Form, testCase: TestCaseData) {
-        this._page.pause();
         await this.fillTestCaseBasicForm(form, testCase);
+        console.log('Filling Test Case Properties');
         for (const property of testCase.properties ?? []) {
-            const propertiesParamManager = await form.getDefaultParamManager('Properties', 'Add Property');
+            const propertiesParamManager = await form.getDefaultParamManager('Properties', 'Add Property', 'card-select-testCasePropertiesCard');
             const propertiesForm = await propertiesParamManager.getAddNewForm();
             await this.fillTestCasePropertyForm(propertiesForm, property);
             await propertiesForm.submit('Save');
         }
+        console.log('Filling Test Case Assertions');
         for (const assertion of testCase.assertions ?? []) {
-            const assertionsParamManager = await form.getDefaultParamManager('Assertions', 'Add Assertion');
+            const assertionsParamManager = await form.getDefaultParamManager('Assertions', 'Add Assertion', 'card-select-testCaseAssertionsCard');
             const assertionsForm = await assertionsParamManager.getAddNewForm();
             await this.fillTestCaseAssertionForm(assertionsForm, assertion);
             await assertionsForm.submit('Save');
@@ -167,6 +175,7 @@ export class UnitTest {
     }
 
     public async fillTestCaseBasicForm(form: Form, testCase: TestCaseData) {
+        console.log('Filling Test Case Form');
         await form.fill({
             values: {
                 'Name*': {
@@ -194,6 +203,7 @@ export class UnitTest {
     }
 
     private async fillTestCasePropertyForm(form: Form, property: PropertyData) {
+        console.log('Filling Test Case Property Form for:', property.name);
         await form.fill({
             values: {
                 'Property Name*': {
@@ -213,6 +223,7 @@ export class UnitTest {
     }
 
     private async fillTestCaseAssertionForm(form: Form, assertion: AssertionData) {
+        console.log(`Filling Test Case Assertion Form for actualExpression: ${assertion.actualExpression}`);
         await form.fill({
             values: {
                 'Assertion Type': {
@@ -242,9 +253,10 @@ export class UnitTest {
     }
     
     private async addTestCases(parentForm: Form, testCases: TestCaseData[]) {
+        console.log('Adding test cases to Unit Test');
         for (const testCase of testCases) {
             console.log('Adding test case: ', testCase.name);
-            const paramManager = await parentForm.getParamManagerWithNewCreateForm('TestCases', 'Test Suite Form');
+            const paramManager = await parentForm.getParamManagerWithNewCreateForm('TestCases', 'Test Suite Form', 'card-select-testSuiteTestCasesCard');
             const form = await paramManager.getAddNewForm();
             await this.fillTestCaseForm(form, testCase);
             await form.submit('Create');
@@ -252,6 +264,7 @@ export class UnitTest {
     }
 
     public async fillMockServiceBasicForm(mockServiceForm: Form, mockService: MockServiceData) {
+        console.log('Filling Mock Service Form');
         await mockServiceForm.fill({
             values: {
                 'Name*': {
@@ -275,19 +288,22 @@ export class UnitTest {
     }
 
     private async fillMockServiceForm(mockServiceForm: Form, mockService: MockServiceData, frame: string) {
+        console.log('Filling Mock Service Form');
         await this.fillMockServiceBasicForm(mockServiceForm, mockService);
         for (const resource of mockService.resources || []) {
-            const resourceParamManager = await mockServiceForm.getParamManagerWithNewCreateForm('MockServiceResources', frame);
+            const resourceParamManager = await mockServiceForm.getParamManagerWithNewCreateForm('MockServiceResources', frame, 'card-select-mockServiceResourceCard');
             const resourceForm = await resourceParamManager.getAddNewForm();
             await this.fillMockServiceResourceForm(resourceForm, resource);
+            console.log('Adding mock service request headers');
             for (const header of resource.expectedRequest.headers ?? []) {
-                const requestHeaderParamManager = await resourceForm.getDefaultParamManager('Request', 'Add Header');
+                const requestHeaderParamManager = await resourceForm.getDefaultParamManager('Request', 'Add Header', 'card-select-mockResourceRequestCard');
                 const requestHeaderForm = await requestHeaderParamManager.getAddNewForm();
                 await this.fillResourceHeaderForm(requestHeaderForm, header);
                 await requestHeaderForm.submit('Save');
             }   
+            console.log('Adding mock service response headers');
             for (const header of resource.expectedResponse.headers ?? []) {
-                const responseHeaderParamManager = await resourceForm.getDefaultParamManager('Response', 'Add Header');
+                const responseHeaderParamManager = await resourceForm.getDefaultParamManager('Response', 'Add Header', 'card-select-mockResourceResponseCard');
                 const responseHeaderForm = await responseHeaderParamManager.getAddNewForm();
                 await this.fillResourceHeaderForm(responseHeaderForm, header);
                 await responseHeaderForm.submit('Save');
@@ -297,6 +313,7 @@ export class UnitTest {
     }
 
     public async fillMockServiceResourceForm(form: Form, resource: MockServiceResourceData) {
+        console.log('Filling Mock Service Resource Form');
         await form.fill({
             values: {
                 'Service Sub Context*': {
@@ -341,7 +358,8 @@ export class UnitTest {
     private async addMockServices(parentForm: Form, mockServices: string | MockServiceData[]) {
         const frame = 'Test Suite Form';
         for (const mockService of mockServices) {
-            const mockServicesParamManager = await parentForm.getParamManagerWithNewCreateForm('MockServices', frame);
+            console.log('Adding mock service:', typeof mockService === 'string' ? mockService : mockService.name);
+            const mockServicesParamManager = await parentForm.getParamManagerWithNewCreateForm('MockServices', frame, 'card-select-testSuiteMockServicesCard');
             const form = await mockServicesParamManager.getAddNewForm();
             if (typeof mockService === 'string') {
                 await form.fill({
@@ -364,6 +382,7 @@ export class UnitTest {
     }
 
     public async fillUnitTestBasicForm(form: Form, data: UnitTestData) {
+        console.log('Filling Unit Test Form');
         await form.fill({
             values: {
                 'Name*': {
@@ -403,6 +422,7 @@ export class UnitTest {
     }
 
     public async addTestCaseFromSidePanel(unitTestName: string, testCase: TestCaseData) {
+        console.log('Adding Test Case from side panel to Unit Test:', unitTestName);
         await this.openAddTestCaseViewOfUnitTest(unitTestName);
         const form = await this.getTestCaseForm();
         await this.fillTestCaseForm(form, testCase);
@@ -410,6 +430,7 @@ export class UnitTest {
     }
 
     private async openAddTestCaseViewOfUnitTest(name: string) {
+        console.log('Opening Add Test Case view of Unit Test:', name);
         const testExplorer = new ProjectExplorer(this._page, 'Test Explorer');
         await testExplorer.init();
         await testExplorer.findItem([`${this.projectName} (Not yet run)`, `${name} (Not yet run)`], true);
@@ -417,6 +438,7 @@ export class UnitTest {
     }
 
     private async openEditViewOfUnitTest(name: string) {
+        console.log('Opening Edit view of Unit Test:', name);
         const testExplorer = new ProjectExplorer(this._page, 'Test Explorer');
         await testExplorer.init();
         await testExplorer.findItem([`${this.projectName} (Not yet run)`, `${name} (Not yet run)`]);
@@ -425,6 +447,7 @@ export class UnitTest {
     }
 
     private async openEditViewOfMockService(name: string) {
+        console.log('Opening Edit view of Mock Service:', name);
         const mockServiceExplorer = new ProjectExplorer(this._page, 'Mock Services'); 
         await mockServiceExplorer.init();
         await mockServiceExplorer.findItem([this.projectName + ' ', name + ' '], true);
@@ -432,6 +455,7 @@ export class UnitTest {
     }
 
     public async addMockServiceFromSidePanel(data: MockServiceData) {
+        console.log('Adding Mock Service from side panel');
         const mockServiceExplorer = new ProjectExplorer(this._page, 'Mock Services'); 
         await mockServiceExplorer.init();
         await mockServiceExplorer.findItem([this.projectName + ' '], true);
@@ -442,11 +466,13 @@ export class UnitTest {
     }
 
     public async getEditUnitTestForm(unitTestName: string): Promise<Form> {
+        console.log('Getting Edit Unit Test Form for:', unitTestName);
         await this.openEditViewOfUnitTest(unitTestName);
         return this.getUniTestForm();
     }
 
     public async getEditMockServiceForm(mockServiceName: string): Promise<Form> {
+        console.log('Getting Edit Mock Service Form for:', mockServiceName);
         await this.openEditViewOfMockService(mockServiceName);
         return this.getMockServiceForm();
     }

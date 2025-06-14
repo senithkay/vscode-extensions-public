@@ -40,6 +40,7 @@ export default function createTests() {
         await addArtifactPage.init();
         await addArtifactPage.add('API');
 
+        console.log('Creating new API');
         const apiForm = new Form(page.page, 'API Form');
         await apiForm.switchToFormView();
         await apiForm.fill({
@@ -58,6 +59,7 @@ export default function createTests() {
       });
 
       await test.step('Create new sequences', async () => {
+        console.log('Creating new sequences');
         const sequence = new Sequence(page.page);
         await sequence.init();
         await sequence.createSequence('unitTestSeq1-' + testAttempt);
@@ -65,16 +67,15 @@ export default function createTests() {
         await sequence.createSequence('unitTestSeq2-' + testAttempt);
       })
 
-      await test.step('Create new endpoints', async () => {
-        await test.step('Add http Endpoint', async () => {
-          console.log('Creating new http Endpoint');
-          const ep = new Endpoint(page.page);
-          await ep.init();
-          await ep.addHttpEndpoint('httpUnitTestEp' + testAttempt);
-        });
+      await test.step('Create new http endpoints', async () => {
+        console.log('Creating new http Endpoint');
+        const ep = new Endpoint(page.page);
+        await ep.init();
+        await ep.addHttpEndpoint('httpUnitTestEp' + testAttempt);
       })
 
       await test.step('Create new resources', async () => {
+        console.log('Creating new resources');
         const resource = new Resource(page.page);
         await resource.openNewFormFromArtifacts();
         await resource.addFromTemplate({
@@ -300,7 +301,7 @@ export default function createTests() {
           port: '8081',
           context: '/mockService1'
         });
-        const resourcesParamManager = await editForm.getParamManagerWithNewCreateForm('MockServiceResources', 'Mock Service');
+        const resourcesParamManager = await editForm.getParamManagerWithNewCreateForm('MockServiceResources', 'Mock Service', 'card-select-mockServiceResourceCard');
         await resourcesParamManager.deleteParam(1);
         const resourceEditForm = await resourcesParamManager.getEditForm(0);
         await unitTest.fillMockServiceResourceForm(resourceEditForm, {
@@ -326,7 +327,7 @@ export default function createTests() {
           artifactType: 'API',
           artifact: 'unitTestAPI1-' + testAttempt
         });
-        const testCasesParamManager = await editForm.getParamManagerWithNewCreateForm('TestCases', 'Test Suite Form');
+        const testCasesParamManager = await editForm.getParamManagerWithNewCreateForm('TestCases', 'Test Suite Form', 'card-select-testSuiteTestCasesCard');
         const testCaseEditForm = await testCasesParamManager.getEditForm(1);
         await unitTest.fillTestCaseBasicForm(testCaseEditForm, {
           name: 'TestCase2Edited-' + testAttempt,
@@ -337,7 +338,7 @@ export default function createTests() {
         })
         await testCaseEditForm.submit('Update');
         await testCasesParamManager.deleteParam(2);
-        const mockServicesParamManager = await editForm.getParamManagerWithNewCreateForm('MockServices', 'Test Suite Form');
+        const mockServicesParamManager = await editForm.getParamManagerWithNewCreateForm('MockServices', 'Test Suite Form', 'card-select-testSuiteMockServicesCard');
         const mockServiceEditForm = await mockServicesParamManager.getEditForm(1);
         await mockServiceEditForm.fill({
           values: {

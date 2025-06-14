@@ -122,6 +122,7 @@ export class ParamManagerWithNewCreateForm extends ParamManager {
         if (!containerId) {
             this.containerId = `card-select-parameterManager-${this.field}`;
         }
+        console.log(`Getting param manager with a new create form for container id: ${this.containerId}`);
     }
 
     public async getAddNewForm(): Promise<Form> {
@@ -154,6 +155,7 @@ export class ParamManagerWithNewCreateForm extends ParamManager {
     }
 
     public async deleteParam(index: number = 0): Promise<void> {
+        console.log(`Deleting param at index: ${index} from container id: ${this.containerId}`);
         const paramManagerContainer = this.container.locator(`#${this.containerId}`);
         await paramManagerContainer.waitFor();
         const optionBtns = paramManagerContainer.locator('i[class="codicon codicon-ellipsis"]');
