@@ -714,7 +714,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 sx={{ zIndex: 99 }}
                 {...register("artifact")}
             ></Dropdown>
-            <div id="parameterManager-SupportiveArtifacts">
+            <div id="testSuiteSupportiveArtifactsSection">
                 <Controller
                     name="supportiveArtifacts"
                     control={control}
@@ -738,7 +738,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     )}
                 />
             </div>
-            <div id="parameterManager-RegistryResources">
+            <div id="testSuiteRegistryResourcesSection">
                 <Controller
                     name="registryResources"
                     control={control}
@@ -763,7 +763,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 />
             </div>
 
-            <ComponentCard id="parameterManager-TestCases" sx={cardStyle} disbaleHoverEffect>
+            <ComponentCard id="testSuiteTestCasesCard" sx={cardStyle} disbaleHoverEffect>
                 <FormGroup title="Test cases" isCollapsed={false}>
                     <Button appearance="secondary" onClick={openAddTestCase}>Add test case</Button>
 
@@ -786,7 +786,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 </FormGroup>
             </ComponentCard>
 
-            <ComponentCard id="parameterManager-MockServices" sx={cardStyle} disbaleHoverEffect>
+            <ComponentCard id="testSuiteMockServicesCard" sx={cardStyle} disbaleHoverEffect>
                 <FormGroup title="Mock services" isCollapsed={false}>
                     <Button appearance="secondary" onClick={openMockService}>Add mock service</Button>
 

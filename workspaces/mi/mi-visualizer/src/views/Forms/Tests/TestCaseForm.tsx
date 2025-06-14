@@ -270,7 +270,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                 {...register("input.payload")}
             />
 
-            <ComponentCard id="parameterManager-Properties" sx={cardStyle} disbaleHoverEffect>
+            <ComponentCard id="testCasePropertiesCard" sx={cardStyle} disbaleHoverEffect>
                 <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                     <Typography variant="h3">Properties</Typography>
                 </div>
@@ -300,7 +300,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
 
             </ComponentCard>
 
-            <ComponentCard id="parameterManager-Assertions" sx={cardStyle} disbaleHoverEffect>
+            <ComponentCard id="testCaseAssertionsCard" sx={cardStyle} disbaleHoverEffect>
                 <Typography variant="h3">Assertions</Typography>
                 <Typography variant="body3">Editing of the properties of an assertion</Typography>
 
