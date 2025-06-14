@@ -220,17 +220,17 @@ export class Form {
         return await input.getAttribute('current-value');
     }
 
-    public async getDefaultParamManager(field: string, btnName?: string): Promise<DefaultParamManager> {
-        return new DefaultParamManager(this.container, field, btnName, this._page);
+    public async getDefaultParamManager(field: string, btnName?: string, containerId?: string): Promise<DefaultParamManager> {
+        return new DefaultParamManager(this.container, field, btnName, containerId, this._page);
     }
 
-    public async getSimpleParamManager(field: string): Promise<SimpleParamManager> {
+    public async getSimpleParamManager(field: string, containerId?: string): Promise<SimpleParamManager> {
         const btnName = `Add ${field}`;
-        return new SimpleParamManager(this.container, field, btnName, this._page);
+        return new SimpleParamManager(this.container, field, btnName, containerId, this._page);
     }
 
-    public async getParamManagerWithNewCreateForm(field: string, frameName: string): Promise<ParamManagerWithNewCreateForm> {
-        return new ParamManagerWithNewCreateForm(this.container, field, frameName, this.webview, this._page);
+    public async getParamManagerWithNewCreateForm(field: string, frameName: string, containerId?: string): Promise<ParamManagerWithNewCreateForm> {
+        return new ParamManagerWithNewCreateForm(this.container, field, frameName, this.webview, containerId, this._page);
     }
 
     public async fillParamManager(props: ParamManagerValues, paramManagerLabel: string = "Add Parameter",
