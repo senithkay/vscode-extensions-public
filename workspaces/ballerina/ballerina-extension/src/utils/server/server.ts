@@ -82,17 +82,28 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     
     // jar patterns to exclude
     const excludeJarPatterns = [
-        'architecture-model-*',
-        'flow-model-*',
-        'graphql-model-*',
-        'model-generator-*',
-        'sequence-model-*',
-        'language-server-*',
+        'architecture-model*',
+        'flow-model*',
+        'graphql-model*',
+        'model-generator*',
+        'sequence-model*',
+        'service-model*',
+        'test-manager-service*',
+        'language-server*',
+        "bal-shell-service*",
+        "org.eclipse.lsp4j*",
+        "java-semvar*"
     ];
 
     // Generate paths for ballerina home jars using dynamic discovery (excluding specified patterns)
-    const ballerinaLibDir = join(ballerinaHome, 'bre', 'lib');
-    const ballerinaJarPaths = findJarsExcludingPatterns(ballerinaLibDir, excludeJarPatterns);
+    const directoriesToSearch = [
+        join(ballerinaHome, 'bre', 'lib'),
+        join(ballerinaHome, 'lib', 'tools', 'lang-server')
+    ];
+    
+    const ballerinaJarPaths = directoriesToSearch.flatMap(directory => 
+        findJarsExcludingPatterns(directory, excludeJarPatterns)
+    );
     
     ballerinaJarPaths.forEach(jarPath => {
         if (!fs.existsSync(jarPath)) {
