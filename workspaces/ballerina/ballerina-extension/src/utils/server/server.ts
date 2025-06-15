@@ -91,14 +91,14 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
         'test-manager-service*',
         'language-server*',
         "bal-shell-service*",
-        "org.eclipse.lsp4j*",
-        "java-semvar*"
+        "org.eclipse.lsp4j*"
     ];
 
     // Generate paths for ballerina home jars using dynamic discovery (excluding specified patterns)
     const directoriesToSearch = [
         join(ballerinaHome, 'bre', 'lib'),
-        join(ballerinaHome, 'lib', 'tools', 'lang-server')
+        join(ballerinaHome, 'lib', 'tools', 'lang-server'),
+        join(ballerinaHome, 'lib', 'tools', 'debug-adapter')
     ];
     
     const ballerinaJarPaths = directoriesToSearch.flatMap(directory => 
