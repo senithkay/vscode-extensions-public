@@ -99,7 +99,7 @@ interface OverviewProps {
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useVisualizerContext();
     const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
-    const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
+    const [activeWorkspace, setActiveWorkspace] = React.useState<WorkspaceFolder>(undefined);
     const [selected, setSelected] = React.useState<string>("");
     const [projectOverview, setProjectOverview] = React.useState<ProjectOverviewResponse>(undefined);
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
@@ -116,10 +116,21 @@ export function Overview(props: OverviewProps) {
     useEffect(() => {
         const fetchWorkspaces = async () => {
             try {
+                const machineState = await rpcClient.getVisualizerState();
+                const { projectUri } = machineState;
                 const response = await rpcClient.getMiVisualizerRpcClient().getWorkspaces();
                 setWorkspaces(response.workspaces);
-                setActiveWorkspaces(response.workspaces[0]);
-                changeWorkspace(response.workspaces[0].fsPath);
+                const activeWorkspaceUri = response.workspaces.find((workspace) => workspace.fsPath === projectUri);
+                changeWorkspace(activeWorkspaceUri.fsPath);
+                setActiveWorkspace(response.workspaces.find((workspace) => workspace.fsPath === projectUri));
+
+                rpcClient.getMiVisualizerRpcClient().getProjectOverview({}).then((response) => {
+                    setProjectOverview(response);
+                }).catch((error) => {
+                    console.error('Error getting project settings:', error);
+                    setProjectOverview(undefined);
+                    setErrors({ ...errors, projectOverview: ERROR_MESSAGES.ERROR_LOADING_PROJECT_OVERVIEW });
+                });
 
             } catch (error) {
                 console.error('Error fetching workspaces:', error);
@@ -171,7 +182,7 @@ export function Overview(props: OverviewProps) {
 
     const handleExport = async () => {
         await rpcClient.getMiDiagramRpcClient().exportProject({
-            projectPath: activeWorkspaces.fsPath,
+            projectPath: activeWorkspace.fsPath,
         });
     }
 
@@ -190,10 +201,10 @@ export function Overview(props: OverviewProps) {
     const goToDevant = () => {
         rpcClient.getMiDiagramRpcClient().executeCommand({
             commands: [
-                PlatformExtCommandIds.OpenInConsole, 
+                PlatformExtCommandIds.OpenInConsole,
                 {
-                    extName:"Devant",
-                    componentFsPath: activeWorkspaces.fsPath,
+                    extName: "Devant",
+                    componentFsPath: activeWorkspace.fsPath,
                     newComponentParams: { buildPackLang: "microintegrator" }
                 } as IOpenInConsoleCmdParams]
         })
@@ -228,11 +239,12 @@ export function Overview(props: OverviewProps) {
         <div style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 30px)', padding: '10px 0' }}>
             <div style={{ padding: '0 16px' }}>
                 <ViewHeader
-                    title={"Project: " + activeWorkspaces?.name}
+                    title={"Project: " + activeWorkspace?.name}
                     icon="project"
                     iconSx={{ fontSize: "18px", color: "#0066cc" }}
                 >
                     <Button
+                        data-testid="add-artifact-button"
                         appearance="primary"
                         onClick={handleAddArtifact}
                         tooltip="Add Artifact"
@@ -274,7 +286,7 @@ export function Overview(props: OverviewProps) {
                                     {projectOverview ? (
                                         projectOverview.connections.length > 0 || projectOverview.entrypoints?.length > 0 ? (
                                             <ComponentDiagram
-                                                projectName={activeWorkspaces.name}
+                                                projectName={activeWorkspace.name}
                                                 projectStructure={projectOverview}
                                             />
                                         ) : (

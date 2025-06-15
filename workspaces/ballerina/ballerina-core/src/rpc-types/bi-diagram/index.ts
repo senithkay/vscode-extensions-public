@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { ProjectStructureResponse } from "../../interfaces/bi";
+import { ProjectStructureResponse, UpdatedArtifactsResponse } from "../../interfaces/bi";
 import { LinePosition } from "../../interfaces/common";
 import {
     BIAvailableNodesRequest,
@@ -20,7 +20,6 @@ import {
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
-    BISourceCodeResponse,
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -103,8 +102,8 @@ import {
 
 export interface BIDiagramAPI {
     getFlowModel: () => Promise<BIFlowModelResponse>;
-    getSourceCode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
-    deleteFlowNode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
+    getSourceCode: (params: BISourceCodeRequest) => Promise<UpdatedArtifactsResponse>;
+    deleteFlowNode: (params: BISourceCodeRequest) => Promise<UpdatedArtifactsResponse>;
     deleteByComponentInfo: (params: BIDeleteByComponentInfoRequest) => Promise<BIDeleteByComponentInfoResponse>;
     getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
     getEnclosedFunction: (params: BIGetEnclosedFunctionRequest) => Promise<BIGetEnclosedFunctionResponse>;

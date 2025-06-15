@@ -33,6 +33,7 @@ import {
     ProjectDiagnostics,
     ProjectSource,
     RequirementSpecification,
+    SubmitFeedbackRequest,
     TestGenerationMentions,
     TestGenerationRequest,
     TestGenerationResponse,
@@ -81,6 +82,7 @@ import {
     readDeveloperMdFile,
     showSignInAlert,
     stopAIMappings,
+    submitFeedback,
     updateDevelopmentDocument,
     updateRequirementSpecification
 } from "@wso2-enterprise/ballerina-core";
@@ -122,20 +124,20 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(fetchData, HOST_EXTENSION, params);
     }
 
-    addToProject(content: AddToProjectRequest): void {
-        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, content);
+    addToProject(params: AddToProjectRequest): void {
+        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, params);
     }
 
-    getFromFile(content: GetFromFileRequest): Promise<string> {
-        return this._messenger.sendRequest(getFromFile, HOST_EXTENSION, content);
+    getFromFile(params: GetFromFileRequest): Promise<string> {
+        return this._messenger.sendRequest(getFromFile, HOST_EXTENSION, params);
     }
 
-    getFileExists(content: GetFromFileRequest): Promise<boolean> {
-        return this._messenger.sendRequest(getFileExists, HOST_EXTENSION, content);
+    getFileExists(params: GetFromFileRequest): Promise<boolean> {
+        return this._messenger.sendRequest(getFileExists, HOST_EXTENSION, params);
     }
 
-    deleteFromProject(content: DeleteFromProjectRequest): void {
-        return this._messenger.sendNotification(deleteFromProject, HOST_EXTENSION, content);
+    deleteFromProject(params: DeleteFromProjectRequest): void {
+        return this._messenger.sendNotification(deleteFromProject, HOST_EXTENSION, params);
     }
 
     generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
@@ -150,16 +152,16 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(stopAIMappings, HOST_EXTENSION);
     }
 
-    getProjectSource(requestType: string): Promise<ProjectSource> {
-        return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION, requestType);
+    getProjectSource(params: string): Promise<ProjectSource> {
+        return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION, params);
     }
 
-    getShadowDiagnostics(project: ProjectSource): Promise<ProjectDiagnostics> {
-        return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, project);
+    getShadowDiagnostics(params: ProjectSource): Promise<ProjectDiagnostics> {
+        return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, params);
     }
 
-    checkSyntaxError(project: ProjectSource): Promise<boolean> {
-        return this._messenger.sendRequest(checkSyntaxError, HOST_EXTENSION, project);
+    checkSyntaxError(params: ProjectSource): Promise<boolean> {
+        return this._messenger.sendRequest(checkSyntaxError, HOST_EXTENSION, params);
     }
 
     clearInitialPrompt(): void {
@@ -206,8 +208,8 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendNotification(applyDoOnFailBlocks, HOST_EXTENSION);
     }
 
-    postProcess(req: PostProcessRequest): Promise<PostProcessResponse> {
-        return this._messenger.sendRequest(postProcess, HOST_EXTENSION, req);
+    postProcess(params: PostProcessRequest): Promise<PostProcessResponse> {
+        return this._messenger.sendRequest(postProcess, HOST_EXTENSION, params);
     }
 
     getActiveFile(): Promise<string> {
@@ -234,51 +236,55 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendNotification(markAlertShown, HOST_EXTENSION);
     }
 
-    getFromDocumentation(content: string): Promise<string> {
-        return this._messenger.sendRequest(getFromDocumentation, HOST_EXTENSION, content);
+    getFromDocumentation(params: string): Promise<string> {
+        return this._messenger.sendRequest(getFromDocumentation, HOST_EXTENSION, params);
     }
 
-    isRequirementsSpecificationFileExist(filePath: string): Promise<boolean> {
-        return this._messenger.sendRequest(isRequirementsSpecificationFileExist, HOST_EXTENSION, filePath);
+    isRequirementsSpecificationFileExist(params: string): Promise<boolean> {
+        return this._messenger.sendRequest(isRequirementsSpecificationFileExist, HOST_EXTENSION, params);
     }
 
-    getDriftDiagnosticContents(projectPath: string): Promise<LLMDiagnostics> {
-        return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, projectPath);
+    getDriftDiagnosticContents(params: string): Promise<LLMDiagnostics> {
+        return this._messenger.sendRequest(getDriftDiagnosticContents, HOST_EXTENSION, params);
     }
 
-    addChatSummary(filepathAndSummary: AIChatSummary): Promise<boolean> {
-        return this._messenger.sendRequest(addChatSummary, HOST_EXTENSION, filepathAndSummary);
+    addChatSummary(params: AIChatSummary): Promise<boolean> {
+        return this._messenger.sendRequest(addChatSummary, HOST_EXTENSION, params);
     }
 
-    handleChatSummaryError(message: string): void {
-        return this._messenger.sendNotification(handleChatSummaryError, HOST_EXTENSION, message);
+    handleChatSummaryError(params: string): void {
+        return this._messenger.sendNotification(handleChatSummaryError, HOST_EXTENSION, params);
     }
 
-    isNaturalProgrammingDirectoryExists(projectPath: string): Promise<boolean> {
-        return this._messenger.sendRequest(isNaturalProgrammingDirectoryExists, HOST_EXTENSION, projectPath);
+    isNaturalProgrammingDirectoryExists(params: string): Promise<boolean> {
+        return this._messenger.sendRequest(isNaturalProgrammingDirectoryExists, HOST_EXTENSION, params);
     }
 
-    readDeveloperMdFile(directoryPath: string): Promise<string> {
-        return this._messenger.sendRequest(readDeveloperMdFile, HOST_EXTENSION, directoryPath);
+    readDeveloperMdFile(params: string): Promise<string> {
+        return this._messenger.sendRequest(readDeveloperMdFile, HOST_EXTENSION, params);
     }
 
-    updateDevelopmentDocument(developerDocument: DeveloperDocument): void {
-        return this._messenger.sendNotification(updateDevelopmentDocument, HOST_EXTENSION, developerDocument);
+    updateDevelopmentDocument(params: DeveloperDocument): void {
+        return this._messenger.sendNotification(updateDevelopmentDocument, HOST_EXTENSION, params);
     }
 
-    updateRequirementSpecification(requirementsSpecification: RequirementSpecification): void {
-        return this._messenger.sendNotification(updateRequirementSpecification, HOST_EXTENSION, requirementsSpecification);
+    updateRequirementSpecification(params: RequirementSpecification): void {
+        return this._messenger.sendNotification(updateRequirementSpecification, HOST_EXTENSION, params);
     }
 
-    createTestDirecoryIfNotExists(directoryPath: string): void {
-        return this._messenger.sendNotification(createTestDirecoryIfNotExists, HOST_EXTENSION, directoryPath);
+    createTestDirecoryIfNotExists(params: string): void {
+        return this._messenger.sendNotification(createTestDirecoryIfNotExists, HOST_EXTENSION, params);
     }
 
     getModuleDirectory(params: GetModuleDirParams): Promise<string> {
         return this._messenger.sendRequest(getModuleDirectory, HOST_EXTENSION, params);
     }
 
-    getContentFromFile(content: GetFromFileRequest): Promise<string> {
-        return this._messenger.sendRequest(getContentFromFile, HOST_EXTENSION, content);
+    getContentFromFile(params: GetFromFileRequest): Promise<string> {
+        return this._messenger.sendRequest(getContentFromFile, HOST_EXTENSION, params);
+    }
+
+    submitFeedback(params: SubmitFeedbackRequest): Promise<boolean> {
+        return this._messenger.sendRequest(submitFeedback, HOST_EXTENSION, params);
     }
 }

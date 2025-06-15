@@ -38,7 +38,11 @@ let ballerinaOutputChannel: vscode.OutputChannel | undefined;
 
 export async function setupEnvironment(projectUri: string, isOldProject: boolean): Promise<boolean> {
     try {
-        const wrapperFiles = await vscode.workspace.findFiles('{mvnw,mvnw.cmd}', '**/node_modules/**', 1);
+        const wrapperFiles = await vscode.workspace.findFiles(
+            new vscode.RelativePattern(projectUri, '{mvnw,mvnw.cmd}'),
+            '**/node_modules/**',
+            1
+        );
         if (!isOldProject) {
             if (wrapperFiles.length === 0) {
                 copyMavenWrapper(
@@ -48,12 +52,12 @@ export async function setupEnvironment(projectUri: string, isOldProject: boolean
             }
             setupConfigFiles(projectUri);
         }
-        const { miVersionFromPom } = await getProjectSetupDetails();
+        const { miVersionFromPom } = await getProjectSetupDetails(projectUri);
         if (!miVersionFromPom) {
             return false;
         }
-        const isMISet = await isMISetup(miVersionFromPom);
-        const isJavaSet = await isJavaSetup(miVersionFromPom);
+        const isMISet = await isMISetup(projectUri, miVersionFromPom);
+        const isJavaSet = await isJavaSetup(projectUri, miVersionFromPom);
 
         if (isMISet && isJavaSet) {
             const isUpdateRequested = await isServerUpdateRequested();
@@ -84,7 +88,7 @@ export async function isMIUpToDate(): Promise<boolean> {
     return false;
 }
 
-export async function getProjectSetupDetails(): Promise<SetupDetails> {
+export async function getProjectSetupDetails(projectUri: string): Promise<SetupDetails> {
     const miVersion = await getMIVersionFromPom();
     if (!miVersion) {
         vscode.window.showErrorMessage('Failed to get Micro Integrator version from pom.xml.');
@@ -92,7 +96,7 @@ export async function getProjectSetupDetails(): Promise<SetupDetails> {
     }
     if (isSupportedMIVersion(miVersion)) {
         const recommendedVersions = { miVersion, javaVersion: supportedJavaVersionsForMI[miVersion] };
-        const setupDetails = await getJavaAndMIPathsFromWorkspace(miVersion);
+        const setupDetails = await getJavaAndMIPathsFromWorkspace(projectUri, miVersion);
         return { ...setupDetails, miVersionStatus: 'valid', showDownloadButtons: isDownloadableMIVersion(miVersion), recommendedVersions, miVersionFromPom: miVersion };
     }
 
@@ -143,33 +147,28 @@ export function generateInitialDependencies(httpConnectorVersion: string): strin
     </dependencies>`
 }
 
-async function isMISetup(miVersion: string): Promise<boolean> {
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    if (workspaceFolder) {
-        const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        const currentMIPath = config.get<string>(SELECTED_SERVER_PATH);
-        if (currentMIPath) {
-            const availableMIVersion = getMIVersion(currentMIPath);
-            if (availableMIVersion && isCompatibleMIVersion(availableMIVersion, miVersion)) {
-                if (availableMIVersion !== miVersion) {
-                    showMIPathChangePrompt();
-                }
-                return true;
-            } else {
-                vscode.window.showErrorMessage('Invalid Micro Integrator path or Unsupported version found in the workspace. Please set a valid Micro Integrator path.');
-                return false;
+async function isMISetup(projectUri: string, miVersion: string): Promise<boolean> {
+    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const currentMIPath = config.get<string>(SELECTED_SERVER_PATH);
+    if (currentMIPath) {
+        const availableMIVersion = getMIVersion(currentMIPath);
+        if (availableMIVersion && isCompatibleMIVersion(availableMIVersion, miVersion)) {
+            if (availableMIVersion !== miVersion) {
+                showMIPathChangePrompt();
             }
+            return true;
+        } else {
+            vscode.window.showErrorMessage('Invalid Micro Integrator path or Unsupported version found in the workspace. Please set a valid Micro Integrator path.');
+            return false;
         }
+    }
 
-        const oldServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
-        if (oldServerPath) {
-            const availableMIVersion = getMIVersion(oldServerPath);
-            if (availableMIVersion && compareVersions(availableMIVersion, miVersion) >= 0) {
-                if (availableMIVersion !== miVersion) {
-                    showMIPathChangePrompt();
-                }
-                await config.update(SELECTED_SERVER_PATH, oldServerPath, vscode.ConfigurationTarget.Workspace);
-                return true;
+    const oldServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
+    if (oldServerPath) {
+        const availableMIVersion = getMIVersion(oldServerPath);
+        if (availableMIVersion && compareVersions(availableMIVersion, miVersion) >= 0) {
+            if (availableMIVersion !== miVersion) {
+                showMIPathChangePrompt();
             }
         }
 
@@ -179,6 +178,7 @@ async function isMISetup(miVersion: string): Promise<boolean> {
             return true;
         }
     }
+
     return false;
     function showMIPathChangePrompt() {
         const DONT_SHOW_AGAIN_KEY = 'dontShowMIPathChangePrompt';
@@ -202,9 +202,9 @@ async function isMISetup(miVersion: string): Promise<boolean> {
             .then((selection) => {
                 if (selection) {
                     if (selection === downloadOption) {
-                        downloadMI(miVersion).then((miPath) => {
+                        downloadMI(projectUri, miVersion).then((miPath) => {
                             if (miPath) {
-                                setPathsInWorkSpace({ type: 'MI', path: miPath });
+                                setPathsInWorkSpace({ projectUri, type: 'MI', path: miPath });
                             }
                         });
                     } else if (selection === changePathOption) {
@@ -212,7 +212,7 @@ async function isMISetup(miVersion: string): Promise<boolean> {
                             if (miPath) {
                                 const validMIPath = verifyMIPath(miPath.fsPath);
                                 if (validMIPath) {
-                                    setPathsInWorkSpace({ type: 'MI', path: validMIPath });
+                                    setPathsInWorkSpace({ projectUri, type: 'MI', path: validMIPath });
                                 } else {
                                     vscode.window.showErrorMessage('Invalid Micro Integrator path. Please set a valid Micro Integrator path and run the command again.');
                                 }
@@ -225,51 +225,48 @@ async function isMISetup(miVersion: string): Promise<boolean> {
             });
     }
 }
-async function isJavaSetup(miVersion: string): Promise<boolean> {
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    if (workspaceFolder) {
-        const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
-        if (currentJavaHome) {
-            const currentJavaVersion = getJavaVersion(path.join(currentJavaHome, 'bin')) ?? '';
-            if (isCompatibleJavaVersionForMI(currentJavaVersion, miVersion)) {
-                if (!isRecommendedJavaVersionForMI(currentJavaVersion, miVersion)) {
-                    showJavaHomeChangePrompt();
-                }
-                return true;
-            } else {
-                vscode.window.showErrorMessage('Invalid Java Home path or Unsupported version found in the workspace. Please set a valid Java Home path.');
-                return false;
+async function isJavaSetup(projectUri: string, miVersion: string): Promise<boolean> {
+    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
+    if (currentJavaHome) {
+        const currentJavaVersion = getJavaVersion(path.join(currentJavaHome, 'bin')) ?? '';
+        if (isCompatibleJavaVersionForMI(currentJavaVersion, miVersion)) {
+            if (!isRecommendedJavaVersionForMI(currentJavaVersion, miVersion)) {
+                showJavaHomeChangePrompt();
             }
+            return true;
+        } else {
+            vscode.window.showErrorMessage('Invalid Java Home path or Unsupported version found in the workspace. Please set a valid Java Home path.');
+            return false;
         }
+    }
 
-        const globalJavaHome: string | undefined = extension.context.globalState.get(SELECTED_JAVA_HOME);
-        if (globalJavaHome) {
-            const javaVersion = getJavaVersion(path.join(globalJavaHome, 'bin')) ?? '';
-            if (isCompatibleJavaVersionForMI(javaVersion, miVersion)) {
-                if (!isRecommendedJavaVersionForMI(javaVersion, miVersion)) {
-                    showJavaHomeChangePrompt();
-                }
-                await config.update(SELECTED_JAVA_HOME, globalJavaHome, vscode.ConfigurationTarget.Workspace);
-                return true;
+    const globalJavaHome: string | undefined = extension.context.globalState.get(SELECTED_JAVA_HOME);
+    if (globalJavaHome) {
+        const javaVersion = getJavaVersion(path.join(globalJavaHome, 'bin')) ?? '';
+        if (isCompatibleJavaVersionForMI(javaVersion, miVersion)) {
+            if (!isRecommendedJavaVersionForMI(javaVersion, miVersion)) {
+                showJavaHomeChangePrompt();
             }
-        }
-
-        const javaHome = getJavaHomeForMIVersionFromCache(miVersion);
-
-        if (javaHome) {
-            await config.update(SELECTED_JAVA_HOME, path.normalize(javaHome), vscode.ConfigurationTarget.Workspace);
+            await config.update(SELECTED_JAVA_HOME, globalJavaHome, vscode.ConfigurationTarget.Workspace);
             return true;
         }
-        if (process.env.JAVA_HOME) {
-            const javaVersion = getJavaVersion(path.join(process.env.JAVA_HOME, 'bin')) ?? '';
-            if (isCompatibleJavaVersionForMI(javaVersion, miVersion)) {
-                if (!isRecommendedJavaVersionForMI(javaVersion, miVersion)) {
-                    showJavaHomeChangePrompt();
-                }
-                await config.update(SELECTED_JAVA_HOME, process.env.JAVA_HOME, vscode.ConfigurationTarget.Workspace);
-                return true;
+    }
+
+    const javaHome = getJavaHomeForMIVersionFromCache(miVersion);
+
+    if (javaHome) {
+        await config.update(SELECTED_JAVA_HOME, path.normalize(javaHome), vscode.ConfigurationTarget.Workspace);
+        return true;
+    }
+    if (process.env.JAVA_HOME) {
+        const javaVersion = getJavaVersion(path.join(process.env.JAVA_HOME, 'bin')) ?? '';
+        if (isCompatibleJavaVersionForMI(javaVersion, miVersion)) {
+            if (!isRecommendedJavaVersionForMI(javaVersion, miVersion)) {
+                showJavaHomeChangePrompt();
             }
+            await config.update(SELECTED_JAVA_HOME, process.env.JAVA_HOME, vscode.ConfigurationTarget.Workspace);
+            return true;
         }
     }
     return false;
@@ -296,9 +293,9 @@ async function isJavaSetup(miVersion: string): Promise<boolean> {
             .then((selection) => {
                 if (selection) {
                     if (selection === downloadOption) {
-                        downloadJavaFromMI(miVersion).then((javaPath) => {
+                        downloadJavaFromMI(projectUri, miVersion).then((javaPath) => {
                             if (javaPath) {
-                                setPathsInWorkSpace({ type: 'JAVA', path: javaPath });
+                                setPathsInWorkSpace({ projectUri, type: 'JAVA', path: javaPath });
                             }
                         });
                     } else if (selection === changePathOption) {
@@ -306,7 +303,7 @@ async function isJavaSetup(miVersion: string): Promise<boolean> {
                             if (javaHome) {
                                 const validJavaHome = verifyJavaHomePath(javaHome.fsPath);
                                 if (validJavaHome) {
-                                    setPathsInWorkSpace({ type: 'JAVA', path: validJavaHome });
+                                    setPathsInWorkSpace({ projectUri, type: 'JAVA', path: validJavaHome });
                                 } else {
                                     vscode.window.showErrorMessage('Invalid Java Home path. Please set a valid Java Home path and run the command again.');
                                 }
@@ -373,7 +370,7 @@ export function getSupportedMIVersionsHigherThan(version: string): string[] {
     return Object.keys(supportedJavaVersionsForMI);
 }
 
-export async function downloadJavaFromMI(miVersion: string): Promise<string> {
+export async function downloadJavaFromMI(projectUri: string, miVersion: string): Promise<string> {
     interface AdoptiumApiResponse {
         binaries: {
             package: {
@@ -444,7 +441,7 @@ export async function downloadJavaFromMI(miVersion: string): Promise<string> {
             osType === 'Windows_NT' ? `${releaseName}.zip` : `${releaseName}.tar.gz`
         );
 
-        await downloadWithProgress(downloadUrl, javaDownloadPath, 'Downloading Java');
+        await downloadWithProgress(projectUri, downloadUrl, javaDownloadPath, 'Downloading Java');
         await extractWithProgress(javaDownloadPath, javaPath, 'Extracting Java');
 
         if (osType === 'Darwin') {
@@ -461,7 +458,7 @@ export async function downloadJavaFromMI(miVersion: string): Promise<string> {
     }
 }
 
-export async function downloadMI(miVersion: string, isUpdatedPack?: boolean): Promise<string> {
+export async function downloadMI(projectUri: string, miVersion: string, isUpdatedPack?: boolean): Promise<string> {
     const miPath = path.join(CACHED_FOLDER, 'micro-integrator');
 
     try {
@@ -473,7 +470,7 @@ export async function downloadMI(miVersion: string, isUpdatedPack?: boolean): Pr
         const miDownloadPath = path.join(miPath, zipName!);
 
         if (!fs.existsSync(miDownloadPath)) {
-            await downloadWithProgress(miDownloadUrl, miDownloadPath, 'Downloading Micro Integrator');
+            await downloadWithProgress(projectUri, miDownloadUrl, miDownloadPath, 'Downloading Micro Integrator');
         } else {
             vscode.window.showInformationMessage('Micro Integrator already downloaded.');
         }
@@ -484,7 +481,7 @@ export async function downloadMI(miVersion: string, isUpdatedPack?: boolean): Pr
     } catch (error) {
         if ((error as Error).message?.includes('Error while extracting the archive')) {
             vscode.window.showWarningMessage('The Micro Integrator archive is invalid. Attempting to redownload the Micro Integrator.');
-            return downloadMI(miVersion, isUpdatedPack);
+            return downloadMI(projectUri, miVersion, isUpdatedPack);
         }
         throw new Error('Failed to download Micro Integrator.');
     }
@@ -552,10 +549,9 @@ function isMIInstalledAtPath(miPath: string): boolean {
 export async function setPathsInWorkSpace(request: SetPathRequest): Promise<PathDetailsResponse> {
     const projectMIVersion = await getMIVersionFromPom();
 
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     let response: PathDetailsResponse = { status: 'not-valid' };
-    if (workspaceFolder && projectMIVersion) {
-        const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+    if (projectMIVersion) {
+        const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(request.projectUri));
         if (request.type === 'JAVA') {
             const validJavaHome = verifyJavaHomePath(request.path);
             if (validJavaHome) {
@@ -587,6 +583,7 @@ export async function setPathsInWorkSpace(request: SetPathRequest): Promise<Path
             if (response.status !== 'not-valid') {
                 config.update(SELECTED_SERVER_PATH, validServerPath, vscode.ConfigurationTarget.Workspace);
                 extension.context.globalState.update(SELECTED_SERVER_PATH, validServerPath);
+                config.update('suppressServerUpdateNotification', true, vscode.ConfigurationTarget.Workspace);
             } else {
                 vscode.window.showErrorMessage('Invalid Micro Integrator path or Unsupported version. Please set a valid Micro Integrator path');
             }
@@ -596,14 +593,13 @@ export async function setPathsInWorkSpace(request: SetPathRequest): Promise<Path
     return response;
 }
 
-async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise<SetupDetails> {
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+async function getJavaAndMIPathsFromWorkspace(projectUri: string, projectMiVersion: string): Promise<SetupDetails> {
     const response: SetupDetails = {
         javaDetails: { status: 'not-valid', version: supportedJavaVersionsForMI[projectMiVersion] },
         miDetails: { status: 'not-valid', version: projectMiVersion }
     };
-    if (workspaceFolder && projectMiVersion) {
-        const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+    if (projectMiVersion) {
+        const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
 
         const javaHome = config.get<string>(SELECTED_JAVA_HOME);
         const validJavaHome = javaHome && verifyJavaHomePath(javaHome) ||
@@ -955,30 +951,16 @@ function setupConfigFiles(projectUri: string): void {
     }
 }
 
-export function getJavaHomeFromConfig(): string | undefined {
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    if (workspaceFolder) {
-        const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
+export function getJavaHomeFromConfig(projectUri: string): string | undefined {
+    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
 
-        if (currentJavaHome) {
-            if (!isJavaHomePathValid(currentJavaHome)) {
-                vscode.window
-                    .showErrorMessage(
-                        'Invalid Java Home path. Please set a valid Java Home path and run the command again.',
-                        'Change Java Home'
-                    )
-                    .then((selection) => {
-                        if (selection) {
-                            vscode.commands.executeCommand(COMMANDS.CHANGE_JAVA_HOME);
-                        }
-                    });
-            }
-        } else {
+    if (currentJavaHome) {
+        if (!isJavaHomePathValid(currentJavaHome)) {
             vscode.window
                 .showErrorMessage(
-                    'Java Home path is not set. Please set a valid Java Home path and run the command again.',
-                    'Set Java Home'
+                    'Invalid Java Home path. Please set a valid Java Home path and run the command again.',
+                    'Change Java Home'
                 )
                 .then((selection) => {
                     if (selection) {
@@ -986,21 +968,30 @@ export function getJavaHomeFromConfig(): string | undefined {
                     }
                 });
         }
-        return currentJavaHome;
+    } else {
+        vscode.window
+            .showErrorMessage(
+                'Java Home path is not set. Please set a valid Java Home path and run the command again.',
+                'Set Java Home'
+            )
+            .then((selection) => {
+                if (selection) {
+                    vscode.commands.executeCommand(COMMANDS.CHANGE_JAVA_HOME);
+                }
+            });
     }
+    return currentJavaHome;
+
     function isJavaHomePathValid(javaHome: string): boolean {
         const javaExecutable = path.join(javaHome, 'bin', process.platform === 'win32' ? 'java.exe' : 'java');
         return fs.existsSync(javaExecutable);
     }
 }
 
-export function getServerPathFromConfig(): string | undefined {
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    if (workspaceFolder) {
-        const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        const currentServerPath = config.get<string>(SELECTED_SERVER_PATH);
-        return currentServerPath;
-    }
+export function getServerPathFromConfig(projectUri: string): string | undefined {
+    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const currentServerPath = config.get<string>(SELECTED_SERVER_PATH);
+    return currentServerPath;
 }
 
 export function getDefaultProjectPath(): string {
@@ -1025,39 +1016,39 @@ async function runBallerinaBuildsWithProgress(projectPath: string, isBallerinaIn
             cancellable: false,
         },
         async (progress, token) => await new Promise<void>((resolve, reject) => {
-                progress.report({ increment: 10, message: "Pull dependencies..." });
-                const balHome = path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString();
+            progress.report({ increment: 10, message: "Pull dependencies..." });
+            const balHome = path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString();
 
                 runCommand(isBallerinaInstalled ? 'bal tool pull mi-module-gen' : `${balHome}${path.sep}bal tool pull mi-module-gen`, `"${projectPath}"`, onData, onError, buildModule);
 
-                let isModuleAlreadyInstalled = false, commandFailed = false;
-                function onData(data: string) {
-                    if (data.includes("is already available locally")) {
-                        isModuleAlreadyInstalled = true;
-                    }
+            let isModuleAlreadyInstalled = false, commandFailed = false;
+            function onData(data: string) {
+                if (data.includes("is already available locally")) {
+                    isModuleAlreadyInstalled = true;
                 }
+            }
 
-                function onError(data: string) {
-                    if (data) {
-                        if (data.includes("spawn bal ENOENT") ||
-                            data.includes("The system cannot find the path specified") ||
-                            data.includes("'bal' is not recognized as an internal or external command, operable program or batch file.")) {
-                            vscode.window.showErrorMessage("Ballerina not found. Please install and setup the Ballerina Extension and try again.");
-                            showExtensionPrompt();
-                        } else {
-                            vscode.window.showErrorMessage(`Error: ${data}`);
-                        }
-                        commandFailed = true;
+            function onError(data: string) {
+                if (data) {
+                    if (data.includes("spawn bal ENOENT") ||
+                        data.includes("The system cannot find the path specified") ||
+                        data.includes("'ba' is not recognized as an internal or external command, operable program or batch file.")) {
+                        vscode.window.showErrorMessage("Ballerina not found. Please install and setup the Ballerina Extension and try again.");
+                        showExtensionPrompt();
+                    } else {
+                        vscode.window.showErrorMessage(`Error: ${data}`);
                     }
+                    commandFailed = true;
                 }
+            }
 
-                function buildModule() {
-                    if (!isModuleAlreadyInstalled && commandFailed) {
-                        reject();
-                        return;
-                    }
-                    commandFailed = false;
-                    progress.report({ increment: 40, message: "Generating module..." });
+            function buildModule() {
+                if (!isModuleAlreadyInstalled && commandFailed) {
+                    reject();
+                    return;
+                }
+                commandFailed = false;
+                progress.report({ increment: 40, message: "Generating module..." });
 
                     if (!ballerinaOutputChannel) {
                         ballerinaOutputChannel = vscode.window.createOutputChannel('Ballerina Module Builder');
@@ -1067,56 +1058,60 @@ async function runBallerinaBuildsWithProgress(projectPath: string, isBallerinaIn
                         onData, onError, onComplete, ballerinaOutputChannel
                     );
 
-                    async function onComplete() {
-                        try {
-                            if (commandFailed) {
-                                reject();
-                                return;
-                            }
-                            progress.report({ increment: 40, message: "Copying Ballerina module..." });
-                            const targetFolderPath = path.join(projectPath, 'target');
-                            if (fs.existsSync(targetFolderPath)) {
-                                fs.rmSync(targetFolderPath, { recursive: true, force: true });
-                            } else {
-                                reject();
-                                return vscode.window.showErrorMessage("Ballerina module build process failed.");
-                            }
-
-                            const tomlContent = fs.readFileSync(path.join(projectPath, "Ballerina.toml"), 'utf8');
-                            const nameMatch = tomlContent.match(/name\s*=\s*"([^"]+)"/);
-                            const versionMatch = tomlContent.match(/version\s*=\s*"([^"]+)"/);
-                            const name = nameMatch ? nameMatch[1] : null;
-                            const version = versionMatch ? versionMatch[1] : null;
-
-                            const zipName = name + "-connector-" + version + ".zip";
-                            const zipPath = path.join(projectPath, zipName);
-
-                            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-                            const copyTo = path.join(workspaceFolder?.uri.fsPath || '', 'src', 'main', 'wso2mi', 'resources', 'connectors', zipName);
-                            if (fs.existsSync(copyTo)) {
-                                await fs.promises.rm(copyTo, { force: true });
-
-                                // TODO: Remove this after fixing the issue from LS side
-                                // https://github.com/wso2/mi-vscode/issues/952
-                                await new Promise((resolve) => setTimeout(resolve, 1000));
-                            }
-                            await fs.promises.copyFile(zipPath, copyTo);
-                            await fs.promises.rm(zipPath);
-
-                            progress.report({ increment: 10, message: "Completed Ballerina module build." });
-                            vscode.window.showInformationMessage("Ballerina module build successful");
-                            resolve();
-                        } catch (error) {
-                            if (error instanceof Error) {
-                                onError(error.message);
-                            } else {
-                                onError(String(error));
-                            }
+                async function onComplete() {
+                    try {
+                        if (commandFailed) {
                             reject();
+                            return;
                         }
+                        progress.report({ increment: 40, message: "Copying Ballerina module..." });
+                        const targetFolderPath = path.join(projectPath, 'target');
+                        if (fs.existsSync(targetFolderPath)) {
+                            fs.rmSync(targetFolderPath, { recursive: true, force: true });
+                        } else {
+                            reject();
+                            return vscode.window.showErrorMessage("Ballerina module build process failed.");
+                        }
+
+                        const tomlContent = fs.readFileSync(path.join(projectPath, "Ballerina.toml"), 'utf8');
+                        const nameMatch = tomlContent.match(/name\s*=\s*"([^"]+)"/);
+                        const versionMatch = tomlContent.match(/version\s*=\s*"([^"]+)"/);
+                        const name = nameMatch ? nameMatch[1] : null;
+                        const version = versionMatch ? versionMatch[1] : null;
+
+                        const zipName = name + "-connector-" + version + ".zip";
+                        const zipPath = path.join(projectPath, zipName);
+
+                        const projectUri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(projectPath))?.uri?.fsPath;
+                        if (!projectUri) {
+                            reject();
+                            return vscode.window.showErrorMessage("Could not find the workspace folder");
+                        }
+                        const copyTo = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources', 'connectors', zipName);
+                        if (fs.existsSync(copyTo)) {
+                            await fs.promises.rm(copyTo, { force: true });
+
+                            // TODO: Remove this after fixing the issue from LS side
+                            // https://github.com/wso2/mi-vscode/issues/952
+                            await new Promise((resolve) => setTimeout(resolve, 1000));
+                        }
+                        await fs.promises.copyFile(zipPath, copyTo);
+                        await fs.promises.rm(zipPath);
+
+                        progress.report({ increment: 10, message: "Completed Ballerina module build." });
+                        vscode.window.showInformationMessage("Ballerina module build successful");
+                        resolve();
+                    } catch (error) {
+                        if (error instanceof Error) {
+                            onError(error.message);
+                        } else {
+                            onError(String(error));
+                        }
+                        reject();
                     }
                 }
-            })
+            }
+        })
     );
 }
 
@@ -1186,7 +1181,7 @@ export async function isServerUpdateRequested(): Promise<boolean> {
                             cancelOption
                         ).then((selection) => {
                             if (selection === changeOption) {
-                                setPathsInWorkSpace({ type: 'MI', path: cachedMIPath.path });
+                                setPathsInWorkSpace({ projectUri: workspaceFolder.uri.fsPath, type: 'MI', path: cachedMIPath.path });
                             }
                         });
                     } else {
@@ -1266,7 +1261,7 @@ function extractRootFolderFromZip(zipFilePath: string): string | null {
     }
 }
 
-async function updateMI(miVersion: string, latestUpdateVersion: string): Promise<void> {
+async function updateMI(projectUri: string, miVersion: string, latestUpdateVersion: string): Promise<void> {
     try {
         const updateTempFolder = path.join(CACHED_FOLDER, '.mi-temp');
         if (!fs.existsSync(updateTempFolder)) {
@@ -1275,7 +1270,7 @@ async function updateMI(miVersion: string, latestUpdateVersion: string): Promise
 
         const miZipFileName = miDownloadUrls[miVersion].split('/').pop();
         const miZipPath = path.join(updateTempFolder, miZipFileName!);
-        await downloadWithProgress(miDownloadUrls[miVersion], miZipPath, 'Downloading Micro Integrator Update');
+        await downloadWithProgress(projectUri, miDownloadUrls[miVersion], miZipPath, 'Downloading Micro Integrator Update');
 
         const miCachePath = path.join(CACHED_FOLDER, 'micro-integrator');
         const existingMIPath = getLatestMIPathFromCache(miVersion)?.path;
@@ -1292,16 +1287,16 @@ async function updateMI(miVersion: string, latestUpdateVersion: string): Promise
             if (selection === replaceOption) {
                 fs.rmSync(existingMIPath, { recursive: true, force: true });
                 await extractWithProgress(miZipPath, miCachePath, 'Extracting Micro Integrator Update');
-                setPathsInWorkSpace({ type: 'MI', path: path.join(miCachePath, rootFolderName!) });
+                setPathsInWorkSpace({ projectUri, type: 'MI', path: path.join(miCachePath, rootFolderName!) });
             } else if (selection === createNewOption) {
                 const newFolderName = `wso2mi-${miVersion}-update-${latestUpdateVersion}`;
                 await extractWithProgress(miZipPath, updateTempFolder, 'Extracting Micro Integrator Update');
                 fs.renameSync(path.join(updateTempFolder, rootFolderName!), path.join(miCachePath, newFolderName));
-                setPathsInWorkSpace({ type: 'MI', path: path.join(miCachePath, newFolderName) });
+                setPathsInWorkSpace({ projectUri, type: 'MI', path: path.join(miCachePath, newFolderName) });
             }
         } else {
             await extractWithProgress(miZipPath, miCachePath, 'Extracting Micro Integrator Update');
-            setPathsInWorkSpace({ type: 'MI', path: path.join(miCachePath, rootFolderName!) });
+            setPathsInWorkSpace({ projectUri, type: 'MI', path: path.join(miCachePath, rootFolderName!) });
         }
         fs.rmSync(updateTempFolder, { recursive: true, force: true });
 

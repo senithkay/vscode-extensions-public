@@ -33,7 +33,7 @@ import {
     DataMapWriteRequest,
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
-import { StateMachine, refreshUI } from "../../stateMachine";
+import { getStateMachine, refreshUI } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateTsFileCustomTypes, updateTsFileIoTypes } from "../../util/tsBuilder";
@@ -52,6 +52,8 @@ import { compareVersions } from "../../util/onboardingUtils";
 const undoRedoManager = new UndoRedoManager();
 
 export class MiDataMapperRpcManager implements MIDataMapperAPI {
+    constructor(private projectUri: string) { }
+
     async getIOTypes(params: DMTypeRequest): Promise<IOTypeResponse> {
         return new Promise(async (resolve, reject) => {
             const { filePath, functionName } = params;
@@ -89,7 +91,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         sourceFile.replaceWithText(params.fileContent);
         sourceFile.formatText();
         await sourceFile.save();
-        refreshUI();
+        refreshUI(this.projectUri);
     }
 
     getAbsoluteFilePath(filePath: string, sourcePath: string, configName: string) {
@@ -127,7 +129,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             if (content) {
                 let schema: JSONSchema3or4;
                 try {
-                    schema = await generateSchemaFromContent(ioType, content, schemaType, csvDelimiter);
+                    schema = await generateSchemaFromContent(this.projectUri, ioType, content, schemaType, csvDelimiter);
                 } catch (error: any) {
                     console.error(error);
                     window.showErrorMessage("Error while generating schema. Please check the input file and Resource Type and try again.");
@@ -144,7 +146,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     }
 
                     await this.formatDMC(documentUri);
-                    refreshUI();
+                    refreshUI(this.projectUri);
                     return resolve({ success: true });
                 } catch (error: any) {
                     console.error(error);
@@ -224,7 +226,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             if (!token) {
                 throw new Error('Token not available');
             }
-            const url = await fetchBackendUrl() + USER_CHECK_BACKEND_URL;
+            const url = await fetchBackendUrl(this.projectUri) + USER_CHECK_BACKEND_URL;
             let response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -255,8 +257,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             }
         } catch (error) {
             console.error('Error while getting or refreshing user token: ', error);
-            showSignedOutNotification();
-            openSignInView();
+            showSignedOutNotification(this.projectUri);
+            openSignInView(this.projectUri);
             return false;
         }
         return true;  // token is available and valid
@@ -283,7 +285,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     // Function to update the body of a function in a TypeScript file
     async writeDataMapping(params: DataMapWriteRequest): Promise<void> {
         const { dataMapping } = params;
-        const sourcePath = StateMachine.context().dataMapperProps?.filePath;
+        const sourcePath = getStateMachine(this.projectUri).context().dataMapperProps?.filePath;
         if (sourcePath) {
             try {
                 const project = DMProject.getInstance(sourcePath).getProject();
@@ -300,7 +302,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     functionDeclaration.setBodyText(`${dataMapping || defaultReturnValue}`);
                     // Write the updates to the file
                     await sourceFile.save();
-                    await refreshUI();
+                    await refreshUI(this.projectUri);
                 } else {
                     console.error("Error in writing data mapping, mapFunction not found in target ts file.");
                 }
@@ -315,8 +317,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async getMappingFromAI(): Promise<void> {
         try {
             // Function to read the TypeScript file
-            let tsContent = await readTSFile();
-            const backendRootUri = await fetchBackendUrl();
+            let tsContent = await readTSFile(this.projectUri);
+            const backendRootUri = await fetchBackendUrl(this.projectUri);
             const url = backendRootUri + DATAMAP_BACKEND_URL;
             let token;
             try {
@@ -325,8 +327,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             }
             catch (error) {
                 console.error('Error while getting user token.');
-                showSignedOutNotification();
-                openSignInView();
+                showSignedOutNotification(this.projectUri);
+                openSignInView(this.projectUri);
                 return; // If there is no token, return early to exit the function
             }
             let response;
@@ -335,8 +337,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 response = await makeRequest(url, token, tsContent);
             } catch (error) {
                 console.error('Error while making request to backend', error);
-                showMappingEndNotification();
-                openSignInView();
+                showMappingEndNotification(this.projectUri);
+                openSignInView(this.projectUri);
                 return; // If there is an error in the request, return early to exit the function
             }
             try {
@@ -358,7 +360,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     };
                     await this.writeDataMapping(dataMapWriteRequest);
                     // Show a notification to the user
-                    showMappingEndNotification();
+                    showMappingEndNotification(this.projectUri);
                 }
                 else {
                     // Log error or perform error handling
@@ -382,16 +384,16 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 const dmContent = `import * as ${DM_OPERATORS_IMPORT_NAME} from "./${DM_OPERATORS_FILE_NAME}";\n\n/**\n* inputType:unknown\n*/\ninterface InputRoot {\n}\n\n/**\n* outputType:unknown\n*/\ninterface OutputRoot {\n}\n\nexport function mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};`;
                 const { filePath, dmName } = params;
                 const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
-                let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
+                let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager(this.projectUri);
 
-                const langClient = StateMachine.context().langClient;
+                const langClient = getStateMachine(this.projectUri).context().langClient;
                 const projectDetailsRes = await langClient?.getProjectDetails();
                 const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
                 const isResourceContentUsed = compareVersions(runtimeVersion, RUNTIME_VERSION_440) >= 0;
 
                 if (workspaceFolder) {
-                    const dataMapperConfigFolder = isResourceContentUsed ? 
-                        path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper', dmName) : 
+                    const dataMapperConfigFolder = isResourceContentUsed ?
+                        path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper', dmName) :
                         path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', dmName);
                     if (!fs.existsSync(dataMapperConfigFolder)) {
                         fs.mkdirSync(dataMapperConfigFolder, { recursive: true });

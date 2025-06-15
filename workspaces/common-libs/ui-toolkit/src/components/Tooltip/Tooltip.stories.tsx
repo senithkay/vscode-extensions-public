@@ -52,6 +52,9 @@ const DefaultTemplate: ComponentStory<typeof Tooltip> = (args: TooltipProps) =>
 export const Default = DefaultTemplate.bind();
 Default.args = { content: "Tooltip Content", position: "bottom" };
 
+export const TooltipWithOffset = DefaultTemplate.bind();
+TooltipWithOffset.args = { content: "Tooltip Content", position: "bottom", offset: { top: 16, left: 20 } };
+
 const OverflowTemplate: ComponentStory<typeof Tooltip> = (args: TooltipProps) =>
     <Tooltip {...args}>
         <LargeTextContainer>Hover Over Me</LargeTextContainer>

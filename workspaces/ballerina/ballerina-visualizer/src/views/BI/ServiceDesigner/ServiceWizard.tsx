@@ -121,6 +121,12 @@ export function ServiceWizard(props: ServiceWizardProps) {
     const handleServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
+        const newArtifact = res.artifacts.find(res => res.isNew);
+        if (newArtifact) {
+            rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: newArtifact.path, position: newArtifact.position } });
+            setSaving(false);
+            return;
+        }
     }
 
     const onBack = () => {
@@ -162,12 +168,12 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         }
                         {step === 0 &&
                             <>
-                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={saving ? "Creating" : (listeners?.hasListeners ? "Create" : undefined)} isSaving={saving} />
+                                <ListenerConfigForm listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={saving ? "Creating..." : (listeners?.hasListeners ? "Create" : undefined)} isSaving={saving} />
                             </>
                         }
                         {step === 1 &&
                             <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={saving ? "Creating" : "Create"} isSaving={saving} />
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={saving ? "Creating..." : "Create"} isSaving={saving} />
                             </>
                         }
                         {pullingModules &&

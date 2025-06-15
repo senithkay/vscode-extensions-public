@@ -93,7 +93,7 @@ vscode.authentication.onDidChangeSessions(async e => {
         } else {
             //it could be a login(which we havent captured) or a logout 
             // vscode.window.showInformationMessage(
-            //     'Ballerina Integrator supports completions with GitHub Copilot.',
+            //     'WSO2 Integrator: BI supports completions with GitHub Copilot.',
             //     'Login with GitHub Copilot'
             // ).then(selection => {
             //     if (selection === 'Login with GitHub Copilot') {

@@ -13,7 +13,7 @@ import { StateMachine, openView } from '../../stateMachine';
 import { extension } from '../../BalExtensionContext';
 import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW, SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
 import { ViewColumn } from 'vscode';
-import { forceUpdateProjectArtifacts } from '../../utils/project-artifacts';
+import { buildProjectArtifactsStructure } from '../../utils/project-artifacts';
 
 export function activateSubscriptions() {
     const context = extension.context;
@@ -55,7 +55,7 @@ export function activateSubscriptions() {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.FORCE_UPDATE_PROJECT_ARTIFACTS, () => {
-            return forceUpdateProjectArtifacts();
+            return buildProjectArtifactsStructure(StateMachine.context().projectUri, StateMachine.langClient(), true);
         })
     );
 

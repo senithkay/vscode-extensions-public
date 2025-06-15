@@ -158,7 +158,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
     }
 
     return (
-        <ViewContainer>
+        <ViewContainer id='popUpPanel'>
             {viewComponent}
         </ViewContainer >
     );

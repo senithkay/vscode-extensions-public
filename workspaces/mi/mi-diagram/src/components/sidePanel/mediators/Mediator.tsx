@@ -86,8 +86,8 @@ export function MediatorPage(props: MediatorPageProps) {
                         watch={watch}
                         getValues={getValues}
                         dirtyFields={dirtyFields}
-                        handleSubmit={handleSubmit}
                         isUpdate={isUpdate}
+                        handleSubmit={handleSubmit}
                         formData={connectorData.form}
                         nodePosition={nodeRange}
                         documentUri={documentUri}

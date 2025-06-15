@@ -10,10 +10,14 @@
 import * as vscode from "vscode";
 import { COMMANDS } from "../constants";
 import { importProject } from "../util/migrationUtils";
+import { askForProject } from "../util/workspace";
 
 export function activateMigrationSupport(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(COMMANDS.MIGRATE_PROJECT, async (params?: { sourceDir: string }) => {
-        const source = params?.sourceDir || vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+        let source = params?.sourceDir;
+        if (!source) {
+            source = await askForProject();
+        }
         if (source) {
             importProject({ source, directory: source, open: true });
         }

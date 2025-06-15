@@ -21,7 +21,7 @@ export const FUNCTIONS_FILE = "functions.bal";
 export const DATA_MAPPING_FILE = "data_mappings.bal";
 
 export function openBIProject() {
-    window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open BI Project' })
+    window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open Integration' })
         .then(uri => {
             if (uri && uri[0]) {
                 commands.executeCommand('vscode.openFolder', uri[0]);
@@ -99,6 +99,9 @@ export function createBIProjectPure(name: string, projectPath: string) {
 org = "${username}"
 name = "${name}"
 version = "0.1.0"
+
+[build-options]
+sticky = true
 
 `;
 
@@ -336,7 +339,7 @@ export async function handleFunctionCreation(targetFile: string, params: Compone
     return res;
 }
 // <---------- Function Source Generation END-------->
-
+// Test_Integration test_integration   Test Integration testIntegration -> testintegration
 export function sanitizeName(name: string): string {
     return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); // Replace invalid characters with underscores
 }

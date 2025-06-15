@@ -528,7 +528,7 @@ export function ParamManager(props: ParamManagerProps) {
         });
 
     return (
-        <ParamManagerWrapper sx={sx}>
+        <ParamManagerWrapper id='parameterManager' sx={sx}>
             {paramComponents}
             {(editingSegmentId === -1 && allowAddItem) && (
                 <AddButtonWrapper>

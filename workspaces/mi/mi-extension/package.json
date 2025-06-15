@@ -195,12 +195,6 @@
         {
           "id": "MI.project-explorer",
           "name": "Project Explorer"
-        },
-        {
-          "id": "MI.registry-explorer",
-          "name": "Registry Explorer",
-          "visibility": "collapsed",
-          "when": "MI.registry-explorer.isVisible"
         }
       ],
       "test": [
@@ -234,7 +228,7 @@
       {
         "view": "MI.project-explorer",
         "contents": "This project appears to have been created with Integration Studio. Please note that the VS Code extension offers limited support for these projects. To enhance compatibility, consider migrating your project using the provided migration tool.\n[Migrate Project](command:MI.migrateProject)",
-        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProject'"
+        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProject' && workspaceFolderCount == 1"
       },
       {
         "view": "MI.project-explorer",
@@ -292,20 +286,8 @@
         "category": "MI"
       },
       {
-        "command": "MI.registry-explorer.add",
-        "title": "Add to Resource",
-        "icon": "$(add)",
-        "category": "MI"
-      },
-      {
         "command": "MI.project-explorer.refresh",
         "title": "Refresh Project Explorer",
-        "icon": "$(refresh)",
-        "group": "navigation"
-      },
-      {
-        "command": "MI.registry-explorer.refresh",
-        "title": "Refresh Registry Explorer",
         "icon": "$(refresh)",
         "group": "navigation"
       },
@@ -414,13 +396,6 @@
         "command": "MI.project-explorer.add-registry-resource",
         "title": "Add Registry Resource",
         "icon": "$(add)",
-        "group": "navigation",
-        "category": "MI"
-      },
-      {
-        "command": "MI.registry-explorer.edit-reg-metadata",
-        "title": "Edit Registry Metadata",
-        "icon": "$(notebook-edit)",
         "group": "navigation",
         "category": "MI"
       },
@@ -606,10 +581,6 @@
           "when": "false"
         },
         {
-          "command": "MI.registry-explorer.edit-reg-metadata",
-          "when": "false"
-        },
-        {
           "command": "MI.project-explorer.add-class-mediator",
           "when": "false"
         },
@@ -708,16 +679,6 @@
         {
           "command": "MI.test.refresh.mock-services",
           "when": "false"
-        },
-        {
-          "command": "MI.registry-explorer.refresh",
-          "when": "view == MI.registry-explorer && projectOpened",
-          "group": "navigation"
-        },
-        {
-          "command": "MI.registry-explorer.add",
-          "when": "view == MI.registry-explorer && projectOpened",
-          "group": "navigation"
         }
       ],
       "view/title": [
@@ -727,28 +688,13 @@
           "group": "navigation"
         },
         {
-          "command": "MI.project-explorer.add.artifact",
+          "command": "MI.project-explorer.create-project",
           "when": "view == MI.project-explorer && projectOpened",
-          "group": "navigation"
-        },
-        {
-          "command": "MI.registry-explorer.refresh",
-          "when": "view == MI.registry-explorer && projectOpened",
-          "group": "navigation"
-        },
-        {
-          "command": "MI.registry-explorer.add",
-          "when": "view == MI.registry-explorer && projectOpened",
           "group": "navigation"
         },
         {
           "command": "MI.test.add.suite",
           "when": "view == workbench.view.testing",
-          "group": "navigation"
-        },
-        {
-          "command": "MI.test.add.mock-service",
-          "when": "view == MI.mock-services && projectOpened",
           "group": "navigation"
         },
         {
@@ -799,6 +745,11 @@
       ],
       "view/item/context": [
         {
+          "command": "MI.project-explorer.add.artifact",
+          "when": "viewItem == project",
+          "group": "inline"
+        },
+        {
           "command": "MI.project-explorer.open-project-overview",
           "when": "viewItem == project",
           "group": "inline"
@@ -846,11 +797,6 @@
         {
           "command": "MI.project-explorer.add-registry-resource",
           "when": "view == MI.project-explorer && viewItem == registry",
-          "group": "inline"
-        },
-        {
-          "command": "MI.registry-explorer.edit-reg-metadata",
-          "when": "view == MI.registry-explorer && (viewItem == registry-with-metadata)",
           "group": "inline"
         },
         {
@@ -914,9 +860,14 @@
           "group": "inline"
         },
         {
+          "command": "MI.test.add.mock-service",
+          "group": "inline",
+          "when": "view == MI.mock-services && viewItem == workspace"
+        },
+        {
           "command": "MI.test.edit.mock-service",
           "group": "inline",
-          "when": "view == MI.mock-services"
+          "when": "view == MI.mock-services && viewItem == mockService"
         }
       ],
       "testing/item/context": [
@@ -941,27 +892,21 @@
           "when": "testId in test.cases"
         }
       ],
-      "testing/message/context": [
-        {
-          "command": "MI.test.add.mock-service",
-          "group": "inline",
-          "when": "messageId in test.canAddMockService"
-        }
-      ]
+      "testing/message/context": []
     },
     "icons": {
       "distro-design-view": {
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f172"
+          "fontCharacter": "\\f173"
         }
       },
       "distro-build-package": {
         "description": "build-package",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f14d"
+          "fontCharacter": "\\f14e"
         }
       }
     }
@@ -971,7 +916,8 @@
     "compile": "tsc -p .",
     "watch": "tsc -p . -w",
     "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
-    "build": "pnpm clean && pnpm run copyJSLibs && pnpm run copyLSLibs && pnpm run copyFonts && pnpm run copyDMUtils && pnpm run renameDMUtils && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
+    "download-ls": "node ./scripts/download-ls.js",
+    "build": "pnpm clean && pnpm run download-ls && pnpm run copyJSLibs && pnpm run copyLSLibs && pnpm run copyFonts && pnpm run copyDMUtils && pnpm run renameDMUtils && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
     "compile-tests": "pnpm run compile",
     "watch-tests": "pnpm run watch",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
