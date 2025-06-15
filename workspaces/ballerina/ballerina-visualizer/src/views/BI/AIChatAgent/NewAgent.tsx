@@ -290,6 +290,7 @@ export function NewAgent(props: NewAgentProps): JSX.Element {
             )}
             {!loading && (
                 <ConfigForm
+                    isSaving={savingForm}
                     formFields={formFields}
                     targetLineRange={{
                         fileName: fileName,

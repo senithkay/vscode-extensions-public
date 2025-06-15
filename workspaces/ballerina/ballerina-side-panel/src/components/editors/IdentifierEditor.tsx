@@ -277,27 +277,13 @@ export function IdentifierEditor(props: IdentifierEditorProps) {
                                 >
                                     Cancel
                                 </StyledButton>
-                                {!isSaving &&
-                                    <StyledButton
-                                        appearance="primary"
-                                        onClick={saveEdit}
-                                        disabled={!tempValue || !isIdentifierValid}
-                                    >
-                                        Save
-                                    </StyledButton>
-                                }
-                                {isSaving &&
-                                    <StyledButton
-                                        appearance="primary"
-                                        disabled={true}
-                                    >
-                                        <ProgressRing
-                                            sx={{ width: 14, height: 14, marginRight: 3 }}
-                                            color={ThemeColors.ON_PRIMARY}
-                                        />
-                                        Saving
-                                    </StyledButton>
-                                }
+                                <StyledButton
+                                    appearance="primary"
+                                    onClick={saveEdit}
+                                    disabled={!tempValue || !isIdentifierValid || isSaving}
+                                >
+                                    {isSaving ? <Typography variant="progress">Saving...</Typography> : "Save"}
+                                </StyledButton>
                             </ButtonGroup>
                         </EditRow>
 

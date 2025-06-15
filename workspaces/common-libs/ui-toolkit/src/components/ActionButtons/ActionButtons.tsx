@@ -9,11 +9,13 @@
 import styled from "@emotion/styled";
 import React from "react";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import Typography from "../Typography/Typography";
 
 interface ButtonProps {
     text: string;
     tooltip?: string;
     disabled?: boolean;
+    loading?: boolean;
     onClick?: () => void;
 }
 
@@ -41,16 +43,16 @@ const ButtonWrapper = styled.div`
 
 export const ActionButtons = (props: ActionButtonsProps) => {
     const { id, className, primaryButton, secondaryButton, sx } = props;
-    const { tooltip: pTooltip, text: pText, onClick: pOnClick, disabled: pDisabled } = primaryButton;
-    const { tooltip: sTooltip, text: sText, onClick: sOnClick, disabled: sDisabled } = secondaryButton;
+    const { tooltip: pTooltip, text: pText, onClick: pOnClick, disabled: pDisabled, loading: pLoading } = primaryButton;
+    const { tooltip: sTooltip, text: sText, onClick: sOnClick, disabled: sDisabled, loading: sLoading } = secondaryButton;
 
     return (
         <ButtonContainer id={id} className={className} sx={sx}>
-            <VSCodeButton appearance="secondary" onClick={sOnClick} title={sTooltip} disabled={(sDisabled ? true : undefined)} style={{marginRight: 8}}>
-                <ButtonWrapper style={{minWidth: "50px"}}>{sText}</ButtonWrapper>
+            <VSCodeButton appearance="secondary" onClick={sOnClick} title={sTooltip} disabled={(sDisabled ? true : undefined)} style={{ marginRight: 8 }}>
+                <ButtonWrapper style={{ minWidth: "50px" }}>{sLoading ? <Typography variant="progress">{sText}</Typography> : sText}</ButtonWrapper>
             </VSCodeButton>
             <VSCodeButton appearance="primary" onClick={pOnClick} title={pTooltip} disabled={(pDisabled ? true : undefined)}>
-                <ButtonWrapper style={{minWidth: "50px"}}>{pText}</ButtonWrapper>
+                <ButtonWrapper style={{ minWidth: "50px" }}>{pLoading ? <Typography variant="progress">{pText}</Typography> : pText}</ButtonWrapper>
             </VSCodeButton>
         </ButtonContainer>
     );
