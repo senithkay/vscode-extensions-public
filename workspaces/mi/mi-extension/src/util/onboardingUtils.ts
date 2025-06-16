@@ -636,6 +636,58 @@ async function getJavaAndMIPathsFromWorkspace(projectUri: string, projectMiVersi
     return response;
 }
 
+export async function updatePomForClassMediator(projectUri: string): Promise<void> {
+    const pomFiles = await vscode.workspace.findFiles(
+        new vscode.RelativePattern(projectUri, 'pom.xml'),
+        '**/node_modules/**',
+        1
+    );
+    if (pomFiles.length === 0) {
+        throw new Error('pom.xml not found in the specified project.');
+    }
+    const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
+    const originalXml = pomContent.getText();
+
+    const parser = new XMLParser({
+        ignoreAttributes: false,
+        preserveOrder: true
+    });
+    const parsedXml = parser.parse(originalXml);
+
+    updatePomXml(parsedXml, "project.packaging", "jar");
+
+    createTagIfNotFound(parsedXml, "project.dependencies");
+    const dependencyXml = {
+        dependency: [
+            { groupId: [{ "#text": "org.apache.synapse" }] },
+            { artifactId: [{ "#text": "synapse-core" }] },
+            { version: [{ "#text": "4.0.0-wso2v165" }] }
+        ]
+    };
+
+    parsedXml.forEach((node: any) => {
+        if (Array.isArray(node.project)) {
+            node.project.forEach((projectNode: any) => {
+                if (projectNode.dependencies) {
+                    projectNode.dependencies.push(dependencyXml);
+                }
+            });
+        }
+    });
+
+    const builder = new XMLBuilder({
+        ignoreAttributes: false,
+        format: true,
+        preserveOrder: true,
+        commentPropName: "#comment",
+        indentBy: "    "
+    });
+
+    const updatedXml = builder.build(parsedXml);
+
+    await fs.promises.writeFile(pomFiles[0].fsPath, updatedXml);
+}
+
 export async function updateRuntimeVersionsInPom(version: string): Promise<void> {
     const pomFiles = await vscode.workspace.findFiles('pom.xml', '**/node_modules/**', 1);
     if (pomFiles.length === 0) {
