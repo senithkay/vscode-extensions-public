@@ -128,16 +128,6 @@ interface PackageModuleState {
     module: string;
 }
 
-function useDebouncedCallback(callback: (...args: any[]) => void, delay: number) {
-    const timer = React.useRef<number | null>(null);
-    return React.useCallback((...args: any[]) => {
-        if (timer.current) window.clearTimeout(timer.current);
-        timer.current = window.setTimeout(() => {
-            callback(...args);
-        }, delay);
-    }, [callback, delay]);
-}
-
 const Overlay = styled.div`
     position: fixed;
     width: 100vw;
@@ -283,9 +273,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     const handleFormSubmit = async () => {
         setAddConfigVariableFormOpen(false);
         setEditConfigVariableFormOpen(false);
-        // HACK: Add 0.2 second timeout to allow ls to process the changes (libraries)
-        // TODO: Send ls notification on success
-        await new Promise(resolve => setTimeout(resolve, 200));
         getConfigVariables();
     }
 
