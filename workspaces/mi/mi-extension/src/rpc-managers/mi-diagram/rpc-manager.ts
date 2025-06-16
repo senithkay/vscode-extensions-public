@@ -3805,6 +3805,7 @@ ${endpointAttributes}
                         const mediaType = await detectMediaType(params.filePath);
                         addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false, params.registryRoot !== "");
                     }
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
                 }
             } else if (params.createOption === 'entryOnly') {
@@ -3839,6 +3840,7 @@ ${endpointAttributes}
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
                 addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
         });
