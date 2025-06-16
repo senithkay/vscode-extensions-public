@@ -36,6 +36,7 @@ import {
     ENABLE_BACKGROUND_DRIFT_CHECK,
     ENABLE_BALLERINA_INTEGRATOR,
     DEFINE_BALLERINA_INTEGRATOR_SCOPE,
+    SHOW_LIBRARY_CONFIG_VARIABLES,
     LANG_SERVER_PATH
 }
     from "./preferences";
@@ -1903,6 +1904,10 @@ export class BallerinaExtension {
 
     public enableAiSuggestions(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_AI_SUGGESTIONS);
+    }
+
+    public showLibraryConfigVariables(): boolean {
+        return <boolean>workspace.getConfiguration().get(SHOW_LIBRARY_CONFIG_VARIABLES);
     }
 
     public getDocumentContext(): DocumentContext {

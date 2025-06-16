@@ -114,6 +114,8 @@ export interface VisualizerLocation {
     metadata?: VisualizerMetadata;
     scope?: SCOPE;
     projectStructure?: ProjectStructureResponse;
+    org?: string;
+    package?: string;
 }
 
 export interface ArtifactData {
