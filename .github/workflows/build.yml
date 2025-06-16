@@ -413,7 +413,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        group: [group1, group2]
+        group: [group1, group2, group3]
     steps:
       - name: Restore build
         uses: actions/download-artifact@v4
@@ -465,5 +465,6 @@ jobs:
           name: MI-e2e-test-recording-${{ matrix.group }}-${{ github.run_attempt }}
           path: | 
             workspaces/mi/mi-extension/src/test/test-resources/videos/**
+            workspaces/mi/mi-extension/src/test/test-resources/screenshots/**
             workspaces/mi/mi-extension/record.mp4
           retention-days: 5

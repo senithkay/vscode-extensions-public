@@ -203,12 +203,11 @@ const handleConnectionDeletion = async (itemLabel: string, filePath: string) => 
                 })
                 .then((response) => {
                     console.log(">>> Updated source code after delete", response);
-                    if (response.textEdits) {
+                    if (response.artifacts) {
                         if (hasNoComponentsOpenInDiagram() || isFlowNodeOpenInDiagram(connector)) {
                             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
                         }
                     } else {
-
                         console.error(">>> Error updating source code", response);
                     }
                 });

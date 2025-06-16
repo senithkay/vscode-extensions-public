@@ -846,28 +846,6 @@ export function findJavaFiles(folderPath): Map<string, string> {
 }
 
 /**
- * Change the packaging of the root pom.xml file to the given value.
- * @param projectDir project directory.     
- */
-export async function changeRootPomForClassMediator(projectDir: string) {
-    const rpcManager = new MiVisualizerRpcManager(projectDir);
-    const pomValues = await rpcManager.getProjectDetails();
-    const packagingValue = pomValues.primaryDetails.projectPackaging;
-    if (packagingValue.range) {
-        await rpcManager.updatePomValues({ pomValues: [{ range: packagingValue.range, value: "jar" }] });
-    }
-
-    const dependencies = [
-        {
-            groupId: "org.apache.synapse",
-            artifact: "synapse-core",
-            version: "4.0.0-wso2v165"
-        }
-    ];
-    await rpcManager.updateDependencies({ dependencies });
-}
-
-/**
  * Focus on the source file at the given position in the editor.
  * @param filePath   path of the file.
  * @param position   position to be focused.
