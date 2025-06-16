@@ -488,7 +488,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     };
 
     function ParamManagerComponent(element: Element, isRequired: boolean, helpTipElement: JSX.Element, field: any) {
-        return <ComponentCard sx={cardStyle} disbaleHoverEffect>
+        return <ComponentCard id={'parameterManager-' + element.name} sx={cardStyle} disbaleHoverEffect>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="h3">{element.displayName}</Typography>
                 {isRequired && (<RequiredFormInput />)}
