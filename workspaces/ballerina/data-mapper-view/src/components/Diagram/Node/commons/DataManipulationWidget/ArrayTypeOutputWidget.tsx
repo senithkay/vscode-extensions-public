@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, TypeField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -111,17 +111,19 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	};
 
 	const label = (
-		<span style={{ marginRight: "auto" }}>
-			{valueLabel && (
-				<span className={classnames(classes.valueLabel, isDisabled ? classes.labelDisabled : "")}>
-					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
-					{typeName && ":"}
+		<TruncatedLabel style={{ marginRight: "auto" }}>
+			<span style={{ marginRight: "auto" }}>
+				{valueLabel && (
+					<span className={classnames(classes.valueLabel, isDisabled ? classes.labelDisabled : "")}>
+						<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
+						{typeName && ":"}
+					</span>
+				)}
+				<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
+					{unionTypeInfo ? getUnionType() : typeName || ''}
 				</span>
-			)}
-			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
-				{unionTypeInfo ? getUnionType() : typeName || ''}
 			</span>
-		</span>
+		</TruncatedLabel>
 	);
 
 	const handleExpand = () => {

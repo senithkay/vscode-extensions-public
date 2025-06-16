@@ -11,6 +11,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -93,11 +94,13 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     }, [editable, body]);
 
     const label = (
-        <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn?.getName()}`}>
-            <span className={classes.valueLabel} style={{ marginLeft: "24px" }}>
-                <OutputSearchHighlight>{value}</OutputSearchHighlight>
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn?.getName()}`}>
+                <span className={classes.valueLabel} style={{ marginLeft: "24px" }}>
+                    <OutputSearchHighlight>{value}</OutputSearchHighlight>
+                </span>
             </span>
-        </span>
+        </TruncatedLabel>
     );
 
     const handleEditable = () => {
