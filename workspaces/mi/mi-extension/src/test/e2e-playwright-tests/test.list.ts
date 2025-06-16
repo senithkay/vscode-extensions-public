@@ -22,6 +22,7 @@ import callSequenceMediatorTests from './mediatorTests/callSequence.spec';
 import overviewPageTests from './overviewPageTests/projectSettingPage.spec';
 import openEntryPointArtifact from './overviewPageTests/openEntryPointArtifact.spec';
 import validateMediatorTests from './mediatorTests/validate.spec';
+import multiWorkspaceTests from './multiWorkspaceTests/multiWorkspace.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
@@ -38,6 +39,7 @@ test.beforeAll(async () => {
 
 test.describe(createProjectTests);
 test.describe(artifactTests);
+test.describe(multiWorkspaceTests);
 test.describe(dataMapperTests);
 test.describe(overviewPageTests);
 test.describe(openEntryPointArtifact);
