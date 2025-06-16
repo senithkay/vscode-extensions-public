@@ -5579,7 +5579,6 @@ ${keyValuesXML}`;
             }
 
             const dependenciesResponse = await updateDependencies();
-
             const connectorResponse = await rpcClient.updateConnectorDependencies();
 
             return {
