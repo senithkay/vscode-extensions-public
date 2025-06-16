@@ -271,10 +271,10 @@ export function FormGenerator(props: FormProps) {
         setFormImports(getImportsForFormFields(fields));
     };
 
-    const handleOnSubmit = (data: FormValues) => {
+    const handleOnSubmit = (data: FormValues, dirtyFields: any) => {
         console.log(">>> on form generator submit", data);
         if (node && targetLineRange) {
-            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRange);
+            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRange, dirtyFields);
             console.log(">>> Updated node", updatedNode);
 
             const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
@@ -282,7 +282,7 @@ export function FormGenerator(props: FormProps) {
         }
     };
 
-    const mergeFormDataWithFlowNode = (data: FormValues, targetLineRange: LineRange): FlowNode => {
+    const mergeFormDataWithFlowNode = (data: FormValues, targetLineRange: LineRange, dirtyFields?: any): FlowNode => {
         const clonedNode = cloneDeep(node);
         // Create updated node with new line range
         const updatedNode = createNodeWithUpdatedLineRange(clonedNode, targetLineRange);
@@ -291,7 +291,7 @@ export function FormGenerator(props: FormProps) {
         const processedData = processFormData(data);
 
         // Update node properties
-        const nodeWithUpdatedProps = updateNodeWithProperties(clonedNode, updatedNode, processedData, formImports);
+        const nodeWithUpdatedProps = updateNodeWithProperties(clonedNode, updatedNode, processedData, formImports, dirtyFields);
 
         // check all nodes and remove empty nodes
         return removeEmptyNodes(nodeWithUpdatedProps);

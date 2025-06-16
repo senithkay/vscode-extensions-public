@@ -56156,7 +56156,6 @@ snapshots:
       rechoir: 0.7.1
       webpack: 5.99.9(webpack-cli@4.10.0)
       webpack-merge: 5.10.0
-    dev: true
 
   webpack-cli@5.1.4(webpack-dev-server@4.15.2)(webpack@5.88.2):
     dependencies:

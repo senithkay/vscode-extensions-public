@@ -12,8 +12,16 @@ import { Locator, Page } from "@playwright/test";
 export class ProjectExplorer {
     private explorer!: Locator;
 
-    constructor(private page: Page) {
-        this.explorer = this.page.getByRole('tree').locator('div').first();
+    constructor(private page: Page, name?: string) {
+        if (name) {
+            this.explorer = this.page.locator(`div[role="tree"][aria-label="${name}"]`);
+        } else {
+            this.explorer = this.page.getByRole('tree').locator('div').first();
+        }
+    }
+
+    public async init () {
+        await this.explorer.waitFor();
     }
 
     public async findItem(path: string[], click: boolean = false) {

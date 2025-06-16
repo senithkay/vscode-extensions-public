@@ -14,7 +14,7 @@ import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { AIStateMachine } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
-import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
+import { checkIsBallerina, checkIsBI, fetchScope, getOrgPackageName } from './utils';
 import { buildProjectArtifactsStructure } from './utils/project-artifacts';
 
 interface MachineContext extends VisualizerLocation {
@@ -71,7 +71,9 @@ const stateMachine = createMachine<MachineContext>(
                         actions: assign({
                             isBI: (context, event) => event.data.isBI,
                             projectUri: (context, event) => event.data.projectPath,
-                            scope: (context, event) => event.data.scope
+                            scope: (context, event) => event.data.scope,
+                            org: (context, event) => event.data.orgName,
+                            package: (context, event) => event.data.packageName,
                         })
                     },
                     onError: {
@@ -503,13 +505,15 @@ async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFold
 
         const isBI = checkIsBI(Uri.file(selectedProject));
         const scope = isBI && fetchScope(Uri.file(selectedProject));
+        const { orgName, packageName } = getOrgPackageName(selectedProject);
         setBIContext(isBI);
-        return { isBI, projectPath: selectedProject, scope };
+        return { isBI, projectPath: selectedProject, scope, orgName, packageName };
     } else if (balProjects.length === 1) {
         const isBI = checkIsBI(balProjects[0].uri);
         const scope = isBI && fetchScope(balProjects[0].uri);
+        const { orgName, packageName } = getOrgPackageName(balProjects[0].uri.fsPath);
         setBIContext(isBI);
-        return { isBI, projectPath: balProjects[0].uri.fsPath, scope };
+        return { isBI, projectPath: balProjects[0].uri.fsPath, scope, orgName, packageName };
     }
 
     return { isBI: false, projectPath: '' };
@@ -520,13 +524,14 @@ async function handleSingleWorkspace(workspaceURI: any) {
     const isBI = isBallerina && checkIsBI(workspaceURI);
     const scope = fetchScope(workspaceURI);
     const projectPath = isBallerina ? workspaceURI.fsPath : "";
+    const { orgName, packageName } = getOrgPackageName(projectPath);
 
     setBIContext(isBI);
     if (!isBI) {
         console.error("No BI enabled workspace found");
     }
 
-    return { isBI, projectPath, scope };
+    return { isBI, projectPath, scope, orgName, packageName  };
 }
 
 function setBIContext(isBI: boolean) {
