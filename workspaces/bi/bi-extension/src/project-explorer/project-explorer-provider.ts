@@ -265,18 +265,6 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     }
     entries.push(dataMappers);
 
-    // ---------- Configurations ----------
-    const configs = new ProjectExplorerEntry(
-        "Configurations",
-        vscode.TreeItemCollapsibleState.Collapsed,
-        null,
-        'config',
-        false
-    );
-    configs.contextValue = "configurations";
-
-    entries.push(configs);
-
     // ---------- Natural Functions ----------
     if (extension.isNPSupported) {
         const naturalFunctions = new ProjectExplorerEntry(
