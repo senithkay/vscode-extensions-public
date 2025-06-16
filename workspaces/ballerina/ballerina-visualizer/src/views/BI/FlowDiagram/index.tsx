@@ -107,9 +107,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 return;
             }
             setShowProgressIndicator(true);
-            setTimeout(() => {
-                fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, true);
-            }, 3000); // HACK: 3 seconds delay
+            fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, true);
         });
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
             console.log(">>> on parent popup submitted", parent);
@@ -118,9 +116,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 return;
             }
             setShowProgressIndicator(true);
-            setTimeout(() => {
-                fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, false);
-            }, 3000); // HACK: 3 seconds delay
+            fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, false);
         });
     }, [rpcClient]);
 
@@ -344,11 +340,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "NP_FUNCTION",
         };
@@ -379,11 +375,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             filePath: model.fileName,
             queryMap: searchText.trim()
                 ? {
-                      q: searchText,
-                      limit: 12,
-                      offset: 0,
-                      includeAvailableFunctions: "true",
-                  }
+                    q: searchText,
+                    limit: 12,
+                    offset: 0,
+                    includeAvailableFunctions: "true",
+                }
                 : undefined,
             searchKind: "FUNCTION",
         };
@@ -535,7 +531,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             })
             .then((response) => {
                 console.log(">>> Updated source code", response);
-                if (response.textEdits) {
+                if (response.artifacts.length > 0) {
                     selectedNodeRef.current = undefined;
                     handleOnCloseSidePanel();
                 } else {
@@ -556,7 +552,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             flowNode: node,
         });
         console.log(">>> Updated source code after delete", deleteNodeResponse);
-        if (!deleteNodeResponse.textEdits) {
+        if (deleteNodeResponse.artifacts.length === 0) {
             console.error(">>> Error updating source code", deleteNodeResponse);
         }
 
@@ -568,6 +564,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 return;
             }
         }
+        // Get the updated component and update the location
+        const artifact = deleteNodeResponse.artifacts.at(0);
+        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: artifact.path, position: artifact.position } });
 
         selectedNodeRef.current = undefined;
         handleOnCloseSidePanel();
@@ -614,7 +613,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 flowNode: updatedNode,
             })
             .then((response) => {
-                if (response.textEdits) {
+                if (response.artifacts.length > 0) {
                     selectedNodeRef.current = undefined;
                     handleOnCloseSidePanel();
                 } else {
@@ -1083,6 +1082,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 onAddNPFunction={handleOnAddNPFunction}
                 onAddDataMapper={handleOnAddDataMapper}
                 onSubmitForm={handleOnFormSubmit}
+                showProgressIndicator={showProgressIndicator}
                 onDiscardSuggestions={onDiscardSuggestions}
                 onSubPanel={handleSubPanel}
                 onUpdateExpressionField={handleUpdateExpressionField}

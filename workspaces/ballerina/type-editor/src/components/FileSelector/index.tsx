@@ -42,7 +42,7 @@ export function FileSelector(props: FileSelectorProps) {
             <input hidden={true} accept={`.${extension}`} type="file" onChange={showFile} ref={hiddenFileInput} />
             <Button onClick={handleClick} appearance="icon">
                 <Icon
-                    name="file-upload"
+                    name="bi-import"
                     sx={{ height: "18px", width: "18px", marginRight: "4px" }}
                     iconSx={{ fontSize: "18px", color: "var(--vscode-charts-purple)" }}
                 />

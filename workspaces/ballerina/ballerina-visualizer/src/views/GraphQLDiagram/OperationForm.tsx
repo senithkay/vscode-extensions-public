@@ -21,11 +21,12 @@ interface OperationFormProps {
     isServiceClass?: boolean;
     onSave: (model: FunctionModel) => void;
     onClose: () => void;
+    isSaving: boolean;
 }
 
 export function OperationForm(props: OperationFormProps) {
     console.log("OperationForm props: ", props);
-    const { model, onSave, onClose, filePath, lineRange, isGraphqlView, isServiceClass } = props;
+    const { model, onSave, onClose, filePath, lineRange, isGraphqlView, isServiceClass, isSaving } = props;
     const [fields, setFields] = useState<FormField[]>([]);
 
     const handleParamChange = (param: Parameter) => {
@@ -169,9 +170,10 @@ export function OperationForm(props: OperationFormProps) {
                     fields={fields}
                     onSubmit={handleFunctionCreate}
                     onBack={onClose}
-                    submitText="Save"
+                    submitText={isSaving ? "Saving..." : "Save"}
                     isGraphqlEditor={isGraphqlView}
                     helperPaneSide="left"
+                    isSaving={isSaving}
                 />
             )}
         </>

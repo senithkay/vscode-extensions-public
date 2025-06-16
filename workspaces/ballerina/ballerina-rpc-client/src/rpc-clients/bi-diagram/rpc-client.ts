@@ -92,6 +92,7 @@ import {
     UpdateTypeResponse,
     UpdateTypesRequest,
     UpdateTypesResponse,
+    UpdatedArtifactsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
@@ -170,11 +171,11 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getFlowModel, HOST_EXTENSION);
     }
 
-    getSourceCode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
+    getSourceCode(params: BISourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return this._messenger.sendRequest(getSourceCode, HOST_EXTENSION, params);
     }
 
-    deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
+    deleteFlowNode(params: BISourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return this._messenger.sendRequest(deleteFlowNode, HOST_EXTENSION, params);
     }
 

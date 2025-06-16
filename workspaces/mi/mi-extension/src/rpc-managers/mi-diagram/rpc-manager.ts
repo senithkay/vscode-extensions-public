@@ -293,7 +293,7 @@ import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile, getEditTemplateXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { generateSwagger, getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
@@ -307,7 +307,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview, webviews } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule } from "../../util/onboardingUtils";
+import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule, updatePomForClassMediator } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { checkForDevantExt } from "../../extension";
 import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
@@ -3772,6 +3772,7 @@ ${endpointAttributes}
                         const mediaType = await detectMediaType(params.filePath);
                         addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false, params.registryRoot !== "");
                     }
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
                 }
             } else if (params.createOption === 'entryOnly') {
@@ -3806,6 +3807,7 @@ ${endpointAttributes}
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
                 addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
         });
@@ -3835,8 +3837,7 @@ ${endpointAttributes}
             await replaceFullContentToFile(filePath, content);
             const classMediator = await vscode.workspace.openTextDocument(filePath);
             await classMediator.save();
-
-            await changeRootPomForClassMediator(this.projectUri);
+            await updatePomForClassMediator(this.projectUri);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -4038,7 +4039,7 @@ ${endpointAttributes}
                     [params.connectorName]: connectorIcon
                 });
 
-                resolve({ iconPath: connectorIcon });
+                resolve ({ iconPath: connectorIcon });
             }
         });
     }

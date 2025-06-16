@@ -20,11 +20,12 @@ import { switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester/lib/co
 
 export default function createTests() {
   test.describe("Call Sequence Mediator Tests", {
-    tag: '@group2',
+    tag: '@group3',
   }, async () => {
     initTest();
 
-    test("Call Sequence Mediator Tests", async () => {
+    test("Call Sequence Mediator Tests", async ({}, testInfo) => {
+      const testAttempt = testInfo.retry + 1;
       await test.step('Create new API', async () => {
         // wait until window reload
         const { title: iframeTitle } = await page.getCurrentWebview();
@@ -45,11 +46,11 @@ export default function createTests() {
           values: {
             'Name*': {
               type: 'input',
-              value: 'callSequenceMediatorAPI',
+              value: 'callSequenceMediatorAPI' + testAttempt,
             },
             'Context*': {
               type: 'input',
-              value: '/callSequenceMediatorAPI',
+              value: '/callSequenceMediatorAPI' + testAttempt,
             },
           }
         });
@@ -75,7 +76,7 @@ export default function createTests() {
         const form = await sidePanel.getForm();
         await form.clickAddNewForField('Referring Sequence');
         const sequence = new Sequence(page.page);
-        await sequence.createSequence('callSeq1', true);
+        await sequence.createSequence('callSeq1' + testAttempt, true);
         await form.submit("Add");
       });
 
@@ -100,7 +101,7 @@ export default function createTests() {
             values: {
                 'Referring Sequence': {
                     type: 'combo',
-                    value: 'callSeq1',
+                    value: 'callSeq1' + testAttempt,
                 }
             }
         });

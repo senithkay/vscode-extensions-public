@@ -195,7 +195,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
             })
             .then((response) => {
                 console.log(">>> Updated source code after delete", response);
-                if (response.textEdits) {
+                if (response.artifacts.length > 0) {
                     // clear memory
                     selectedNodeRef.current = undefined;
                 } else {
