@@ -295,7 +295,7 @@ export function MockServiceForm(props: MockServiceFormProps) {
                 />
             </ComponentCard>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+            <ComponentCard id="mockServiceResourceCard" sx={cardStyle} disbaleHoverEffect>
                 <FormGroup title="Mock service resources" isCollapsed={false}>
                     <Button appearance="secondary" onClick={openMockResource}>Add mock service resource</Button>
 

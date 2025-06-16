@@ -159,6 +159,8 @@ export class Resource {
             console.log("Initialized Project Explorer");
             const overviewPage = new Overview(this._page);
             await overviewPage.init();
+            const overviewWebView = await overviewPage.getWebView();
+            await overviewWebView.getByRole('heading', { name: 'Project: testProject' }).waitFor();
             console.log("Initialized Overview Page");
         }
     }
