@@ -190,13 +190,8 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 		if (['APIs', 'Event Integrations', 'Automations', 'Data Services'].includes(key)) {
 			children = genProjectStructureEntry(artifacts[key]);
 		} else if (key === 'Resources') {
-			const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
-			if (!isRegistrySupported) {
-				const existingResources = getAvailableRegistryResources(project.uri.fsPath);
-				children = generateResources(artifacts[key], existingResources);
-			} else {
-				continue;
-			}
+			const existingResources = getAvailableRegistryResources(project.uri.fsPath);
+			children = generateResources(artifacts[key], existingResources);
 		} else {
 			children = generateArtifacts(artifacts[key], data, project);
 		}
