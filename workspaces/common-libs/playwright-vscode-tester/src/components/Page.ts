@@ -26,12 +26,25 @@ export class ExtendedPage {
         await this._page.waitForSelector('a:has-text("Activating Extensions...")', { state: 'detached' });
     }
 
+    async getCurrentWebview() {
+        const webviewFrame = this._page.locator('iframe.webview.ready');
+        await webviewFrame.waitFor({ timeout: 30000 });
+        const frame = webviewFrame.contentFrame();
+        if (!frame) {
+            throw new Error(`IFrame not found`);
+        }
+        const targetFrame = frame.locator(`iframe[title]`);
+        await targetFrame.waitFor({ timeout: 30000 });
+        const iframeTitle = await targetFrame.getAttribute('title');
+        const webview = targetFrame.contentFrame();
+        console.log('Current webview:', iframeTitle);
+        return { title: iframeTitle, webview };
+    }
+
     async executePaletteCommand(command: string) {
-        await this._page.keyboard.press(os.platform() === 'darwin' ? 'Meta+Shift+p' : 'Ctrl+Shift+p');
+        await this._page.keyboard.press(os.platform() === 'darwin' ? 'Meta+Shift+p' : 'Control+Shift+p');
         await this._page.keyboard.type(command);
         await this._page.keyboard.press('Enter');
-        await this._page.waitForSelector('div[class="monaco-list-row"]');
-        return await this._page.keyboard.press('Enter');
     }
 
     async selectSidebarItem(item: string) {

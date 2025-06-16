@@ -93,7 +93,7 @@ vscode.authentication.onDidChangeSessions(async e => {
         } else {
             //it could be a login(which we havent captured) or a logout 
             // vscode.window.showInformationMessage(
-            //     'Ballerina Integrator supports completions with GitHub Copilot.',
+            //     'WSO2 Integrator: BI supports completions with GitHub Copilot.',
             //     'Login with GitHub Copilot'
             // ).then(selection => {
             //     if (selection === 'Login with GitHub Copilot') {
@@ -110,7 +110,7 @@ async function copilotTokenExists() {
 }
 
 // ==================================
-// WSO2 Copilot Auth Utils
+// BI Copilot Auth Utils
 // ==================================
 export const getAccessToken = async (): Promise<string | undefined> => {
     return new Promise(async (resolve, reject) => {
@@ -135,9 +135,11 @@ export const getAccessToken = async (): Promise<string | undefined> => {
                     const status = err.response?.status;
                     if (status === 400) {
                         reject(new Error("TOKEN_EXPIRED"));
+                        return;
                     }
                 }
                 reject(err);
+                return;
             }
 
             resolve(finalToken);

@@ -170,7 +170,7 @@ export function WelcomeView(props: WelcomeViewProps) {
 
     const openSamples = () => {
         rpcClient.getCommonRpcClient().openExternalUrl({
-            url: "https://bi.docs.wso2.com/learn/message-transformation/"
+            url: "https://bi.docs.wso2.com/learn/samples/message-transformation/"
         })
     };
 
@@ -187,7 +187,7 @@ export function WelcomeView(props: WelcomeViewProps) {
     return (
         <Wrapper>
             <TitleContainer>
-                <Headline>Ballerina Integrator for VS Code</Headline>
+                <Headline>WSO2 Integrator: BI for VS Code</Headline>
                 <Caption>
                     A comprehensive integration solution that simplifies your digital transformation journey.
                     Streamlines connectivity among applications, services, data, and cloud using a user-friendly
@@ -200,7 +200,7 @@ export function WelcomeView(props: WelcomeViewProps) {
                     <Column>
                         <StepTitle>Get Started Quickly</StepTitle>
                         <StepDescription>
-                            New to Ballerina Integrator? Start here! Explore step-by-step tutorials to help you get up and running with
+                            New to WSO2 Integrator? Start here! Explore step-by-step tutorials to help you get up and running with
                             ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the guide</VSCodeLink>.
                         </StepDescription>
                     </Column>
@@ -267,7 +267,7 @@ export function WelcomeView(props: WelcomeViewProps) {
                     <Column>
                         <StepTitle>Explore Pre-Built Samples</StepTitle>
                         <StepDescription>
-                            Need inspiration? Browse through sample projects to see how Ballerina Integrator handles real-world
+                            Need inspiration? Browse through sample projects to see how WSO2 Integrator: BI handles real-world
                             integrations. <VSCodeLink onClick={openSamples}>Explore Samples</VSCodeLink>.
                         </StepDescription>
                     </Column>

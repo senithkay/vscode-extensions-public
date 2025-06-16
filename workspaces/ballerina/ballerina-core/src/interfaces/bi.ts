@@ -101,7 +101,7 @@ export type Property = {
     metadata: Metadata;
     diagnostics?: Diagnostic;
     valueType: string;
-    value: string | ELineRange | NodeProperties | string[];
+    value: string | string[] | ELineRange | NodeProperties | Property[];
     advanceProperties?: NodeProperties;
     optional: boolean;
     editable: boolean;
@@ -118,6 +118,7 @@ export type PropertyTypeMemberInfo = {
     type: string;
     kind: string;
     packageInfo: string;
+    packageName?: string;
     selected: boolean;
 };
 
@@ -280,6 +281,7 @@ export type NodePropertyKey =
     | "msg"
     | "parameters"
     | "path"
+    | "patterns"
     | "prompt"
     | "query"
     | "scope"
@@ -333,6 +335,7 @@ export type NodeKind =
     | "INCLUDED_FIELD"
     | "LOCK"
     | "LV_EXPRESSION"
+    | "MATCH"
     | "NEW_CONNECTION"
     | "NEW_DATA"
     | "NP_FUNCTION"

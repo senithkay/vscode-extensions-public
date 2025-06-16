@@ -3,3 +3,6 @@ dist
 node_modules
 .vscode-test/
 *.vsix
+
+src/test/e2e-playwright-tests/data/new-project/**/*
+test-results/**/*

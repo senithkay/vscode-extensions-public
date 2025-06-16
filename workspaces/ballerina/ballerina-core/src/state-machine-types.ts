@@ -174,6 +174,7 @@ export enum AIMachineEventType {
     CHECK_AUTH = 'CHECK_AUTH',
     LOGIN = 'LOGIN',
     LOGOUT = 'LOGOUT',
+    SILENT_LOGOUT = "SILENT_LOGOUT",
     LOGIN_SUCCESS = 'LOGIN_SUCCESS',
     CANCEL_LOGIN = 'CANCEL_LOGIN',
     RETRY = 'RETRY',
@@ -184,6 +185,7 @@ export type AIMachineEventValue =
     | { type: AIMachineEventType.CHECK_AUTH }
     | { type: AIMachineEventType.LOGIN }
     | { type: AIMachineEventType.LOGOUT }
+    | { type: AIMachineEventType.SILENT_LOGOUT }
     | { type: AIMachineEventType.LOGIN_SUCCESS }
     | { type: AIMachineEventType.CANCEL_LOGIN }
     | { type: AIMachineEventType.RETRY }
@@ -204,5 +206,13 @@ export interface AIMachineContext {
     errorMessage?: string;
 }
 
+export enum ColorThemeKind {
+    Light = 1,
+    Dark = 2,
+    HighContrast = 3,
+    HighContrastLight = 4
+}
+
 export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
 export const sendAIStateEvent: RequestType<AIMachineEventType, void> = { method: 'sendAIStateEvent' };
+export const currentThemeChanged: NotificationType<ColorThemeKind> = { method: 'currentThemeChanged' };

@@ -11,9 +11,9 @@ import React from "react";
 import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { NodeTypes } from "../../../resources/constants";
-import { NodeKind } from "../../../utils/types";
 import { IfNodeModel } from "./IfNodeModel";
 import { IfNodeWidget } from "./IfNodeWidget";
+import { MatchNodeWidget } from "./MatchNodeWidget";
 
 export class IfNodeFactory extends AbstractReactFactory<IfNodeModel, DiagramEngine> {
     constructor() {
@@ -25,6 +25,9 @@ export class IfNodeFactory extends AbstractReactFactory<IfNodeModel, DiagramEngi
     }
 
     generateReactWidget(event: GenerateWidgetEvent<IfNodeModel>) {
+        if (event.model.node.codedata.node === "MATCH") {
+            return <MatchNodeWidget engine={this.engine} model={event.model} />;
+        }
         return <IfNodeWidget engine={this.engine} model={event.model} />;
     }
 }

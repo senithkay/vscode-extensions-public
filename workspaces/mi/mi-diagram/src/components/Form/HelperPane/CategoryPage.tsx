@@ -12,14 +12,15 @@ import { Position } from 'vscode-languageserver-types';
 import { Divider, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { FunctionsPage } from './FunctionsPage';
 import { ConfigsPage } from './ConfigsPage';
+import { PAGE, Page } from './index';
 
 type PanelPageProps = {
-    setCurrentPage: (page: number) => void;
+    setCurrentPage: (page: Page) => void;
 };
 
 type CategoryPageProps = {
     position: Position;
-    setCurrentPage: (page: number) => void;
+    setCurrentPage: (page: Page) => void;
     onClose: () => void;
     onChange: (value: string) => void;
     addFunction?: (value: string) => void;
@@ -28,12 +29,12 @@ type CategoryPageProps = {
 const DataPanel = ({ setCurrentPage }: PanelPageProps) => {
     return (
         <>
-            <HelperPane.CategoryItem label="Payload" onClick={() => setCurrentPage(1)} />
-            <HelperPane.CategoryItem label="Variables" onClick={() => setCurrentPage(2)} />
-            <HelperPane.CategoryItem label="Headers" onClick={() => setCurrentPage(3)} />
+            <HelperPane.CategoryItem label="Payload" onClick={() => setCurrentPage(PAGE.PAYLOAD)} />
+            <HelperPane.CategoryItem label="Variables" onClick={() => setCurrentPage(PAGE.VARIABLES)} />
+            <HelperPane.CategoryItem label="Headers" onClick={() => setCurrentPage(PAGE.HEADERS)} />
             <Divider />
-            <HelperPane.CategoryItem label="Params" onClick={() => setCurrentPage(4)} />
-            <HelperPane.CategoryItem label="Properties" onClick={() => setCurrentPage(5)} />
+            <HelperPane.CategoryItem label="Params" onClick={() => setCurrentPage(PAGE.PARAMS)} />
+            <HelperPane.CategoryItem label="Properties" onClick={() => setCurrentPage(PAGE.PROPERTIES)} />
         </>
     );
 };

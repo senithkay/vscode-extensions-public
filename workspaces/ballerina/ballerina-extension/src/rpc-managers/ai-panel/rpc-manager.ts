@@ -664,8 +664,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getFromDocumentation(content: string): Promise<string> {
-        const response = await searchDocumentation(content);
-        return response.toString();
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await searchDocumentation(content);
+                resolve(response.toString());
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     async promptGithubAuthorize(): Promise<boolean> {
@@ -786,21 +792,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!fs.existsSync(testDirName)) {
             fs.mkdirSync(testDirName, { recursive: true }); // Add recursive: true
         }
-    }
-
-    async getThemeKind(): Promise<string> {
-        return new Promise((resolve) => {
-            const themeKind = window.activeColorTheme.kind;
-            switch (themeKind) {
-                case 1:
-                case 4:
-                    resolve("light");
-                    break;
-                default:
-                    resolve("dark");
-                    break;
-            }
-        });
     }
 
     async handleChatSummaryError(message: string): Promise<void> {

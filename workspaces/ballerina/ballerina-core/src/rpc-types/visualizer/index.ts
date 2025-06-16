@@ -8,6 +8,7 @@
  */
 
 import { HistoryEntry } from "../../history";
+import { ColorThemeKind } from "../../state-machine-types";
 import { OpenViewRequest, UpdateUndoRedoMangerRequest } from "./interfaces";
 
 export interface VisualizerAPI {
@@ -21,4 +22,5 @@ export interface VisualizerAPI {
     redo: () => Promise<string>;
     addToUndoStack: (source: string) => void;
     updateUndoRedoManager: (params: UpdateUndoRedoMangerRequest) => void;
+    getThemeKind: () => Promise<ColorThemeKind>;
 }

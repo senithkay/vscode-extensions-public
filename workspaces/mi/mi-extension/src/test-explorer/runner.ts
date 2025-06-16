@@ -11,7 +11,7 @@
  * Test explorer run and debug related funtions.
  */
 
-import { Uri, CancellationToken, TestItem, TestMessage, TestRunProfileKind, TestRunRequest, window, MarkdownString, TestRun } from "vscode";
+import { Uri, CancellationToken, TestItem, TestMessage, TestRunProfileKind, TestRunRequest, window, MarkdownString, TestRun, OutputChannel } from "vscode";
 
 import { discoverTests, gatherTestItems } from "./discover";
 import { testController } from "./activator";
@@ -399,6 +399,43 @@ export function runCommand(command, pathToRun?: string,
         }
         throw error;
     }
+}
+
+export function runBasicCommand(
+    command: string,
+    cwd: string,
+    onData?: (data: string) => void,
+    onError?: (data: string) => void,
+    onComplete?: () => void,
+    outputChannel?: OutputChannel
+) {
+
+    if (cwd) {
+        command = `cd "${cwd}" && ${command}`
+    }
+    const proc = child_process.spawn(command, [], { shell: true });
+
+    if (outputChannel) {
+        outputChannel.show(true);
+        outputChannel.appendLine(`Running: ${command}`);
+    }
+
+    proc.stdout?.on('data', (data: string) => {
+        const text = data.toString();
+        outputChannel?.append(text);
+        onData?.(data);
+    });
+
+    proc.stderr?.on('data', (data: string) => {
+        const text = data.toString();
+        outputChannel?.append(text);
+        onError?.(data);
+    });
+
+    proc.on('close', (code) => {
+        outputChannel?.appendLine(`\nProcess exited with code ${code}`);
+        onComplete?.();
+    });
 }
 
 /** 

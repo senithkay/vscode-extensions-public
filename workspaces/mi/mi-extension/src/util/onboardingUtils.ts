@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
-import { spawnSync } from 'child_process';
+import child_process, { spawnSync } from 'child_process';
 import axios from 'axios';
 import { downloadWithProgress, extractWithProgress, selectFolderDialog } from './fileOperations';
 import { extension } from '../MIExtensionContext';
@@ -12,7 +12,7 @@ import { COMMANDS } from '../constants';
 import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
 import { parseStringPromise } from 'xml2js';
 import { LATEST_CAR_PLUGIN_VERSION } from './templates';
-import { runCommand } from '../test-explorer/runner';
+import { runCommand, runBasicCommand } from '../test-explorer/runner';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
 const AdmZip = require('adm-zip');
@@ -33,6 +33,8 @@ const miDownloadUrls: { [key: string]: string } = {
 const miUpdateVersionCheckUrl = 'https://mi-distribution.wso2.com/versions.json';
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
+
+let ballerinaOutputChannel: vscode.OutputChannel | undefined;
 
 export async function setupEnvironment(projectUri: string, isOldProject: boolean): Promise<boolean> {
     try {
@@ -954,15 +956,16 @@ export function getDefaultProjectPath(): string {
 }
 
 export async function buildBallerinaModule(projectPath: string) {
-    if (fs.existsSync(path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin', process.platform === 'win32' ? 'bal.bat' : 'bal'))) {
-        await runBallerinaBuildsWithProgress(projectPath);
+    const isBallerinaInstalled = await isBallerinaAvailableGlobally();
+    if (isBallerinaInstalled || fs.existsSync(path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin', process.platform === 'win32' ? 'bal.bat' : 'bal'))) {
+        await runBallerinaBuildsWithProgress(projectPath, isBallerinaInstalled);
     } else {
         vscode.window.showErrorMessage('Ballerina not found. Please download Ballerina and try again.');
         showExtensionPrompt();
     }
 }
 
-async function runBallerinaBuildsWithProgress(projectPath: string) {
+async function runBallerinaBuildsWithProgress(projectPath: string, isBallerinaInstalled: boolean = false) {
     await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
@@ -973,7 +976,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                 progress.report({ increment: 10, message: "Pull dependencies..." });
                 const balHome = path.join(os.homedir(), '.ballerina', 'ballerina-home', 'bin').toString();
 
-                runCommand(`${balHome}${path.sep}bal tool pull mi-module-gen`, `"${projectPath}"`, onData, onError, buildModule);
+                runCommand(isBallerinaInstalled ? 'bal tool pull mi-module-gen' : `${balHome}${path.sep}bal tool pull mi-module-gen`, `"${projectPath}"`, onData, onError, buildModule);
 
                 let isModuleAlreadyInstalled = false, commandFailed = false;
                 function onData(data: string) {
@@ -986,7 +989,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                     if (data) {
                         if (data.includes("spawn bal ENOENT") ||
                             data.includes("The system cannot find the path specified") ||
-                            data.includes("'ba' is not recognized as an internal or external command, operable program or batch file.")) {
+                            data.includes("'bal' is not recognized as an internal or external command, operable program or batch file.")) {
                             vscode.window.showErrorMessage("Ballerina not found. Please install and setup the Ballerina Extension and try again.");
                             showExtensionPrompt();
                         } else {
@@ -1004,7 +1007,13 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                     commandFailed = false;
                     progress.report({ increment: 40, message: "Generating module..." });
 
-                    runCommand(`${balHome}${path.sep}bal mi-module-gen -i .`, `"${projectPath}"`, onData, onError, onComplete);
+                    if (!ballerinaOutputChannel) {
+                        ballerinaOutputChannel = vscode.window.createOutputChannel('Ballerina Module Builder');
+                    }
+                    ballerinaOutputChannel.clear();
+                    runBasicCommand(isBallerinaInstalled ? 'bal mi-module-gen -i .' : `${balHome}${path.sep}bal mi-module-gen -i .`, `${projectPath}`,
+                        onData, onError, onComplete, ballerinaOutputChannel
+                    );
 
                     async function onComplete() {
                         try {
@@ -1018,7 +1027,7 @@ async function runBallerinaBuildsWithProgress(projectPath: string) {
                                 fs.rmSync(targetFolderPath, { recursive: true, force: true });
                             } else {
                                 reject();
-                                return vscode.window.showErrorMessage("Target directory not found");
+                                return vscode.window.showErrorMessage("Ballerina module build process failed.");
                             }
 
                             const tomlContent = fs.readFileSync(path.join(projectPath, "Ballerina.toml"), 'utf8');
@@ -1068,6 +1077,14 @@ async function showExtensionPrompt() {
             await vscode.commands.executeCommand(COMMANDS.INSTALL_EXTENSION_COMMAND, COMMANDS.BI_EXTENSION);
             await vscode.commands.executeCommand(COMMANDS.BI_OPEN_COMMAND);
         }
+    });
+}
+
+async function isBallerinaAvailableGlobally(): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+        const proc = child_process.spawn("bal version", [], { shell: true });
+        proc.on("error", () => resolve(false));
+        proc.on("exit", (code) => resolve(code === 0));
     });
 }
 

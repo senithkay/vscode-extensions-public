@@ -268,7 +268,7 @@ export class BallerinaExtension {
             // Validate the ballerina version.
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
-                this.ballerinaVersion = runtimeVersion.split('-')[0];
+                this.ballerinaVersion = runtimeVersion;
                 this.biSupported = isSupportedSLVersion(this, 2201123); // Minimum supported version for BI
                 this.isNPSupported = isSupportedSLVersion(this, 2201130) && this.enabledExperimentalFeatures(); // Minimum supported requirements for NP
                 const { home } = this.autoDetectBallerinaHome();
@@ -291,7 +291,7 @@ export class BallerinaExtension {
                     this.clientOptions, this, false);
 
                 _onBeforeInit(this.langClient);
-                
+
                 await this.langClient.start();
 
                 // Following was put in to handle server startup failures.
@@ -1337,7 +1337,7 @@ export class BallerinaExtension {
                 await window.withProgress(
                     {
                         location: ProgressLocation.Notification,
-                        title: `Downloading Ballerina Integrator distribution`,
+                        title: `Downloading Ballerina distribution`,
                         cancellable: false,
                     },
                     async (progress) => {
@@ -1392,11 +1392,11 @@ export class BallerinaExtension {
             console.log(`Downloaded artifact to ${zipFilePath}`);
 
             if (restartWindow) {
-                window.showInformationMessage("Setting the Ballerina Integrator Home location...");
+                window.showInformationMessage("Setting the Ballerina distribution Home location...");
             }
             res = {
                 ...res,
-                message: `Setting the Ballerina Integrator Home location...`,
+                message: `Setting the Ballerina distribution Home location...`,
                 success: false,
                 step: 4
             };

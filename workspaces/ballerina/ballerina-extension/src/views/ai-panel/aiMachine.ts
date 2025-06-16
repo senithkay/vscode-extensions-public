@@ -69,7 +69,7 @@ const aiMachine = createMachine<AIMachineContext, AIMachineEventValue>({
                         cond: (_ctx, event) => event.data?.message === 'TOKEN_EXPIRED',
                         target: 'Unauthenticated',
                         actions: [
-                            'logout'
+                            'silentLogout'
                         ]
                     },
                     {
@@ -105,10 +105,20 @@ const aiMachine = createMachine<AIMachineContext, AIMachineEventValue>({
         },
         Authenticated: {
             on: {
-                LOGOUT: {
+                [AIMachineEventType.LOGOUT]: {
                     target: 'Unauthenticated',
                     actions: [
                         'logout',
+                        assign({
+                            userToken: (_) => undefined,
+                            errorMessage: (_) => undefined,
+                        })
+                    ]
+                },
+                [AIMachineEventType.SILENT_LOGOUT]: {
+                    target: 'Unauthenticated',
+                    actions: [
+                        'silentLogout',
                         assign({
                             userToken: (_) => undefined,
                             errorMessage: (_) => undefined,
@@ -142,9 +152,11 @@ const checkToken = async (context, event): Promise<AIUserToken | undefined> => {
     });
 };
 
-const logout = async () => {
-    const logoutURL = await getLogoutUrl();
-    vscode.env.openExternal(vscode.Uri.parse(logoutURL));
+const logout = async (isUserLogout: boolean = true) => {
+    if (isUserLogout) {
+        const logoutURL = await getLogoutUrl();
+        vscode.env.openExternal(vscode.Uri.parse(logoutURL));
+    }
     await extension.context.secrets.delete(ACCESS_TOKEN_SECRET_KEY);
     await extension.context.secrets.delete(REFRESH_TOKEN_SECRET_KEY);
 };
@@ -178,7 +190,10 @@ const aiStateService = interpret(aiMachine.withConfig({
     actions: {
         logout: () => {
             logout();
-        }
+        },
+        silentLogout: () => {
+            logout(false);
+        },
     }
 }));
 

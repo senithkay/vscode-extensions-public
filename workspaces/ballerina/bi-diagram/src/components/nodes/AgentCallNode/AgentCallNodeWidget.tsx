@@ -718,6 +718,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                                 {tool.path && (
                                     <ConnectorIcon
                                         url={tool.path}
+                                        style={{ width: 24, height: 24, fontSize: 24 }}
                                         fallbackIcon={<Icon name="bi-function" sx={{ fontSize: "24px" }} />}
                                     />
                                 )}
