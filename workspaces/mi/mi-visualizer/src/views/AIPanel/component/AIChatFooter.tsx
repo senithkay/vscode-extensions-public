@@ -88,7 +88,6 @@ const AIChatFooter: React.FC = () => {
 
     const toggleThinkingSelection = () => {
         setChecked(!thinkingChecked);
-        console.log("Thinking mode toggled:", !thinkingChecked);
     };
 
     // Handle text input keydown events
@@ -309,9 +308,7 @@ const AIChatFooter: React.FC = () => {
                                         xmlCodes
                                     });
                                     
-                                    console.log("Diagnostics Response:", diagnosticResponse);
                                     const hasAnyDiagnostics = diagnosticResponse.diagnostics.some(file => file.diagnostics.length > 0);
-                                    console.log("Has any diagnostics:", hasAnyDiagnostics);
 
                                     // If there are diagnostics, send them to the LLM for analysis
                                     if (hasAnyDiagnostics) {
@@ -325,8 +322,6 @@ const AIChatFooter: React.FC = () => {
                                         
                                         // Process the LLM response
                                         const llmResponseData = await llmResponse.json();
-
-                                        console.log("LLM Response Data:", llmResponseData);
                                         
                                         // Process the fixed_config from the LLM response - this is the only format we need to handle
                                         if (llmResponseData.fixed_config && Array.isArray(llmResponseData.fixed_config)) {

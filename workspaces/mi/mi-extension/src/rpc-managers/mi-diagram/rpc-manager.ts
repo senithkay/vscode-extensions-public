@@ -5552,16 +5552,20 @@ ${keyValuesXML}`;
         const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
         const connectorStoreData = await connectorStoreResponse.json();
 
-        const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
-        const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
+        const searchMavenArtifactIdConnector = name.startsWith('mi-connector-') ? name : `mi-connector-${name}`;
+        const searchMavenArtifactIdModule = name.startsWith('mi-module-') ? name : `mi-module-${name}`;
+        const artifactMatch = connectorStoreData?.find(artifact => 
+            artifact.mavenArtifactId === searchMavenArtifactIdConnector || 
+            artifact.mavenArtifactId === searchMavenArtifactIdModule
+        );
 
-        if (connector) {
+        if (artifactMatch) {
             const rpcClient = new MiVisualizerRpcManager(this.projectUri);
             const updateDependencies = async () => {
                 const dependencies: DependencyDetails[] = [{
-                    groupId: connector.mavenGroupId,
-                    artifact: connector.mavenArtifactId,
-                    version: connector.version.tagName,
+                    groupId: artifactMatch.mavenGroupId,
+                    artifact: artifactMatch.mavenArtifactId,
+                    version: artifactMatch.version.tagName,
                     type: "zip"
                 }];
 
