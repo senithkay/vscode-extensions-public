@@ -137,7 +137,11 @@ async function getLatestRelease(usePrerelease) {
         } catch (error) {
             throw new Error('Failed to parse releases information JSON');
         }
-        const prerelease = releases.find(release => release.prerelease);
+        // Sort releases by published_at date in descending order and find the latest prerelease
+        const prerelease = releases
+            .filter(release => release.prerelease)
+            .sort((a, b) => new Date(b.published_at) - new Date(a.published_at))[0];
+            
         if (!prerelease) {
             throw new Error('No prerelease found');
         }
