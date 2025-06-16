@@ -19,7 +19,7 @@ export class Overview {
     constructor(private _page: Page) {
     }
 
-    public async init(projectName : string = "testProject") {
+    public async init(projectName : string = "testProject", isMultiWorkspace : boolean = false) {
         let iframeTitle;
 
         try {
@@ -33,7 +33,9 @@ export class Overview {
             const projectExplorer = new ProjectExplorer(this._page);
             await projectExplorer.goToOverview(projectName);
         }
-        const webview = await switchToIFrame("Project Overview", this._page)
+        const webview = isMultiWorkspace ? 
+            await switchToIFrame(`Project Overview - ${projectName}`, this._page) : 
+            await switchToIFrame("Project Overview", this._page);
         if (!webview) {
             throw new Error("Failed to switch to Overview iframe");
         }

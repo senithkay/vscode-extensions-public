@@ -100,6 +100,9 @@ org = "${username}"
 name = "${name}"
 version = "0.1.0"
 
+[build-options]
+sticky = true
+
 `;
 
     const settingsJsonContent = `

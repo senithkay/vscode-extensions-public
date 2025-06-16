@@ -254,7 +254,7 @@ export default function createTests() {
         await resource.addFromTemplate({
           name: 'testResource2' + testAttempt,
           type: 'JSON File',
-          registryPath: 'json/testResource',
+          registryPath: 'json/testResource' + testAttempt,
         });
       });
 
@@ -265,7 +265,7 @@ export default function createTests() {
         const filePath = path.join(__dirname, '..', 'data', 'new-project', 'testProject', 'testProject', 'src', 'main', 'wso2mi', 'resources', 'json', 'testResource1' + testAttempt + '.json');
         await resource.addFromFileSystem({
           filePath: filePath,
-          registryPath: 'newJson'
+          registryPath: 'newJson' + testAttempt,
         })
       });
     });

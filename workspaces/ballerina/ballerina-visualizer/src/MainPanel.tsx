@@ -320,37 +320,13 @@ const MainPanel = () => {
                         />);
                         break;
                     case MACHINE_VIEW.ViewConfigVariables:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            setViewComponent(
+                        setViewComponent(
                                 <ViewConfigurableVariables
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath}
+                                    fileName={Utils.joinPath(URI.file(value.projectUri), 'config.bal').fsPath}
+                                    org={value?.org}
+                                    package={value?.package}
                                 />
                             );
-                        });
-                        break;
-                    case MACHINE_VIEW.EditConfigVariables:
-                        rpcClient.getVisualizerLocation().then((location) => {
-                            rpcClient.getBIDiagramRpcClient().getConfigVariables().then((variables) => {
-                                if (variables.configVariables.length > 0) {
-                                    const variableIndex = variables.configVariables.findIndex(
-                                        (v) => {
-                                            const bindingPattern = value.syntaxTree.typedBindingPattern.bindingPattern;
-                                            if (bindingPattern.kind === "CaptureBindingPattern") {
-                                                return v.properties.variable.value === (bindingPattern as any).variableName.value;
-                                            }
-                                            return false;
-                                        }
-                                    );
-
-                                    setViewComponent(
-                                        <ViewConfigurableVariables
-                                            variableIndex={variableIndex}
-                                            isExternallauncher={true}
-                                            fileName={Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath} />
-                                    );
-                                }
-                            });
-                        });
                         break;
                     default:
                         setNavActive(false);

@@ -102,35 +102,6 @@ export default function createTests() {
         await diagram.getMediator('log');
       });
 
-      await test.step('Delete throttle mediator', async () => {
-        const diagram = new Diagram(page.page, 'Resource');
-        await diagram.init();
-        const mediator = await diagram.getMediator('throttle', 0, "condition");
-        await mediator.delete(true);
-      });
-
-      await test.step('Add throttle mediator with custom values', async () => {
-        const diagram = new Diagram(page.page, 'Resource');
-        await diagram.init();
-        await diagram.addMediator('Throttle', {
-          values: {
-            'Group ID*': {
-              type: 'input',
-              value: 'id1'
-            },
-            'Maximum Concurrent Access': {
-              type: 'input',
-              value: '2'
-            },
-            'Description': {
-              type: 'input',
-              value: 'test throttle mediator'
-            }
-          }
-        });
-        await diagram.getMediator('throttle', 0, 'condition');
-      });
-
       await test.step('Edit throttle mediator basic values', async () => {
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
@@ -324,6 +295,13 @@ export default function createTests() {
         const paramManager = await form.getDefaultParamManager('policyEntries');
         await paramManager.deleteParam(2);
         await form.submit('Update');
+      });
+
+      await test.step('Delete throttle mediator', async () => {
+        const diagram = new Diagram(page.page, 'Resource');
+        await diagram.init();
+        const mediator = await diagram.getMediator('throttle', 0, "condition");
+        await mediator.delete(true);
       });
     });
   });

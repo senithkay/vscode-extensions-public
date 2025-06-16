@@ -9,7 +9,7 @@
  */
 
 import styled from '@emotion/styled';
-import { ConfigVariable, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
+import { ConfigVariable, EVENT_TYPE, FlowNode, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PanelContainer, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import FormGenerator from '../../Forms/FormGenerator';
@@ -29,37 +29,41 @@ export interface ConfigFormProps {
     variable: ConfigVariable;
     title: string;
     filename: string;
+    packageName: string;
+    moduleName: string;
+    onSubmit?: () => void;
 }
 
 export function EditForm(props: ConfigFormProps) {
-    const { isOpen, onClose, variable, title, filename } = props;
+    const { isOpen, onClose, onSubmit, variable, title, filename } = props;
 
     const { rpcClient } = useRpcContext();
 
-    const handleSave = (data: FormValues) => {
-        variable.properties.defaultable.value =
-            data.properties.defaultable.value === "" || data.properties.defaultable.value === null ?
-                "?"
-                : data.properties.defaultable.value;
-        variable.properties.type.value = data.properties.type.value;
-        variable.properties.variable.value = data.properties.variable.value;
-
-        rpcClient
-            .getBIDiagramRpcClient()
-            .updateConfigVariables({
-                configVariable: variable,
-                configFilePath: filename
-            })
-            .then((response: any) => {
-                console.log(">>> Config variables------", response);
-            })
-            .finally(() => {
-                if (onClose) {
-                    onClose();
-                } else {
-                    goToViewConfig();
+    const handleSave = async (data: FlowNode) => {
+        // update the variable with the previous variable name value if modified
+        if (data?.properties?.variable?.modified) {
+            data = {
+                ...data,
+                properties: {
+                    ...data.properties,
+                    variable: {
+                        ...data.properties.variable,
+                        oldValue: String(variable.properties.variable.value)
+                    }
                 }
-            });
+            };
+        }
+        
+        await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
+            configFilePath: props.filename,
+            configVariable: data,
+            packageName: props.packageName,
+            moduleName: props.moduleName,
+        }).finally(() => {
+            if (onClose) {
+                onSubmit();
+            }
+        });
     };
 
     const goToViewConfig = () => {
@@ -82,8 +86,8 @@ export function EditForm(props: ConfigFormProps) {
                     fileName={filename}
                     node={variable}
                     targetLineRange={{
-                        startLine: variable.codedata.lineRange.startLine,
-                        endLine: variable.codedata.lineRange.endLine
+                        startLine: variable.codedata?.lineRange?.startLine,
+                        endLine: variable.codedata?.lineRange?.endLine
                     }}
                     onSubmit={handleSave}
                 />

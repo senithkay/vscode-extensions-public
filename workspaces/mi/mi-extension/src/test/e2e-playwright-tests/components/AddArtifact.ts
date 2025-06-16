@@ -20,7 +20,7 @@ export class AddArtifact {
     constructor(private _page: Page) {
     }
 
-    public async init() {
+    public async init(projectName?: string) {
         let iframeTitle;
 
         try {
@@ -30,7 +30,7 @@ export class AddArtifact {
             console.error("Error retrieving iframe title:", error);
             iframeTitle = null;
         }                         
-        if (iframeTitle != MACHINE_VIEW.ADD_ARTIFACT) {
+        if (iframeTitle !== MACHINE_VIEW.ADD_ARTIFACT && !projectName) {
             const projectExplorer = new ProjectExplorer(this._page);
             await projectExplorer.goToOverview("testProject");
     
@@ -39,7 +39,7 @@ export class AddArtifact {
             await overviewPage.goToAddArtifact();    
         } 
 
-        const webview = await switchToIFrame("Add Artifact", this._page)
+        const webview = projectName ? await switchToIFrame(`Add Artifact - ${projectName}`, this._page) : await switchToIFrame('Add Artifact', this._page); 
         if (!webview) {
             throw new Error("Failed to switch to Add Artifact iframe");
         }

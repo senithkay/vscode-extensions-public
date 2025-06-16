@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Locator, Page } from "@playwright/test";
+import { Frame, Locator, Page } from "@playwright/test";
 import { Form } from "./Form";
 
 export abstract class ParamManager {
@@ -36,8 +36,11 @@ export abstract class ParamManager {
 
 export class SimpleParamManager extends ParamManager {
 
-    constructor(protected container: Locator, protected field: string, protected addBtnName: string, protected _page?: Page) {
+    constructor(protected container: Locator, protected field: string, protected addBtnName: string, private containerId?: string, protected _page?: Page) {
         super(container, field, _page);
+        if (!containerId) {
+            this.containerId = `parameterManager-${this.field}`;
+        }
     }
 
     public async getAddNewForm(): Promise<Form> {
@@ -47,7 +50,7 @@ export class SimpleParamManager extends ParamManager {
     }
 
     public async getEditForm(index: number): Promise<Form> {
-        const paramManagerContainer = this.container.locator(`#parameterManager-${this.field}`);
+        const paramManagerContainer = this.container.locator(`#${this.containerId}`);
         await paramManagerContainer.waitFor();
         const editBtns = paramManagerContainer.locator('#paramEdit');
         await this.clickListItem(editBtns, index);
@@ -62,7 +65,7 @@ export class SimpleParamManager extends ParamManager {
     }
 
     public async deleteParam(index: number = 0): Promise<void> {
-        const paramManagerContainer = this.container.locator(`#parameterManager-${this.field}`);
+        const paramManagerContainer = this.container.locator(`#${this.containerId}`);
         await paramManagerContainer.waitFor();
         const trashBtns = paramManagerContainer.locator('#paramTrash');
         await this.clickListItem(trashBtns, index);
@@ -71,15 +74,18 @@ export class SimpleParamManager extends ParamManager {
 
 export class DefaultParamManager extends ParamManager {
 
-    constructor(protected container: Locator, protected field: string, private addBtnName?: string, protected _page?: Page) {
+    constructor(protected container: Locator, protected field: string, private addBtnName?: string, private containerId?: string, protected _page?: Page) {
         super(container, field, _page);
         if (!addBtnName) {
             this.addBtnName = "Add Parameter";
         }
+        if (!containerId) {
+            this.containerId = `card-select-parameterManager-${this.field}`;
+        }
     }
 
     public async getAddNewForm(): Promise<Form> {
-        const paramManagerContainer = this.container.locator(`#card-select-parameterManager-${this.field}`);
+        const paramManagerContainer = this.container.locator(`#${this.containerId}`);
         await paramManagerContainer.waitFor();
         const addParamBtn = paramManagerContainer.locator(`div:text("${this.addBtnName}")`);
         await addParamBtn.click();
@@ -87,7 +93,7 @@ export class DefaultParamManager extends ParamManager {
     }
 
     public async getEditForm(index: number): Promise<Form> {
-        const paramManagerContainer = this.container.locator(`#card-select-parameterManager-${this.field}`);
+        const paramManagerContainer = this.container.locator(`#${this.containerId}`);
         await paramManagerContainer.waitFor();
         const editBtns = paramManagerContainer.locator('#paramEdit');
         await this.clickListItem(editBtns, index);
@@ -102,7 +108,7 @@ export class DefaultParamManager extends ParamManager {
     }
 
     public async deleteParam(index: number = 0): Promise<void> {
-        const paramManagerContainer = this.container.locator(`#card-select-parameterManager-${this.field}`);
+        const paramManagerContainer = this.container.locator(`#${this.containerId}`);
         await paramManagerContainer.waitFor();
         const trashBtns = paramManagerContainer.locator('#paramTrash');
         await this.clickListItem(trashBtns, index);
@@ -111,12 +117,16 @@ export class DefaultParamManager extends ParamManager {
 
 export class ParamManagerWithNewCreateForm extends ParamManager {
 
-    constructor(protected container: Locator, protected field: string, private frameName: string, protected _page?: Page) {
+    constructor(protected container: Locator, protected field: string, private frameName: string, private webview: Frame, private containerId?: string, protected _page?: Page) {
         super(container, field, _page);
+        if (!containerId) {
+            this.containerId = `card-select-parameterManager-${this.field}`;
+        }
+        console.log(`Getting param manager with a new create form for container id: ${this.containerId}`);
     }
 
     public async getAddNewForm(): Promise<Form> {
-        const paramManagerContainer = this.container.locator(`#card-select-parameterManager-${this.field}`);
+        const paramManagerContainer = this.container.locator(`#${this.containerId}`);
         await paramManagerContainer.waitFor();
         const addBtn = paramManagerContainer.locator('vscode-button:has-text("Add")');
         await addBtn.click();
@@ -126,11 +136,11 @@ export class ParamManagerWithNewCreateForm extends ParamManager {
     }
     
     public async getEditForm(index: number): Promise<Form> {
-        const paramManagerContainer = this.container.locator(`#card-select-parameterManager-${this.field}`);
+        const paramManagerContainer = this.container.locator(`#${this.containerId}`);
         await paramManagerContainer.waitFor();
         const optionBtns = paramManagerContainer.locator('i[class="codicon codicon-ellipsis"]');
         await this.clickListItem(optionBtns, index);
-        const editIcon = await this.container.locator('..').getByRole('gridcell', { name: 'Edit' });
+        const editIcon = await this.webview.getByRole('gridcell', { name: 'Edit' });
         await editIcon.click();
         const form = new Form(this._page, this.frameName);
         await form.switchToFormView();
@@ -145,11 +155,12 @@ export class ParamManagerWithNewCreateForm extends ParamManager {
     }
 
     public async deleteParam(index: number = 0): Promise<void> {
-        const paramManagerContainer = this.container.locator(`#card-select-parameterManager-${this.field}`);
+        console.log(`Deleting param at index: ${index} from container id: ${this.containerId}`);
+        const paramManagerContainer = this.container.locator(`#${this.containerId}`);
         await paramManagerContainer.waitFor();
         const optionBtns = paramManagerContainer.locator('i[class="codicon codicon-ellipsis"]');
         await this.clickListItem(optionBtns, index);
-        const deleteIcon = await this.container.locator('..').getByRole('gridcell', { name: 'Delete' });
+        const deleteIcon = await this.webview.getByRole('gridcell', { name: 'Delete' });
         await deleteIcon.click();
     }
 }
