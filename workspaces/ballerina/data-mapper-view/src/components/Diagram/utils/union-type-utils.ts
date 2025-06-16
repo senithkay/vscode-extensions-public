@@ -71,9 +71,16 @@ export function resolveUnionType(expr: STNode, unionType: TypeField): TypeField 
 			// If record is from an imported package
 			const orgAndModule = typeSignatureSegments[0];
 			const importStatements = useDMStore.getState().imports;
-			if (importStatements.some(item => item.includes(orgAndModule))){
-				typeName = `${orgAndModule.split('/')[1]}:${typeName}`;
-			}
+
+			importStatements.forEach(item => {
+				if (item.includes(orgAndModule)) {
+					const importReferenceMap = useDMStore.getState().importReferenceMap;
+					const referencedName = importReferenceMap[item];
+					if (referencedName) {
+						typeName = `${referencedName}:${typeName}`;
+					}
+				}
+			});
 		}
 		if (typeName && supportedTypes.includes(typeName)) {
 			return unionType?.members.find(member => {
