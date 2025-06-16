@@ -39,12 +39,16 @@ export class ProjectExplorer {
         return currentItem;
     }
 
-    public async goToOverview(projectName: string) {
+    public async goToOverview(projectName: string, timeout?: number) {
         // wait for 1s
         const projectExplorerRoot = this.explorer.locator(`div[role="treeitem"][aria-label="Project ${projectName}"]`);
-        await projectExplorerRoot.waitFor();
-        await projectExplorerRoot.hover();
-        const locator = this.explorer.getByLabel('Open Project Overview');
+        if (timeout) {
+            await projectExplorerRoot.waitFor({ timeout });
+        } else {
+            await projectExplorerRoot.waitFor();
+        }
+        await projectExplorerRoot.first().hover();
+        const locator = projectExplorerRoot.getByLabel('Open Project Overview');
         await locator.waitFor();
         await this.page.waitForTimeout(500); // To fix intermittent issues
         await locator.click();
@@ -55,7 +59,7 @@ export class ProjectExplorer {
         const projectExplorerRoot = this.explorer.locator(`div[role="treeitem"][aria-label="Project ${projectName}"]`);
         await projectExplorerRoot.waitFor();
         await projectExplorerRoot.hover();
-        const locator = this.explorer.getByLabel('Add Artifact');
+        const locator = projectExplorerRoot.getByLabel('Add Artifact');
         await locator.waitFor();
         await this.page.waitForTimeout(500); // To fix intermittent issues
         await locator.click();

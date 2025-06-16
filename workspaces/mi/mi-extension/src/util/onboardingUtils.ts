@@ -148,7 +148,7 @@ export function generateInitialDependencies(httpConnectorVersion: string): strin
 }
 
 async function isMISetup(projectUri: string, miVersion: string): Promise<boolean> {
-    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const config = vscode.workspace.getConfiguration('MI');
     const currentMIPath = config.get<string>(SELECTED_SERVER_PATH);
     if (currentMIPath) {
         const availableMIVersion = getMIVersion(currentMIPath);
@@ -226,7 +226,7 @@ async function isMISetup(projectUri: string, miVersion: string): Promise<boolean
     }
 }
 async function isJavaSetup(projectUri: string, miVersion: string): Promise<boolean> {
-    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const config = vscode.workspace.getConfiguration('MI');
     const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
     if (currentJavaHome) {
         const currentJavaVersion = getJavaVersion(path.join(currentJavaHome, 'bin')) ?? '';
@@ -551,7 +551,7 @@ export async function setPathsInWorkSpace(request: SetPathRequest): Promise<Path
 
     let response: PathDetailsResponse = { status: 'not-valid' };
     if (projectMIVersion) {
-        const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(request.projectUri));
+        const config = vscode.workspace.getConfiguration('MI');
         if (request.type === 'JAVA') {
             const validJavaHome = verifyJavaHomePath(request.path);
             if (validJavaHome) {
@@ -952,8 +952,10 @@ function setupConfigFiles(projectUri: string): void {
 }
 
 export function getJavaHomeFromConfig(projectUri: string): string | undefined {
-    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const config = vscode.workspace.getConfiguration('MI');
     const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
+
+    const projectName = path.basename(projectUri);
 
     if (currentJavaHome) {
         if (!isJavaHomePathValid(currentJavaHome)) {
@@ -971,7 +973,7 @@ export function getJavaHomeFromConfig(projectUri: string): string | undefined {
     } else {
         vscode.window
             .showErrorMessage(
-                'Java Home path is not set. Please set a valid Java Home path and run the command again.',
+                `Java Home path is not set for the project: ${projectName}. Please set a valid Java Home path and run the command again.`,
                 'Set Java Home'
             )
             .then((selection) => {
@@ -989,7 +991,7 @@ export function getJavaHomeFromConfig(projectUri: string): string | undefined {
 }
 
 export function getServerPathFromConfig(projectUri: string): string | undefined {
-    const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+    const config = vscode.workspace.getConfiguration('MI');
     const currentServerPath = config.get<string>(SELECTED_SERVER_PATH);
     return currentServerPath;
 }

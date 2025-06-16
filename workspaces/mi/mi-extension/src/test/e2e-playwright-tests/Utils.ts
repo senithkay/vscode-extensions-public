@@ -23,6 +23,9 @@ const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
 const vscodeVersion = 'latest';
 export const resourcesFolder = path.join(__dirname, '..', 'test-resources');
 export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
+export const screenShotsFolder = path.join(__dirname, '..', 'test-resources', 'screenshots');
+export const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
+
 export let vscode: ElectronApplication | undefined;
 export let page: ExtendedPage;
 
@@ -79,7 +82,7 @@ export async function createProject(page: ExtendedPage, projectName?: string, ru
     console.log('Environment setup done');
 }
 
-async function resumeVSCode() {
+export async function resumeVSCode() {
     if (vscode && page) {
         console.log('Reloading VSCode');
         await page.page.waitForTimeout(1000);
@@ -145,6 +148,18 @@ export function initTest(newProject: boolean = false, skipProjectCreation: boole
             await toggleNotifications(true);
         }
         console.log('Test runner started');
+    });
+
+    test.afterEach(async ({ }, testInfo) => {
+        console.log(`>>> Finished test: ${testInfo.title} with status: ${testInfo.status}, Attempt: ${testInfo.retry + 1}`);
+        if (testInfo.status === 'failed') {
+            const screenshotPath = path.join(screenShotsFolder, `${testInfo.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${testInfo.retry + 1}.png`);
+            await page.page.screenshot({ path: screenshotPath });
+            console.log(`Screenshot saved at ${screenshotPath}`);
+
+            page.page.video()?.saveAs(path.join(videosFolder, `test_${testInfo.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${testInfo.retry + 1}.webm`));
+            console.log(`Video saved at ${path.join(videosFolder, `test_${testInfo.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${testInfo.retry + 1}.webm`)}`);
+        }
     });
 
     test.afterAll(async ({ }, testInfo) => {
