@@ -216,7 +216,7 @@ export function getProjectDetails(filePath: string) {
 }
 
 /**
- * Captures the project directory from a given file path which is in ".bakcup" dir.
+ * Captures the project directory from a given file path which is in ".backup" dir.
  * If filePath contains ".backup", extract the segment after the last ".backup" and keep only the next directory name
  *
  * @param filePath - The absolute or relative file path to analyze.
