@@ -97,8 +97,8 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     // Generate paths for ballerina home jars using dynamic discovery (excluding specified patterns)
     const directoriesToSearch = [
         join(ballerinaHome, 'bre', 'lib'),
-        join(ballerinaHome, 'lib', 'tools', 'lang-server'),
-        join(ballerinaHome, 'lib', 'tools', 'debug-adapter')
+        join(ballerinaHome, 'lib', 'tools', 'lang-server', 'lib'),
+        join(ballerinaHome, 'lib', 'tools', 'debug-adapter', 'lib')
     ];
     
     const ballerinaJarPaths = directoriesToSearch.flatMap(directory => 
