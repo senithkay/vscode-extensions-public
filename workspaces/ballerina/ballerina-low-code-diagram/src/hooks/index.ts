@@ -70,7 +70,7 @@ export function useOverlayRef(): [
     HTMLDivElement,
     (node: HTMLDivElement) => void] {
     const [overlayDiv, setOverlayDiv] = useState<HTMLDivElement>(undefined);
-    const ref = useCallback(node => {
+    const ref = useCallback((node: React.SetStateAction<HTMLDivElement>) => {
         if (node !== null) {
             setOverlayDiv(node);
         }

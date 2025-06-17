@@ -22,6 +22,7 @@ import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../
 import { getTypeName } from "../../utils/common-utils";
 import { ARRAY_FILTER_NODE_PREFIX } from "../../utils/constants";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { useShallow } from "zustand/react/shallow";
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     dmType: DMType;
@@ -40,11 +41,13 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
-		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType,
-		setIsSchemaOverridden: state.setIsSchemaOverridden
-	}));
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(
+        useShallow(state => ({
+            setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+            setIOConfigPanelType: state.setIOConfigPanelType,
+            setIsSchemaOverridden: state.setIsSchemaOverridden
+        }))
+    );
 
     const classes = useIONodesStyles();
     const typeName = getTypeName(dmType);

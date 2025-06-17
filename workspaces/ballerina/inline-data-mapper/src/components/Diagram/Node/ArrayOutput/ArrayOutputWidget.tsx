@@ -24,6 +24,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from "../commons/ValueConfigButton";
 import { OutputBeforeInputNotification } from "../commons/OutputBeforeInputNotification";
+import { useShallow } from "zustand/react/shallow";
 
 export interface ArrayOutputWidgetProps {
 	id: string;
@@ -56,11 +57,13 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
-		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType,
-		setIsSchemaOverridden: state.setIsSchemaOverridden
-	})); 
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(
+		useShallow(state => ({
+			setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+			setIOConfigPanelType: state.setIOConfigPanelType,
+			setIsSchemaOverridden: state.setIsSchemaOverridden
+		}))
+	); 
 
 	const { model: { mappings }, applyModifications } = context;
 

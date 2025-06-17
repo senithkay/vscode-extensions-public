@@ -1368,6 +1368,4 @@ export interface Visitor {
     beginVisitXmlnsKeyword?(node: Ballerina.XmlnsKeyword, parent?: Ballerina.STNode): void;
     endVisitXmlnsKeyword?(node: Ballerina.XmlnsKeyword, parent?: Ballerina.STNode): void;
 
-    beginVisitundefined?(node: Ballerina.undefined, parent?: Ballerina.STNode): void;
-    endVisitundefined?(node: Ballerina.undefined, parent?: Ballerina.STNode): void;
 }

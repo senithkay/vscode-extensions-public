@@ -8,11 +8,12 @@
  */
 
 import React, { type HTMLProps, type FC } from "react";
-import SwaggerUIReact, { type SwaggerUIProps } from "swagger-ui-react";
+import SwaggerUIReact from "swagger-ui-react";
 import "@wso2-enterprise/ui-toolkit/src/styles/swagger/main.scss";
 import classNames from "classnames";
 import { Codicon } from "../Codicon/Codicon";
 import { SkeletonText } from "../SkeletonText";
+import SwaggerUIProps from "swagger-ui-react/swagger-ui-react";
 
 export const SwaggerUI: FC<SwaggerUIProps> = (props) => {
 	return <SwaggerUIReact {...props} />;

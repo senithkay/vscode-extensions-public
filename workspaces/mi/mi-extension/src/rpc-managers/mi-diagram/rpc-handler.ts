@@ -415,7 +415,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger, projectUri: s
     messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts());
     messenger.onNotification(buildProject, (args: BuildProjectRequest) => rpcManger.buildProject(args));
     messenger.onRequest(deployProject, (args: DeployProjectRequest) => rpcManger.deployProject(args));
-    messenger.onRequest(remoteDeploy, () => rpcManger.remoteDeploy());
+    messenger.onNotification(remoteDeploy, () => rpcManger.remoteDeploy());
     messenger.onRequest(getDevantMetadata, () => rpcManger.getDevantMetadata());
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());

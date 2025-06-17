@@ -39,17 +39,17 @@ export interface TemplateEndpointWizardProps {
 }
 
 type InputsFields = {
-    name?: string;
-    uri?: string;
-    template?: string;
-    description?: string;
-    endpoints?: any[];
-    parameters?: any[];
+    name: string;
+    uri: string;
+    template: string;
+    description: string;
+    endpoints: any[];
+    parameters: any[];
     //reg form
-    saveInReg?: boolean;
-    artifactName?: string;
-    registryPath?: string
-    registryType?: "gov" | "conf";
+    saveInReg: boolean;
+    artifactName: string;
+    registryPath: string
+    registryType: "gov" | "conf";
 };
 
 const initialEndpoint: InputsFields = {
@@ -280,7 +280,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                 />
                 <FormKeylookup
                     required
-                    control={control}
+                    control={control as any}
                     label="Template"
                     name="template"
                     filterType="endpointTemplate"
@@ -300,7 +300,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                 <FormCheckBox
                     label="Save the endpoint in registry"
                     {...register("saveInReg")}
-                    control={control}
+                    control={control as any}
                 />
                 {watch("saveInReg") && (<>
                     <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />

@@ -29,6 +29,7 @@ import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { createSourceForUserInput, modifyChildFieldsOptionality } from "../../utils/modification-utils";
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
 import { OutputFieldPreviewWidget } from "./OutputFieldPreviewWidget";
+import { useShallow } from "zustand/react/shallow";
 export interface ArrayOutputWidgetProps {
 	id: string;
 	dmTypeWithValue: DMTypeWithValue;
@@ -64,16 +65,20 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 	const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
 
-	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
-		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType,
-		setIsSchemaOverridden: state.setIsSchemaOverridden
-	}));
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(
+		useShallow(state => ({
+			setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+			setIOConfigPanelType: state.setIOConfigPanelType,
+			setIsSchemaOverridden: state.setIsSchemaOverridden
+		}))
+	);
 
-	const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
-		subMappingConfig: state.subMappingConfig,
-		setSubMappingConfig: state.setSubMappingConfig
-	}));
+	const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(
+		useShallow(state => ({
+			subMappingConfig: state.subMappingConfig,
+			setSubMappingConfig: state.setSubMappingConfig
+		}))
+	);
 
 	const body = dmTypeWithValue && dmTypeWithValue.value;
 	const wasBodyForgotten = body && body.wasForgotten();

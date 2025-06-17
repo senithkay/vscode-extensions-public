@@ -418,7 +418,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                 <FormCheckBox
                     label="Save the endpoint in registry"
                     {...register("saveInReg")}
-                    control={control}
+                    control={control as any}
                 />
                 {watch("saveInReg") && (<>
                     <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />

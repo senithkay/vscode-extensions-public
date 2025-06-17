@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import {
@@ -322,7 +322,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                 <NodeStyles.Row>
                     <NodeStyles.Header onClick={handleOnClick}>
                         <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
-                        <NodeStyles.Description>{nodeDescription}</NodeStyles.Description>
+                        <NodeStyles.Description>{nodeDescription as ReactNode}</NodeStyles.Description>
                     </NodeStyles.Header>
                     <NodeStyles.ActionButtonGroup>
                         {hasError && <DiagnosticsPopUp node={model.node} />}

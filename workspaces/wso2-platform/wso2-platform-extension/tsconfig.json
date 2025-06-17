@@ -3,7 +3,7 @@
 		"module": "commonjs",
         "moduleResolution": "node",
 
-		"target": "es6",
+		"target": "ESNext",
 		"lib": [
 			"ES2021"
 		],

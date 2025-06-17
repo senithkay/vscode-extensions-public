@@ -25,6 +25,7 @@ import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { IOType } from "@wso2-enterprise/ballerina-core";
 import { removeMapping } from "../../utils/modification-utils";
 import { OutputBeforeInputNotification } from "../commons/OutputBeforeInputNotification";
+import { useShallow } from "zustand/react/shallow";
 
 export interface PrimitiveOutputElementWidgetWidgetProps {
     parentId: string;
@@ -50,10 +51,12 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     } = props;
     const classes = useIONodesStyles();
     
-    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(state => ({
-        exprBarFocusedPort: state.focusedPort,
-        setExprBarFocusedPort: state.setFocusedPort
-    }));
+    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(
+        useShallow(state => ({
+            exprBarFocusedPort: state.focusedPort,
+            setExprBarFocusedPort: state.setFocusedPort
+        }))
+    );
 
     const [isLoading, setLoading] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);

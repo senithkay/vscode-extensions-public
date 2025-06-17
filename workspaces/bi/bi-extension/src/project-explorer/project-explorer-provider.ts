@@ -40,8 +40,8 @@ export class ProjectExplorerEntry extends vscode.TreeItem {
             this.iconPath = new vscode.ThemeIcon(icon);
         } else if (icon) {
             this.iconPath = {
-                light: path.join(extension.context.extensionPath, 'assets', `light-${icon}.svg`),
-                dark: path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)
+                light: vscode.Uri.file(path.join(extension.context.extensionPath, 'assets', `light-${icon}.svg`)),
+                dark: vscode.Uri.file(path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`))
             };
         }
     }
