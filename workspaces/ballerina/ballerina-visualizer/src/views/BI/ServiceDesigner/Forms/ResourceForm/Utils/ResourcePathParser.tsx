@@ -72,47 +72,7 @@ export function parseResourcePath(input: string): ParseResult {
     return result;
 }
 
-export function parseBasePath(input: string): ParseResult {
-    const result: ParseResult = {
-        valid: false,
-        errors: [],
-        segments: []
-    };
-
-    if (!input || input === '') {
-        result.valid = false;
-        result.errors.push({ position: 0, message: 'base path cannot be empty' });
-        return result;
-    }
-
-    // need to handle string literals
-    if (input.startsWith('"')) {
-        if (!input.endsWith('"')) {
-            result.errors.push({ position: 0, message: 'string literal must end with a double quote' });
-            return result;
-        }
-        result.valid = true;
-        return result;
-    }
-
-    if (!input.startsWith('/')) {
-        result.errors.push({ position: 0, message: 'base path must start with a slash (/) character' });
-        return result;
-    }
-
-    if (input.includes('//')) {
-        result.errors.push({ position: 0, message: 'cannot have two consecutive slashes (//)' });
-        return result;
-    }
-
-    const segments = splitSegments(input);
-    for (const segment of segments) {
-        processSegment(segment, result);
-    }
-    return result;
-}
-
-function processSegment(
+export function processSegment(
     segment: { value: string; start: number; end: number },
     result: ParseResult
 ) {
@@ -134,6 +94,29 @@ function processSegment(
         end: segment.end
     });
 }
+
+function tokenize(content: string, offset: number): { tokens: Token[]; errors: ParseError[] } {
+    const tokens: Token[] = [];
+    const errors: ParseError[] = [];
+    let pos = 0;
+
+    while (pos < content.length) {
+        const start = pos + offset;
+        const c = content[pos];
+
+        if (/\s/.test(c)) {
+            pos++;
+            continue;
+        }
+        const { value, newPos, error } = readUnquoted(content, pos, offset);
+        pos = newPos;
+        if (error) errors.push(error);
+        if (value !== null) tokens.push({ value, start, end: pos + offset - 1 });
+    }
+
+    return { tokens, errors };
+}
+
 
 function processParam(
     segment: { value: string; start: number; end: number },
@@ -167,82 +150,6 @@ function processParam(
     });
 }
 
-function handleRegularParam(
-    tokens: Token[],
-    segment: { start: number; end: number },
-    result: ParseResult
-) {
-    if (tokens.length === 0) {
-        result.errors.push({
-            position: segment.start + 2,
-            message: 'Empty parameter'
-        });
-        return;
-    }
-
-    const paramName = validateParamName(tokens[tokens.length - 1], result);
-    const remaining = tokens.slice(0, -1);
-    
-    if (remaining.length === 0) {
-        result.errors.push({
-            position: segment.start + 2,
-            message: 'Missing type descriptor'
-        });
-        return;
-    }
-
-    const typeDescriptor = remaining[remaining.length - 1].value;
-    const annots = remaining.slice(0, -1).map(t => t.value);
-
-    result.segments.push({
-        type: 'param',
-        annots,
-        typeDescriptor,
-        paramName,
-        start: segment.start,
-        end: segment.end
-    });
-}
-
-function handleRestParam(
-    tokens: Token[],
-    segment: { start: number; end: number },
-    result: ParseResult
-) {
-    const dotIndex = tokens.findIndex(t => t.value === '...');
-    if (dotIndex === -1) return;
-
-    const beforeDot = tokens.slice(0, dotIndex);
-    const afterDot = tokens.slice(dotIndex + 1);
-
-    if (beforeDot.length === 0) {
-        result.errors.push({
-            position: segment.start + 2,
-            message: 'Missing type descriptor in rest parameter'
-        });
-    }
-
-    if (afterDot.length > 1) {
-        result.errors.push({
-            position: afterDot[1].start,
-            message: 'Extra tokens after rest parameter'
-        });
-    }
-
-    const typeDescriptor = beforeDot.length > 0 ? beforeDot[beforeDot.length - 1].value : '';
-    const annots = beforeDot.slice(0, -1).map(t => t.value);
-    const paramName = afterDot.length > 0 ? validateParamName(afterDot[0], result) : undefined;
-
-    result.segments.push({
-        type: 'rest-param',
-        annots,
-        typeDescriptor,
-        paramName,
-        start: segment.start,
-        end: segment.end
-    });
-}
-
 function validateParamName(token: Token, result: ParseResult): string | undefined {
     if (!token) return undefined;
     if (!isValidIdentifier(token.value)) {
@@ -262,7 +169,7 @@ interface Token {
     end: number;
 }
 
-function splitSegments(input: string): Array<{ value: string; start: number; end: number }> {
+export function splitSegments(input: string): Array<{ value: string; start: number; end: number }> {
     const segments = [];
     let start = 0;
     let current = 0;
@@ -290,71 +197,6 @@ function splitSegments(input: string): Array<{ value: string; start: number; end
     }
     
     return segments;
-}
-
-function tokenize(content: string, offset: number): { tokens: Token[]; errors: ParseError[] } {
-    const tokens: Token[] = [];
-    const errors: ParseError[] = [];
-    let pos = 0;
-
-    while (pos < content.length) {
-        const start = pos + offset;
-        const c = content[pos];
-
-        if (/\s/.test(c)) {
-            pos++;
-            continue;
-        }
-
-        if (c === "'" || c === '"') {
-            const { value, newPos, error } = readQuoted(content, pos, offset);
-            pos = newPos;
-            if (error) errors.push(error);
-            if (value !== null) tokens.push({ value, start, end: pos + offset - 1 });
-        } else if (c === '.' && content.slice(pos, pos + 3) === '...') {
-            tokens.push({ value: '...', start: pos + offset, end: pos + offset + 2 });
-            pos += 3;
-        } else {
-            const { value, newPos, error } = readUnquoted(content, pos, offset);
-            pos = newPos;
-            if (error) errors.push(error);
-            if (value !== null) tokens.push({ value, start, end: pos + offset - 1 });
-        }
-    }
-
-    return { tokens, errors };
-}
-
-function readQuoted(content: string, pos: number, offset: number) {
-    let value = '';
-    let escape = false;
-    value += content[pos];
-    pos++; // Skip opening quote
-
-    while (pos < content.length) {
-        const c = content[pos];
-        if (escape) {
-            value += c;
-            escape = false;
-            pos++;
-        } else if (c === '\\') {
-            escape = true;
-            pos++;
-        } else if (c === "'" || c === '"') {
-            value += c;
-            pos++;
-            return { value, newPos: pos, error: null as ParseError | null };
-        } else {
-            value += c;
-            pos++;
-        }
-    }
-
-    return {
-        value: null as string | null,
-        newPos: pos,
-        error: { position: pos + offset, message: 'Unterminated quoted identifier' }
-    };
 }
 
 export function readUnquoted(content: string, pos: number, offset: number) {

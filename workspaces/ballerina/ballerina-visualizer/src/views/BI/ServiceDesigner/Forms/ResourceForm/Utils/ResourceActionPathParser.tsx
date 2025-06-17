@@ -8,9 +8,9 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import { processSegment, splitSegments, ParseResult } from './ResourcePathParser';
+import { splitSegments, processSegment, ParseResult } from './ResourcePathParser';
 
-export function parseBasePath(input: string): ParseResult {
+export function parseResourceActionPath(input: string): ParseResult {
     const result: ParseResult = {
         valid: false,
         errors: [],
@@ -19,17 +19,7 @@ export function parseBasePath(input: string): ParseResult {
 
     if (!input || input === '') {
         result.valid = false;
-        result.errors.push({ position: 0, message: 'base path cannot be empty' });
-        return result;
-    }
-
-    // need to handle string literals
-    if (input.startsWith('"')) {
-        if (!input.endsWith('"')) {
-            result.errors.push({ position: 0, message: 'string literal must end with a double quote' });
-            return result;
-        }
-        result.valid = true;
+        result.errors.push({ position: 0, message: 'path cannot be empty' });
         return result;
     }
 
@@ -45,7 +35,12 @@ export function parseBasePath(input: string): ParseResult {
 
     const segments = splitSegments(input);
     for (const segment of segments) {
+        if (segment.value.startsWith('[') || segment.value.endsWith(']')) {
+            continue;
+        }
         processSegment(segment, result);
     }
+
+    result.valid = result.errors.length === 0;
     return result;
 }
