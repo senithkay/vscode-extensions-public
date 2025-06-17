@@ -69,11 +69,11 @@ import {
     updateNodeWithProperties,
 } from "../form-utils";
 import ForkForm from "../ForkForm";
-import { getHelperPane } from "../../HelperPane";
 import { FormTypeEditor } from "../../TypeEditor";
 import { getTypeHelper } from "../../TypeHelper";
 import { EXPRESSION_EXTRACTION_REGEX } from "../../../../constants";
 import MatchForm from "../MatchForm";
+import { getHelperPaneNew } from "../../HelperPaneNew";
 
 interface TypeEditorState {
     isOpen: boolean;
@@ -609,7 +609,7 @@ export function FormGenerator(props: FormProps) {
             handleExpressionEditorCancel();
         }
 
-        return getHelperPane({
+        return getHelperPaneNew({
             fieldKey: fieldKey,
             fileName: fileName,
             targetLineRange: updateLineRange(targetLineRange, expressionOffsetRef.current),
