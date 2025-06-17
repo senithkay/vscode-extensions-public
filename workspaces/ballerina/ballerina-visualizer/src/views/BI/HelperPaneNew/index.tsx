@@ -18,6 +18,7 @@ import { RecordTypeField } from '@wso2-enterprise/ballerina-core';
 import { SuggestionsPage } from '../HelperPane/SuggestionsPage';
 import styled from '@emotion/styled';
 import { HelperBackground } from './styles/Backgrounds';
+import { ExpandableList } from './Components/ExpandableList';
 
 export type HelperPaneNewProps = {
     fieldKey: string;
@@ -72,12 +73,11 @@ const HelperPaneNewEl = ({
     };
 
     return (
-        <HelperPane helperPaneHeight={'default'} sx={recordTypeField ? { width: 400 } : undefined}>
-            <HelperPane.Header title="Expression Helper 3" titleSx={{ fontFamily: "GilmerRegular" }} onClose={onClose} />
+        <HelperPane helperPaneHeight={'default'} sx={recordTypeField ? { width: 200 } : undefined}>
             <HelperPane.Body>
                 <HelperPane.Panels>
                      <HelperPane.PanelView id={isAssignIdentifier ? 0 : (recordTypeField ? 1 : 0)}>
-                        <HelperBackground>aswdaw</HelperBackground>
+                        <ExpandableList />
                     </HelperPane.PanelView>
                 </HelperPane.Panels>
             </HelperPane.Body>
