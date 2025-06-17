@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/choreo-cell-diagram",
-    "version": "3.2.24050304",
+    "version": "3.2.25050808",
     "description": "Generate the cell diagram for Choreo projects.",
     "files": [
         "lib"

@@ -53,7 +53,7 @@ import { OutputSearchHighlight } from "../Search";
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { useIONodesStyles } from "../../../../styles";
 
 export interface EditableRecordFieldWidgetProps {
@@ -315,55 +315,57 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     };
 
     const label = !isArray && (
-        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
-            <span
-                className={classnames(
-                    classes.valueLabel,
-                    isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
-                )}
-                style={{ marginLeft: fields ? 0 : indentation + 24 }}
-            >
-                <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
-                {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
-                {typeName && ":"}
-            </span>
-            {typeName && (
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
                 <span
-                    className={classnames(classes.outputTypeLabel,
+                    className={classnames(
+                        classes.valueLabel,
                         isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
                     )}
+                    style={{ marginLeft: fields ? 0 : indentation + 24 }}
                 >
-                    {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
+                    <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
+                    {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
+                    {typeName && ":"}
                 </span>
-            )}
-            {value && !connectedViaLink && (
-                <>
-                    {diagnostic ? (
-                        <DiagnosticTooltip diagnostic={diagnostic} value={value} onClick={handleEditValue}>
-                            <Button
-                                appearance="icon"
+                {typeName && (
+                    <span
+                        className={classnames(classes.outputTypeLabel,
+                            isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
+                        )}
+                    >
+                        {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
+                    </span>
+                )}
+                {value && !connectedViaLink && (
+                    <>
+                        {diagnostic ? (
+                            <DiagnosticTooltip diagnostic={diagnostic} value={value} onClick={handleEditValue}>
+                                <Button
+                                    appearance="icon"
+                                    onClick={handleEditValue}
+                                    data-testid={`record-widget-field-${portIn?.getName()}`}
+                                >
+                                    <Icon
+                                        name="error-icon"
+                                        sx={{ height: "14px", width: "14px" }}
+                                        iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                                    />
+                                </Button>
+                            </DiagnosticTooltip>
+                        ) : (
+                            <span
+                                className={classes.outputNodeValue}
                                 onClick={handleEditValue}
                                 data-testid={`record-widget-field-${portIn?.getName()}`}
                             >
-                                <Icon
-                                    name="error-icon"
-                                    sx={{ height: "14px", width: "14px" }}
-                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
-                                />
-                            </Button>
-                        </DiagnosticTooltip>
-                    ) : (
-                        <span
-                            className={classes.outputNodeValue}
-                            onClick={handleEditValue}
-                            data-testid={`record-widget-field-${portIn?.getName()}`}
-                        >
-                            {value}
-                        </span>
-                    )}
-                </>
-            )}
-        </span>
+                                {value}
+                            </span>
+                        )}
+                    </>
+                )}
+            </span>
+        </TruncatedLabel>
     );
 
     const handleAssignDefaultValue = async (typeNameStr: string) => {

@@ -48,6 +48,7 @@ import {
     isSameView
 } from '../Diagram/utils/diagram-utils';
 import { isInputNode, isOutputNode } from '../Diagram/Actions/utils';
+import { createImportReferenceMap } from '../Diagram/utils/import-utils';
 
 export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string, fnSrc: string): {
     projectComponents: BallerinaProjectComponents;
@@ -295,10 +296,15 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
                 documentIdentifier: { uri: URI.file(filePath).toString() }
             });
             const modulePart = fullST.syntaxTree as ModulePart;
-            modulePart?.imports.map((importDeclaration: any) => (
-                importStatements.push(importDeclaration.source.trim())
-            ));
+            modulePart?.imports.map((importDeclaration: any) => {
+                const src = importDeclaration.source.trim();
+                const match = src.match(/\bimport\s+[^\s;]+(?:\s+as\s+\w+)?\s*;/);
+                if (match) {
+                    importStatements.push(match[0]);
+                }
+            });
             dmStore.setImports(importStatements);
+            dmStore.setImportReferenceMap(createImportReferenceMap(importStatements));
             return [modulePart.source, importStatements];
         } catch (networkError: any) {
             console.error('Error while fetching content', networkError);

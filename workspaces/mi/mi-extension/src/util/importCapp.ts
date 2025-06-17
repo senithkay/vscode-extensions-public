@@ -148,11 +148,11 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
         }
 
         if (open) {
-            commands.executeCommand("workbench.action.reloadWindow");
+            commands.executeCommand('vscode.openFolder', Uri.file(directory));
+            return { filePath: directory };
+        } else {
             return { filePath: directory };
         }
-        commands.executeCommand('vscode.openFolder', Uri.file(directory));
-        return { filePath: directory };
     } else {
         window.showErrorMessage('Could not find the project details from the provided project: ', source);
         return { filePath: "" };
