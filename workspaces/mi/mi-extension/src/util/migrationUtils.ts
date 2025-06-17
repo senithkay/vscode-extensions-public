@@ -18,6 +18,7 @@ import { commands, Uri, window, workspace } from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { updatePomForClassMediator, LATEST_MI_VERSION } from './onboardingUtils';
+import { execSync } from 'child_process';
 
 enum Nature {
     MULTIMODULE,
@@ -216,7 +217,7 @@ export function getProjectDetails(filePath: string) {
 }
 
 /**
- * Captures the project directory from a given file path which is in ".bakcup" dir. 
+ * Captures the project directory from a given file path which is in ".bakcup" dir.
  * If filePath contains ".backup", extract the segment after the last ".backup" and keep only the next directory name
  *
  * @param filePath - The absolute or relative file path to analyze.
@@ -362,28 +363,28 @@ function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Ma
         const projectId = getPomIdentifier(projectPomFilePath);
         if (projectId) {
             artifactIdToFileInfoMap.set(projectId, { path: projectDir, artifact: null, projectType });
-            // Try to get the artifact from the pom.xml's artifact.xml if exists
-            let artifacts: Artifact[] = [];
-            const artifactXmlPath = path.join(projectDir, 'artifact.xml');
-            if (fs.existsSync(artifactXmlPath)) {
-                const xml = parseArtifactsXmlFile(artifactXmlPath);
-                if (xml.artifacts && xml.artifacts.artifact) {
-                    artifacts = normalizeArtifacts(xml.artifacts.artifact);
-                }
-            }
-            // For each artifact in artifacts, map its artifactId to its file path
-            artifacts.forEach(artifact => {
-                const artifactId = getPomIdentifierStr(
-                    artifact['@_groupId'],
-                    artifact['@_name'],
-                    artifact['@_version']
-                );
-                const fileInfo = getFileInfoForArtifact(artifact, projectDir, projectType);
-                if (fileInfo) {
-                    artifactIdToFileInfoMap.set(artifactId, fileInfo);
-                }
-            });
         }
+        // Try to get the artifacts from artifact.xml if exists
+        let artifacts: Artifact[] = [];
+        const artifactXmlPath = path.join(projectDir, 'artifact.xml');
+        if (fs.existsSync(artifactXmlPath)) {
+            const xml = parseArtifactsXmlFile(artifactXmlPath);
+            if (xml.artifacts && xml.artifacts.artifact) {
+                artifacts = normalizeArtifacts(xml.artifacts.artifact);
+            }
+        }
+        // For each artifact in artifacts, map its artifactId to its file path
+        artifacts.forEach(artifact => {
+            const artifactId = getPomIdentifierStr(
+                artifact['@_groupId'],
+                artifact['@_name'],
+                artifact['@_version']
+            );
+            const fileInfo = getFileInfoForArtifact(artifact, projectDir, projectType);
+            if (fileInfo) {
+                artifactIdToFileInfoMap.set(artifactId, fileInfo);
+            }
+        });
     });
     return artifactIdToFileInfoMap;
 }
@@ -529,6 +530,50 @@ function getPomIdentifierStr(groupId: string, artifactId: string, version: strin
 }
 
 /**
+ * Extracts the XML content of a Maven `<project>` element from the given output string.
+ *
+ * Searches for the first occurrence of `<project` and the last occurrence of `</project>`,
+ * and returns the substring containing the entire `<project>...</project>` XML block.
+ * If the tags are not found, returns `null`.
+ *
+ * @param output - The string output (typically from a Maven command) to search for XML content.
+ * @returns The extracted XML string if found, or `null` if no `<project>` block is present.
+ */
+function extractXmlFromMavenOutput(output: string): string | null {
+  const start = output.indexOf('<project');
+  const end = output.lastIndexOf('</project>');
+
+  if (start === -1 || end === -1) {
+    return null; // XML not found
+  }
+
+  // +10 to include length of '</project>'
+  return output.substring(start, end + 10);
+}
+
+/**
+ * Runs `mvn help:effective-pom` and returns the resolved POM content as XML string.
+ * @param pomFilePath Full path to the pom.xml file
+ * @returns XML string of resolved effective POM content
+ * @throws If the Maven command fails or XML content is not found
+ */
+export function getResolvedPomXmlContent(pomFilePath: string): string {
+    const mvnOutput = execSync(`mvn -f "${pomFilePath}" help:effective-pom`, {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'ignore'], // ignore stderr, capture stdout
+    });
+
+    const xmlContent = extractXmlFromMavenOutput(mvnOutput);
+
+    if (!xmlContent) {
+        console.warn(`Maven output does not contain effective POM XML content for pom file: ${pomFilePath}`);
+        return '';
+    }
+
+    return xmlContent;
+}
+
+/**
  * Retrieves the Maven POM identifier from a specified `pom.xml` file.
  *
  * @param pomFilePath - The file path to the `pom.xml` file.
@@ -539,24 +584,21 @@ function getPomIdentifier(pomFilePath: string): string | null {
     if (!fs.existsSync(pomFilePath)) {
         return null;
     }
-    const pomContent = fs.readFileSync(pomFilePath, 'utf-8');
-    let groupId: string | undefined;
-    let artifactId: string | undefined;
-    let version: string | undefined;
 
-    parseString(pomContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
-        if (err) {
-            console.error('Error parsing pom.xml:', err);
-            return;
-        }
-        groupId = result?.project?.groupId;
-        artifactId = result?.project?.artifactId;
-        version = result?.project?.version;
-    });
+    const resolvedPomContent = getResolvedPomXmlContent(pomFilePath);
+
+    // Parse the effective POM XML output
+    const parser = new XMLParser({ ignoreAttributes: false });
+    const parsed = parser.parse(resolvedPomContent);
+
+    const groupId = parsed?.project?.groupId;
+    const artifactId = parsed?.project?.artifactId;
+    const version = parsed?.project?.version;
 
     if (groupId && artifactId && version) {
         return `${groupId}:${artifactId}:${version}`;
     }
+
     return null;
 }
 
@@ -1224,14 +1266,38 @@ function processDependency(depId: string, sourceFileInfo: FileInfo | undefined, 
  * If no dependencies are found, it returns an empty array.
  */
 function readPomDependencies(pomFilePath: string): Dependency[] {
-    const pomContent = fs.readFileSync(pomFilePath, 'utf-8');
+    const resolvedPomContent = getResolvedPomXmlContent(pomFilePath);
+
     const parser = new XMLParser({ ignoreAttributes: false });
-    const parsed = parser.parse(pomContent);
+    const parsed = parser.parse(resolvedPomContent);
 
-    const deps = parsed?.project?.dependencies?.dependency;
+    const dependencies = parsed?.project?.dependencies?.dependency;
+    if (!dependencies) return [];
 
-    if (!deps) return [];
-    return Array.isArray(deps) ? deps : [deps];
+    const dependencyList = Array.isArray(dependencies) ? dependencies : [dependencies];
+    return dependencyList.map((dep: any) => ({
+        groupId: dep.groupId,
+        artifactId: dep.artifactId,
+        version: dep.version,
+    }));
+}
+
+/**
+ * Extracts and returns a record of property key-value pairs from the given XML object.
+ *
+ * This function expects the XML object to have a structure where properties are located at `xml.project.properties`.
+ * It trims whitespace from both keys and values, and ensures all values are returned as strings.
+ *
+ * @param xml - The XML object potentially containing project properties.
+ * @returns A record mapping property names to their string values. Returns an empty object if no properties are found.
+ */
+function extractProperties(xml: any): Record<string, string> {
+    const properties = xml?.project?.properties;
+    if (!properties) return {};
+
+    return Object.fromEntries(
+        Object.entries(properties).map(([key, val]) => [key.trim(), String(val).trim()])
+    );
 }
 
 /**
