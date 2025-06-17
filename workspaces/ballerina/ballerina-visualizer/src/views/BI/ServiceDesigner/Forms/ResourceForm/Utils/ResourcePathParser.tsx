@@ -72,6 +72,46 @@ export function parseResourcePath(input: string): ParseResult {
     return result;
 }
 
+export function parseBasePath(input: string): ParseResult {
+    const result: ParseResult = {
+        valid: false,
+        errors: [],
+        segments: []
+    };
+
+    if (!input || input === '') {
+        result.valid = false;
+        result.errors.push({ position: 0, message: 'base path cannot be empty' });
+        return result;
+    }
+
+    // need to handle string literals
+    if (input.startsWith('"')) {
+        if (!input.endsWith('"')) {
+            result.errors.push({ position: 0, message: 'string literal must end with a double quote' });
+            return result;
+        }
+        result.valid = true;
+        return result;
+    }
+
+    if (!input.startsWith('/')) {
+        result.errors.push({ position: 0, message: 'base path must start with a slash (/) character' });
+        return result;
+    }
+
+    if (input.includes('//')) {
+        result.errors.push({ position: 0, message: 'cannot have two consecutive slashes (//)' });
+        return result;
+    }
+
+    const segments = splitSegments(input);
+    for (const segment of segments) {
+        processSegment(segment, result);
+    }
+    return result;
+}
+
 function processSegment(
     segment: { value: string; start: number; end: number },
     result: ParseResult
@@ -317,7 +357,7 @@ function readQuoted(content: string, pos: number, offset: number) {
     };
 }
 
-function readUnquoted(content: string, pos: number, offset: number) {
+export function readUnquoted(content: string, pos: number, offset: number) {
     let value = '';
     const initial = content[pos];
     
