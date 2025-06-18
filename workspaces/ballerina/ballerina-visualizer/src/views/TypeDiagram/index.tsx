@@ -240,7 +240,9 @@ export function TypeDiagram(props: TypeDiagramProps) {
                             onTypeEdit={onTypeEdit}
                         />
                     ) : (
-                        <ProgressRing color={ThemeColors.PRIMARY} />
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                            <ProgressRing color={ThemeColors.PRIMARY} />
+                        </div>
                     )}
                 </ViewContent>
             </View>
