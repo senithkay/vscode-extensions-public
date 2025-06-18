@@ -412,7 +412,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		const resourceRef = `service:/${project.handler}/${component.metadata?.handler}/v1/${params?.marketplaceItem?.component?.endpointId}/${params.visibility}`;
 		if (existsSync(componentYamlPath)) {
 			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			let schemaVersion = Number(componentYamlFileContent.schemaVersion)
+			let schemaVersion = Number(componentYamlFileContent.schemaVersion);
 			if (schemaVersion < 1.2) {
 				schemaVersion = 1.2;
 			}
