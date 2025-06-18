@@ -37,7 +37,11 @@ export const useInlineDataMapperModel = (
         isFetching,
         isError,
         refetch
-    } = useQuery(['getIDMModel', { filePath, flowNode, position }], () => getIDMModel(), { networkMode: 'always' });
+    } = useQuery({
+        queryKey: ['getIDMModel', { filePath, flowNode, position }],
+        queryFn: () => getIDMModel(),
+        networkMode: 'always'
+    });
 
     return {model, isFetching, isError, refetch};
 };
