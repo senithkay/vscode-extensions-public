@@ -131,7 +131,7 @@ export const FieldEditor: React.FC<FieldEditorProps> = (props) => {
 
     return (
         <>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'start' }}>
                 <ExpandIconButton
                     appearance="icon"
                     onClick={() => setPanelOpened(!panelOpened)}
