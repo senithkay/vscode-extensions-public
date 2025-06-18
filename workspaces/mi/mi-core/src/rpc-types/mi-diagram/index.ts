@@ -242,7 +242,6 @@ import {
     DevantMetadata,
     GetCodeDiagnosticsReqeust,
     GetCodeDiagnosticsResponse,
-    UpdateMediatorResponse,
     GetConnectorIconRequest,
     GetConnectorIconResponse
 } from "./types";
