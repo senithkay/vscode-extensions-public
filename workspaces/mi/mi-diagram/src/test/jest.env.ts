@@ -13,14 +13,17 @@ global.structuredClone = (val: any) => {
 
 global.setImmediate = global.setImmediate || ((fn: any, ...args: any) => global.setTimeout(fn, 0, ...args)) as any;
 
+class MockResizeObserver {
+  observe = jest.fn();
+  unobserve = jest.fn();
+  disconnect = jest.fn();
+}
+
+(global as any).ResizeObserver = MockResizeObserver;
+
 jest.mock('resize-observer-polyfill', () => {
-    return {
-        default: jest.fn().mockImplementation(() => {
-            return {
-                constructor: () => { },
-                disconnect: () => { },
-                observe: () => { }
-            }
-        })
-    }
-})
+  return {
+    __esModule: true,
+    default: MockResizeObserver,
+  };
+});

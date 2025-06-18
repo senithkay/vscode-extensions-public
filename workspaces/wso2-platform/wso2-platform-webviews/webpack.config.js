@@ -5,7 +5,7 @@ class RunTailwindCSSPlugin {
 		compiler.hooks.beforeCompile.tap("RunTailwindCSSPlugin", () => {
 			// Run npx tailwindcss
 			const execSync = require("node:child_process").execSync;
-			execSync("npx tailwindcss -i ./src/style.css -o ./build/output.css");
+			execSync("npx @tailwindcss/cli -i ./src/style.css -o ./build/output.css");
 		});
 	}
 }

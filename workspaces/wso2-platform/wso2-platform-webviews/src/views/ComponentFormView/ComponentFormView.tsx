@@ -103,7 +103,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	const useDefaultEndpoints = buildDetailsForm.watch("useDefaultEndpoints");
 	const buildPackLang = buildDetailsForm.watch("buildPackLang");
 
-	const endpointDetailsForm = useForm<ComponentFormEndpointsType>({
+	const endpointDetailsForm = useForm<ComponentFormEndpointsType, any, undefined>({
 		resolver: zodResolver(getComponentEndpointsFormSchema(directoryFsPath), { async: true }, { mode: "async" }),
 		mode: "all",
 		defaultValues: { endpoints: [] },

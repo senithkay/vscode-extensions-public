@@ -46,6 +46,7 @@ export class InboundEPForm {
         const inboundTypeBtn = inboundEPSection.locator(`div[id="${type}"]`);
         await inboundTypeBtn.waitFor();
         await inboundTypeBtn.click();
+        let isDownloadingMessageVisible = false;
 
         try {
             console.log('Confirming download of dependencies');
@@ -55,6 +56,19 @@ export class InboundEPForm {
             const confiramtionBtn = await getVsCodeButton(dependencyConfirmationLocator, "Yes", "primary");
             await confiramtionBtn.click();
             console.log('Download dependency confirmed');
+            
+            const downloadingMessageLocator = inboundEPSection.locator(`span:text("Downloading connector... This might take a while")`);
+            try {
+                await downloadingMessageLocator.waitFor({ state: 'visible', timeout: 5000 });
+                console.log('Downloading connector message appeared');
+                isDownloadingMessageVisible = true;
+            } catch (error) {
+                console.log('Downloading connector message did not appear, proceeding with test');
+            }
+            if (isDownloadingMessageVisible) {
+                await downloadingMessageLocator.waitFor({ state: 'detached', timeout: 600000 });
+                console.log('Downloading connector message disappeared');
+            }
         } catch (error) {
             console.log("Dependency download confirmation not found");
         }

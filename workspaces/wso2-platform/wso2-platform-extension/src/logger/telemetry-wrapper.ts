@@ -8,7 +8,7 @@
  */
 
 import type { IChildLogger } from "@vscode-logging/logger";
-import type TelemetryReporter from "@vscode/extension-telemetry";
+import { TelemetryReporter } from "@vscode/extension-telemetry";
 
 // This is the telemetry wrapper class that is used to send telemetry data to the App Insights backend.
 // It will implment the IChildLogger interface by wrapping a provided logger instance.

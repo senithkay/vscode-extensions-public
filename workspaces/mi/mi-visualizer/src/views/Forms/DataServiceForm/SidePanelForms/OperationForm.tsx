@@ -50,9 +50,9 @@ namespace Section {
 }
 
 type OperationFields = {
-    operationName?: string;
-    description?: string;
-    enableStreaming?: boolean;
+    operationName: string;
+    description: string;
+    enableStreaming: boolean;
 };
 
 const newOperation: OperationFields = {
@@ -147,7 +147,7 @@ export const OperationForm = ({ isOpen, onCancel, onSave, formData }: OperationF
                         label="Description"
                         {...renderProps('description')}
                     />
-                    <FormCheckBox label="Enable Streaming" control={control}
+                    <FormCheckBox label="Enable Streaming" control={control as any}
                                   {...renderProps('enableStreaming')}
                     />
                     <ActionContainer>

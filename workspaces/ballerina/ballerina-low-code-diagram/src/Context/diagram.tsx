@@ -72,7 +72,7 @@ const editorComponentStart = (dispatch: any) => {
     }
 }
 
-export const Provider: React.FC<LowCodeDiagramProps> = (props) => {
+export const Provider: React.FC<React.PropsWithChildren<LowCodeDiagramProps>> = (props) => {
     const { children, api, ...restProps } = props;
 
     const [state, dispatch] = useReducer(reducer, { experimentalEnabled: props.experimentalEnabled });

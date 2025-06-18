@@ -6,7 +6,10 @@ const https = require('https');
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const LS_DIR = path.join(PROJECT_ROOT, 'ls');
-const GITHUB_REPO_URL = 'https://api.github.com/repos/nipunayf/ballerina-language-server';
+const GITHUB_REPO_URL = 'https://api.github.com/repos/ballerina-platform/ballerina-language-server';
+
+const args = process.argv.slice(2);
+const usePrerelease = args.includes('--prerelease') || process.env.isPreRelease === 'true';
 
 function checkExistingJar() {
     try {
@@ -124,27 +127,50 @@ function getFileSize(filePath) {
     }
 }
 
+async function getLatestRelease(usePrerelease) {
+    if (usePrerelease) {
+        // Get all releases and find the latest prerelease
+        const releasesResponse = await httpsRequest(`${GITHUB_REPO_URL}/releases`);
+        let releases;
+        try {
+            releases = JSON.parse(releasesResponse.data);
+        } catch (error) {
+            throw new Error('Failed to parse releases information JSON');
+        }
+        // Sort releases by published_at date in descending order and find the latest prerelease
+        const prerelease = releases
+            .filter(release => release.prerelease)
+            .sort((a, b) => new Date(b.published_at) - new Date(a.published_at))[0];
+            
+        if (!prerelease) {
+            throw new Error('No prerelease found');
+        }
+        return prerelease;
+    } else {
+        // Get the latest stable release
+        const releaseResponse = await httpsRequest(`${GITHUB_REPO_URL}/releases/latest`);
+        try {
+            return JSON.parse(releaseResponse.data);
+        } catch (error) {
+            throw new Error('Failed to parse release information JSON');
+        }
+    }
+}
+
 async function main() {
     try {
         if (checkExistingJar()) {
             process.exit(0);
         }
         
-        console.log('Downloading Ballerina language server...');
+        console.log(`Downloading Ballerina language server${usePrerelease ? ' (prerelease)' : ''}...`);
         
         if (!fs.existsSync(LS_DIR)) {
             fs.mkdirSync(LS_DIR, { recursive: true });
         }
         
-        console.log('Fetching latest release information...');
-        const releaseResponse = await httpsRequest(`${GITHUB_REPO_URL}/releases/latest`);
-        
-        let releaseData;
-        try {
-            releaseData = JSON.parse(releaseResponse.data);
-        } catch (error) {
-            throw new Error('Failed to parse release information JSON');
-        }
+        console.log('Fetching release information...');
+        const releaseData = await getLatestRelease(usePrerelease);
         
         const jarAsset = releaseData.assets?.find(asset => 
             asset.name.includes('ballerina-language-server-') && 

@@ -21,7 +21,7 @@ const defaultState: FunctionProperties = {
 
 export const Context = React.createContext<FunctionProperties>(defaultState);
 
-export const Provider: React.FC<FunctionProperties> = (props) => {
+export const Provider: React.FC<React.PropsWithChildren<FunctionProperties>> = (props) => {
     const { children, ...restProps } = props;
     return (
         <Context.Provider value={{ ...restProps }} >

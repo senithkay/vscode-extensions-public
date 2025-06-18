@@ -165,19 +165,28 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			vscode.env.openExternal(vscode.Uri.joinPath(vscode.Uri.parse(choreoEnvConfig.getConsoleUrl()), choreoPath));
 		}
 	});
-	messenger.onRequest(SetWebviewCache, async (params) => {
+	messenger.onRequest(SetWebviewCache, async (params: { cacheKey: string; data: any }) => {
 		await ext.context.workspaceState.update(params.cacheKey, params.data);
 	});
-	messenger.onRequest(RestoreWebviewCache, async (cacheKey) => {
+	messenger.onRequest(RestoreWebviewCache, async (cacheKey:string) => {
 		return ext.context.workspaceState.get(cacheKey);
 	});
-	messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
+	messenger.onRequest(ClearWebviewCache, async (cacheKey: string) => {
 		await ext.context.workspaceState.update(cacheKey, undefined);
 	});
 	messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
-		await goTosource(filePath, false);
+		await goTosource(filePath as string, false);
 	});
-	messenger.onRequest(SaveFile, async (params): Promise<string> => {
+	messenger.onRequest(SaveFile, async (params: {
+		fileName: string;
+		fileContent: string;
+		baseDirectoryFs: string;
+		successMessage?: string;
+		isOpenApiFile?: boolean;
+		shouldPromptDirSelect?: boolean;
+		dialogTitle?: string;
+		shouldOpen?: boolean;
+	}): Promise<string> => {
 		return saveFile(
 			params.fileName,
 			params.fileContent,
@@ -190,7 +199,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		);
 	});
 	messenger.onRequest(DeleteFile, async (filePath) => {
-		unlinkSync(filePath);
+		unlinkSync(filePath as string);
 	});
 	messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
 		const response = await window.showInformationMessage(params.message, { modal: true }, params.buttonText);
@@ -198,42 +207,50 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	});
 	messenger.onRequest(ReadLocalEndpointsConfig, async (componentPath: string) => readLocalEndpointsConfig(componentPath));
 	messenger.onRequest(ReadLocalProxyConfig, async (componentPath: string) => readLocalProxyConfig(componentPath));
-	messenger.onRequest(ShowQuickPick, async (params) => {
+	messenger.onRequest(ShowQuickPick, async (params: { items: any[]; title?: string }) => {
 		const itemSelection = await window.showQuickPick(params.items as vscode.QuickPickItem[], {
 			title: params.title,
 		});
 		return itemSelection as WebviewQuickPickItem;
 	});
-	messenger.onRequest(ShowInputBox, async ({ regex, ...rest }) => {
-		return window.showInputBox({
-			...rest,
-			validateInput: (val) => {
-				if (regex && !new RegExp(regex.expression).test(val)) {
-					return regex.message;
-				}
-				return null;
-			},
-		});
-	});
+	messenger.onRequest(
+		ShowInputBox,
+		async (params: { regex?: { expression: RegExp; message: string }; [x: string]: any }) => {
+			const { regex, ...rest } = params;
+			return window.showInputBox({
+				...rest,
+				validateInput: (val) => {
+					if (regex && !new RegExp(regex.expression).test(val)) {
+						return regex.message;
+					}
+					return null;
+				},
+			});
+		}
+	);
 	const outputChanelMap: Map<string, vscode.OutputChannel> = new Map();
-	messenger.onRequest(ShowTextInOutputChannel, async (params) => {
+	messenger.onRequest(ShowTextInOutputChannel, async (params: { key: string; output: string }) => {
 		if (!outputChanelMap.has(params.key)) {
 			outputChanelMap.set(params.key, window.createOutputChannel(params.key));
 		}
 		outputChanelMap.get(params.key)?.replace(params.output);
 		outputChanelMap.get(params.key)?.show();
 	});
-	messenger.onRequest(ViewRuntimeLogs, async ({ orgName, projectName, componentName, deploymentTrackName, envName, type }) => {
-		// todo: export the env from here
-		if (getChoreoEnv() !== "prod") {
-			window.showErrorMessage(
-				"Choreo extension currently displays runtime logs is only if 'WSO2.Platform.Advanced.ChoreoEnvironment' is set to 'prod'",
-			);
-			return;
+	messenger.onRequest(
+		ViewRuntimeLogs,
+		async (params: { orgName: string; projectName: string; componentName: string; deploymentTrackName: string; envName: string; type: string }) => {
+			const { orgName, projectName, componentName, deploymentTrackName, envName, type } = params;
+			// todo: export the env from here
+			if (getChoreoEnv() !== "prod") {
+				window.showErrorMessage(
+					"Choreo extension currently displays runtime logs is only if 'WSO2.Platform.Advanced.ChoreoEnvironment' is set to 'prod'",
+				);
+				return;
+			}
+			const args = ["logs", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
+			window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, getChoreoExecPath(), args).show();
 		}
-		const args = ["logs", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
-		window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, getChoreoExecPath(), args).show();
-	});
+	);
 	const _getGithubUrlState = async (orgId: string): Promise<string> => {
 		const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.wso2-platform/ghapp`));
 		const state = {

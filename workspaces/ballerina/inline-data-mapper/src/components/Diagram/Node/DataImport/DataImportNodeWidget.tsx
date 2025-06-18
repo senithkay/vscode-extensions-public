@@ -12,6 +12,7 @@ import { TreeContainer } from "../commons/Tree/Tree";
 import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { Label } from "../../OverriddenLinkLayer/LabelWidget";
+import { useShallow } from "zustand/react/shallow";
 
 export interface DataImportNodeWidgetProps {
     configName: string;
@@ -21,11 +22,13 @@ export interface DataImportNodeWidgetProps {
 export function DataImportNodeWidget(props: DataImportNodeWidgetProps) {
     const {configName, ioType} = props;
 
-    const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
-		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType,
-        setIsSchemaOverridden: state.setIsSchemaOverridden
-	}));
+    const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(
+        useShallow(state => ({
+            setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+            setIOConfigPanelType: state.setIOConfigPanelType,
+            setIsSchemaOverridden: state.setIsSchemaOverridden
+        }))
+    );
 
     const handleOnClick = () => {
         setIsIOConfigPanelOpen(true);

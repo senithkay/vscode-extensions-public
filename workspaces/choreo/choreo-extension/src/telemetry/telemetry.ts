@@ -7,14 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import TelemetryReporter from "@vscode/extension-telemetry";
+import { TelemetryReporter } from "@vscode/extension-telemetry";
+import type { TelemetryReporter as TelemetryReporterType } from "@vscode/extension-telemetry";
 import type * as vscode from "vscode";
 
 // TODO: replace with connection string
 const key = "8f98bf03-9ba8-47ba-a18d-62449b92ca42";
 
 // telemetry reporter
-let reporter: TelemetryReporter;
+let reporter: TelemetryReporterType;
 
 export function activateTelemetry(context: vscode.ExtensionContext) {
 	reporter = new TelemetryReporter(key);

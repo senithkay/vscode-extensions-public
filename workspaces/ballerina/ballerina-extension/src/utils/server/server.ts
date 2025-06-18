@@ -67,11 +67,12 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
             opt.env.BALLERINA_CLASSPATH_EXT = process.env.LS_EXTENSIONS_PATH;
         }
     }
+    
+    let debugOpts = '';
     if (process.env.LSDEBUG === "true" || extension?.enableLSDebug()) {
-        debug('Language Server is starting in debug mode.');
         let debugPort = 5005;
-        opt.env.BAL_JAVA_DEBUG = debugPort;
-        opt.env.BAL_DEBUG_OPTS = `-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=${debugPort},quiet=y`;
+        debug(`Language Server is running in debug mode on port ${debugPort}`);
+        debugOpts = `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:${debugPort}`;
     }
 
     const ballerinaHome = extension?.getBallerinaHome();
@@ -97,8 +98,8 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     // Generate paths for ballerina home jars using dynamic discovery (excluding specified patterns)
     const directoriesToSearch = [
         join(ballerinaHome, 'bre', 'lib'),
-        join(ballerinaHome, 'lib', 'tools', 'lang-server'),
-        join(ballerinaHome, 'lib', 'tools', 'debug-adapter')
+        join(ballerinaHome, 'lib', 'tools', 'lang-server', 'lib'),
+        join(ballerinaHome, 'lib', 'tools', 'debug-adapter', 'lib')
     ];
     
     const ballerinaJarPaths = directoriesToSearch.flatMap(directory => 
@@ -155,6 +156,11 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     const cmd = join(jdkDir, 'bin', javaExecutable);
     const args = ['-cp', classpath, `-Dballerina.home=${ballerinaHome}`, 'org.ballerinalang.langserver.launchers.stdio.Main'];
 
+    // Include debug options in the Java arguments if in debug mode
+    if (debugOpts) {
+        args.unshift(debugOpts);
+    }
+  
     // Add custom JVM arguments from LS_CUSTOM_ARGS environment variable
     // Example: LS_CUSTOM_ARGS="-arg1 -arg2=value"
     if (process.env.LS_CUSTOM_ARGS) {

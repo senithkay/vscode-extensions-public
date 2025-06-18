@@ -163,7 +163,7 @@ export default function createTests() {
 
       // object direct mapping with error
       // objectOutput.oObjDirectErr = input.iObjDirect
-      await dmWebView.locator('[id="recordfield-input\\.iObjDirect"] i').nth(1).click();
+      await dmWebView.locator('[id="recordfield-input\\.iObjDirect"]').first().click();
       await dmWebView.locator('[id="recordfield-objectOutput\\.oObjDirectErr"] i').first().click();
       await menuItemDirect.click();
       await menuItemDirect.waitFor({ state: 'detached' });

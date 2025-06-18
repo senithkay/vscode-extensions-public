@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /** @jsxImportSource @emotion/react */
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { AgentCallNodeModel } from "./AgentCallNodeModel";
@@ -511,7 +511,7 @@ export function AgentCallNodeWidget(props: AgentCallNodeWidgetProps) {
                         <NodeStyles.Row>
                             <NodeStyles.Header onClick={handleOnClick}>
                                 <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
-                                <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
+                                <NodeStyles.Description>{model.node.properties.variable?.value as ReactNode}</NodeStyles.Description>
                             </NodeStyles.Header>
                             <NodeStyles.ActionButtonGroup>
                                 {hasError && <DiagnosticsPopUp node={model.node} />}

@@ -15,6 +15,7 @@ import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { buildInputAccessExpr } from '../../../components/Diagram/utils/modification-utils';
 import { View } from '../Views/DataMapperView';
+import { useShallow } from 'zustand/react/shallow';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -46,12 +47,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const [textFieldValue, setTextFieldValue] = useState<string>("");
     const [placeholder, setPlaceholder] = useState<string>();
 
-    const { focusedPort, focusedFilter, inputPort, resetInputPort } = useDMExpressionBarStore(state => ({
-        focusedPort: state.focusedPort,
-        focusedFilter: state.focusedFilter,
-        inputPort: state.inputPort,
-        resetInputPort: state.resetInputPort
-    }));
+    const { focusedPort, focusedFilter, inputPort, resetInputPort } = useDMExpressionBarStore(
+        useShallow(state => ({
+            focusedPort: state.focusedPort,
+            focusedFilter: state.focusedFilter,
+            inputPort: state.inputPort,
+            resetInputPort: state.resetInputPort
+        }))
+    );
 
     const getCompletions = async (): Promise<CompletionItem[]> => {
         // if (!focusedPort && !focusedFilter) {

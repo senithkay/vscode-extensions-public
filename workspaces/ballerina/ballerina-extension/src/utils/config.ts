@@ -112,6 +112,31 @@ export function checkIsBallerina(uri: Uri): boolean {
     return fs.existsSync(ballerinaTomlPath);
 }
 
+export function getOrgPackageName(projectPath: string): { orgName: string, packageName: string } {
+    const ballerinaTomlPath = path.join(projectPath, 'Ballerina.toml');
+    
+    // Regular expressions for Ballerina.toml parsing
+    const ORG_REGEX = /\[package\][\s\S]*?org\s*=\s*["']([^"']*)["']/;
+    const NAME_REGEX = /\[package\][\s\S]*?name\s*=\s*["']([^"']*)["']/;
+
+    if (!fs.existsSync(ballerinaTomlPath)) {
+        return {orgName: '', packageName: ''};
+    }
+    
+    try {
+        const tomlContent = fs.readFileSync(ballerinaTomlPath, 'utf8');
+        
+        // Extract org name and package name
+        const orgName = tomlContent.match(ORG_REGEX)?.[1] || '';
+        const packageName = tomlContent.match(NAME_REGEX)?.[1] || '';
+        
+        return {orgName, packageName};
+    } catch (error) {
+        console.error(`Error reading Ballerina.toml: ${error}`);
+        return {orgName: '', packageName: ''};
+    }
+}
+
 export function fetchScope(uri: Uri): SCOPE {
     const config = workspace.getConfiguration('ballerina', uri);
     const inspected = config.inspect<SCOPE>('scope');
