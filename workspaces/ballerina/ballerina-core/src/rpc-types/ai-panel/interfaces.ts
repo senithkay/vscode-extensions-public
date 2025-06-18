@@ -69,6 +69,7 @@ export interface ProjectDiagnostics {
 export interface DiagnosticEntry {
     line?: number;
     message: string;
+    code?: string;
 }
 
 export interface AddToProjectRequest {
@@ -238,4 +239,20 @@ export enum AttachmentStatus {
     FileSizeExceeded = "FileSizeExceeded",
     UnsupportedFileFormat = "UnsupportedFileFormat",
     UnknownError = "UnknownError",
+}
+
+// ==================================
+// Feedback form related Interfaces
+// ==================================
+export interface SubmitFeedbackRequest {
+    positive: boolean;
+    messages: FeedbackMessage[];
+    feedbackText : string;
+    diagnostics: DiagnosticEntry[];
+}
+
+export interface FeedbackMessage {
+    command?: string;
+    content: string;
+    role : string;
 }

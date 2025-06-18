@@ -12,6 +12,7 @@ import connectionTests from './connectorTests/connection.spec';
 import connectorTests from './connectorTests/connector.spec';
 import inboundEpTests from './connectorTests/inboundEndpoint.spec';
 import artifactTests from './artifactTests/artifact.spec';
+import dataMapperTests from './dataMapper.spec';
 import createProjectTests from './projectTests/createProject.spec';
 import artifact430Tests from './artifactTests/artifact430.spec';
 import logMediatorTests from './mediatorTests/log.spec';
@@ -21,6 +22,8 @@ import callSequenceMediatorTests from './mediatorTests/callSequence.spec';
 import overviewPageTests from './overviewPageTests/projectSettingPage.spec';
 import openEntryPointArtifact from './overviewPageTests/openEntryPointArtifact.spec';
 import validateMediatorTests from './mediatorTests/validate.spec';
+import multiWorkspaceTests from './multiWorkspaceTests/multiWorkspace.spec';
+import unitTestSuitTests from './unitTestSuite.spec';
 import { page } from './Utils';
 const fs = require('fs');
 const path = require('path');
@@ -37,6 +40,8 @@ test.beforeAll(async () => {
 
 test.describe(createProjectTests);
 test.describe(artifactTests);
+test.describe(multiWorkspaceTests);
+test.describe(dataMapperTests);
 test.describe(overviewPageTests);
 test.describe(openEntryPointArtifact);
 test.describe(connectionTests);
@@ -47,6 +52,7 @@ test.describe(cacheMediatorTests);
 test.describe(throttleMediatorTests);
 test.describe(callSequenceMediatorTests);
 test.describe(validateMediatorTests);
+test.describe(unitTestSuitTests);
 test.describe(artifact430Tests);
 
 test.afterAll(async () => {

@@ -18,11 +18,14 @@ import { promises as fsp } from 'fs';
 import { readFile } from 'fs/promises';
 import { Page } from "@playwright/test";
 
-const dataFolder = path.join(__dirname, 'data');
+export const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
 const vscodeVersion = 'latest';
 export const resourcesFolder = path.join(__dirname, '..', 'test-resources');
 export const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
+export const screenShotsFolder = path.join(__dirname, '..', 'test-resources', 'screenshots');
+export const videosFolder = path.join(__dirname, '..', 'test-resources', 'videos');
+
 export let vscode: ElectronApplication | undefined;
 export let page: ExtendedPage;
 
@@ -33,6 +36,22 @@ async function initVSCode() {
         vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, newProjectPath);
     }
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
+}
+
+export async function buildAndRunProject(page: ExtendedPage) {
+    console.log('Building and running the project');
+    await page.page.getByRole('button', { name: 'Build and Run' }).click();
+    console.log('Clicked the Build and Run button');
+    await page.page.getByText('Runtime Services', { exact: true }).waitFor();
+    console.log('Project built and run successfully');
+}
+
+export async function stopRunningProject(page: ExtendedPage) {
+    console.log('Stopping the running project');
+    await page.page.getByRole('button', { name: 'Stop (⇧F5)' }).click();
+    await page.page.getByRole('tab', { name: 'Runtime Services, Editor Group' }).getByLabel('Close (⌘W)').click();
+    await page.page.getByRole('checkbox', { name: 'Hide Panel (⌘J)' }).click();
+    console.log('Stopped the project and closed the runtime services tab');
 }
 
 export async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string, addAdvancedConfig: boolean = false) {
@@ -79,8 +98,10 @@ export async function createProject(page: ExtendedPage, projectName?: string, ru
     console.log('Environment setup done');
 }
 
-async function resumeVSCode() {
+export async function resumeVSCode() {
     if (vscode && page) {
+        console.log('Reloading VSCode');
+        await page.page.waitForTimeout(1000);
         await page.executePaletteCommand('Reload Window');
     } else {
         console.log('Starting VSCode');
@@ -94,6 +115,13 @@ export async function clearNotificationAlerts() {
     console.log(`Clearing notifications`);
     if (page) {
         await page.executePaletteCommand("Notifications: Clear All Notifications");
+    }
+}
+
+export async function clearNotificationsByCloseButton(page: ExtendedPage) {
+    const notificationsCloseButton = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
+    while (await notificationsCloseButton.count() > 0) {
+        await notificationsCloseButton.first().click({ force: true });
     }
 }
 
@@ -136,6 +164,18 @@ export function initTest(newProject: boolean = false, skipProjectCreation: boole
             await toggleNotifications(true);
         }
         console.log('Test runner started');
+    });
+
+    test.afterEach(async ({ }, testInfo) => {
+        console.log(`>>> Finished test: ${testInfo.title} with status: ${testInfo.status}, Attempt: ${testInfo.retry + 1}`);
+        if (testInfo.status === 'failed') {
+            const screenshotPath = path.join(screenShotsFolder, `${testInfo.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${testInfo.retry + 1}.png`);
+            await page.page.screenshot({ path: screenshotPath });
+            console.log(`Screenshot saved at ${screenshotPath}`);
+
+            page.page.video()?.saveAs(path.join(videosFolder, `test_${testInfo.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${testInfo.retry + 1}.webm`));
+            console.log(`Video saved at ${path.join(videosFolder, `test_${testInfo.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${testInfo.retry + 1}.webm`)}`);
+        }
     });
 
     test.afterAll(async ({ }, testInfo) => {

@@ -35,6 +35,7 @@ import { writeFileSync } from "fs";
 import { Uri } from "vscode";
 import { URI, Utils } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
+import { updateSourceCode } from "../../utils/source-utils";
 
 
 interface EntryPosition {
@@ -112,7 +113,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
             const context = StateMachine.context();
             try {
                 const response: AIGentToolsResponse = await context.langClient.genTool(params);
-                await this.updateSource(response.textEdits);
+                await updateSourceCode({ textEdits: response.textEdits });
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 resolve(response);
             } catch (error) {
@@ -164,7 +165,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                             filePath: filePath,
                             flowNode: modelFlowNode
                         });
-                    await this.updateSource(codeEdits.textEdits);
+                    await updateSourceCode({ textEdits: codeEdits.textEdits });
                     await new Promise(resolve => setTimeout(resolve, 2000));
                 } else {
                     selectedModel = params.modelFields.at(0).value;
@@ -192,7 +193,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                         filePath: filePath,
                         flowNode: agentFlowNode
                     });
-                await this.updateSource(codeEdits.textEdits);
+                await updateSourceCode({ textEdits: codeEdits.textEdits });
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 resolve({ response: true, filePath, position: undefined });
             } catch (error) {
@@ -224,7 +225,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                         filePath: filePath,
                         flowNode: agentFlowNode
                     });
-                await this.updateSource(codeEdits.textEdits);
+                await updateSourceCode({ textEdits: codeEdits.textEdits });
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 resolve({ response: true, filePath, position: undefined });
             } catch (error) {
@@ -263,7 +264,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                             flowNode: connectorFlowNode,
                             isConnector: true
                         });
-                    await this.updateSource(codeEdits.textEdits);
+                    await updateSourceCode({ textEdits: codeEdits.textEdits });
                 }
                 // Get the flowNode for connector action
                 const connectorActionFlowNode = await StateMachine.langClient()
@@ -296,7 +297,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                             filePath: filePath,
                             flowNode: flowNode
                         });
-                    await this.updateSource(codeEdits.textEdits);
+                    await updateSourceCode({ textEdits: codeEdits.textEdits });
                 } else {
                     // Get the flowNode for existing function action
                     const existingFunctionFlowNode = await StateMachine.langClient()
@@ -318,7 +319,7 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     description: "",
                     connection: connectionName
                 });
-            await this.updateSource(codeEdits.textEdits);
+            await updateSourceCode({ textEdits: codeEdits.textEdits });
         } catch (error) {
             console.error(`Failed to create tool: ${error}`);
         }
@@ -365,69 +366,10 @@ export class AiAgentRpcManager implements AIAgentAPI {
                     description: tool.description,
                     connection: tool.selectedCodeData.parentSymbol || "",
                 });
-            await this.updateSource(codeEdits.textEdits);
+            await updateSourceCode({ textEdits: codeEdits.textEdits });
             await new Promise(resolve => setTimeout(resolve, 2000));
         } catch (error) {
             console.error(`Failed to create tool: ${error}`);
-        }
-    }
-
-    async updateSource(textEdits: { [key: string]: TextEdit[] }): Promise<void> {
-        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
-
-        for (const [key, value] of Object.entries(textEdits)) {
-            const fileUri = Uri.file(key);
-            const fileUriString = fileUri.toString();
-            const edits = value;
-
-            if (edits && edits.length > 0) {
-                const modificationList: STModification[] = [];
-
-                for (const edit of edits) {
-                    const stModification: STModification = {
-                        startLine: edit.range.start.line,
-                        startColumn: edit.range.start.character,
-                        endLine: edit.range.end.line,
-                        endColumn: edit.range.end.character,
-                        type: "INSERT",
-                        isImport: false,
-                        config: {
-                            STATEMENT: edit.newText,
-                        },
-                    };
-                    modificationList.push(stModification);
-                }
-
-                if (modificationRequests[fileUriString]) {
-                    modificationRequests[fileUriString].modifications.push(...modificationList);
-                } else {
-                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
-                }
-            }
-        }
-
-        // Iterate through modificationRequests and apply modifications
-        try {
-            for (const [fileUriString, request] of Object.entries(modificationRequests)) {
-                const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
-                    documentIdentifier: { uri: fileUriString },
-                    astModifications: request.modifications,
-                })) as SyntaxTree;
-
-                if (parseSuccess) {
-                    writeFileSync(request.filePath, source);
-                    await StateMachine.langClient().didChange({
-                        textDocument: { uri: fileUriString, version: 1 },
-                        contentChanges: [
-                            {
-                                text: source,
-                            },
-                        ],
-                    });
-                }
-            }
-        } catch (error) {
-            console.log(">>> error updating source", error);
         }
     }
 }

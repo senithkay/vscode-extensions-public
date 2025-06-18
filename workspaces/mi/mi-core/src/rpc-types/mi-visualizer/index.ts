@@ -39,7 +39,9 @@ import {
     SetupDetails,
     SetPathRequest,
     PathDetailsResponse,
-    DownloadMIRequest
+    DownloadMIRequest,
+    ProjectConfig,
+    MavenDeployPluginDetails
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 
@@ -62,7 +64,7 @@ export interface MIVisualizerAPI {
     goToSource: (params: GoToSourceRequest) => void;
     focusOutput: () => void;
     log: (params: LogRequest) => void;
-    updateContext: (params: UpdateContextRequest) => Promise<void>;
+    updateContext: (params: UpdateContextRequest) => void;
     retrieveContext: (params: RetrieveContextRequest) => Promise<RetrieveContextResponse>;
     showNotification: (params: NotificationRequest) => Promise<NotificationResponse>;
     getAvailableRuntimeServices: () => Promise<RuntimeServicesResponse>;
@@ -84,6 +86,9 @@ export interface MIVisualizerAPI {
     updateRuntimeVersionsInPom: (params:string) => Promise<boolean>;
     setPathsInWorkSpace: (params: SetPathRequest) => Promise<PathDetailsResponse>;
     selectFolder: (params: string) => Promise<string | undefined>;
-    updateLegacyExpressionSupport: (value: boolean) => Promise<void>;
-    isLegacyExpressionSupportEnabled: () => Promise<boolean>;
+    updateProjectSettingsConfig: (params: ProjectConfig) => Promise<void>;
+    isSupportEnabled: (configValue: string) => Promise<boolean>;
+    setDeployPlugin: (params: MavenDeployPluginDetails) => Promise<MavenDeployPluginDetails>;
+    getDeployPluginDetails: () => Promise<MavenDeployPluginDetails>;
+    removeDeployPlugin: () => Promise<MavenDeployPluginDetails>;
 }

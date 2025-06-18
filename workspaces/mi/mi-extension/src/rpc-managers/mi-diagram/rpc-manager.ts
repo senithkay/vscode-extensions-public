@@ -290,7 +290,7 @@ import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile, getEditTemplateXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { generateSwagger, getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
@@ -304,7 +304,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview, webviews } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule } from "../../util/onboardingUtils";
+import { compareVersions, filterConnectorVersion, generateInitialDependencies, getDefaultProjectPath, getMIVersionFromPom, buildBallerinaModule, updatePomForClassMediator } from "../../util/onboardingUtils";
 import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { checkForDevantExt } from "../../extension";
 import { getAPIMetadata } from "../../util/template-engine/mustach-templates/API";
@@ -3805,6 +3805,7 @@ ${endpointAttributes}
                         const mediaType = await detectMediaType(params.filePath);
                         addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false, params.registryRoot !== "");
                     }
+                    commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
                 }
             } else if (params.createOption === 'entryOnly') {
@@ -3839,6 +3840,7 @@ ${endpointAttributes}
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
                 addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false, params.registryRoot !== "");
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
         });
@@ -3868,8 +3870,7 @@ ${endpointAttributes}
             await replaceFullContentToFile(filePath, content);
             const classMediator = await vscode.workspace.openTextDocument(filePath);
             await classMediator.save();
-
-            await changeRootPomForClassMediator(this.projectUri);
+            await updatePomForClassMediator(this.projectUri);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -4054,7 +4055,7 @@ ${endpointAttributes}
                     documentUri: params.documentUri,
                     connectorName: params.connectorName
                 });
-    
+
                 let connectorIcon = DEFAULT_ICON;
                 if (connectorData.iconPath) {
                     const iconPath = await this.getIconPathUri({
@@ -4063,14 +4064,14 @@ ${endpointAttributes}
                     });
                     connectorIcon = iconPath.uri;
                 }
-    
+
                 // Get the latest cache state before updating
                 const latestIconCache = connectorCache.get('connector-icon-data') || {};
                 connectorCache.set('connector-icon-data', {
                     ...latestIconCache,
                     [params.connectorName]: connectorIcon
                 });
-    
+
                 resolve ({ iconPath: connectorIcon });
             }
         });
@@ -4543,6 +4544,39 @@ ${keyValuesXML}`;
                 await commands.executeCommand(COMMANDS.BUILD_PROJECT, this.projectUri, false);
             } else if (selection === "Create Docker Image" || selection === "docker") {
                 await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE, this.projectUri);
+            }
+            resolve();
+        });
+    }
+
+    async remoteDeploy(): Promise<void> {
+        return new Promise(async (resolve) => {
+            const workspaceFolderUri = vscode.Uri.file(path.resolve(this.projectUri));
+            if (workspaceFolderUri) {
+                const config = vscode.workspace.getConfiguration('MI', workspaceFolderUri);
+                const isRemoteDeploymentEnabled = config.get<string>("REMOTE_DEPLOYMENT_ENABLED");
+                if (isRemoteDeploymentEnabled) {
+                    await commands.executeCommand(COMMANDS.REMOTE_DEPLOY_PROJECT, false);
+                } else {
+                    const configure = await vscode.window.showWarningMessage(
+                        'Remote deployment is not enabled. Do you want to enable and configure it now?',
+                        { modal: true },
+                        'Yes'
+                    );
+                    if (configure === 'Yes') {
+                        const rpcClient = new MiVisualizerRpcManager(this.projectUri);
+                        rpcClient.openView({
+                            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+                            location: {
+                                view: MACHINE_VIEW.ProjectInformationForm,
+                                customProps: "Deployment"
+                            },
+                            isPopup: true
+                        });
+                    } else {
+                        return;
+                    }
+                }
             }
             resolve();
         });

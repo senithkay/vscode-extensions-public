@@ -8,11 +8,11 @@
  */
 
 import * as vscode from 'vscode';
-import { CancellationToken, DebugConfiguration, ProviderResult, Uri, WorkspaceFolder } from 'vscode';
+import { CancellationToken, DebugConfiguration, ProviderResult, Uri, workspace, WorkspaceFolder } from 'vscode';
 import { MiDebugAdapter } from './debugAdapter';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
-import { executeBuildTask, getServerPath } from './debugHelper';
+import {executeBuildTask, executeRemoteDeployTask, getServerPath} from './debugHelper';
 import { getDockerTask } from './tasks';
 import { getStateMachine, refreshUI } from '../stateMachine';
 import * as fs from 'fs';
@@ -61,6 +61,11 @@ export function activateDebugger(context: vscode.ExtensionContext) {
         }
         const dockerTask = getDockerTask(projectUri);
         await vscode.tasks.executeTask(dockerTask);
+    });
+
+    vscode.commands.registerCommand(COMMANDS.REMOTE_DEPLOY_PROJECT, async (postBuildTask?: Function) => {
+        const projectUri = await askForProject();
+        await executeRemoteDeployTask(projectUri, postBuildTask);
     });
 
     // Register command to change the Micro Integrator server path
@@ -205,6 +210,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
 
         if (webview && webview?.getProjectUri()) {
             const projectUri = webview.getProjectUri();
+            const projectWorkspace = workspace.getWorkspaceFolder(Uri.parse(projectUri));
             const launchJsonPath = path.join(projectUri, '.vscode', 'launch.json');
             const envPath = path.join(projectUri, '.env');
             let config: vscode.DebugConfiguration | undefined = undefined;
@@ -249,7 +255,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
             }
 
             try {
-                await vscode.debug.startDebugging(undefined, config);
+                await vscode.debug.startDebugging(projectWorkspace, config);
             } catch (err) {
                 vscode.window.showErrorMessage(`Failed to run without debugging: ${err}`);
             }

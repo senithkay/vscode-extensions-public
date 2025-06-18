@@ -20,6 +20,7 @@ import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
 import { useIONodesStyles } from "../../../styles";
 import { useDMExpandedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/type-utils";
+import { useShallow } from "zustand/react/shallow";
 
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -37,11 +38,13 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const expandedFieldsStore = useDMExpandedFieldsStore();
 
-	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
-		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType,
-		setIsSchemaOverridden: state.setIsSchemaOverridden
-	}));
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(
+        useShallow(state => ({
+            setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+            setIOConfigPanelType: state.setIOConfigPanelType,
+            setIsSchemaOverridden: state.setIsSchemaOverridden
+        }))
+    );
 
     const classes = useIONodesStyles();
     const typeName = getTypeName(dmType);

@@ -74,6 +74,7 @@ export type Metadata = {
         agent?: AgentData;
         paramsToHide?: string[]; // List of properties keys to to hide from forms
     };
+    functionKind?: string;
 };
 
 export type ToolData = {
@@ -112,6 +113,9 @@ export type Property = {
     codedata?: CodeData;
     typeMembers?: PropertyTypeMemberInfo[];
     imports?: Imports;
+    advancedValue?: string;
+    modified?: boolean;
+    oldValue?: string;
 };
 
 export type PropertyTypeMemberInfo = {
@@ -151,6 +155,11 @@ export type CodeData = {
     version?: string;
     isNew?: boolean;
     isGenerated?: boolean;
+    resourcePath?: string;
+    id?: string;
+    kind?: string;
+    originalName?: string;
+    dependentProperty?: string[];
 };
 
 export type Branch = {
@@ -246,7 +255,14 @@ export interface ProjectStructureArtifactResponse {
     moduleName?: string;
     position?: NodePosition;
     resources?: ProjectStructureArtifactResponse[];
+    isNew?: boolean;
 }
+
+export interface UpdatedArtifactsResponse {
+    artifacts: ProjectStructureArtifactResponse[];
+    error?: string;
+}
+
 export type Item = Category | AvailableNode;
 
 export type Category = {
@@ -269,8 +285,11 @@ export type NodePropertyKey =
     | "collection"
     | "comment"
     | "condition"
+    | "configValue"
     | "connection"
     | "defaultable"
+    | "defaultValue"
+    | "documentation"
     | "enableModelContext"
     | "expression"
     | "functionName"
@@ -401,6 +420,7 @@ export type ConfigVariable = {
     id: string;
     returning: boolean;
     diagnostics?: Diagnostic;
+    flags?: number;
 };
 
 export type FormDiagnostics = {

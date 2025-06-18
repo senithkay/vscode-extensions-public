@@ -156,13 +156,15 @@ interface GraphqlServiceEditorProps {
     filePath: string;
     lineRange: LineRange;
     onClose: () => void;
+    serviceIdentifier: string;
 }
 
 export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     console.log("===GraphqlServiceEditor Props: ", props);
-    const { filePath, lineRange, onClose } = props;
+    const { filePath, lineRange, onClose, serviceIdentifier } = props;
     const { rpcClient } = useRpcContext();
 
+    const [isSaving, setIsSaving] = useState<boolean>(false);
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [projectListeners, setProjectListeners] = useState<ProjectStructureArtifactResponse[]>([]);
     const [functionModel, setFunctionModel] = useState<FunctionModel>(undefined);
@@ -210,15 +212,15 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     const fetchServiceModel = async (newFilePath?: string, linePosition?: NodePosition) => {
         const reqLineRange: LineRange = linePosition
             ? {
-                  startLine: {
-                      line: linePosition.startLine,
-                      offset: linePosition.startColumn,
-                  },
-                  endLine: {
-                      line: linePosition.endLine,
-                      offset: linePosition.endColumn,
-                  },
-              }
+                startLine: {
+                    line: linePosition.startLine,
+                    offset: linePosition.startColumn,
+                },
+                endLine: {
+                    line: linePosition.endLine,
+                    offset: linePosition.endColumn,
+                },
+            }
             : lineRange;
 
         const reqFilePath = newFilePath ? newFilePath : filePath;
@@ -527,10 +529,11 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     };
 
     const handleFunctionSubmit = async (updatedModel: FunctionModel) => {
+        setIsSaving(true);
         try {
-            let LsReponse;
+            let artifacts;
             if (isEdit) {
-                LsReponse = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
+                artifacts = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
                     filePath,
                     codedata: {
                         lineRange: lineRange,
@@ -538,7 +541,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     function: updatedModel,
                 });
             } else {
-                LsReponse = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
+                artifacts = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
                     filePath,
                     codedata: {
                         lineRange: lineRange,
@@ -547,8 +550,9 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                 });
             }
 
+            const serviceArtifact = artifacts.artifacts.find(artifact => artifact.name === serviceIdentifier);
             // Refresh the service model
-            fetchServiceModel(LsReponse?.filePath, LsReponse?.position);
+            fetchServiceModel(serviceArtifact?.path, serviceArtifact?.position);
 
             if (isEdit) {
                 setIsEdit(false);
@@ -558,6 +562,8 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             setFunctionModel(undefined);
         } catch (error) {
             console.error("Error handling submit:", error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -576,7 +582,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                 </PanelContainer>
             )}
             {functionModel && (isNewForm || isEdit) && (
-                <PanelContainer 
+                <PanelContainer
                     title={isNewForm ? "Add Field" : "Edit Field"}
                     show={true}
                     onBack={isNewForm ? handleNewFunctionClose : handleEditFunctionClose}
@@ -588,6 +594,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         filePath={filePath}
                         lineRange={lineRange}
                         isGraphqlView={true}
+                        isSaving={isSaving}
                         onSave={handleFunctionSubmit}
                         onClose={isNewForm ? handleNewFunctionClose : handleEditFunctionClose}
                     />

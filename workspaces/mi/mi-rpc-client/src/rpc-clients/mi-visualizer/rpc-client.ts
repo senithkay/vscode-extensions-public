@@ -52,7 +52,7 @@ import {
     goSelected,
     goToSource,
     log,
-    isLegacyExpressionSupportEnabled,
+    isSupportEnabled,
     openExternal,
     openReadme,
     openView,
@@ -83,9 +83,14 @@ import {
     ImportOpenAPISpecRequest,
     updateRuntimeVersionsInPom,
     PathDetailsResponse,
-    updateLegacyExpressionSupport, 
+    updateProjectSettingsConfig,
     updateDependenciesFromOverview,
-    DownloadMIRequest
+    DownloadMIRequest,
+    ProjectConfig,
+    setDeployPlugin,
+    getDeployPluginDetails,
+    removeDeployPlugin,
+    MavenDeployPluginDetails
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -153,8 +158,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendNotification(goSelected, HOST_EXTENSION, params);
     }
 
-    toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
-        return this._messenger.sendRequest(toggleDisplayOverview, HOST_EXTENSION, params);
+    toggleDisplayOverview(params: ToggleDisplayOverviewRequest): void {
+        return this._messenger.sendNotification(toggleDisplayOverview, HOST_EXTENSION, params);
     }
 
     goToSource(params: GoToSourceRequest): void {
@@ -169,8 +174,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendNotification(log, HOST_EXTENSION, params);
     }
 
-    updateContext(params: UpdateContextRequest): Promise<void> {
-        return this._messenger.sendRequest(updateContext, HOST_EXTENSION, params);
+    updateContext(params: UpdateContextRequest): void {
+        return this._messenger.sendNotification(updateContext, HOST_EXTENSION, params);
     }
 
     retrieveContext(params: RetrieveContextRequest): Promise<RetrieveContextResponse> {
@@ -247,11 +252,23 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
         return this._messenger.sendRequest(importOpenAPISpec, HOST_EXTENSION, params);
     }
-    updateLegacyExpressionSupport(value: boolean): Promise<void> {
-        return this._messenger.sendRequest(updateLegacyExpressionSupport, HOST_EXTENSION, value);
+    updateProjectSettingsConfig(params: ProjectConfig): Promise<void> {
+        return this._messenger.sendRequest(updateProjectSettingsConfig, HOST_EXTENSION, params);
     }
 
-    isLegacyExpressionSupportEnabled(): Promise<boolean> {
-        return this._messenger.sendRequest(isLegacyExpressionSupportEnabled, HOST_EXTENSION);
+    isSupportEnabled(configValue: string): Promise<boolean> {
+        return this._messenger.sendRequest(isSupportEnabled, HOST_EXTENSION, configValue);
+    }
+
+    setDeployPlugin(params: MavenDeployPluginDetails): Promise<MavenDeployPluginDetails> {
+        return this._messenger.sendRequest(setDeployPlugin, HOST_EXTENSION, params);
+    }
+
+    getDeployPluginDetails(): Promise<MavenDeployPluginDetails> {
+        return this._messenger.sendRequest(getDeployPluginDetails, HOST_EXTENSION);
+    }
+
+    removeDeployPlugin(): Promise<MavenDeployPluginDetails> {
+        return this._messenger.sendRequest(removeDeployPlugin, HOST_EXTENSION);
     }
 }

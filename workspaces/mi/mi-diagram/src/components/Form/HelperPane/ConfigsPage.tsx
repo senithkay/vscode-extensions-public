@@ -63,7 +63,7 @@ export const ConfigsPage = ({ position, onChange }: ConfigsPageProps) => {
     const [searchValue, setSearchValue] = useState<string>('');
     const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
-    const { register, handleSubmit, reset, formState: { errors, isValid } } = useForm({
+    const { register, handleSubmit, reset, formState: { errors, isValid } } = useForm<ConfigFormData,any,ConfigFormData>({
         resolver: yupResolver(schema),
         defaultValues: {
             configName: '',

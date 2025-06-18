@@ -5,6 +5,8 @@ import { create } from 'zustand';
 export interface DataMapperState {
   imports: string[];
   setImports: (imports: string[]) => void;
+  importReferenceMap: Record<string, string>;
+  setImportReferenceMap: (importReferenceMap: Record<string, string>) => void;
   functionST: FunctionDefinition;
   setFunctionST: (st: FunctionDefinition) => void;
   filePath: string;
@@ -30,11 +32,13 @@ export interface DataMapperFocusedViewState {
 
 export const useDMStore = create<DataMapperState>((set) => ({
   imports: [],
+  importReferenceMap: {},
   functionST: undefined,
   filePath: undefined,
   langClientPromise: undefined,
   setFunctionST: (functionST: FunctionDefinition) => set({ functionST }),
   setImports: (imports) => set({ imports }),
+  setImportReferenceMap: (importReferenceMap) => set({ importReferenceMap }),
   setFilePath: (filePath: string) => set({ filePath }),
   setLangClientPromise: (langClientPromise: LangClientRpcClient) => set({ langClientPromise }),
 }));

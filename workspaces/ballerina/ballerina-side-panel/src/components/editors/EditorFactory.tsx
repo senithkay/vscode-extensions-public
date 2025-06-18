@@ -68,7 +68,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         return <ChoiceForm field={field} recordTypeFields={recordTypeFields} />;
     } else if (field.type === "DROPDOWN_CHOICE") {
         return <DropdownChoiceForm field={field} />;
-    } else if (field.type === "TEXTAREA") {
+    } else if (field.type === "TEXTAREA" || field.type === "STRING") {
         return <TextAreaEditor field={field} />;
     } else if (field.type === "EXPRESSION_SET") {
         return <ArrayEditor field={field} label={"Add Another Value"} />;

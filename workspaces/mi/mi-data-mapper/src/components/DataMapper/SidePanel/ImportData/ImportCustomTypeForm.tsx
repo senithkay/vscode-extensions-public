@@ -21,6 +21,7 @@ import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportCustomTypePanel } from "./ImportCustomTypePanel";
 import { FunctionDeclaration } from "ts-morph";
 import { IOType } from "@wso2-enterprise/mi-core";
+import { useShallow } from "zustand/react/shallow";
 
 export interface ImportType {
     type: string;
@@ -47,13 +48,17 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 
-    const { resetSubMappingConfig, subMappingConfigFromData, setSubMappingConfigFormData } = useDMSubMappingConfigPanelStore(state => ({
-        subMappingConfig: state.subMappingConfig,
-        setSubMappingConfig: state.setSubMappingConfig,
-        resetSubMappingConfig: state.resetSubMappingConfig,
-        subMappingConfigFromData: state.subMappingConfigFormData,
-        setSubMappingConfigFormData: state.setSubMappingConfigFormData
-    }));
+    const { resetSubMappingConfig, subMappingConfigFromData, setSubMappingConfigFormData } = useDMSubMappingConfigPanelStore(
+        useShallow(
+            state => ({
+                subMappingConfig: state.subMappingConfig,
+                setSubMappingConfig: state.setSubMappingConfig,
+                resetSubMappingConfig: state.resetSubMappingConfig,
+                subMappingConfigFromData: state.subMappingConfigFormData,
+                setSubMappingConfigFormData: state.setSubMappingConfigFormData
+            })
+        )
+    );
 
     const fileExtension = useMemo(() => {
         if (!selectedImportType) return undefined;

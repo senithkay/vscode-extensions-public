@@ -18,7 +18,7 @@ import { SIDE_PANEL_WIDTH } from "../../../resources/constants";
 interface StringWithParamManagerProps {
     element: Element;
     isRequired: boolean;
-    helpTipElement: React.JSX.Element;
+    helpTipElement: JSX.Element;
     field: any;
     errorMsg: string;
     nodeRange?: Range;

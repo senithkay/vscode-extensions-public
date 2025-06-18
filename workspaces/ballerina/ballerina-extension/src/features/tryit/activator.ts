@@ -107,7 +107,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
             } else {
                 const quickPickItems = services.map(service => ({
                     label: `'${service.basePath}' on ${service.listener.name}`,
-                    description: `HTTP Service`,
+                    description: `${service.type} Service`,
                     service
                 }));
 
@@ -140,7 +140,7 @@ async function openTryItView(withNotice: boolean = false, resourceMetadata?: Res
         } else if (selectedService.type === ServiceType.GRAPHQL) {
             const selectedPort: number = await getServicePort(workspaceRoot, selectedService);
             const port = selectedPort;
-            const path = serviceMetadata.basePath;
+            const path = selectedService.basePath;
             const service = `http://localhost:${port}${path}`;
             await createGraphqlView(service);
         } else {
@@ -833,7 +833,7 @@ function setupErrorLogWatcher(targetDir: string) {
                 ).then(selection => {
                     if (selection === 'Show Details') {
                         // Show the full error in an output channel
-                        const outputChannel = window.createOutputChannel('Ballerina Integrator Tryit - Log');
+                        const outputChannel = window.createOutputChannel('WSO2 Integrator: BI Tryit - Log');
                         outputChannel.appendLine(content.trim());
                         outputChannel.show();
                     }
@@ -895,9 +895,9 @@ function disposeErrorWatcher() {
 
 // Service information interface
 enum ServiceType {
-    HTTP = 'http',
-    AGENT = 'ai',
-    GRAPHQL = 'graphql'
+    HTTP = 'HTTP',
+    AGENT = 'AI Agent',
+    GRAPHQL = 'GraphQL'
 }
 
 interface ServiceInfo {

@@ -40,7 +40,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 
 import { UnionTypeSelector } from "./UnionTypeSelector";
-import { Codicon, Divider, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Divider, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { useIONodesStyles, useUnionTypeNodeStyles } from "../../../styles";
 
 export interface UnionTypeTreeWidgetProps {
@@ -110,17 +110,19 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
-			{valueLabel && (
-                <span className={ioNodesStyles.valueLabel}>
-					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
-                    {typeName && ":"}
-				</span>
-            )}
-            <span className={ioNodesStyles.outputTypeLabel}>
-                {getUnionType()}
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{ marginRight: "auto" }}>
+                {valueLabel && (
+                    <span className={ioNodesStyles.valueLabel}>
+                        <OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
+                        {typeName && ":"}
+                    </span>
+                )}
+                <span className={ioNodesStyles.outputTypeLabel}>
+                    {getUnionType()}
+                </span>
             </span>
-		</span>
+        </TruncatedLabel>
     );
 
     const getTargetPositionForReInitWithTypeCast = () => {

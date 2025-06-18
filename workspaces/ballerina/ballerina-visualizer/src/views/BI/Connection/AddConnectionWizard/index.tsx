@@ -196,7 +196,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
-                    if (response.textEdits) {
+                    if (response.artifacts.length > 0) {
                         // clear memory
                         selectedNodeRef.current = undefined;
                         setSavingFormStatus(SavingFormStatus.SUCCESS);
@@ -219,12 +219,12 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 prevFields.map((field) =>
                     field.key === "module"
                         ? {
-                              ...field,
-                              diagnostics: [
-                                  ...field.diagnostics,
-                                  { message: response.errorMessage, severity: "ERROR" },
-                              ],
-                          }
+                            ...field,
+                            diagnostics: [
+                                ...field.diagnostics,
+                                { message: response.errorMessage, severity: "ERROR" },
+                            ],
+                        }
                         : field
                 )
             );

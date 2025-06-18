@@ -32,6 +32,10 @@ import {
     DownloadProgress,
     breakpointChanged,
     AIMachineEventType,
+    ArtifactData,
+    ProjectStructureArtifactResponse,
+    onArtifactUpdatedNotification,
+    onArtifactUpdatedRequest,
     ColorThemeKind,
     currentThemeChanged
 } from "@wso2-enterprise/ballerina-core";
@@ -173,6 +177,12 @@ export class BallerinaRpcClient {
 
     onProjectContentUpdated(callback: (state: boolean) => void) {
         this.messenger.onNotification(projectContentUpdated, callback);
+    }
+
+    // <----- This is used to register given artifact updated callback notification ----->
+    onArtifactUpdated(artifactData: ArtifactData, callback: (artifacts: ProjectStructureArtifactResponse[]) => void) {
+        this.messenger.sendRequest(onArtifactUpdatedRequest, HOST_EXTENSION, artifactData);
+        this.messenger.onNotification(onArtifactUpdatedNotification, callback);
     }
 
     webviewReady(): void {

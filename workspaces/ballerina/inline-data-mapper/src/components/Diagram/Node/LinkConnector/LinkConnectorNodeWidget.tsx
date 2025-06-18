@@ -19,6 +19,7 @@ import { DiagnosticWidget } from '../../Diagnostic/DiagnosticWidget';
 import { renderDeleteButton, renderEditButton, renderPortWidget } from './LinkConnectorWidgetComponents';
 import { useDMExpressionBarStore } from "../../../../store/store";
 import { InputOutputPortModel } from "../../Port";
+import { useShallow } from "zustand/react/shallow";
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;

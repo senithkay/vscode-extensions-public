@@ -38,7 +38,7 @@ import {
     goHome,
     goSelected,
     goToSource,
-    isLegacyExpressionSupportEnabled,
+    isSupportEnabled,
     log,
     openExternal,
     openReadme,
@@ -67,9 +67,13 @@ import {
     setPathsInWorkSpace,
     selectFolder,
     SetPathRequest,
-    updateLegacyExpressionSupport, 
+    updateProjectSettingsConfig,
     updateDependenciesFromOverview,
-    DownloadMIRequest
+    DownloadMIRequest, ProjectConfig,
+    MavenDeployPluginDetails,
+    setDeployPlugin,
+    getDeployPluginDetails,
+    removeDeployPlugin
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -116,6 +120,9 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger, projectUri
     messenger.onRequest(updateRuntimeVersionsInPom, (args: string) => rpcManger.updateRuntimeVersionsInPom(args));
     messenger.onRequest(setPathsInWorkSpace, (args: SetPathRequest) => rpcManger.setPathsInWorkSpace(args));
     messenger.onRequest(selectFolder, (args: string) => rpcManger.selectFolder(args));
-    messenger.onRequest(updateLegacyExpressionSupport, (args: boolean) => rpcManger.updateLegacyExpressionSupport(args));
-    messenger.onRequest(isLegacyExpressionSupportEnabled, () => rpcManger.isLegacyExpressionSupportEnabled());
+    messenger.onRequest(updateProjectSettingsConfig, (args: ProjectConfig) => rpcManger.updateProjectSettingsConfig(args));
+    messenger.onRequest(isSupportEnabled, (args: string) => rpcManger.isSupportEnabled(args));
+    messenger.onRequest(setDeployPlugin, (args: MavenDeployPluginDetails) => rpcManger.setDeployPlugin(args));
+    messenger.onRequest(getDeployPluginDetails, () => rpcManger.getDeployPluginDetails());
+    messenger.onRequest(removeDeployPlugin, () => rpcManger.removeDeployPlugin());
 }

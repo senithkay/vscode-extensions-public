@@ -2,7 +2,7 @@
 import { ExtendedLangClient } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, TempData } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP, SCOPE, ProjectStructureResponse, ArtifactData, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { commands, extensions, Uri, window, workspace, WorkspaceFolder } from 'vscode';
@@ -14,8 +14,8 @@ import { extension } from './BalExtensionContext';
 import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { AIStateMachine } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
-import { checkIsBallerina, checkIsBI, fetchScope } from './utils';
-import { buildProjectArtifactsStructure, forceUpdateProjectArtifacts } from './utils/project-artifacts';
+import { checkIsBallerina, checkIsBI, fetchScope, getOrgPackageName } from './utils';
+import { buildProjectArtifactsStructure } from './utils/project-artifacts';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -46,26 +46,20 @@ const stateMachine = createMachine<MachineContext>(
                 actions: [
                     assign({
                         projectStructure: (context, event) => event.payload,
-                        tempData: (context, event) => event.stateMachineNavigate ? undefined : context.tempData // Remove temp data if the location is set
                     }),
-                    (context, event) => {
-                        if (event.stateMachineNavigate) {
-                            if (event.location) {
-                                openView(EVENT_TYPE.OPEN_VIEW, event.location);
-                            } else {
-                                updateView();
-                            }
-                        } else {
-                            notifyCurrentWebview();
-                        }
+                    () => {
                         commands.executeCommand("BI.project-explorer.refresh");
                     }
                 ]
             },
-            SET_TEMP_DATA: {
-                actions: assign({
-                    tempData: (context, event) => event.payload
-                })
+            UPDATE_PROJECT_LOCATION: {
+                actions: [
+                    assign({
+                        documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                        position: (context, event) => event.viewLocation.position ? event.viewLocation.position : context.position,
+                        identifier: (context, event) => event.viewLocation.identifier ? event.viewLocation.identifier : context.identifier,
+                    })
+                ]
             }
         },
         states: {
@@ -77,7 +71,9 @@ const stateMachine = createMachine<MachineContext>(
                         actions: assign({
                             isBI: (context, event) => event.data.isBI,
                             projectUri: (context, event) => event.data.projectPath,
-                            scope: (context, event) => event.data.scope
+                            scope: (context, event) => event.data.scope,
+                            org: (context, event) => event.data.orgName,
+                            package: (context, event) => event.data.packageName,
                         })
                     },
                     onError: {
@@ -439,17 +435,20 @@ export const StateMachine = {
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
     setEditMode: () => { stateService.send({ type: EVENT_TYPE.FILE_EDIT }); },
     setReadyMode: () => { stateService.send({ type: EVENT_TYPE.EDIT_DONE }); },
+    isReady: () => {
+        const state = stateService.getSnapshot().value;
+        return typeof state === 'object' && 'viewActive' in state && state.viewActive === "viewReady";
+    },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
-    updateProjectStructure: (payload: ProjectStructureResponse, stateMachineNavigate: boolean, location?: VisualizerLocation) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload, stateMachineNavigate, location }); },
-    setTempData: (payload: TempData) => { stateService.send({ type: "SET_TEMP_DATA", payload }); },
+    updateProjectStructure: (payload: ProjectStructureResponse) => { stateService.send({ type: "UPDATE_PROJECT_STRUCTURE", payload }); },
     resetToExtensionReady: () => {
         stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
     },
 };
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation, resetHistory = false) {
-    StateMachine.setReadyMode();
     if (resetHistory) {
+        StateMachine.setReadyMode();
         history?.clear();
     }
     extension.hasPullModuleResolved = false;
@@ -466,7 +465,7 @@ export function updateView(refreshTreeView?: boolean) {
     }
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
     if (refreshTreeView) {
-        forceUpdateProjectArtifacts();
+        buildProjectArtifactsStructure(StateMachine.context().projectUri, StateMachine.langClient(), true);
     }
     notifyCurrentWebview();
 }
@@ -496,7 +495,7 @@ async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFold
     if (balProjects.length > 1) {
         const projectPaths = balProjects.map(folder => folder.uri.fsPath);
         let selectedProject = await window.showQuickPick(projectPaths, {
-            placeHolder: 'Select a project to load the Ballerina Integrator'
+            placeHolder: 'Select a project to load the WSO2 Integrator'
         });
 
         if (!selectedProject) {
@@ -506,13 +505,15 @@ async function handleMultipleWorkspaces(workspaceFolders: readonly WorkspaceFold
 
         const isBI = checkIsBI(Uri.file(selectedProject));
         const scope = isBI && fetchScope(Uri.file(selectedProject));
+        const { orgName, packageName } = getOrgPackageName(selectedProject);
         setBIContext(isBI);
-        return { isBI, projectPath: selectedProject, scope };
+        return { isBI, projectPath: selectedProject, scope, orgName, packageName };
     } else if (balProjects.length === 1) {
         const isBI = checkIsBI(balProjects[0].uri);
         const scope = isBI && fetchScope(balProjects[0].uri);
+        const { orgName, packageName } = getOrgPackageName(balProjects[0].uri.fsPath);
         setBIContext(isBI);
-        return { isBI, projectPath: balProjects[0].uri.fsPath, scope };
+        return { isBI, projectPath: balProjects[0].uri.fsPath, scope, orgName, packageName };
     }
 
     return { isBI: false, projectPath: '' };
@@ -523,13 +524,14 @@ async function handleSingleWorkspace(workspaceURI: any) {
     const isBI = isBallerina && checkIsBI(workspaceURI);
     const scope = fetchScope(workspaceURI);
     const projectPath = isBallerina ? workspaceURI.fsPath : "";
+    const { orgName, packageName } = getOrgPackageName(projectPath);
 
     setBIContext(isBI);
     if (!isBI) {
         console.error("No BI enabled workspace found");
     }
 
-    return { isBI, projectPath, scope };
+    return { isBI, projectPath, scope, orgName, packageName  };
 }
 
 function setBIContext(isBI: boolean) {

@@ -40,8 +40,8 @@ export class ProjectExplorerEntry extends vscode.TreeItem {
             this.iconPath = new vscode.ThemeIcon(icon);
         } else if (icon) {
             this.iconPath = {
-                light: path.join(extension.context.extensionPath, 'assets', `light-${icon}.svg`),
-                dark: path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)
+                light: vscode.Uri.file(path.join(extension.context.extensionPath, 'assets', `light-${icon}.svg`)),
+                dark: vscode.Uri.file(path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`))
             };
         }
     }
@@ -264,21 +264,6 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         dataMappers.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
     }
     entries.push(dataMappers);
-
-    // ---------- Configurations ----------
-    const configs = new ProjectExplorerEntry(
-        "Configurations",
-        vscode.TreeItemCollapsibleState.Expanded,
-        null,
-        'config',
-        false
-    );
-    configs.contextValue = "configurations";
-    configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURABLE], DIRECTORY_MAP.CONFIGURABLE);
-    if (configs.children.length > 0) {
-        configs.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-    }
-    entries.push(configs);
 
     // ---------- Natural Functions ----------
     if (extension.isNPSupported) {

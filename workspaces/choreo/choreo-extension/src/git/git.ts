@@ -2308,15 +2308,15 @@ export class Repository {
 		const raw = await fs.readFile(path.join(this.dotGit.path, "HEAD"), "utf8");
 
 		// Branch
-		const branchMatch = raw.match(/^ref: refs\/heads\/(?<name>.*)$/m);
-		if (branchMatch?.groups?.name) {
-			return { name: branchMatch.groups.name, commit: undefined, type: RefType.Head };
+		const branchMatch = raw.match(/^ref: refs\/heads\/(.*)$/m);
+		if (branchMatch && branchMatch[1]) {
+			return { name: branchMatch[1], commit: undefined, type: RefType.Head };
 		}
 
 		// Detached
-		const commitMatch = raw.match(/^(?<commit>[0-9a-f]{40})$/m);
-		if (commitMatch?.groups?.commit) {
-			return { name: undefined, commit: commitMatch.groups.commit, type: RefType.Head };
+		const commitMatch = raw.match(/^([0-9a-f]{40})$/m);
+		if (commitMatch && commitMatch[1]) {
+			return { name: undefined, commit: commitMatch[1], type: RefType.Head };
 		}
 
 		throw new Error(`Unable to parse HEAD file. HEAD file contents: ${raw}.`);

@@ -26,6 +26,7 @@ import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { Button, Icon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
+import { useShallow } from "zustand/react/shallow";
 
 export interface PrimitiveOutputElementWidgetWidgetProps {
     parentId: string;
@@ -53,10 +54,12 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     } = props;
     const classes = useIONodesStyles();
     
-    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(state => ({
-        exprBarFocusedPort: state.focusedPort,
-        setExprBarFocusedPort: state.setFocusedPort
-    }));
+    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(
+        useShallow(state => ({
+            exprBarFocusedPort: state.focusedPort,
+            setExprBarFocusedPort: state.setFocusedPort
+        }))
+    );
 
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 

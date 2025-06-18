@@ -36,7 +36,7 @@ const ParamField = ({ field, id, stateValue, handleOnChange, handleOnError }: an
                 <CheckBox
                     label={name ?? getParameterName(id)}
                     value={stateValue ?? value}
-                    checked={!!stateValue ?? !!value}
+                    checked={!!(stateValue ?? value)}
                     onChange={(checked: boolean) => handleOnChange(id, checked)}
                 />
             ) : type === "dropdown" ? (

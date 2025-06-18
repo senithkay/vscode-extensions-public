@@ -14,17 +14,17 @@ import {
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
-    NO_SUCH_FILE, CONFIG_CHANGED, OLD_BALLERINA_VERSION, UNKNOWN_ERROR, INVALID_FILE, INVALID_PROJECT,
+    NO_SUCH_FILE, CONFIG_CHANGED, OLD_BALLERINA_VERSION, INVALID_FILE, INVALID_PROJECT,
     OLD_PLUGIN_INSTALLED,
     COOKIE_SETTINGS,
     UPDATE_BALLERINA_VERSION
 } from "./messages";
 import { join, sep } from 'path';
-import { exec, spawnSync, spawn } from 'child_process';
+import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../utils/server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION, isSupportedSLVersion } from '../utils';
+import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION, isSupportedSLVersion, logExtensionInitInfo } from '../utils';
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
@@ -35,7 +35,9 @@ import {
     ENABLE_SEQUENCE_DIAGRAM_VIEW,
     ENABLE_BACKGROUND_DRIFT_CHECK,
     ENABLE_BALLERINA_INTEGRATOR,
-    DEFINE_BALLERINA_INTEGRATOR_SCOPE
+    DEFINE_BALLERINA_INTEGRATOR_SCOPE,
+    SHOW_LIBRARY_CONFIG_VARIABLES,
+    LANG_SERVER_PATH
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -49,7 +51,7 @@ import { BALLERINA_COMMANDS, runCommand } from "../features/project";
 import { gitStatusBarItem } from "../features/editor-support/git-status";
 import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
 import { BallerinaProject, DownloadProgress, onDownloadProgress, SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
-import os, { platform } from "os";
+import os from "os";
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import AdmZip from 'adm-zip';
 import fs from 'fs';
@@ -266,14 +268,12 @@ export class BallerinaExtension {
             }
 
             // Validate the ballerina version.
-            const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion;
                 this.biSupported = isSupportedSLVersion(this, 2201123); // Minimum supported version for BI
                 this.isNPSupported = isSupportedSLVersion(this, 2201130) && this.enabledExperimentalFeatures(); // Minimum supported requirements for NP
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
-                log(`Plugin version: ${pluginVersion}\nBallerina version: ${this.ballerinaVersion}`);
 
                 if (!this.ballerinaVersion.match(SWAN_LAKE_REGEX) || (this.ballerinaVersion.match(SWAN_LAKE_REGEX) &&
                     !isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 3))) {
@@ -286,12 +286,12 @@ export class BallerinaExtension {
 
                 // if Home is found load Language Server.
                 let serverOptions: ServerOptions;
-                serverOptions = getServerOptions(this.ballerinaCmd, this);
+                serverOptions = getServerOptions(this);
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
                     this.clientOptions, this, false);
 
                 _onBeforeInit(this.langClient);
-                
+
                 await this.langClient.start();
 
                 // Following was put in to handle server startup failures.
@@ -303,6 +303,7 @@ export class BallerinaExtension {
                 } else if (this.langClient.state === LS_STATE.Running) {
                     await this.langClient?.registerExtendedAPICapabilities();
                     this.updateStatusBar(this.ballerinaVersion);
+                    logExtensionInitInfo(this);
                     sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                 }
 
@@ -1337,7 +1338,7 @@ export class BallerinaExtension {
                 await window.withProgress(
                     {
                         location: ProgressLocation.Notification,
-                        title: `Downloading Ballerina Integrator distribution`,
+                        title: `Downloading Ballerina distribution`,
                         cancellable: false,
                     },
                     async (progress) => {
@@ -1392,11 +1393,11 @@ export class BallerinaExtension {
             console.log(`Downloaded artifact to ${zipFilePath}`);
 
             if (restartWindow) {
-                window.showInformationMessage("Setting the Ballerina Integrator Home location...");
+                window.showInformationMessage("Setting the Ballerina distribution Home location...");
             }
             res = {
                 ...res,
-                message: `Setting the Ballerina Integrator Home location...`,
+                message: `Setting the Ballerina distribution Home location...`,
                 success: false,
                 step: 4
             };
@@ -1553,6 +1554,7 @@ export class BallerinaExtension {
                 || params.affectsConfiguration(ENABLE_LIVE_RELOAD)
                 || params.affectsConfiguration(ENABLE_BALLERINA_INTEGRATOR)
                 || params.affectsConfiguration(DEFINE_BALLERINA_INTEGRATOR_SCOPE)
+                || params.affectsConfiguration(LANG_SERVER_PATH)
             ) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
@@ -1888,6 +1890,10 @@ export class BallerinaExtension {
         return <string>workspace.getConfiguration().get(FILE_DOWNLOAD_PATH);
     }
 
+    public getConfiguredLangServerPath(): string {
+        return <string>workspace.getConfiguration().get(LANG_SERVER_PATH);
+    }
+
     public async updatePerformanceForecastSetting(status: boolean) {
         await workspace.getConfiguration().update(ENABLE_PERFORMANCE_FORECAST, status);
     }
@@ -1898,6 +1904,10 @@ export class BallerinaExtension {
 
     public enableAiSuggestions(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_AI_SUGGESTIONS);
+    }
+
+    public showLibraryConfigVariables(): boolean {
+        return <boolean>workspace.getConfiguration().get(SHOW_LIBRARY_CONFIG_VARIABLES);
     }
 
     public getDocumentContext(): DocumentContext {

@@ -49,7 +49,7 @@ import {
 import MarkdownRenderer from "../MarkdownRenderer";
 import { CodeSection } from "../CodeSection";
 import ErrorBox from "../ErrorBox";
-import { Input, parseInput, stringifyInputArrayWithBadges } from "../AIChatInput/utils/inputUtils";
+import { Input, parseBadgeString, parseInput, stringifyInputArrayWithBadges } from "../AIChatInput/utils/inputUtils";
 import { commandTemplates, NATURAL_PROGRAMMING_TEMPLATES } from "../../commandTemplates/data/commandTemplates.const";
 import { placeholderTags } from "../../commandTemplates/data/placeholderTags.const";
 import {
@@ -69,6 +69,9 @@ import { useFooterLogic } from "./Footer/useFooterLogic";
 import { SettingsPanel } from "../../SettingsPanel";
 import WelcomeMessage from "./Welcome";
 import { getOnboardingOpens, incrementOnboardingOpens } from "./utils/utils";
+
+import FeedbackBar from "./../FeedbackBar";
+import { useFeedback } from "./utils/useFeedback";
 
 /* REFACTORED CODE START [1] */
 /* REFACTORED CODE END [1] */
@@ -147,10 +150,11 @@ const AIChat: React.FC = () => {
     const [testGenIntermediaryState, setTestGenIntermediaryState] = useState<TestGeneratorIntermediaryState | null>(
         null
     );
+
     const [showSettings, setShowSettings] = useState(false);
 
     //TODO: Need a better way of storing data related to last generation to be in the repair state.
-    const currentDiagnosticsRef = useRef<any[]>([]);
+    const currentDiagnosticsRef = useRef<DiagnosticEntry[]>([]);
     const functionsRef = useRef<any>([]);
     const lastAttatchmentsRef = useRef<any>([]);
     const aiChatInputRef = useRef<AIChatInputRef>(null);
@@ -161,6 +165,11 @@ const AIChat: React.FC = () => {
     // custom hooks: commands + attachments
     const { loadGeneralTags, injectPlaceholderTags } = useFooterLogic({
         rpcClient,
+    });
+
+    const { feedbackGiven, setFeedbackGiven, handleFeedback } = useFeedback({
+        messages,
+        currentDiagnosticsRef
     });
 
     /**
@@ -373,6 +382,7 @@ const AIChat: React.FC = () => {
     async function handleSend(content: { input: Input[]; attachments: Attachment[] }) {
         setCurrentGeneratingPromptIndex(otherMessages.length);
         setIsPromptExecutedInCurrentWindow(true);
+        setFeedbackGiven(null);
 
         if (content.input.length === 0) {
             return;
@@ -2299,6 +2309,9 @@ const AIChat: React.FC = () => {
                         {otherMessages.map((message, index) => {
                             const showGeneratingFiles = !codeSegmentRendered && index === currentGeneratingPromptIndex;
                             const isLastResponse = index === currentGeneratingPromptIndex;
+                            const isAssistantMessage = message.role === "Copilot";
+                            const lastAssistantIndex = otherMessages.map(m => m.role).lastIndexOf("Copilot");
+                            const isLatestAssistantMessage = isAssistantMessage && index === lastAssistantIndex;
                             codeSegmentRendered = false;
 
                             const segmentedContent = splitContent(message.content);
@@ -2306,7 +2319,7 @@ const AIChat: React.FC = () => {
                                 (segment) => segment.type === SegmentType.Progress
                             );
                             return (
-                                <ChatMessage>
+                                <ChatMessage key={index}>
                                     {message.type !== "question" && message.type !== "label" && (
                                         <RoleContainer
                                             icon={message.role === "User" ? "bi-user" : "bi-ai-chat"}
@@ -2472,6 +2485,14 @@ const AIChat: React.FC = () => {
                                             return <MarkdownRenderer key={i} markdownContent={segment.text} />;
                                         }
                                     })}
+                                                            {/* Show feedback bar only for the latest assistant message and when loading is complete */}
+                            {isAssistantMessage && isLatestAssistantMessage && !isLoading && !isCodeLoading && (
+                                <FeedbackBar 
+                                    messageIndex={index}
+                                    onFeedback={handleFeedback}
+                                    currentFeedback={feedbackGiven}
+                                />
+                            )}
                                 </ChatMessage>
                             );
                         })}

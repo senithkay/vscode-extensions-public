@@ -189,8 +189,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - name: Set up Ballerina
@@ -235,8 +235,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - uses: ballerina-platform/setup-ballerina@v1
@@ -306,8 +306,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - uses: ballerina-platform/setup-ballerina@v1
@@ -395,8 +395,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - name: Run Test
@@ -413,7 +413,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        group: [group1, group2]
+        group: [group1, group2, group3]
     steps:
       - name: Restore build
         uses: actions/download-artifact@v4
@@ -429,8 +429,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - name: install packages
@@ -465,5 +465,6 @@ jobs:
           name: MI-e2e-test-recording-${{ matrix.group }}-${{ github.run_attempt }}
           path: | 
             workspaces/mi/mi-extension/src/test/test-resources/videos/**
+            workspaces/mi/mi-extension/src/test/test-resources/screenshots/**
             workspaces/mi/mi-extension/record.mp4
           retention-days: 5

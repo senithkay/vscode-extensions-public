@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from "react";
 import { AllNodeModel } from "../../utils/diagram";
-import { Codicon, ProgressRing, TextField, TreeView, TreeViewItem } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ProgressRing, TextField } from "@wso2-enterprise/ui-toolkit";
 import { StartNodeModel } from "../nodes/StartNode/StartNodeModel";
 import { EmptyNodeModel } from "../nodes/EmptyNode/EmptyNodeModel";
 import { EndNodeModel } from "../nodes/EndNode/EndNodeModel";
@@ -23,6 +23,8 @@ import { getMediatorIconsFromFont } from "../../resources/icons/mediatorIcons/ic
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import { FirstCharToUpperCase } from "../../utils/commons";
+import { TreeView } from "../TreeView/TreeView";
+import { TreeViewItem } from "../TreeView/TreeViewItem";
 
 const SearchStyle = {
     marginLeft: '10px',

@@ -41,6 +41,8 @@ import {
     SetPathRequest,
     PathDetailsResponse,
     DownloadMIRequest,
+    ProjectConfig,
+    MavenDeployPluginDetails
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -60,11 +62,11 @@ export const getHistory: RequestType<void, HistoryEntryResponse> = { method: `${
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
 export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };
 export const goSelected: NotificationType<number> = { method: `${_preFix}/goSelected` };
-export const toggleDisplayOverview: RequestType<ToggleDisplayOverviewRequest, void> = { method: `${_preFix}/toggleDisplayOverview` };
+export const toggleDisplayOverview: NotificationType<ToggleDisplayOverviewRequest> = { method: `${_preFix}/toggleDisplayOverview` };
 export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
 export const focusOutput: NotificationType<void> = { method: `${_preFix}/focusOutput` };
 export const log: NotificationType<LogRequest> = { method: `${_preFix}/log` };
-export const updateContext: RequestType<UpdateContextRequest, void> = { method: `${_preFix}/updateContext` };
+export const updateContext: NotificationType<UpdateContextRequest> = { method: `${_preFix}/updateContext` };
 export const retrieveContext: RequestType<RetrieveContextRequest, RetrieveContextResponse> = { method: `${_preFix}/retrieveContext` };
 export const showNotification: RequestType<NotificationRequest, NotificationResponse> = { method: `${_preFix}/showNotification` };
 export const getAvailableRuntimeServices: RequestType<void, RuntimeServicesResponse> = { method: `${_preFix}/getAvailableRuntimeServices` };
@@ -87,5 +89,8 @@ export const getProjectSetupDetails: RequestType<void, SetupDetails> = { method:
 export const updateRuntimeVersionsInPom: RequestType<string, boolean> = { method: `${_preFix}/updateRuntimeVersionsInPom` };
 export const setPathsInWorkSpace: RequestType<SetPathRequest, PathDetailsResponse> = { method: `${_preFix}/setPathsInWorkSpace` };
 export const selectFolder: RequestType<string, string | undefined> = { method: `${_preFix}/selectFolder` };
-export const updateLegacyExpressionSupport: RequestType<boolean, void> = { method: `${_preFix}/updateLegacyExpressionSupport` };
-export const isLegacyExpressionSupportEnabled: RequestType<void, boolean> = { method: `${_preFix}/isLegacyExpressionSupportEnabled` };
+export const updateProjectSettingsConfig: RequestType<ProjectConfig, void> = { method: `${_preFix}/updateProjectSettingsConfig` };
+export const isSupportEnabled: RequestType<string, boolean> = { method: `${_preFix}/isSupportEnabled` };
+export const setDeployPlugin: RequestType<MavenDeployPluginDetails, MavenDeployPluginDetails> = { method: `${_preFix}/setDeployPlugin` };
+export const getDeployPluginDetails: RequestType<void, MavenDeployPluginDetails> = { method: `${_preFix}/getDeployPluginDetails` };
+export const removeDeployPlugin: RequestType<void, MavenDeployPluginDetails> = { method: `${_preFix}/removeDeployPlugin` };

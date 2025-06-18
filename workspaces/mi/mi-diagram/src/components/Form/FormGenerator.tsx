@@ -219,7 +219,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     useEffect(() => {
         rpcClient
             .getMiVisualizerRpcClient()
-            .isLegacyExpressionSupportEnabled()
+            .isSupportEnabled("LEGACY_EXPRESSION_ENABLED")
             .then(isEnabled => {
                 setIsLegacyExpressionEnabled(isEnabled);
             })
@@ -487,7 +487,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    function ParamManagerComponent(element: Element, isRequired: boolean, helpTipElement: React.JSX.Element, field: any) {
+    function ParamManagerComponent(element: Element, isRequired: boolean, helpTipElement: JSX.Element, field: any) {
         return <ComponentCard id={'parameterManager-' + element.name} sx={cardStyle} disbaleHoverEffect>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="h3">{element.displayName}</Typography>
@@ -508,7 +508,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         </ComponentCard>;
     }
 
-    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string, isRequired: boolean }) => {
+    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: JSX.Element, placeholder: string, isRequired: boolean }) => {
         const name = getNameForController(element.name);
 
         return expressionEditorField !== name ? (
@@ -551,7 +551,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         )
     }
 
-    const FormExpressionFieldComponent = (element: Element, field: any, helpTipElement: React.JSX.Element, isRequired: boolean, errorMsg: string) => {
+    const FormExpressionFieldComponent = (element: Element, field: any, helpTipElement: JSX.Element, isRequired: boolean, errorMsg: string) => {
         const name = getNameForController(element.name);
 
         return expressionEditorField !== name ? (

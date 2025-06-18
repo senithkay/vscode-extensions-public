@@ -184,9 +184,10 @@ export class API {
         console.log("Clicked on try it out");
         await swaggerView.getByRole('button', { name: 'Execute' }).click();
         console.log("Clicked on execute");
+        await page.page.waitForTimeout(1000);
         await page.executePaletteCommand('View: Close All Editor Groups');
         // wait for the editor to close
-        // await page.page.waitForTimeout(2000);
+        await page.page.waitForTimeout(1000);
         try {
             const saveBtn = this._page.getByRole('button', { name: 'Save', exact: true });
             await saveBtn.waitFor({ timeout: 5000 });
@@ -309,7 +310,7 @@ export class API {
         console.log("Clicked on From WSDL file");
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
         await apiFormFrame.getByRole('radio', { name: 'URL' }).click();
-        await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('http://www.dneonline.com/calculator.asmx?wsdl');
+        await apiFormFrame.getByRole('textbox', { name: 'WSDL URL' }).fill('https://www.w3schools.com/xml/tempconvert.asmx?WSDL');
         const submitBtn = await getVsCodeButton(apiFormFrame, 'Create', "primary");
         expect(await submitBtn.isEnabled()).toBeTruthy();
         await submitBtn.click({force: true});

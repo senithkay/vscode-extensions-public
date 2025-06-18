@@ -107,7 +107,7 @@ async function downloadFile(url: string, dest: string) {
 			cancellable: true,
 		},
 		async (progress, cancellationToken) => {
-			return new Promise((resolve, reject) => {
+			return new Promise<void>((resolve, reject) => {
 				const writer = fs.createWriteStream(dest);
 				const totalSize = Number.parseInt(response.headers["content-length"], 10);
 				let downloadedSize = 0;
@@ -133,7 +133,7 @@ async function downloadFile(url: string, dest: string) {
 					reject();
 				});
 
-				writer.on("finish", resolve);
+				writer.on("finish", ()=>{resolve()});
 				writer.on("error", reject);
 			});
 		},

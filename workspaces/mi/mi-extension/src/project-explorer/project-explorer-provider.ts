@@ -37,8 +37,8 @@ export class ProjectExplorerEntry extends vscode.TreeItem {
 			this.iconPath = new vscode.ThemeIcon(icon);
 		} else if (icon) {
 			this.iconPath = {
-				light: path.join(extensionContext.extensionPath, 'assets', `light-${icon}.svg`),
-				dark: path.join(extensionContext.extensionPath, 'assets', `dark-${icon}.svg`)
+				light: vscode.Uri.file(path.join(extensionContext.extensionPath, 'assets', `light-${icon}.svg`)),
+				dark:  vscode.Uri.file(path.join(extensionContext.extensionPath, 'assets', `dark-${icon}.svg`))
 			};
 		}
 	}
@@ -190,13 +190,8 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 		if (['APIs', 'Event Integrations', 'Automations', 'Data Services'].includes(key)) {
 			children = genProjectStructureEntry(artifacts[key]);
 		} else if (key === 'Resources') {
-			const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
-			if (!isRegistrySupported) {
-				const existingResources = getAvailableRegistryResources(project.uri.fsPath);
-				children = generateResources(artifacts[key], existingResources);
-			} else {
-				continue;
-			}
+			const existingResources = getAvailableRegistryResources(project.uri.fsPath);
+			children = generateResources(artifacts[key], existingResources);
 		} else {
 			children = generateArtifacts(artifacts[key], data, project);
 		}
@@ -811,8 +806,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			const apiEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(true), entry, 'APIResource');
 			apiEntry.contextValue = 'api';
 			apiEntry.iconPath = {
-				light: path.join(extensionContext.extensionPath, 'assets', `light-APIResource.svg`),
-				dark: path.join(extensionContext.extensionPath, 'assets', `dark-APIResource.svg`)
+				light: vscode.Uri.file(path.join(extensionContext.extensionPath, 'assets', `light-APIResource.svg`)),
+				dark: vscode.Uri.file(path.join(extensionContext.extensionPath, 'assets', `dark-APIResource.svg`))
 			};
 			apiEntry.children = [];
 
