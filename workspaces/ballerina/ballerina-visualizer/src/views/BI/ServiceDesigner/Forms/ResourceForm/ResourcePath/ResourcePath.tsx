@@ -11,7 +11,8 @@ import React, { useEffect, useState } from 'react';
 import { Codicon, Dropdown, LinkButton, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { PropertyModel } from '@wso2-enterprise/ballerina-core';
-import { parseResourcePath, SegmentParam } from '../Utils/ResourcePathParser';
+import { SegmentParam } from '@wso2-enterprise/ballerina-side-panel';
+import { parseResourcePath } from '../Utils/ResourcePathParser';
 
 const verbs = [
 	{
