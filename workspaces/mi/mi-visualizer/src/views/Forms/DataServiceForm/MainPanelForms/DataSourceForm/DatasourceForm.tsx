@@ -137,16 +137,16 @@ export type CarbonDatasourceObject = {
 };
 
 export type DataSourceFields = {
-    dataSourceName?: string;
-    dataSourceType?: string;
-    enableOData?: boolean;
-    dynamicUserAuthClass?: string;
-    rdbms?: RDBMSObject;
-    mongodb?: MongoDBObject;
-    cassandra?: CassandraObject;
-    csv?: CSVObject;
-    carbonDatasource?: CarbonDatasourceObject;
-    dsConfigurations?: any[];
+    dataSourceName: string;
+    dataSourceType: string;
+    enableOData: boolean;
+    dynamicUserAuthClass: string;
+    rdbms: RDBMSObject;
+    mongodb: MongoDBObject;
+    cassandra: CassandraObject;
+    csv: CSVObject;
+    carbonDatasource: CarbonDatasourceObject;
+    dsConfigurations: any[];
 };
 
 export const newDataSource: DataSourceFields = {
@@ -736,7 +736,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                         )}
                         {watch('dataSourceType') === 'Carbon Datasource' && (
                             <FormKeylookup
-                                control={control}
+                                control={control as any}
                                 label="Datasource Name"
                                 filterType="dataSource"
                                 allowItemCreate={true}
@@ -750,7 +750,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                             <>
                                 <FormCheckBox
                                     label="Enable OData"
-                                    control={control}
+                                    control={control as any}
                                     {...renderProps('enableOData')}
                                 />
                                 <TextField

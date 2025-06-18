@@ -43,7 +43,7 @@ export interface FormContext {
 const defaultState: any = {};
 export const Context = createContext<FormContext>(defaultState);
 
-export const Provider: FC<FormContext> = (props) => {
+export const Provider: FC<React.PropsWithChildren<FormContext>> = (props) => {
     const { children, ...restProps } = props;
 
     return <Context.Provider value={restProps}>{children}</Context.Provider>;

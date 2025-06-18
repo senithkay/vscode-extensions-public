@@ -50,7 +50,7 @@ const ParamField = ({ field, id }: any) => {
                 <FormCheckBox
                     name={getParamId(id)}
                     label={name}
-                    control={control}
+                    control={control as any}
                 />
             ) : type === "dropdown" ? (
                 <Dropdown

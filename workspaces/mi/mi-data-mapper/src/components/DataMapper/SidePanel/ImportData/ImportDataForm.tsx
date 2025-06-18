@@ -20,6 +20,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportDataPanel } from "./ImportDataPanel";
+import { useShallow } from 'zustand/react/shallow';
 
 export interface ImportType {
     type: string;
@@ -44,12 +45,14 @@ export function ImportDataForm(props: ImportDataWizardProps) {
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 
-    const { isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(state => ({
+    const { isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(
+    useShallow(state => ({
         isOpen: state.isIOConfigPanelOpen,
         ioType: state.ioConfigPanelType,
         overwriteSchema: state.isSchemaOverridden,
         setSidePanelOpen: state.setIsIOConfigPanelOpen
-    }));
+    }))
+);
 
     const fileExtension = useMemo(() => {
         if (!selectedImportType) return undefined;

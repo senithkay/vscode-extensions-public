@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 import { LetVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -50,18 +50,19 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
     const hasFields = !!typeDesc?.fields?.length;
 
     const label = (
-        <span style={{ marginRight: "auto" }} data-testid={`local-var-widget-label-${id}`}>
-            <span className={classes.valueLabel}>
-                <OutputSearchHighlight>{valueLabel ? valueLabel : id}</OutputSearchHighlight>
-                {typeName && ":"}
-            </span>
-            {typeName && (
-                <span className={classes.inputTypeLabel}>
-                    {typeName !== `$CompilationError$` ? typeName : 'var'}
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{ marginRight: "auto" }} data-testid={`local-var-widget-label-${id}`}>
+                <span className={classes.valueLabel}>
+                    <OutputSearchHighlight>{valueLabel ? valueLabel : id}</OutputSearchHighlight>
+                    {typeName && ":"}
                 </span>
-            )}
-
-        </span>
+                {typeName && (
+                    <span className={classes.inputTypeLabel}>
+                        {typeName !== `$CompilationError$` ? typeName : 'var'}
+                    </span>
+                )}
+            </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {

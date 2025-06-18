@@ -23,6 +23,7 @@ import { useIONodesStyles } from "../../../../components/styles";
 import { OutputSearchHighlight } from "../commons/Search";
 import { useDMCollapsedFieldsStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
+import { useShallow } from "zustand/react/shallow";
 
 export interface PrimitiveOutputWidgetProps {
 	id: string;
@@ -44,10 +45,12 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 	const classes = useIONodesStyles();
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-	const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
-		subMappingConfig: state.subMappingConfig,
-		setSubMappingConfig: state.setSubMappingConfig
-	}));
+	const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(
+		useShallow(state => ({
+			subMappingConfig: state.subMappingConfig,
+			setSubMappingConfig: state.setSubMappingConfig
+		}))
+	);
 
 
 	const type = typeName || field?.type?.typeName;

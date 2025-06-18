@@ -53,6 +53,7 @@ import {
     PathDetailsResponse,
     DownloadMIRequest,
     UpdateAiDependenciesRequest,
+    RuntimeServiceDetails,
     MavenDeployPluginDetails,
     ProjectConfig
 } from "@wso2-enterprise/mi-core";
@@ -443,8 +444,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             });
 
             if (response.ok) {
-                const responseBody = await response.json();
-                const authToken = responseBody.AccessToken;
+                const responseBody = await response.json() as { AccessToken: string } | undefined;
+                const authToken = responseBody?.AccessToken;
 
                 const apiResponse = await fetch(`https://${host}:${managementPort}/management/apis`, {
                     method: 'GET',
@@ -456,7 +457,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 });
 
                 if (apiResponse.ok) {
-                    const apiResponseData = await apiResponse.json();
+                    const apiResponseData = await apiResponse.json() as RuntimeServiceDetails | undefined;
                     runtimeServicesResponse.api = apiResponseData;
                 }
 
@@ -472,7 +473,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 });
 
                 if (proxyResponse.ok) {
-                    const proxyResponseData = await proxyResponse.json();
+                    const proxyResponseData = await proxyResponse.json() as RuntimeServiceDetails | undefined;
                     runtimeServicesResponse.proxy = proxyResponseData;
                 }
 
@@ -487,7 +488,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 });
 
                 if (dataServicesResponse.ok) {
-                    const dataServicesResponseData = await dataServicesResponse.json();
+                    const dataServicesResponseData = await dataServicesResponse.json() as RuntimeServiceDetails | undefined;
                     runtimeServicesResponse.dataServices = dataServicesResponseData;
                 }
 

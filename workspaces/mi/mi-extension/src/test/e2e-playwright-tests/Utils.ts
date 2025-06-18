@@ -38,6 +38,22 @@ async function initVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
+export async function buildAndRunProject(page: ExtendedPage) {
+    console.log('Building and running the project');
+    await page.page.getByRole('button', { name: 'Build and Run' }).click();
+    console.log('Clicked the Build and Run button');
+    await page.page.getByText('Runtime Services', { exact: true }).waitFor();
+    console.log('Project built and run successfully');
+}
+
+export async function stopRunningProject(page: ExtendedPage) {
+    console.log('Stopping the running project');
+    await page.page.getByRole('button', { name: 'Stop (⇧F5)' }).click();
+    await page.page.getByRole('tab', { name: 'Runtime Services, Editor Group' }).getByLabel('Close (⌘W)').click();
+    await page.page.getByRole('checkbox', { name: 'Hide Panel (⌘J)' }).click();
+    console.log('Stopped the project and closed the runtime services tab');
+}
+
 export async function createProject(page: ExtendedPage, projectName?: string, runtimeVersino?: string, addAdvancedConfig: boolean = false) {
     console.log('Creating new project');
     await page.selectSidebarItem('Micro Integrator');

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
@@ -296,7 +296,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     <NodeStyles.Row>
                         <NodeStyles.Header onClick={handleOnClick}>
                             <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
-                            <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
+                            <NodeStyles.Description>{model.node.properties.variable?.value as ReactNode}</NodeStyles.Description>
                         </NodeStyles.Header>
                         <NodeStyles.ActionButtonGroup>
                             {hasError && <DiagnosticsPopUp node={model.node} />}
@@ -364,7 +364,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                 >
                     {(model.node.properties.connection.value as string)?.length > 16
                         ? `${(model.node.properties.connection.value as string).slice(0, 16)}...`
-                        : model.node.properties.connection.value}
+                        : model.node.properties.connection.value as ReactNode}
                 </text>
                 <foreignObject x="68" y="12" width="24" height="24" fill={ThemeColors.ON_SURFACE}>
                     <ConnectorIcon url={model.node.metadata.icon} style={{ width: 24, height: 24, fontSize: 24 }} />

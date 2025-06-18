@@ -130,6 +130,8 @@ async function getContext(): Promise<VisualizerLocation> {
                 target: context.metadata?.target
             },
             scope: context.scope,
+            org: context.org,
+            package: context.package,
         });
     });
 }

@@ -198,10 +198,10 @@ export function SequenceWizard(props: SequenceWizardProps) {
                     errorMsg={errors.onErrorSequence?.message.toString()}
                     {...register("onErrorSequence")}
                 />
-                <FormCheckBox label="Enable tracing" {...register("trace")} control={control} />
-                <FormCheckBox label="Enable statistics" {...register("statistics")} control={control} />
+                <FormCheckBox label="Enable tracing" {...register("trace")} control={control as any} />
+                <FormCheckBox label="Enable statistics" {...register("statistics")} control={control as any} />
             </FormGroup>
-            {isRegistryContentVisible && <FormCheckBox label="Save the sequence in registry" {...register("saveInReg")} control={control} />}
+            {isRegistryContentVisible && <FormCheckBox label="Save the sequence in registry" {...register("saveInReg")} control={control as any} />}
             {isRegistryContentVisible && watch("saveInReg") && (
                 <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
             )}

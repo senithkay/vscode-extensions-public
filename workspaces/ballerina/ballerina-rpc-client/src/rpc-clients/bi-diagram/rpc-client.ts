@@ -53,6 +53,7 @@ import {
     FunctionNodeRequest,
     FunctionNodeResponse,
     GeneratedClientSaveResponse,
+    GetConfigVariableNodeTemplateRequest,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
     GetRecordModelFromSourceRequest,
@@ -68,6 +69,7 @@ import {
     OpenAPIClientGenerationRequest,
     OpenAPIGeneratedModulesRequest,
     OpenAPIGeneratedModulesResponse,
+    OpenConfigTomlRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -84,6 +86,7 @@ import {
     SignatureHelpResponse,
     SourceEditResponse,
     UpdateConfigVariableRequest,
+    UpdateConfigVariableRequestV2,
     UpdateConfigVariableResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
@@ -104,6 +107,7 @@ import {
     createGraphqlClassType,
     createProject,
     deleteByComponentInfo,
+    deleteConfigVariableV2,
     deleteFlowNode,
     deleteOpenApiGeneratedModules,
     deployProject,
@@ -114,7 +118,9 @@ import {
     getAllImports,
     getAvailableNodes,
     getBreakpointInfo,
+    getConfigVariableNodeTemplate,
     getConfigVariables,
+    getConfigVariablesV2,
     getDesignModel,
     getDevantMetadata,
     getEnclosedFunction,
@@ -144,6 +150,7 @@ import {
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
+    openConfigToml,
     openReadme,
     removeBreakpointFromSource,
     renameIdentifier,
@@ -151,6 +158,7 @@ import {
     search,
     updateClassField,
     updateConfigVariables,
+    updateConfigVariablesV2,
     updateImports,
     updateRecordConfig,
     updateServiceClass,
@@ -237,6 +245,26 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
         return this._messenger.sendRequest(updateConfigVariables, HOST_EXTENSION, params);
+    }
+
+    getConfigVariablesV2(): Promise<ConfigVariableResponse> {
+        return this._messenger.sendRequest(getConfigVariablesV2, HOST_EXTENSION);
+    }
+    
+    updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+        return this._messenger.sendRequest(updateConfigVariablesV2, HOST_EXTENSION, params);
+    }
+
+    deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+        return this._messenger.sendRequest(deleteConfigVariableV2, HOST_EXTENSION, params);
+    }
+
+    getConfigVariableNodeTemplate(params: GetConfigVariableNodeTemplateRequest): Promise<BINodeTemplateResponse> {
+        return this._messenger.sendRequest(getConfigVariableNodeTemplate, HOST_EXTENSION, params);
+    }
+    
+    OpenConfigTomlRequest(params: OpenConfigTomlRequest): Promise<void> {
+        return this._messenger.sendRequest(openConfigToml, HOST_EXTENSION, params);
     }
 
     getModuleNodes(): Promise<BIModuleNodesResponse> {

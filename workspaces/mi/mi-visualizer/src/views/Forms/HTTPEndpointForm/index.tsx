@@ -414,7 +414,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     <FormCheckBox
                         label="Save the endpoint in registry"
                         {...register("saveInReg")}
-                        control={control}
+                        control={control as any}
                     />
                     {watch("saveInReg") && (<>
                         <AddToRegistry path={props.path}
