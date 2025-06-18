@@ -94,7 +94,7 @@ export default function createTests() {
       await test.step('Add a unit test', async () => {
         const unitTest = new UnitTest(page.page);
         await unitTest.init();
-        await unitTest.openUnitTestFormByMainBtn();
+        await unitTest.openUnitTestFormByExplorer();
         await unitTest.createUnitTest({
           name: `unitTest1-${testAttempt}`,
           artifactType: 'API',

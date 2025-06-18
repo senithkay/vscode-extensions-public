@@ -623,8 +623,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(addDriverToLib, HOST_EXTENSION, params);
     }
 
-    deleteDriverFromLib(params: AddDriverToLibRequest): Promise<void> {
-        return this._messenger.sendRequest(deleteDriverFromLib, HOST_EXTENSION, params);
+    deleteDriverFromLib(params: AddDriverToLibRequest): void {
+        return this._messenger.sendNotification(deleteDriverFromLib, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {
@@ -703,8 +703,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    initUndoRedoManager(params: UndoRedoParams): Promise<void> {
-        return this._messenger.sendRequest(initUndoRedoManager, HOST_EXTENSION, params);
+    initUndoRedoManager(params: UndoRedoParams): void {
+        return this._messenger.sendNotification(initUndoRedoManager, HOST_EXTENSION, params);
     }
 
     undo(params: UndoRedoParams): Promise<boolean> {
@@ -907,8 +907,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getDevantMetadata, HOST_EXTENSION);
     }
 
-    refreshAccessToken(): Promise<void> {
-        return this._messenger.sendRequest(refreshAccessToken, HOST_EXTENSION);
+    refreshAccessToken(): void {
+        return this._messenger.sendNotification(refreshAccessToken, HOST_EXTENSION);
     }
 
     exportProject(params: ExportProjectRequest): void {
@@ -919,8 +919,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(checkOldProject, HOST_EXTENSION);
     }
 
-    editOpenAPISpec(params: SwaggerTypeRequest): Promise<void> {
-        return this._messenger.sendRequest(editOpenAPISpec, HOST_EXTENSION, params);
+    editOpenAPISpec(params: SwaggerTypeRequest): void {
+        return this._messenger.sendNotification(editOpenAPISpec, HOST_EXTENSION, params);
     }
 
     compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
@@ -931,12 +931,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getOpenAPISpec, HOST_EXTENSION, params);
     }
 
-    updateSwaggerFromAPI(params: SwaggerTypeRequest): Promise<void> {
-        return this._messenger.sendRequest(updateSwaggerFromAPI, HOST_EXTENSION, params);
+    updateSwaggerFromAPI(params: SwaggerTypeRequest): void {
+        return this._messenger.sendNotification(updateSwaggerFromAPI, HOST_EXTENSION, params);
     }
 
-    updateAPIFromSwagger(params: UpdateAPIFromSwaggerRequest): Promise<void> {
-        return this._messenger.sendRequest(updateAPIFromSwagger, HOST_EXTENSION, params);
+    updateAPIFromSwagger(params: UpdateAPIFromSwaggerRequest): void {
+        return this._messenger.sendNotification(updateAPIFromSwagger, HOST_EXTENSION, params);
     }
 
     updateTestSuite(params: UpdateTestSuiteRequest): Promise<UpdateTestSuiteResponse> {
@@ -959,8 +959,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAllMockServices, HOST_EXTENSION);
     }
 
-    openDependencyPom(params: OpenDependencyPomRequest): Promise<void> {
-        return this._messenger.sendRequest(openDependencyPom, HOST_EXTENSION, params);
+    openDependencyPom(params: OpenDependencyPomRequest):void {
+        return this._messenger.sendNotification(openDependencyPom, HOST_EXTENSION, params);
     }
 
     getAllDependencies(params: getAllDependenciesRequest): Promise<GetAllDependenciesResponse> {
@@ -971,16 +971,16 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(testDbConnection, HOST_EXTENSION, params);
     }
 
-    markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
-        return this._messenger.sendRequest(markAsDefaultSequence, HOST_EXTENSION, params);
+    markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): void {
+        return this._messenger.sendNotification(markAsDefaultSequence, HOST_EXTENSION, params);
     }
 
     getSubFolderNames(params: GetSubFoldersRequest): Promise<GetSubFoldersResponse> {
         return this._messenger.sendRequest(getSubFolderNames, HOST_EXTENSION, params);
     }
 
-    renameFile(params: FileRenameRequest): Promise<void> {
-        return this._messenger.sendRequest(renameFile, HOST_EXTENSION, params);
+    renameFile(params: FileRenameRequest): void {
+        return this._messenger.sendNotification(renameFile, HOST_EXTENSION, params);
     }
 
     openUpdateExtensionPage(): void {

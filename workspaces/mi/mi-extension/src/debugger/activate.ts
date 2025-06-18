@@ -8,7 +8,7 @@
  */
 
 import * as vscode from 'vscode';
-import { CancellationToken, DebugConfiguration, ProviderResult, Uri, WorkspaceFolder } from 'vscode';
+import { CancellationToken, DebugConfiguration, ProviderResult, Uri, workspace, WorkspaceFolder } from 'vscode';
 import { MiDebugAdapter } from './debugAdapter';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
@@ -210,6 +210,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
 
         if (webview && webview?.getProjectUri()) {
             const projectUri = webview.getProjectUri();
+            const projectWorkspace = workspace.getWorkspaceFolder(Uri.parse(projectUri));
             const launchJsonPath = path.join(projectUri, '.vscode', 'launch.json');
             const envPath = path.join(projectUri, '.env');
             let config: vscode.DebugConfiguration | undefined = undefined;
@@ -254,7 +255,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
             }
 
             try {
-                await vscode.debug.startDebugging(undefined, config);
+                await vscode.debug.startDebugging(projectWorkspace, config);
             } catch (err) {
                 vscode.window.showErrorMessage(`Failed to run without debugging: ${err}`);
             }

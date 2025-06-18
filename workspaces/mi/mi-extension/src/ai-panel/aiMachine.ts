@@ -221,7 +221,7 @@ async function checkToken(context, event): Promise<UserToken> {
                     },
                 });
                 if (response.ok) {
-                    const responseBody = await response.json();
+                    const responseBody = await response.json() as AIUserTokens | undefined;
                     resolve({token, userToken: responseBody});
                 } else {
                     if (response.status === 401 || response.status === 403) {
@@ -235,7 +235,7 @@ async function checkToken(context, event): Promise<UserToken> {
                                 },
                             });
                             if(tokenFetchResponse.ok){
-                                const responseBody = await tokenFetchResponse.json();
+                                const responseBody = await tokenFetchResponse.json() as AIUserTokens | undefined;
                                 resolve({token: newToken, userToken: responseBody});
                             }else{
                                 console.log("Error: " + tokenFetchResponse.statusText);

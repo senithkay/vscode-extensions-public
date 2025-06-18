@@ -21,6 +21,7 @@ import { useIONodesStyles } from '../../../styles';
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OutputBeforeInputNotification } from '../commons/OutputBeforeInputNotification';
+import { useShallow } from 'zustand/react/shallow';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -54,11 +55,13 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
-		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType,
-		setIsSchemaOverridden: state.setIsSchemaOverridden
-	}));
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(
+		useShallow(state => ({
+			setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+			setIOConfigPanelType: state.setIOConfigPanelType,
+			setIsSchemaOverridden: state.setIsSchemaOverridden
+		}))
+	);
 
 	const fields = outputType.fields.filter(t => t !== null);
 	const hasFields = fields.length > 0;

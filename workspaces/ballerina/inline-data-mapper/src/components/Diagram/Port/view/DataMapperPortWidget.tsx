@@ -16,6 +16,7 @@ import { IntermediatePortModel } from "../IntermediatePort";
 import { InputOutputPortModel } from "../model/InputOutputPortModel";
 import { useDMExpressionBarStore } from "../../../../store/store";
 import { RadioButtonChecked, RadioButtonUnchecked } from "./DataMapperPortRadioButton";
+import { useShallow } from "zustand/react/shallow";
 
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
@@ -39,9 +40,11 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 
 	const isDisabled = disable || (port instanceof InputOutputPortModel && port.isDisabled());
 
-	const { resetExprBarFocus } = useDMExpressionBarStore(state => ({
-		resetExprBarFocus: state.resetFocus
-	}));
+	const { resetExprBarFocus } = useDMExpressionBarStore(
+		useShallow(state => ({
+			resetExprBarFocus: state.resetFocus
+		}))
+	);
 
 	const hasLinks = Object.entries(port.links).length > 0;
 	const isPortSelected = portState === PortState.PortSelected;

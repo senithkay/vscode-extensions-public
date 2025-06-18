@@ -48,6 +48,7 @@ import {
     isSameView
 } from '../Diagram/utils/diagram-utils';
 import { isInputNode, isOutputNode } from '../Diagram/Actions/utils';
+import { createImportReferenceMap } from '../Diagram/utils/import-utils';
 
 export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string, fnSrc: string): {
     projectComponents: BallerinaProjectComponents;
@@ -75,7 +76,11 @@ export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, f
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchProjectComponents', {fnSrc}], () => fetchProjectComponents(), { networkMode: 'always' });
+    } = useQuery({
+        queryKey: ['fetchProjectComponents', {fnSrc}], 
+        queryFn: () => fetchProjectComponents(),
+        networkMode: 'always',
+    });
 
     return { projectComponents, isFetching, isError, refetch };
 };
@@ -164,7 +169,11 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, fieldPath, queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, screenWidth}], () => genModel(), { networkMode: 'always' });
+    } = useQuery({
+        queryKey: ['genModel', {fnSource, fieldPath, queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, screenWidth}], 
+        queryFn: () => genModel(), 
+        networkMode: 'always',
+    });
 
     return { updatedModel, isFetching, isError, refetch };
 };
@@ -263,7 +272,11 @@ export const useDMMetaData = (langServerRpcClient: LangClientRpcClient): {
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchDMMetaData'], () => fetchDMMetaData(), { networkMode: 'always' });
+    } = useQuery({
+        queryKey: ['fetchDMMetaData'], 
+        queryFn: () => fetchDMMetaData(), 
+        networkMode: 'always'
+    });
 
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
@@ -283,10 +296,15 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
                 documentIdentifier: { uri: URI.file(filePath).toString() }
             });
             const modulePart = fullST.syntaxTree as ModulePart;
-            modulePart?.imports.map((importDeclaration: any) => (
-                importStatements.push(importDeclaration.source.trim())
-            ));
+            modulePart?.imports.map((importDeclaration: any) => {
+                const src = importDeclaration.source.trim();
+                const match = src.match(/\bimport\s+[^\s;]+(?:\s+as\s+\w+)?\s*;/);
+                if (match) {
+                    importStatements.push(match[0]);
+                }
+            });
             dmStore.setImports(importStatements);
+            dmStore.setImportReferenceMap(createImportReferenceMap(importStatements));
             return [modulePart.source, importStatements];
         } catch (networkError: any) {
             console.error('Error while fetching content', networkError);
@@ -298,7 +316,11 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchContent', {filePath, source, position}], () => fetchContent(), { networkMode: 'always' });
+    } = useQuery({
+        queryKey: ['fetchFileContent', { filePath, source, position }], 
+        queryFn: () => fetchContent(), 
+        networkMode: 'always'
+    });
 
     return { content, isFetching, isError, refetch };
 };

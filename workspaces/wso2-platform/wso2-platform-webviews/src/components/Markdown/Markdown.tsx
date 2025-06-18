@@ -11,7 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { VSCodeLink, VSCodePanelTab, VSCodePanelView, VSCodePanels } from "@vscode/webview-ui-toolkit/react";
 import classNames from "classnames";
 import clipboardy from "clipboardy";
-import Highlight, { type PrismTheme, defaultProps } from "prism-react-renderer";
+import { Highlight, type PrismTheme } from "prism-react-renderer";
 import React, { type PropsWithChildren, type ReactNode, useState, type FC } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -114,7 +114,7 @@ const markDownOverrides: { [key: string]: FC<PropsWithChildren<any>> } = {
 				<Button appearance="icon" onClick={() => copyToClipboard(children)} className="absolute top-1 right-1" title="Copy code to clipboard">
 					<Codicon name="copy" />
 				</Button>
-				<Highlight {...defaultProps} theme={prismTheme} language={language} code={code.trim()}>
+				<Highlight theme={prismTheme} language={language} code={code.trim()}>
 					{({ className, tokens, getLineProps, getTokenProps }) => (
 						<pre
 							className={classNames(

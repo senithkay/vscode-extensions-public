@@ -51,6 +51,7 @@ import { AUTO_MAP_IN_PROGRESS_MSG, AUTO_MAP_TIMEOUT_MS } from "../Diagram/utils/
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { AutoMapErrorComponent, IOErrorComponent, UnsupportedIOErrorComponent } from "./Error/DataMapperError";
+import { SkeletonLoader } from './SkeletonLoader/SkeletonLoader';
 
 const fadeIn = keyframes`
     from { opacity: 0.5; }
@@ -610,6 +611,9 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 nodes={dmNodes}
                                 onError={handleErrors}
                             />
+                        )}
+                        {dmNodes.length === 0 && !errorKind && (
+                            <SkeletonLoader />
                         )}
                         {hasInvalidIO && <UnsupportedIOErrorComponent inputs={inputs} output={output} classes={classes} />}
                         {!!currentEditableField && dMSupported && (

@@ -70,7 +70,7 @@ export function SelectMockService(props: SelectMockServiceProps) {
                             value={field.value}
                             filterType='mockService'
                             label="Select Mock Service"
-                            errorMsg={errors.name?.message}
+                            errorMsg={errors.name?.message.toString()}
                             allowItemCreate={true}
                             onCreateButtonClick={() => {
                                 setShowAddMockService(true);

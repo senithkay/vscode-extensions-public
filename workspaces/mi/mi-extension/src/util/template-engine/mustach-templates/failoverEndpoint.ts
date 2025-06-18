@@ -52,7 +52,7 @@ const getIndentedValue = (xmlString: string, indentBy: number = 8): string => {
 export function getFailoverEPXml(data: GetFailoverEPTemplatesArgs) {
     const modifiedData = {
         ...data,
-        buildMessage: data.buildMessage === "true" ?? undefined,
+        buildMessage: data.buildMessage === "true",
         endpoints: data.endpoints.map((endpoint) => {
             return {
                 type: endpoint.type,

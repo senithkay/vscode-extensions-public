@@ -19,6 +19,7 @@ import { getTypeName } from "../../utils/common-utils";
 import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { useShallow } from "zustand/react/shallow";
 
 export interface PrimitiveTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -36,11 +37,13 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
-    const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
-		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType,
-		setIsSchemaOverridden: state.setIsSchemaOverridden
-	}));
+    const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(
+        useShallow(state => ({
+            setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+            setIOConfigPanelType: state.setIOConfigPanelType,
+            setIsSchemaOverridden: state.setIsSchemaOverridden
+        }))
+    );
 
     const classes = useIONodesStyles();
 

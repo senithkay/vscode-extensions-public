@@ -11,7 +11,7 @@ import ReactDOM from 'react-dom';
 
 import { OverlayContainerID } from './OverlayLayerWidget';
 
-export const OverlayLayerPortal: React.FC<{}> = (props) => {
-    const container = document.getElementById(OverlayContainerID);
-	   return container !== null ? ReactDOM.createPortal(props.children, container) : <></>;
+export const OverlayLayerPortal = (props: React.PropsWithChildren<{}>) => {
+	const container = document.getElementById(OverlayContainerID);
+	return container !== null ? ReactDOM.createPortal(props.children, container) : <></>;
 }

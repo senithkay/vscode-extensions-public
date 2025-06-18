@@ -9,7 +9,7 @@
 
 import axios from 'axios';
 import { StateMachineAI } from './aiMachine';
-import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/mi-core';
 import { extension } from '../MIExtensionContext';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
@@ -93,7 +93,7 @@ export async function exchangeAuthCode(authCode: string) {
             });
 
             if(fetch_response.ok) {
-                const responseBody = await fetch_response.json();
+                const responseBody = await fetch_response.json() as AIUserTokens | undefined;
                 const context = StateMachineAI.context();
                 context.userTokens = responseBody;
             }else{
