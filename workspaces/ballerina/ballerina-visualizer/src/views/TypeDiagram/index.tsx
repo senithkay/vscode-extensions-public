@@ -185,7 +185,14 @@ export function TypeDiagram(props: TypeDiagramProps) {
         return typesModel.find((type: Type) => type.name === typeId);
     };
 
-    const onTypeChange = async (type: Type) => {
+    const onTypeChange = async (type: Type, rename?: boolean) => {
+        if (rename) {
+            setEditingTypeId(type.name);
+            setEditingType(type);
+            setIsTypeCreatorOpen(false);
+            setHighlightedNodeId(type.name);
+            return;
+        }
         setEditingTypeId(undefined);
         setEditingType(undefined);
         setIsTypeCreatorOpen(false);
