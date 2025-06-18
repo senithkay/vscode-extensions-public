@@ -127,7 +127,8 @@ const stateMachine = createMachine<MachineContext>(
                             serviceType: (context, event) => event.viewLocation.serviceType,
                             type: (context, event) => event.viewLocation?.type,
                             isGraphql: (context, event) => event.viewLocation?.isGraphql,
-                            metadata: (context, event) => event.viewLocation?.metadata
+                            metadata: (context, event) => event.viewLocation?.metadata,
+                            addType: (context, event) => event.viewLocation?.addType
                         })
                     }
                 }
@@ -178,7 +179,8 @@ const stateMachine = createMachine<MachineContext>(
                                     serviceType: (context, event) => event.viewLocation.serviceType,
                                     type: (context, event) => event.viewLocation?.type,
                                     isGraphql: (context, event) => event.viewLocation?.isGraphql,
-                                    metadata: (context, event) => event.viewLocation?.metadata
+                                    metadata: (context, event) => event.viewLocation?.metadata,
+                                    addType: (context, event) => event.viewLocation?.addType
                                 })
                             },
                             VIEW_UPDATE: {
@@ -190,7 +192,8 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.viewLocation.identifier,
                                     serviceType: (context, event) => event.viewLocation.serviceType,
                                     type: (context, event) => event.viewLocation?.type,
-                                    isGraphql: (context, event) => event.viewLocation?.isGraphql
+                                    isGraphql: (context, event) => event.viewLocation?.isGraphql,
+                                    addType: (context, event) => event.viewLocation?.addType
                                 })
                             },
                             FILE_EDIT: {
@@ -292,7 +295,8 @@ const stateMachine = createMachine<MachineContext>(
                             position: context.position,
                             identifier: context.identifier,
                             type: context?.type,
-                            isGraphql: context?.isGraphql
+                            isGraphql: context?.isGraphql,
+                            addType: context?.addType
                         }
                     });
                     return resolve();

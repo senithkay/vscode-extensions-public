@@ -39,10 +39,11 @@ export const Title: React.FC<any> = styled.div`
 interface TypeDiagramProps {
     selectedTypeId?: string;
     projectUri?: string;
+    addType?: boolean;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { selectedTypeId, projectUri } = props;
+    const { selectedTypeId, projectUri, addType } = props;
     const { rpcClient } = useRpcContext();
     const commonRpcClient = rpcClient.getCommonRpcClient();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
@@ -52,6 +53,12 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const [focusedNodeId, setFocusedNodeId] = React.useState<string | undefined>(undefined);
     const [editingType, setEditingType] = React.useState<Type>();
     const [highlightedNodeId, setHighlightedNodeId] = React.useState<string | undefined>(selectedTypeId);
+
+    useEffect(() => {
+        if (addType) {
+            setIsTypeCreatorOpen(true);
+        }
+    }, [addType]);
 
     useEffect(() => {
         if (rpcClient) {
