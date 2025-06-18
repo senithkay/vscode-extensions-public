@@ -189,8 +189,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - name: Set up Ballerina
@@ -235,8 +235,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - uses: ballerina-platform/setup-ballerina@v1
@@ -306,8 +306,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - uses: ballerina-platform/setup-ballerina@v1
@@ -395,8 +395,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - name: Run Test
@@ -429,8 +429,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - name: install packages

@@ -379,7 +379,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                             {isRegistryContentVisible && <FormCheckBox
                                 label="Save the local entry in registry"
                                 {...register("saveInReg")}
-                                control={control}
+                                control={control as any}
                             />}
                             {isRegistryContentVisible && watch("saveInReg") && (<>
                                 <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />

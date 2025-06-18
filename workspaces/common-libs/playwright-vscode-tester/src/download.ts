@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra';
 import { promisify } from 'util';
 import stream = require('stream');
-import got from 'got';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 
 const httpProxyAgent = !process.env.HTTP_PROXY ? undefined : new HttpProxyAgent({
@@ -25,11 +24,12 @@ const options = {
 export class Download {
 
     static async getText(uri: string): Promise<string> {
+        const { default: got } = await import('got');
         const body = await got(uri, options).text();
         return JSON.parse(body as string)
     }
-
     static async getFile(uri: string, destination: string, progress = false): Promise<void> {
+        const { default: got } = await import('got');
         let lastTick = 0;
         const dlStream = got.stream(uri, options);
         if (progress) {

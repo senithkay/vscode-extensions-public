@@ -43,7 +43,7 @@ export function getNodeListOfModel(model: GraphqlDesignModel) {
     nodes.push({type: NodeCategory.GRAPHQL_SERVICE, name: model.graphqlService.serviceName});
     if (model.records) {
         Object.entries(model.records).forEach(([key]) => {
-            if (!model.records[key]?.isInputObject) {
+            if (!model.records.get(key)?.isInputObject) {
                 nodes.push({type: NodeCategory.RECORD, name: key});
             }
         });

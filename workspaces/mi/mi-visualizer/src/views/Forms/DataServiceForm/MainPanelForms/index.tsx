@@ -30,25 +30,25 @@ export interface DataServiceWizardProps {
 }
 
 type DataServiceFields = {
-    dataServiceName?: string;
-    dataServiceNamespace?: string;
-    serviceGroup?: string;
-    selectedTransports?: string;
-    publishSwagger?: string;
-    jndiName?: string;
-    enableBoxcarring?: boolean;
-    enableBatchRequests?: boolean;
-    serviceStatus?: boolean;
-    disableLegacyBoxcarringMode?: boolean;
-    enableStreaming?: boolean;
-    description?: string;
-    authProviderClass?: string;
-    http?: boolean;
-    https?: boolean;
-    jms?: boolean;
-    local?: boolean;
-    authProps?: any[];
-    ds?: any[];
+    dataServiceName: string;
+    dataServiceNamespace: string;
+    serviceGroup: string;
+    selectedTransports: string;
+    publishSwagger: string;
+    jndiName: string;
+    enableBoxcarring: boolean;
+    enableBatchRequests: boolean;
+    serviceStatus: boolean;
+    disableLegacyBoxcarringMode: boolean;
+    enableStreaming: boolean;
+    description: string;
+    authProviderClass: string;
+    http: boolean;
+    https: boolean;
+    jms: boolean;
+    local: boolean;
+    authProps: any[];
+    ds: any[];
 };
 
 const newDataService: DataServiceFields = {

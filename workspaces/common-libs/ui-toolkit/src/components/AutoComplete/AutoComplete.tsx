@@ -223,7 +223,7 @@ type ConditionalProps =
 // Combine the base properties with conditional properties
 export type AutoCompleteProps = BaseProps & ConditionalProps;
 
-const ComboboxContent: React.FC = styled.div`
+const ComboboxContent: React.FC<React.PropsWithChildren> = styled.div`
     position: relative;
     height: 100%;
 `;

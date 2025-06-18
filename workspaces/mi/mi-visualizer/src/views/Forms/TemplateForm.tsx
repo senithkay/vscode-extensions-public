@@ -34,21 +34,21 @@ export interface TemplateWizardProps {
 }
 
 type InputsFields = {
-    templateName?: string;
-    templateType?: string;
-    address?: string;
-    uriTemplate?: string;
-    httpMethod?: string;
-    wsdlUri?: string;
-    wsdlService?: string;
-    wsdlPort?: number;
-    traceEnabled?: boolean;
-    statisticsEnabled?: boolean;
-    saveInReg?: boolean;
+    templateName: string;
+    templateType: string;
+    address: string;
+    uriTemplate: string;
+    httpMethod: string;
+    wsdlUri: string;
+    wsdlService: string;
+    wsdlPort: number;
+    traceEnabled: boolean;
+    statisticsEnabled: boolean;
+    saveInReg: boolean;
     //reg form
-    artifactName?: string;
-    registryPath?: string
-    registryType?: "gov" | "conf";
+    artifactName: string;
+    registryPath: string
+    registryType: "gov" | "conf";
 };
 
 const newTemplate: InputsFields = {
@@ -190,7 +190,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                                 id: prev.paramValues.length,
                                 paramValues: [
                                     { value: param.name },
-                                    { value: param.isMandatory === "true" ?? undefined },
+                                    { value: param.isMandatory === "true" },
                                     { value: param.default }
                                 ],
                                 key: i++,
@@ -342,12 +342,12 @@ export function TemplateWizard(props: TemplateWizardProps) {
                     <FormCheckBox
                         label="Trace Enabled"
                         {...register("traceEnabled")}
-                        control={control}
+                        control={control as any}
                     />
                     <FormCheckBox
                         label="Statistics Enabled"
                         {...register("statisticsEnabled")}
-                        control={control}
+                        control={control as any}
                     />
                     <span>Parameters</span>
                     <ParamManager
@@ -359,7 +359,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                             <FormCheckBox
                                 label="Save the template in registry"
                                 {...register("saveInReg")}
-                                control={control}
+                                control={control as any}
                             />
                             {watch("saveInReg") && (<>
                                 <AddToRegistry path={props.path} fileName={watch("templateName")} register={register} errors={errors} getValues={getValues} />

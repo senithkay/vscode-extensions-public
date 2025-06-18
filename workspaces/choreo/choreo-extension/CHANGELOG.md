@@ -2,6 +2,11 @@
 
 All significant updates to the [Choreo VSCode extension](https://marketplace.visualstudio.com/items?itemName=WSO2.choreo) are documented here. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
+## [2.2.5] - 2025-06-04
+
+### Added
+- Support to connect with remote project environment while running debugger
+
 ## [2.2.4] - 2025-04-02
 
 ### Added

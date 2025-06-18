@@ -12,7 +12,7 @@ export default {
     component: Diagram,
 } as Meta;
 
-const Template: Story<DiagramProps> = (args: React.JSX.IntrinsicAttributes & DiagramProps) => <Diagram {...args} />;
+const Template: Story<DiagramProps> = (args: JSX.IntrinsicAttributes & DiagramProps) => <Diagram {...args} />;
 
 export const Currency = Template.bind({});
 Currency.args = {

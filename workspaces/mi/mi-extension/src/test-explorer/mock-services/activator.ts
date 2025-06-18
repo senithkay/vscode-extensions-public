@@ -15,6 +15,7 @@ import path = require('path');
 import { COMMANDS } from '../../constants';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { openView } from '../../stateMachine';
+import * as vscode from 'vscode';
 
 export interface MockServiceItem {
     name: string;
@@ -40,8 +41,8 @@ class MockServiceTreeProvider implements TreeDataProvider<MockServiceItem> {
                 label: element.name,
                 collapsibleState: TreeItemCollapsibleState.Expanded,
                 iconPath: {
-                    light: path.join(this.context.extensionPath, 'assets', `light-project.svg`),
-                    dark: path.join(this.context.extensionPath, 'assets', `dark-project.svg`)
+                    light: vscode.Uri.file(path.join(this.context.extensionPath, 'assets', `light-project.svg`)),
+                    dark: vscode.Uri.file(path.join(this.context.extensionPath, 'assets', `dark-project.svg`))
                 },
                 id: element.path,
                 contextValue: 'workspace'

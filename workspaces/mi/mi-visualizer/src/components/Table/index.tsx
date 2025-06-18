@@ -82,25 +82,25 @@ export const Table = <T extends FieldValues>({ control, name }: TableProps<T>) =
                 <TableRow key={index}>
                     <TableName>{entry.name}</TableName>
                     <TableCell>
-                        <FormCheckBox name={`${entry.id}.get`} control={control} />
+                        <FormCheckBox name={`${entry.id}.get`} control={control as any} />
                     </TableCell>
                     <TableCell>
                         {entry.post !== undefined ? (
-                            <FormCheckBox name={`${entry.id}.post`} control={control} />
+                            <FormCheckBox name={`${entry.id}.post`} control={control as any} />
                         ) : (
                             <DisabledCell />
                         )}
                     </TableCell>
                     <TableCell>
                         {entry.put !== undefined ? (
-                            <FormCheckBox name={`${entry.id}.put`} control={control} />
+                            <FormCheckBox name={`${entry.id}.put`} control={control as any} />
                         ) : (
                             <DisabledCell />
                         )}
                     </TableCell>
                     <TableCell>
                         {entry.delete !== undefined ? (
-                            <FormCheckBox name={`${entry.id}.delete`} control={control} />
+                            <FormCheckBox name={`${entry.id}.delete`} control={control as any} />
                         ) : (
                             <DisabledCell />
                         )}

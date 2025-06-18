@@ -164,18 +164,19 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		vscode.env.openExternal(vscode.Uri.joinPath(vscode.Uri.parse(choreoEnvConfig.getConsoleUrl()), choreoPath));
 	});
 	messenger.onRequest(SetWebviewCache, async (params) => {
-		await ext.context.workspaceState.update(params.cacheKey, params.data);
+		const { cacheKey, data } = params as { cacheKey: string; data: any };
+		await ext.context.workspaceState.update(cacheKey, data);
 	});
-	messenger.onRequest(RestoreWebviewCache, async (cacheKey) => {
+	messenger.onRequest(RestoreWebviewCache, async (cacheKey:string) => {
 		return ext.context.workspaceState.get(cacheKey);
 	});
-	messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
+	messenger.onRequest(ClearWebviewCache, async (cacheKey:string) => {
 		await ext.context.workspaceState.update(cacheKey, undefined);
 	});
-	messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
+	messenger.onRequest(GoToSource, async (filePath:string): Promise<void> => {
 		await goTosource(filePath, false);
 	});
-	messenger.onRequest(SaveFile, async (params): Promise<string> => {
+	messenger.onRequest(SaveFile, async (params: any): Promise<string> => {
 		return saveFile(
 			params.fileName,
 			params.fileContent,
@@ -187,7 +188,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			params.shouldOpen,
 		);
 	});
-	messenger.onRequest(DeleteFile, async (filePath) => {
+	messenger.onRequest(DeleteFile, async (filePath:string) => {
 		unlinkSync(filePath);
 	});
 	messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
@@ -196,40 +197,68 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	});
 	messenger.onRequest(ReadLocalEndpointsConfig, async (componentPath: string) => readLocalEndpointsConfig(componentPath));
 	messenger.onRequest(ReadLocalProxyConfig, async (componentPath: string) => readLocalProxyConfig(componentPath));
-	messenger.onRequest(ShowQuickPick, async (params) => {
-		const itemSelection = await window.showQuickPick(params.items as vscode.QuickPickItem[], {
+	messenger.onRequest(ShowQuickPick, async (params: { items: WebviewQuickPickItem[]; title?: string }) => {
+		// Map WebviewQuickPickItemKind to vscode.QuickPickItemKind
+		const mapKind = (kind: any) => {
+			if (kind === undefined) return undefined;
+			// QuickPickItemKind is an enum, so match by value
+			if (typeof vscode.QuickPickItemKind === "object") {
+				const kindMap = vscode.QuickPickItemKind as any;
+				if (kind === "Separator" || kind === 1) return kindMap.Separator;
+				if (kind === "Default" || kind === 0) return kindMap.Default;
+				if (kind === "Group" || kind === 2) return kindMap.Group;
+			}
+			return kind;
+		};
+		const items: vscode.QuickPickItem[] = params.items.map((item) => ({
+			...item,
+			kind: mapKind(item.kind),
+		}));
+		const itemSelection = await window.showQuickPick(items, {
 			title: params.title,
 		});
 		return itemSelection as WebviewQuickPickItem;
 	});
-	messenger.onRequest(ShowInputBox, async ({ regex, ...rest }) => {
-		return window.showInputBox({
-			...rest,
-			validateInput: (val) => {
-				if (regex && !new RegExp(regex.expression).test(val)) {
-					return regex.message;
-				}
-				return null;
-			},
-		});
-	});
+	messenger.onRequest(
+		ShowInputBox,
+		async (params: { regex?: { expression: string | RegExp; message: string }; [x: string]: any }) => {
+			const { regex, ...rest } = params;
+			let regexStr: string | undefined = undefined;
+			if (regex && regex.expression) {
+				regexStr = typeof regex.expression === "string" ? regex.expression : regex.expression.source;
+			}
+			return window.showInputBox({
+				...rest,
+				validateInput: (val) => {
+					if (regex && regexStr && !new RegExp(regexStr).test(val)) {
+						return regex.message;
+					}
+					return null;
+				},
+			});
+		}
+	);
 	const outputChanelMap: Map<string, vscode.OutputChannel> = new Map();
-	messenger.onRequest(ShowTextInOutputChannel, async (params) => {
+	messenger.onRequest(ShowTextInOutputChannel, async (params: any) => {
 		if (!outputChanelMap.has(params.key)) {
 			outputChanelMap.set(params.key, window.createOutputChannel(params.key));
 		}
 		outputChanelMap.get(params.key)?.replace(params.output);
 		outputChanelMap.get(params.key)?.show();
 	});
-	messenger.onRequest(ViewRuntimeLogs, async ({ orgName, projectName, componentName, deploymentTrackName, envName, type }) => {
-		// todo: export the env from here
-		if (getChoreoEnv() !== "prod") {
-			window.showErrorMessage("Choreo extension currently displays runtime logs is only if 'Advanced.ChoreoEnvironment' is set to 'prod'");
-			return;
+	messenger.onRequest(
+		ViewRuntimeLogs,
+		async (params: { orgName: string; projectName: string; componentName: string; deploymentTrackName: string; envName: string; type: string }) => {
+			const { orgName, projectName, componentName, deploymentTrackName, envName, type } = params;
+			// todo: export the env from here
+			if (getChoreoEnv() !== "prod") {
+				window.showErrorMessage("Choreo extension currently displays runtime logs is only if 'Advanced.ChoreoEnvironment' is set to 'prod'");
+				return;
+			}
+			const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
+			window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, getChoreoExecPath(), args).show();
 		}
-		const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
-		window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, getChoreoExecPath(), args).show();
-	});
+	);
 	const _getGithubUrlState = async (orgId: string): Promise<string> => {
 		const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.choreo/ghapp`));
 		const state = { origin: "vscode.choreo.ext", orgId, callbackUri: callbackUrl.toString() };
@@ -383,7 +412,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		const resourceRef = `service:/${project.handler}/${component.metadata?.handler}/v1/${params?.marketplaceItem?.component?.endpointId}/${params.visibility}`;
 		if (existsSync(componentYamlPath)) {
 			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			let schemaVersion = Number(componentYamlFileContent.schemaVersion)
+			let schemaVersion = Number(componentYamlFileContent.schemaVersion);
 			if (schemaVersion < 1.2) {
 				schemaVersion = 1.2;
 			}

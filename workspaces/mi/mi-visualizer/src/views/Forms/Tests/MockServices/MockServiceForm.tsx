@@ -269,7 +269,7 @@ export function MockServiceForm(props: MockServiceFormProps) {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <Typography variant="h3">Mock Service Details</Typography>
                 <FormKeylookup
-                    control={control}
+                    control={control as any}
                     label="Endpoint"
                     name="endpointName"
                     filterType="endpoint"

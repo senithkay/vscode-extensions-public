@@ -41,9 +41,8 @@ export const SharedContainer = styled.div`
     width: ${IO_NODE_DEFAULT_WIDTH}px;
 `;
 
-export const TreeHeader = styled.div((
-    { isSelected, isDisabled }: { isSelected?: boolean, isDisabled?: boolean }
-) => ({
+export const TreeHeader = styled.div<{ isSelected?: boolean; isDisabled?: boolean }>(
+  ({ isSelected, isDisabled }) => ({
     position: 'relative',
     height: `${IO_NODE_HEADER_HEIGHT}px`,
     padding: '8px',
@@ -51,12 +50,16 @@ export const TreeHeader = styled.div((
     borderRadius: '3px',
     width: '100%',
     display: 'flex',
-        cursor: `${isDisabled ? 'not-allowed' : 'pointer'}`,
+    cursor: isDisabled ? 'not-allowed' : 'pointer',
     '&:hover': {
-        backgroundColor: `${isDisabled ? 'var(--vscode-tab-inactiveBackground)' : 'var(--vscode-list-hoverBackground)'}`
+      backgroundColor: isDisabled
+        ? 'var(--vscode-tab-inactiveBackground)'
+        : 'var(--vscode-list-hoverBackground)',
     },
-    color: 'var(--vscode-inputOption-activeForeground)'
-}));
+    color: 'var(--vscode-inputOption-activeForeground)',
+  })
+);
+
 
 export const TreeBody = styled.div`
     display: flex;
