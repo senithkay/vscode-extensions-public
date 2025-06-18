@@ -653,8 +653,8 @@ export async function getDiagnosticsReponseFromLlm(
             status: "error",
             message: `Failed to analyze diagnostics: ${errorMessage}`,
             originalError: error
-    });
-}
+        });
+    }
 }
 
 /**
