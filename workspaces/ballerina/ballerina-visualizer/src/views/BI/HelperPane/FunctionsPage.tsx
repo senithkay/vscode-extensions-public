@@ -94,15 +94,15 @@ export const FunctionsPage = ({
         [debounceFetchFunctionInfo, searchValue]
     );
 
-    const { mutateAsync: addFunction, isLoading: isAddingFunction  } = useMutation(
-        (item: HelperPaneCompletionItem) => 
+    const { mutateAsync: addFunction, isPending: isAddingFunction  } = useMutation({
+        mutationFn: (item: HelperPaneCompletionItem) => 
             rpcClient.getBIDiagramRpcClient().addFunction({
                 filePath: fileName,
                 codedata: item.codedata,
                 kind: item.kind as FunctionKind,
                 searchKind: 'FUNCTION'
             })
-    );
+    });
 
     const onFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
         const response = await addFunction(item);
