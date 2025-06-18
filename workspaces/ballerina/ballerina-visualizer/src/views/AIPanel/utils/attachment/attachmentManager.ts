@@ -18,12 +18,15 @@ import { GeneralAttachment } from "./generalAttachment";
  */
 const TEXT_BASED_TYPES = [
     "text/plain",
+    "text/csv",
+    "text/xml",
+    "text/markdown",
     "application/json",
     "application/x-yaml",
     "application/xml",
-    "text/xml",
     ".sql",
     ".graphql",
+    ".md",
     "",
 ];
 

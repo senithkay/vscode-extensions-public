@@ -136,7 +136,7 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({ isPositive, messageInde
         <Overlay>
             <DialogContainer>
                 <Title>We value your feedback</Title>
-                <Text>Select a feedback option below, or add a comment:</Text>
+                <Text>Help us understand what went wrong or share your thoughts:</Text>
                 {/* TODO: Enable this after finalzing predefined feedbacks */}
                 {/* <div style={{ display: 'flex', gap: 8, marginBottom: 8 , flexWrap: 'wrap'}}>
           {predefinedFeedbacks.map((item) => (
