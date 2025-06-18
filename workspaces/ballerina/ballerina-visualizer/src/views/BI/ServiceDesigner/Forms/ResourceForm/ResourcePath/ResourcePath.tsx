@@ -150,7 +150,7 @@ export function ResourcePath(props: ResourcePathProps) {
 						const trimmedInput = input.startsWith('/') ? input.slice(1) : input;
 						handlePathChange(trimmedInput);
 					}}
-					onBlur={handleBlur}
+					onKeyUp={handleBlur}
 					placeholder="path/foo"
 					value={path.value}
 					onFocus={(e) => e.target.select()}
