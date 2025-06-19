@@ -596,17 +596,17 @@
       "projectFolder": "workspaces/ballerina/inline-data-mapper",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/api-designer-core",
-      "projectFolder": "workspaces/api-designer/api-designer-core"
-    },
-    {
-      "packageName": "@wso2-enterprise/api-designer-visualizer",
-      "projectFolder": "workspaces/api-designer/api-designer-visualizer"
-    },
-    {
-      "packageName": "@wso2-enterprise/api-designer-rpc-client",
-      "projectFolder": "workspaces/api-designer/api-designer-rpc-client"
-    }
+    // {
+    //   "packageName": "@wso2-enterprise/api-designer-core",
+    //   "projectFolder": "workspaces/api-designer/api-designer-core"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/api-designer-visualizer",
+    //   "projectFolder": "workspaces/api-designer/api-designer-visualizer"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/api-designer-rpc-client",
+    //   "projectFolder": "workspaces/api-designer/api-designer-rpc-client"
+    // }
   ]
 }
