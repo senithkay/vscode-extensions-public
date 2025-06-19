@@ -184,7 +184,7 @@ export default function createTests() {
         console.log('Connector imported successfully');
         const resourceView = await switchToIFrame('Resource View', page.page);
         if (resourceView) {
-          await resourceView.locator('[data-testid="sidepanel"] i.codicon.codicon-close').click();
+          await resourceView.locator('[data-testid="sidepanel"] i.codicon.codicon-close').click({ force: true });
           console.log('Closed side panel');
         } else {
           console.warn('Resource View iframe not found, skipping close side panel step.');
