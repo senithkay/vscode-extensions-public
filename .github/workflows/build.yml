@@ -24,11 +24,6 @@ on:
         type: boolean
         required: false
         default: false   
-      api-chat:
-        description: Update API Chat extension version
-        type: boolean
-        required: false
-        default: false   
       apk:
         description: Update APK extension version
         type: boolean
@@ -74,7 +69,6 @@ jobs:
       runBalExtTests: ${{ steps.testMatrix.outputs.runBalExtTests }}
       runChoreoExtTests: ${{ steps.testMatrix.outputs.runChoreoExtTests }}
       runMIExtTests: ${{ steps.testMatrix.outputs.runMIExtTests }}
-      runAPIChatExtTests: ${{ steps.testMatrix.outputs.runAPIChatExtTests }}
       runAPKExtTests: ${{ steps.testMatrix.outputs.runAPKExtTests }}
       runBIExtTests: ${{ steps.testMatrix.outputs.runBIExtTests }}
     steps:
@@ -132,7 +126,6 @@ jobs:
             echo "Have changes in common libs"
             echo "hasBalDiff=true" >> $GITHUB_OUTPUT
             echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
-            echo "hasAPIChatDiff=true" >> $GITHUB_OUTPUT
             echo "hasAPKDiff=true" >> $GITHUB_OUTPUT
             echo "hasBIDiff=true" >> $GITHUB_OUTPUT
             echo "hasMIDiff=true" >> $GITHUB_OUTPUT
@@ -146,7 +139,6 @@ jobs:
           echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
           echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
           echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
-          echo "runAPIChatExtTests=${{ steps.diff.outputs.hasAPIChatDiff }}" >> $GITHUB_OUTPUT
           echo "runAPKExtTests=${{ steps.diff.outputs.hasAPKDiff }}" >> $GITHUB_OUTPUT
           echo "runBIExtTests=${{ steps.diff.outputs.hasBIDiff }}" >> $GITHUB_OUTPUT
           echo "MI Tests: ${{ steps.diff.outputs.hasMIDiff }}"
@@ -160,7 +152,6 @@ jobs:
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           wso2-platform: ${{ inputs.wso2-platform }}
-          api-chat: ${{ inputs.api-chat }}
           apk: ${{ inputs.apk }}
           bi: ${{ inputs.bi }}
           mi: ${{ inputs.mi }}

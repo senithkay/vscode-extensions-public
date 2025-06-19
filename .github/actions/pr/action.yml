@@ -39,10 +39,6 @@ inputs:
     description: 'Is APK'
     type: boolean
     default: false
-  apiChat:
-    description: 'Is API Chat'    
-    type: boolean
-    default: false 
   mi:
     description: 'Is MI'    
     type: boolean
@@ -92,11 +88,6 @@ runs:
         shell: bash
         run: git add workspaces/common-libs/*/*.json
         
-      - name: Add Api Chat git changes
-        if: ${{ inputs.apiChat == 'true' }}
-        shell: bash
-        run: git add workspaces/api-chat/*/*.json
-        
       - name: Add MI git changes
         if: ${{ inputs.mi == 'true' }}
         shell: bash
@@ -122,8 +113,6 @@ runs:
             baseBranch="release-choreo"
           elif [ "${{ inputs.apk }}" == 'true' ]; then
             baseBranch="release-apk"
-          elif [ "${{ inputs.apiChat }}" == 'true' ]; then
-            baseBranch="release-api-chat"
           elif [ "${{ inputs.mi }}" == 'true' ]; then
             baseBranch="release-mi"
           fi
