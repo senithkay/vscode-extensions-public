@@ -467,10 +467,11 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                                 style={{
                                                                     paddingLeft: '5px',
                                                                     fontWeight: 200,
-                                                                    fontSize: '12px'
+                                                                    fontSize: '12px',
+                                                                    fontStyle: 'italic'
                                                                 }}>
                                                                 {variable?.properties?.defaultValue?.value &&
-                                                                    ` (Default Value: ${String(variable?.properties?.defaultValue?.value)})`}
+                                                                    ` (Defaults to: ${String(variable?.properties?.defaultValue?.value)})`}
                                                             </span>}
                                                             {(!variable?.properties?.defaultValue?.value &&
                                                                 !variable?.properties?.configValue?.value) && (
