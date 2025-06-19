@@ -558,7 +558,8 @@ function extractXmlFromMavenOutput(output: string): string | null {
  * @throws If the Maven command fails or XML content is not found
  */
 export function getResolvedPomXmlContent(pomFilePath: string): string {
-    const mvnOutput = execSync(`mvn -f "${pomFilePath}" help:effective-pom`, {
+    const mavenPath = extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper', process.platform === 'win32' ? 'mvnw.cmd' : 'mvnw'));
+    const mvnOutput = execSync(`${mavenPath} -f "${pomFilePath}" help:effective-pom`, {
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'ignore'], // ignore stderr, capture stdout
     });
