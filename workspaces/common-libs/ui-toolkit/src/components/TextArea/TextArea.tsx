@@ -125,16 +125,18 @@ export const AutoResizeTextArea = React.forwardRef<HTMLTextAreaElement, AutoResi
             const tempRows = calculateTextAreaRows(lineCount, growRange);
             setTextAreaRows(textAreaComponent, tempRows);
 
-            // get the raw scroll height of the text area without paddings
-            const scrollHeight = getRawScrollHeight(textAreaComponent);
-
-            // calculate the number of rows
-            const contentBasedRows = Math.ceil(scrollHeight / lineHeight.current);
-            const newRows = calculateTextAreaRows(contentBasedRows, growRange);
-
-            // set the rows for both HTML element and react element to avoid state mismatch
-            setTextAreaRows(textAreaComponent, newRows);
-            setRows(newRows);
+            requestAnimationFrame(() => {
+                // get the raw scroll height of the text area without paddings
+                const scrollHeight = getRawScrollHeight(textAreaComponent);
+    
+                // calculate the number of rows
+                const contentBasedRows = Math.ceil(scrollHeight / lineHeight.current);
+                const newRows = calculateTextAreaRows(contentBasedRows, growRange);
+    
+                // set the rows for both HTML element and react element to avoid state mismatch
+                setTextAreaRows(textAreaComponent, newRows);
+                setRows(newRows);
+            });
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [textAreaRef.current, lineHeight.current, growRange]);
