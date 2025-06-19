@@ -98,7 +98,7 @@ const PopupPanel = (props: PopupPanelProps) => {
                 case MACHINE_VIEW.BIDataMapperForm:
                     setIsFullScreen(true);
                     rpcClient.getVisualizerLocation().then((location) => {
-                        const defaultFunctionsFile = Utils.joinPath(URI.file(location.projectUri), 'functions.bal').fsPath;
+                        const defaultFunctionsFile = Utils.joinPath(URI.file(location.projectUri), 'data_mappings.bal').fsPath;
                         setViewComponent(
                             <FunctionForm
                                 projectPath={location.projectUri}
