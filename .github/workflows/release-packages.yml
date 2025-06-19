@@ -12,7 +12,6 @@ on:
         required: true
         options:
           - 'ballerina/data-mapper'
-          - 'ballerina/lang-service'
           - 'ballerina/low-code-diagram'
           - 'ballerina/low-code-distribution'
           - 'ballerina/low-code-editor'
