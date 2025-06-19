@@ -16,6 +16,7 @@ import { AddArtifact } from '../components/AddArtifact';
 import { Form } from '../components/Form';
 import { Overview } from '../components/Overview';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester';
 
 export default function createTests() {
   test.describe("Connector Tests", {
@@ -169,6 +170,25 @@ export default function createTests() {
         await diagram.init();
         await diagram.deleteConnector('CSV');
         console.log('Deleting connector completed');
+      });
+
+      await test.step('Import connector from file', async () => {
+        console.log('Importing connector from file');
+        const diagram = new Diagram(page.page, 'Resource');
+        await diagram.init();
+        await diagram.clickPlusButtonByIndex(1);
+        await diagram.clickImportModuleFile();
+        const connectorStore = new ConnectorStore(page.page, "Resource View");
+        await connectorStore.init();
+        await connectorStore.importConnector('bookservice-1.0.0.zip', 'zip');
+        console.log('Connector imported successfully');
+        const resourceView = await switchToIFrame('Resource View', page.page);
+        if (resourceView) {
+          await resourceView.locator('[data-testid="sidepanel"] i.codicon.codicon-close').click();
+          console.log('Closed side panel');
+        } else {
+          console.warn('Resource View iframe not found, skipping close side panel step.');
+        }
       });
 
       await test.step('Create connection from connections tab', async () => {
