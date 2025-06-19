@@ -10,8 +10,6 @@
         "build:dataMapper": "rush build -o @wso2-enterprise/ballerina-data-mapper",
         "build:graphql": "rush build -o graphqlview-lib",
         "build:lcd": "rush build -o @wso2-enterprise/ballerina-low-code-diagram",
-        "build:lced": "rush build -o @wso2-enterprise/ballerina-low-code-editor-distribution",
-        "build:lce": "rush build -o @wso2-enterprise/ballerina-low-code-editor",
         "build:visualizer": "rush build -o @wso2-enterprise/ballerina-visualizer",
         "build:overview": "rush build -o @wso2-enterprise/overview-view",
         "build:lcec": "rush build -o @wso2-enterprise/ballerina-low-code-edtior-commons",
