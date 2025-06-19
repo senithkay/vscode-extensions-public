@@ -427,3 +427,8 @@ export type FormDiagnostics = {
     key: string;
     diagnostics: VSCodeDiagnostic[];
 };
+
+export type CompletionInsertText = {
+    value: string;
+    cursorOffset?: number;
+};

@@ -7,29 +7,25 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef } from "react";
-import { FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
+import React from "react";
 import { useFormContext } from "../../context";
 import { ContextAwareExpressionEditorProps, ExpressionEditor } from "./ExpressionEditor";
 
-export const ContextAwareRawExpressionEditor = forwardRef<FormExpressionEditorRef, ContextAwareExpressionEditorProps>(
-    (props, ref) => {
-        const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
+export const ContextAwareRawExpressionEditor = (props: ContextAwareExpressionEditorProps) => {
+    const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
 
-        return (
-            <ExpressionEditor
-                ref={ref}
-                fileName={fileName}
-                {...targetLineRange}
-                {...props}
-                {...form}
-                {...expressionEditor}
-                rawExpression={getRawExp}
-                sanitizedExpression={getSanitizedExp}
-            />
-        );
-    }
-);
+    return (
+        <ExpressionEditor
+            fileName={fileName}
+            {...targetLineRange}
+            {...props}
+            {...form}
+            {...expressionEditor}
+            rawExpression={getRawExp}
+            sanitizedExpression={getSanitizedExp}
+        />
+    );
+};
 
 const getSanitizedExp = (value: string) => {
     if (value) {

@@ -7,27 +7,85 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { css } from "@emotion/css";
+import { css } from '@emotion/css';
 
 export const ANIMATION = {
     enter: css({
-        transition: "all 0.3s ease-in",
+        transition: 'all 0.3s ease-in'
     }),
     enterFrom: css({
-        opacity: 0,
+        opacity: 0
     }),
     enterTo: css({
-        opacity: 1,
+        opacity: 1
     }),
     leave: css({
-        transition: "all 0s",
+        transition: 'all 0.3s ease-out'
     }),
     leaveFrom: css({
-        opacity: 1,
+        opacity: 1
     }),
     leaveTo: css({
-        opacity: 0,
+        opacity: 0
+    })
+};
+
+export const ANIMATION_SCALE_UP = {
+    enter: css({
+        transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
     }),
+    enterFrom: css({
+        transform: 'scaleY(0)',
+        opacity: 0,
+        transformOrigin: 'bottom'
+    }),
+    enterTo: css({
+        transform: 'scaleY(1)',
+        opacity: 1,
+        transformOrigin: 'bottom'
+    }),
+    leave: css({
+        transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
+    }),
+    leaveFrom: css({
+        transform: 'scaleY(1)',
+        opacity: 1,
+        transformOrigin: 'bottom'
+    }),
+    leaveTo: css({
+        transform: 'scaleY(0)',
+        opacity: 0,
+        transformOrigin: 'bottom'
+    })
+};
+
+export const ANIMATION_SCALE_DOWN = {
+    enter: css({
+        transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
+    }),
+    enterFrom: css({
+        transform: 'scaleY(0)',
+        opacity: 0,
+        transformOrigin: 'top'
+    }),
+    enterTo: css({
+        transform: 'scaleY(1)',
+        opacity: 1,
+        transformOrigin: 'top'
+    }),
+    leave: css({
+        transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
+    }),
+    leaveFrom: css({
+        transform: 'scaleY(1)',
+        opacity: 1,
+        transformOrigin: 'top'
+    }),
+    leaveTo: css({
+        transform: 'scaleY(0)',
+        opacity: 0,
+        transformOrigin: 'top'
+    })
 };
 
 /* Helper pane related */
