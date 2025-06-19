@@ -628,6 +628,13 @@
                 "category": "BI"
             },
             {
+                "command": "BI.project-explorer.view-type-diagram",
+                "title": "View Type Diagram",
+                "icon": "$(distro-design-view)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
                 "command": "BI.project-explorer.add-function",
                 "title": "Add Function",
                 "icon": "$(add)",
