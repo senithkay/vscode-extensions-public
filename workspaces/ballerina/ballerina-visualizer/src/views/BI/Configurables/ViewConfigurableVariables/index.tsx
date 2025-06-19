@@ -271,8 +271,6 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     };
 
     const handleFormSubmit = async () => {
-        setAddConfigVariableFormOpen(false);
-        setEditConfigVariableFormOpen(false);
         getConfigVariables();
     }
 
