@@ -263,7 +263,10 @@ import {
     UpdateMediatorResponse,
     GetConnectorIconRequest,
     GetConnectorIconResponse,
-    DependencyDetails
+    DependencyDetails,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse,
+    getCodeDiagnostics
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -497,7 +500,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 params.artifactName
             );
         }
-
 
         return new Promise(async (resolve) => {
             const langClient = getStateMachine(this.projectUri).context().langClient!;
@@ -3151,41 +3153,6 @@ ${endpointAttributes}
     }
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
-        const fetchConnectors = async (name) => {
-            const runtimeVersion = await getMIVersionFromPom();
-
-            const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
-            const connectorStoreData = await connectorStoreResponse.json();
-            
-            const searchRepoName = name.startsWith('esb-connector-') ? name : `esb-connector-${name}`;
-            const connector = connectorStoreData?.find(connector => connector.repoName === searchRepoName);
-        
-            if (connector) {
-                const rpcClient = new MiVisualizerRpcManager(this.projectUri);
-                console.log("Connector found - ", connector);
-                const updateDependencies = async () => {
-                    const dependencies: DependencyDetails[] = [{
-                        groupId: connector.mavenGroupId,
-                        artifact: connector.mavenArtifactId,
-                        version: connector.version.tagName,
-                        type: "zip"
-                    }];
-                    
-                    await rpcClient.updateDependencies({
-                        dependencies
-                    });
-                }
-    
-                await updateDependencies();
-
-                await new Promise(resolve => setTimeout(resolve, 500));
-                const response = await rpcClient.updateConnectorDependencies();
-            } else {
-                console.error("Connector not found");
-                return null;    
-            }
-        };
-
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content } = params;
@@ -3256,7 +3223,7 @@ ${endpointAttributes}
                     const tagParts = connectorMatch[1].split('.');
                     const connectorName = tagParts[0];
                     console.log('Connector name:', connectorName);
-                    await fetchConnectors(connectorName);
+                    await this.fetchConnectors(connectorName, 'add');
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
@@ -4049,7 +4016,7 @@ ${endpointAttributes}
             const iconCache = connectorCache.get('connector-icon-data');
 
             if (iconCache && iconCache.hasOwnProperty(params.connectorName) && iconCache[params.connectorName]) {
-                resolve ({ iconPath: iconCache[params.connectorName] });
+                resolve({ iconPath: iconCache[params.connectorName] });
             } else {
                 const connectorData = await this.getAvailableConnectors({
                     documentUri: params.documentUri,
@@ -5522,6 +5489,41 @@ ${keyValuesXML}`;
         });
     }
 
+    async getCodeDiagnostics(params: GetCodeDiagnosticsReqeust): Promise<GetCodeDiagnosticsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+
+            let added_connectors: string[] = [];
+            let add_response: any = null;
+            let connectorName: string = '';
+            //Empty array to store the diagnostics
+            const diagnostics: GetCodeDiagnosticsResponse = { diagnostics: [] };
+            for (const xmlCode of params.xmlCodes) {
+                const connectorMatch = xmlCode.code.match(/<(\w+\.\w+)\b/);
+                if (connectorMatch) {
+                    const tagParts = connectorMatch[1].split('.');
+                    connectorName = tagParts[0];
+                    add_response = await this.fetchConnectors(connectorName, 'add');
+                    if (add_response.dependenciesResponse) {
+                        added_connectors.push(connectorName);
+                    }
+                }
+                const res = await langClient.getCodeDiagnostics(xmlCode);
+                diagnostics.diagnostics.push({
+                    fileName: xmlCode.fileName,
+                    diagnostics: res.diagnostics
+                });
+            }
+            if (added_connectors.length > 0) {
+                for (const connector of added_connectors) {
+                    const remove_response = await this.fetchConnectors(connector, 'remove');
+                }
+            }
+            resolve(diagnostics);
+        });
+    }
+
+
     async closePayloadAlert(): Promise<void> {
         return new Promise(async (resolve) => {
             await extension.context.workspaceState.update('displayPayloadAlert', false);
@@ -5543,6 +5545,52 @@ ${keyValuesXML}`;
             resolve();
         });
     }
+
+
+    async fetchConnectors(name, operation: 'add' | 'remove') {
+        const runtimeVersion = await getMIVersionFromPom();
+
+        const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE.replace('${version}', runtimeVersion ?? ''));
+        const connectorStoreData = await connectorStoreResponse.json();
+
+        const searchMavenArtifactIdConnector = name.startsWith('mi-connector-') ? name : `mi-connector-${name}`;
+        const searchMavenArtifactIdModule = name.startsWith('mi-module-') ? name : `mi-module-${name}`;
+        const artifactMatch = connectorStoreData?.find(artifact => 
+            artifact.mavenArtifactId === searchMavenArtifactIdConnector || 
+            artifact.mavenArtifactId === searchMavenArtifactIdModule
+        );
+
+        if (artifactMatch) {
+            const rpcClient = new MiVisualizerRpcManager(this.projectUri);
+            const updateDependencies = async () => {
+                const dependencies: DependencyDetails[] = [{
+                    groupId: artifactMatch.mavenGroupId,
+                    artifact: artifactMatch.mavenArtifactId,
+                    version: artifactMatch.version.tagName,
+                    type: "zip"
+                }];
+
+                const response = await rpcClient.updateAiDependencies({
+                    dependencies,
+                    operation: operation
+                });
+
+                return response;
+            }
+
+            const dependenciesResponse = await updateDependencies();
+            const connectorResponse = await rpcClient.updateConnectorDependencies();
+
+            return {
+                dependenciesResponse,
+                connectorResponse
+            };
+        } else {
+            console.error("Connector not found");
+            return null;
+        }
+    };
+
 }
 
 export function getRepoRoot(projectRoot: string): string | undefined {

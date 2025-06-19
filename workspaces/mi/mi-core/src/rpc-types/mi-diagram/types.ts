@@ -2141,3 +2141,16 @@ export interface GetArtifactTypeResponse {
     artifactType: string;
     artifactFolder: string;
 }
+
+export interface GetCodeDiagnosticsReqeust {
+    xmlCodes: XmlCode[];
+}
+
+export interface GetCodeDiagnosticsResponse {
+    diagnostics: {fileName: string, diagnostics: Diagnostic[]}[];
+}
+
+export interface XmlCode{
+    fileName: string;
+    code: string;
+}
