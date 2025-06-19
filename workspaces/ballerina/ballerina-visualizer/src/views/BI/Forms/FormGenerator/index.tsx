@@ -800,7 +800,7 @@ export function FormGenerator(props: FormProps) {
                     targetLineRange={targetLineRange}
                     fileName={fileName}
                     isSaving={showProgressIndicator}
-                    submitText={submitText || (showProgressIndicator ? "Saving..." : undefined)}
+                    submitText={submitText}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}
