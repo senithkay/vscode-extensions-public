@@ -13,9 +13,7 @@ on:
         options:
           - 'ballerina/data-mapper'
           - 'ballerina/low-code-diagram'
-          - 'ballerina/low-code-distribution'
           - 'ballerina/low-code-editor'
-          - 'ballerina/low-code-editor-commons'
           - 'ballerina/low-code-integration-tests'
           - 'ballerina/low-code-ui-components'
           - 'ballerina/statement-editor'
