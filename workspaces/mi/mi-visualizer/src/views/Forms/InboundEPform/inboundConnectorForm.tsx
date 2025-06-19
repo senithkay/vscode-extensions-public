@@ -256,7 +256,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         // Transform the keys of the rest object
         const transformedParameters = Object.fromEntries(
             Object.entries(paramFields).map(([key, value]) => [getOriginalName(key), value])
-                .filter(([_, value]) => value && typeof value !== 'object')
+                .filter(([_, value]) => (value !== null && value !== undefined && value !== '') && typeof value !== 'object')
         );
 
         // Merge transformedParameters into finalParameters
