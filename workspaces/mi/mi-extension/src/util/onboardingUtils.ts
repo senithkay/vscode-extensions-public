@@ -894,7 +894,7 @@ function getMIFromGlobal(miVersion: string): string | undefined {
     const defaultServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
     if (defaultServerPath && isMIInstalledAtPath(defaultServerPath)) {
         const defaultServerMIVersion = getMIVersion(defaultServerPath);
-        if (defaultServerMIVersion && compareVersions(defaultServerMIVersion, miVersion) >= 0) {
+        if (defaultServerMIVersion && compareVersions(defaultServerMIVersion, miVersion) == 0) {
             return defaultServerPath;
         }
     }
