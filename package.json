@@ -8,7 +8,6 @@
         "build:cellDiagram": "rush build -o @wso2-enterprise/choreo-cell-diagram",
         "build:configEditor": "rush build -o @wso2-enterprise/ballerina-configurable-editor",
         "build:dataMapper": "rush build -o @wso2-enterprise/ballerina-data-mapper",
-        "build:expressionEditor": "rush build -o @wso2-enterprise/ballerina-expression-editor",
         "build:graphql": "rush build -o graphqlview-lib",
         "build:lcd": "rush build -o @wso2-enterprise/ballerina-low-code-diagram",
         "build:lced": "rush build -o @wso2-enterprise/ballerina-low-code-editor-distribution",
