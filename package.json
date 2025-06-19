@@ -5,7 +5,6 @@
         "init-submodules": "git submodule update --init --recursive && git submodule foreach git pull origin master",
         "build:wso2PlatformWebviews": "rush build -o @wso2-enterprise/wso2-platform-vscode-webviews",
         "build:choreoWebviews": "rush build -o @wso2-enterprise/choreo-vscode-webviews",
-        "build:configEditor": "rush build -o @wso2-enterprise/ballerina-configurable-editor",
         "build:dataMapper": "rush build -o @wso2-enterprise/ballerina-data-mapper",
         "build:graphql": "rush build -o graphqlview-lib",
         "build:lcd": "rush build -o @wso2-enterprise/ballerina-low-code-diagram",

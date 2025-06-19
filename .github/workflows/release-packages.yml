@@ -18,7 +18,6 @@ on:
           - 'ballerina/statement-editor'
           - 'ballerina/syntax-tree'
           - 'ballerina/project-design-diagrams'                                                                          
-          - 'configurable-editor'
           - 'common-libs/ui-toolkit'
           - 'common-libs/font-wso2-vscode'
       version:
