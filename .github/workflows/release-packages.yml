@@ -15,7 +15,6 @@ on:
           - 'ballerina/low-code-diagram'
           - 'ballerina/low-code-editor'
           - 'ballerina/low-code-integration-tests'
-          - 'ballerina/low-code-ui-components'
           - 'ballerina/statement-editor'
           - 'ballerina/syntax-tree'
           - 'ballerina/project-design-diagrams'
