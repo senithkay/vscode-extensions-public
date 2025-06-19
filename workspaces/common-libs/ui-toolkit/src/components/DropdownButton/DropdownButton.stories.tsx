@@ -42,7 +42,6 @@ const option3 = (
         <Typography sx={{margin: 0}} variant="body2">This is the third option in the dropdown</Typography>
     </div>
 );
-
 const onSelect = (option: string) => {
     console.log(`Selected option: ${option}`);
 };

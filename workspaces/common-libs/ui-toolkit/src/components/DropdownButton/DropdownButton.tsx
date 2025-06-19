@@ -139,7 +139,6 @@ export const DropdownButton: React.FC<DropdownButtonProps> = (props: DropdownBut
                     <Button
                         tooltip={tooltip}
                         buttonSx={{
-                            // border: "1px solid var(--vscode-editor-snippetFinalTabstopHighlightBorder)",
                             borderTopRightRadius: 'unset',
                             borderBottomRightRadius: 'unset',
                             ...buttonSx
@@ -154,7 +153,7 @@ export const DropdownButton: React.FC<DropdownButtonProps> = (props: DropdownBut
                     </Button>
                 </div>
                 <OptionsButton sx={optionButtonSx} onClick={() => setOpen(!open)} height={buttonHeight}>
-                    <Codicon sx={{ color: "var(--button-secondary-foreground)", ...iconSx }} iconSx={iconSx} name={iconName || "chevron-down"} />
+                    <Codicon sx={{ color: "var(--button-secondary-foreground)", ...iconSx }} iconSx={iconSx} name={iconName || "chevron-down"} id={"dropdown-icon-" + selecteOption} />
                 </OptionsButton>
                 {open && (
                     <DropdownContent minWidth={buttonWidth + 30} style={dropdownStyle} sx={dropDownSx}>
@@ -170,7 +169,6 @@ export const DropdownButton: React.FC<DropdownButtonProps> = (props: DropdownBut
                                     {selecteOption === option.value ? (
                                         <Codicon sx={selectIconSx} iconSx={{width: 16}} name="check" />
                                     ) : (
-                                    // Empty span with same width as Codicon for alignment
                                         <span style={{ display: "inline-block", width: selectIconSx ? 25 : 22 }} />
                                     )}
                                     {option.content}
