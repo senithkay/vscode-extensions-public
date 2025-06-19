@@ -36,6 +36,8 @@ export interface SidePanelProps {
 
 interface ConnectionConfigViewProps {
     fileName: string; // file path of `connection.bal`
+    submitText?: string;
+    isSaving?: boolean;
     selectedNode: FlowNode;
     onSubmit: (node?: FlowNode) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -54,6 +56,8 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         updatedExpressionField,
         resetUpdatedExpressionField,
         isPullingConnector,
+        submitText,
+        isSaving,
     } = props;
     const { rpcClient } = useRpcContext();
     const [targetLineRange, setTargetLineRange] = useState<LineRange>();
@@ -86,6 +90,8 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         <Container>
             {targetLineRange && (
                 <FormGenerator
+                    showProgressIndicator={isSaving}
+                    submitText={submitText}
                     fileName={fileName}
                     node={selectedNode}
                     targetLineRange={targetLineRange}

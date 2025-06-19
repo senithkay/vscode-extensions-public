@@ -91,6 +91,7 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     isGraphql?: boolean;
+    submitText?: string;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean, formImports?: FormImports) => void;
     showProgressIndicator?: boolean;
     subPanelView?: SubPanelView;
@@ -147,6 +148,7 @@ export function FormGenerator(props: FormProps) {
         resetUpdatedExpressionField,
         disableSaveButton,
         actionButtonConfig,
+        submitText,
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -798,7 +800,7 @@ export function FormGenerator(props: FormProps) {
                     targetLineRange={targetLineRange}
                     fileName={fileName}
                     isSaving={showProgressIndicator}
-                    submitText={showProgressIndicator ? "Saving..." : undefined}
+                    submitText={submitText || (showProgressIndicator ? "Saving..." : undefined)}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}

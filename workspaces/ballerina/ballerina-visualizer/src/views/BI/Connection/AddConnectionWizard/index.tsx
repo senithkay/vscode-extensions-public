@@ -349,6 +349,8 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         </BodyText>
                         <ConnectionConfigView
                             fileName={fileName}
+                            submitText={savingFormStatus === SavingFormStatus.SAVING ? "Creating..." : "Create"}
+                            isSaving={savingFormStatus === SavingFormStatus.SAVING}
                             selectedNode={selectedNodeRef.current}
                             onSubmit={handleOnFormSubmit}
                             updatedExpressionField={updatedExpressionField}
