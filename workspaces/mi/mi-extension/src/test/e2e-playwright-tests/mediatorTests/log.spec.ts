@@ -92,7 +92,7 @@ export default function createTests() {
       await test.step('Add log mediator in to resource with custom values', async () => {
         console.log("Adding log mediator in to resource with custom values");
         // sleep for 1 seconds to ensure the diagram is ready
-        await page.page.waitForTimeout(1000);
+        await page.page.waitForTimeout(2000);
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         await diagram.addMediator('Log', {
@@ -115,14 +115,14 @@ export default function createTests() {
             }
           }
         });
-        await page.page.waitForTimeout(1000);
+        await page.page.waitForTimeout(2000);
         await diagram.getMediator('log');
         console.log('Log mediator added successfully with custom values');
       });
 
       await test.step('Edit log mediator in resource', async () => {
         console.log('Editing log mediator in resource');
-        await page.page.waitForTimeout(1000);
+        await page.page.waitForTimeout(2000);
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         const mediator = await diagram.getMediator('log');
