@@ -27,6 +27,7 @@ namespace S {
         selected: boolean;
         hovered: boolean;
         hasError: boolean;
+        isClickable: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
@@ -42,7 +43,7 @@ namespace S {
         border-radius: 10px;
         background-color: ${Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
-        cursor: pointer;
+        cursor: ${(props: NodeStyleProp) => props.isClickable ? 'pointer' : 'default'};
     `;
 
     export const IconContainer = styled.div`
@@ -90,8 +91,8 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const [canOpenView, setCanOpenView] = useState(false);
     const referenceKey = node.referenceName?.split("=")[0];
     const referenceValue = node.referenceName?.split("=")[1];
-    const isClickable = referenceKey !== "inSequence" && referenceKey !== "outSequence" && referenceKey !== "faultSequence" && node.stNode.tag !== "target";
-    const description = getNodeDescription(node.stNode) || referenceValue;
+    const isClickable = referenceKey !== "sequence" && referenceKey !== "inSequence" && referenceKey !== "outSequence" && referenceKey !== "faultSequence" && node.stNode.tag !== "target";
+    const description = referenceValue || getNodeDescription(node.stNode);
 
     useEffect(() => {
         if (node.mediatorName === MEDIATORS.DATAMAPPER) {
@@ -209,6 +210,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     onClick={onClick}
+                    isClickable={isClickable}
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
@@ -225,7 +227,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                                 </Header>
                                 <Body>
                                     <Tooltip content={description} position={'bottom'} >
-                                        <Description onClick={handleOpenView} selectable={canOpenView}>{description}</Description>
+                                        <Description onClick={handleOpenView} isError={!canOpenView} selectable={canOpenView}>{description}</Description>
                                     </Tooltip>
                                 </Body>
                             </Content>
