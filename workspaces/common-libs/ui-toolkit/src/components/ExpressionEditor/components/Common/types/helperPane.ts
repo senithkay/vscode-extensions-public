@@ -116,3 +116,8 @@ export type HelperPaneProps = PropsWithChildren<{
     helperPaneHeight: HelperPaneHeight;
     sx?: CSSProperties;
 }>;
+
+
+export type HelperPaneCustomProps = PropsWithChildren<{
+    sx?: CSSProperties;
+}>;

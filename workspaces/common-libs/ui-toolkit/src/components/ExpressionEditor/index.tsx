@@ -12,6 +12,7 @@ export { FormExpressionEditorWrapper as FormExpressionEditor } from './component
 export { HeaderExpressionEditorWrapper as HeaderExpressionEditor } from './components/Header';
 export { TokenEditor } from './components/Token';
 export { default as HelperPane } from './components/Common/HelperPane';
+export { default as HelperPaneCustom } from './components/Common/HelperPaneCustom';
 
 /* Types */
 export * from './types';

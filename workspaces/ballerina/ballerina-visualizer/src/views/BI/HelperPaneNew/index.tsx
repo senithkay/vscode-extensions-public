@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { RefObject } from 'react';
-import { FormExpressionEditorRef, HelperPane, HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
+import { RefObject, useState } from 'react';
+import { Codicon, FormExpressionEditorRef, HelperPane, HelperPaneCustom, HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
 // import { ConfigurablePage } from './ConfigurablePage';
 // import { FunctionsPage } from './FunctionsPage';
 // import { SuggestionsPage } from './SuggestionsPage';
@@ -19,6 +19,7 @@ import { SuggestionsPage } from '../HelperPane/SuggestionsPage';
 import styled from '@emotion/styled';
 import { HelperBackground } from './styles/Backgrounds';
 import { ExpandableList } from './Components/ExpandableList';
+import { transform } from 'lodash';
 
 export type HelperPaneNewProps = {
     fieldKey: string;
@@ -71,19 +72,68 @@ const HelperPaneNewEl = ({
             onClose();
         }
     };
+    const [currentPage, setCurrentPage] = useState(0);
+
+    const next = () => {
+        setCurrentPage(currentPage+1);
+    };
+
+    const prev = () => {
+        setCurrentPage(currentPage-1);
+    };
 
     return (
-        <HelperPane helperPaneHeight={'default'} sx={recordTypeField ? { width: 200 } : undefined}>
-            <HelperPane.Body>
-                <HelperPane.Panels>
-                     <HelperPane.PanelView id={isAssignIdentifier ? 0 : (recordTypeField ? 1 : 0)}>
+        <HelperPaneCustom sx={{ width: 300, padding: '10px 2px', height: '220px' }}>
+            <SlidingWindow>
+                <SlidingPane index={0} currentPage={currentPage}>
+                    <HelperPane.Body>
                         <ExpandableList />
-                    </HelperPane.PanelView>
-                </HelperPane.Panels>
-            </HelperPane.Body>
-        </HelperPane>
+                    </HelperPane.Body>
+                    <HelperPane.Footer>
+                    <CopilotFooter >
+                            <Codicon name="add"/> <span>Generate with BI Copilot</span>
+                            <button onClick={next}>adwd</button>
+                    </CopilotFooter>
+                    </HelperPane.Footer>
+                </SlidingPane>
+                <SlidingPane index={1} currentPage={currentPage}>
+                     <HelperPane.Body>
+                        <button onClick={prev}>adwd</button>
+                    </HelperPane.Body>
+                    <HelperPane.Footer>
+                    <CopilotFooter >
+                            <Codicon name="add"/> <span>Generate with BI Copilot</span>
+                    </CopilotFooter>
+                    </HelperPane.Footer>
+                </SlidingPane>
+            </SlidingWindow>
+        </HelperPaneCustom>
     );
 };
+
+const SlidingWindow = styled.div`
+    display: flex;
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
+`;
+
+
+const SlidingPane = styled.div<{ index: number, currentPage: number }>`
+  position: absolute;
+  width: 300px;
+  height: 100%;
+  transition: transform 0.3s ease-in-out;
+  transform: ${({ index, currentPage }: { index: number, currentPage:number }) => `translateX(${(currentPage-index)*100})%`};
+`;
+
+const CopilotFooter = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+`;
 
 /**
  * Function to render the helper pane for the expression editor

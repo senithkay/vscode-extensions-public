@@ -11,18 +11,3 @@ export const HelperBackground = styled.div`
   font-size: 16px;
 `;
 
-export const HorizontalListContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-`;
-
-export const HorizontalListItem = styled.div`
-    display: flex;
-    gap: 3px;
-    padding: 10px 20px;
-    &:hover {
-        background-color:rgb(29, 29, 29);
-        cursor: pointer;
-    }
-`;
