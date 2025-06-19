@@ -70,6 +70,11 @@ export async function copyMavenWrapper(resourcePath: string, targetPath: string)
 
 	fs.mkdirSync(mavenWrapperPropertiesPath, { recursive: true });
 	fs.copyFileSync(path.join(resourcePath, 'maven-wrapper.properties'), path.join(mavenWrapperPropertiesPath, 'maven-wrapper.properties'));
+	const copyMavenWrapperFiles = () => {
+		fs.copyFileSync(path.join(resourcePath, 'mvnw.cmd'), path.join(targetPath, 'mvnw.cmd'));
+		fs.copyFileSync(path.join(resourcePath, 'mvnw'), path.join(targetPath, 'mvnw'));
+	};
+
 	const isMavenInstalled = await isMavenInstalledGlobally();
 	if (isMavenInstalled) {
 		const status = child_process.spawn("mvn -N io.takari:maven:wrapper", [], { shell: true, cwd: targetPath });
@@ -77,10 +82,11 @@ export async function copyMavenWrapper(resourcePath: string, targetPath: string)
 			if (code === 0) {
 				return;
 			}
+			copyMavenWrapperFiles();
 		});
+	} else {
+		copyMavenWrapperFiles();
 	}
-	fs.copyFileSync(path.join(resourcePath, 'mvnw.cmd'), path.join(targetPath, 'mvnw.cmd'));
-	fs.copyFileSync(path.join(resourcePath, 'mvnw'), path.join(targetPath, 'mvnw'));
 }
 
 async function isMavenInstalledGlobally(): Promise<boolean> {
