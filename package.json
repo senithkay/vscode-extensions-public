@@ -17,7 +17,6 @@
         "build:lceUi": "rush build -o @wso2-enterprise/ballerina-low-code-edtior-ui-components",
         "build:syntaxTree": "rush build -o @wso2-enterprise/syntax-tree",
         "build:se": "rush build -o @wso2-enterprise/ballerina-statement-editor",
-        "build:notbook": "rush build -o notebook-renderer",
         "build:perf": "rush build -o perf",
         "build:designDiagram": "rush build -o project-design-diagrams",
         "build:swagger": "rush build -o swaggerview-lib",
