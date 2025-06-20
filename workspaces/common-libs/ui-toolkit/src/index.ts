@@ -62,6 +62,7 @@ export * from './components/Tabs/Tabs';
 export * from './components/PullUpButton/PullUPButton';
 export * from './components/TruncatedLabel/TruncatedLabel';
 export * from './components/PasswordField/PasswordField';
+export * from './components/DropdownButton/DropdownButton';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
