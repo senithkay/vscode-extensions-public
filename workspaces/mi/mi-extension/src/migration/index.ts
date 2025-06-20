@@ -16,6 +16,7 @@ export function activateMigrationSupport(context: vscode.ExtensionContext) {
         const source = params?.sourceDir || vscode.workspace.workspaceFolders?.[0].uri.fsPath;
         if (source) {
             importProject({ source, directory: source, open: true });
+            vscode.commands.executeCommand('setContext', 'MI.migrationStatus', 'migrating');
         }
         return;
     });
