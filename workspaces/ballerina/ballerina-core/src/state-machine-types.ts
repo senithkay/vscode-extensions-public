@@ -134,10 +134,12 @@ export interface VisualizerMetadata {
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
     recentIdentifier?: string;
+    artifactType?: DIRECTORY_MAP;
 }
 
 export interface ParentPopupData {
     recentIdentifier: string;
+    artifactType: DIRECTORY_MAP;
 }
 
 export interface DownloadProgress {
