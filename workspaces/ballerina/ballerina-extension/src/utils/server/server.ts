@@ -14,6 +14,15 @@ import { isWindows } from '..';
 import { BallerinaExtension } from '../../core';
 import * as fs from 'fs';
 import * as path from 'path';
+import _ from 'lodash';
+
+interface JdkInfo {
+    name: string;
+    version: string;
+    fullPath: string;
+    parsedVersion: number[];
+    buildNumber: number;
+}
 
 function findFileByPattern(directory: string, pattern: RegExp): string | null {
     try {
@@ -53,6 +62,81 @@ function findJarsExcludingPatterns(directory: string, excludePatterns: string[])
     } catch (error) {
         console.error(`Error reading directory ${directory}:`, error);
         return [];
+    }
+}
+
+function parseJdkVersion(versionString: string): { parsedVersion: number[], buildNumber: number } {
+    const [mainVersion, buildPart] = versionString.split('+');
+    
+    const parsedVersion = mainVersion
+        .split('.')
+        .map(num => parseInt(num, 10) || 0);
+    
+    const buildNumber = parseInt(buildPart || '0', 10);
+    
+    return { parsedVersion, buildNumber };
+}
+
+function extractJdkInfo(fileName: string, directory: string): JdkInfo | null {
+    const jdkPattern = /^jdk-(.+)-jre$/;
+    const match = fileName.match(jdkPattern);
+    
+    if (!match) {
+        return null;
+    }
+    
+    const versionString = match[1];
+    const { parsedVersion, buildNumber } = parseJdkVersion(versionString);
+    
+    debug(`Found JDK: ${fileName} with version: ${versionString}`);
+    
+    return {
+        name: fileName,
+        version: versionString,
+        fullPath: path.join(directory, fileName),
+        parsedVersion,
+        buildNumber
+    };
+}
+
+export function findHighestVersionJdk(directory: string): string | null {
+    try {
+        if (!fs.existsSync(directory)) {
+            debug(`Dependencies directory not found: ${directory}`);
+            return null;
+        }
+        
+        const files = fs.readdirSync(directory);
+        debug(`Found files in dependencies directory: ${files.join(', ')}`);
+        
+        const jdkInfos = files
+            .map(file => extractJdkInfo(file, directory))
+            .filter((jdk): jdk is JdkInfo => jdk !== null);
+        
+        if (jdkInfos.length === 0) {
+            debug(`No JDK directories found matching pattern in: ${directory}`);
+            return null;
+        }
+        
+        const sortedJdks = _.orderBy(jdkInfos, [
+            // sort by major version (descending)
+            (jdk: JdkInfo) => jdk.parsedVersion[0] || 0,
+            // sort by minor version (descending)
+            (jdk: JdkInfo) => jdk.parsedVersion[1] || 0,
+            // sort by patch version (descending)
+            (jdk: JdkInfo) => jdk.parsedVersion[2] || 0,
+            // sort by build number (descending)
+            (jdk: JdkInfo) => jdk.buildNumber
+        ], ['desc', 'desc', 'desc', 'desc']);
+        
+        const highestVersionJdk = sortedJdks[0];
+        
+        debug(`Selected JDK: ${highestVersionJdk.name} at ${highestVersionJdk.fullPath}`);
+        return highestVersionJdk.fullPath;
+        
+    } catch (error) {
+        console.error(`Error reading directory ${directory}:`, error);
+        return null;
     }
 }
 
@@ -145,7 +229,7 @@ export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     
     // Find any JDK in the dependencies directory
     const dependenciesDir = join(baseHome, 'dependencies');
-    const jdkDir = findFileByPattern(dependenciesDir, /^jdk-.*-jre$/);
+    const jdkDir = findHighestVersionJdk(dependenciesDir);
     
     if (!jdkDir) {
         debug(`No JDK found in dependencies directory: ${dependenciesDir}`);
