@@ -13,7 +13,7 @@ import * as path from 'path';
 import { parseString, Builder } from 'xml2js';
 import { v4 as uuidv4 } from 'uuid';
 import { dockerfileContent, rootPomXmlContent } from './templates';
-import { createFolderStructure, copyDockerResources } from '.';
+import { createFolderStructure, copyDockerResources, copyMavenWrapper, removeMavenWrapper } from '.';
 import { commands, Uri, window, workspace } from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
@@ -144,6 +144,8 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
         deleteEmptyFoldersInPath(source);
 
         const items = fs.readdirSync(destinationFolderPath, { withFileTypes: true });
+        const projectDirToResolvedPomMap = generateProjectDirToResolvedPomMap(destinationFolderPath);
+        
         let folderStructureCreated = false;
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
@@ -152,14 +154,15 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
                 const projectType = determineProjectType(projectPath);
                 // Only create folder structure for composite exporter (distribution) projects
                 if (projectType === Nature.DISTRIBUTION) {
-                    let { projectName, groupId, artifactId, version, runtimeVersion } = getProjectDetails(projectPath);
+                    const newProjectDir = path.join(directory, item.name);
+                    fs.mkdirSync(newProjectDir);
+                    let { projectName, groupId, artifactId, version, runtimeVersion } = getProjectDetails(projectPath, projectDirToResolvedPomMap);
                     if (projectName && groupId && artifactId && version) {
                         const newFolderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
-                        const newProjectDir = path.join(directory, item.name);
-                        fs.mkdirSync(newProjectDir);
                         await createFolderStructure(newProjectDir, newFolderStructure);
                         copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), newProjectDir);
                         folderStructureCreated = true;
+                        console.log("Created project structure for project: " + projectName);
                     }
                 }
             }
@@ -169,10 +172,10 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
             const folderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
             await createFolderStructure(directory, folderStructure);
             copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
+            console.log("Created project structure for project: " + projectName);
         }
 
-        console.log("Created project structure for project: " + projectName);
-        await migrateConfigs(projectUri, path.join(source, ".backup"), directory);
+        await migrateConfigs(projectUri, path.join(source, ".backup"), directory, projectDirToResolvedPomMap);
 
         window.showInformationMessage(`Successfully imported ${projectName} project`);
 
@@ -188,7 +191,61 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
     }
 }
 
-export function getProjectDetails(filePath: string) {
+
+/**
+ * Generates a map that associates each project directory within a multi-module Maven project
+ * to its corresponding resolved `<project>` XML content from the `pom.xml` file.
+ *
+ * This function temporarily copies the Maven wrapper to the specified project directory,
+ * resolves the effective `pom.xml` using the Maven wrapper, and parses each `<project>` section.
+ * It extracts the `build.sourceDirectory` to determine the project directory, normalizes the path,
+ * and maps the cleaned directory path to the resolved project XML.
+ * The Maven wrapper is removed after processing.
+ *
+ * @param multiModuleProjectDir - The root directory of the multi-module Maven project.
+ * @returns A map where the keys are normalized project directory paths and the values are the corresponding resolved `<project>` XML strings.
+ */
+export function generateProjectDirToResolvedPomMap(multiModuleProjectDir: string): Map<string, string> {
+    const projectDirToResolvedPomMap = new Map<string, string>();
+
+    copyMavenWrapper(extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')), multiModuleProjectDir);
+    const mavenPath = path.join(multiModuleProjectDir, process.platform === 'win32' ? 'mvnw.cmd' : 'mvnw');
+    const resolvedPomContent = getResolvedPomXmlContent(path.join(multiModuleProjectDir, 'pom.xml'), mavenPath);
+
+    const projectRegex = /<project[\s\S]*?<\/project>/g;
+    let match;
+    while ((match = projectRegex.exec(resolvedPomContent)) !== null) {
+        const projectXml = match[0];
+        const parser = new XMLParser({ ignoreAttributes: false });
+        const parsed = parser.parse(projectXml);
+        const reportingDir = parsed?.project?.build?.sourceDirectory;
+
+        if (reportingDir) {
+            let cleanedProjectDir = reportingDir;
+
+            // Normalize path separators
+            const srcMainIndex = cleanedProjectDir.lastIndexOf(`${path.sep}src${path.sep}main`);
+            if (srcMainIndex !== -1) {
+                cleanedProjectDir = cleanedProjectDir.substring(0, srcMainIndex);
+            }
+
+            projectDirToResolvedPomMap.set(cleanedProjectDir.trim(), projectXml);
+        }
+    }
+    
+    removeMavenWrapper(multiModuleProjectDir);
+    return projectDirToResolvedPomMap;
+}
+
+/**
+ * Retrieves project details (name, groupId, artifactId, version, runtimeVersion) from a pom.xml file.
+ * If a resolved POM map is provided, it will use the resolved content; otherwise, it reads and parses the pom.xml file directly.
+ *
+ * @param filePath - Path to the project directory containing pom.xml.
+ * @param projectDirToResolvedPomMap - (Optional) Map of project directory to resolved pom.xml content.
+ * @returns An object with projectName, groupId, artifactId, version, and runtimeVersion.
+ */
+export function getProjectDetails(filePath: string, projectDirToResolvedPomMap?: Map<string, string>) {
     let projectName: string | undefined;
     let groupId: string | undefined;
     let artifactId: string | undefined;
@@ -198,20 +255,29 @@ export function getProjectDetails(filePath: string) {
     const pomPath = path.join(filePath, "pom.xml");
 
     if (fs.existsSync(pomPath)) {
-        const pomContent = fs.readFileSync(pomPath, 'utf8');
-
-        parseString(pomContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
-            if (err) {
-                console.error('Error parsing pom.xml:', err);
-                return;
-            }
-
-            projectName = result?.project?.name;
-            groupId = result?.project?.groupId;
-            artifactId = result?.project?.artifactId;
-            version = result?.project?.version;
-            runtimeVersion = result?.project?.properties["project.runtime.version"];
-        });
+        if (projectDirToResolvedPomMap) {
+            const resolvedPomContent = projectDirToResolvedPomMap.get(filePath);
+            const parser = new XMLParser({ ignoreAttributes: false });
+            const parsed = resolvedPomContent ? parser.parse(resolvedPomContent) : {};
+            projectName = parsed?.project?.name;
+            groupId = parsed?.project?.groupId;
+            artifactId = parsed?.project?.artifactId;
+            version = parsed?.project?.version;
+            runtimeVersion = parsed?.project?.properties?.["project.runtime.version"];
+        } else {
+            const pomContent = fs.readFileSync(pomPath, 'utf8');
+            parseString(pomContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
+                if (err) {
+                    console.error('Error parsing pom.xml:', err);
+                    return;
+                }
+                projectName = result?.project?.name;
+                groupId = result?.project?.groupId;
+                artifactId = result?.project?.artifactId;
+                version = result?.project?.version;
+                runtimeVersion = result?.project?.properties?.["project.runtime.version"];
+            });
+        }
     }
     return { projectName, groupId, artifactId, version, runtimeVersion };
 }
@@ -240,14 +306,14 @@ export function getProjectDir(filePath: string): string {
     return path.dirname(normalizedPath);
 }
 
-export async function migrateConfigs(projectUri: string, source: string, target: string) {
+export async function migrateConfigs(projectUri: string, source: string, target: string, projectDirToResolvedPomMap: Map<string, string>) {
     // determine the project type here
     const projectType = determineProjectType(source);
     let hasClassMediatorModule = false;
 
     if (projectType === Nature.MULTIMODULE) {
         const items = fs.readdirSync(source, { withFileTypes: true });
-        const artifactIdToFileInfoMap = generateArtifactIdToFileInfoMap(source, items);
+        const artifactIdToFileInfoMap = generateArtifactIdToFileInfoMap(source, items, projectDirToResolvedPomMap);
         const { configToTests, configToMockServices } = generateConfigToTestAndMockServiceMaps(source, items);
         const projectDirToMetaFilesMap = generateProjectDirToMetaFilesMap(source, items);
 
@@ -267,7 +333,8 @@ export async function migrateConfigs(projectUri: string, source: string, target:
                     artifactIdToFileInfoMap,
                     configToTests,
                     configToMockServices,
-                    projectDirToMetaFilesMap
+                    projectDirToMetaFilesMap,
+                    projectDirToResolvedPomMap
                 );
                 usedDepIds.forEach(depId => allUsedDependencyIds.add(depId));
                 await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
@@ -346,21 +413,24 @@ function getProjectDirectoriesWithType(source: string, items: fs.Dirent[]) {
 }
 
 /**
- * Generates a mapping between artifact identifiers and their corresponding file info objects.
+ * Generates a map from artifact identifiers to their corresponding file information for a given source directory.
  *
- * @param source - The root directory path containing the project directories.
- * @param items - An array of directory entries (`fs.Dirent[]`) representing the contents
- *                of the `source` directory.
- * @returns A `Map<string, FileInfo>` where the keys are artifact identifiers and the values
- *          are their corresponding file info objects.
+ * This function scans the provided source directory and its items to identify project directories.
+ * For each project directory, it attempts to resolve a unique project identifier (artifactId) using the provided
+ * `projectDirToResolvedPom` map. It also parses any `artifact.xml` files found within the project directories to
+ * extract artifact information. Each artifact's identifier is mapped to its associated file information.
+ *
+ * @param source - The root directory to scan for project directories and artifacts.
+ * @param items - The list of directory entries (files and folders) within the source directory.
+ * @param projectDirToResolvedPom - A map that associates project directories with their resolved POM file paths.
+ * @returns A map where each key is an artifact identifier (string) and each value is the corresponding {@link FileInfo}.
  */
-function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[]): Map<string, FileInfo> {
+function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[], projectDirToResolvedPom: Map<string, string>): Map<string, FileInfo> {
     const artifactIdToFileInfoMap = new Map<string, FileInfo>();
     const projectDirs = getProjectDirectoriesWithType(source, items);
 
     projectDirs.forEach(({ projectDir, projectType }) => {
-        const projectPomFilePath = path.join(projectDir, 'pom.xml');
-        const projectId = getPomIdentifier(projectPomFilePath);
+        const projectId = getPomIdentifier(projectDir, projectDirToResolvedPom);
         if (projectId) {
             artifactIdToFileInfoMap.set(projectId, { path: projectDir, artifact: null, projectType });
         }
@@ -552,17 +622,26 @@ function extractXmlFromMavenOutput(output: string): string | null {
 }
 
 /**
- * Runs `mvn help:effective-pom` and returns the resolved POM content as XML string.
- * @param pomFilePath Full path to the pom.xml file
- * @returns XML string of resolved effective POM content
- * @throws If the Maven command fails or XML content is not found
+ * Generates and returns the resolved (effective) POM XML content for a given Maven `pom.xml` file.
+ * 
+ * This function executes the Maven `help:effective-pom` goal using the specified Maven executable and POM file path,
+ * captures the output, and extracts the effective POM XML content from it.
+ * 
+ * @param pomFilePath - The absolute path to the `pom.xml` file whose effective POM is to be resolved.
+ * @param mvnPath - The path to the Maven executable to use for running the command.
+ * @returns The resolved effective POM XML content as a string, or an empty string if extraction fails.
  */
-export function getResolvedPomXmlContent(pomFilePath: string): string {
-    const mavenPath = extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper', process.platform === 'win32' ? 'mvnw.cmd' : 'mvnw'));
-    const mvnOutput = execSync(`${mavenPath} -f "${pomFilePath}" help:effective-pom`, {
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'ignore'], // ignore stderr, capture stdout
-    });
+export function getResolvedPomXmlContent(pomFilePath: string, mvnPath: string): string {
+    let mvnOutput: string;
+    try {
+        mvnOutput = execSync(`${mvnPath} -f "${pomFilePath}" help:effective-pom`, {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'ignore'], // ignore stderr, capture stdout
+        });
+    } catch (err) {
+        console.error(`Failed to run Maven help:effective-pom for ${pomFilePath}:`, err);
+        mvnOutput = '';
+    }
 
     const xmlContent = extractXmlFromMavenOutput(mvnOutput);
 
@@ -575,31 +654,39 @@ export function getResolvedPomXmlContent(pomFilePath: string): string {
 }
 
 /**
- * Retrieves the Maven POM identifier from a specified `pom.xml` file.
+ * Retrieves the Maven POM identifier (in the format `groupId:artifactId:version`) for a given project directory.
  *
- * @param pomFilePath - The file path to the `pom.xml` file.
- * @returns The POM identifier as a string in the format `groupId:artifactId:version`, or `null` if the file
- *          does not exist or the required fields are not found.
+ * This function checks if a `pom.xml` file exists in the specified project directory. If it exists,
+ * it attempts to parse the resolved POM content (provided in the `projectDirToResolvedPom` map) to extract
+ * the `groupId`, `artifactId`, and `version` from the effective POM XML. If all three values are found,
+ * it returns them as a colon-separated string. If any value is missing or the POM file does not exist,
+ * the function returns `null`.
+ *
+ * @param projectDir - The absolute path to the project directory containing the `pom.xml` file.
+ * @param projectDirToResolvedPom - A map from project directory paths to their resolved POM XML content.
+ * @returns The Maven POM identifier as a string (`groupId:artifactId:version`), or `null` if not found.
  */
-function getPomIdentifier(pomFilePath: string): string | null {
-    if (!fs.existsSync(pomFilePath)) {
+function getPomIdentifier(projectDir: string, projectDirToResolvedPom: Map<string, string>): string | null {
+    const projectPomFilePath = path.join(projectDir, 'pom.xml');
+    if (!fs.existsSync(projectPomFilePath)) {
         return null;
     }
 
-    const resolvedPomContent = getResolvedPomXmlContent(pomFilePath);
+    const resolvedPomContent = projectDirToResolvedPom.get(projectDir);
+    if (resolvedPomContent) {
+        // Parse the effective POM XML output
+        const parser = new XMLParser({ ignoreAttributes: false });
+        const parsed = parser.parse(resolvedPomContent);
 
-    // Parse the effective POM XML output
-    const parser = new XMLParser({ ignoreAttributes: false });
-    const parsed = parser.parse(resolvedPomContent);
+        const groupId = parsed?.project?.groupId;
+        const artifactId = parsed?.project?.artifactId;
+        const version = parsed?.project?.version;
 
-    const groupId = parsed?.project?.groupId;
-    const artifactId = parsed?.project?.artifactId;
-    const version = parsed?.project?.version;
-
-    if (groupId && artifactId && version) {
-        return `${groupId}:${artifactId}:${version}`;
+        if (groupId && artifactId && version) {
+            return `${groupId}:${artifactId}:${version}`;
+        }
     }
-
+    
     return null;
 }
 
@@ -1256,18 +1343,24 @@ function processDependency(depId: string, sourceFileInfo: FileInfo | undefined, 
 }
 
 /**
- * Reads and parses the dependencies from a Maven `pom.xml` file.
+ * Reads and parses the dependencies from a Maven `pom.xml` file located in the specified source directory.
  *
- * @param pomFilePath - The file path to the `pom.xml` file.
- * @returns An array of `Dependency` objects extracted from the `pom.xml` file.
+ * This function checks for the existence of a `pom.xml` file in the given source directory.
+ * If found, it retrieves the resolved POM content from the provided map, parses the XML,
+ * and extracts the list of dependencies. Each dependency is returned as an object containing
+ * `groupId`, `artifactId`, and `version` properties.
  *
- * @remarks
- * This function reads the specified `pom.xml` file, parses its XML content,
- * and extracts the list of dependencies defined within the `<dependencies>` section.
- * If no dependencies are found, it returns an empty array.
+ * @param source - The path to the source directory containing the `pom.xml` file.
+ * @param projectDirToResolvedPomMap - A map that associates project directory paths with their resolved POM XML content.
+ * @returns An array of `Dependency` objects representing the dependencies defined in the `pom.xml` file.
  */
-function readPomDependencies(pomFilePath: string): Dependency[] {
-    const resolvedPomContent = getResolvedPomXmlContent(pomFilePath);
+function readPomDependencies(source: string, projectDirToResolvedPomMap: Map<string, string>): Dependency[] {
+    const pomFilePath = path.join(source, 'pom.xml');
+    if (!fs.existsSync(pomFilePath)) {
+        console.error(`pom.xml file not found in the source directory: ${source}`);
+        return [];
+    }
+    const resolvedPomContent = projectDirToResolvedPomMap.get(source) || '';
 
     const parser = new XMLParser({ ignoreAttributes: false });
     const parsed = parser.parse(resolvedPomContent);
@@ -1333,14 +1426,11 @@ async function processCompositeExporterProject(
     artifactIdToFileInfoMap: Map<string, FileInfo>,
     configToTests: Map<string, string[]>,
     configToMockServices: Map<string, string[]>,
-    projectDirToMetaFilesMap: Map<string, string[]>
+    projectDirToMetaFilesMap: Map<string, string[]>,
+    projectDirToResolvedPomMap: Map<string, string>
 ): Promise<string[]> {
-    const pomFilePath = path.join(source, 'pom.xml');
-    if (!fs.existsSync(pomFilePath)) {
-        console.error(`pom.xml file not found in the source directory: ${source}`);
-        return [];
-    }
-    const dependencies = readPomDependencies(pomFilePath);
+
+    const dependencies = readPomDependencies(source, projectDirToResolvedPomMap);
 
     let hasClassMediatorModule = false;
     let registryArtifactsList: Artifact[] = [];
