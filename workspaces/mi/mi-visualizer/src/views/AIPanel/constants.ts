@@ -13,6 +13,7 @@ export const MI_ARTIFACT_EDIT_BACKEND_URL = `/chat/artifact-editing`;
 export const MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL = `/suggestions/initial`;
 export const MI_SUGGESTIVE_QUESTIONS_BACKEND_URL = `/suggestions`;
 export const MI_UNIT_TEST_GENERATION_BACKEND_URL = `/unit-test/generate`;
+export const MI_DIAGNOSTICS_RESPONSE_BACKEND_URL = `/synapse/bug-fix`;
 
 // MI Copilot Error Messages
 export const COPILOT_ERROR_MESSAGES = {

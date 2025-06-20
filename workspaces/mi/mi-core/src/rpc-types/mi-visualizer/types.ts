@@ -426,6 +426,15 @@ export interface DownloadMIRequest {
     isUpdatedPack: boolean;
 }
 
+export interface UpdateAiDependenciesRequest {
+    dependencies: DependencyDetails[];
+    operation: "add" | "remove";
+}
+
+export interface UpdateAiDependenciesResponse {
+    textEdits: TextEdit[];
+}
+
 export interface MavenDeployPluginDetails {
     truststorePath?: string;
     truststorePassword?: string;
@@ -441,4 +450,13 @@ export interface MavenDeployPluginDetails {
 export interface ProjectConfig {
     configName: string;
     value: boolean;
+}
+
+export interface UpdateAiDependenciesRequest {
+    dependencies: DependencyDetails[];
+    operation: "add" | "remove";
+}
+
+export interface UpdateAiDependenciesResponse {
+    textEdits: TextEdit[];
 }
