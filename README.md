@@ -8,8 +8,6 @@ This repository contains multiple Visual Studio Code extensions developed by WSO
 - [APK Config Language Support](https://marketplace.visualstudio.com/items?itemName=WSO2.apk-config-language-support)
 - [Micro Integrator](https://marketplace.visualstudio.com/items?itemName=WSO2.micro-integrator)
 
-> **Note:** Some extensions are distributed as `.vsix` files and may not be available on the Marketplace.
-
 ## Prerequisites
 
 Before using this repository, ensure you have the following installed:
@@ -72,7 +70,7 @@ To add a new package:
 
 1. Navigate to the root directory of the desired package:
     ```bash
-    cd <path-to-package>
+    cd <path-to-workspace>
     ```
 2. Run:
     ```bash
