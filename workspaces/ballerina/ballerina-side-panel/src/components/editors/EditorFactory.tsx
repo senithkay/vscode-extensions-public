@@ -16,7 +16,6 @@ import { MultiSelectEditor } from "./MultiSelectEditor";
 import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
-import { FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 import { ParamManagerEditor } from "../ParamManager/ParamManager";
 import { DropdownEditor } from "./DropdownEditor";
 import { FileSelect } from "./FileSelect";
@@ -47,7 +46,7 @@ interface FormFieldEditorProps {
     onIdentifierEditingStateChange?: (isEditing: boolean) => void;
 }
 
-export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormFieldEditorProps>((props, ref) => {
+export const EditorFactory = (props: FormFieldEditorProps) => {
     const {
         field,
         selectedNode,
@@ -74,7 +73,18 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } else if (field.type === "EXPRESSION_SET") {
         return <ArrayEditor field={field} label={"Add Another Value"} />;
     } else if (field.type === "MAPPING_EXPRESSION_SET") {
-        return <MapEditor field={field} label={"Add Another Key-Value Pair"} />;
+        return (
+            <MapEditor
+                field={field}
+                label={"Add Another Key-Value Pair"}
+                openSubPanel={openSubPanel}
+                subPanelView={subPanelView}
+                handleOnFieldFocus={handleOnFieldFocus}
+                autoFocus={autoFocus}
+                visualizable={visualizableFields?.includes(field.key)}
+                recordTypeField={recordTypeFields?.find(recordField => recordField.key === field.key)}
+            />
+        );
     } else if (field.type === "FLAG") {
         return <CheckBoxEditor field={field} />;
     } else if (field.type === "EXPRESSION" && field.key === "resourcePath") {
@@ -103,7 +113,6 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         // Expression field is a inline expression editor
         return (
             <ContextAwareExpressionEditor
-                ref={ref}
                 field={field}
                 openSubPanel={openSubPanel}
                 subPanelView={subPanelView}
@@ -116,7 +125,6 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } else if (!field.items && field.type === "RAW_TEMPLATE" && field.editable) {
         return (
             <ContextAwareRawExpressionEditor
-                ref={ref}
                 field={field}
                 autoFocus={autoFocus}
             />
@@ -146,4 +154,4 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         // Readonly fields are also treated as text editor
         return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
     }
-});
+};

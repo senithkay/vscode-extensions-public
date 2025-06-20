@@ -48,26 +48,23 @@ export class RPCLayer {
         // ----- Form Views RPC Methods
         messenger.onRequest(getPopupVisualizerState, () => getFormContext(projectUri));
 
-        if (isWebviewPanel(webViewPanel)) {
-            messenger.onNotification(webviewReady, () => {
-                messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, getStateMachine(projectUri).state());
-            });
-            getStateMachine(projectUri).service().onTransition((state) => {
-                messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
+        messenger.onNotification(webviewReady, () => {
+            messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, getStateMachine(projectUri).state());
+        });
+        getStateMachine(projectUri).service().onTransition((state) => {
+            messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
 
-                if (state.event.viewLocation?.view) {
-                    const documentUri = state.event.viewLocation?.documentUri?.toLowerCase();
-                    commands.executeCommand('setContext', 'showGoToSource', documentUri?.endsWith('.xml') || documentUri?.endsWith('.ts') || documentUri?.endsWith('.dbs'));
-                }
-            });
-            window.onDidChangeActiveColorTheme((theme) => {
-                messenger.sendNotification(themeChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, theme.kind);
-            });
-        } else {
-            StateMachineAI.service().onTransition((state) => {
-                messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
-            });
-        }
+            if (state.event.viewLocation?.view) {
+                const documentUri = state.event.viewLocation?.documentUri?.toLowerCase();
+                commands.executeCommand('setContext', 'showGoToSource', documentUri?.endsWith('.xml') || documentUri?.endsWith('.ts') || documentUri?.endsWith('.dbs'));
+            }
+        });
+        window.onDidChangeActiveColorTheme((theme) => {
+            messenger.sendNotification(themeChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, theme.kind);
+        });
+        StateMachineAI.service().onTransition((state) => {
+            messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
+        });
     }
 }
 

@@ -13,6 +13,10 @@ import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
+import { RecordTypeField } from "@wso2-enterprise/ballerina-core";
+import { SubPanel } from "@wso2-enterprise/ballerina-core";
+import { SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { ContextAwareExpressionEditor } from "./ExpressionEditor";
 
 // Reusing the same styled components namespace
 namespace S {
@@ -42,10 +46,14 @@ namespace S {
         gap: "8px",
         alignItems: "center",
         width: "100%",
+        padding: "8px",
+        border: "1px solid var(--dropdown-border)",
+        borderRadius: "8px",
     });
 
     export const KeyValueContainer = styled.div({
         display: "flex",
+        flexDirection: "column",
         gap: "8px",
         width: "100%",
     });
@@ -72,10 +80,16 @@ namespace S {
 interface MapEditorProps {
     field: FormField;
     label: string;
+    openSubPanel?: (subPanel: SubPanel) => void;
+    subPanelView?: SubPanelView;
+    handleOnFieldFocus?: (key: string) => void;
+    autoFocus?: boolean;
+    visualizable?: boolean;
+    recordTypeField?: RecordTypeField;
 }
 
 export function MapEditor(props: MapEditorProps) {
-    const { field, label } = props;
+    const { field, label, ...rest } = props;
     const { form } = useFormContext();
     const { register, unregister, setValue, watch, formState } = form;
 
@@ -99,9 +113,17 @@ export function MapEditor(props: MapEditorProps) {
         .map((_, index) => {
             const key = watch(`${field.key}-${index}-key`);
             const value = watch(`${field.key}-${index}-value`);
-            
+
+            if (key === undefined) {
+                setValue(`${field.key}-${index}-key`, "");
+            }
+
+            if (value === undefined) {
+                setValue(`${field.key}-${index}-value`, "");
+            }
+
             if (!key && !value) return undefined;
-            
+
             return {
                 [key]: value
             };
@@ -186,12 +208,13 @@ export function MapEditor(props: MapEditorProps) {
                             sx={{ width: "100%" }}
                             errorMsg={formState?.errors[`${field.key}-${index}-key`]?.message as string}
                         />
-                        <TextField
+                        <ContextAwareExpressionEditor
+                            {...rest}
+                            field={field}
                             id={`${field.key}-${index}-value`}
-                            {...register(`${field.key}-${index}-value`)}
+                            fieldKey={`${field.key}-${index}-value`}
+                            showHeader={false}
                             placeholder="Value"
-                            disabled={!field.editable}
-                            sx={{ width: "100%" }}
                         />
                     </S.KeyValueContainer>
                     <S.DeleteButton
@@ -210,4 +233,4 @@ export function MapEditor(props: MapEditorProps) {
             </S.AddNewButton>
         </S.Container>
     );
-}
+};

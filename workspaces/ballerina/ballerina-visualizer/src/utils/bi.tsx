@@ -45,6 +45,7 @@ import {
     FOCUS_FLOW_DIAGRAM_VIEW,
     Imports,
     ColorThemeKind,
+    CompletionInsertText,
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -57,12 +58,13 @@ import { cloneDeep } from "lodash";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import hljs from "highlight.js";
-import { CompletionItem, CompletionItemKind, convertCompletionItemKind, FnSignatureDocumentation } from "@wso2-enterprise/ui-toolkit";
+import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, convertCompletionItemKind, FnSignatureDocumentation } from "@wso2-enterprise/ui-toolkit";
 import { FunctionDefinition, STNode } from "@wso2-enterprise/syntax-tree";
 import { DocSection } from "../components/ExpressionEditor";
 
 // @ts-ignore
 import ballerina from "../languages/ballerina.js";
+import { FUNCTION_REGEX } from "../resources/constants";
 hljs.registerLanguage("ballerina", ballerina);
 
 function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
@@ -376,15 +378,26 @@ export function enrichFormPropertiesWithValueConstraint(
     return enrichedFormProperties;
 }
 
+function getEnrichedValue(kind: CompletionItemKind, value: string): CompletionInsertText {
+    if (kind === COMPLETION_ITEM_KIND.Function) {
+        const fnMatch = value.match(FUNCTION_REGEX);
+
+        const enrichedValue = `${fnMatch?.groups?.label ?? value}()`;
+        return {
+            value: enrichedValue,
+            ...(fnMatch?.groups?.args && { cursorOffset: enrichedValue.length - 1 })
+        };
+    }
+
+    return { value };
+}
+
 export function convertBalCompletion(completion: ExpressionCompletionItem): CompletionItem {
     const labelArray = completion.label.split("/");
     const tag = labelArray.length > 1 ? labelArray.slice(0, -1).join("/") : undefined;
     const label = labelArray[labelArray.length - 1];
-    const kind = completion.detail
-        .split(/(?=[A-Z])/)
-        .map((word) => word.toLowerCase())
-        .join("-") as CompletionItemKind;
-    const value = completion.filterText ?? completion.insertText;
+    const kind = convertCompletionItemKind(completion.kind);
+    const { value, cursorOffset } = getEnrichedValue(kind, completion.insertText);
     const description = completion.detail;
     const sortText = completion.sortText;
     const additionalTextEdits = completion.additionalTextEdits;
@@ -397,6 +410,7 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         kind,
         sortText,
         additionalTextEdits,
+        cursorOffset
     };
 }
 
@@ -691,8 +705,7 @@ export async function convertToFnSignature(signatureHelp: SignatureHelpResponse)
     }
 
     const fnText = currentSignature.label;
-    const fnRegex = /^(?<label>[a-zA-Z0-9_']+)\((?<args>.*)\)$/;
-    const fnMatch = fnText.match(fnRegex);
+    const fnMatch = fnText.match(FUNCTION_REGEX);
 
     if (!fnMatch) {
         return undefined;
@@ -843,16 +856,18 @@ export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFu
     return response;
 };
 
-export function extractFunctionInsertText(template: string): string {
-    const regex = new RegExp(`(?<label>[a-zA-Z0-9_'${TRIGGER_CHARACTERS.join("")}]+)\\(.*\\)$`);
-    const match = template.match(regex);
+export function extractFunctionInsertText(template: string): CompletionInsertText {
+    const match = template.match(FUNCTION_REGEX);
     const label = match?.groups?.label;
 
     if (!label) {
-        return template;
+        return { value: template };
     }
 
-    return `${label}(`;
+    return {
+        value: `${label}()`,
+        ...(match?.groups?.args && { cursorOffset: -1 })
+    };
 }
 
 function createParameterValue(index: number, paramValueKey: string, paramValue: ParameterValue): Parameter {

@@ -86,6 +86,8 @@ import {
     updateProjectSettingsConfig,
     updateDependenciesFromOverview,
     DownloadMIRequest,
+    updateAiDependencies,
+    UpdateAiDependenciesRequest,
     ProjectConfig,
     setDeployPlugin,
     getDeployPluginDetails,
@@ -270,5 +272,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     removeDeployPlugin(): Promise<MavenDeployPluginDetails> {
         return this._messenger.sendRequest(removeDeployPlugin, HOST_EXTENSION);
+    }
+    updateAiDependencies(params: UpdateAiDependenciesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateAiDependencies, HOST_EXTENSION, params);
     }
 }

@@ -41,6 +41,7 @@ import {
     SetPathRequest,
     PathDetailsResponse,
     DownloadMIRequest,
+    UpdateAiDependenciesRequest,
     ProjectConfig,
     MavenDeployPluginDetails
 } from "./types";
@@ -94,3 +95,4 @@ export const isSupportEnabled: RequestType<string, boolean> = { method: `${_preF
 export const setDeployPlugin: RequestType<MavenDeployPluginDetails, MavenDeployPluginDetails> = { method: `${_preFix}/setDeployPlugin` };
 export const getDeployPluginDetails: RequestType<void, MavenDeployPluginDetails> = { method: `${_preFix}/getDeployPluginDetails` };
 export const removeDeployPlugin: RequestType<void, MavenDeployPluginDetails> = { method: `${_preFix}/removeDeployPlugin` };
+export const updateAiDependencies: RequestType<UpdateAiDependenciesRequest, boolean> = { method: `${_preFix}/updateAiDependencies` };
