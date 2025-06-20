@@ -54,3 +54,10 @@ export const LoadingOverlayContainer = styled.div`
     align-items: center;
     flex-direction: column;
 `;
+
+export const TopBar = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+`;

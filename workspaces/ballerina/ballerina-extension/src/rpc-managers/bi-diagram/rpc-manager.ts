@@ -199,7 +199,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
                     if (params?.isConnector) {
-                        const artifacts = await updateSourceCode({ textEdits: model.textEdits }, { artifactType: DIRECTORY_MAP.CONNECTION });
+                        const artifacts = await updateSourceCode({ textEdits: model.textEdits });
                         resolve({ artifacts });
                     } else {
                         const artifacts = await updateSourceCode({ textEdits: model.textEdits }, this.getArtifactDataFromNodeKind(params.flowNode.codedata.node));
@@ -595,7 +595,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             const projectPath = path.join(StateMachine.context().projectUri);
             const showLibraryConfigVariables = ballerinaExtInstance.showLibraryConfigVariables();
-            const variables = await StateMachine.langClient().getConfigVariablesV2({ 
+            const variables = await StateMachine.langClient().getConfigVariablesV2({
                 projectPath: projectPath,
                 includeLibraries: showLibraryConfigVariables !== false
             }) as ConfigVariableResponse;
