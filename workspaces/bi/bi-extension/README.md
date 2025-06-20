@@ -51,3 +51,30 @@ Need inspiration? Browse through sample projects to see how WSO2 Integrator: BI 
 ## Documentation
 
 To learn more about the WSO2 Integrator: BI for Visual Studio Code extension, go to the [WSO2 Integrator: BI quick start guide](https://bi.docs.wso2.com/get-started/quick-start-guide/) documentation.
+
+## Writing End to End tests
+
+### Test Directory Structure
+```
+bi-extension/
+  src/
+   test/ 
+    e2e-playwright-tests/
+     componentA/
+      componentA.spec.ts
+     componentB/
+      componentB.spec.ts
+
+     test.list.ts
+     utils.ts
+```
+### Getting started
+- Navigate to bi-extension root directory.
+- Run `npx playwright install` to install the playwright package.
+- Run `npm run e2e-test` to execute the tests.
+
+### Writing tests
+- Navigate to the `e2e-playwright-tests` folder and create a folder with the artifact name.
+- Create a `spec.ts` file as mentioned in the folder structure and start writing tests.
+- Import and add that spec to the `test.list.ts` file.
+- Run `npm run e2e-test` to verify the test.
