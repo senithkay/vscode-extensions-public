@@ -97,6 +97,22 @@ async function isMavenInstalledGlobally(): Promise<boolean> {
 	});
 }
 
+export function removeMavenWrapper(targetPath: string) {
+	const mavenWrapperDir = path.join(targetPath, '.mvn');
+	const mvnwCmd = path.join(targetPath, 'mvnw.cmd');
+	const mvnw = path.join(targetPath, 'mvnw');
+
+	if (fs.existsSync(mvnwCmd)) {
+		fs.unlinkSync(mvnwCmd);
+	}
+	if (fs.existsSync(mvnw)) {
+		fs.unlinkSync(mvnw);
+	}
+	if (fs.existsSync(mavenWrapperDir)) {
+		fs.rmSync(mavenWrapperDir, { recursive: true, force: true });
+	}
+}
+
 export function createGitignoreFile(targetPath: string): Promise<void> {
 	return new Promise((resolve, reject) => {
 		const gitignorePath = path.join(targetPath, '.gitignore');
