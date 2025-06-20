@@ -4,12 +4,9 @@ This repository contains multiple Visual Studio Code extensions developed by WSO
 
 - [Ballerina](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina)
 - [Choreo](https://marketplace.visualstudio.com/items?itemName=WSO2.choreo)
-- [API Chat](https://marketplace.visualstudio.com/items?itemName=WSO2.api-chat)
-- [API Designer](https://marketplace.visualstudio.com/items?itemName=WSO2.api-designer)
-- [Ballerina Integrator](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina-integrator)
+- [WSO2 Integrator: BI](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina-integrator)
 - [APK Config Language Support](https://marketplace.visualstudio.com/items?itemName=WSO2.apk-config-language-support)
-- [MI Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.mi-extension)
-- [MI Visualizer](https://marketplace.visualstudio.com/items?itemName=WSO2.mi-visualizer)
+- [Micro Integrator](https://marketplace.visualstudio.com/items?itemName=WSO2.micro-integrator)
 
 > **Note:** Some extensions are distributed as `.vsix` files and may not be available on the Marketplace.
 
