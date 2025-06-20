@@ -29,7 +29,7 @@ interface TypeEditorProps {
     type?: Type;
     imports?: Imports;
     rpcClient: BallerinaRpcClient;
-    onTypeChange: (type: Type) => void;
+    onTypeChange: (type: Type, rename?: boolean) => void;
     newType: boolean;
     newTypeValue?: string;
     isGraphql?: boolean;
@@ -140,6 +140,7 @@ export function TypeEditor(props: TypeEditorProps) {
                     >
                         <div id="create-from-scratch">
                             <TypeCreatorTab
+                                onTypeChange={props.onTypeChange}
                                 editingType={type}
                                 newType={newType}
                                 isGraphql={isGraphql}
@@ -161,6 +162,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 ) : (
                     <div style={{ padding: '10px' }}>
                         <TypeCreatorTab
+                            onTypeChange={props.onTypeChange}
                             editingType={type}
                             newType={newType}
                             isGraphql={isGraphql}

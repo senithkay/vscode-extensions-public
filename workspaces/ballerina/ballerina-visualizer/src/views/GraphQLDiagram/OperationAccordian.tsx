@@ -30,6 +30,11 @@ type HeaderProps = {
     expandable?: boolean;
 }
 
+interface Origin {
+    vertical: "top" | "center" | "bottom";
+    horizontal: "left" | "center" | "right";
+}
+
 const AccordionContainer = styled.div<ContainerProps>`
     margin-top: 10px;
     overflow: hidden;
@@ -77,21 +82,32 @@ export function OperationAccordion(params: OperationAccordionProps) {
     const { functionModel, goToSource, onEditFunction, onDeleteFunction, onFunctionImplement } = params;
 
     const [isConfirmOpen, setConfirmOpen] = useState(false);
-    const [confirmEl, setConfirmEl] = React.useState(null);
+    const [confirmEl, setConfirmEl] = React.useState<HTMLElement | null>(null);
+    const [anchorOrigin, setAnchorOrigin] = useState<Origin>({ vertical: "bottom", horizontal: "left" });
+    const [transformOrigin, setTransformOrigin] = useState<Origin>({ vertical: "top", horizontal: "right" });
 
     const handleEditFuncrion = (e: Event) => {
         e.stopPropagation();
         onEditFunction(functionModel);
     };
 
-    const handleOpenConfirm = () => {
-        setConfirmOpen(true);
-    };
-
     const handleDeleteFunction = (e: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         e.stopPropagation();
-        setConfirmEl(e.currentTarget);
-        handleOpenConfirm();
+        const target = e.currentTarget as HTMLElement;
+        setConfirmEl(target);
+
+        const rect = target.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        if (spaceBelow < 200 && spaceAbove > 200) {
+            setAnchorOrigin({ vertical: "top", horizontal: "left" });
+            setTransformOrigin({ vertical: "bottom", horizontal: "right" });
+        } else {
+            setAnchorOrigin({ vertical: "bottom", horizontal: "left" });
+            setTransformOrigin({ vertical: "top", horizontal: "right" });
+        }
+
+        setConfirmOpen(true);
     };
 
     const handleConfirm = (status: boolean) => {
@@ -133,8 +149,8 @@ export function OperationAccordion(params: OperationAccordionProps) {
                 confirmText="Okay"
                 message="Are you sure want to delete this field?"
                 anchorEl={confirmEl}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                anchorOrigin={anchorOrigin}
+                transformOrigin={transformOrigin}
                 sx={{ zIndex: 3002}}
             />
         </AccordionContainer>
