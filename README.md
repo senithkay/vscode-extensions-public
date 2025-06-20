@@ -7,16 +7,17 @@ This repository contains VSCode extensions developed by WSO2. The repository hou
 
 Before you can use this repository, you must have the following installed on your system:
 
-- Node.js version 16.3.
+- **Node.js** – version **22.x** or later  
+  [Download Node.js](https://nodejs.org)
 
-- npm version 8.5 .
+- **npm** – version **10.x** or later (comes with Node.js)
 
 - pnpm version 7.26 or later. You can install it by running the following command:
 
     ```bash
     npm install -g pnpm
     ``` 
-- Rush.js version 5.89 or later. You can install it by running the following command:
+- Rush.js version 5.153 or later. You can install it by running the following command:
 
     ```bash
     npm install -g @microsoft/rush
@@ -46,21 +47,29 @@ This command will build all the packages in the mono-repo. The repository is con
 To build a single workspace in the mono-repo, you can run the following command:
 
 ```bash
-rush build -o <package name>
+rush build --to <package name>
 ```
 
 Replace <package name> with the name of the package you want to build.
 
 Example: To build ballerina-low-code-editor, you can run the following command:
 ```bash
-rush build -o @wso2-enterprise/ballerina-low-code-editor
+rush build -o @wso2-enterprise/ballerina-visualizer
 ```
 ### Adding a New Package
 
-To add a new package to the mono-repo, you can use the following command:
+To add a new package to the mono-repo:
+
+First go to the root directory of the desired package.
 
 ```bash
-rush add -p <package-name> 
+cd ballerina/ballerina-visualizer
+```
+
+Execute the following command.
+
+```bash
+rush add --package <package-name> 
 ```
 
 Replace <package-name> with the name of the package you want to add. If `-m` argument passed, other packages with this dependency will have their package.json files updated to use the same version of the dependency
