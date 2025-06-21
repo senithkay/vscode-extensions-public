@@ -41,7 +41,7 @@ export async function setupEnvironment(projectUri: string, isOldProject: boolean
         const wrapperFiles = await vscode.workspace.findFiles('{mvnw,mvnw.cmd}', '**/node_modules/**', 1);
         if (!isOldProject) {
             if (wrapperFiles.length === 0) {
-                copyMavenWrapper(
+                await copyMavenWrapper(
                     extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')),
                     projectUri
                 );
@@ -51,6 +51,11 @@ export async function setupEnvironment(projectUri: string, isOldProject: boolean
         const { miVersionFromPom } = await getProjectSetupDetails();
         if (!miVersionFromPom) {
             return false;
+        }
+        const versions: string[] = ["4.0.0", "4.1.0", "4.2.0", "4.3.0"];
+        if (miVersionFromPom && versions.includes(miVersionFromPom)) {
+            const config = vscode.workspace.getConfiguration('MI', vscode.Uri.parse(projectUri));
+            await config.update("LEGACY_EXPRESSION_ENABLED", true, vscode.ConfigurationTarget.Workspace);
         }
         const isMISet = await isMISetup(miVersionFromPom);
         const isJavaSet = await isJavaSetup(miVersionFromPom);
@@ -511,7 +516,7 @@ function getJavaVersion(javaBinPath: string): string | null {
     if (result.error || result.status !== 0) {
         return null;
     }
-    const versionMatch = result.stderr.match(/(\d+)(\.\d+)*(\.\d+)*/);
+    const versionMatch = result.stderr.match(/(\d+\.\d+\.\d+)/);
     return versionMatch ? versionMatch[0].split('.')[0] : null;
 }
 function getMIVersion(miPath: string): string | null {
@@ -898,7 +903,7 @@ function getMIFromGlobal(miVersion: string): string | undefined {
     const defaultServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
     if (defaultServerPath && isMIInstalledAtPath(defaultServerPath)) {
         const defaultServerMIVersion = getMIVersion(defaultServerPath);
-        if (defaultServerMIVersion && compareVersions(defaultServerMIVersion, miVersion) >= 0) {
+        if (defaultServerMIVersion && compareVersions(defaultServerMIVersion, miVersion) == 0) {
             return defaultServerPath;
         }
     }

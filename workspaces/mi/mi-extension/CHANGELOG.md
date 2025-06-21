@@ -2,6 +2,16 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.3.1] - 2025-06-20
+
+### Fixed
+
+Fixed: Error building project with maven wrapper ([#1078](https://github.com/wso2/mi-vscode/issues/1078))   
+Fixed: Error extracting Java version with JAVA_TOOL_OPTIONS ([#1128](https://github.com/wso2/mi-vscode/issues/1128))   
+Fixed: Issue with checkbox value rendering in MI VSCode ([#1140](https://github.com/wso2/mi-vscode/issues/1140))   
+Fixed: "Generate from Datasource" option requires selection from all tables ([#1145](https://github.com/wso2/mi-vscode/issues/1145))   
+Fixed: Mandate the legacy expression editor for MI 4.3.0 and below runtime versions ([#1150](https://github.com/wso2/mi-vscode/issues/1150))
+
 ## [2.3.0] - 2025-06-13
 
 ### New Features

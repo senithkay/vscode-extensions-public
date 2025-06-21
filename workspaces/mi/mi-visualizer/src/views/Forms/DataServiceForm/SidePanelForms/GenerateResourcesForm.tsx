@@ -68,15 +68,22 @@ const table = yup.object({
             post: yup.boolean(),
             put: yup.boolean(),
             delete: yup.boolean(),
-        })
-        .test('methods', 'At least one method should be selected', (value) => {
-            return Object.values(value).some((method) => method);
         }),
 });
 
 const schema = yup.object({
     datasource: yup.string().required(),
-    tables: yup.array(table).test('tables', 'At least one table should available', (value) => value.length > 0),
+    tables: yup.array(table)
+        .test('tables', 'At least one table should available', (value) => value.length > 0)
+        .test(
+            'at-least-one-method',
+            'At least one method must be selected in one of the tables',
+            (tables) =>
+                Array.isArray(tables) &&
+                tables.some((table) =>
+                    table.methods && Object.values(table.methods).some((method) => method === true)
+                )
+        ),
 });
 
 type GenerateResourceFields = yup.InferType<typeof schema>;
