@@ -348,7 +348,7 @@ export function runCommand(command, pathToRun?: string,
         }
         const envVariables = {
             ...process.env,
-            ...setJavaHomeInEnvironmentAndPath()
+            ...(pathToRun ? setJavaHomeInEnvironmentAndPath(pathToRun) : {})
         };
         const cp = child_process.spawn(command, [], { shell: true, env: envVariables });
 
