@@ -7,18 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { LinkButton, LinkButtonProps } from "./LinkButton";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { LinkButton } from "./LinkButton";
 import { Codicon } from "../Codicon/Codicon";
 
-const Template: ComponentStory<typeof LinkButton> = (args: LinkButtonProps) => 
-    <LinkButton {...args} >
-        <Codicon name="add"/>
-        <>Sample Link Button</>
-    </LinkButton>
-;
+const meta = {
+    component: LinkButton,
+    title: "Link Button",
+} satisfies Meta<typeof LinkButton>;
+export default meta;
 
-export const SampleLinkButton = Template.bind();
-SampleLinkButton.args = { onClick: () => { console.log("Button Clicked"); } };
+type Story = StoryObj<typeof LinkButton>;
 
-export default { component: LinkButton, title: "Link Button" };
+export const SampleLinkButton: Story = {
+    args: {
+        onClick: () => { console.log("Button Clicked"); }
+    },
+    render: args => (
+        <LinkButton {...args}>
+            <Codicon name="add"/>
+            <>Sample Link Button</>
+        </LinkButton>
+    ),
+};

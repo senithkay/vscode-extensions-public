@@ -8,8 +8,7 @@
  */
 
 import React, { useState } from "react";
-
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { TokenEditor } from ".";
 
@@ -43,32 +42,37 @@ const SampleHelperPane = ({ onChange }: { onChange: (value: string) => void }) =
             </Button>
         </HelperPane>
     );
-}
+};
 
-export default {
+const meta = {
     title: "Token Editor",
     component: TokenEditor,
-} as ComponentMeta<typeof TokenEditor>;
+} satisfies Meta<typeof TokenEditor>;
+export default meta;
 
-export const Default: ComponentStory<typeof TokenEditor> = () => {
-    const [value, setValue] = useState<string>('Hello ${world}');
-    const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
+type Story = StoryObj<typeof TokenEditor>;
 
-    const handleChange = (value: string) => {
-        setValue(value);
-        console.log(value);
-    }
+export const Default: Story = {
+    render: () => {
+        const [value, setValue] = useState<string>('Hello ${world}');
+        const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
 
-    return (
-        <TokenEditorContainer>
-            <TokenEditor
-                value={value}
-                onChange={handleChange}
-                isHelperPaneOpen={isHelperPaneOpen}
-                changeHelperPaneState={setIsHelperPaneOpen}
-                getHelperPane={onChange => <SampleHelperPane onChange={onChange} />}
-                helperPaneOrigin="right"
-            />
-        </TokenEditorContainer>
-    );
+        const handleChange = (value: string) => {
+            setValue(value);
+            console.log(value);
+        };
+
+        return (
+            <TokenEditorContainer>
+                <TokenEditor
+                    value={value}
+                    onChange={handleChange}
+                    isHelperPaneOpen={isHelperPaneOpen}
+                    changeHelperPaneState={setIsHelperPaneOpen}
+                    getHelperPane={onChange => <SampleHelperPane onChange={onChange} />}
+                    helperPaneOrigin="right"
+                />
+            </TokenEditorContainer>
+        );
+    },
 };

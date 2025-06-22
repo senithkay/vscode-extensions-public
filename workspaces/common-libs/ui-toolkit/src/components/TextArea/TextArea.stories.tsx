@@ -10,19 +10,44 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { TextArea, TextAreaProps } from "./TextArea";
+import { Meta, StoryObj } from "@storybook/react-vite";
+import { TextArea } from "./TextArea";
 
-const Template: ComponentStory<typeof TextArea> = (args: TextAreaProps) => <TextArea {...args} ref={undefined} />;
+const meta: Meta<typeof TextArea> = {
+    component: TextArea,
+    title: "TextArea",
+};
+export default meta;
 
-export const TextAreaWithError = Template.bind();
-TextAreaWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", autoFocus: true, placeholder: "placeholder", onTextChange: (txt: string) => {console.log("Text Changed: ", txt)} };
+type Story = StoryObj<typeof TextArea>;
 
-export const RequiredTextAreaWithError = Template.bind();
-RequiredTextAreaWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", required: true, placeholder: "placeholder", onChange: null };
+export const TextAreaWithError: Story = {
+    args: {
+        value: "Sample Text",
+        label: "TextField",
+        errorMsg: "Test Error",
+        autoFocus: true,
+        placeholder: "placeholder",
+        onTextChange: (txt: string) => {console.log("Text Changed: ", txt);}
+    },
+};
 
-export const TextAreaWithoutLabel = Template.bind();
-TextAreaWithoutLabel.args = { value: "Sample Text", required: true, placeholder: "placeholder", onChange: null };
+export const RequiredTextAreaWithError: Story = {
+    args: {
+        value: "Sample Text",
+        label: "TextField",
+        errorMsg: "Test Error",
+        required: true,
+        placeholder: "placeholder",
+        onChange: null
+    },
+};
 
-export default { component: TextArea, title: "TextArea" };
+export const TextAreaWithoutLabel: Story = {
+    args: {
+        value: "Sample Text",
+        required: true,
+        placeholder: "placeholder",
+        onChange: null
+    },
+};

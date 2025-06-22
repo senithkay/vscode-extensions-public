@@ -7,28 +7,34 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { ComponentStory } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button, ButtonProps } from "./Button";
 import { colors } from "../Commons/Colors";
 import { Icon } from "../Icon/Icon";
 
-const Template: ComponentStory<typeof Button> = (args: ButtonProps) =>
-    <Button {...args}> 
-        <div style={{color: colors.editorForeground}}>Test</div>
-    </Button>
-;
+const meta = {
+    component: Button,
+    title: "Button",
+} satisfies Meta<typeof Button>;
+export default meta;
 
-export const PrimaryButton = Template.bind();
-PrimaryButton.args = { appearance: "primary", tooltip: "Primary Button" };
+type Story = StoryObj<typeof Button>;
 
-const IconTemplate: ComponentStory<typeof Button> = (args: ButtonProps) =>
-    <Button {...args}>
-        <Icon sx={{marginTop: 2, marginRight: 5}} name="ballerina"/>
-        <div style={{color: colors.editorForeground}}>Test</div>
-    </Button>
-;
+export const PrimaryButton: Story = {
+    args: { appearance: "primary", tooltip: "Primary Button" },
+    render: (args: ButtonProps) => (
+        <Button {...args}>
+            <div style={{color: colors.editorForeground}}>Test</div>
+        </Button>
+    ),
+};
 
-export const IconButton = IconTemplate.bind();
-IconButton.args = { appearance: "icon", tooltip: "Icon Button" };
-
-export default { component: Button, title: "Button" };
+export const IconButton: Story = {
+    args: { appearance: "icon", tooltip: "Icon Button" },
+    render: (args: ButtonProps) => (
+        <Button {...args}>
+            <Icon sx={{marginTop: 2, marginRight: 5}} name="ballerina"/>
+            <div style={{color: colors.editorForeground}}>Test</div>
+        </Button>
+    ),
+};

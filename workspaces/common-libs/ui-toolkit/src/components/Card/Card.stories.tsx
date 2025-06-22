@@ -6,13 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Card as CardStory, CardProps } from "./Card";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Card as CardStory } from "./Card";
 
-const Template: ComponentStory<typeof CardStory> = (args: CardProps) => <CardStory {...args} />;
+const meta = {
+    component: CardStory,
+    title: "Card",
+} satisfies Meta<typeof CardStory>;
+export default meta;
 
-export const Card = Template.bind();
-Card.args = { id: "Card", icon: "globe", title: "Title", description: "Description" };
+type Story = StoryObj<typeof CardStory>;
 
-export default { component: Card, title: "Card" };
+export const Card: Story = {
+    args: { id: "Card", icon: "globe", title: "Title", description: "Description" }
+};

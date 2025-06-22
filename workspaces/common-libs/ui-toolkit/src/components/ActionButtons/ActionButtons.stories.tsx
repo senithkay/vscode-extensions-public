@@ -6,15 +6,20 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { ActionButtons, ActionButtonsProps } from "./ActionButtons";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ActionButtons } from "./ActionButtons";
 
-const Template: ComponentStory<typeof ActionButtons> = (args: ActionButtonsProps) =>
-    <ActionButtons {...args}/> 
-;
+const meta = {
+    component: ActionButtons,
+    title: "ActionButtons",
+} satisfies Meta<typeof ActionButtons>;
+export default meta;
 
-export const PrimaryButton = Template.bind();
-PrimaryButton.args = { primaryButton: { tooltip: "Primary Tooltip", text: "Save", onClick: () => console.log("Primary Clicked")}, secondaryButton: { tooltip: "Secondary Tooltip", text: "Cancel", onClick: () => console.log("Secondary Clicked")  } };
+type Story = StoryObj<typeof ActionButtons>;
 
-export default { component: ActionButtons, title: "ActionButtons" };
+export const PrimaryButton: Story = {
+    args: {
+        primaryButton: { tooltip: "Primary Tooltip", text: "Save", onClick: () => console.log("Primary Clicked") },
+        secondaryButton: { tooltip: "Secondary Tooltip", text: "Cancel", onClick: () => console.log("Secondary Clicked") }
+    }
+};
