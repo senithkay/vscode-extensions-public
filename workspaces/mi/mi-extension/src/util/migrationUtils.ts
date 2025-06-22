@@ -19,6 +19,7 @@ import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { updatePomForClassMediator, LATEST_MI_VERSION } from './onboardingUtils';
 import { execSync } from 'child_process';
+import { setJavaHomeInEnvironmentAndPath } from '../debugger/debugHelper';
 
 enum Nature {
     MULTIMODULE,
@@ -637,6 +638,10 @@ export function getResolvedPomXmlContent(pomFilePath: string, mvnPath: string): 
         mvnOutput = execSync(`${mvnPath} -f "${pomFilePath}" help:effective-pom`, {
             encoding: 'utf-8',
             stdio: ['pipe', 'pipe', 'ignore'], // ignore stderr, capture stdout
+            env: {
+                ...process.env,
+                ...setJavaHomeInEnvironmentAndPath()
+            }
         });
     } catch (err) {
         console.error(`Failed to run Maven help:effective-pom for ${pomFilePath}:`, err);
