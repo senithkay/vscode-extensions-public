@@ -200,15 +200,15 @@ const TypeHelperEl = (props: TypeHelperProps) => {
         [debouncedSearchTypeBrowser]
     );
 
-    const { mutateAsync: addFunction, isLoading: isAddingType  } = useMutation(
-        (item: TypeHelperItem) => 
+    const { mutateAsync: addFunction, isPending: isAddingType  } = useMutation({
+        mutationFn: (item: TypeHelperItem) => 
             rpcClient.getBIDiagramRpcClient().addFunction({
                 filePath: filePath,
                 codedata: item.codedata,
                 kind: item.kind,
                 searchKind: 'TYPE'
             })
-    );
+    });
 
     const handleTypeItemClick = async (item: TypeHelperItem) => {
         const response = await addFunction(item);

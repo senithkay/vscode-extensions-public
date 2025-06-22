@@ -1527,6 +1527,15 @@ export interface StoreConnectorJsonResponse {
     connectors?: any[];
 }
 
+export interface GetConnectorIconRequest {
+    connectorName: string;
+    documentUri: string;
+}
+
+export interface GetConnectorIconResponse {
+    iconPath: string;
+}
+
 export interface LocalInboundConnectorsResponse {
     "inbound-connector-data"?: any;
 }
@@ -1671,6 +1680,7 @@ export interface DevantMetadata {
     hasLocalChanges?: boolean;
 }
 
+/* eslint-disable-next-line @typescript-eslint/no-empty-object-type */
 export interface DeployProjectRequest {
 }
 export interface DeployProjectResponse {
@@ -1745,6 +1755,7 @@ export interface UpdateTestCaseRequest {
     range?: TagRange
 }
 
+/* eslint-disable-next-line @typescript-eslint/no-empty-object-type */
 export interface UpdateTestCaseResponse {
 }
 
@@ -2129,4 +2140,17 @@ export interface GetArtifactTypeRequest {
 export interface GetArtifactTypeResponse {
     artifactType: string;
     artifactFolder: string;
+}
+
+export interface GetCodeDiagnosticsReqeust {
+    xmlCodes: XmlCode[];
+}
+
+export interface GetCodeDiagnosticsResponse {
+    diagnostics: {fileName: string, diagnostics: Diagnostic[]}[];
+}
+
+export interface XmlCode{
+    fileName: string;
+    code: string;
 }

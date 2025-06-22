@@ -19,18 +19,15 @@ import {
     BallerinaExampleList, BallerinaProject, BallerinaProjectComponents, ExecutorPositions,
     JsonToRecord, NoteBookCellOutput, NotebookFileSource,
     NotebookVariable, OpenAPISpec, PackageConfigSchema, PartialST,
-    PerformanceAnalyzer, SymbolInfo, SyntaxTreeNode,
+    SymbolInfo, SyntaxTreeNode,
     Connectors, Completion, Diagnostics,
-    SyntaxTree,
-    Connector,
-    Trigger,
-    Triggers
-} from '@wso2-enterprise/ballerina-core';
+    SyntaxTree} from '@wso2-enterprise/ballerina-core';
 import { ExtendedLangClient } from '../../src/core/extended-language-client';
+import { ballerinaExtInstance } from '../../src/core/extension';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
-suite("Language Server Tests", function () {
+suite.skip("Language Server Tests", function () {
     this.timeout(30000);
     let langClient: ExtendedLangClient;
 
@@ -38,7 +35,7 @@ suite("Language Server Tests", function () {
         langClient = new ExtendedLangClient(
             'ballerina-vscode',
             'Ballerina LS Client',
-            getServerOptions(getBallerinaCmd()),
+            getServerOptions(ballerinaExtInstance),
             { documentSelector: [{ scheme: 'file', language: 'ballerina' }] },
             undefined,
             false

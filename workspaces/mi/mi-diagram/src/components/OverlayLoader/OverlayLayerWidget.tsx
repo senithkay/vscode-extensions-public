@@ -23,7 +23,7 @@ const Container = styled.div`
     backdrop-filter: blur(5px);
     background-color: rgba(0, 0, 0, 0.1);
     pointer-events: auto;
-    z-index: 1000;
+    z-index: 3000;
 `;
 
 interface OverlayLayerProps {

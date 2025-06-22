@@ -170,14 +170,15 @@ export function TryOutView(props: TryoutProps) {
             setTryOutError(null);
             setMediatorOutput(undefined);
 
-            const inputPayload = inputPayloads.find((payload) => payload.name === selectedPayload)?.content;
+            const input = inputPayloads.find((payload) => payload.name === selectedPayload);
             const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
                 tryoutId,
                 file: documentUri,
                 line: nodeRange.start.line,
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
-                inputPayload: JSON.stringify(inputPayload),
+                inputPayload: JSON.stringify(input?.content),
+                contentType: input?.contentType ?? 'text/plain',
                 mediatorInfo: mediatorInput
             });
 

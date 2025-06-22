@@ -61,7 +61,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							{ label: getComponentTypeText(ChoreoComponentType.WebApplication), value: ChoreoComponentType.WebApplication },
 							{ label: getComponentTypeText(ChoreoComponentType.ScheduledTask), value: ChoreoComponentType.ScheduledTask },
 							{ label: getComponentTypeText(ChoreoComponentType.ManualTrigger), value: ChoreoComponentType.ManualTrigger },
-							{ label: getComponentTypeText(ChoreoComponentType.ApiProxy), value: ChoreoComponentType.ApiProxy }
+							{ label: getComponentTypeText(ChoreoComponentType.ApiProxy), value: ChoreoComponentType.ApiProxy },
 						];
 						const selectedTypePick = await window.showQuickPick(typeQuickPicks, { title: "Select Component Type" });
 						if (selectedTypePick?.value) {

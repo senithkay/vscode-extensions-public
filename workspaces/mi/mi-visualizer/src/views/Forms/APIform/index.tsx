@@ -415,7 +415,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                         <FormCheckBox
                             name="saveSwaggerDef"
                             label="Save Swagger Definition"
-                            control={control}
+                            control={control as any}
                         />
                     </React.Fragment>
                 );
@@ -507,12 +507,12 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                     <FormCheckBox
                         name="trace"
                         label="Trace Enabled"
-                        control={control}
+                        control={control as any}
                     />
                     <FormCheckBox
                         name="statistics"
                         label="Statistics Enabled"
-                        control={control}
+                        control={control as any}
                     />
                     <FieldGroup>
                         <TitleBar>

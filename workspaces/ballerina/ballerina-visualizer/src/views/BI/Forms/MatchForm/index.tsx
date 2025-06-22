@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, FormExpressionEditorRef, LinkButton, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import {
     FlowNode,
@@ -44,6 +44,7 @@ interface MatchFormProps {
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
     subPanelView?: SubPanelView;
+    showProgressIndicator?: boolean;
 }
 
 export function MatchForm(props: MatchFormProps) {
@@ -57,6 +58,7 @@ export function MatchForm(props: MatchFormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField,
         subPanelView,
+        showProgressIndicator,
     } = props;
     const {
         watch,
@@ -105,7 +107,7 @@ export function MatchForm(props: MatchFormProps) {
 
     const hasDefaultBranch = useMemo(() => {
         for (const branch of branches) {
-            if (isDefaultBranch(branch) && 
+            if (isDefaultBranch(branch) &&
                 (!branch.children?.at(0)?.metadata.draft || branch.children?.length === 0)) {
                 return true;
             }
@@ -199,7 +201,7 @@ export function MatchForm(props: MatchFormProps) {
                 if (isDefaultBranch(branch) && branch.children?.at(0)?.metadata.draft === true) {
                     return null;
                 }
-                
+
                 if (!isDefaultBranch(branch)) {
                     const conditionValue = data[`branch-${index}`]?.trim();
                     if (conditionValue) {
@@ -208,7 +210,7 @@ export function MatchForm(props: MatchFormProps) {
                         return branchCopy;
                     }
                 }
-                
+
                 return branch;
             }).filter(Boolean) as Branch[];
 
@@ -225,11 +227,11 @@ export function MatchForm(props: MatchFormProps) {
 
     const addNewCase = () => {
         const existingValues = branches.map((_, idx) => getValues(`branch-${idx}`));
-        
+
         const lastIndex = branches.length - 1;
         const hasDefaultBranchAtEnd = lastIndex >= 0 && isDefaultBranch(branches[lastIndex]);
         const newBranchIndex = hasDefaultBranchAtEnd ? lastIndex : branches.length;
-        
+
         const newBranch: Branch = {
             label: "branch-" + newBranchIndex,
             kind: "block",
@@ -275,15 +277,15 @@ export function MatchForm(props: MatchFormProps) {
                 newBranch,
                 branches[lastIndex]
             ];
-            
+
             setValue(`branch-${DEFAULT_BRANCH_INDEX}`, getValues(`branch-${lastIndex}`));
         } else {
             updatedBranches = [...branches, newBranch];
         }
-        
+
         setBranches(updatedBranches);
         setValue(`branch-${newBranchIndex}`, "");
-        
+
         existingValues.forEach((value, idx) => {
             if (value && idx !== lastIndex) {
                 setValue(`branch-${idx}`, value);
@@ -293,21 +295,21 @@ export function MatchForm(props: MatchFormProps) {
 
     const removeCondition = (index: number) => {
         const nonDefaultBranches = branches.filter(branch => !isDefaultBranch(branch));
-        
+
         // Don't remove if it's the first branch (index 0)
         // Or if it would leave us with zero non-default branches
         if (index === 0 || (nonDefaultBranches.length <= 1 && !isDefaultBranch(branches[index]))) {
             return;
         }
-        
+
         if (isDefaultBranch(branches[index])) {
             return;
         }
-        
+
         const fieldKey = `branch-${index}`;
         handleSetDiagnosticsInfo({ key: fieldKey, diagnostics: [] });
         clearErrors(fieldKey);
-        
+
         // Remove the branch at the specified index
         const updatedBranches = branches.filter((_, i) => i !== index);
         setBranches(updatedBranches);
@@ -315,19 +317,19 @@ export function MatchForm(props: MatchFormProps) {
         for (let i = index + 1; i < branches.length; i++) {
             const value = getValues(`branch-${i}`);
             setValue(`branch-${i - 1}`, value);
-            
+
             if (diagnosticsInfo) {
                 const oldKey = `branch-${i}`;
                 const newKey = `branch-${i - 1}`;
                 const fieldDiagnostics = diagnosticsInfo.find(d => d.key === oldKey);
                 if (fieldDiagnostics) {
-                    handleSetDiagnosticsInfo({ 
-                        key: newKey, 
-                        diagnostics: fieldDiagnostics.diagnostics 
+                    handleSetDiagnosticsInfo({
+                        key: newKey,
+                        diagnostics: fieldDiagnostics.diagnostics
                     });
-                    handleSetDiagnosticsInfo({ 
-                        key: oldKey, 
-                        diagnostics: [] 
+                    handleSetDiagnosticsInfo({
+                        key: oldKey,
+                        diagnostics: []
                     });
                 }
             }
@@ -338,17 +340,17 @@ export function MatchForm(props: MatchFormProps) {
         if (hasDefaultBranch) {
             return;
         }
-        
-        const draftDefaultBranchIndex = branches.findIndex(branch => 
+
+        const draftDefaultBranchIndex = branches.findIndex(branch =>
             isDefaultBranch(branch) && branch.children?.at(0)?.metadata.draft === true
         );
-        
+
         if (draftDefaultBranchIndex >= 0) {
             const updatedBranches = [...branches];
             const updatedBranch = cloneDeep(updatedBranches[draftDefaultBranchIndex]);
-            
+
             if (!updatedBranch.children || updatedBranch.children.length === 0) {
-                updatedBranch.children = []; 
+                updatedBranch.children = [];
             } else {
                 updatedBranch.children.forEach(child => {
                     if (child.metadata) {
@@ -356,7 +358,7 @@ export function MatchForm(props: MatchFormProps) {
                     }
                 });
             }
-            
+
             updatedBranches[draftDefaultBranchIndex] = updatedBranch;
             setBranches(updatedBranches);
         } else {
@@ -398,11 +400,11 @@ export function MatchForm(props: MatchFormProps) {
                 },
                 children: [],
             };
-            
+
             const updatedBranches = [...branches, newDefaultBranch];
             setBranches(updatedBranches);
         }
-        
+
         setValue(`branch-${DEFAULT_BRANCH_INDEX}`, "_");
     };
 
@@ -410,24 +412,24 @@ export function MatchForm(props: MatchFormProps) {
         if (!hasDefaultBranch) {
             return;
         }
-        
+
         const defaultBranchIndices = branches
             .map((branch, index) => isDefaultBranch(branch) ? index : -1)
             .filter(index => index !== -1);
-            
+
         if (defaultBranchIndices.length === 0) {
             return;
         }
-        
+
         const updatedBranches = branches.filter(branch => !isDefaultBranch(branch));
         setBranches(updatedBranches);
-        
+
         defaultBranchIndices.forEach(index => {
             const fieldKey = `branch-${index}`;
             handleSetDiagnosticsInfo({ key: fieldKey, diagnostics: [] });
             clearErrors(fieldKey);
         });
-        
+
         handleSetDiagnosticsInfo({ key: `branch-${DEFAULT_BRANCH_INDEX}`, diagnostics: [] });
         clearErrors(`branch-${DEFAULT_BRANCH_INDEX}`);
     };
@@ -500,7 +502,7 @@ export function MatchForm(props: MatchFormProps) {
 
     console.log(">>> Match node", node);
 
-    const disableSaveButton = !isValid || isValidating;
+    const disableSaveButton = !isValid || isValidating || showProgressIndicator;
     const targetField = convertNodePropertyToFormField(`branch-${TARGET_FIELD_INDEX}`, node.properties.condition);
     targetField.label = "Target";
 
@@ -589,7 +591,7 @@ export function MatchForm(props: MatchFormProps) {
             {onSubmit && (
                 <FormStyles.Footer>
                     <Button appearance="primary" onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                        Save
+                        {showProgressIndicator ? <Typography variant="progress">Saving...</Typography> : "Save"}
                     </Button>
                 </FormStyles.Footer>
             )}

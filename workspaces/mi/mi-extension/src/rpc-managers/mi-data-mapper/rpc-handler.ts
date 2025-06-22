@@ -41,8 +41,8 @@ import {
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
 
-export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
-    const rpcManger = new MiDataMapperRpcManager();
+export function registerMiDataMapperRpcHandlers(messenger: Messenger, projectUri: string): void {
+    const rpcManger = new MiDataMapperRpcManager(projectUri);
     messenger.onRequest(getIOTypes, (args: DMTypeRequest) => rpcManger.getIOTypes(args));
     messenger.onRequest(getSubMappingTypes, (args: DMTypeRequest) => rpcManger.getSubMappingTypes(args));
     messenger.onRequest(updateFileContent, (args: UpdateFileContentRequest) => rpcManger.updateFileContent(args));

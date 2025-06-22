@@ -30,6 +30,7 @@ const FormContainer = styled.div`
 `;
 
 interface ConfigProps {
+    isSaving: boolean;
     formFields: FormField[];
     targetLineRange: LineRange;
     disableSaveButton?: boolean;
@@ -38,7 +39,7 @@ interface ConfigProps {
 }
 
 export function ConfigForm(props: ConfigProps) {
-    const { formFields, targetLineRange, disableSaveButton, onSubmit, onBack } = props;
+    const { isSaving, formFields, targetLineRange, disableSaveButton, onSubmit, onBack } = props;
     console.log(">>> ConfigForm props", props);
 
     const handleSubmit = async (data: FormValues, formImports: FormImports) => {
@@ -75,9 +76,11 @@ export function ConfigForm(props: ConfigProps) {
                             fields={formFields}
                             onBack={onBack}
                             onSubmit={handleSubmit}
+                            submitText={isSaving ? "Saving..." : "Save"}
                             compact={true}
-                            disableSaveButton={disableSaveButton}
+                            disableSaveButton={disableSaveButton || isSaving}
                             helperPaneSide="left"
+                            isSaving={isSaving}
                         />
                     )}
                 </FormContainer>

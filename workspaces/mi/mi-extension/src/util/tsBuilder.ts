@@ -134,7 +134,7 @@ export async function updateTsFileCustomTypes(dmName: string, sourcePath: string
     sourceFile.insertText(interfaces[interfaces.length - 1]?.getEnd() + 1 || 0, "\n" + customInterfaceText);
     sourceFile.formatText();
     await sourceFile.save();
-    refreshUI();
+    refreshUI(workspaceFolder.uri.fsPath);
 
   }
   return "";

@@ -21,6 +21,7 @@ export interface STNode {
     diagnostics?: Diagnostic[];
     hasBreakpoint?: boolean;
     isActiveBreakpoint?: boolean;
+    connectorName?: string;
 }
 
 export interface ViewState {

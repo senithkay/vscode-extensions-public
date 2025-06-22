@@ -89,7 +89,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
-                    if (response.textEdits) {
+                    if (response.artifacts.length > 0) {
                         // clear memory
                         if (onClose) {
                             onClose();
@@ -172,20 +172,16 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                     subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                     subPanel={findSubPanelComponent(subPanel)}
                 >
-                    {updatingContent ? (
-                        <SpinnerContainer>
-                            <ProgressRing color={ThemeColors.PRIMARY} />
-                        </SpinnerContainer>
-                    ) : (
-                        <ConnectionConfigView
-                            fileName={fileName}
-                            selectedNode={connection}
-                            onSubmit={handleOnFormSubmit}
-                            updatedExpressionField={updatedExpressionField}
-                            resetUpdatedExpressionField={handleResetUpdatedExpressionField}
-                            openSubPanel={handleSubPanel}
-                        />
-                    )}
+                    <ConnectionConfigView
+                        submitText={updatingContent ? "Saving..." : "Save"}
+                        fileName={fileName}
+                        selectedNode={connection}
+                        onSubmit={handleOnFormSubmit}
+                        updatedExpressionField={updatedExpressionField}
+                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                        openSubPanel={handleSubPanel}
+                        isSaving={updatingContent}
+                    />
                 </PanelContainer>
             )}
         </Container>

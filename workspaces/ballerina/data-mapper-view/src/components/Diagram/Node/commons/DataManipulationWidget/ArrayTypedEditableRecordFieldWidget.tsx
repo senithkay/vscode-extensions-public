@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { Button, Codicon, Icon, Item, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, Item, Menu, MenuItem, ProgressRing, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -176,72 +176,74 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
-            <span
-                className={classnames(classes.valueLabel,
-                    isDisabled ? classes.labelDisabled : "")}
-                style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
-            >
-                <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
-                {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
-                {fieldName && typeName && ":"}
-            </span>
-            {typeName !== '[]' ? (
-                <span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
-                    {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
-                </span>
-            ) : (
-                <DiagnosticTooltip
-                    diagnostic={{
-                        message: "Type information is missing",
-                        range: null
-                    }}
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
+                <span
+                    className={classnames(classes.valueLabel,
+                        isDisabled ? classes.labelDisabled : "")}
+                    style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
                 >
-                    <Button
-                        appearance="icon"
+                    <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
+                    {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
+                    {fieldName && typeName && ":"}
+                </span>
+                {typeName !== '[]' ? (
+                    <span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
+                        {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
+                    </span>
+                ) : (
+                    <DiagnosticTooltip
+                        diagnostic={{
+                            message: "Type information is missing",
+                            range: null
+                        }}
                     >
-                        {typeName}
-                        <Icon
-                            name="error-icon"
-                            sx={{ height: "14px", width: "14px" }}
-                            iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
-                        />
-                    </Button>
-                </DiagnosticTooltip>
-            )}
-            {!listConstructor && !connectedViaLink && hasValue && (
-                <>
-                    {diagnostic ? (
-                        <DiagnosticTooltip
-                            placement="right"
-                            diagnostic={diagnostic}
-                            value={valExpr?.source}
-                            onClick={handleEditValue}
+                        <Button
+                            appearance="icon"
                         >
-                            <Button
-                                appearance="icon"
+                            {typeName}
+                            <Icon
+                                name="error-icon"
+                                sx={{ height: "14px", width: "14px" }}
+                                iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                            />
+                        </Button>
+                    </DiagnosticTooltip>
+                )}
+                {!listConstructor && !connectedViaLink && hasValue && (
+                    <>
+                        {diagnostic ? (
+                            <DiagnosticTooltip
+                                placement="right"
+                                diagnostic={diagnostic}
+                                value={valExpr?.source}
+                                onClick={handleEditValue}
+                            >
+                                <Button
+                                    appearance="icon"
+                                    data-testid={`array-widget-field-${portIn?.getName()}`}
+                                >
+                                    {valExpr?.source}
+                                    <Icon
+                                        name="error-icon"
+                                        sx={{ height: "14px", width: "14px" }}
+                                        iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                                    />
+                                </Button>
+                            </DiagnosticTooltip>
+                        ) : (
+                            <span
+                                className={classes.outputNodeValue}
+                                onClick={handleEditValue}
                                 data-testid={`array-widget-field-${portIn?.getName()}`}
                             >
                                 {valExpr?.source}
-                                <Icon
-                                    name="error-icon"
-                                    sx={{ height: "14px", width: "14px" }}
-                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
-                                />
-                            </Button>
-                        </DiagnosticTooltip>
-                    ) : (
-                        <span
-                            className={classes.outputNodeValue}
-                            onClick={handleEditValue}
-                            data-testid={`array-widget-field-${portIn?.getName()}`}
-                        >
-                            {valExpr?.source}
-                        </span>
-                    )}
-                </>
-            )}
-        </span>
+                            </span>
+                        )}
+                    </>
+                )}
+            </span>
+        </TruncatedLabel>
     );
 
     const arrayElements = useMemo(() => {

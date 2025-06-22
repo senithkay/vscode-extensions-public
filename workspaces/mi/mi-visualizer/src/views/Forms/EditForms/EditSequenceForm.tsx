@@ -18,7 +18,7 @@ import {
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 import { set } from "lodash";
 
@@ -36,6 +36,7 @@ export type ResourceProps = {
     onSave: (data: EditSequenceFields) => void;
     documentUri: string;
 };
+
 
 export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, documentUri }: ResourceProps) {
 
@@ -65,14 +66,16 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
         statistics: yup.boolean().default(false),
     });
 
+    type EditSequanceFieldsType = yup.InferType<typeof schema>;
+
     const {
         register,
         handleSubmit,
         control,
         formState: { errors, isDirty },
-    } = useForm<EditSequenceFields>({
+    } = useForm<EditSequanceFieldsType>({
         defaultValues: initialSequence,
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema) as Resolver<EditSequanceFieldsType>,
         mode: "onChange",
     });
 
@@ -95,18 +98,19 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
                 id='seqName'
                 label="Name"
                 placeholder="Name"
+                required
                 errorMsg={errors.name?.message.toString()}
                 {...register("name")}
             />
             <FormCheckBox
                 label="Enable statistics"
                 {...register("statistics")}
-                control={control}
+                control={control as any}
             />
             <FormCheckBox
                 label="Enable tracing"
                 {...register("trace")}
-                control={control}
+                control={control as any}
             />
             <FormKeylookup
                 control={control}
@@ -125,6 +129,7 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
                     Cancel
                 </Button>
                 <Button
+                    data-testid="update-button"
                     appearance="primary"
                     disabled={!isDirty}
                     onClick={handleSubmit((values) => onSave(values))}

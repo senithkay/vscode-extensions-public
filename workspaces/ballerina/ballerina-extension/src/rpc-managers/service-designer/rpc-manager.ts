@@ -33,10 +33,11 @@ import {
     ServiceModelRequest,
     ServiceModelResponse,
     ServiceSourceCodeRequest,
-    SourceUpdateResponse,
+    UpdatedArtifactsResponse,
     SyntaxTree,
     TriggerModelsRequest,
-    TriggerModelsResponse
+    TriggerModelsResponse,
+    DIRECTORY_MAP
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import * as fs from 'fs';
@@ -47,6 +48,7 @@ import * as vscode from "vscode";
 import { Uri, window, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
 import { extension } from "../../BalExtensionContext";
+import { updateSourceCode } from "../../utils/source-utils";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
@@ -110,7 +112,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    async addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
+    async addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
@@ -119,10 +121,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenerSourceCodeResponse = await context.langClient.addListenerSourceCode(params);
-                const position = await this.updateSource(res);
-                const result: SourceUpdateResponse = {
-                    filePath: targetFile,
-                    position: position
+                const artifacts = await updateSourceCode({ textEdits: res.textEdits, resolveMissingDependencies: true }, { artifactType: DIRECTORY_MAP.LISTENER });
+                const result: UpdatedArtifactsResponse = {
+                    artifacts: artifacts
                 };
                 // Set timeout to resolve after 2 seconds if no notification received
                 setTimeout(() => {
@@ -148,7 +149,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    async updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
+    async updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
@@ -157,10 +158,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 this.ensureFileExists(targetFile);
                 params.filePath = targetFile;
                 const res: ListenerSourceCodeResponse = await context.langClient.updateListenerSourceCode(params);
-                const position = await this.updateSource(res);
-                const result: SourceUpdateResponse = {
-                    filePath: targetFile,
-                    position: position
+                const artifacts = await updateSourceCode(res, { artifactType: DIRECTORY_MAP.LISTENER });
+                const result: UpdatedArtifactsResponse = {
+                    artifacts: artifacts
                 };
                 resolve(result);
             } catch (error) {
@@ -185,13 +185,8 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
+    async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return new Promise(async (resolve) => {
-            // Update the state tempData with the service model. This is used to navigate after the source code is updated
-            StateMachine.setTempData({
-                serviceModel: params.service,
-                isNewService: true
-            });
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
@@ -218,10 +213,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     }
                 }
                 const res: ListenerSourceCodeResponse = await context.langClient.addServiceSourceCode(params);
-                const position = await this.updateSource(res, identifiers);
-                let result: SourceUpdateResponse = {
-                    filePath: targetFile,
-                    position: position
+                const artifacts = await updateSourceCode(res, { artifactType: DIRECTORY_MAP.SERVICE });
+                let result: UpdatedArtifactsResponse = {
+                    artifacts: artifacts
                 };
                 resolve(result);
             } catch (error) {
@@ -230,13 +224,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
+    async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
-            // Update the state tempData with the service model. This is used to navigate after the source code is updated
-            StateMachine.setTempData({
-                serviceModel: params.service
-            });
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
@@ -250,11 +240,16 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     }
                 }
                 const res: ListenerSourceCodeResponse = await context.langClient.updateServiceSourceCode(params);
-                const position = await this.updateSource(res, identifiers);
-                const result: SourceUpdateResponse = {
-                    filePath: targetFile,
-                    position: position
+                const artifacts = await updateSourceCode(res, { artifactType: DIRECTORY_MAP.SERVICE });
+                const result: UpdatedArtifactsResponse = {
+                    artifacts: artifacts
                 };
+                // Find the correct artifact by checking the position
+                const lineRange = params.service.codedata.lineRange;
+                const artifact = artifacts.find(artifact => artifact.position.startLine === lineRange.startLine.line && artifact.position.startColumn === lineRange.startLine.offset);
+                if (artifact) {
+                    result.artifacts = [artifact];
+                }
                 resolve(result);
             } catch (error) {
                 console.log(error);
@@ -286,12 +281,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    async addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
+    async addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
-            StateMachine.setTempData({
-                serviceModel: params.service
-            });
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 if (!params.filePath) {
@@ -299,15 +291,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     this.ensureFileExists(targetFile);
                     params.filePath = targetFile;
                 }
-                const targetPosition: NodePosition = {
-                    startLine: params.codedata.lineRange.startLine.line,
-                    startColumn: params.codedata.lineRange.startLine.offset
-                };
                 const res: ResourceSourceCodeResponse = await context.langClient.addResourceSourceCode(params);
-                const position = await this.updateSource(res, undefined, targetPosition);
-                const result: SourceUpdateResponse = {
-                    filePath: params.filePath,
-                    position: position
+                const artifacts = await updateSourceCode(res, { artifactType: DIRECTORY_MAP.SERVICE });
+                const result: UpdatedArtifactsResponse = {
+                    artifacts: artifacts
                 };
                 resolve(result);
             } catch (error) {
@@ -316,107 +303,20 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    async updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
+    async updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
-            StateMachine.setTempData({
-                serviceModel: params.service
-            });
             try {
-                const targetPosition: NodePosition = {
-                    startLine: params.codedata.lineRange.startLine.line,
-                    startColumn: params.codedata.lineRange.startLine.offset
-                };
                 const res: ResourceSourceCodeResponse = await context.langClient.updateResourceSourceCode(params);
-                const position = await this.updateSource(res, undefined, targetPosition);
-                const result: SourceUpdateResponse = {
-                    filePath: params.filePath,
-                    position: position
+                const artifacts = await updateSourceCode(res);
+                const result: UpdatedArtifactsResponse = {
+                    artifacts: artifacts
                 };
                 resolve(result);
             } catch (error) {
                 console.log(error);
             }
         });
-    }
-
-    private async updateSource(params: ListenerSourceCodeResponse, identifiers?: string[], targetPosition?: NodePosition): Promise<NodePosition> {
-        StateMachine.setEditMode();
-        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
-        let position: NodePosition;
-        const sortedTextEdits = Object.entries(params.textEdits).sort((a, b) => b[0].length - a[0].length);
-        for (const [key, value] of sortedTextEdits) {
-            const fileUri = Uri.file(key);
-            const fileUriString = fileUri.toString();
-            if (!existsSync(fileUri.fsPath)) {
-                writeFileSync(fileUri.fsPath, '');
-                await new Promise(resolve => setTimeout(resolve, 500)); // Add small delay to ensure file is created
-                await StateMachine.langClient().didOpen({
-                    textDocument: {
-                        uri: fileUriString,
-                        text: '',
-                        languageId: 'ballerina',
-                        version: 1
-                    }
-                });
-            }
-            const edits = value;
-
-            if (edits && edits.length > 0) {
-                const modificationList: STModification[] = [];
-
-                for (const edit of edits) {
-                    const stModification: STModification = {
-                        startLine: edit.range.start.line,
-                        startColumn: edit.range.start.character,
-                        endLine: edit.range.end.line,
-                        endColumn: edit.range.end.character,
-                        type: "INSERT",
-                        isImport: false,
-                        config: {
-                            STATEMENT: edit.newText,
-                        },
-                    };
-                    modificationList.push(stModification);
-                }
-
-                if (modificationRequests[fileUriString]) {
-                    modificationRequests[fileUriString].modifications.push(...modificationList);
-                } else {
-                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
-                }
-            }
-        }
-
-        // Iterate through modificationRequests and apply modifications
-        try {
-            for (const [fileUriString, request] of Object.entries(modificationRequests)) {
-                const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
-                    documentIdentifier: { uri: fileUriString },
-                    astModifications: request.modifications,
-                })) as SyntaxTree;
-
-                if (parseSuccess) {
-                    const fileUri = Uri.file(request.filePath);
-                    const workspaceEdit = new vscode.WorkspaceEdit();
-                    workspaceEdit.replace(
-                        fileUri,
-                        new vscode.Range(
-                            new vscode.Position(0, 0),
-                            new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
-                        ),
-                        source
-                    );
-                    await workspace.applyEdit(workspaceEdit);
-                    await StateMachine.langClient().resolveMissingDependencies({
-                        documentIdentifier: { uri: fileUriString },
-                    });
-                }
-            }
-        } catch (error) {
-            console.log(">>> error updating source", error);
-        }
-        return position;
     }
 
     async getListenerModelFromCode(params: ListenerModelFromCodeRequest): Promise<ListenerModelFromCodeResponse> {
@@ -431,19 +331,14 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    async addFunctionSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
+    async addFunctionSourceCode(params: FunctionSourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
-                const targetPosition: NodePosition = {
-                    startLine: params.codedata.lineRange.startLine.line,
-                    startColumn: params.codedata.lineRange.startLine.offset
-                };
                 const res: ResourceSourceCodeResponse = await context.langClient.addFunctionSourceCode(params);
-                const position = await this.updateSource(res, undefined, targetPosition);
-                const result: SourceUpdateResponse = {
-                    filePath: params.filePath,
-                    position: position
+                const artifacts = await updateSourceCode(res);
+                const result: UpdatedArtifactsResponse = {
+                    artifacts: artifacts
                 };
                 resolve(result);
             } catch (error) {

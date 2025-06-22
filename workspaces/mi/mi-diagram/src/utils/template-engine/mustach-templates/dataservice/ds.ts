@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Query } from "@wso2-enterprise/mi-syntax-tree/src";
+import { Query, ResultAttribute, ResultElement } from "@wso2-enterprise/mi-syntax-tree/src";
 
 export function getDSInputMappingsFromSTNode(node: Query) {
     const data: any = {};
@@ -98,7 +98,7 @@ export function getDSOutputMappingsFromSTNode(node: Query) {
     const data: any = {};
     const result = node?.result;
     if (result) {
-        const attributes = result.attributes?.map((attr) => {
+        const attributes = result.attributes?.map((attr:ResultAttribute): (string | boolean | any[])[] => {
             return [
                 "Attribute",
                 "",
@@ -123,7 +123,7 @@ export function getDSOutputMappingsFromSTNode(node: Query) {
 
         const elements = result.elements?.filter((element) => {
             return !Object.keys(element).includes("elements");
-        }).map((element) => {
+        }).map((element): (string | boolean | any[])[] => {
             return [
                 "Element",
                 "",
@@ -179,7 +179,7 @@ export function getDSOutputMappingsFromSTNode(node: Query) {
 
         const complexElements = result.elements?.filter((complexElement) => {
             return Object.keys(complexElement).includes("elements");
-        }).map((complexElement) => {
+        }).map((complexElement:ResultElement): (string | boolean | any[])[] => {
             return [
                 "Complex Element",
                 "",

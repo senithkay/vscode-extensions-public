@@ -1,8 +1,8 @@
 {
     "name": "ballerina-integrator",
-    "displayName": "Ballerina Integrator",
+    "displayName": "WSO2 Integrator: BI",
     "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
-    "version": "1.0.2",
+    "version": "1.0.5",
     "publisher": "wso2",
     "icon": "resources/images/wso2-ballerina-integrator-logo.png",
     "repository": {
@@ -26,7 +26,7 @@
             "activitybar": [
                 {
                     "id": "ballerina-integrator",
-                    "title": "Ballerina Integrator",
+                    "title": "WSO2 Integrator: BI",
                     "icon": "assets/icon.svg"
                 }
             ]
@@ -34,17 +34,17 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a Ballerina integration or create a new integration.\n[Open Ballerina Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "contents": "Welcome to WSO2 Integrator: BI. You can open a folder containing an integration or create a new integration.\n[Open Integration](command:vscode.openFolder)\n[Create New Integration](command:ballerina.open.bi.new)\nTo learn more about how to use WSO2 Integrator: BI in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\n[Update Now](command:ballerina.update-ballerina-visually)\nPlease restart VS Code after updating the ballerina distribution.\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
+                "contents": "Welcome to WSO2 Integrator: BI. Your current ballerina distribution is not supported. Please update to version 2201.12.3 or above.\n[Update Now](command:ballerina.update-ballerina-visually)\nPlease restart VS Code after updating the ballerina distribution.\nTo learn more about how to use WSO2 Integrator: BI in VS Code [read our docs](https://bi.docs.wso2.com/get-started/quick-start-guide/).",
                 "when": "BI.status == 'updateNeed'"
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Ballerina Integrator for VS Code! Ballerina distribution is required but not found. [Set up Ballerina distribution](command:ballerina.open.bi.welcome) to get started.\nExplore more at [ballerina.io](https://ballerina.io)",
+                "contents": "Welcome to WSO2 Integrator: BI for VS Code! Ballerina distribution is required but not found. [Set up Ballerina distribution](command:ballerina.open.bi.welcome) to get started.\nExplore more at [ballerina.io](https://ballerina.io)",
                 "when": "BI.status == 'noLS'"
             },
             {
@@ -95,6 +95,11 @@
                 },
                 {
                     "command": "BI.project-explorer.add-type",
+                    "when": "view == BI.project-explorer && viewItem == types",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.view-type-diagram",
                     "when": "view == BI.project-explorer && viewItem == types",
                     "group": "inline"
                 },
@@ -167,23 +172,23 @@
         "xstate": "^4.38.3"
     },
     "devDependencies": {
-        "@vscode/vsce": "^2.22.0",
+        "@vscode/vsce": "^3.4.0",
         "@types/vscode": "^1.84.0",
         "@types/mocha": "^10.0.3",
-        "@types/node": "18.x",
-        "@typescript-eslint/eslint-plugin": "^6.9.0",
-        "@typescript-eslint/parser": "^6.9.0",
-        "@vscode/test-electron": "^2.3.6",
-        "eslint": "^8.52.0",
-        "glob": "^10.3.10",
-        "mocha": "^10.2.0",
-        "typescript": "^5.2.2",
+        "@types/node": "22.15.18",
+        "@typescript-eslint/eslint-plugin": "^6.21.0",
+        "@typescript-eslint/parser": "^8.32.1",
+        "@vscode/test-electron": "^2.5.2",
+        "eslint": "^8.57.1",
+        "glob": "^11.0.2",
+        "mocha": "^11.2.2",
+        "typescript": "5.8.3",
         "copyfiles": "^2.4.1",
-        "copy-webpack-plugin": "^11.0.0",
+        "copy-webpack-plugin": "^13.0.0",
         "source-map-support": "^0.5.21",
-        "ts-loader": "^9.4.1",
-        "webpack": "^5.56.0",
-        "webpack-cli": "^4.10.0",
+        "ts-loader": "^9.5.2",
+        "webpack": "^5.99.8",
+        "webpack-cli": "^6.0.1",
         "webpack-permissions-plugin": "^1.0.9",
         "@playwright/test": "~1.52.0",
         "@wso2-enterprise/playwright-vscode-tester": "workspace:*"

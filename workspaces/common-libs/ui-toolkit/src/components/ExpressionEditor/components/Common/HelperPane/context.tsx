@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { createContext, FC, useContext } from 'react';
+import React, { createContext,  useContext } from 'react';
 
 type HelperPanePanelContextType = {
     activePanelIndex: number;
@@ -17,7 +17,7 @@ type HelperPanePanelContextType = {
 const defaultState: any = {};
 export const HelperPanePanelContext = createContext<HelperPanePanelContextType>(defaultState);
 
-export const HelperPanePanelProvider: FC<HelperPanePanelContextType> = props => {
+export const HelperPanePanelProvider:  React.FC<React.PropsWithChildren<HelperPanePanelContextType>> = props => {
     const { children, ...restProps } = props;
 
     return <HelperPanePanelContext.Provider value={restProps}>{children}</HelperPanePanelContext.Provider>;

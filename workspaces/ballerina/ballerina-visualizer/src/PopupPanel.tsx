@@ -17,11 +17,11 @@ import { ThemeColors, Overlay } from "@wso2-enterprise/ui-toolkit";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 import { FunctionForm } from "./views/BI";
 
-const ViewContainer = styled.div`
+const ViewContainer = styled.div<{ isFullScreen?: boolean }>`
     position: fixed;
     top: 0;
     right: 0;
-    width: 400px;
+    width: ${(props: { isFullScreen: boolean; }) => props.isFullScreen ? '100%' : '400px'};
     height: 100%;
     z-index: 2000;
     background-color: ${ThemeColors.SURFACE_BRIGHT};
@@ -43,6 +43,7 @@ const PopupPanel = (props: PopupPanelProps) => {
     const { formState, onClose } = props;
     const { rpcClient } = useRpcContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
     useEffect(() => {
         if (typeof formState === "object" && "open" in formState) {
@@ -83,12 +84,46 @@ const PopupPanel = (props: PopupPanelProps) => {
                     });
                     break;
                 case MACHINE_VIEW.BIFunctionForm:
+                    setIsFullScreen(true);
                     rpcClient.getVisualizerLocation().then((location) => {
-                        let defaultFunctionsFile = Utils.joinPath(URI.file(location.projectUri), 'functions.bal').fsPath;
-                        if (location.documentUri) {
-                            defaultFunctionsFile = location.documentUri
-                        }
-                        setViewComponent(<FunctionForm projectPath={location.projectUri} filePath={defaultFunctionsFile} functionName={location?.identifier} />);
+                        const defaultFunctionsFile = Utils.joinPath(URI.file(location.projectUri), 'functions.bal').fsPath;
+                        setViewComponent(<FunctionForm
+                            projectPath={location.projectUri}
+                            filePath={defaultFunctionsFile}
+                            functionName={undefined}
+                            isPopup={true} />
+                        );
+                    });
+                    break;
+                case MACHINE_VIEW.BIDataMapperForm:
+                    setIsFullScreen(true);
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        const defaultFunctionsFile = Utils.joinPath(URI.file(location.projectUri), 'data_mappings.bal').fsPath;
+                        setViewComponent(
+                            <FunctionForm
+                                projectPath={location.projectUri}
+                                filePath={defaultFunctionsFile}
+                                functionName={undefined}
+                                isDataMapper={true}
+                                isPopup={true}
+                            />
+                        );
+                    });
+                    break;
+                case MACHINE_VIEW.BINPFunctionForm:
+                    setIsFullScreen(true);
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        const defaultFunctionsFile = Utils.joinPath(URI.file(location.projectUri), 'functions.bal').fsPath;
+                        setViewComponent(
+                            <FunctionForm
+                                projectPath={location.projectUri}
+                                filePath={defaultFunctionsFile}
+                                functionName={undefined}
+                                isDataMapper={false}
+                                isNpFunction={true}
+                                isPopup={true}
+                            />
+                        );
                     });
                     break;
                 default:
@@ -97,7 +132,7 @@ const PopupPanel = (props: PopupPanelProps) => {
         });
     };
 
-    return <ViewContainer>{viewComponent}</ViewContainer>;
+    return <ViewContainer isFullScreen={isFullScreen}>{viewComponent}</ViewContainer>;
 };
 
 export default PopupPanel;

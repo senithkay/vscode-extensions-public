@@ -23,12 +23,14 @@ import {
     ValidateBreakpointsResponse
 } from "@wso2-enterprise/mi-core";
 import * as vscode from "vscode";
-import { StateMachine, refreshUI } from "../../stateMachine";
+import { getStateMachine, refreshUI } from "../../stateMachine";
 
 export class MiDebuggerRpcManager implements MiDebuggerAPI {
+    constructor(private projectUri: string) { }
+
     async validateBreakpoints(params: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const definition = await langClient.validateBreakpoints(params);
 
             resolve(definition);
@@ -37,7 +39,7 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
 
     async getBreakpointInfo(params: GetBreakpointInfoRequest): Promise<GetBreakpointInfoResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const breakpointInfo = await langClient.getBreakpointInfo(params);
 
             resolve(breakpointInfo);
@@ -46,10 +48,15 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
 
     async addBreakpointToSource(params: AddBreakpointToSourceRequest): Promise<AddBreakpointToSourceResponse> {
         return new Promise(async (resolve) => {
+            const projectUri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(params.filePath))?.uri.fsPath;
+            if (!projectUri) {
+                resolve({ isBreakpointValid: false });
+                return;
+            }
             const breakpoint = new vscode.SourceBreakpoint(
                 new vscode.Location(vscode.Uri.file(params.filePath), new vscode.Position(params.breakpoint.line, params.breakpoint?.column || 0)));
             vscode.debug.addBreakpoints([breakpoint]);
-            refreshUI();
+            refreshUI(projectUri);
 
             resolve({ isBreakpointValid: true });
         });
@@ -97,7 +104,7 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
 
     async getStepOverBreakpoint(params: StepOverBreakpointRequest): Promise<StepOverBreakpointResponse> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
             const breakpointInfo = await langClient.getStepOverBreakpoint(params);
 
             resolve(breakpointInfo);
@@ -105,6 +112,11 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
     }
 
     removeBreakpointFromSource(params: RemoveBreakpointFromSourceRequest): void {
+        const projectUri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(params.filePath))?.uri.fsPath;
+        if (!projectUri) {
+            return;
+        }
+
         const breakpointsForFile: vscode.SourceBreakpoint[] = vscode.debug.breakpoints.filter((breakpoint) => {
             const sourceBreakpoint = breakpoint as vscode.SourceBreakpoint;
             return sourceBreakpoint.location.uri.fsPath === params.filePath;
@@ -126,6 +138,6 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
             });
         }
 
-        refreshUI();
+        refreshUI(projectUri);
     }
 }

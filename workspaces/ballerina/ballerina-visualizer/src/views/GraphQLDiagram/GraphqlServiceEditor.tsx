@@ -59,6 +59,12 @@ const ServiceContainer = styled.div`
     padding: 10px;
     flex: 1;
     overflow-y: auto;
+    max-height: calc(100vh - 80px);
+`;
+
+const OperationContainer = styled.div`
+    max-height: 300px;
+    overflow-y: scroll;
 `;
 
 const GraphqlContainer = styled.div`
@@ -156,13 +162,15 @@ interface GraphqlServiceEditorProps {
     filePath: string;
     lineRange: LineRange;
     onClose: () => void;
+    serviceIdentifier: string;
 }
 
 export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     console.log("===GraphqlServiceEditor Props: ", props);
-    const { filePath, lineRange, onClose } = props;
+    const { filePath, lineRange, onClose, serviceIdentifier } = props;
     const { rpcClient } = useRpcContext();
 
+    const [isSaving, setIsSaving] = useState<boolean>(false);
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [projectListeners, setProjectListeners] = useState<ProjectStructureArtifactResponse[]>([]);
     const [functionModel, setFunctionModel] = useState<FunctionModel>(undefined);
@@ -210,15 +218,15 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     const fetchServiceModel = async (newFilePath?: string, linePosition?: NodePosition) => {
         const reqLineRange: LineRange = linePosition
             ? {
-                  startLine: {
-                      line: linePosition.startLine,
-                      offset: linePosition.startColumn,
-                  },
-                  endLine: {
-                      line: linePosition.endLine,
-                      offset: linePosition.endColumn,
-                  },
-              }
+                startLine: {
+                    line: linePosition.startLine,
+                    offset: linePosition.startColumn,
+                },
+                endLine: {
+                    line: linePosition.endLine,
+                    offset: linePosition.endColumn,
+                },
+            }
             : lineRange;
 
         const reqFilePath = newFilePath ? newFilePath : filePath;
@@ -435,16 +443,18 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                                 <Codicon name="add" />
                             </Button>
                         </OperationHeader>
-                        {categories.query?.map((operation, index) => (
-                            <OperationAccordion
-                                key={index}
-                                functionModel={operation}
-                                goToSource={goToSource}
-                                onEditFunction={onEditOperation}
-                                onDeleteFunction={onDeleteFunction}
-                                onFunctionImplement={onFunctionImplement}
-                            />
-                        ))}
+                        <OperationContainer>
+                            {categories.query?.map((operation, index) => (
+                                <OperationAccordion
+                                    key={index}
+                                    functionModel={operation}
+                                    goToSource={goToSource}
+                                    onEditFunction={onEditOperation}
+                                    onDeleteFunction={onDeleteFunction}
+                                    onFunctionImplement={onFunctionImplement}
+                                />
+                            ))}
+                        </OperationContainer>
                         {categories.query?.length === 0 && (
                             <EmptyStateContainer>
                                 <EmptyStateText>No Query fields defined</EmptyStateText>
@@ -465,16 +475,18 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                                 <Codicon name="add" />
                             </Button>
                         </OperationHeader>
-                        {categories.mutation?.map((operation, index) => (
-                            <OperationAccordion
-                                key={index}
-                                functionModel={operation}
-                                goToSource={goToSource}
-                                onEditFunction={onEditOperation}
-                                onDeleteFunction={onDeleteFunction}
-                                onFunctionImplement={onFunctionImplement}
-                            />
-                        ))}
+                        <OperationContainer>
+                            {categories.mutation?.map((operation, index) => (
+                                <OperationAccordion
+                                    key={index}
+                                    functionModel={operation}
+                                    goToSource={goToSource}
+                                    onEditFunction={onEditOperation}
+                                    onDeleteFunction={onDeleteFunction}
+                                    onFunctionImplement={onFunctionImplement}
+                                />
+                            ))}
+                        </OperationContainer>
                         {categories.mutation?.length === 0 && (
                             <EmptyStateContainer>
                                 <EmptyStateText>No Mutation fields defined</EmptyStateText>
@@ -495,16 +507,18 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                                 <Codicon name="add" />
                             </Button>
                         </OperationHeader>
-                        {categories.subscription?.map((operation, index) => (
-                            <OperationAccordion
-                                key={index}
-                                functionModel={operation}
-                                goToSource={goToSource}
-                                onEditFunction={onEditOperation}
-                                onDeleteFunction={onDeleteFunction}
-                                onFunctionImplement={onFunctionImplement}
-                            />
-                        ))}
+                        <OperationContainer>
+                            {categories.subscription?.map((operation, index) => (
+                                <OperationAccordion
+                                    key={index}
+                                    functionModel={operation}
+                                    goToSource={goToSource}
+                                    onEditFunction={onEditOperation}
+                                    onDeleteFunction={onDeleteFunction}
+                                    onFunctionImplement={onFunctionImplement}
+                                />
+                            ))}
+                        </OperationContainer>
                         {categories.subscription?.length === 0 && (
                             <EmptyStateContainer>
                                 <EmptyStateText>No Subscription fields defined</EmptyStateText>
@@ -527,10 +541,11 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
     };
 
     const handleFunctionSubmit = async (updatedModel: FunctionModel) => {
+        setIsSaving(true);
         try {
-            let LsReponse;
+            let artifacts;
             if (isEdit) {
-                LsReponse = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
+                artifacts = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({
                     filePath,
                     codedata: {
                         lineRange: lineRange,
@@ -538,7 +553,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                     function: updatedModel,
                 });
             } else {
-                LsReponse = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
+                artifacts = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({
                     filePath,
                     codedata: {
                         lineRange: lineRange,
@@ -547,8 +562,9 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                 });
             }
 
+            const serviceArtifact = artifacts.artifacts.find(artifact => artifact.name === serviceIdentifier);
             // Refresh the service model
-            fetchServiceModel(LsReponse?.filePath, LsReponse?.position);
+            fetchServiceModel(serviceArtifact?.path, serviceArtifact?.position);
 
             if (isEdit) {
                 setIsEdit(false);
@@ -558,6 +574,8 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
             setFunctionModel(undefined);
         } catch (error) {
             console.error("Error handling submit:", error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -576,7 +594,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                 </PanelContainer>
             )}
             {functionModel && (isNewForm || isEdit) && (
-                <PanelContainer 
+                <PanelContainer
                     title={isNewForm ? "Add Field" : "Edit Field"}
                     show={true}
                     onBack={isNewForm ? handleNewFunctionClose : handleEditFunctionClose}
@@ -588,6 +606,7 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                         filePath={filePath}
                         lineRange={lineRange}
                         isGraphqlView={true}
+                        isSaving={isSaving}
                         onSave={handleFunctionSubmit}
                         onClose={isNewForm ? handleNewFunctionClose : handleEditFunctionClose}
                     />

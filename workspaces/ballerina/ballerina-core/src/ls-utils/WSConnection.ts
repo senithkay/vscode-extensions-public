@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-var-requires */
 import {
+    MessageConnection,
     ProtocolConnection,
 } from "vscode-languageserver-protocol";
 import * as rpc from "vscode-ws-jsonrpc";
@@ -13,7 +14,7 @@ export class WSConnection implements LSConnection {
         return new Promise((resolve) => {
             const webSocket = new WebSocket(url);
             rpc.listen({
-                onConnection: (connection: rpc.MessageConnection) => {
+                onConnection: (connection: MessageConnection) => {
                     resolve(new WSConnection(connection, webSocket));
                 },
                 webSocket: webSocket as any,

@@ -13,7 +13,6 @@ import ReactMarkdown from "react-markdown";
 import {
     Button,
     Codicon,
-    FormExpressionEditorRef,
     LinkButton,
     ThemeColors,
     SidePanelBody,
@@ -304,7 +303,7 @@ export interface FormProps {
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
-    onSubmit?: (data: FormValues) => void;
+    onSubmit?: (data: FormValues, dirtyFields?: any) => void;
     isSaving?: boolean;
     openRecordEditor?: (isOpen: boolean, fields: FormValues, editingField?: FormField) => void;
     openView?: (filePath: string, position: NodePosition) => void;
@@ -373,7 +372,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors, isDirty, isValid: isFormValid },
+        formState: { isValidating, errors, isDirty, isValid: isFormValid, dirtyFields },
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -382,8 +381,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const [isMarkdownExpanded, setIsMarkdownExpanded] = useState(false);
     const [isIdentifierEditing, setIsIdentifierEditing] = useState(false);
     const markdownRef = useRef<HTMLDivElement>(null);
-
-    const exprRef = useRef<FormExpressionEditorRef>(null);
 
     const [isUserConcert, setIsUserConcert] = useState(false);
 
@@ -472,7 +469,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     const handleOnSave = (data: FormValues) => {
         console.log(">>> saved form fields", { data });
-        onSubmit && onSubmit(data);
+        onSubmit && onSubmit(data, dirtyFields);
     };
 
     // Expose a method to trigger the save
@@ -732,7 +729,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             return (
                                 <S.Row key={updatedField.key}>
                                     <EditorFactory
-                                        ref={exprRef}
                                         field={updatedField}
                                         selectedNode={selectedNode}
                                         openRecordEditor={
@@ -782,7 +778,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 return (
                                     <S.Row key={updatedField.key}>
                                         <EditorFactory
-                                            ref={exprRef}
                                             field={updatedField}
                                             openRecordEditor={
                                                 openRecordEditor &&
@@ -815,16 +810,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 {cancelText || "Cancel"}{" "}
                             </Button>
                         )}
-                        {!isSaving &&
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                                {submitText || "Save"}
-                            </S.PrimaryButton>
-                        }
-                        {isSaving &&
-                            <S.PrimaryButton disabled={true}>
-                                <ProgressRing sx={{ width: 16, height: 16, marginRight: 8 }} color={ThemeColors.ON_PRIMARY} /> <Typography variant="body2">{submitText}...</Typography>
-                            </S.PrimaryButton>
-                        }
+                        <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton || isSaving}>
+                            {isSaving ? <Typography variant="progress">{submitText || "Saving..."}</Typography> : submitText || "Save"}
+                        </S.PrimaryButton>
                     </S.Footer>
                 )}
             </S.Container>

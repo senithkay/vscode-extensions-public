@@ -11,7 +11,7 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { Button, Codicon, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ErrorBanner, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 
 import { Title } from "../DataMapperConfigPanel";
 import { InputParamEditor } from "../InputParamsPanel/InputParamEditor";
@@ -48,9 +48,9 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
     } = props;
 
     const label = (
-        <>
+        <TruncatedLabel style={{ marginRight: "auto" }}>
             <TypeName isInvalid={outputType.isUnsupported}>{outputType.isArray ? `${outputType.type}[]` : outputType.type}</TypeName>
-        </>
+        </TruncatedLabel>
     );
 
     const handleEdit = () => {

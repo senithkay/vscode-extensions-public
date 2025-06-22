@@ -20,6 +20,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportDataPanel } from "./ImportDataPanel";
+import { useShallow } from 'zustand/react/shallow';
 
 export interface ImportType {
     type: string;
@@ -44,12 +45,14 @@ export function ImportDataForm(props: ImportDataWizardProps) {
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 
-    const { isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(state => ({
+    const { isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(
+    useShallow(state => ({
         isOpen: state.isIOConfigPanelOpen,
         ioType: state.ioConfigPanelType,
         overwriteSchema: state.isSchemaOverridden,
         setSidePanelOpen: state.setIsIOConfigPanelOpen
-    }));
+    }))
+);
 
     const fileExtension = useMemo(() => {
         if (!selectedImportType) return undefined;
@@ -125,7 +128,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
-            <SidePanelBody>
+            <SidePanelBody  data-testid="import-data-form">
                 {!selectedImportType && <ImportDataButtons onImportTypeChange={handleImportTypeChange} />}
                 {selectedImportType && (
                     <ImportDataPanel
@@ -133,6 +136,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                         extension={fileExtension}
                         rowRange={{ start: 15, offset: 10 }}
                         onSave={handleFileUpload}
+                        data-testid="import-data-panel"
                     />
                 )}
             </SidePanelBody>

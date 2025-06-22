@@ -92,7 +92,7 @@ import type { WebviewApi } from "vscode-webview";
 import { vscodeApiWrapper } from "./vscode-api-wrapper";
 
 export class ChoreoWebViewAPI {
-	private readonly _messenger;
+	private readonly _messenger: Messenger;
 	private static _instance: ChoreoWebViewAPI;
 	private _rpcClient: ChoreoRpcWebview;
 

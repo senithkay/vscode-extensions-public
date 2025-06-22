@@ -4749,7 +4749,7 @@ export interface VisibleEndpoint {
     value: string;
   }
   
-  export interface undefined extends STNode {}
+
   
   // eslint-enable ban-types
   

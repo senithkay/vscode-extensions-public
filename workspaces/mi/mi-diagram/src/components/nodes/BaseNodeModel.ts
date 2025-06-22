@@ -8,7 +8,7 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { Query, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Connector, Query, STNode, Tool } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getNodeIdFromModel } from "../../utils/node";
 import { NodePortModel } from "../NodePort/NodePortModel";
 import { Colors, DATA_SERVICE_NODES, NodeTypes } from "../../resources/constants";
@@ -18,6 +18,7 @@ import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import styled, { StyledComponent } from "@emotion/styled";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { getDSInputMappingsFromSTNode, getDSQueryFromSTNode, getDSTransformationFromSTNode, getDSOutputMappingsFromSTNode } from "../../utils/template-engine/mustach-templates/dataservice/ds";
+import { FirstCharToUpperCase } from "../../utils/commons";
 
 export class BaseNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -92,7 +93,7 @@ export class BaseNodeModel extends NodeModel {
                 range: nodeRange,
                 force: true,
             });
-        } else if (node.isSelected()) {
+        } else {
             // highlight the selected node
             rpcClient.getMiDiagramRpcClient().highlightCode({
                 range: nodeRange,
@@ -112,6 +113,44 @@ export class BaseNodeModel extends NodeModel {
                         break;
                     case DATA_SERVICE_NODES.OUTPUT:
                         formData = getDSOutputMappingsFromSTNode(this.stNode as Query);
+                }
+            }
+
+            if (node.stNode.tag.includes('.')) {
+
+                operationName = "connector";
+
+                const connectorNode = ((node.stNode as Tool).mediator ?? node.stNode) as Connector;
+
+                const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                    documentUri: node.documentUri,
+                    connectorName: connectorNode.tag.split(".")[0]
+                });
+
+                const connectorOperationName = connectorNode.tag.split(/\.(.+)/)[1];
+                const connectorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
+                    range: nodeRange,
+                    documentUri: node.documentUri,
+                    isEdit: true
+                });
+
+                const formJSON = connectorDetails;
+
+                const iconPath = (await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" })).uri;
+
+                if (formData) {
+                    formData.icon = iconPath;
+                } else {
+                    formData = {
+                        form: formJSON,
+                        title: `${FirstCharToUpperCase(operationName)} Operation`,
+                        uiSchemaPath: connectorData.uiSchemaPath,
+                        parameters: connectorNode.parameters ?? [],
+                        connectorName: connectorData.name,
+                        operationName: connectorOperationName,
+                        connectionName: connectorNode.configKey,
+                        icon: iconPath
+                    };
                 }
             }
 

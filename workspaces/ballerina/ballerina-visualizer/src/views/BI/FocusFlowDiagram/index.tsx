@@ -265,7 +265,7 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
             })
             .then((response) => {
                 console.log(">>> Updated source code", response);
-                if (response.textEdits) {
+                if (response.artifacts.length > 0) {
                     // clear memory
                     selectedNodeRef.current = undefined;
                     handleOnCloseSidePanel();
@@ -290,7 +290,7 @@ export function BIFocusFlowDiagram(props: BIFocusFlowDiagramProps) {
             })
             .then((response) => {
                 console.log(">>> Updated source code", response);
-                if (response.textEdits) {
+                if (response.artifacts.length > 0) {
                     // clear memory
                     selectedNodeRef.current = undefined;
                     handleOnCloseSidePanel();

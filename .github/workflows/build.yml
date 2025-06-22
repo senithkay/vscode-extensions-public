@@ -189,8 +189,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - name: Set up Ballerina
@@ -235,8 +235,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - uses: ballerina-platform/setup-ballerina@v1
@@ -306,8 +306,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - uses: ballerina-platform/setup-ballerina@v1
@@ -395,8 +395,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - name: Run Test
@@ -408,8 +408,12 @@ jobs:
     name: Run MI UI tests
     needs: Build_Stage
     if: ${{ inputs.runE2ETests || github.base_ref == 'release-mi' }}
-    timeout-minutes: 30
+    timeout-minutes: 60
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [group1, group2, group3]
     steps:
       - name: Restore build
         uses: actions/download-artifact@v4
@@ -425,14 +429,15 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           rush-install: true
 
       - name: install packages
         run: |
           sudo apt-get update
           sudo apt-get install xvfb
+          sudo apt-get install ffmpeg
           sudo apt-get install -y gnome-keyring
           sudo apt-get install libsecret-1.0
           sudo apt install dbus-x11
@@ -442,13 +447,14 @@ jobs:
         run: |
           export $(dbus-launch)
           export DISPLAY=:98.0
-          cd workspaces/mi/mi-extension && xvfb-run --server-num 98.0 -s "-ac -screen 0 1920x1080x24" npx playwright test
+          cd workspaces/mi/mi-extension
+          xvfb-run --server-num 98.0 -s "-ac -screen 0 1920x1080x24" bash -c "ffmpeg -f x11grab -r 30 -s 1920x1080 -i :98.0 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -movflags +faststart -hide_banner -loglevel error record.mp4 & npx playwright test --grep ${{ matrix.group }}"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: MI-e2e-test-results-${{ github.run_attempt }}
+          name: MI-e2e-test-results-${{ matrix.group }}-${{ github.run_attempt }}
           path: workspaces/mi/mi-extension/test-results/**
           retention-days: 5
           
@@ -456,6 +462,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: MI-e2e-test-recording-${{ github.run_attempt }}
-          path: workspaces/mi/mi-extension/src/test/test-resources/videos/**
+          name: MI-e2e-test-recording-${{ matrix.group }}-${{ github.run_attempt }}
+          path: | 
+            workspaces/mi/mi-extension/src/test/test-resources/videos/**
+            workspaces/mi/mi-extension/src/test/test-resources/screenshots/**
+            workspaces/mi/mi-extension/record.mp4
           retention-days: 5

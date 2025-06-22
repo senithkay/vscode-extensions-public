@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import classNames from "classnames";
 
@@ -62,16 +62,18 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
     const indentation = isType ? 0 : (treeDepth + 1) * 16 + 8;
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
-            <span
-                className={classes.valueLabel}
-                style={{ marginLeft: indentation }}
-            >
-                <InputSearchHighlight>{valueLabel}</InputSearchHighlight>
-                {typeName && ":"}
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{ marginRight: "auto" }}>
+                <span
+                    className={classes.valueLabel}
+                    style={{ marginLeft: indentation }}
+                >
+                    <InputSearchHighlight>{valueLabel}</InputSearchHighlight>
+                    {typeName && ":"}
+                </span>
+                {typeName && <span className={classes.inputTypeLabel}>{typeName}</span>}
             </span>
-            {typeName && <span className={classes.inputTypeLabel}>{typeName}</span>}
-        </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {

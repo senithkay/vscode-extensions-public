@@ -91,7 +91,9 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     isGraphql?: boolean;
+    submitText?: string;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean, formImports?: FormImports) => void;
+    showProgressIndicator?: boolean;
     subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -137,6 +139,7 @@ export function FormGenerator(props: FormProps) {
         targetLineRange,
         projectPath,
         editForm,
+        showProgressIndicator,
         isGraphql,
         onSubmit,
         subPanelView,
@@ -145,6 +148,7 @@ export function FormGenerator(props: FormProps) {
         resetUpdatedExpressionField,
         disableSaveButton,
         actionButtonConfig,
+        submitText,
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -269,10 +273,10 @@ export function FormGenerator(props: FormProps) {
         setFormImports(getImportsForFormFields(fields));
     };
 
-    const handleOnSubmit = (data: FormValues) => {
+    const handleOnSubmit = (data: FormValues, dirtyFields: any) => {
         console.log(">>> on form generator submit", data);
         if (node && targetLineRange) {
-            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRange);
+            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRange, dirtyFields);
             console.log(">>> Updated node", updatedNode);
 
             const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
@@ -280,7 +284,7 @@ export function FormGenerator(props: FormProps) {
         }
     };
 
-    const mergeFormDataWithFlowNode = (data: FormValues, targetLineRange: LineRange): FlowNode => {
+    const mergeFormDataWithFlowNode = (data: FormValues, targetLineRange: LineRange, dirtyFields?: any): FlowNode => {
         const clonedNode = cloneDeep(node);
         // Create updated node with new line range
         const updatedNode = createNodeWithUpdatedLineRange(clonedNode, targetLineRange);
@@ -289,7 +293,7 @@ export function FormGenerator(props: FormProps) {
         const processedData = processFormData(data);
 
         // Update node properties
-        const nodeWithUpdatedProps = updateNodeWithProperties(clonedNode, updatedNode, processedData, formImports);
+        const nodeWithUpdatedProps = updateNodeWithProperties(clonedNode, updatedNode, processedData, formImports, dirtyFields);
 
         // check all nodes and remove empty nodes
         return removeEmptyNodes(nodeWithUpdatedProps);
@@ -527,7 +531,7 @@ export function FormGenerator(props: FormProps) {
                             property: property,
                         },
                     });
-    
+
                     let uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
 
                     // HACK: filter unknown module and undefined type diagnostics for local connections
@@ -711,6 +715,7 @@ export function FormGenerator(props: FormProps) {
                 node={node}
                 targetLineRange={targetLineRange}
                 expressionEditor={expressionEditor}
+                showProgressIndicator={showProgressIndicator}
                 onSubmit={onSubmit}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
@@ -729,6 +734,7 @@ export function FormGenerator(props: FormProps) {
                 targetLineRange={targetLineRange}
                 expressionEditor={expressionEditor}
                 onSubmit={onSubmit}
+                showProgressIndicator={showProgressIndicator}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
                 subPanelView={subPanelView}
@@ -745,6 +751,7 @@ export function FormGenerator(props: FormProps) {
                 node={node}
                 targetLineRange={targetLineRange}
                 expressionEditor={expressionEditor}
+                showProgressIndicator={showProgressIndicator}
                 onSubmit={onSubmit}
                 openSubPanel={openSubPanel}
                 updatedExpressionField={updatedExpressionField}
@@ -792,6 +799,8 @@ export function FormGenerator(props: FormProps) {
                     expressionEditor={expressionEditor}
                     targetLineRange={targetLineRange}
                     fileName={fileName}
+                    isSaving={showProgressIndicator}
+                    submitText={submitText}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}

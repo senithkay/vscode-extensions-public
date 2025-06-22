@@ -188,15 +188,15 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
         [debouncedSearchTypeBrowser]
     );
 
-    const { mutateAsync: addFunction, isLoading: isAddingType } = useMutation(
-        (item: TypeHelperItem) => 
+    const { mutateAsync: addFunction, isPending: isAddingType } = useMutation({
+        mutationFn: (item: TypeHelperItem) => 
             rpcClient.getBIDiagramRpcClient().addFunction({
                 filePath: filePath,
                 codedata: item.codedata,
                 kind: item.kind,
                 searchKind: 'TYPE'
             })
-    );
+    });
 
     const handleTypeItemClick = async (item: TypeHelperItem) => {
         return await addFunction(item);

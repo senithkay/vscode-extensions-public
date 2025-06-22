@@ -6,12 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import * as React from 'react';
+import React, { PropsWithChildren } from 'react';
 import ReactDOM from 'react-dom';
 
 export const LinkOverayContainerID = "data-mapper-link-overlay-container";
 
-export const LinkOveryPortal: React.FC<{}> = (props) => {
+export const LinkOveryPortal = (props: PropsWithChildren<{}>) => {
     const container = document.getElementById(LinkOverayContainerID);
     return container !== null ? ReactDOM.createPortal(props.children, container) : <></>;
 }

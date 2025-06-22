@@ -25,7 +25,7 @@ import {
 import * as yup from "yup";
 import styled from "@emotion/styled";
 import { SIDE_PANEL_WIDTH } from "../../constants";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 
@@ -313,13 +313,13 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
                             <CheckBoxContainer>
                                 <label>Methods</label>
                                 <CheckBoxGroup columns={2}>
-                                    <FormCheckBox name="methods.get" label="GET" control={control}/>
-                                    <FormCheckBox name="methods.patch" label="PATCH" control={control}/>
-                                    <FormCheckBox name="methods.post" label="POST" control={control}/>
-                                    <FormCheckBox name="methods.head" label="HEAD" control={control}/>
-                                    <FormCheckBox name="methods.put" label="PUT" control={control}/>
-                                    <FormCheckBox name="methods.options" label="OPTIONS" control={control}/>
-                                    <FormCheckBox name="methods.delete" label="DELETE" control={control}/>
+                                    <FormCheckBox name="methods.get" label="GET" control={control as any}/>
+                                    <FormCheckBox name="methods.patch" label="PATCH" control={control as any}/>
+                                    <FormCheckBox name="methods.post" label="POST" control={control as any}/>
+                                    <FormCheckBox name="methods.head" label="HEAD" control={control as any}/>
+                                    <FormCheckBox name="methods.put" label="PUT" control={control as any}/>
+                                    <FormCheckBox name="methods.options" label="OPTIONS" control={control as any}/>
+                                    <FormCheckBox name="methods.delete" label="DELETE" control={control as any}/>
                                 </CheckBoxGroup>
                             </CheckBoxContainer>
                             <Fragment>
@@ -338,8 +338,8 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
                                         <CheckBoxContainer>
                                             <label>Protocol</label>
                                             <CheckBoxGroup columns={2}>
-                                                <FormCheckBox name="protocol.http" label="HTTP" control={control}/>
-                                                <FormCheckBox name="protocol.https" label="HTTPS" control={control}/>
+                                                <FormCheckBox name="protocol.http" label="HTTP" control={control as any}/>
+                                                <FormCheckBox name="protocol.https" label="HTTPS" control={control as any}/>
                                             </CheckBoxGroup>
                                         </CheckBoxContainer>
                                         {/* Only when editing a resource */}

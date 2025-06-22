@@ -79,6 +79,7 @@ const LoadingContainer = styled.div`
 
 export const EnvironmentSetup = () => {
     const { rpcClient } = useVisualizerContext();
+    const [projectUri, setProjectUri] = useState<string>("");
     const [isLoading, setIsLoading] = useState(true);
     const [recommendedVersions, setRecommendedVersions] = useState<{ miVersion: string, javaVersion: string }>({ miVersion: "", javaVersion: "" });
     const [miVersionStatus, setMiVersionStatus] = useState<"valid" | "valid-not-updated" | "missing" | "not-valid">("not-valid");
@@ -98,6 +99,9 @@ export const EnvironmentSetup = () => {
     
     useEffect(() => {
         const fetchMIVersionAndSetup = async () => {
+            const { projectUri } = await rpcClient.getVisualizerState();
+            setProjectUri(projectUri);
+
             const { recommendedVersions, javaDetails, miDetails, miVersionStatus, showDownloadButtons } =
                 await rpcClient.getMiVisualizerRpcClient().getProjectSetupDetails();
             if (miDetails?.version === "4.4.0") {
@@ -148,7 +152,7 @@ export const EnvironmentSetup = () => {
                 setJavaProgress(data.percentage);
             });
             const javaPath = await rpcClient.getMiVisualizerRpcClient().downloadJavaFromMI(recommendedVersions.miVersion);
-            const javaDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'JAVA', path: javaPath });
+            const javaDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'JAVA', path: javaPath });
             setJavaPathDetails(javaDetails);
         } catch (err) {
             setError((err as Error).message);
@@ -168,7 +172,7 @@ export const EnvironmentSetup = () => {
                 setMiProgress(data.percentage);
             });
             const miPath = await rpcClient.getMiVisualizerRpcClient().downloadMI({ version: recommendedVersions.miVersion, isUpdatedPack: isDownloadUpdatedPack });
-            const miDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'MI', path: miPath });
+            const miDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'MI', path: miPath });
             setPathDetails(miDetails);
         } catch (err) {
             setError((err as Error).message);
@@ -180,7 +184,7 @@ export const EnvironmentSetup = () => {
     const selectMIPath = async () => {
         const selectedMIPath = await rpcClient.getMiVisualizerRpcClient().selectFolder("Select the Micro Integrator runtime path");
         if (selectedMIPath) {
-            const miDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'MI', path: selectedMIPath });
+            const miDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'MI', path: selectedMIPath });
             if (miDetails.status !== "not-valid") {
                 setPathDetails(miDetails);
             }
@@ -190,7 +194,7 @@ export const EnvironmentSetup = () => {
     const selectJavaHome = async () => {
         const selectedJavaHome = await rpcClient.getMiVisualizerRpcClient().selectFolder("Select the Java Home path");
         if (selectedJavaHome) {
-            const javaDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'JAVA', path: selectedJavaHome });
+            const javaDetails = await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'JAVA', path: selectedJavaHome });
             if (javaDetails.status !== "not-valid") {
                 setJavaPathDetails(javaDetails);
             }
@@ -268,7 +272,7 @@ export const EnvironmentSetup = () => {
         const bothNotFound = javaStatus === "not-valid" && miStatus === "not-valid";
 
         if (isProperlySetup) {
-            return <ButtonWithDescription 
+            return <ButtonWithDescription
                 onClick={refreshProject}
                 buttonText="Continue"
                 description="Project is properly setup. Click continue to open the project."
@@ -277,7 +281,7 @@ export const EnvironmentSetup = () => {
         if (canContinue) {
             const javaDescription = "Warning: The recommended Java version for the runtime has not been used. While you can continue, please note that the project may not function as expected without the proper version."
             const miDescription = "Warning: The runtime version configured in the developer environment does not match with the runtime version configured for the project. While you can continue, please note that the project may not function as expected without the proper version."
-            return <ButtonWithDescription 
+            return <ButtonWithDescription
                 onClick={refreshProject}
                 buttonText="Continue Anyway"
                 description={miStatus !== "valid" ? miDescription : javaDescription}
@@ -306,8 +310,8 @@ export const EnvironmentSetup = () => {
         let isMISet = miPathDetails?.status !== "not-valid";
 
         if (isJavaSet && isMISet) {
-            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'MI', path: miPathDetails.path });
-            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ type: 'JAVA', path: javaPathDetails.path });
+            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'MI', path: miPathDetails.path });
+            await rpcClient.getMiVisualizerRpcClient().setPathsInWorkSpace({ projectUri, type: 'JAVA', path: javaPathDetails.path });
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: EVENT_TYPE.REFRESH_ENVIRONMENT,
                 location: {},

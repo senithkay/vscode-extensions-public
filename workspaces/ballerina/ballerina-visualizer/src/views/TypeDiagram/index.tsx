@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation, NodePosition, Type, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, NodePosition, Type, EVENT_TYPE, MACHINE_VIEW, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
 import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
@@ -39,10 +39,11 @@ export const Title: React.FC<any> = styled.div`
 interface TypeDiagramProps {
     selectedTypeId?: string;
     projectUri?: string;
+    addType?: boolean;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { selectedTypeId, projectUri } = props;
+    const { selectedTypeId, projectUri, addType } = props;
     const { rpcClient } = useRpcContext();
     const commonRpcClient = rpcClient.getCommonRpcClient();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
@@ -52,6 +53,12 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const [focusedNodeId, setFocusedNodeId] = React.useState<string | undefined>(undefined);
     const [editingType, setEditingType] = React.useState<Type>();
     const [highlightedNodeId, setHighlightedNodeId] = React.useState<string | undefined>(selectedTypeId);
+
+    useEffect(() => {
+        if (addType) {
+            setIsTypeCreatorOpen(true);
+        }
+    }, [addType]);
 
     useEffect(() => {
         if (rpcClient) {
@@ -185,10 +192,36 @@ export function TypeDiagram(props: TypeDiagramProps) {
         return typesModel.find((type: Type) => type.name === typeId);
     };
 
-    const onTypeChange = async (type: Type) => {
+    const onTypeChange = async (type: Type, rename?: boolean) => {
+        if (rename) {
+            setEditingTypeId(type.name);
+            setEditingType(type);
+            setIsTypeCreatorOpen(false);
+            setHighlightedNodeId(type.name);
+            return;
+        }
         setEditingTypeId(undefined);
         setEditingType(undefined);
         setIsTypeCreatorOpen(false);
+        setHighlightedNodeId(type.name); // Highlight the newly created type
+    };
+
+    // Helper function to convert TypeNodeKind to display name
+    const getTypeKindDisplayName = (typeNodeKind?: TypeNodeKind): string => {
+        switch (typeNodeKind) {
+            case "RECORD":
+                return "Record";
+            case "ENUM":
+                return "Enum";
+            case "CLASS":
+                return "Service Class";
+            case "UNION":
+                return "Union";
+            case "ARRAY":
+                return "Array";
+            default:
+                return "";
+        }
     };
 
     return (
@@ -221,18 +254,26 @@ export function TypeDiagram(props: TypeDiagramProps) {
                             onTypeEdit={onTypeEdit}
                         />
                     ) : (
-                        <ProgressRing color={ThemeColors.PRIMARY} />
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                            <ProgressRing color={ThemeColors.PRIMARY} />
+                        </div>
                     )}
                 </ViewContent>
             </View>
             {/* Panel for editing and creating types */}
             {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node !== "CLASS" && (
                 <PanelContainer
-                    title={editingTypeId ? `Edit Type` : "New Type"}
+                    title={editingTypeId ?
+                        `Edit Type${getTypeKindDisplayName(editingType?.codedata?.node) ?
+                            ` : ${getTypeKindDisplayName(editingType?.codedata?.node)}` :
+                            ''}` :
+                        "New Type"
+                    }
                     show={true}
                     onClose={onTypeEditorClosed}
                 >
                     <FormTypeEditor
+                        key={editingTypeId || 'new-type'}
                         type={findSelectedType(editingTypeId)}
                         newType={editingTypeId ? false : true}
                         onTypeChange={onTypeChange}

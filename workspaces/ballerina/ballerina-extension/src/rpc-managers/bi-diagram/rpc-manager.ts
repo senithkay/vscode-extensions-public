@@ -13,6 +13,7 @@ import {
     AddFieldRequest,
     AddFunctionRequest,
     AddImportItemResponse,
+    ArtifactData,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -38,6 +39,7 @@ import {
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
+    BallerinaProject,
     BreakpointRequest,
     BuildMode,
     ClassFieldModifierRequest,
@@ -62,6 +64,7 @@ import {
     FunctionNodeRequest,
     FunctionNodeResponse,
     GeneratedClientSaveResponse,
+    GetConfigVariableNodeTemplateRequest,
     GetRecordConfigRequest,
     GetRecordConfigResponse,
     GetRecordModelFromSourceRequest,
@@ -74,11 +77,13 @@ import {
     ImportStatements,
     LinePosition,
     ModelFromCodeRequest,
+    NodeKind,
     OpenAPIClientDeleteRequest,
     OpenAPIClientDeleteResponse,
     OpenAPIClientGenerationRequest,
     OpenAPIGeneratedModulesRequest,
     OpenAPIGeneratedModulesResponse,
+    OpenConfigTomlRequest,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -101,6 +106,7 @@ import {
     TemplateId,
     TextEdit,
     UpdateConfigVariableRequest,
+    UpdateConfigVariableRequestV2,
     UpdateConfigVariableResponse,
     UpdateImportsRequest,
     UpdateImportsResponse,
@@ -109,6 +115,7 @@ import {
     UpdateTypeResponse,
     UpdateTypesRequest,
     UpdateTypesResponse,
+    UpdatedArtifactsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
@@ -138,10 +145,12 @@ import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure 
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_URL } from "../../features/ai/utils";
 import { ICreateComponentCmdParams, IWso2PlatformExtensionAPI, CommandIds as PlatformExtCommandIds } from "@wso2-enterprise/wso2-platform-core";
-import { cleanAndValidateProject } from "../../features/config-generator/configGenerator";
+import { cleanAndValidateProject, getCurrentBIProject } from "../../features/config-generator/configGenerator";
+import { updateSourceCode } from "../../utils/source-utils";
 import { getRefreshedAccessToken } from "../../../src/utils/ai/auth";
-
+import { applyBallerinaTomlEdit } from "./utils";
 export class BiDiagramRpcManager implements BIDiagramAPI {
+    OpenConfigTomlRequest: (params: OpenConfigTomlRequest) => Promise<void>;
 
     async getFlowModel(): Promise<BIFlowModelResponse> {
         console.log(">>> requesting bi flow model from ls");
@@ -182,104 +191,45 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async getSourceCode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
+    async getSourceCode(params: BISourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         console.log(">>> requesting bi source code from ls", params);
-        const { flowNode, isFunctionNodeUpdate } = params;
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getSourceCode(params)
                 .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
                     if (params?.isConnector) {
-                        await this.updateSource(model, flowNode, true, isFunctionNodeUpdate);
-                        resolve(model);
+                        const artifacts = await updateSourceCode({ textEdits: model.textEdits });
+                        resolve({ artifacts });
                     } else {
-                        await this.updateSource(model, flowNode, false, isFunctionNodeUpdate);
-                        resolve(model);
+                        const artifacts = await updateSourceCode({ textEdits: model.textEdits }, this.getArtifactDataFromNodeKind(params.flowNode.codedata.node));
+                        resolve({ artifacts });
                     }
                 })
                 .catch((error) => {
                     console.log(">>> error fetching source code from ls", error);
                     return new Promise((resolve) => {
-                        resolve(undefined);
+                        resolve({ artifacts: [], error: error });
                     });
                 });
         });
     }
 
-    async updateSource(
-        params: BISourceCodeResponse,
-        flowNode?: FlowNode | FunctionNode,
-        isConnector?: boolean,
-        isFunctionNodeUpdate?: boolean
-    ): Promise<void> {
-        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
-        StateMachine.setEditMode();
-        StateMachine.setTempData({
-            flowNode: flowNode as FlowNode
-        });
-        for (const [key, value] of Object.entries(params.textEdits)) {
-            const fileUri = Uri.file(key);
-            const fileUriString = fileUri.toString();
-            const edits = value;
-
-            if (edits && edits.length > 0) {
-                const modificationList: STModification[] = [];
-
-                for (const edit of edits) {
-                    const stModification: STModification = {
-                        startLine: edit.range.start.line,
-                        startColumn: edit.range.start.character,
-                        endLine: edit.range.end.line,
-                        endColumn: edit.range.end.character,
-                        type: "INSERT",
-                        isImport: false,
-                        config: {
-                            STATEMENT: edit.newText,
-                        },
-                    };
-                    modificationList.push(stModification);
-                }
-
-                if (modificationRequests[fileUriString]) {
-                    modificationRequests[fileUriString].modifications.push(...modificationList);
-                } else {
-                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
-                }
-            }
-        }
-
-        // Iterate through modificationRequests and apply modifications
-        try {
-            for (const [fileUriString, request] of Object.entries(modificationRequests)) {
-                const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
-                    documentIdentifier: { uri: fileUriString },
-                    astModifications: request.modifications,
-                })) as SyntaxTree;
-
-                if (parseSuccess) {
-                    const fileUri = Uri.file(request.filePath);
-                    const workspaceEdit = new vscode.WorkspaceEdit();
-                    workspaceEdit.replace(
-                        fileUri,
-                        new vscode.Range(
-                            new vscode.Position(0, 0),
-                            new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
-                        ),
-                        source
-                    );
-                    await workspace.applyEdit(workspaceEdit);
-
-                    if (isConnector) {
-                        // Temp fix: ResolveMissingDependencies does not work unless we call didOpen, This needs to be fixed in the LS
-                        await StateMachine.langClient().didOpen({
-                            textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                        });
-                    }
-                }
-            }
-        } catch (error) {
-            console.log(">>> error updating source", error);
+    private getArtifactDataFromNodeKind(nodeKind: NodeKind): ArtifactData {
+        switch (nodeKind) {
+            case 'FUNCTION':
+                return { artifactType: DIRECTORY_MAP.FUNCTION };
+            case 'FUNCTION_DEFINITION':
+                return { artifactType: DIRECTORY_MAP.FUNCTION };
+            case 'AUTOMATION':
+                return { artifactType: DIRECTORY_MAP.AUTOMATION };
+            case 'DATA_MAPPER_DEFINITION':
+                return { artifactType: DIRECTORY_MAP.DATA_MAPPER };
+            case 'NP_FUNCTION_DEFINITION':
+                return { artifactType: DIRECTORY_MAP.NP_FUNCTION };
+            // Add other cases as needed
+            default:
+                return undefined;
         }
     }
 
@@ -554,18 +504,18 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
+    async deleteFlowNode(params: BISourceCodeRequest): Promise<UpdatedArtifactsResponse> {
         console.log(">>> requesting bi delete node from ls", params);
         // Clean project diagnostics before deleting flow node
         await cleanAndValidateProject(StateMachine.langClient(), StateMachine.context().projectUri);
-        
+
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .deleteFlowNode(params)
                 .then(async (model) => {
                     console.log(">>> bi delete node from ls", model);
-                    await this.updateSource(model, params.flowNode);
-                    resolve(model);
+                    const artifacts = await updateSourceCode({ textEdits: model.textEdits });
+                    resolve({ artifacts });
                 })
                 .catch((error) => {
                     console.log(">>> error fetching delete node from ls", error);
@@ -636,10 +586,120 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             }
 
             const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
-            await this.updateSource(response, undefined, false);
+            await updateSourceCode({ textEdits: response.textEdits }, { artifactType: DIRECTORY_MAP.CONFIGURABLE });
             resolve(response);
         });
     }
+
+    async getConfigVariablesV2(): Promise<ConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const projectPath = path.join(StateMachine.context().projectUri);
+            const showLibraryConfigVariables = ballerinaExtInstance.showLibraryConfigVariables();
+            const variables = await StateMachine.langClient().getConfigVariablesV2({
+                projectPath: projectPath,
+                includeLibraries: showLibraryConfigVariables !== false
+            }) as ConfigVariableResponse;
+            resolve(variables);
+        });
+    }
+
+    async updateConfigVariablesV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+        return new Promise(async (resolve) => {
+            const req: UpdateConfigVariableRequestV2 = params;
+            if (!fs.existsSync(params.configFilePath)) {
+                // Create config.bal if it doesn't exist
+                writeBallerinaFileDidOpen(params.configFilePath, "\n");
+            }
+            const response = await StateMachine.langClient().updateConfigVariablesV2(req) as BISourceCodeResponse;
+            await updateSourceCode({ textEdits: response.textEdits }, { artifactType: DIRECTORY_MAP.CONFIGURABLE });
+            resolve(response);
+        });
+    }
+
+    async deleteConfigVariableV2(params: UpdateConfigVariableRequestV2): Promise<BISourceCodeResponse> {
+        return new Promise(async (resolve) => {
+            const req: UpdateConfigVariableRequestV2 = params;
+            if (!fs.existsSync(params.configFilePath)) {
+                // Create config.bal if it doesn't exist
+                writeBallerinaFileDidOpen(params.configFilePath, "\n");
+            }
+            const response = await StateMachine.langClient().deleteConfigVariableV2(req) as BISourceCodeResponse;
+            await updateSourceCode({ textEdits: response.textEdits }, { artifactType: DIRECTORY_MAP.CONFIGURABLE });
+            resolve(response);
+        });
+    }
+
+    async getConfigVariableNodeTemplate(params: GetConfigVariableNodeTemplateRequest): Promise<BINodeTemplateResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getConfigVariableNodeTemplate(params)
+                .then((model) => {
+                    console.log(">>> bi node template from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching node template from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
+    }
+
+
+    // Function to open config toml
+    async openConfigToml(params: OpenConfigTomlRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const currentProject: BallerinaProject | undefined = await getCurrentBIProject(params.filePath);
+
+            const configFilePath = path.join(StateMachine.context().projectUri, "config.toml");
+            const ignoreFile = path.join(StateMachine.context().projectUri, ".gitignore");
+            const docLink = "https://ballerina.io/learn/provide-values-to-configurable-variables/#provide-via-toml-syntax";
+            const uri = Uri.file(configFilePath);
+
+            if (!fs.existsSync(configFilePath)) {
+                const updatedContent = `
+# Configuration file for "${currentProject.packageName}"
+# 
+# This file contains configuration values for configurable variables in your Ballerina code.
+# Both package-specific and imported module configurations are included below.
+# 
+# Learn more about configurable variables:
+# ${docLink}
+#
+# Note: This file is automatically added to .gitignore to protect sensitive information.
+`;
+                // Create and write content to the config file
+                fs.writeFile(configFilePath, updatedContent, (error) => {
+                    if (error) {
+                        window.showErrorMessage('Unable to create the Config.toml file: ' + error);
+                        return;
+                    }
+                });
+
+                if (fs.existsSync(ignoreFile)) {
+                    const ignoreUri = Uri.file(ignoreFile);
+                    let ignoreContent: string = fs.readFileSync(ignoreUri.fsPath, 'utf8');
+                    if (!ignoreContent.includes("config.toml")) {
+                        ignoreContent += `\n${"config.toml"}\n`;
+                        fs.writeFile(ignoreUri.fsPath, ignoreContent, function (error) {
+                            if (error) {
+                                return window.showErrorMessage('Unable to update the .gitIgnore file: ' + error);
+                            }
+                            window.showInformationMessage('Successfully updated the .gitIgnore file.');
+                        });
+                    }
+                }
+            }
+
+            await workspace.openTextDocument(uri).then(async document => {
+                window.showTextDocument(document, { preview: false });
+            });
+            resolve();
+        });
+
+    }
+
 
     async getReadmeContent(): Promise<ReadmeContentResponse> {
         return new Promise((resolve) => {
@@ -878,7 +938,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .deleteByComponentInfo(params)
                 .then(async (model) => {
                     console.log(">>> bi delete node from ls by componentInfo", model);
-                    await this.updateSource(model);
+                    await updateSourceCode({ textEdits: model.textEdits });
                     resolve(model);
                 })
                 .catch((error) => {
@@ -1106,7 +1166,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .updateType({ filePath, type: params.type, description: "" })
                 .then(async (updateTypeResponse: UpdateTypeResponse) => {
                     console.log(">>> update type response", updateTypeResponse);
-                    await this.updateSource(updateTypeResponse);
+                    await updateSourceCode({ textEdits: updateTypeResponse.textEdits });
                     resolve(updateTypeResponse);
                 }).catch((error) => {
                     console.log(">>> error fetching types from ls", error);
@@ -1163,7 +1223,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async promptGithubCopilotAuthNotificaiton(): Promise<void> {
         //TODO: Prevent multiple notifications
         vscode.window.showInformationMessage(
-            'Ballerina Integrator supports visual completions with GitHub Copilot.',
+            'WSO2 Integrator: BI supports visual completions with GitHub Copilot.',
             'Authorize using GitHub Copilot'
         ).then(selection => {
             if (selection === 'Authorize using GitHub Copilot') {
@@ -1218,7 +1278,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 .createGraphqlClassType({ filePath, type: params.type, description: "" })
                 .then(async (updateTypeResponse: UpdateTypeResponse) => {
                     console.log(">>> create graphql class type response", updateTypeResponse);
-                    await this.updateSource(updateTypeResponse);
+                    await updateSourceCode({ textEdits: updateTypeResponse.textEdits });
                     resolve(updateTypeResponse);
                 }).catch((error) => {
                     console.log(">>> error fetching class type from ls", error);
@@ -1242,7 +1302,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().updateClassField(params);
-                await this.updateSource({ textEdits: res.textEdits });
+                await updateSourceCode({ textEdits: res.textEdits });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -1254,7 +1314,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().updateServiceClass(params);
-                await this.updateSource({ textEdits: res.textEdits });
+                await updateSourceCode({ textEdits: res.textEdits });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -1266,7 +1326,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 const res: SourceEditResponse = await StateMachine.langClient().addClassField(params);
-                await this.updateSource({ textEdits: res.textEdits });
+                await updateSourceCode({ textEdits: res.textEdits });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -1277,10 +1337,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async renameIdentifier(params: RenameIdentifierRequest): Promise<void> {
         const projectUri = StateMachine.context().projectUri;
         const filePath = path.join(projectUri, params.fileName);
-        StateMachine.setEditMode();
-        StateMachine.setTempData({
-            identifier: params.newName
-        });
+        // StateMachine.setTempData({
+        //     identifier: params.newName
+        // });
         const fileUri = Uri.file(filePath).toString();
         const request: RenameRequest = {
             textDocument: {
@@ -1294,6 +1353,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             const workspaceEdit = await StateMachine.langClient().rename(request);
 
             if (workspaceEdit && 'changes' in workspaceEdit && workspaceEdit.changes) {
+                // TODO: Check if this is the correct way to do this
                 const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
                 for (const [key, value] of Object.entries(workspaceEdit.changes)) {
@@ -1498,7 +1558,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             ).then(async (updateTypesresponse: UpdateTypesResponse) => {
                 console.log(">>> update type response", updateTypesresponse);
                 if (updateTypesresponse.textEdits) {
-                    await this.updateSource({ textEdits: updateTypesresponse.textEdits });
+                    await updateSourceCode({ textEdits: updateTypesresponse.textEdits });
                     resolve(updateTypesresponse);
                 } else {
                     console.log(">>> error updating types", updateTypesresponse?.errorMsg);

@@ -33,7 +33,7 @@ interface Props extends NewComponentWebviewProps {
 	isSaving?: boolean;
 	onNextClick: (data: ComponentFormEndpointsType) => void;
 	onBackClick: () => void;
-	form: UseFormReturn<ComponentFormEndpointsType>;
+	form: UseFormReturn<ComponentFormEndpointsType, any, undefined>;
 }
 
 export const ComponentFormEndpointsSection: FC<Props> = ({

@@ -14,6 +14,7 @@ import { Label } from "../../OverriddenLinkLayer/LabelWidget";
 import { IOType } from "@wso2-enterprise/mi-core";
 import styled from "@emotion/styled";
 import { IO_NODE_DEFAULT_WIDTH } from "../../utils/constants";
+import { useShallow } from "zustand/react/shallow";
 
 const DataImportContainer = styled.div`
     align-items: flex-start;
@@ -31,11 +32,13 @@ export interface DataImportNodeWidgetProps {
 export function DataImportNodeWidget(props: DataImportNodeWidgetProps) {
     const { ioType } = props;
 
-    const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
-		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType,
-        setIsSchemaOverridden: state.setIsSchemaOverridden
-	}));
+    const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(
+        useShallow(state => ({
+            setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+            setIOConfigPanelType: state.setIOConfigPanelType,
+            setIsSchemaOverridden: state.setIsSchemaOverridden
+        }))
+    );
 
     const handleOnClick = () => {
         setIsIOConfigPanelOpen(true);
@@ -44,7 +47,7 @@ export function DataImportNodeWidget(props: DataImportNodeWidgetProps) {
     };
 
     return (
-        <DataImportContainer onClick={handleOnClick}>
+        <DataImportContainer onClick={handleOnClick} data-testid={`${ioType}-data-import-node`}>
             <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', backgroundColor: 'var(--vscode-activityBarTop.activeForeground' }}>
             <div style={{padding: '100px', justifyContent: 'space-between'}}>
                 <Codicon sx={{ margin: 5, zoom: 5}}  name="new-file" />

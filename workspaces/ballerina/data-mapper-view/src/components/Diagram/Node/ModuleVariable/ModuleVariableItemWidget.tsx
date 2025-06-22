@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
 
@@ -42,18 +42,20 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
     const hasFields = !!typeDesc?.fields?.length;
 
     const label = (
-        <span style={{ marginRight: "auto" }} data-testid={`module-var-widget-label-${id}`}>
-            <span className={classes.valueLabel}>
-                {valueLabel ? valueLabel : id}
-                {typeName && ":"}
-            </span>
-            {typeName && (
-                <span className={classes.inputTypeLabel}>
-                    {typeName}
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{ marginRight: "auto" }} data-testid={`module-var-widget-label-${id}`}>
+                <span className={classes.valueLabel}>
+                    {valueLabel ? valueLabel : id}
+                    {typeName && ":"}
                 </span>
-            )}
+                {typeName && (
+                    <span className={classes.inputTypeLabel}>
+                        {typeName}
+                    </span>
+                )}
 
-        </span>
+            </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {

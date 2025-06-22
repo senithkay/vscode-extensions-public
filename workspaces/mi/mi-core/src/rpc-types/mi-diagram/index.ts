@@ -239,7 +239,11 @@ import {
     BuildProjectRequest,
     DeployProjectRequest,
     DeployProjectResponse,
-    DevantMetadata
+    DevantMetadata,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse,
+    GetConnectorIconRequest,
+    GetConnectorIconResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -293,7 +297,7 @@ export interface MiDiagramAPI {
     getDataService: (params: RetrieveDataServiceRequest) => Promise<RetrieveDataServiceResponse>;
     askDriverPath: () => Promise<DriverPathResponse>;
     addDriverToLib: (params: AddDriverToLibRequest) => Promise<AddDriverToLibResponse>;
-    deleteDriverFromLib: (params: AddDriverToLibRequest) => Promise<void>;
+    deleteDriverFromLib: (params: AddDriverToLibRequest) => void;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
@@ -313,7 +317,7 @@ export interface MiDiagramAPI {
     highlightCode: (params: HighlightCodeRequest) => void;
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
-    initUndoRedoManager: (params: UndoRedoParams) => Promise<void>;
+    initUndoRedoManager: (params: UndoRedoParams) => void;
     undo: (params: UndoRedoParams) => Promise<boolean>;
     redo: (params: UndoRedoParams) => Promise<boolean>;
     getDefinition: (params: GetDefinitionRequest) => Promise<GetDefinitionResponse>;
@@ -343,6 +347,7 @@ export interface MiDiagramAPI {
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
+    getConnectorIcon: (params: GetConnectorIconRequest) => Promise<GetConnectorIconResponse>
     saveInboundEPUischema: (params: SaveInboundEPUischemaRequest) => Promise<boolean>;
     getInboundEPUischema: (params: GetInboundEPUischemaRequest) => Promise<GetInboundEPUischemaResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
@@ -364,23 +369,23 @@ export interface MiDiagramAPI {
     getDevantMetadata: () => Promise<DevantMetadata>;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
-    refreshAccessToken: () => Promise<void>;
+    refreshAccessToken: () => void;
     getOpenAPISpec: (params: SwaggerTypeRequest) => Promise<SwaggerFromAPIResponse>;
-    editOpenAPISpec: (params: SwaggerTypeRequest) => Promise<void>;
+    editOpenAPISpec: (params: SwaggerTypeRequest) => void;
     compareSwaggerAndAPI: (params: SwaggerTypeRequest) => Promise<CompareSwaggerAndAPIResponse>;
-    updateSwaggerFromAPI: (params: SwaggerTypeRequest) => Promise<void>;
-    updateAPIFromSwagger: (params: UpdateAPIFromSwaggerRequest) => Promise<void>;
+    updateSwaggerFromAPI: (params: SwaggerTypeRequest) => void;
+    updateAPIFromSwagger: (params: UpdateAPIFromSwaggerRequest) => void;
     updateTestSuite: (params: UpdateTestSuiteRequest) => Promise<UpdateTestSuiteResponse>;
     updateTestCase: (params: UpdateTestCaseRequest) => Promise<UpdateTestCaseResponse>;
     updateMockService: (params: UpdateMockServiceRequest) => Promise<UpdateMockServiceResponse>;
     getAllTestSuites: () => Promise<GetAllTestSuitsResponse>;
     getAllMockServices: () => Promise<GetAllMockServicesResponse>;
-    openDependencyPom: (params: OpenDependencyPomRequest) => Promise<void>;
+    openDependencyPom: (params: OpenDependencyPomRequest) => void;
     getAllDependencies: (params: getAllDependenciesRequest) => Promise<GetAllDependenciesResponse>;
     testDbConnection: (params: TestDbConnectionRequest) => Promise<TestDbConnectionResponse>;
-    markAsDefaultSequence: (params: MarkAsDefaultSequenceRequest) => Promise<void>;
+    markAsDefaultSequence: (params: MarkAsDefaultSequenceRequest) => void;
     getSubFolderNames: (path: GetSubFoldersRequest) => Promise<GetSubFoldersResponse>;
-    renameFile: (params: FileRenameRequest) => Promise<void>;
+    renameFile: (params: FileRenameRequest) => void;
     openUpdateExtensionPage: () => void;
     checkDBDriver: (className: string) => Promise<CheckDBDriverResponse>;
     addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
@@ -396,7 +401,7 @@ export interface MiDiagramAPI {
     getMediatorInputOutputSchema: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
-    updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
+    updateMediator: (param: UpdateMediatorRequest) => void;
     getLocalInboundConnectors: () => Promise<LocalInboundConnectorsResponse>;
     getConnectionSchema: (param: GetConnectionSchemaRequest) => Promise<GetConnectionSchemaResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
@@ -404,6 +409,7 @@ export interface MiDiagramAPI {
     testConnectorConnection: (params: TestConnectorConnectionRequest) => Promise<TestConnectorConnectionResponse>;
     saveConfig: (params: SaveConfigRequest) => Promise<SaveConfigResponse>;
     getEULALicense: () => Promise<string>;
+    getCodeDiagnostics: (params: GetCodeDiagnosticsReqeust) => Promise<GetCodeDiagnosticsResponse>;
     shouldDisplayPayloadAlert: () => Promise<boolean>;
     displayPayloadAlert: () => Promise<void>;
     closePayloadAlert: () => Promise<void>;

@@ -40,7 +40,7 @@ import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing, TruncatedLabel } from '@wso2-enterprise/ui-toolkit';
 import { useIONodesStyles } from '../../../../styles';
 
 export interface EditableMappingConstructorWidgetProps {
@@ -118,17 +118,19 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	};
 
 	const label = (
-		<span style={{ marginRight: "auto" }}>
-			{valueLabel && (
-				<span className={classes.valueLabel}>
-					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
-					{typeName && ":"}
+		<TruncatedLabel style={{ marginRight: "auto" }}>
+			<span style={{ marginRight: "auto" }}>
+				{valueLabel && (
+					<span className={classes.valueLabel}>
+						<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
+						{typeName && ":"}
+					</span>
+				)}
+				<span className={classes.outputTypeLabel}>
+					{unionTypeInfo ? getUnionType() : typeName || ''}
 				</span>
-			)}
-			<span className={classes.outputTypeLabel}>
-				{unionTypeInfo ? getUnionType() : typeName || ''}
 			</span>
-		</span>
+		</TruncatedLabel>
 	);
 
 	const handleExpand = () => {
