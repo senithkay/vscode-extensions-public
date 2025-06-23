@@ -7,18 +7,41 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import type { Preview } from '@storybook/react-vite';
-import '../.storybook/darkTheme.css';
-import "@vscode/webview-ui-toolkit/dist/toolkit.js";
 
 const preview: Preview = {
-  parameters: {
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/i,
+  globalTypes: {
+    theme: {
+      name: 'Theme',
+      description: 'Global theme for components',
+      defaultValue: 'light',
+      toolbar: {
+        icon: 'paintbrush',
+        items: [
+          { value: 'light', title: 'Light Theme' },
+          { value: 'dark', title: 'Dark Theme' }
+        ],
+        dynamicTitle: true,
       },
     },
   },
+  decorators: [
+    (Story, context) => {
+      // Remove any existing theme style
+      const id = 'vscode-theme-style';
+      const existing = document.getElementById(id);
+      if (existing) existing.remove();
+      // Add the correct theme CSS
+      const link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = context.globals.theme === 'dark'
+        ? '/.storybook/darkTheme.css'
+        : '/.storybook/lightTheme.css';
+      document.head.appendChild(link);
+      return Story();
+    }
+  ],
 };
 
 export default preview;
