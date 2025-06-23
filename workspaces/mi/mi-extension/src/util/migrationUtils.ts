@@ -10,6 +10,7 @@
 import { FileStructure, ImportProjectRequest, ImportProjectResponse } from '@wso2-enterprise/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as childprocess from 'child_process';
 import { parseString, Builder } from 'xml2js';
 import { v4 as uuidv4 } from 'uuid';
 import { dockerfileContent, rootPomXmlContent } from './templates';
@@ -18,7 +19,6 @@ import { commands, Uri, window, workspace } from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { updatePomForClassMediator, LATEST_MI_VERSION } from './onboardingUtils';
-import { execSync } from 'child_process';
 import { setJavaHomeInEnvironmentAndPath } from '../debugger/debugHelper';
 
 enum Nature {
@@ -145,7 +145,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
         deleteEmptyFoldersInPath(source);
 
         const items = fs.readdirSync(destinationFolderPath, { withFileTypes: true });
-        const projectDirToResolvedPomMap = generateProjectDirToResolvedPomMap(destinationFolderPath);
+        const projectDirToResolvedPomMap = await generateProjectDirToResolvedPomMap(destinationFolderPath);
         
         let folderStructureCreated = false;
         for (let i = 0; i < items.length; i++) {
@@ -206,12 +206,12 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
  * @param multiModuleProjectDir - The root directory of the multi-module Maven project.
  * @returns A map where the keys are normalized project directory paths and the values are the corresponding resolved `<project>` XML strings.
  */
-export function generateProjectDirToResolvedPomMap(multiModuleProjectDir: string): Map<string, string> {
+export async function generateProjectDirToResolvedPomMap(multiModuleProjectDir: string): Promise<Map<string, string>> {
     const projectDirToResolvedPomMap = new Map<string, string>();
 
     copyMavenWrapper(extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')), multiModuleProjectDir);
     const mavenPath = path.join(multiModuleProjectDir, process.platform === 'win32' ? 'mvnw.cmd' : 'mvnw');
-    const resolvedPomContent = getResolvedPomXmlContent(path.join(multiModuleProjectDir, 'pom.xml'), mavenPath);
+    const resolvedPomContent = await getResolvedPomXmlContent(path.join(multiModuleProjectDir, 'pom.xml'), mavenPath);
 
     const projectRegex = /<project[\s\S]*?<\/project>/g;
     let match;
@@ -229,7 +229,9 @@ export function generateProjectDirToResolvedPomMap(multiModuleProjectDir: string
             if (srcMainIndex !== -1) {
                 cleanedProjectDir = cleanedProjectDir.substring(0, srcMainIndex);
             }
-
+            if (process.platform === 'win32' && cleanedProjectDir[1] === ':') {
+                cleanedProjectDir = cleanedProjectDir[0].toLowerCase() + cleanedProjectDir.slice(1); 
+            }
             projectDirToResolvedPomMap.set(cleanedProjectDir.trim(), projectXml);
         }
     }
@@ -258,6 +260,8 @@ export function getProjectDetails(filePath: string, projectDirToResolvedPomMap?:
     if (fs.existsSync(pomPath)) {
         if (projectDirToResolvedPomMap) {
             const resolvedPomContent = projectDirToResolvedPomMap.get(filePath);
+            console.log(`Looking up resolved POM for filePath: ${filePath}`);
+            console.log('Resolved POM content:', resolvedPomContent);
             const parser = new XMLParser({ ignoreAttributes: false });
             const parsed = resolvedPomContent ? parser.parse(resolvedPomContent) : {};
             projectName = parsed?.project?.name;
@@ -632,30 +636,51 @@ function extractXmlFromMavenOutput(output: string): string | null {
  * @param mvnPath - The path to the Maven executable to use for running the command.
  * @returns The resolved effective POM XML content as a string, or an empty string if extraction fails.
  */
-export function getResolvedPomXmlContent(pomFilePath: string, mvnPath: string): string {
-    let mvnOutput: string;
-    try {
-        mvnOutput = execSync(`${mvnPath} -f "${pomFilePath}" help:effective-pom`, {
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'ignore'], // ignore stderr, capture stdout
+export async function getResolvedPomXmlContent(pomFilePath: string, mvnPath: string): Promise<string> {
+    const command = `${mvnPath} -f "${pomFilePath}" help:effective-pom`;
+    const pomDir = path.dirname(pomFilePath);
+
+    return new Promise((resolve, reject) => {
+        let output = '';
+        let errorOutput = '';
+
+        const child = childprocess.spawn(command, [], {
+            cwd: pomDir,
+            shell: true,
             env: {
                 ...process.env,
                 ...setJavaHomeInEnvironmentAndPath()
             }
         });
-    } catch (err) {
-        console.error(`Failed to run Maven help:effective-pom for ${pomFilePath}:`, err);
-        mvnOutput = '';
-    }
 
-    const xmlContent = extractXmlFromMavenOutput(mvnOutput);
+        child.stdout.on('data', (data) => {
+            output += data.toString();
+        });
 
-    if (!xmlContent) {
-        console.warn(`Maven output does not contain effective POM XML content for pom file: ${pomFilePath}`);
-        return '';
-    }
+        child.stderr.on('data', (data) => {
+            errorOutput += data.toString();
+        });
 
-    return xmlContent;
+        child.on('close', (code) => {
+            if (code === 0) {
+                const xmlContent = extractXmlFromMavenOutput(output);
+                if (!xmlContent) {
+                    console.warn(`Maven output does not contain effective POM XML content for pom file: ${pomFilePath}`);
+                    resolve('');
+                } else {
+                    resolve(xmlContent);
+                }
+            } else {
+                console.error(`Failed to run Maven help:effective-pom for ${pomFilePath}. Exit code: ${code}\n${errorOutput}`);
+                resolve('');
+            }
+        });
+
+        child.on('error', (err) => {
+            console.error(`Failed to start Maven process for ${pomFilePath}:`, err);
+            resolve('');
+        });
+    });
 }
 
 /**
