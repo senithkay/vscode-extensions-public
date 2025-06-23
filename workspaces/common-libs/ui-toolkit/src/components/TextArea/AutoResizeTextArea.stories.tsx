@@ -7,25 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import React from 'react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { AutoResizeTextArea } from './TextArea';
 
-export default {
+const meta: Meta<typeof AutoResizeTextArea> = {
     title: 'Auto Resize Text Area',
-    component: AutoResizeTextArea
-} as ComponentMeta<typeof AutoResizeTextArea>;
+    component: AutoResizeTextArea,
+};
+export default meta;
 
-export const Default: ComponentStory<typeof AutoResizeTextArea> = () => {
-    const [value, setValue] = useState<string>('Hello ${world}Hello ${world}Hello ${world}Hello ${world}Hello ${world}Hello ${world}Hello ${world}Hello ${world}');
+type Story = StoryObj<typeof AutoResizeTextArea>;
 
-    return (
-        <div style={{ width: '300px' }}>
-            <AutoResizeTextArea
-                value={value}
-                growRange={{ start: 1, offset: 5 }}
-                onChange={e => setValue(e.target.value)}
-            />
-        </div>
-    );
+export const Default: Story = {
+    render: () => {
+        const [value, setValue] = React.useState<string>('Hello ${world}Hello ${world}Hello ${world}Hello ${world}Hello ${world}Hello ${world}Hello ${world}Hello ${world}');
+        return (
+            <div style={{ width: '300px' }}>
+                <AutoResizeTextArea
+                    value={value}
+                    growRange={{ start: 1, offset: 5 }}
+                    onChange={e => setValue(e.target.value)}
+                />
+            </div>
+        );
+    },
 };

@@ -8,8 +8,7 @@
  */
 
 import React, { useState } from "react";
-
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { FormExpressionEditorWrapper as FormExpressionEditor } from ".";
 
@@ -64,52 +63,57 @@ const filterCompletions = (searchString: string) => {
 };
 
 /* Form Expression Editor */
-export default {
+const meta = {
     title: "Form Expression Editor",
     component: FormExpressionEditor,
-} as ComponentMeta<typeof FormExpressionEditor>;
+} satisfies Meta<typeof FormExpressionEditor>;
+export default meta;
 
-export const Default: ComponentStory<typeof FormExpressionEditor> = () => {
-    const [value, setValue] = useState<string>("");
-    const [completions, setCompletions] = useState<CompletionItem[]>([]);
+type Story = StoryObj<typeof FormExpressionEditor>;
 
-    const handleOnChange = (value: string) => {
-        setValue(value);
-        setCompletions(filterCompletions(value));
-    };
+export const Default: Story = {
+    render: () => {
+        const [value, setValue] = useState<string>("");
+        const [completions, setCompletions] = useState<CompletionItem[]>([]);
 
-    const handleOnCancel = () => {
-        console.log("Triggering cancel action");
-        setCompletions([]);
-    };
+        const handleOnChange = (value: string) => {
+            setValue(value);
+            setCompletions(filterCompletions(value));
+        };
 
-    const handleOnFocus = () => {
-        console.log("Triggering focus action");
-        setCompletions(filterCompletions(value));
-    };
+        const handleOnCancel = () => {
+            console.log("Triggering cancel action");
+            setCompletions([]);
+        };
 
-    const handleOnBlur = () => {
-        console.log("Triggering blur action");
-        handleOnCancel();
-    };
+        const handleOnFocus = () => {
+            console.log("Triggering focus action");
+            setCompletions(filterCompletions(value));
+        };
 
-    const handleOnCompletionSelect = (value: string, completion: CompletionItem) => {
-        console.log("Triggering completion select action", completion);
-        setValue(value);
-        setCompletions([]);
-    };
+        const handleOnBlur = () => {
+            console.log("Triggering blur action");
+            handleOnCancel();
+        };
 
-    return (
-        <div style={{ width: "350px" }}>
-            <FormExpressionEditor
-                value={value}
-                onChange={handleOnChange}
-                completions={completions}
-                onCompletionSelect={handleOnCompletionSelect}
-                onCancel={handleOnCancel}
-                onFocus={handleOnFocus}
-                onBlur={handleOnBlur}
-            />
-        </div>
-    );
+        const handleOnCompletionSelect = (value: string, completion: CompletionItem) => {
+            console.log("Triggering completion select action", completion);
+            setValue(value);
+            setCompletions([]);
+        };
+
+        return (
+            <div style={{ width: "350px" }}>
+                <FormExpressionEditor
+                    value={value}
+                    onChange={handleOnChange}
+                    completions={completions}
+                    onCompletionSelect={handleOnCompletionSelect}
+                    onCancel={handleOnCancel}
+                    onFocus={handleOnFocus}
+                    onBlur={handleOnBlur}
+                />
+            </div>
+        );
+    },
 };

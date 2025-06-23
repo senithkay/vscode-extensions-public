@@ -7,25 +7,31 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { storiesOf } from "@storybook/react";
+import React from "react";
+import { Meta, StoryObj } from "@storybook/react-vite";
 import { SplitView } from "./SplitView";
 import styled from "@emotion/styled";
-import React from "react";
 
 const Container = styled.div`
     min-height: 500px;
 `;
 
-export const SplitViewStory = () => {
-    return (
+const meta: Meta<typeof SplitView> = {
+    component: SplitView,
+    title: "SplitView",
+};
+export default meta;
+
+type Story = StoryObj<typeof SplitView>;
+
+export const Default: Story = {
+    render: () => (
         <Container>
-            <SplitView sx={{height: "100vh"}}>
+            <SplitView sx={{ height: "100vh" }}>
                 <div><h1>Div1</h1></div>
                 <div><h1>Div2</h1></div>
                 <div><h1>Div3</h1></div>
             </SplitView>
         </Container>
-    );
+    ),
 };
-
-storiesOf("SplitView").add("SplitViewStory", () => <SplitViewStory />);

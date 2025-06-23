@@ -6,13 +6,23 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { HorizontalIconsWithSeparator as IconsWrapper, IconContainerProps } from "./HorizontalIconsWithSeparator";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { HorizontalIconsWithSeparator as IconsWrapper } from "./HorizontalIconsWithSeparator";
 
-const Template: ComponentStory<typeof IconsWrapper> = (args: IconContainerProps) => <IconsWrapper {...args} />;
+const meta = {
+    component: IconsWrapper,
+    title: "Sample Form",
+} satisfies Meta<typeof IconsWrapper>;
+export default meta;
 
-export const HorizontalIconsWithSeparator = Template.bind();
-HorizontalIconsWithSeparator.args = { sx: { width: 600 }, leftIconName: "ballerina", rightIconName: "ellipsis", title: "Sample", description: "Sample Description" };
+type Story = StoryObj<typeof IconsWrapper>;
 
-export default { component: HorizontalIconsWithSeparator, title: "Sample Form" };
+export const HorizontalIconsWithSeparator: Story = {
+    args: {
+        sx: { width: 600 },
+        leftIconName: "ballerina",
+        rightIconName: "ellipsis",
+        title: "Sample",
+        description: "Sample Description"
+    }
+};

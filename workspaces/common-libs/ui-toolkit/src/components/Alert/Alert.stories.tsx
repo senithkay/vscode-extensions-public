@@ -7,22 +7,28 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentStory } from "@storybook/react";
 import React from "react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Alert, AlertProps } from "./Alert";
 
-const Template: ComponentStory<typeof Alert> = (args: AlertProps) => (
-    <Alert {...args}>
-        <div>Child components go here...</div>
-    </Alert>
-);
+const meta = {
+    component: Alert,
+    title: "Alert",
+} satisfies Meta<typeof Alert>;
+export default meta;
 
-export const Default = Template.bind();
-Default.args = {
-    title: "Alert Title",
-    subTitle: "Alert Subtitle",
-    variant: "primary",
+type Story = StoryObj<typeof Alert>;
+
+export const Default: Story = {
+    args: {
+        title: "Alert Title",
+        subTitle: "Alert Subtitle",
+        variant: "primary",
+    },
+    render: (args: AlertProps) => (
+        <Alert {...args}>
+            <div>Child components go here...</div>
+        </Alert>
+    ),
 };
-
-export default { component: Alert, title: "Alert" };
 

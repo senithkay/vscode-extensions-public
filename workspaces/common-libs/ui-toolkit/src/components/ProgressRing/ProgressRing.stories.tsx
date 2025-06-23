@@ -6,13 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { Meta, Story } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ProgressRing } from "./ProgressRing";
 
-export default { title: "ProgressRing", component: ProgressRing } as Meta;
+const meta = {
+    title: "ProgressRing",
+    component: ProgressRing,
+} satisfies Meta<typeof ProgressRing>;
+export default meta;
 
-const Template: Story = (args: any) => <ProgressRing {...args} />;
+type Story = StoryObj<typeof ProgressRing>;
 
-export const Default = Template.bind({});
-
+export const Default: Story = {
+    args: {},
+};

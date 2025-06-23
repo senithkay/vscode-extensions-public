@@ -11,17 +11,22 @@
  *  associated services.
  */
 import React from "react";
-import { storiesOf } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react-vite";
 import { TruncatedLabel } from "./TruncatedLabel";
 
-const TruncatedLabelComponent = () => {
-    return (
+const meta: Meta<typeof TruncatedLabel> = {
+    component: TruncatedLabel,
+    title: "TruncatedLabel",
+};
+export default meta;
+
+type Story = StoryObj<typeof TruncatedLabel>;
+
+export const Default: Story = {
+    render: () => (
         <TruncatedLabel style={{ width: "50px" }}>
             <span>Truncated</span>
             <span>Label Content</span>
         </TruncatedLabel>
-
-    );
-}
-
-storiesOf("TruncatedLabel").add("Default", () => <TruncatedLabelComponent />);
+    ),
+};
