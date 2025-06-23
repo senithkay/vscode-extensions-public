@@ -62,12 +62,23 @@ export class ConnectorStore {
         }
     }
 
-    public async importConnector(fileName: string, isZip: boolean = true ) {
-        if (isZip) {
-            const importBtn = await this.webView.waitForSelector(`div:text("For gRPC (Proto)") >> ../..`);
+    public async importConnector(fileName: string, type: 'proto' | 'zip' | 'OpenAPI') {
+        console.log(`Importing connector from file: ${fileName}`);
+        if (type === 'proto') {
+            console.log(`Importing gRPC (Proto) connector from file: ${fileName}`);
+            const dropdownBtn = this.webView.locator('#dropdown-icon-openapi i')
+            await dropdownBtn.waitFor();
+            await dropdownBtn.click();
+            console.log(`Clicked on dropdown button for import options`);
+            const option = this.webView.getByRole('heading', { name: 'For gRPC (Proto)' });
+            await option.waitFor();
+            await option.click();
+            const importBtn = this.webView.getByText('Import (proto)');
+            await importBtn.waitFor();
             await importBtn.click();
-        } else {
-            const importBtn = await this.webView.waitForSelector(`div:text("For REST (OpenAPI)") >> ../..`);
+        } else if (type === 'OpenAPI') {
+            const importBtn = this.webView.getByText('Import (openapi)');
+            await importBtn.waitFor();
             await importBtn.click();
         }
 
@@ -83,8 +94,10 @@ export class ConnectorStore {
         const loader = this.webView.locator(`div:text("Importing Connector...")`);
         await loader.waitFor();
 
-        const addNewConnection = this.webView.locator(`h2:text("Add New Connection")`);
-        await addNewConnection.waitFor();
+        if (type !== 'zip') {
+            const addNewConnection = this.webView.locator(`h2:text("Add New Connection")`);
+            await addNewConnection.waitFor();
+        }
     }
 
     async fillLocationPath(path: string) {
