@@ -109,6 +109,7 @@ const METADATA = 'metadata';
 const DATA_SOURCES = 'data-sources';
 const DATA_SERVICES = 'data-services';
 const CONNECTORS = 'connectors';
+const MAX_PROJECTS_TO_OPEN = 5;
 
 const SYNAPSE_TO_MI_ARTIFACT_FOLDER_MAP: Record<string, string> = {
     'api': 'apis',
@@ -146,22 +147,21 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
 
         const projectDirToResolvedPomMap = await generateProjectDirToResolvedPomMap(destinationFolderPath);
         
-        let folderStructureCreated = false;
-        folderStructureCreated = await createFolderStructuresForDistributionProjects(
+        const folderStructureCreatedCount = await createFolderStructuresForDistributionProjects(
             destinationFolderPath,
             directory,
             projectUuid,
             projectDirToResolvedPomMap
         );
         // If no folder structure was created, create one in the given directory
-        if (!folderStructureCreated) {
+        if (folderStructureCreatedCount == 0) {
             const folderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
             await createFolderStructure(directory, folderStructure);
             copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
             console.log("Created project structure for project: " + projectName);
         }
 
-        await migrateConfigs(projectUri, path.join(source, ".backup"), directory, projectDirToResolvedPomMap);
+        await migrateConfigs(projectUri, path.join(source, ".backup"), directory, projectDirToResolvedPomMap, folderStructureCreatedCount);
 
         window.showInformationMessage(`Successfully imported ${projectName} project`);
 
@@ -188,10 +188,15 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
  * @param directory - The base directory where new folder structures should be created.
  * @param projectUuid - The unique identifier for the project, used in folder structure generation.
  * @param projectDirToResolvedPomMap - A map from project directory paths to resolved POM file paths, used to extract project details.
- * @returns A promise that resolves to `true` if at least one folder structure was created, or `false` otherwise.
+ * @returns A promise that resolves to the number of folder structures created.
  */
-async function createFolderStructuresForDistributionProjects(destinationFolderPath: string, directory: string, projectUuid: string, projectDirToResolvedPomMap: Map<string, string>): Promise<boolean> {
-    let folderStructureCreated = false;
+async function createFolderStructuresForDistributionProjects(
+    destinationFolderPath: string,
+    directory: string,
+    projectUuid: string,
+    projectDirToResolvedPomMap: Map<string, string>
+): Promise<number> {
+    let folderStructureCount = 0;
     async function checkAndCreateFolderStructures(currentPath: string) {
         let items: fs.Dirent[];
         try {
@@ -214,12 +219,11 @@ async function createFolderStructuresForDistributionProjects(destinationFolderPa
                             const newFolderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
                             await createFolderStructure(newProjectDir, newFolderStructure);
                             copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), newProjectDir);
-                            folderStructureCreated = true;
+                            folderStructureCount++;
                             console.log("Created project structure for project: " + projectName);
                         }
                     } catch (err) {
                         console.error(`Failed to create folder structure at ${newProjectDir}:`, err);
-
                     }
                 } else {
                     // Recurse into subdirectories
@@ -229,7 +233,7 @@ async function createFolderStructuresForDistributionProjects(destinationFolderPa
         }
     }
     await checkAndCreateFolderStructures(destinationFolderPath);
-    return Promise.resolve(folderStructureCreated);
+    return folderStructureCount;
 }
 
 /**
@@ -248,7 +252,7 @@ async function createFolderStructuresForDistributionProjects(destinationFolderPa
 export async function generateProjectDirToResolvedPomMap(multiModuleProjectDir: string): Promise<Map<string, string>> {
     const projectDirToResolvedPomMap = new Map<string, string>();
 
-    copyMavenWrapper(extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')), multiModuleProjectDir);
+    await copyMavenWrapper(extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')), multiModuleProjectDir);
     const mavenPath = path.join(multiModuleProjectDir, process.platform === 'win32' ? 'mvnw.cmd' : 'mvnw');
     const resolvedPomContent = await getResolvedPomXmlContent(path.join(multiModuleProjectDir, 'pom.xml'), mavenPath);
 
@@ -350,7 +354,7 @@ export function getProjectDir(filePath: string): string {
     return path.dirname(normalizedPath);
 }
 
-export async function migrateConfigs(projectUri: string, source: string, target: string, projectDirToResolvedPomMap: Map<string, string>) {
+export async function migrateConfigs(projectUri: string, source: string, target: string, projectDirToResolvedPomMap: Map<string, string>, createdProjectCount: number): Promise<void> {
     // determine the project type here
     const projectType = determineProjectType(source);
     let hasClassMediatorModule = false;
@@ -384,7 +388,9 @@ export async function migrateConfigs(projectUri: string, source: string, target:
                         projectDirToResolvedPomMap
                     );
                     usedDepIds.forEach(depId => allUsedDependencyIds.add(depId));
-                    await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
+                    if (createdProjectCount <= MAX_PROJECTS_TO_OPEN) {
+                        await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
+                    }
                 } else {
                     // Recurse into subdirectories
                     await processDistributionDirsRecursively(sourcePath, targetPath);
@@ -393,7 +399,12 @@ export async function migrateConfigs(projectUri: string, source: string, target:
         }
         await processDistributionDirsRecursively(source, target);
         writeUnusedFileInfos(allUsedDependencyIds, artifactIdToFileInfoMap, source)
-        await commands.executeCommand('workbench.action.closeWindow');
+        if (createdProjectCount <= MAX_PROJECTS_TO_OPEN) {
+            await commands.executeCommand('workbench.action.closeWindow');
+        } else {
+            window.showInformationMessage(`Processed ${createdProjectCount} distribution projects. Too many projects were created to open automatically. Please open them manually.`);
+            commands.executeCommand('workbench.view.explorer');
+        }
     } else if (projectType === Nature.LEGACY) {
         const items = fs.readdirSync(source, { withFileTypes: true });
         items.forEach(item => {
@@ -414,6 +425,7 @@ export async function migrateConfigs(projectUri: string, source: string, target:
     if (hasClassMediatorModule) {
         await updatePomForClassMediator(projectUri);
     }
+    commands.executeCommand('setContext', 'MI.migrationStatus', 'done');
 }
 
 /**
@@ -1000,6 +1012,9 @@ function processArtifactsFolder(source: string, target: string) {
  */
 function copyConfigMetaData(configFiles: string[], targetDir: string, projectDirToMetaFilesMap: Map<string, string[]>) {
     const destDir = path.join(targetDir, SRC, MAIN, WSO2MI, RESOURCES, METADATA);
+    if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+    }
     for (const configFile of configFiles) {
         const projectDir = getProjectDir(configFile);
         const metaFiles = projectDirToMetaFilesMap.get(projectDir) || [];
@@ -1030,6 +1045,13 @@ function copyConfigTests(
 ) {
     const testTargetDir = path.join(targetDir, SRC, TEST, WSO2MI);
     const mockServicesTargetDir = path.join(targetDir, SRC, TEST, RESOURCES, MOCK_SERVICES);
+
+    if (!fs.existsSync(testTargetDir)) {
+        fs.mkdirSync(testTargetDir, { recursive: true });
+    }
+    if (!fs.existsSync(mockServicesTargetDir)) {
+        fs.mkdirSync(mockServicesTargetDir, { recursive: true });
+    }
 
     for (const configFile of configFiles) {
         const testFiles = configToTests.get(configFile) || [];
@@ -1264,6 +1286,9 @@ function resolveRegistryTargetPath(relativePath: string, registryPath: string): 
  */
 function updateRegistryArtifactXml(projectDir: string, artifacts: Artifact[]) {
     const targetRegistryPath = path.join(projectDir, SRC, MAIN, WSO2MI, RESOURCES, REGISTRY);
+    if (!fs.existsSync(targetRegistryPath)) {
+        fs.mkdirSync(targetRegistryPath, { recursive: true });
+    }
     const targetArtifactXmlPath = ensureArtifactXmlExists(targetRegistryPath);
     const targetXml = parseArtifactsXmlFile(targetArtifactXmlPath);
 
@@ -1532,9 +1557,13 @@ async function processCompositeExporterProject(
     if (hasClassMediatorModule) {
         await updatePomForClassMediator(target);
     }
-    updateRegistryArtifactXml(target, registryArtifactsList);
-    copyConfigMetaData(configFiles, target, projectDirToMetaFilesMap);
-    copyConfigTests(configFiles, target, configToTests, configToMockServices);
+    if (registryArtifactsList.length > 0) {
+        updateRegistryArtifactXml(target, registryArtifactsList);
+    }
+    if (configFiles.length > 0) {
+        copyConfigMetaData(configFiles, target, projectDirToMetaFilesMap);
+        copyConfigTests(configFiles, target, configToTests, configToMockServices);
+    }
     fixTestFilePaths(target);
 
     return usedDependencyIds;
@@ -1542,6 +1571,9 @@ async function processCompositeExporterProject(
 
 function fixTestFilePaths(source: string) {
     const testPath = path.join(source, 'src', 'test', 'wso2mi');
+    if (!fs.existsSync(testPath)) {
+        return;
+    }
     const items = fs.readdirSync(testPath, { withFileTypes: true });
     const options = {
         ignoreAttributes: false,
