@@ -15,7 +15,7 @@ import { BallerinaExtension } from '../../core';
 import { isSupportedSLVersion } from '../config';
 import * as fs from 'fs';
 import * as path from 'path';
-import _ from 'lodash';
+import { orderBy } from 'lodash';
 
 interface JdkInfo {
     name: string;
@@ -119,7 +119,7 @@ export function findHighestVersionJdk(directory: string): string | null {
             return null;
         }
         
-        const sortedJdks = _.orderBy(jdkInfos, [
+        const sortedJdks = orderBy(jdkInfos, [
             // sort by major version (descending)
             (jdk: JdkInfo) => jdk.parsedVersion[0] || 0,
             // sort by minor version (descending)
@@ -143,7 +143,8 @@ export function findHighestVersionJdk(directory: string): string | null {
 
 export function getServerOptions(extension: BallerinaExtension): ServerOptions {
     // Check if user wants to use Ballerina CLI language server or if version requires it
-    if (extension?.useDistributionLanguageServer() ||!isSupportedSLVersion(extension, 2201123) ) {
+    const BI_SUPPORTED_MINIMUM_VERSION = 2201123; // 2201.12.3
+    if (extension?.useDistributionLanguageServer() ||!isSupportedSLVersion(extension, BI_SUPPORTED_MINIMUM_VERSION) ) {
         return getServerOptionsUsingCLI(extension);
     } else {
         return getServerOptionsUsingJava(extension);

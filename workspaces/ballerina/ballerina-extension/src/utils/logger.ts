@@ -139,7 +139,7 @@ function logJavaInfo(extension: BallerinaExtension): void {
                 const jdkDir = findHighestVersionJdk(dependenciesDir);
                 
                 if (jdkDir) {
-                    debug(`JDK Path: ${path.join(dependenciesDir, jdkDir)}`);
+                    debug(`JDK Path: ${jdkDir}`);
                     
                     // Extract Java version from directory name
                     const versionMatch = jdkDir.match(/^jdk-(.+)-jre$/);
