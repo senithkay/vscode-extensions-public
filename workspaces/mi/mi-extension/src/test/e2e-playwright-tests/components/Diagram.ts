@@ -91,6 +91,19 @@ export class Diagram {
         await sidePanel.downloadConnector(name, version, true);
     }
 
+    public async clickImportModuleFile() {
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        console.log("Clicking on Import Module File");
+        await sidePanel.goToMediatorsPage();
+        console.log("Navigating to Import Module Page");
+        await sidePanel.goToAddModulesPage();
+        console.log("Navigating to Import Module Page");
+        await sidePanel.goImportModulePage();
+        console.log("Navigated to Import Module Page");
+    }
+        
+
     public async downloadConnectorThroughSearch(name: string, index: number = 0) {
         await this.clickPlusButtonByIndex(index);
 
@@ -380,6 +393,12 @@ export class SidePanel {
         const addModulesPageBtn = this.sidePanel.locator(`div:text("Add Module")`);
         await addModulesPageBtn.waitFor();
         await addModulesPageBtn.click();
+    }
+
+    public async goImportModulePage() {
+        const importModulesPageBtn = this.sidePanel.locator(`div:text("Import Module")`);
+        await importModulesPageBtn.waitFor();
+        await importModulesPageBtn.click();
     }
 
     public async goToMediatorsPage() {

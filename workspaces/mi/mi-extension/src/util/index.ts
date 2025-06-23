@@ -29,6 +29,7 @@ import { GetRecipientEPTemplatesArgs, getRecipientEPXml } from './template-engin
 import { GetTemplateEPTemplatesArgs, getTemplateEPXml } from './template-engine/mustach-templates/templateEndpoint';
 import { APIResourceArgs, getAPIResourceXml } from './template-engine/mustach-templates/API';
 import { getDataServiceXml, getDataSourceXml, DataServiceArgs, Datasource } from './template-engine/mustach-templates/DataService';
+import child_process from "child_process";
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -64,13 +65,36 @@ export function copyDockerResources(resourcePath: string, targetPath: string) {
 	fs.copyFileSync(path.join(resourcePath, 'wso2carbon.jks'), path.join(dockerResourcesPath, 'wso2carbon.jks'));
 }
 
-export function copyMavenWrapper(resourcePath: string, targetPath: string) {
+export async function copyMavenWrapper(resourcePath: string, targetPath: string) {
 	const mavenWrapperPropertiesPath = path.join(targetPath, '.mvn', 'wrapper');
 
 	fs.mkdirSync(mavenWrapperPropertiesPath, { recursive: true });
 	fs.copyFileSync(path.join(resourcePath, 'maven-wrapper.properties'), path.join(mavenWrapperPropertiesPath, 'maven-wrapper.properties'));
-	fs.copyFileSync(path.join(resourcePath, 'mvnw.cmd'), path.join(targetPath, 'mvnw.cmd'));
-	fs.copyFileSync(path.join(resourcePath, 'mvnw'), path.join(targetPath, 'mvnw'));
+	const copyMavenWrapperFiles = () => {
+		fs.copyFileSync(path.join(resourcePath, 'mvnw.cmd'), path.join(targetPath, 'mvnw.cmd'));
+		fs.copyFileSync(path.join(resourcePath, 'mvnw'), path.join(targetPath, 'mvnw'));
+	};
+
+	const isMavenInstalled = await isMavenInstalledGlobally();
+	if (isMavenInstalled) {
+		const status = child_process.spawn("mvn -N io.takari:maven:wrapper", [], { shell: true, cwd: targetPath });
+		status.on('close', (code) => {
+			if (code === 0) {
+				return;
+			}
+			copyMavenWrapperFiles();
+		});
+	} else {
+		copyMavenWrapperFiles();
+	}
+}
+
+async function isMavenInstalledGlobally(): Promise<boolean> {
+	return new Promise<boolean>((resolve) => {
+		const proc = child_process.spawn("mvn -version", [], { shell: true });
+		proc.on("error", () => resolve(false));
+		proc.on("exit", (code) => resolve(code === 0));
+	});
 }
 
 export function createGitignoreFile(targetPath: string): Promise<void> {

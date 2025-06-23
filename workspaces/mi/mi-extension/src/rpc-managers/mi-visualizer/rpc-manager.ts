@@ -77,7 +77,7 @@ import { copy } from 'fs-extra';
 
 const fs = require('fs');
 import { TextEdit } from "vscode-languageclient";
-import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
+import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom, getMIVersionFromPom } from '../../util/onboardingUtils';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -665,8 +665,16 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     async isSupportEnabled(configName: string): Promise<boolean> {
+        const projectRuntimeVersion = await getMIVersionFromPom();
         return new Promise((resolve, reject) => {
             try {
+                if (configName === "LEGACY_EXPRESSION_ENABLED") {
+                    const versions: string[] = ["4.0.0", "4.1.0", "4.2.0", "4.3.0"];
+                    if (projectRuntimeVersion && versions.includes(projectRuntimeVersion)) {
+                        resolve(true);
+                        return;
+                    }
+                }
                 const config = workspace.getConfiguration('MI');
                 resolve(config.get(configName) || false);
             } catch (error) {
