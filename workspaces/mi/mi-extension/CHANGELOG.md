@@ -2,6 +2,13 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [2.3.2] - 2025-06-23
+
+### Fixed
+
+Fixed: Error migrating multi-module projects containing expressions in pom.xml ([#1152](https://github.com/wso2/mi-vscode/issues/1152))     
+Fixed: Error migrating nested composite exporters in multi-module projects ([#1153](https://github.com/wso2/mi-vscode/issues/1153))
+
 ## [2.3.1] - 2025-06-20
 
 ### Fixed
