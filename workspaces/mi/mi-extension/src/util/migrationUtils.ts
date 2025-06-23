@@ -303,8 +303,6 @@ export function getProjectDetails(filePath: string, projectDirToResolvedPomMap?:
     if (fs.existsSync(pomPath)) {
         if (projectDirToResolvedPomMap) {
             const resolvedPomContent = projectDirToResolvedPomMap.get(filePath);
-            console.log(`Looking up resolved POM for filePath: ${filePath}`);
-            console.log('Resolved POM content:', resolvedPomContent);
             const parser = new XMLParser({ ignoreAttributes: false });
             const parsed = resolvedPomContent ? parser.parse(resolvedPomContent) : {};
             projectName = parsed?.project?.name;
@@ -402,7 +400,7 @@ export async function migrateConfigs(projectUri: string, source: string, target:
         if (createdProjectCount <= MAX_PROJECTS_TO_OPEN) {
             await commands.executeCommand('workbench.action.closeWindow');
         } else {
-            window.showInformationMessage(`Processed ${createdProjectCount} distribution projects. Too many projects were created to open automatically. Please open them manually.`);
+            window.showWarningMessage(`Processed ${createdProjectCount} distribution projects and multiple integration projects were migrated. Please open them from the file explorer.`);
             commands.executeCommand('workbench.view.explorer');
         }
     } else if (projectType === Nature.LEGACY) {
