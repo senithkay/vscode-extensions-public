@@ -33,6 +33,7 @@ import {
     SubPanelView,
     SubPanelViewProps
 } from '@wso2-enterprise/ballerina-core';
+import ReactMarkdown from 'react-markdown';
 
 export type ContextAwareExpressionEditorProps = {
     id?: string;
@@ -160,6 +161,91 @@ export namespace S {
     export const DefaultValue = styled.span`
         font-family: monospace;
         font-size: 12px;
+    `;
+
+    export const EditorMdContainer = styled.div`
+        width: 100%;
+        font-size: 13px;
+        font-family: var(--vscode-font-family);
+        color: var(--vscode-list-deemphasizedForeground);
+        border-radius: 4px;
+        margin-bottom: 0;
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 16px 0 8px 0;
+            font-family: var(--vscode-font-family);
+            font-weight: normal;
+            font-size: 13px;
+            color: var(--vscode-list-deemphasizedForeground);
+        }
+
+        p {
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.5;
+            font-family: var(--vscode-font-family);
+            color: var(--vscode-list-deemphasizedForeground);
+        }
+
+        code {
+            background-color: unset;
+            color: ${ThemeColors.PRIMARY};
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        pre {
+            // hide code blocks
+            display: none;
+        }
+
+        ul,
+        ol {
+            margin: 8px 0;
+            padding-left: 24px;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        li {
+            margin: 4px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        blockquote {
+            margin: 8px 0;
+            padding-left: 8px;
+            border-left: 4px solid ${ThemeColors.PRIMARY};
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 8px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        th,
+        td {
+            border: 1px solid var(--vscode-editor-inactiveSelectionBackground);
+            padding: 8px;
+            text-align: left;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        th {
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+        }
     `;
 }
 
@@ -366,30 +452,26 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
             : `${field.documentation}.`
         : '';
     
-    const combinedDescription = (
-        <>
-            {documentation && <span>{documentation} </span>}
-            {defaultValueText}
-        </>
-    );
-
     return (
         <S.Container id={id}>
             {showHeader && (
-                <S.HeaderContainer>
-                    <S.Header>
+                <S.Header>
+                    <S.HeaderContainer>
                         <S.LabelContainer>
                             <S.Label>{field.label}</S.Label>
                             {(required ?? !field.optional) && <RequiredFormInput />}
                         </S.LabelContainer>
-                        <S.Description>{combinedDescription}</S.Description>
+                        {field.valueTypeConstraint && (
+                            <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
+                                {sanitizeType(field.valueTypeConstraint as string)}
+                            </S.Type>
+                        )}
+                    </S.HeaderContainer>
+                        <S.EditorMdContainer>
+                            {documentation && <ReactMarkdown>{documentation}</ReactMarkdown>}
+                            {defaultValueText}
+                        </S.EditorMdContainer>
                     </S.Header>
-                    {field.valueTypeConstraint && (
-                        <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
-                            {sanitizeType(field.valueTypeConstraint as string)}
-                        </S.Type>
-                    )}
-                </S.HeaderContainer>
             )}
             <Controller
                 control={control}
