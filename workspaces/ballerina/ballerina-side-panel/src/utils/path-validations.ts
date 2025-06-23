@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import {keywords} from "@wso2-enterprise/ballerina-core";
+
 export interface ParseError {
     position: number;
     message: string;
@@ -115,6 +117,12 @@ function validateParamName(token: Token, result: ParseResult): string | undefine
         result.errors.push({
             position: token.start,
             message: `Invalid parameter name: ${token.value}`
+        });
+    }
+    if (keywords.includes(token.value)) {
+        result.errors.push({
+            position: token.start,
+            message: `Usage of reserved keyword "${token.value}" as parameter name`
         });
     }
     return token.value;
@@ -280,6 +288,13 @@ export function parseBasePath(input: string): ParseResult {
     const segments = splitSegments(input);
     for (const segment of segments) {
         processSegment(segment, result);
+        if (keywords.includes(segment.value)) {
+            result.errors.push({
+                position: segment.start,
+                message: `usage of reserved keyword "${segment.value}"`
+            });
+        }
+        return result;
     }
     return result;
 }
@@ -313,6 +328,13 @@ export function parseResourceActionPath(input: string): ParseResult {
             continue;
         }
         processSegment(segment, result);
+        if (keywords.includes(segment.value)) {
+            result.errors.push({
+                position: segment.start,
+                message: `usage of reserved keyword "${segment.value}"`
+            });
+        }
+        return result;
     }
 
     result.valid = result.errors.length === 0;
