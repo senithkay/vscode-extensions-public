@@ -195,6 +195,11 @@
                         "type": "boolean",
                         "default": false,
                         "description": "Experimental: Enable inlay hints for Ballerina."
+                    },
+                    "ballerina.useDistributionLanguageServer": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Use Ballerina distribution language server instead of bundled language server. Note: This will be automatically enabled for Ballerina versions older than 2201.12.3."
                     }
                 }
             },
@@ -624,6 +629,13 @@
                 "command": "BI.project-explorer.add-type",
                 "title": "Add Types",
                 "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.view-type-diagram",
+                "title": "View Type Diagram",
+                "icon": "$(distro-design-view)",
                 "group": "navigation",
                 "category": "BI"
             },

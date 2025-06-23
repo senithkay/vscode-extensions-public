@@ -110,6 +110,7 @@ export interface VisualizerLocation {
     focusFlowDiagramView?: FocusFlowDiagramView;
     serviceType?: string;
     type?: Type;
+    addType?: boolean;
     isGraphql?: boolean;
     metadata?: VisualizerMetadata;
     scope?: SCOPE;

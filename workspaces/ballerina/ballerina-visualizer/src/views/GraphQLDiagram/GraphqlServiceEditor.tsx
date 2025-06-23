@@ -59,6 +59,12 @@ const ServiceContainer = styled.div`
     padding: 10px;
     flex: 1;
     overflow-y: auto;
+    max-height: calc(100vh - 80px);
+`;
+
+const OperationContainer = styled.div`
+    max-height: 300px;
+    overflow-y: scroll;
 `;
 
 const GraphqlContainer = styled.div`
@@ -437,16 +443,18 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                                 <Codicon name="add" />
                             </Button>
                         </OperationHeader>
-                        {categories.query?.map((operation, index) => (
-                            <OperationAccordion
-                                key={index}
-                                functionModel={operation}
-                                goToSource={goToSource}
-                                onEditFunction={onEditOperation}
-                                onDeleteFunction={onDeleteFunction}
-                                onFunctionImplement={onFunctionImplement}
-                            />
-                        ))}
+                        <OperationContainer>
+                            {categories.query?.map((operation, index) => (
+                                <OperationAccordion
+                                    key={index}
+                                    functionModel={operation}
+                                    goToSource={goToSource}
+                                    onEditFunction={onEditOperation}
+                                    onDeleteFunction={onDeleteFunction}
+                                    onFunctionImplement={onFunctionImplement}
+                                />
+                            ))}
+                        </OperationContainer>
                         {categories.query?.length === 0 && (
                             <EmptyStateContainer>
                                 <EmptyStateText>No Query fields defined</EmptyStateText>
@@ -467,16 +475,18 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                                 <Codicon name="add" />
                             </Button>
                         </OperationHeader>
-                        {categories.mutation?.map((operation, index) => (
-                            <OperationAccordion
-                                key={index}
-                                functionModel={operation}
-                                goToSource={goToSource}
-                                onEditFunction={onEditOperation}
-                                onDeleteFunction={onDeleteFunction}
-                                onFunctionImplement={onFunctionImplement}
-                            />
-                        ))}
+                        <OperationContainer>
+                            {categories.mutation?.map((operation, index) => (
+                                <OperationAccordion
+                                    key={index}
+                                    functionModel={operation}
+                                    goToSource={goToSource}
+                                    onEditFunction={onEditOperation}
+                                    onDeleteFunction={onDeleteFunction}
+                                    onFunctionImplement={onFunctionImplement}
+                                />
+                            ))}
+                        </OperationContainer>
                         {categories.mutation?.length === 0 && (
                             <EmptyStateContainer>
                                 <EmptyStateText>No Mutation fields defined</EmptyStateText>
@@ -497,16 +507,18 @@ export function GraphqlServiceEditor(props: GraphqlServiceEditorProps) {
                                 <Codicon name="add" />
                             </Button>
                         </OperationHeader>
-                        {categories.subscription?.map((operation, index) => (
-                            <OperationAccordion
-                                key={index}
-                                functionModel={operation}
-                                goToSource={goToSource}
-                                onEditFunction={onEditOperation}
-                                onDeleteFunction={onDeleteFunction}
-                                onFunctionImplement={onFunctionImplement}
-                            />
-                        ))}
+                        <OperationContainer>
+                            {categories.subscription?.map((operation, index) => (
+                                <OperationAccordion
+                                    key={index}
+                                    functionModel={operation}
+                                    goToSource={goToSource}
+                                    onEditFunction={onEditOperation}
+                                    onDeleteFunction={onDeleteFunction}
+                                    onFunctionImplement={onFunctionImplement}
+                                />
+                            ))}
+                        </OperationContainer>
                         {categories.subscription?.length === 0 && (
                             <EmptyStateContainer>
                                 <EmptyStateText>No Subscription fields defined</EmptyStateText>
