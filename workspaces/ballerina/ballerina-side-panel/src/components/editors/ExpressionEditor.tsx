@@ -169,10 +169,9 @@ const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
             <S.Ribbon onClick={onClick}>
                 <Icon name="bi-expression" sx={{
                     color: ThemeColors.ON_PRIMARY,
-                    fontSize: '10px',
-                    marginTop: '2px',
-                    width: '10px',
-                    height: '10px'
+                    fontSize: '12px',
+                    width: '12px',
+                    height: '12px'
                 }} />
             </S.Ribbon>
         </Tooltip>
