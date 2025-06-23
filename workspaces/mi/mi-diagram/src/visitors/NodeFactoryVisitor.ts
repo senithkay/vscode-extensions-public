@@ -1198,6 +1198,8 @@ export class NodeFactoryVisitor implements Visitor {
         sequneceReferenceNode.viewState.y += startNodeDimentions.HEIGHT + NODE_GAP.Y;
         sequneceReferenceNode.viewState.x += (startNodeDimentions.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
         sequneceReferenceNode.viewState.canAddAfter = false;
+        delete sequneceReferenceNode.displayName;
+        sequneceReferenceNode.tag = 'sequence';
         this.currentAddPosition = { position: undefined, trailingSpace: "" };
 
         this.createNodeAndLinks({
