@@ -144,30 +144,15 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
         moveFiles(source, destinationFolderPath);
         deleteEmptyFoldersInPath(source);
 
-        const items = fs.readdirSync(destinationFolderPath, { withFileTypes: true });
         const projectDirToResolvedPomMap = await generateProjectDirToResolvedPomMap(destinationFolderPath);
         
         let folderStructureCreated = false;
-        for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            if (item.isDirectory()) {
-                const projectPath = path.join(destinationFolderPath, item.name);
-                const projectType = determineProjectType(projectPath);
-                // Only create folder structure for composite exporter (distribution) projects
-                if (projectType === Nature.DISTRIBUTION) {
-                    const newProjectDir = path.join(directory, item.name);
-                    fs.mkdirSync(newProjectDir);
-                    let { projectName, groupId, artifactId, version, runtimeVersion } = getProjectDetails(projectPath, projectDirToResolvedPomMap);
-                    if (projectName && groupId && artifactId && version) {
-                        const newFolderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
-                        await createFolderStructure(newProjectDir, newFolderStructure);
-                        copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), newProjectDir);
-                        folderStructureCreated = true;
-                        console.log("Created project structure for project: " + projectName);
-                    }
-                }
-            }
-        }
+        folderStructureCreated = await createFolderStructuresForDistributionProjects(
+            destinationFolderPath,
+            directory,
+            projectUuid,
+            projectDirToResolvedPomMap
+        );
         // If no folder structure was created, create one in the given directory
         if (!folderStructureCreated) {
             const folderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
@@ -192,6 +177,60 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
     }
 }
 
+/**
+ * Creates folder structures for distribution projects found within a given destination folder path.
+ * 
+ * This function recursively scans the specified `destinationFolderPath` for directories representing
+ * distribution projects (as determined by `determineProjectType`). For each distribution project found,
+ * it creates a corresponding folder structure in the specified `directory`.
+ * 
+ * @param destinationFolderPath - The root path to scan for distribution projects.
+ * @param directory - The base directory where new folder structures should be created.
+ * @param projectUuid - The unique identifier for the project, used in folder structure generation.
+ * @param projectDirToResolvedPomMap - A map from project directory paths to resolved POM file paths, used to extract project details.
+ * @returns A promise that resolves to `true` if at least one folder structure was created, or `false` otherwise.
+ */
+async function createFolderStructuresForDistributionProjects(destinationFolderPath: string, directory: string, projectUuid: string, projectDirToResolvedPomMap: Map<string, string>): Promise<boolean> {
+    let folderStructureCreated = false;
+    async function checkAndCreateFolderStructures(currentPath: string) {
+        let items: fs.Dirent[];
+        try {
+            items = fs.readdirSync(currentPath, { withFileTypes: true });
+        } catch (err) {
+            console.error(`Failed to read directory ${currentPath}:`, err);
+            return;
+        }
+        for (const item of items) {
+            if (item.isDirectory()) {
+                const projectPath = path.join(currentPath, item.name);
+                const projectType = determineProjectType(projectPath);
+                if (projectType === Nature.DISTRIBUTION) {
+                    const relativeDir = path.relative(destinationFolderPath, projectPath);
+                    const newProjectDir = path.join(directory, relativeDir);
+                    try {
+                        fs.mkdirSync(newProjectDir, { recursive: true });
+                        let { projectName, groupId, artifactId, version, runtimeVersion } = getProjectDetails(projectPath, projectDirToResolvedPomMap);
+                        if (projectName && groupId && artifactId && version) {
+                            const newFolderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
+                            await createFolderStructure(newProjectDir, newFolderStructure);
+                            copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), newProjectDir);
+                            folderStructureCreated = true;
+                            console.log("Created project structure for project: " + projectName);
+                        }
+                    } catch (err) {
+                        console.error(`Failed to create folder structure at ${newProjectDir}:`, err);
+
+                    }
+                } else {
+                    // Recurse into subdirectories
+                    await checkAndCreateFolderStructures(projectPath);
+                }
+            }
+        }
+    }
+    await checkAndCreateFolderStructures(destinationFolderPath);
+    return Promise.resolve(folderStructureCreated);
+}
 
 /**
  * Generates a map that associates each project directory within a multi-module Maven project
@@ -323,28 +362,36 @@ export async function migrateConfigs(projectUri: string, source: string, target:
         const projectDirToMetaFilesMap = generateProjectDirToMetaFilesMap(source, items);
 
         const allUsedDependencyIds = new Set<string>();
-        for (const item of items) {
-            if (!item.isDirectory()) continue;
 
-            const sourcePath = path.join(source, item.name);
-            const targetPath = path.join(target, item.name);
+        async function processDistributionDirsRecursively(currentSource: string, currentTarget: string) {
+            const items = fs.readdirSync(currentSource, { withFileTypes: true });
+            for (const item of items) {
+                if (!item.isDirectory()) continue;
 
-            const moduleType = determineProjectType(sourcePath);
+                const sourcePath = path.join(currentSource, item.name);
+                const targetPath = path.join(currentTarget, item.name);
 
-            if (moduleType === Nature.DISTRIBUTION && artifactIdToFileInfoMap) {
-                const usedDepIds = await processCompositeExporterProject(
-                    sourcePath,
-                    targetPath,
-                    artifactIdToFileInfoMap,
-                    configToTests,
-                    configToMockServices,
-                    projectDirToMetaFilesMap,
-                    projectDirToResolvedPomMap
-                );
-                usedDepIds.forEach(depId => allUsedDependencyIds.add(depId));
-                await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
+                const moduleType = determineProjectType(sourcePath);
+
+                if (moduleType === Nature.DISTRIBUTION && artifactIdToFileInfoMap) {
+                    const usedDepIds = await processCompositeExporterProject(
+                        sourcePath,
+                        targetPath,
+                        artifactIdToFileInfoMap,
+                        configToTests,
+                        configToMockServices,
+                        projectDirToMetaFilesMap,
+                        projectDirToResolvedPomMap
+                    );
+                    usedDepIds.forEach(depId => allUsedDependencyIds.add(depId));
+                    await commands.executeCommand('vscode.openFolder', Uri.file(targetPath), true);
+                } else {
+                    // Recurse into subdirectories
+                    await processDistributionDirsRecursively(sourcePath, targetPath);
+                }
             }
         }
+        await processDistributionDirsRecursively(source, target);
         writeUnusedFileInfos(allUsedDependencyIds, artifactIdToFileInfoMap, source)
         await commands.executeCommand('workbench.action.closeWindow');
     } else if (projectType === Nature.LEGACY) {
