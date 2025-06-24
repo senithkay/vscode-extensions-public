@@ -445,7 +445,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                         {renderVariables[selectedModule?.category][selectedModule?.module].length > 0 ? (
                                             /* Variables under this selected module */
                                             renderVariables[selectedModule?.category][selectedModule?.module].map((variable, index) => (
-                                                <ConfigurableItem>
+                                                <ConfigurableItem id={`${String(variable?.properties?.variable?.value)}-variable`}>
                                                     <ConfigNameTitle>
                                                         <div style={{ display: 'flex', alignItems: 'center' }}>
                                                             {
@@ -541,6 +541,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                                                     }
                                                     <ConfigValueField>
                                                         <VSCodeTextArea
+                                                            name={`${String(variable?.properties?.variable?.value)}-config-value`}
                                                             rows={(() => {
                                                                 const value = variable?.properties?.configValue?.value
                                                                     ? String(variable?.properties?.configValue?.value)
