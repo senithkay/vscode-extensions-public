@@ -11,6 +11,7 @@
 
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
 
@@ -46,7 +47,9 @@ module.exports = {
     ]
   },
   plugins: [
-    new Dotenv()
+    fs.existsSync(path.resolve(__dirname, '.env'))
+      ? new Dotenv()
+      : new Dotenv({ systemvars: true }),
   ],
   devtool: 'nosources-source-map',
   infrastructureLogging: {
