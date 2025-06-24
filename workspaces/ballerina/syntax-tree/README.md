@@ -4,38 +4,33 @@
 
 ### Developer Guide
 
-> Avoid working directly on `wso2-enterprise/ballerina-low-code-editor`, fork this repositoty to your account first.
+> Avoid working directly on `wso2-enterprise/vscode-extensions`, fork this repositoty to your account first.
 
 ```
-git clone https://github.com/<your-username>/ballerina-low-code-editor.git
-cd ballerina-low-code-editor/syntax-tree
-npm install
+git clone https://github.com/<your-username>/vscode-extensions.git
+cd vscode-extensions
+rush install
+```
+After installing dependencies, you can build the entire monorepo with:
+
+```
+rush build
+```
+
+To build only the `@wso2-enterprise/syntax-tree` package and its dependencies, use:
+
+```
+rush build --to @wso2-enterprise/syntax-tree
 ```
 
 #### For local development
 
-You need to run `npm link` inside `syntax-tree/` directory to test `syntax-tree` library with `choreo-console` and `low-code-editor` in local environment.
+To watch for changes and automatically rebuild the `syntax-tree` package during development, run:
 
 ```
-cd wso2-enterprise/ballerina-low-code-editor
-npm link
+cd workspaces/ballerina/syntax-tree
 npm run watch
 ```
 
-```
-cd <project-directory>
-npm link @wso2-enterprise/syntax-tree
-```
+> **Note:** Always use Rush commands in this monorepo. Avoid using `npm` or `yarn` directly inside package folders.
 
-> You can use `npm unlink` command inside the same directory to force switch back to remote referance of the package. You might want to run `npm install` on parent repository also.
-
-Currently you can't test `syntaxt-tree` locally without support of `choreo-console`.
-
-#### Publishing guide for `syntax-tree`
-
-- Contact [`@ballerina`](https://www.npmjs.com/org/ballerina) npm orgnization admin to get publishing rights if you don't have access yet.
-- Open your terminal and change to `syntax-tree` directory. (`cd /syntaxt-tree/`)
-- Login to your npm account using `npm login`
-- Run `npm version <major|minor|patch>` to state package version you want to publish. It'll update `package.json`.
-- Run `npm publish --tag latest` to publish your package.
-- Create a separate branch `syntaxt-tree/vx.x.x` with latest changes, and send a PR against master.
