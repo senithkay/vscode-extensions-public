@@ -217,7 +217,7 @@ function getServerOptionsUsingJava(extension: BallerinaExtension): ServerOptions
         debugOpts = `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:${debugPort}`;
     }
 
-    const ballerinaHome = extension?.getBallerinaHome();
+    const ballerinaHome = isWindows() ? fs.realpathSync.native(extension?.getBallerinaHome()) : extension?.getBallerinaHome();
     // Get the base ballerina home by removing the distribution part
     const baseHome = ballerinaHome.includes('distributions') 
         ? ballerinaHome.substring(0, ballerinaHome.indexOf('distributions'))

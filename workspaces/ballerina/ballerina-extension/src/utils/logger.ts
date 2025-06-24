@@ -124,7 +124,7 @@ function logLanguageServerInfo(extension: BallerinaExtension): void {
 
 function logJavaInfo(extension: BallerinaExtension): void {
     try {
-        const ballerinaHome = extension.getBallerinaHome();
+        const ballerinaHome = isWindows() ? fs.realpathSync.native(extension?.getBallerinaHome()) : extension?.getBallerinaHome();
         
         // Get the base ballerina home by removing the distribution part
         const baseHome = ballerinaHome.includes('distributions') 
