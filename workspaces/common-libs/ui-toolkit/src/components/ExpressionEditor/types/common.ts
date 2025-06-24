@@ -113,6 +113,7 @@ type ExpressionEditorBaseProps = {
     disabled?: boolean;
     value: string;
     placeholder?: string;
+    ariaLabel?: string;
     sx?: React.CSSProperties;
     completionSx?: React.CSSProperties;
     inputProps?: InputProps;

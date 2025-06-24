@@ -408,6 +408,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             value={sanitizedExpression ? sanitizedExpression(value) : value}
                             autoFocus={autoFocus}
                             startAdornment={<EditorRibbon onClick={toggleHelperPaneState} />}
+                            ariaLabel={field.label}
                             onChange={async (updatedValue: string, updatedCursorPosition: number) => {
                                 if (updatedValue === value) {
                                     return;

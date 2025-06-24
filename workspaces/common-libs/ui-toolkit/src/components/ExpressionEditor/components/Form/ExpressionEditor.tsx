@@ -482,6 +482,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             {/* Expression editor component */}
             <StyledTextArea
                 {...rest}
+                aria-label={props.ariaLabel}
                 ref={textAreaRef}
                 value={value}
                 onTextChange={handleChange}
