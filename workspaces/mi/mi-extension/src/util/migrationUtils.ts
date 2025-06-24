@@ -400,7 +400,7 @@ export async function migrateConfigs(projectUri: string, source: string, target:
             await commands.executeCommand('workbench.action.closeWindow');
         } else {
             await window.showWarningMessage(
-                `Processed ${createdProjectCount} composite exporters and integration projects were created for each. Please open them from the file explorer.`,
+                `Processed ${createdProjectCount} composite exporters and generated the relevant integration projects. Please open them from the file explorer.`,
                 { modal: true }
             );
             commands.executeCommand('workbench.view.explorer');
@@ -487,7 +487,7 @@ function getProjectDirectoriesWithType(source: string, items: fs.Dirent[]) {
  * @param source - The root directory to scan for project directories and artifacts.
  * @param items - The list of directory entries (files and folders) within the source directory.
  * @param projectDirToResolvedPom - A map that associates project directories with their resolved POM file paths.
- * @returns A map where each key is an artifact identifier (string) and each value is the corresponding {@link FileInfo}.
+ * @returns A map where each key is an artifact identifier (string) and each value is the corresponding file information.
  */
 function generateArtifactIdToFileInfoMap(source: string, items: fs.Dirent[], projectDirToResolvedPom: Map<string, string>): Map<string, FileInfo> {
     const artifactIdToFileInfoMap = new Map<string, FileInfo>();
