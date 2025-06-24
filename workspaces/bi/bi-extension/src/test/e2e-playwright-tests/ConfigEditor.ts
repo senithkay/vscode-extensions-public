@@ -111,4 +111,16 @@ export class ConfigEditor {
         const configTomlValue = await configTomlInput.inputValue();
         expect(configTomlValue, `ConfigToml value for variable "${variableName}"`).toBe(value);
     }
+
+    public async verifyWarning(variableName: string) {
+        console.log(`Verify warning for config variable ${variableName}`);
+        const configVariableItem = this.webView.locator(`div#${variableName}-variable`);
+        await configVariableItem.waitFor({ state: 'visible', timeout: 30000 });
+        
+        // Verify the Required warning text is visible
+        const requiredWarningText = configVariableItem.locator('span', { hasText: 'Required' });
+        await requiredWarningText.waitFor({ state: 'visible', timeout: 30000 });
+        const requiredTextVisible = await requiredWarningText.isVisible();
+        expect(requiredTextVisible, `Required warning text for variable "${variableName}" was not verified successfully.`).toBe(true);
+    }
 }

@@ -106,6 +106,8 @@ export default function createTests() {
 
             await configEditor.verifyConfigurableVariable('place', '', '');
 
+            await configEditor.verifyWarning('place');
+
             await configEditor.deleteConfigVariable('place');
 
         });
