@@ -466,14 +466,29 @@ function writeUnusedFileInfos(
  *   - `projectDir`: The absolute path to the project directory.
  *   - `projectType`: The type of the project as determined by `determineProjectType`.
  */
-function getProjectDirectoriesWithType(source: string, items: fs.Dirent[]) {
-    return items
-        .filter(item => item.isDirectory())
-        .map(item => {
-            const projectDir = path.join(source, item.name);
-            const projectType = determineProjectType(projectDir);
-            return { projectDir, projectType };
-        });
+function getProjectDirectoriesWithType(rootDir: string, items?: fs.Dirent[]): { projectDir: string, projectType: Nature }[] {
+    const results: { projectDir: string, projectType: Nature }[] = [];
+
+    function traverse(dir: string) {
+        const items = fs.readdirSync(dir, { withFileTypes: true });
+
+        for (const item of items) {
+            const fullPath = path.join(dir, item.name);
+
+            if (item.isDirectory()) {
+                const projectType = determineProjectType(fullPath);
+                if (projectType !== undefined) {
+                    results.push({ projectDir: fullPath, projectType });
+                }
+
+                // Recursively check subdirectories
+                traverse(fullPath);
+            }
+        }
+    }
+
+    traverse(rootDir);
+    return results;
 }
 
 /**
