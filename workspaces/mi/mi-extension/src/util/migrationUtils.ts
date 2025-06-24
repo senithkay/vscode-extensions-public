@@ -401,8 +401,7 @@ export async function migrateConfigs(projectUri: string, source: string, target:
         } else {
             await window.showWarningMessage(
                 `Processed ${createdProjectCount} composite exporters and integration projects were created for each. Please open them from the file explorer.`,
-                { modal: true },
-                'OK'
+                { modal: true }
             );
             commands.executeCommand('workbench.view.explorer');
         }
