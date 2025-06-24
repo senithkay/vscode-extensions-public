@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Tooltip, TooltipProps } from "./Tooltip";
+import { Meta, StoryObj } from "@storybook/react-vite";
+import { Tooltip } from "./Tooltip";
 import styled from "@emotion/styled";
 
 const Container = styled.div`
@@ -41,29 +41,40 @@ const LargeTooltipContent = styled.div`
     height: 100px;
 `;
 
-const DefaultTemplate: ComponentStory<typeof Tooltip> = (args: TooltipProps) =>
-    <Container>
+const meta: Meta<typeof Tooltip> = {
+    component: Tooltip,
+    title: "Tooltip",
+};
+export default meta;
+
+type Story = StoryObj<typeof Tooltip>;
+
+export const Default: Story = {
+    render: args =>
+        <Container>
+            <Tooltip {...args}>
+                <TextContainer>Hover Over Me</TextContainer>
+            </Tooltip>
+        </Container>,
+    args: { content: "Tooltip Content", position: "bottom" },
+};
+
+export const TooltipWithOffset: Story = {
+    render: args =>
+        <Container>
+            <Tooltip {...args}>
+                <TextContainer>Hover Over Me</TextContainer>
+            </Tooltip>
+        </Container>,
+    args: { content: "Tooltip Content", position: "bottom", offset: { top: 16, left: 20 } },
+};
+
+const TooltipContent = () => <LargeTooltipContent>Tooltip Content</LargeTooltipContent>;
+
+export const Overflow: Story = {
+    render: args =>
         <Tooltip {...args}>
-            <TextContainer>Hover Over Me</TextContainer>
-        </Tooltip>
-    </Container>
-;
-
-export const Default = DefaultTemplate.bind();
-Default.args = { content: "Tooltip Content", position: "bottom" };
-
-export const TooltipWithOffset = DefaultTemplate.bind();
-TooltipWithOffset.args = { content: "Tooltip Content", position: "bottom", offset: { top: 16, left: 20 } };
-
-const OverflowTemplate: ComponentStory<typeof Tooltip> = (args: TooltipProps) =>
-    <Tooltip {...args}>
-        <LargeTextContainer>Hover Over Me</LargeTextContainer>
-    </Tooltip>
-;
-
-const TooltipContent = () => <LargeTooltipContent>Tooltip Content</LargeTooltipContent>
-
-export const Overflow = OverflowTemplate.bind();
-Overflow.args = { content: <TooltipContent />, position: "bottom" };
-
-export default { component: Tooltip, title: "Tooltip" };
+            <LargeTextContainer>Hover Over Me</LargeTextContainer>
+        </Tooltip>,
+    args: { content: <TooltipContent />, position: "bottom" },
+};

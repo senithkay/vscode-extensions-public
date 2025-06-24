@@ -72,11 +72,11 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const createTitle = `Provide the necessary configuration details for the ${serviceModel.displayAnnotation.label} to complete the setup.`;
     const editTitle = `Update the configuration details for the ${serviceModel.displayAnnotation.label} as needed.`
 
-    useEffect(() => {        
+    useEffect(() => {
         // Check if the service is HTTP protocol and any properties with choices
-        const hasPropertiesWithChoices = serviceModel?.listenerProtocol === "http" && 
+        const hasPropertiesWithChoices = serviceModel?.listenerProtocol === "http" &&
             Object.values(serviceModel.properties).some(property => property.choices);
-        
+
         if (hasPropertiesWithChoices) {
             const choiceRecordTypeFields = Object.entries(serviceModel.properties)
                 .filter(([_, property]) => property.choices)
@@ -139,7 +139,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [serviceModel]);
 
-    const handleListenerSubmit = async (data: FormValues, formImports: FormImports) => {
+    const handleServiceSubmit = async (data: FormValues, formImports: FormImports) => {
         serviceFields.forEach(val => {
             if (val.type === "CHOICE") {
                 val.choices.forEach((choice, index) => {
@@ -195,7 +195,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                                     onBack={onBack}
                                     isSaving={isSaving}
                                     openSubPanel={handleListenerForm}
-                                    onSubmit={handleListenerSubmit}
+                                    onSubmit={handleServiceSubmit}
                                     submitText={formSubmitText}
                                     recordTypeFields={recordTypeFields}
                                 />

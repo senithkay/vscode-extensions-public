@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { VisualizerLocation, NodePosition, Type, EVENT_TYPE, MACHINE_VIEW, TypeNodeKind } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
@@ -39,19 +39,39 @@ export const Title: React.FC<any> = styled.div`
 interface TypeDiagramProps {
     selectedTypeId?: string;
     projectUri?: string;
+    addType?: boolean;
+}
+
+interface TypeEditorState {
+    isTypeCreatorOpen: boolean;
+    editingTypeId: string | undefined;
+    newTypeName: string | undefined;
+    editingType: Type;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { selectedTypeId, projectUri } = props;
+    const { selectedTypeId, projectUri, addType } = props;
     const { rpcClient } = useRpcContext();
     const commonRpcClient = rpcClient.getCommonRpcClient();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
-    const [isTypeCreatorOpen, setIsTypeCreatorOpen] = React.useState<boolean>(false);
     const [typesModel, setTypesModel] = React.useState<Type[]>(undefined);
-    const [editingTypeId, setEditingTypeId] = React.useState<string | undefined>(undefined);
     const [focusedNodeId, setFocusedNodeId] = React.useState<string | undefined>(undefined);
-    const [editingType, setEditingType] = React.useState<Type>();
     const [highlightedNodeId, setHighlightedNodeId] = React.useState<string | undefined>(selectedTypeId);
+    const [typeEditorState, setTypeEditorState] = React.useState<TypeEditorState>({
+        isTypeCreatorOpen: false,
+        editingTypeId: undefined,
+        newTypeName: undefined,
+        editingType: undefined,
+    });
+
+    useEffect(() => {
+        if (addType) {
+            setTypeEditorState((prevState) => ({
+                ...prevState,
+                isTypeCreatorOpen: true,
+            }));
+        }
+    }, [addType]);
 
     useEffect(() => {
         if (rpcClient) {
@@ -95,7 +115,10 @@ export function TypeDiagram(props: TypeDiagramProps) {
     };
 
     const addNewType = async () => {
-        setIsTypeCreatorOpen(true);
+        setTypeEditorState((prevState) => ({
+            ...prevState,
+            isTypeCreatorOpen: true,
+        }));
     };
 
     const handleOnGoToSource = (node: Type) => {
@@ -128,15 +151,21 @@ export function TypeDiagram(props: TypeDiagramProps) {
                 },
             });
         }
-        setEditingType(type);
-        setEditingTypeId(typeId);
+        setTypeEditorState((prevState) => ({
+            ...prevState,
+            editingType: type,
+            editingTypeId: typeId,
+        }));
         setHighlightedNodeId(typeId);
     };
 
     const onTypeEditorClosed = () => {
-        setEditingTypeId(undefined);
-        setEditingType(undefined);
-        setIsTypeCreatorOpen(false);
+        setTypeEditorState({
+            editingTypeId: undefined,
+            editingType: undefined,
+            isTypeCreatorOpen: false,
+            newTypeName: undefined,
+        });
     };
 
     const onSwitchToTypeDiagram = () => {
@@ -167,7 +196,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const findSelectedType = (typeId: string): Type => {
         if (!typeId) {
             return {
-                name: "MyType",
+                name: typeEditorState.newTypeName ?? "MyType",
                 editable: true,
                 metadata: {
                     label: "",
@@ -185,10 +214,23 @@ export function TypeDiagram(props: TypeDiagramProps) {
         return typesModel.find((type: Type) => type.name === typeId);
     };
 
-    const onTypeChange = async (type: Type) => {
-        setEditingTypeId(undefined);
-        setEditingType(undefined);
-        setIsTypeCreatorOpen(false);
+    const onTypeChange = async (type: Type, rename?: boolean) => {
+        if (rename) {
+            setTypeEditorState({
+                editingTypeId: type.name,
+                editingType: type,
+                isTypeCreatorOpen: false,
+                newTypeName: undefined,
+            });
+            setHighlightedNodeId(type.name);
+            return;
+        }
+        setTypeEditorState({
+            editingTypeId: undefined,
+            editingType: undefined,
+            isTypeCreatorOpen: false,
+            newTypeName: undefined,
+        });
         setHighlightedNodeId(type.name); // Highlight the newly created type
     };
 
@@ -208,6 +250,15 @@ export function TypeDiagram(props: TypeDiagramProps) {
             default:
                 return "";
         }
+    };
+
+    const handleTypeCreate = (typeName?: string) => {
+        setTypeEditorState((prevState) => ({
+            ...prevState,
+            isTypeCreatorOpen: true,
+            editingTypeId: undefined,
+            newTypeName: typeName,
+        }));
     };
 
     return (
@@ -240,16 +291,18 @@ export function TypeDiagram(props: TypeDiagramProps) {
                             onTypeEdit={onTypeEdit}
                         />
                     ) : (
-                        <ProgressRing color={ThemeColors.PRIMARY} />
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                            <ProgressRing color={ThemeColors.PRIMARY} />
+                        </div>
                     )}
                 </ViewContent>
             </View>
             {/* Panel for editing and creating types */}
-            {(editingTypeId || isTypeCreatorOpen) && editingType?.codedata?.node !== "CLASS" && (
+            {(typeEditorState.editingTypeId || typeEditorState.isTypeCreatorOpen) && typeEditorState.editingType?.codedata?.node !== "CLASS" && (
                 <PanelContainer
-                    title={editingTypeId ?
-                        `Edit Type${getTypeKindDisplayName(editingType?.codedata?.node) ?
-                            ` : ${getTypeKindDisplayName(editingType?.codedata?.node)}` :
+                    title={typeEditorState.editingTypeId ?
+                        `Edit Type${getTypeKindDisplayName(typeEditorState.editingType?.codedata?.node) ?
+                            ` : ${getTypeKindDisplayName(typeEditorState.editingType?.codedata?.node)}` :
                             ''}` :
                         "New Type"
                     }
@@ -257,10 +310,11 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     onClose={onTypeEditorClosed}
                 >
                     <FormTypeEditor
-                        key={editingTypeId || 'new-type'}
-                        type={findSelectedType(editingTypeId)}
-                        newType={editingTypeId ? false : true}
+                        key={typeEditorState.editingTypeId ?? typeEditorState.newTypeName ?? 'new-type'}
+                        type={findSelectedType(typeEditorState.editingTypeId)}
+                        newType={typeEditorState.editingTypeId ? false : true}
                         onTypeChange={onTypeChange}
+                        onTypeCreate={handleTypeCreate}
                     />
                 </PanelContainer>
             )}

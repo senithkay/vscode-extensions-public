@@ -6,13 +6,29 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { SampleReactHookForm, SampleReactHookFormProps } from "./SampleReactHookForm";
+import { Meta, StoryObj } from "@storybook/react-vite";
+import { SampleReactHookForm } from "./SampleReactHookForm";
 
-const Template: ComponentStory<typeof SampleReactHookForm> = (args: SampleReactHookFormProps) => <SampleReactHookForm {...args} />;
+const meta: Meta<typeof SampleReactHookForm> = {
+    title: "Sample React Hook Form",
+    component: SampleReactHookForm,
+};
+export default meta;
 
-export const SampleReactForm = Template.bind();
-SampleReactForm.args = { id: "sample-react-form", args: { name: "WSO2", products: "pro2", address: "123, Main Street", isRegistered: true, password: "pass", words: "foo" } };
+type Story = StoryObj<typeof SampleReactHookForm>;
 
-export default { component: SampleReactForm, title: "Sample React Hook Form" };
+export const SampleReactForm: Story = {
+    args: {
+        id: "sample-react-form",
+        args: {
+            name: "WSO2",
+            products: "pro2",
+            address: "123, Main Street",
+            isRegistered: true,
+            password: "pass",
+            words: "foo",
+            options: "option1",
+            selectedFile: "sample.txt"
+        },
+    },
+};

@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from "react";
-import { SidePanelBody, ProgressRing, Tabs, Icon } from "@wso2-enterprise/ui-toolkit";
+import { SidePanelBody, ProgressRing, Icon, TabPanel } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { Member, Type, TypeNodeKind, Imports, AddImportItemResponse } from "@wso2-enterprise/ballerina-core";
@@ -29,7 +29,7 @@ interface TypeEditorProps {
     type?: Type;
     imports?: Imports;
     rpcClient: BallerinaRpcClient;
-    onTypeChange: (type: Type) => void;
+    onTypeChange: (type: Type, rename?: boolean) => void;
     newType: boolean;
     newTypeValue?: string;
     isGraphql?: boolean;
@@ -45,6 +45,7 @@ interface TypeEditorProps {
         onSearchTypeBrowser: (searchText: string) => void;
         onTypeItemClick: (item: TypeHelperItem) => Promise<AddImportItemResponse>;
         onCloseCompletions?: () => void;
+        onTypeCreate?: (typeName?: string) => void;
     }
 }
 
@@ -113,7 +114,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 {!type ? (
                     <ProgressRing />
                 ) : newType ? (
-                    <Tabs
+                    <TabPanel
                         views={[
                             {
                                 id: 'create-from-scratch',
@@ -136,10 +137,11 @@ export function TypeEditor(props: TypeEditorProps) {
                         ]}
                         currentViewId={activeTab}
                         onViewChange={handleTabChange}
-                        childrenSx={{ padding: 10 }}
+                        childrenSx={{ padding: '10px' }}
                     >
                         <div id="create-from-scratch">
                             <TypeCreatorTab
+                                onTypeChange={props.onTypeChange}
                                 editingType={type}
                                 newType={newType}
                                 isGraphql={isGraphql}
@@ -157,10 +159,11 @@ export function TypeEditor(props: TypeEditorProps) {
                                 setIsSaving={setIsSaving}
                             />
                         </div>
-                    </Tabs>
+                    </TabPanel>
                 ) : (
                     <div style={{ padding: '10px' }}>
                         <TypeCreatorTab
+                            onTypeChange={props.onTypeChange}
                             editingType={type}
                             newType={newType}
                             isGraphql={isGraphql}

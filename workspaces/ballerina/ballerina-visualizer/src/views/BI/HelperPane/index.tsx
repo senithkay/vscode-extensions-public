@@ -13,7 +13,7 @@ import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
 import { SuggestionsPage } from './SuggestionsPage';
 import { ConfigureRecordPage } from './ConfigureRecordPage';
-import { LineRange } from '@wso2-enterprise/ballerina-core';
+import { CompletionInsertText, LineRange } from '@wso2-enterprise/ballerina-core';
 import { RecordTypeField } from '@wso2-enterprise/ballerina-core';
 
 export type HelperPaneProps = {
@@ -47,9 +47,25 @@ const HelperPaneEl = ({
     updateImports,
     isAssignIdentifier
 }: HelperPaneProps) => {
-    const handleChange = (value: string, isRecordConfigureChange?: boolean) => {
+    const getInsertText = (insertText: string | CompletionInsertText): string => {
+        if (typeof insertText === 'string') {
+            return insertText;
+        }
+        return insertText.value;
+    };
+
+    const getCursorOffset = (insertText: string | CompletionInsertText): number => {
+        if (typeof insertText === 'string') {
+            return 0;
+        }
+        return insertText.cursorOffset ?? 0;
+    };
+
+    const handleChange = (insertText: string | CompletionInsertText, isRecordConfigureChange?: boolean) => {
+        const value = getInsertText(insertText);
+        const cursorOffset = getCursorOffset(insertText);
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-        const updatedCursorPosition = cursorPosition + value.length;
+        const updatedCursorPosition = cursorPosition + value.length + cursorOffset;
         let updatedValue = value;
 
         if (!isRecordConfigureChange) {

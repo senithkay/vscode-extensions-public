@@ -631,6 +631,10 @@ export function FormGeneratorNew(props: FormProps) {
         onSubmit(values, formImports);
     };
 
+    const handleTypeCreate = (typeName?: string) => {
+        setTypeEditorState({ isOpen: true, newTypeValue: typeName, field: typeEditorState.field });
+    };
+
     const renderTypeEditor = (isGraphql: boolean) => (
         <>
             <PanelContainer
@@ -642,6 +646,7 @@ export function FormGeneratorNew(props: FormProps) {
                     newType={true}
                     onTypeChange={handleTypeChange}
                     newTypeValue={typeEditorState.newTypeValue}
+                    onTypeCreate={handleTypeCreate}
                     {...(isGraphql && { type: defaultType(), isGraphql: true })}
                 />
             </PanelContainer>

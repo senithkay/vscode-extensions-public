@@ -25,6 +25,7 @@ export default function createTests() {
     test("Log Mediator Tests", async ({ }, testInfo) => {
       const testAttempt = testInfo.retry + 1;
       await test.step('Create new API', async () => {
+        console.log('Starting to create a new API');
         // wait until window reload
         const { title: iframeTitle } = await page.getCurrentWebview();
 
@@ -40,6 +41,7 @@ export default function createTests() {
 
         const apiForm = new Form(page.page, 'API Form');
         await apiForm.switchToFormView();
+        console.log('Filling API form with values');
         await apiForm.fill({
           values: {
             'Name*': {
@@ -53,33 +55,44 @@ export default function createTests() {
           }
         });
         await apiForm.submit();
+        console.log('API form submitted successfully');
       });
 
       await test.step('Service designer', async () => {
+        console.log('Accessing service designer');
         // service designer
         const serviceDesigner = new ServiceDesigner(page.page);
         await serviceDesigner.init();
         const resource = await serviceDesigner.resource('GET', '/');
         await resource.click();
+        console.log('Service designer initialized and resource selected');
       });
 
       await test.step('Add log mediator in to resource with default values', async () => {
+        console.log('Adding log mediator to resource with default values');
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         await diagram.addMediator('Log');
         await diagram.getMediator('log');
+        console.log('Log mediator added successfully with default values');
       });
 
       await test.step('Delete log mediator', async () => {
+        console.log('Deleting log mediator');
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         const mediator = await diagram.getMediator('log');
         await mediator.delete();
+        console.log("Log mediator deleted");
         const logMediatorsCount = await diagram.getMediatorsCount('log');
         expect(logMediatorsCount).toBe(0);
+        console.log('Log mediator verified');
       });
 
       await test.step('Add log mediator in to resource with custom values', async () => {
+        console.log("Adding log mediator in to resource with custom values");
+        // sleep for 1 seconds to ensure the diagram is ready
+        await page.page.waitForTimeout(2000);
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         await diagram.addMediator('Log', {
@@ -102,10 +115,14 @@ export default function createTests() {
             }
           }
         });
+        await page.page.waitForTimeout(2000);
         await diagram.getMediator('log');
+        console.log('Log mediator added successfully with custom values');
       });
 
       await test.step('Edit log mediator in resource', async () => {
+        console.log('Editing log mediator in resource');
+        await page.page.waitForTimeout(2000);
         const diagram = new Diagram(page.page, 'Resource');
         await diagram.init();
         const mediator = await diagram.getMediator('log');
@@ -133,8 +150,11 @@ export default function createTests() {
             }
           }
         });
+        console.log('Log mediator edited successfully');
         const editedDescription = await mediator.getDescription();
+        console.log('Edited log mediator description:', editedDescription);
         expect(editedDescription).toBe('log mediator edited');
+        console.log('Log mediator description verified');
       });
     });
   });

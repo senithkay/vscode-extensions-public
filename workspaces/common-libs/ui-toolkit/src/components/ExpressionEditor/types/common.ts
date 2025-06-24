@@ -117,6 +117,7 @@ type ExpressionEditorBaseProps = {
     completionSx?: React.CSSProperties;
     inputProps?: InputProps;
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
+    onSelectionChange?: (value: string, updatedCursorPosition: number) => void | Promise<void>;
     onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;

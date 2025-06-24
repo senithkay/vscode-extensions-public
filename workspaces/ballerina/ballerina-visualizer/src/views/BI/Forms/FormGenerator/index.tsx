@@ -91,6 +91,7 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     isGraphql?: boolean;
+    submitText?: string;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean, formImports?: FormImports) => void;
     showProgressIndicator?: boolean;
     subPanelView?: SubPanelView;
@@ -147,6 +148,7 @@ export function FormGenerator(props: FormProps) {
         resetUpdatedExpressionField,
         disableSaveButton,
         actionButtonConfig,
+        submitText,
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -705,6 +707,10 @@ export function FormGenerator(props: FormProps) {
         setVisualizableFields(res.visualizableProperties);
     };
 
+    const handleTypeCreate = (typeName?: string) => {
+        setTypeEditorState({ isOpen: true, newTypeValue: typeName, fieldKey: typeEditorState.fieldKey });
+    };
+
     // handle if node form
     if (node?.codedata.node === "IF") {
         return (
@@ -798,7 +804,7 @@ export function FormGenerator(props: FormProps) {
                     targetLineRange={targetLineRange}
                     fileName={fileName}
                     isSaving={showProgressIndicator}
-                    submitText={showProgressIndicator ? "Saving..." : undefined}
+                    submitText={submitText}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}
@@ -819,6 +825,7 @@ export function FormGenerator(props: FormProps) {
                         newTypeValue={typeEditorState.newTypeValue}
                         isGraphql={isGraphql}
                         onTypeChange={onTypeChange}
+                        onTypeCreate={handleTypeCreate}
                     />
                 </PanelContainer>
             )}

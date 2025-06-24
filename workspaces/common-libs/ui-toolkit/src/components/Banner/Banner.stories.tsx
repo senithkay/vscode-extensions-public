@@ -7,30 +7,59 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Banner, BannerProps } from "./Banner";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Banner } from "./Banner";
 import { Codicon } from "../Codicon/Codicon";
 
-const Template: ComponentStory<typeof Banner> = (args: BannerProps) => <Banner {...args} />;
+const meta = {
+    component: Banner,
+    title: "Banner",
+} satisfies Meta<typeof Banner>;
+export default meta;
 
-const Icon = () => <Codicon iconSx={{ fontSize: 18 }} name="info" />;
-export const BannerWithoutTitle = Template.bind();
-BannerWithoutTitle.args = { icon: <Icon />, message: "This is a sample banner without title", onClose: () => {console.log("Banner closed")}};
+type Story = StoryObj<typeof Banner>;
 
-const InfoIcon = () => <Codicon iconSx={{ fontSize: 18 }} name="info" />;
-export const InfoBanner = Template.bind();
-InfoBanner.args = { icon: <InfoIcon />, type: "info", message: "This is a sample info banner"};
+export const BannerWithoutTitle: Story = {
+    args: {
+        icon: <Codicon iconSx={{ fontSize: 18 }} name="info" />, 
+        message: "This is a sample banner without title",
+        onClose: () => {console.log("Banner closed")}
+    }
+};
 
-const ErrorIcon = () => <Codicon iconSx={{ fontSize: 18 }} name="error" />;
-export const ErrorBanner = Template.bind();
-ErrorBanner.args = { icon: <ErrorIcon />, type: "error", message: "This is a sample error banner", title: "Error Banner" };
+export const InfoBanner: Story = {
+    args: {
+        icon: <Codicon iconSx={{ fontSize: 18 }} name="info" />, 
+        type: "info",
+        message: "This is a sample info banner"
+    }
+};
 
-const SuccessIcon = () => <Codicon iconSx={{ fontSize: 18 }} name="check" />;
-export const SuccessBanner = Template.bind();
-SuccessBanner.args = { icon: <SuccessIcon />, type: "success", message: "This is a sample success banner", title: "Success Banner", onClose: undefined };
+export const ErrorBanner: Story = {
+    args: {
+        icon: <Codicon iconSx={{ fontSize: 18 }} name="error" />, 
+        type: "error",
+        message: "This is a sample error banner",
+        title: "Error Banner"
+    }
+};
 
-const WarningIcon = () => <Codicon iconSx={{ fontSize: 18 }} name="warning" />;
-export const WarningBanner = Template.bind();
-WarningBanner.args = { icon: <WarningIcon />, type: "warning", message: "This is a sample warning banner", title: "Warning Banner", onClose: undefined };
+export const SuccessBanner: Story = {
+    args: {
+        icon: <Codicon iconSx={{ fontSize: 18 }} name="check" />, 
+        type: "success",
+        message: "This is a sample success banner",
+        title: "Success Banner",
+        onClose: undefined
+    }
+};
 
-export default { component: Banner, title: "Banner" };
+export const WarningBanner: Story = {
+    args: {
+        icon: <Codicon iconSx={{ fontSize: 18 }} name="warning" />, 
+        type: "warning",
+        message: "This is a sample warning banner",
+        title: "Warning Banner",
+        onClose: undefined
+    }
+};

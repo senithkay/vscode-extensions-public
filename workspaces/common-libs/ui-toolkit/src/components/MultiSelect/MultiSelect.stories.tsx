@@ -7,24 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useState } from "react";
-import { storiesOf } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MultiSelect as MS } from "./MultiSelect";
 import { Codicon } from "../Codicon/Codicon";
 
-const MultiSelect = () => {
-    const [values, setValues] = useState<string[]>(["option1", "option2"]);
+const meta = {
+    component: MS,
+    title: "MultiSelect",
+} satisfies Meta<typeof MS>;
+export default meta;
 
-    const onChangeValues = (values: string[]) => {
-        setValues(values);
-    };
+type Story = StoryObj<typeof MS>;
 
-    return (
-        <>
+export const MultiSelectDefault: Story = {
+    render: () => {
+        const [values, setValues] = useState<string[]>(["option1", "option2"]);
+        const onChangeValues = (values: string[]) => {
+            setValues(values);
+        };
+        return (
             <MS options={["option1", "option2", "option3", "option4", "option5", "option6"]} values={values} onChange={onChangeValues} />
-        </>
-    );
+        );
+    }
 };
-storiesOf("MultiSelect").add("MultiSelect", () => <MultiSelect />);
 
 const displayValue = (
     <div style={{display: "flex", flexDirection: "row", height: 30}}>
@@ -33,17 +38,14 @@ const displayValue = (
     </div>
 );
 
-const MultiSelectWithDisplayValue = () => {
-    const [values, setValues] = useState<string[]>([]);
-
-    const onChangeValues = (values: string[]) => {
-        setValues(values);
-    };
-
-    return (
-        <>
+export const MultiSelectWithDisplayValue: Story = {
+    render: () => {
+        const [values, setValues] = useState<string[]>([]);
+        const onChangeValues = (values: string[]) => {
+            setValues(values);
+        };
+        return (
             <MS options={["option1", "option2", "option3", "option4", "option5", "option6"]} displayValue={displayValue} values={values} onChange={onChangeValues} />
-        </>
-    );
+        );
+    }
 };
-storiesOf("MultiSelect").add("MultiSelect Display Value", () => <MultiSelectWithDisplayValue />);

@@ -52,6 +52,7 @@ import {
     ImportOpenAPISpecRequest,
     PathDetailsResponse,
     DownloadMIRequest,
+    UpdateAiDependenciesRequest,
     RuntimeServiceDetails,
     MavenDeployPluginDetails,
     ProjectConfig
@@ -76,7 +77,7 @@ import { copy } from 'fs-extra';
 
 const fs = require('fs');
 import { TextEdit } from "vscode-languageclient";
-import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
+import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom, getMIVersionFromPom } from '../../util/onboardingUtils';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -664,8 +665,16 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     async isSupportEnabled(configName: string): Promise<boolean> {
+        const projectRuntimeVersion = await getMIVersionFromPom();
         return new Promise((resolve, reject) => {
             try {
+                if (configName === "LEGACY_EXPRESSION_ENABLED") {
+                    const versions: string[] = ["4.0.0", "4.1.0", "4.2.0", "4.3.0"];
+                    if (projectRuntimeVersion && versions.includes(projectRuntimeVersion)) {
+                        resolve(true);
+                        return;
+                    }
+                }
                 const config = workspace.getConfiguration('MI');
                 resolve(config.get(configName) || false);
             } catch (error) {
@@ -673,5 +682,53 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             }
         });
     }
-}
 
+    async updateAiDependencies(params: UpdateAiDependenciesRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = getStateMachine(this.projectUri).context().langClient!;
+
+            const projectDetails = await langClient.getProjectDetails();
+            const existingDependencies = projectDetails.dependencies || [];
+
+            const updatedDependencies: any[] = [];
+            const removedDependencies: any[] = [];
+
+            params.dependencies.forEach(dep => {
+                const dependenciesToCheck = dep.type === 'zip' ? existingDependencies.connectorDependencies : existingDependencies.otherDependencies;
+                let alreadyAvailable = false;
+                
+                // Find matching dependency only once
+                const matchingDep = dependenciesToCheck.find(existingDep => 
+                    existingDep.groupId === dep.groupId && existingDep.artifact === dep.artifact
+                );
+                
+                if (params.operation === 'add') {
+                    // Only add if not already available
+                    if (!matchingDep) {
+                        updatedDependencies.push(dep);
+                    }
+                } else if (params.operation === 'remove') {
+                    // Add to removed dependencies if found
+                    if (matchingDep) {
+                        removedDependencies.push(matchingDep);
+                    }
+                }
+            });
+            
+            if (updatedDependencies.length > 0) {
+                const res = await langClient.updateDependencies({ dependencies: updatedDependencies });
+                await this.updatePom(res.textEdits);
+                resolve(true);
+            }
+
+            if (removedDependencies.length > 0) {
+                await this.updatePomValues({
+                    pomValues: removedDependencies.map(dep => ({ range: dep.range, value: '' }))
+                });
+                resolve(true);
+            }
+
+            resolve(false);
+        });
+    }
+}

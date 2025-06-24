@@ -6,13 +6,26 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { RadioButtonGroup, RadioButtonGroupProps } from "./RadioButtonGroup";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { RadioButtonGroup } from "./RadioButtonGroup";
 
-const Template: ComponentStory<typeof RadioButtonGroup> = (args: RadioButtonGroupProps) => <RadioButtonGroup {...args} ref={null}/>;
+const meta = {
+    component: RadioButtonGroup,
+    title: "Radio Button Group",
+} satisfies Meta<typeof RadioButtonGroup>;
+export default meta;
 
-export const ButtonGroup = Template.bind();
-ButtonGroup.args = { name: "radio-button-group", value: "option1", orientation: "vertical", options: [{ content: "Option 1", value: "option1" }, { content: "Option 2", value: "option2" }], onChange: (e: any) => console.log("Radio button clicked", e.target.value)};
+type Story = StoryObj<typeof RadioButtonGroup>;
 
-export default { component: RadioButtonGroup, title: "Radio Button Group" };
+export const ButtonGroup: Story = {
+    args: {
+        name: "radio-button-group",
+        value: "option1",
+        orientation: "vertical",
+        options: [
+            { content: "Option 1", value: "option1" },
+            { content: "Option 2", value: "option2" }
+        ],
+        onChange: (e: any) => console.log("Radio button clicked", e.target.value)
+    }
+};

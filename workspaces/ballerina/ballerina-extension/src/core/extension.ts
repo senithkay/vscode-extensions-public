@@ -37,7 +37,8 @@ import {
     ENABLE_BALLERINA_INTEGRATOR,
     DEFINE_BALLERINA_INTEGRATOR_SCOPE,
     SHOW_LIBRARY_CONFIG_VARIABLES,
-    LANG_SERVER_PATH
+    LANG_SERVER_PATH,
+    USE_BALLERINA_CLI_LANG_SERVER
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -1555,6 +1556,7 @@ export class BallerinaExtension {
                 || params.affectsConfiguration(ENABLE_BALLERINA_INTEGRATOR)
                 || params.affectsConfiguration(DEFINE_BALLERINA_INTEGRATOR_SCOPE)
                 || params.affectsConfiguration(LANG_SERVER_PATH)
+                || params.affectsConfiguration(USE_BALLERINA_CLI_LANG_SERVER)
             ) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
@@ -1892,6 +1894,10 @@ export class BallerinaExtension {
 
     public getConfiguredLangServerPath(): string {
         return <string>workspace.getConfiguration().get(LANG_SERVER_PATH);
+    }
+
+    public useDistributionLanguageServer(): boolean {
+        return <boolean>workspace.getConfiguration().get(USE_BALLERINA_CLI_LANG_SERVER);
     }
 
     public async updatePerformanceForecastSetting(status: boolean) {

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { EVENT_TYPE, VisualizerLocation } from "../../state-machine-types";
+import { EVENT_TYPE, PopupVisualizerLocation, VisualizerLocation } from "../../state-machine-types";
 
 export interface UpdateUndoRedoMangerRequest {
     filePath: string;
@@ -16,7 +16,7 @@ export interface UpdateUndoRedoMangerRequest {
 
 export interface OpenViewRequest {
     type: EVENT_TYPE;
-    location: VisualizerLocation;
+    location: VisualizerLocation | PopupVisualizerLocation;
     isPopup?: boolean;
 }
 

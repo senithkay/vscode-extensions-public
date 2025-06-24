@@ -11,32 +11,33 @@
  *  associated services.
  */
 import React from "react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PasswordField } from "./PasswordField";
 import styled from "@emotion/styled";
-import { storiesOf } from "@storybook/react";
 
-export default {
+const meta = {
     component: PasswordField,
     title: 'PasswordField',
-};
+} satisfies Meta<typeof PasswordField>;
+export default meta;
 
 const Container = styled.div`
     min-height: 500px;
 `;
 
-export const Password = () => {
-    const [values, setValues] = React.useState<string>("Password");
-
-    return (
-        <Container>
-            <PasswordField
-                value={values}
-                label="Password"
-                showPassword={false}
-                onTextChange={(value: string) => setValues(value)}
-                onPasswordToggle={(showPassword: boolean) => console.log("Password visibility: ", showPassword)}
-            />
-        </Container>
-    );
+export const Password: StoryObj<typeof PasswordField> = {
+    render: () => {
+        const [values, setValues] = React.useState<string>("Password");
+        return (
+            <Container>
+                <PasswordField
+                    value={values}
+                    label="Password"
+                    showPassword={false}
+                    onTextChange={(value: string) => setValues(value)}
+                    onPasswordToggle={(showPassword: boolean) => console.log("Password visibility: ", showPassword)}
+                />
+            </Container>
+        );
+    }
 };
-storiesOf("Password Field").add("Default", () => <Password />);

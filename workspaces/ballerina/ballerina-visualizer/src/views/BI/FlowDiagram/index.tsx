@@ -29,6 +29,7 @@ import {
     ParentPopupData,
     BISearchRequest,
     ToolData,
+    DIRECTORY_MAP,
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -94,29 +95,26 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const selectedClientName = useRef<string>();
     const initialCategoriesRef = useRef<any[]>([]);
     const showEditForm = useRef<boolean>(false);
+    const selectedNodeMetadata = useRef<{ nodeId: string, metadata: any, fileName: string }>();
+    const selectedModel = useRef<Flow>();
 
     useEffect(() => {
         getFlowModel();
     }, [syntaxTree]);
 
     useEffect(() => {
-        rpcClient.onProjectContentUpdated((state: boolean) => {
-            console.log(">>> on project content updated", state);
-            if (!topNodeRef.current || !targetRef.current) {
-                console.error(">>> No parent or target found");
-                return;
-            }
-            setShowProgressIndicator(true);
-            fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, true);
-        });
         rpcClient.onParentPopupSubmitted((parent: ParentPopupData) => {
-            console.log(">>> on parent popup submitted", parent);
-            if (!topNodeRef.current || !targetRef.current) {
-                console.error(">>> No parent or target found");
-                return;
+            if (parent.artifactType === DIRECTORY_MAP.FUNCTION || parent.artifactType === DIRECTORY_MAP.NP_FUNCTION || parent.artifactType === DIRECTORY_MAP.DATA_MAPPER) {
+                handleOnSelectNode(selectedNodeMetadata.current.nodeId, selectedNodeMetadata.current.metadata, selectedNodeMetadata.current.fileName);
+            } else {
+                console.log(">>> on parent popup submitted", parent);
+                if (!topNodeRef.current || !targetRef.current) {
+                    console.error(">>> No parent or target found");
+                    return;
+                }
+                setShowProgressIndicator(true);
+                fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, false);
             }
-            setShowProgressIndicator(true);
-            fetchNodesAndAISuggestions(topNodeRef.current, targetRef.current, false, false);
         });
     }, [rpcClient]);
 
@@ -405,7 +403,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
-    const handleOnSelectNode = (nodeId: string, metadata?: any) => {
+    const handleOnSelectNode = (nodeId: string, metadata?: any, fileName?: string) => {
+        selectedNodeMetadata.current = { nodeId, metadata, fileName: model?.fileName || fileName };
         const { node, category } = metadata as { node: AvailableNode; category?: string };
         switch (node.codedata.node) {
             case "FUNCTION":
@@ -414,7 +413,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     .getBIDiagramRpcClient()
                     .search({
                         position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                        filePath: model.fileName,
+                        filePath: model?.fileName || fileName,
                         queryMap: undefined,
                         searchKind: "FUNCTION",
                     })
@@ -440,7 +439,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     .getBIDiagramRpcClient()
                     .search({
                         position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                        filePath: model.fileName,
+                        filePath: model?.fileName || fileName,
                         queryMap: undefined,
                         searchKind: "FUNCTION",
                     })
@@ -465,7 +464,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     .getBIDiagramRpcClient()
                     .search({
                         position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                        filePath: model.fileName,
+                        filePath: model?.fileName || fileName,
                         queryMap: undefined,
                         searchKind: "NP_FUNCTION",
                     })
@@ -494,7 +493,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     .getBIDiagramRpcClient()
                     .getNodeTemplate({
                         position: targetRef.current.startLine,
-                        filePath: model.fileName,
+                        filePath: model?.fileName || fileName,
                         id: node.codedata,
                     })
                     .then((response) => {
@@ -714,7 +713,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.BIFunctionForm,
+                artifactType: DIRECTORY_MAP.FUNCTION,
             },
+            isPopup: true,
         });
     };
 
@@ -723,7 +724,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.BINPFunctionForm,
+                artifactType: DIRECTORY_MAP.NP_FUNCTION,
             },
+            isPopup: true,
         });
     };
 
@@ -732,7 +735,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.BIDataMapperForm,
+                artifactType: DIRECTORY_MAP.DATA_MAPPER,
             },
+            isPopup: true,
         });
     };
 

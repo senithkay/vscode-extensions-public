@@ -110,6 +110,7 @@ export interface VisualizerLocation {
     focusFlowDiagramView?: FocusFlowDiagramView;
     serviceType?: string;
     type?: Type;
+    addType?: boolean;
     isGraphql?: boolean;
     metadata?: VisualizerMetadata;
     scope?: SCOPE;
@@ -133,10 +134,12 @@ export interface VisualizerMetadata {
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
     recentIdentifier?: string;
+    artifactType?: DIRECTORY_MAP;
 }
 
 export interface ParentPopupData {
     recentIdentifier: string;
+    artifactType: DIRECTORY_MAP;
 }
 
 export interface DownloadProgress {

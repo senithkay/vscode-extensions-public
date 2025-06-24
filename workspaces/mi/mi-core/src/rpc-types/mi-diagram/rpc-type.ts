@@ -241,6 +241,8 @@ import {
     HandleFileRequest,
     HandleFileResponse,
     DevantMetadata,
+    GetCodeDiagnosticsReqeust,
+    GetCodeDiagnosticsResponse,
     UpdateMediatorResponse,
     GetConnectorIconRequest,
     GetConnectorIconResponse
@@ -412,6 +414,7 @@ export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperP
 export const testConnectorConnection: RequestType<TestConnectorConnectionRequest, TestConnectorConnectionResponse> = { method: `${_preFix}/testConnectorConnection` };
 export const saveConfig: RequestType<SaveConfigRequest, SaveConfigResponse> = { method: `${_preFix}/saveConfig` };
 export const getEULALicense: RequestType<void, string> = { method: `${_preFix}/getEULALicense` };
+export const getCodeDiagnostics: RequestType<GetCodeDiagnosticsReqeust, GetCodeDiagnosticsResponse> = { method: `${_preFix}/getCodeDiagnostics` };
 export const shouldDisplayPayloadAlert: RequestType<void, boolean> = { method: `${_preFix}/shouldDisplayPayloadAlert` };
 export const displayPayloadAlert: RequestType<void, void> = { method: `${_preFix}/displayPayloadAlert` };
 export const closePayloadAlert: RequestType<void, void> = { method: `${_preFix}/closePayloadAlert` };

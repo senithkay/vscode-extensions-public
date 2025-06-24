@@ -9,7 +9,7 @@
 
 import { HelperPaneHeight, Overlay, ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
-import { RefObject } from 'react';
+import { RefObject, useRef } from 'react';
 
 import { debounce } from 'lodash';
 import { useCallback, useState } from 'react';
@@ -78,14 +78,16 @@ const TypeHelperEl = (props: TypeHelperProps) => {
     const [loadingTypeBrowser, setLoadingTypeBrowser] = useState<boolean>(false);
 
     const [basicTypes, setBasicTypes] = useState<TypeHelperCategory[]>([]);
-    const [importedTypes, setImportedTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
+    const [importedTypes, setImportedTypes] = useState<TypeHelperCategory[]>([]);
     const [filteredBasicTypes, setFilteredBasicTypes] = useState<TypeHelperCategory[]>([]);
     const [filteredOperators, setFilteredOperators] = useState<TypeHelperOperator[]>([]);
     const [filteredTypeBrowserTypes, setFilteredTypeBrowserTypes] = useState<TypeHelperCategory[]>([]);
 
+    const fetchedInitialTypes = useRef<boolean>(false);
+
     const debouncedSearchTypeHelper = useCallback(
         debounce((searchText: string, isType: boolean) => {
-            if (isType && basicTypes.length === 0) {
+            if (isType && !fetchedInitialTypes.current) {
                 if (rpcClient) {
                     rpcClient
                         .getBIDiagramRpcClient()
@@ -102,6 +104,7 @@ const TypeHelperEl = (props: TypeHelperProps) => {
                             const basicTypes = getTypes(types, isFetchingTypesForDM);
                             setBasicTypes(basicTypes);
                             setFilteredBasicTypes(basicTypes);
+                            fetchedInitialTypes.current = true;
 
                             /* Get imported types */
                             rpcClient
@@ -200,15 +203,15 @@ const TypeHelperEl = (props: TypeHelperProps) => {
         [debouncedSearchTypeBrowser]
     );
 
-    const { mutateAsync: addFunction, isLoading: isAddingType  } = useMutation(
-        (item: TypeHelperItem) => 
+    const { mutateAsync: addFunction, isPending: isAddingType  } = useMutation({
+        mutationFn: (item: TypeHelperItem) => 
             rpcClient.getBIDiagramRpcClient().addFunction({
                 filePath: filePath,
                 codedata: item.codedata,
                 kind: item.kind,
                 searchKind: 'TYPE'
             })
-    );
+    });
 
     const handleTypeItemClick = async (item: TypeHelperItem) => {
         const response = await addFunction(item);

@@ -16,7 +16,6 @@ import { MultiSelectEditor } from "./MultiSelectEditor";
 import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
-import { FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 import { ParamManagerEditor } from "../ParamManager/ParamManager";
 import { DropdownEditor } from "./DropdownEditor";
 import { FileSelect } from "./FileSelect";
@@ -31,6 +30,7 @@ import { IdentifierEditor } from "./IdentifierEditor";
 import { ReadonlyField } from "./ReadonlyField";
 import { ContextAwareRawExpressionEditor } from "./RawExpressionEditor";
 import { IdentifierField } from "./IdentifierField";
+import { PathEditor } from "./PathEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -46,7 +46,7 @@ interface FormFieldEditorProps {
     onIdentifierEditingStateChange?: (isEditing: boolean) => void;
 }
 
-export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormFieldEditorProps>((props, ref) => {
+export const EditorFactory = (props: FormFieldEditorProps) => {
     const {
         field,
         selectedNode,
@@ -73,7 +73,18 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } else if (field.type === "EXPRESSION_SET") {
         return <ArrayEditor field={field} label={"Add Another Value"} />;
     } else if (field.type === "MAPPING_EXPRESSION_SET") {
-        return <MapEditor field={field} label={"Add Another Key-Value Pair"} />;
+        return (
+            <MapEditor
+                field={field}
+                label={"Add Another Key-Value Pair"}
+                openSubPanel={openSubPanel}
+                subPanelView={subPanelView}
+                handleOnFieldFocus={handleOnFieldFocus}
+                autoFocus={autoFocus}
+                visualizable={visualizableFields?.includes(field.key)}
+                recordTypeField={recordTypeFields?.find(recordField => recordField.key === field.key)}
+            />
+        );
     } else if (field.type === "FLAG") {
         return <CheckBoxEditor field={field} />;
     } else if (field.type === "EXPRESSION" && field.key === "resourcePath") {
@@ -102,7 +113,6 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
         // Expression field is a inline expression editor
         return (
             <ContextAwareExpressionEditor
-                ref={ref}
                 field={field}
                 openSubPanel={openSubPanel}
                 subPanelView={subPanelView}
@@ -115,7 +125,6 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } else if (!field.items && field.type === "RAW_TEMPLATE" && field.editable) {
         return (
             <ContextAwareRawExpressionEditor
-                ref={ref}
                 field={field}
                 autoFocus={autoFocus}
             />
@@ -128,19 +137,21 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } else if (field.type === "REPEATABLE_PROPERTY") {
         return <FormMapEditor field={field} label={"Add Another Key-Value Pair"} />;
     } else if (field.type === "IDENTIFIER" && !field.editable && field?.lineRange) {
-        return <IdentifierEditor 
-            field={field} 
-            handleOnFieldFocus={handleOnFieldFocus} 
-            autoFocus={autoFocus} 
+        return <IdentifierEditor
+            field={field}
+            handleOnFieldFocus={handleOnFieldFocus}
+            autoFocus={autoFocus}
             onEditingStateChange={onIdentifierEditingStateChange}
         />;
     } else if (field.type !== "IDENTIFIER" && !field.editable) {
         return <ReadonlyField field={field} />;
     } else if (field.type === "IDENTIFIER" && field.editable) {
         return <IdentifierField field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
+    } else if (field.type === "SERVICE_PATH" || field.type === "ACTION_PATH") {
+        return <PathEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor
         return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
     }
-});
+};

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -8,17 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import React, { useState } from "react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PullUpButton } from "./PullUPButton";
 import styled from "@emotion/styled";
-import { useState } from "react";
-import React from "react";
 import { Button } from "../Button/Button";
-import { storiesOf } from "@storybook/react";
 
-export default {
+const meta = {
     component: PullUpButton,
     title: 'PullUpButton',
-};
+} satisfies Meta<typeof PullUpButton>;
+export default meta;
 
 const Container = styled.div`
     min-height: 500px;
@@ -26,37 +25,38 @@ const Container = styled.div`
 
 const options = ["Option 1", "Option 2", "Option 3"];
 
-export const PullDownButton = () => {
-    const [, setValues] = useState<string[]>(options);
+type Story = StoryObj<typeof PullUpButton>;
 
-    return (
-        <Container>
-            <PullUpButton options={options} onOptionChange={setValues}>
-                <Button appearance={"primary"}>
-                    Add More
-                </Button>
-            </PullUpButton>
-        </Container>
-    );
-};
-storiesOf("Pull Down Button").add("Pull Down Button", () => <PullDownButton />);
-
-export const PullDownButtonSingleOptionStory = () => {
-    const [values, setValues] = useState<string[]>(options);
-
-    const handleOptionChange = (options: string[]) => {
-        console.log("Selected Options: ", options);
-        setValues(options);
+export const PullDownButton: Story = {
+    render: () => {
+        const [, setValues] = useState<string[]>(options);
+        return (
+            <Container>
+                <PullUpButton options={options} onOptionChange={setValues}>
+                    <Button appearance={"primary"}>
+                        Add More
+                    </Button>
+                </PullUpButton>
+            </Container>
+        );
     }
+};
 
-    return (
-        <Container>
-            <PullUpButton options={options} selectSingleOption selectedOptions={values} onOptionChange={handleOptionChange}>
-                <Button appearance={"primary"}>
-                    Add More
-                </Button>
-            </PullUpButton>
-        </Container>
-    );
-}
-storiesOf("Pull Down Button").add("Pull Down Button Single Option", () => <PullDownButtonSingleOptionStory />);
+export const PullDownButtonSingleOptionStory: Story = {
+    render: () => {
+        const [values, setValues] = useState<string[]>(options);
+        const handleOptionChange = (options: string[]) => {
+            console.log("Selected Options: ", options);
+            setValues(options);
+        };
+        return (
+            <Container>
+                <PullUpButton options={options} selectSingleOption selectedOptions={values} onOptionChange={handleOptionChange}>
+                    <Button appearance={"primary"}>
+                        Add More
+                    </Button>
+                </PullUpButton>
+            </Container>
+        );
+    }
+};

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useState } from "react";
-import { storiesOf } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ParamConfig, ParamField, ParamManager, Parameters } from "./ParamManager";
 
 const generateSpaceSeperatedStringFromParamValues = (paramValues: Parameters) => {
@@ -101,29 +101,6 @@ const paramConfigs: ParamConfig = {
     ]
 };
 
-const ParamManagerDefault = () => {
-    const [params, setParams] = useState(paramConfigs);
-    const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
-            return {
-                ...param,
-                key: `Key ${index + 1}`,
-                value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
-        setParams(modifiedParams);
-    };
-
-    return (
-        <>
-            <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />
-        </>
-    );
-};
-
-storiesOf("Param Manager").add("Manager", () => <ParamManagerDefault />);
-
-// Add a sample enableCondition (ConditionParams | string)[] object
 const paramFields: ParamField[] = [
     {
         id: 0,
@@ -162,29 +139,6 @@ const config: ParamConfig = {
     paramFields: paramFields
 };
 
-const EnableCondition = () => {
-    const [params, setParams] = useState(config);
-    const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
-            return {
-                ...param,
-                key: `Key ${index + 1}`,
-                value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
-        setParams(modifiedParams);
-    };
-
-    return (
-        <>
-            <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />
-        </>
-    );
-};
-
-storiesOf("Param Manager").add("Enable Condition", () => <EnableCondition />);
-
-// Add a sample enableCondition (ConditionParams | string)[] object
 const paramFieldsWithEmptyLogicalExpr: ParamField[] = [
     {
         id: 0,
@@ -222,24 +176,61 @@ const emptyLogicalExpr: ParamConfig = {
     paramFields: paramFieldsWithEmptyLogicalExpr
 };
 
-const EmptyLogicCondition = () => {
-    const [params, setParams] = useState(emptyLogicalExpr);
-    const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
-            return {
-                ...param,
-                key: `Key ${index + 1}`,
-                value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
-        setParams(modifiedParams);
-    };
+const meta = {
+    component: ParamManager,
+    title: "Param Manager",
+} satisfies Meta<typeof ParamManager>;
+export default meta;
 
-    return (
-        <>
-            <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />
-        </>
-    );
+type Story = StoryObj<typeof ParamManager>;
+
+export const Manager: Story = {
+    render: () => {
+        const [params, setParams] = useState(paramConfigs);
+        const handleOnChange = (params: ParamConfig) => {
+            const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
+                return {
+                    ...param,
+                    key: `Key ${index + 1}`,
+                    value: generateSpaceSeperatedStringFromParamValues(param)
+                };
+            })};
+            setParams(modifiedParams);
+        };
+        return <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />;
+    }
 };
 
-storiesOf("Param Manager").add("Empty Logical Condition", () => <EmptyLogicCondition />);
+export const EnableCondition: Story = {
+    render: () => {
+        const [params, setParams] = useState(config);
+        const handleOnChange = (params: ParamConfig) => {
+            const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
+                return {
+                    ...param,
+                    key: `Key ${index + 1}`,
+                    value: generateSpaceSeperatedStringFromParamValues(param)
+                };
+            })};
+            setParams(modifiedParams);
+        };
+        return <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />;
+    }
+};
+
+export const EmptyLogicalCondition: Story = {
+    render: () => {
+        const [params, setParams] = useState(emptyLogicalExpr);
+        const handleOnChange = (params: ParamConfig) => {
+            const modifiedParams = { ...params, paramValues: params.paramValues.map((param, index) => {
+                return {
+                    ...param,
+                    key: `Key ${index + 1}`,
+                    value: generateSpaceSeperatedStringFromParamValues(param)
+                };
+            })};
+            setParams(modifiedParams);
+        };
+        return <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />;
+    }
+};
