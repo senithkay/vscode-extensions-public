@@ -738,7 +738,7 @@ export async function getResolvedPomXmlContent(pomFilePath: string): Promise<str
         });
 
         child.on('error', (err) => {
-            console.error(`Failed to run Maven help:effective-pom for ${pomFilePath}`);
+            console.error(`Failed to run Maven help:effective-pom for ${pomFilePath}`, err);
             resolve('');
         });
     });
