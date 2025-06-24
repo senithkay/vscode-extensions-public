@@ -147,21 +147,21 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
 
         const projectDirToResolvedPomMap = await generateProjectDirToResolvedPomMap(destinationFolderPath);
         
-        const folderStructureCreatedCount = await createFolderStructuresForDistributionProjects(
+        const createdProjectCount = await createFolderStructuresForDistributionProjects(
             destinationFolderPath,
             directory,
             projectUuid,
             projectDirToResolvedPomMap
         );
         // If no folder structure was created, create one in the given directory
-        if (folderStructureCreatedCount == 0) {
+        if (createdProjectCount == 0) {
             const folderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
             await createFolderStructure(directory, folderStructure);
             copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
             console.log("Created project structure for project: " + projectName);
         }
 
-        await migrateConfigs(projectUri, path.join(source, ".backup"), directory, projectDirToResolvedPomMap, folderStructureCreatedCount);
+        await migrateConfigs(projectUri, path.join(source, ".backup"), directory, projectDirToResolvedPomMap, createdProjectCount);
 
         window.showInformationMessage(`Successfully imported ${projectName} project`);
 
@@ -196,7 +196,7 @@ async function createFolderStructuresForDistributionProjects(
     projectUuid: string,
     projectDirToResolvedPomMap: Map<string, string>
 ): Promise<number> {
-    let folderStructureCount = 0;
+    let distributionProjectCount = 0;
     async function checkAndCreateFolderStructures(currentPath: string) {
         let items: fs.Dirent[];
         try {
@@ -219,12 +219,12 @@ async function createFolderStructuresForDistributionProjects(
                             const newFolderStructure = getFolderStructure(projectName, groupId, artifactId, projectUuid, version, runtimeVersion ?? LATEST_MI_VERSION);
                             await createFolderStructure(newProjectDir, newFolderStructure);
                             copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), newProjectDir);
-                            folderStructureCount++;
                             console.log("Created project structure for project: " + projectName);
                         }
                     } catch (err) {
                         console.error(`Failed to create folder structure at ${newProjectDir}:`, err);
                     }
+                    distributionProjectCount++;
                 } else {
                     // Recurse into subdirectories
                     await checkAndCreateFolderStructures(projectPath);
@@ -233,7 +233,7 @@ async function createFolderStructuresForDistributionProjects(
         }
     }
     await checkAndCreateFolderStructures(destinationFolderPath);
-    return folderStructureCount;
+    return distributionProjectCount;
 }
 
 /**
@@ -253,8 +253,7 @@ export async function generateProjectDirToResolvedPomMap(multiModuleProjectDir: 
     const projectDirToResolvedPomMap = new Map<string, string>();
 
     await copyMavenWrapper(extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')), multiModuleProjectDir);
-    const mavenPath = path.join(multiModuleProjectDir, process.platform === 'win32' ? 'mvnw.cmd' : 'mvnw');
-    const resolvedPomContent = await getResolvedPomXmlContent(path.join(multiModuleProjectDir, 'pom.xml'), mavenPath);
+    const resolvedPomContent = await getResolvedPomXmlContent(path.join(multiModuleProjectDir, 'pom.xml'));
 
     const projectRegex = /<project[\s\S]*?<\/project>/g;
     let match;
@@ -400,7 +399,11 @@ export async function migrateConfigs(projectUri: string, source: string, target:
         if (createdProjectCount <= MAX_PROJECTS_TO_OPEN) {
             await commands.executeCommand('workbench.action.closeWindow');
         } else {
-            window.showWarningMessage(`Processed ${createdProjectCount} distribution projects and multiple integration projects were migrated. Please open them from the file explorer.`);
+            await window.showWarningMessage(
+                `Processed ${createdProjectCount} composite exporters and integration projects were created for each. Please open them from the file explorer.`,
+                { modal: true },
+                'OK'
+            );
             commands.executeCommand('workbench.view.explorer');
         }
     } else if (projectType === Nature.LEGACY) {
@@ -684,18 +687,20 @@ function extractXmlFromMavenOutput(output: string): string | null {
 }
 
 /**
- * Generates and returns the resolved (effective) POM XML content for a given Maven `pom.xml` file.
- * 
- * This function executes the Maven `help:effective-pom` goal using the specified Maven executable and POM file path,
- * captures the output, and extracts the effective POM XML content from it.
- * 
- * @param pomFilePath - The absolute path to the `pom.xml` file whose effective POM is to be resolved.
- * @param mvnPath - The path to the Maven executable to use for running the command.
- * @returns The resolved effective POM XML content as a string, or an empty string if extraction fails.
+ * Executes the Maven `help:effective-pom` goal on the specified `pom.xml` file and returns the resolved effective POM XML content as a string.
+ *
+ * This function spawns a Maven process in the directory of the provided POM file, capturing its output.
+ * It extracts the effective POM XML from the Maven output.
+ * If the Maven process fails or the output does not contain valid XML, an empty string is returned.
+ *
+ * @param pomFilePath - The absolute path to the `pom.xml` file for which to resolve the effective POM.
+ * @returns A promise that resolves to the effective POM XML content as a string, or an empty string if extraction fails.
  */
-export async function getResolvedPomXmlContent(pomFilePath: string, mvnPath: string): Promise<string> {
-    const command = `${mvnPath} -f "${pomFilePath}" help:effective-pom`;
+export async function getResolvedPomXmlContent(pomFilePath: string): Promise<string> {
+    const mvnCmd = process.platform === "win32" ? ".\\mvnw.cmd" : "./mvnw";
+    const command = `${mvnCmd} -f "${pomFilePath}" help:effective-pom`;
     const pomDir = path.dirname(pomFilePath);
+    console.log(`Running command: ${command} in directory: ${pomDir}`);
 
     return new Promise((resolve, reject) => {
         let output = '';
@@ -734,7 +739,7 @@ export async function getResolvedPomXmlContent(pomFilePath: string, mvnPath: str
         });
 
         child.on('error', (err) => {
-            console.error(`Failed to start Maven process for ${pomFilePath}:`, err);
+            console.error(`Failed to start Maven process to obtain effective pom.xml for ${pomFilePath}:`, err);
             resolve('');
         });
     });
