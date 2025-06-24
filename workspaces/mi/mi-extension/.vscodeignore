@@ -22,3 +22,4 @@ config
 vsix/**
 test-results/**
 .rush/**
+.env

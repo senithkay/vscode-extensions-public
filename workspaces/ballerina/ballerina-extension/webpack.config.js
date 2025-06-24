@@ -4,6 +4,7 @@
 
 const path = require('path');
 const MergeIntoSingleFile = require('webpack-merge-and-include-globally');
+const Dotenv = require('dotenv-webpack');
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
@@ -44,6 +45,7 @@ module.exports = {
   },
   stats: 'normal',
   plugins: [
+    new Dotenv(),
     new MergeIntoSingleFile({
       files: {
         [path.join('..', 'resources', 'jslibs', 'webviewCommons.js')]: [

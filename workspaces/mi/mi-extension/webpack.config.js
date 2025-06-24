@@ -12,12 +12,10 @@
 'use strict';
 
 const path = require('path');
+const Dotenv = require('dotenv-webpack');
 
-//@ts-check
-/** @typedef {import('webpack').Configuration} WebpackConfig **/
-
-/** @type WebpackConfig */
-const extensionConfig = {
+/** @type {import('webpack').Configuration} */
+module.exports = {
   target: 'node',
 	mode: 'none',
 
@@ -47,9 +45,11 @@ const extensionConfig = {
       }
     ]
   },
+  plugins: [
+    new Dotenv()
+  ],
   devtool: 'nosources-source-map',
   infrastructureLogging: {
     level: "log",
   },
 };
-module.exports = [ extensionConfig ];
