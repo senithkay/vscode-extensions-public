@@ -6,13 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { WebAppCreation, WebAppCreationProps } from "./WebAppCreation";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { WebAppCreation } from "./WebAppCreation";
 
-const Template: ComponentStory<typeof WebAppCreation> = (args: WebAppCreationProps) => <WebAppCreation {...args} />;
+const meta = {
+    component: WebAppCreation,
+    title: "Sample Form",
+} satisfies Meta<typeof WebAppCreation>;
+export default meta;
 
-export const WebAppCreationForm = Template.bind();
-WebAppCreationForm.args = { sx: { width: 600 } };
+type Story = StoryObj<typeof WebAppCreation>;
 
-export default { component: WebAppCreationForm, title: "Sample Form" };
+export const WebAppCreationForm: Story = {
+    args: {
+        sx: { width: 600 }
+    }
+};

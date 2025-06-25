@@ -6,16 +6,21 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Icon, IconProps } from "./Icon";
 
-const Template: ComponentStory<typeof Icon> = (args: IconProps) => <Icon {...args} />;
+const meta: Meta<typeof Icon> = {
+    component: Icon,
+    title: "Icon",
+};
+export default meta;
 
-export const SampleIcon = Template.bind();
-SampleIcon.args = { name: "ballerina" };
+type Story = StoryObj<IconProps>;
 
-export const SampleCodicon = Template.bind();
-SampleCodicon.args = { name: "plus", isCodicon: true };
+export const SampleIcon: Story = {
+    args: { name: "ballerina" },
+};
 
-export default { component: Icon, title: "Icon" };
+export const SampleCodicon: Story = {
+    args: { name: "plus", isCodicon: true },
+};

@@ -7,21 +7,30 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Item, Menu, MenuProps } from "./Menu";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Item, Menu } from "./Menu";
 import { MenuItem } from "./MenuItem";
 
-const items: Item[] = [{id: "test", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}, disabled: false}, 
+const items: Item[] = [
+    {id: "test", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}, disabled: false},
     {id: "test2", label: <>Test Item 2</>, onClick: () => {console.log("Item Selected")}, disabled: false}
 ];
-const Template: ComponentStory<typeof Menu> = (args: MenuProps) => 
-    <Menu {...args}> 
-        {items.map((item: Item) => 
-            (<MenuItem key={`item ${item.id}`} item={item} onClick={() => {console.log(`Clicked Item ${item.id}`)}} />)
-        )}
-    </Menu>;
 
-export const MenuC = Template.bind();
-MenuC.args = { id: "menu" };
+const meta = {
+    component: Menu,
+    title: "Menu",
+} satisfies Meta<typeof Menu>;
+export default meta;
 
-export default { component: MenuC, title: "Menu" };
+type Story = StoryObj<typeof Menu>;
+
+export const MenuC: Story = {
+    args: { id: "menu" },
+    render: args => (
+        <Menu {...args}>
+            {items.map((item: Item) => (
+                <MenuItem key={`item ${item.id}`} item={item} onClick={() => {console.log(`Clicked Item ${item.id}`)}} />
+            ))}
+        </Menu>
+    ),
+};

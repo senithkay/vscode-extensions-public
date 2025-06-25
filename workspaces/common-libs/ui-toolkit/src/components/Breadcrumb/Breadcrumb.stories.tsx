@@ -8,24 +8,30 @@
  */
 
 import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Breadcrumbs, BreadcrumbProps } from "./Breadcrumb";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { BreadcrumbProps, Breadcrumbs } from "./Breadcrumb";
 import { Codicon } from "../Codicon/Codicon";
 
-const Template: ComponentStory<typeof Breadcrumbs> = (args: BreadcrumbProps) => (
-    <Breadcrumbs {...args}>
-        <div key={1}>Home</div>
-        <div key={2}>Products</div>
-        <div key={3}>Category</div>
-        <div key={4}>Sub Category</div>
-        <div key={5}>Product</div>
-    </Breadcrumbs>
-);
+const meta = {
+    component: Breadcrumbs,
+    title: "Breadcrumb",
+} satisfies Meta<typeof Breadcrumbs>;
+export default meta;
 
-export const Default = Template.bind();
-Default.args = {
-    maxItems: 3,
-    separator: <Codicon name="chevron-right" />,
+type Story = StoryObj<typeof Breadcrumbs>;
+
+export const Default: Story = {
+    args: {
+        maxItems: 3,
+        separator: <Codicon name="chevron-right" />,
+    },
+    render: (args: BreadcrumbProps) => (
+        <Breadcrumbs {...args}>
+            <div key={1}>Home</div>
+            <div key={2}>Products</div>
+            <div key={3}>Category</div>
+            <div key={4}>Sub Category</div>
+            <div key={5}>Product</div>
+        </Breadcrumbs>
+    ),
 };
-
-export default { component: Breadcrumbs, title: "Breadcrumb" };
