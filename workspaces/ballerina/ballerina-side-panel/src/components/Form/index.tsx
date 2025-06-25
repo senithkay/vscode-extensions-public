@@ -722,7 +722,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         .map((field) => {
                             if (
                                 ((field.key === "variable" || field.key === "type") && variableField) ||
-                                field.advanced
+                                field.advanced ||
+                                field.hidden
                             ) {
                                 return;
                             }
