@@ -4290,8 +4290,8 @@ ${keyValuesXML}`;
         );
         if (confirm === 'Yes') {
             const token = await extension.context.secrets.get('MIAIUser');
-            const clientId = process.env.AUTH_CLIENT_ID || config.get('authClientID') as string;
-            const authOrg = process.env.AUTH_ORG || config.get('authOrg') as string;
+            const clientId = process.env.MI_AUTH_CLIENT_ID || config.get('authClientID') as string;
+            const authOrg = process.env.MI_AUTH_ORG || config.get('authOrg') as string;
 
             let response = await fetch(`https://api.asgardeo.io/t/${authOrg}/oauth2/revoke`, {
                 method: 'POST',
@@ -4475,8 +4475,8 @@ ${keyValuesXML}`;
         };
         const refresh_token = await extension.context.secrets.get('MIAIRefreshToken');
         const config = vscode.workspace.getConfiguration('MI');
-        const AUTH_ORG = process.env.AUTH_ORG || config.get('authOrg') as string;
-        const AUTH_CLIENT_ID = process.env.AUTH_CLIENT_ID || config.get('authClientID') as string;
+        const AUTH_ORG = process.env.MI_AUTH_ORG || config.get('authOrg') as string;
+        const AUTH_CLIENT_ID = process.env.MI_AUTH_CLIENT_ID || config.get('authClientID') as string;
         if (!refresh_token) {
             throw new Error("Refresh token is not available.");
         } else {

@@ -17,8 +17,8 @@ import { StateMachine } from "../../stateMachine";
 
 const config = workspace.getConfiguration('ballerina');
 export const BACKEND_URL : string = process.env.ROOT_URL || config.get('rootUrl');
-export const AUTH_ORG : string = process.env.AUTH_ORG || config.get('authOrg') ;
-export const AUTH_CLIENT_ID : string = process.env.AUTH_CLIENT_ID || config.get('authClientID');
+export const AUTH_ORG : string = process.env.BALLERINA_AUTH_ORG || config.get('authOrg') ;
+export const AUTH_CLIENT_ID : string = process.env.BALLERINA_AUTH_CLIENT_ID || config.get('authClientID');
 export const AUTH_REDIRECT_URL : string = process.env.AUTH_REDIRECT_URL || config.get('authRedirectURL');
 
 export async function closeAllBallerinaFiles(dirPath: string): Promise<void> {

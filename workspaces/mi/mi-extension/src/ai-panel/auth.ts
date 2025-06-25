@@ -29,8 +29,8 @@ const CommonReqHeaders = {
 };
 
 const config = vscode.workspace.getConfiguration('MI');
-const AUTH_ORG = process.env.AUTH_ORG || config.get('authOrg') as string;
-const AUTH_CLIENT_ID = process.env.AUTH_CLIENT_ID || config.get('authClientID') as string;
+const AUTH_ORG = process.env.MI_AUTH_ORG || config.get('authOrg') as string;
+const AUTH_CLIENT_ID = process.env.MI_AUTH_CLIENT_ID || config.get('authClientID') as string;
 const AUTH_REDIRECT_URL = process.env.MI_AUTH_REDIRECT_URL || config.get('authRedirectURL') as string;
 
 export async function getAuthUrl(callbackUri: string): Promise<string> {

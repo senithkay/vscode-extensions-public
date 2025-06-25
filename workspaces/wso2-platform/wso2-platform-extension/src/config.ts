@@ -24,42 +24,42 @@ const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
     ghApp: {
         installUrl: process.env.DEFAULT_GHAPP_INSTALL_URL || config.get('Default.ghappInstallUrl') || '',
         authUrl: process.env.DEFAULT_GHAPP_AUTH_URL || config.get('Default.ghappAuthUrl') || '',
-        clientId: process.env.DEFAULT_GHAPP_CLIENT_ID || config.get('Default.ghappClientId') || '',
+        clientId: process.env.PLATFORM_DEFAULT_GHAPP_CLIENT_ID || config.get('Default.ghappClientId') || '',
         redirectUrl: process.env.DEFAULT_GHAPP_REDIRECT_URL || config.get('Default.ghappRedirectUrl') || '',
         devantRedirectUrl: process.env.DEFAULT_GHAPP_DEVANT_REDIRECT_URL || config.get('Default.ghappDevantRedirectUrl') || '',
     },
     choreoConsoleBaseUrl: process.env.DEFAULT_CHOREO_CONSOLE_BASE_URL || config.get('Default.choreoConsoleBaseUrl') || '',
     billingConsoleBaseUrl: process.env.DEFAULT_BILLING_CONSOLE_BASE_URL || config.get('Default.billingConsoleBaseUrl') || '',
     devantConsoleBaseUrl: process.env.DEFAULT_DEVANT_CONSOLE_BASE_URL || config.get('Default.devantConsoleBaseUrl') || '',
-    devantAsguadeoClientId: process.env.DEFAULT_DEVANT_ASGUADEO_CLIENT_ID || config.get('Default.devantAsguadeoClientId') || '',
+    devantAsguadeoClientId: process.env.PLATFORM_DEFAULT_DEVANT_ASGUADEO_CLIENT_ID || config.get('Default.devantAsguadeoClientId') || '',
 };
 
 const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
     ghApp: {
         installUrl: process.env.STAGE_GHAPP_INSTALL_URL || config.get('Stage.ghappInstallUrl') || '',
         authUrl: process.env.STAGE_GHAPP_AUTH_URL || config.get('Stage.ghappAuthUrl') || '',
-        clientId: process.env.STAGE_GHAPP_CLIENT_ID || config.get('Stage.ghappClientId') || '',
+        clientId: process.env.PLATFORM_STAGE_GHAPP_CLIENT_ID || config.get('Stage.ghappClientId') || '',
         redirectUrl: process.env.STAGE_GHAPP_REDIRECT_URL || config.get('Stage.ghappRedirectUrl') || '',
         devantRedirectUrl: process.env.STAGE_GHAPP_DEVANT_REDIRECT_URL || config.get('Stage.ghappDevantRedirectUrl') || '',
     },
     choreoConsoleBaseUrl: process.env.STAGE_CHOREO_CONSOLE_BASE_URL || config.get('Stage.choreoConsoleBaseUrl') || '',
     billingConsoleBaseUrl: process.env.STAGE_BILLING_CONSOLE_BASE_URL || config.get('Stage.billingConsoleBaseUrl') || '',
     devantConsoleBaseUrl: process.env.STAGE_DEVANT_CONSOLE_BASE_URL || config.get('Stage.devantConsoleBaseUrl') || '',
-    devantAsguadeoClientId: process.env.STAGE_DEVANT_ASGUADEO_CLIENT_ID || config.get('Stage.devantAsguadeoClientId') || '',
+    devantAsguadeoClientId: process.env.PLATFORM_STAGE_DEVANT_ASGUADEO_CLIENT_ID || config.get('Stage.devantAsguadeoClientId') || '',
 };
 
 const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
     ghApp: {
         installUrl: process.env.DEV_GHAPP_INSTALL_URL || config.get('Dev.ghappInstallUrl') || '',
         authUrl: process.env.DEV_GHAPP_AUTH_URL || config.get('Dev.ghappAuthUrl') || '',
-        clientId: process.env.DEV_GHAPP_CLIENT_ID || config.get('Dev.ghappClientId') || '',
+        clientId: process.env.PLATFORM_DEV_GHAPP_CLIENT_ID || config.get('Dev.ghappClientId') || '',
         redirectUrl: process.env.DEV_GHAPP_REDIRECT_URL || config.get('Dev.ghappRedirectUrl') || '',
         devantRedirectUrl: process.env.DEV_GHAPP_DEVANT_REDIRECT_URL || config.get('Dev.ghappDevantRedirectUrl') || '',
     },
     choreoConsoleBaseUrl: process.env.DEV_CHOREO_CONSOLE_BASE_URL || config.get('Dev.choreoConsoleBaseUrl') || '',
     billingConsoleBaseUrl: process.env.DEV_BILLING_CONSOLE_BASE_URL || config.get('Dev.billingConsoleBaseUrl') || '',
     devantConsoleBaseUrl: process.env.DEV_DEVANT_CONSOLE_BASE_URL || config.get('Dev.devantConsoleBaseUrl') || '',
-    devantAsguadeoClientId: process.env.DEV_DEVANT_ASGUADEO_CLIENT_ID || config.get('Dev.devantAsguadeoClientId') || '',
+    devantAsguadeoClientId: process.env.PLATFORM_DEV_DEVANT_ASGUADEO_CLIENT_ID || config.get('Dev.devantAsguadeoClientId') || '',
 };
 
 class ChoreoEnvConfig {
