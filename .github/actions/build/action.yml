@@ -116,6 +116,7 @@ runs:
         version: ${{ inputs.version }}
 
     - name: Copy .env.example to .env
+      shell: bash
       run: |
         find . -type f -name ".env.example" | while read example; do
           envfile="$(dirname "$example")/.env"
