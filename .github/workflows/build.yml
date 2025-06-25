@@ -186,6 +186,24 @@ jobs:
           unzip build.zip
           rm build.zip
 
+      - name: Generate .env for ballerina-extension from .env.example
+        run: |
+          if [ -f workspaces/ballerina/ballerina-extension/.env.example ]; then
+            cp workspaces/ballerina/ballerina-extension/.env.example workspaces/ballerina/ballerina-extension/.env
+          fi
+      
+      - name: Generate .env for mi-extension from .env.example
+        run: |
+          if [ -f workspaces/mi/mi-extension/.env.example ]; then
+            cp workspaces/mi/mi-extension/.env.example workspaces/mi/mi-extension/.env
+          fi
+
+      - name: Generate .env for wso2-platform-extension from .env.example
+        run: |
+          if [ -f workspaces/wso2-platform/wso2-platform-extension/.env.example ]; then
+            cp workspaces/wso2-platform/wso2-platform-extension/.env.example workspaces/wso2-platform/wso2-platform-extension/.env
+          fi
+
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
