@@ -116,11 +116,32 @@ export class ConfigEditor {
         console.log(`Verify warning for config variable ${variableName}`);
         const configVariableItem = this.webView.locator(`div#${variableName}-variable`);
         await configVariableItem.waitFor({ state: 'visible', timeout: 30000 });
-        
+
         // Verify the Required warning text is visible
         const requiredWarningText = configVariableItem.locator('span', { hasText: 'Required' });
         await requiredWarningText.waitFor({ state: 'visible', timeout: 30000 });
         const requiredTextVisible = await requiredWarningText.isVisible();
         expect(requiredTextVisible, `Required warning text for variable "${variableName}" was not verified successfully.`).toBe(true);
     }
+
+    public async getSelectedPackage(): Promise<string> {
+        const titleDiv = this.webView.locator('div#TitleDiv h2');
+        await titleDiv.waitFor({ state: 'visible', timeout: 30000 });
+        return (await titleDiv.textContent())?.trim() || '';
+    }
+
+    public async selectPackage(packageName: string) {
+        console.log(`Selecting package ${packageName}`);
+        const packageTreeview = this.webView.locator(`div#package-treeview`);
+        await packageTreeview.waitFor({ state: 'visible', timeout: 30000 });
+        // Try to click the <p> element with the package name if span is not found
+        const packageItem = packageTreeview.locator('p', { hasText: packageName });
+        await packageItem.waitFor({ state: 'visible', timeout: 30000 });
+        await packageItem.click();
+
+        // Verify the package is selected
+        const selectedPackage = await this.getSelectedPackage();
+        expect(selectedPackage, `Package "${packageName}" was not selected successfully.`).toBe(packageName);
+        console.log(`Package ${packageName} selected successfully`);
+    }   
 }

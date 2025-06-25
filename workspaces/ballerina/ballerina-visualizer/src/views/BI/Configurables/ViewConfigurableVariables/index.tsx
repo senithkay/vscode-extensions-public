@@ -640,7 +640,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                     <div style={{ width: "auto" }}>
                         <SplitView defaultWidths={[20, 80]} dynamicContainerSx={{ overflow: "visible" }}>
                             {/* Left side tree view */}
-                            <div style={{ padding: "10px 0 50px 0" }}>
+                            <div id={`package-treeview`} style={{ padding: "10px 0 50px 0" }}>
                                 {/* Display integration category first */}
                                 {(searchValue ? filteredCategoriesWithModules : categoriesWithModules)
                                     .filter(category => category.name === integrationCategory)

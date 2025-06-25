@@ -6,8 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { test } from '@playwright/test';
-import { addArtifact, initTest, page } from '../utils';
+import { expect, test } from '@playwright/test';
+import { addArtifact, enableICP, initTest, page } from '../utils';
 import { Form, switchToIFrame } from '@wso2-enterprise/playwright-vscode-tester';
 import { ConfigEditor } from '../ConfigEditor';
 import { config } from 'process';
@@ -18,7 +18,9 @@ export default function createTests() {
     }, async () => {
         initTest();
         test('Create Configuration', async () => {
-            // Creating a Automation
+            await enableICP();
+
+            // Create new configurable variables in configuration view
             await addArtifact('Configuration', 'configurable');
 
             // Wait for 3 seconds to ensure the webview is loaded
@@ -27,6 +29,10 @@ export default function createTests() {
             const configEditor = new ConfigEditor(page.page, 'WSO2 Integrator: BI');
             await configEditor.init();
             const configurationWebView = configEditor.getWebView();
+
+            // Verify initial configuration view selects integration package
+            const selectedPackage = await configEditor.getSelectedPackage();
+            expect(selectedPackage).toBe('Integration');
 
             // Verify Configurable Variables view
             await configEditor.verifyPageLoaded();
@@ -76,11 +82,9 @@ export default function createTests() {
             });
 
             await configurationWebView.getByRole('button', { name: 'Save' }).click();
-
             await configEditor.verifyConfigurableVariable('time', '200', '');
 
             await configEditor.addConfigTomlValue('time', '500');
-
             await configEditor.verifyConfigurableVariable('time', '200', '500');
 
             // Create a new configurable variable with no default value
@@ -103,12 +107,14 @@ export default function createTests() {
             });
 
             await configurationWebView.getByRole('button', { name: 'Save' }).click();
-
             await configEditor.verifyConfigurableVariable('place', '', '');
-
             await configEditor.verifyWarning('place');
 
             await configEditor.deleteConfigVariable('place');
+
+            await configEditor.selectPackage('ballerinax/wso2.controlplane');
+            await configEditor.addConfigTomlValue('dashboard', 'example-dashboard');
+            await configEditor.verifyConfigurableVariable('dashboard', '', 'example-dashboard');
 
         });
     });
