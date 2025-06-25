@@ -621,6 +621,21 @@ function generateProjectDirToMetaFilesMap(projectDirsWithType: { projectDir: str
 }
 
 /**
+ * Returns a normalized, joined path from a base path and a relative (or mixed-format) path.
+ *
+ * @param basePath - The base directory path (absolute or relative)
+ * @param relativePath - A relative path that may contain mixed separators
+ * @returns A normalized, platform-safe full path
+ */
+function getNormalizedPath(basePath: string, relativePath: string): string {
+    if (!relativePath) return basePath;
+
+    // Ensure separators are consistent before normalizing
+    const cleanedRelativePath = path.normalize(relativePath.replace(/\\/g, '/'));
+    return path.join(basePath, cleanedRelativePath);
+}
+
+/**
  * Retrieves file information for a given artifact within a project.
  *
  * This function attempts to resolve the file or directory path associated with the provided artifact,
@@ -638,7 +653,7 @@ function getFileInfoForArtifact(
     projectType: Nature | undefined
 ): FileInfo | null {
     if (artifact.file) {
-        const artifactFilePath = path.join(projectFilePath, ...artifact.file.split('/'));
+        const artifactFilePath = getNormalizedPath(projectFilePath, artifact.file);
         if (fs.existsSync(artifactFilePath)) {
             return { path: artifactFilePath, artifact, projectType };
         }
@@ -647,7 +662,7 @@ function getFileInfoForArtifact(
         const items = Array.isArray(artifact.item) ? artifact.item : [artifact.item];
         const firstItem = items[0];
         if (firstItem && firstItem.file) {
-            const artifactFilePath = path.join(projectFilePath, ...firstItem.file.split('/'));
+            const artifactFilePath = getNormalizedPath(projectFilePath, firstItem.file);
             if (fs.existsSync(artifactFilePath)) {
                 return { path: artifactFilePath, artifact, projectType };
             }
@@ -657,7 +672,7 @@ function getFileInfoForArtifact(
         const collections = Array.isArray(artifact.collection) ? artifact.collection : [artifact.collection];
         const firstCollection = collections[0];
         if (firstCollection && firstCollection.directory) {
-            const artifactPath = path.join(projectFilePath, ...firstCollection.directory.split('/'));
+            const artifactPath =  getNormalizedPath(projectFilePath, firstCollection.directory);
             if (fs.existsSync(artifactPath)) {
                 return { path: artifactPath, artifact, projectType };
             }
