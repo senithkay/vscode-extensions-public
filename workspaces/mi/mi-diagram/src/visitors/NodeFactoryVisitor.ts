@@ -225,7 +225,7 @@ export class NodeFactoryVisitor implements Visitor {
 
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END;
-                const isEndNode = previousStNode.tag === MEDIATORS.SEND.toLowerCase() || previousStNode.tag === MEDIATORS.RESPOND.toLowerCase();
+                const isAfterReturnNode = previousStNode.tag === MEDIATORS.SEND.toLowerCase() || previousStNode.tag === MEDIATORS.RESPOND.toLowerCase();
 
                 let addPosition: NodeAddPosition;
                 if (this.currentAddPosition != undefined) {
@@ -241,7 +241,7 @@ export class NodeFactoryVisitor implements Visitor {
                 }
 
                 const showAddButton = addPosition !== undefined && !isSequnceConnect 
-                    && !isEndNode &&
+                    && !isAfterReturnNode &&
                     !(previousNode instanceof EmptyNodeModel
                         && !previousNode.visible)
                     && type !== NodeTypes.PLUS_NODE
