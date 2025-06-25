@@ -9,18 +9,11 @@
 
 import { RefObject, useState } from 'react';
 import { Codicon, FormExpressionEditorRef, HelperPane, HelperPaneCustom, HelperPaneHeight } from '@wso2-enterprise/ui-toolkit';
-// import { ConfigurablePage } from './ConfigurablePage';
-// import { FunctionsPage } from './FunctionsPage';
-// import { SuggestionsPage } from './SuggestionsPage';
-// import { ConfigureRecordPage } from './ConfigureRecordPage';
 import { LineRange } from '@wso2-enterprise/ballerina-core';
 import { RecordTypeField } from '@wso2-enterprise/ballerina-core';
-import { SuggestionsPage } from '../HelperPane/SuggestionsPage';
-import styled from '@emotion/styled';
-import { HelperBackground } from './styles/Backgrounds';
 import { ExpandableList } from './Components/ExpandableList';
-import { transform } from 'lodash';
-import { SlidingPaneContext, useSlidingPane } from './context/SlidingPaneContext';
+import { CopilotFooter, PevButton, SlidingPane, SlidingPaneBackButton, SlidingPaneHeader, SlidingPaneNavContainer, SlidingWindow } from '@wso2-enterprise/ui-toolkit/lib/components/ExpressionEditor/components/Common/SlidingPane';
+import { Variables } from './Views/Variables';
 
 export type HelperPaneNewProps = {
     fieldKey: string;
@@ -84,141 +77,65 @@ const HelperPaneNewEl = ({
     };
 
     return (
-        <HelperPaneCustom sx={{ width: 300, padding: '10px 2px', height: '220px' }}>
-            <SlidingWindow>
-                <SlidingPane name="PAGE1" nextView='PAGE2' index={0} currentPage={currentPage}>
-                    <HelperPane.Body>
-                        Page1
-                        <ExpandableList />
-                    </HelperPane.Body>
-                    <HelperPane.Footer>
-                    <CopilotFooter >
-                            <Codicon name="add"/> <span>Generate with BI Copilot</span>
-                            <NextButton/>
-                    </CopilotFooter>
-                    </HelperPane.Footer>
-                </SlidingPane>
-                <SlidingPane name="PAGE2" nextView='PAGE3' prevView='PAGE1' index={1} currentPage={currentPage}>
-                     <HelperPane.Body>
-                        Page2
-                        <NextButton/>
-                        <PevButton/>
-                    </HelperPane.Body>
-                    <HelperPane.Footer>
-                    <CopilotFooter >
-                            <Codicon name="add"/> <span>Generate with BI Copilot</span>
-                    </CopilotFooter>
-                    </HelperPane.Footer>
-                </SlidingPane>
-                 <SlidingPane name="PAGE3" prevView='PAGE2' index={1} currentPage={currentPage}>
-                     <HelperPane.Body>
-                        Page3
-                        <PevButton/>
-                    </HelperPane.Body>
-                    <HelperPane.Footer>
-                    <CopilotFooter >
-                            <Codicon name="add"/> <span>Generate with BI Copilot</span>
-                    </CopilotFooter>
-                    </HelperPane.Footer>
-                </SlidingPane>
-            </SlidingWindow>
+        <HelperPaneCustom >
+            <HelperPaneCustom.Body >
+                <SlidingWindow>
+                    <SlidingPane paneHeight='200px' name="PAGE1">
+                        <ExpandableList>
+                            <SlidingPaneNavContainer to="PAGE3">
+                                <ExpandableList.Item>
+                                    <Codicon name="bracket-dot" />
+                                    <span>Construct Record</span>
+                                </ExpandableList.Item>
+                            </SlidingPaneNavContainer>
+                            <SlidingPaneNavContainer to="PAGE2">
+                                <ExpandableList.Item>
+                                    <Codicon name="lightbulb" />
+                                    <span>Suggestions</span>
+                                </ExpandableList.Item>
+                            </SlidingPaneNavContainer>
+                            <SlidingPaneNavContainer to="PAGE_FUNCTIONS">
+                                <ExpandableList.Item>
+                                    <Codicon name="variable-group" />
+                                    <span>Functions</span>
+                                </ExpandableList.Item>
+                            </SlidingPaneNavContainer>
+                            <SlidingPaneNavContainer to="PAGE_CONFIGURABLES">
+                                <ExpandableList.Item>
+                                    <Codicon name="settings" />
+                                    <span>Configurables</span>
+                                </ExpandableList.Item>
+                            </SlidingPaneNavContainer>
+                        </ExpandableList>
+                        <SlidingPaneNavContainer to="PAGE2">
+                            <CopilotFooter>
+                                <Codicon name="add" /> <span>Generate with BI Copilot</span>
+                            </CopilotFooter>
+                        </SlidingPaneNavContainer>   
+                    </SlidingPane>
+
+                    {/* Variables Page */}
+                    <SlidingPane name="PAGE2">
+                        <SlidingPaneHeader> Variables</SlidingPaneHeader>
+                        <Variables/>
+                        <CopilotFooter >
+                                <Codicon name="add"/> <span>Generate with BI Copilot</span>
+                        </CopilotFooter>
+                    </SlidingPane>
+                        <SlidingPane name="PAGE3">
+                                <SlidingPaneHeader> This is Page 3</SlidingPaneHeader>
+                            Page3
+                            <PevButton/>
+
+                        <CopilotFooter >
+                                <Codicon name="add"/> <span>Generate with BI Copilot</span>
+                        </CopilotFooter>
+                    </SlidingPane>
+                </SlidingWindow>
+            </HelperPaneCustom.Body>
         </HelperPaneCustom>
     );
 };
-
-type SlidingPaneProps = { 
-    index: number, 
-    name: string,
-    currentPage: number 
-    nextView?: string,
-    prevView?: string,
-    children: React.ReactNode
-}
-
-const SlidingPane = ({  children, name, nextView, prevView}:SlidingPaneProps) => {
-    const { currentPage, nextPage, prevPage, setNextPage, setPrevPage } = useSlidingPane();
-    let index = 100;
-    if (name === currentPage) {
-        index = 0
-        if (nextView) {
-            setNextPage(nextView);
-        }
-        if (prevView) {
-            setPrevPage(prevView);
-        }
-    }
-    else if (name === nextPage) {
-        index = 1;
-    } else if (name === prevPage) {
-        index = -1;
-    }
-    else {
-        return null;
-    }
-    return (
-        <SlidingPaneContainer index={index}>
-            {children}
-        </SlidingPaneContainer>
-    );
-}
-
-
-const SlidingPaneContainer = styled.div<{ index: number }>`
-  position: absolute;
-  width: 300px;
-  height: 100%;
-  transition: transform 0.3s ease-in-out;
-  transform: ${({ index }: { index: number }) => `translateX(${index * 100}%)`};
-`;
-
-type SlidingWindowProps = {
-    children: React.ReactNode;
-}
-
-const SlidingWindow = ({children}:SlidingWindowProps) => {
-    const [currentPage, setCurrentPage] = useState("PAGE2");
-    const [nextPage, setNextPage] = useState("PAGE3");     
-    const [prevPage, setPrevPage] = useState("PAGE1");
-
-    const moveToNext = (nextPage:string) => {
-        setCurrentPage(nextPage);
-    };
-
-    const moveToPrev = (prevPage:string) => {
-        setCurrentPage(prevPage);
-    };
-    return (
-        <SlidingPaneContext.Provider 
-            value={{ 
-                currentPage: currentPage, 
-                nextPage: nextPage, 
-                prevPage: prevPage, 
-                next: moveToNext, 
-                prev: moveToPrev, 
-                setNextPage: setNextPage, 
-                setPrevPage: setPrevPage 
-                }}>
-            <SlidingWindowContainer>
-                {children}
-            </SlidingWindowContainer>
-        </SlidingPaneContext.Provider>
-    );
-}
-
-const SlidingWindowContainer = styled.div`
-    display: flex;
-    overflow-x: hidden;
-    position: relative;
-    width: 100%;
-    height: 100%;
-`;
-
-const CopilotFooter = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-`;
 
 /**
  * Function to render the helper pane for the expression editor
@@ -273,23 +190,3 @@ export const getHelperPaneNew = (props: HelperPaneNewProps) => {
         />
     );
 };
-
-
-
-const NextButton = () => {
-    const {  next, nextPage } = useSlidingPane();
-    return (
-        <button onClick={() => next(nextPage)} >
-            Next
-        </button>
-    );
-}
-
-const PevButton = () => {
-    const {  prev, prevPage } = useSlidingPane();
-    return (
-        <button onClick={() => prev(prevPage)} >
-            Prev
-        </button>
-    );
-}

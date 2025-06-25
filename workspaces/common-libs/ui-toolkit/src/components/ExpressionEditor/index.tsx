@@ -13,6 +13,7 @@ export { HeaderExpressionEditorWrapper as HeaderExpressionEditor } from './compo
 export { TokenEditor } from './components/Token';
 export { default as HelperPane } from './components/Common/HelperPane';
 export { default as HelperPaneCustom } from './components/Common/HelperPaneCustom';
+export { SlidingPaneContainer } from './components/Common/SlidingPane';
 
 /* Types */
 export * from './types';

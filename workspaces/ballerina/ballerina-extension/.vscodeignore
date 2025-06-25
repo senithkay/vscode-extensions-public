@@ -71,3 +71,4 @@ ballerina-low-code-editor/
 .rush/
 config/
 **/*.log
+.env

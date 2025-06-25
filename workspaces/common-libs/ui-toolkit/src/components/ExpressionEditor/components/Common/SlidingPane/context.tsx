@@ -5,17 +5,22 @@ interface SlidingPaneContextType {
   currentPage: string;
   nextPage:string;
   prevPage: string;
+  height:string;
+  width:number;
   next:(nextPage:string) => void;
   prev:(nextPage:string) => void;
   setNextPage:(nextPage:string) => void;
   setPrevPage:(prevPage:string) => void;
+  setHeight:(height:string) => void;
+  setWidth:(width:number) => void;
+  setcurrentPage:(currentPage:string) => void;
 }
 export const SlidingPaneContext = createContext<SlidingPaneContextType | undefined>(undefined);
 
 export const useSlidingPane = () => {
-  const context = useContext(SlidingPaneContext);
-  if (!context) {
-    throw new Error('useSlidingPane must be used within a SlidingPaneProvider');
-  }
-  return context;
+    const context = useContext(SlidingPaneContext);
+    if (!context) {
+        throw new Error('useSlidingPane must be used within a SlidingPaneProvider');
+    }
+    return context;
 };

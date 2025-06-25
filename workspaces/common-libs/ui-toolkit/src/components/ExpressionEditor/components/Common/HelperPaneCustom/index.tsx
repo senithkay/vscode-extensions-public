@@ -33,7 +33,7 @@ import { Divider } from '../../../../Divider/Divider';
 import { SearchBox } from '../../../../SeachBox/SearchBox';
 import Typography from '../../../../Typography/Typography';
 import { Overlay } from '../../../../Commons/Overlay';
-import { ARROW_HEIGHT, HELPER_PANE_WIDTH } from '../../../constants';
+import { ARROW_HEIGHT } from '../../../constants';
 import { HelperPanePanelProvider, useHelperPanePanelContext } from './context';
 
 export const Arrow = styled.div<ArrowProps>`
@@ -292,17 +292,6 @@ const SectionContainer = styled.div`
     margin-bottom: 16px;
 `;
 
-const BodyContainer = styled.div<StyleBase>`
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 0;
-    padding-inline: 8px;
-    overflow-y: auto;
-
-    ${({ sx }: StyleBase) => sx}
-`;
-
 const SearchBoxContainer = styled.div`
     padding-inline: 8px;
 `;
@@ -333,11 +322,9 @@ const HeaderContainerWithSearch = styled.div`
 const DropdownBody = styled.div<{  sx?: CSSProperties }>`
     display: flex;
     flex-direction: column;
-    width: ${HELPER_PANE_WIDTH}px;
     padding: 2px;
     border-radius: 2px;
     color: var(--input-foreground);
-    background-color: var(--vscode-dropdown-background);
     ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
 
@@ -689,17 +676,11 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const Body: React.FC<HelperPaneBodyProps> = ({ children, loading = false, className, sx }) => {
+const Body: React.FC<HelperPaneBodyProps> = ({ children }) => {
     return (
-        <BodyContainer className={className} sx={sx}>
-            {loading ? (
-                <Loader columns={2} rows={3} sections={3} />
-            ) : React.Children.toArray(children).length > 0 ? (
-                children
-            ) : (
-                <Typography variant="body3">No items found.</Typography>
-            )}
-        </BodyContainer>
+        <div >
+            {children}
+        </div>
     );
 };
 

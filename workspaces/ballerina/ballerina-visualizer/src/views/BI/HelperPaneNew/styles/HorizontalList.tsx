@@ -8,14 +8,10 @@ export const HorizontalListContainer = styled.div`
 
 export const HorizontalListItem = styled.div`
     display: flex;
+    width: 100%;
     gap: 3px;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 10px;
-    &:hover {
-        background-color:rgb(29, 29, 29);
-        cursor: pointer;
-    }
 `;
 
 export const HorizontalListItemLeftContent = styled.div`

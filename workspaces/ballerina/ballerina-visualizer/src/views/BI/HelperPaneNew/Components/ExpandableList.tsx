@@ -1,31 +1,34 @@
 import { Codicon } from "@wso2-enterprise/ui-toolkit"
 import { HorizontalListContainer, HorizontalListItem, HorizontalListItemLeftContent } from "../styles/HorizontalList"
+import React from "react";
 
 
-export const ExpandableList = () => {
+type ExpandableListProps = {
+    children: React.ReactNode;
+};
+
+export const ExpandableList = ({ children }: ExpandableListProps) => {
     return (
         <HorizontalListContainer>
-            <ExpandableListItem title="Construct Record" icon={<Codicon name="bracket-dot" />}/>
-            <ExpandableListItem title="Suggestions" icon={<Codicon name="lightbulb" />}/>
-            <ExpandableListItem title="Functions" icon={<Codicon name="variable-group" />}/>
-            <ExpandableListItem title="Configurables" icon={<Codicon name="settings" />}/>
+            {children}
         </HorizontalListContainer>
-    )
-}
+    );
+};
 
 type ExpandableListItemProps = {
-    title: string;
-    icon: React.ReactElement;
-}
+    children: React.ReactNode;
+};
 
-const ExpandableListItem = ({title, icon}:ExpandableListItemProps) => {
+const Item = ({ children }: ExpandableListItemProps) => {
     return (
         <HorizontalListItem>
             <HorizontalListItemLeftContent>
-                {icon}
-                <span>{title}</span>
+                {children}
             </HorizontalListItemLeftContent>
-            <Codicon name="chevron-right" />
         </HorizontalListItem>
-    )
-}
+    );
+};
+
+ExpandableList.Item = Item;
+
+export default ExpandableList;
