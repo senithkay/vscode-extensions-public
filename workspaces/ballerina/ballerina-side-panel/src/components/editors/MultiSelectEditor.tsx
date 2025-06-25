@@ -95,7 +95,11 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
         if (value === NEW_OPTION) {
             return;
         }
-        return value || getValueForDropdown(field, index);
+        const itemValue = value || getValueForDropdown(field, index);
+        if (value === undefined) {
+            setValue(`${field.key}-${index}`, itemValue);
+        }
+        return itemValue;
     }).filter(Boolean);
 
     // Update the main field with the array of values

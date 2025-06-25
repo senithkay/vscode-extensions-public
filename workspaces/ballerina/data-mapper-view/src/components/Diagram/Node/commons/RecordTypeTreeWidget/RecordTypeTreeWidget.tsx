@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { TypeField } from "@wso2-enterprise/ballerina-core";
 
@@ -55,18 +55,20 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     }
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
-            <span className={classes.valueLabel}>
-                <InputSearchHighlight>{valueLabel ? valueLabel : id}</InputSearchHighlight>
-                {typeName && ":"}
-            </span>
-            {typeName && (
-                <span className={classes.inputTypeLabel}>
-                    {typeName}
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{ marginRight: "auto" }}>
+                <span className={classes.valueLabel}>
+                    <InputSearchHighlight>{valueLabel ? valueLabel : id}</InputSearchHighlight>
+                    {typeName && ":"}
                 </span>
-            )}
+                {typeName && (
+                    <span className={classes.inputTypeLabel}>
+                        {typeName}
+                    </span>
+                )}
 
-        </span>
+            </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {

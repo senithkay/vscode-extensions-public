@@ -12,7 +12,7 @@ import { Alert, Button, Codicon, Drawer, Dropdown, OptionProps, Typography } fro
 import * as yup from 'yup';
 import styled from '@emotion/styled';
 import { DATASOURCE, SIDE_PANEL_WIDTH } from '../../../../constants';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, Resolver, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Table } from '../../../../components/Table';
@@ -122,9 +122,10 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
         formState: { isValid },
         setValue,
         reset,
-    } = useForm({
+    } = useForm<GenerateResourceFields, any, GenerateResourceFields>({
         defaultValues: initialValues,
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema) as Resolver<GenerateResourceFields,any,GenerateResourceFields
+  >,
         mode: 'onChange',
     });
 

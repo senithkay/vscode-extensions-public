@@ -8,8 +8,8 @@
  */
 
 import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Grid, GridProps } from "./Grid";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Grid } from "./Grid";
 import { GridItem } from "./GridItem";
 
 interface Item {
@@ -25,24 +25,30 @@ const items: Item[] = [
     {id: "i4", label: <>Item 4</>, onClick: () => {console.log("Item4 Selected")}},
     {id: "i5", label: <>Item 5</>, onClick: () => {console.log("Item5 Selected")}},
     {id: "i6", label: <>Item 6</>, onClick: () => {console.log("Item6 Selected")}}
-]
+];
 
-const Template: ComponentStory<typeof Grid> = (args: GridProps) => (
-    <Grid {...args}>
-        {items.map(item => (
-            <GridItem
-                id={item.id}
-                key={item.id}
-                onClick={item.onClick}
-                sx={{color: 'var(--foreground)'}}
-            >
-                {item.label}
-            </GridItem>
-        ))}
-    </Grid>
-);
+const meta = {
+    component: Grid,
+    title: "Grid",
+} satisfies Meta<typeof Grid>;
+export default meta;
 
-export const GridC = Template.bind();
-GridC.args = { columns: 3};
+type Story = StoryObj<typeof Grid>;
 
-export default { component: GridC, title: "Grid" };
+export const GridC: Story = {
+    args: { columns: 3 },
+    render: args => (
+        <Grid {...args}>
+            {items.map(item => (
+                <GridItem
+                    id={item.id}
+                    key={item.id}
+                    onClick={item.onClick}
+                    sx={{color: 'var(--foreground)'}}
+                >
+                    {item.label}
+                </GridItem>
+            ))}
+        </Grid>
+    ),
+};

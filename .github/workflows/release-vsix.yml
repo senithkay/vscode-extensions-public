@@ -90,8 +90,8 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1.2.0
         with:
-          pnpm: 7.26.3
-          node: 16.x
+          pnpm: 10.10.0
+          node: 22.x
           cache-rush: false
           cache-pnpm: false
           set-env: false

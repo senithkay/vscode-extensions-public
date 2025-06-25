@@ -14,7 +14,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, ProgressRing, SearchBox, Typography, View } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
-import { BodyText, BodyTinyInfo } from "../../../styles";
+import { BodyText, BodyTinyInfo, TopBar } from "../../../styles";
 import { ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 import { TitleBar } from "../../../../components/TitleBar";
 import { TopNavigationBar } from "../../../../components/TopNavigationBar";
@@ -70,13 +70,6 @@ const LabelRow = styled.div`
 
 const StyledSearchInput = styled(SearchBox)`
     height: 30px;
-`;
-
-const TopBar = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 16px;
 `;
 
 interface ConnectorViewProps {

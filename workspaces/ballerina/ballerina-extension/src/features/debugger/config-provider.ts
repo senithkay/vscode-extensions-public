@@ -673,8 +673,6 @@ class FastRunDebugAdapter extends LoggingDebugSession {
     }
 }
 
-const outputChannel = window.createOutputChannel("Ballerina Integrator Executor");
-
 class BIRunAdapter extends LoggingDebugSession {
 
     notificationHandler: Disposable | null = null;

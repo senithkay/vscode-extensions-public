@@ -29,16 +29,16 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) 
     return (
         <ReactMarkdown
             components={{
-                h1: ({ node, ...props }: { node: any; [key: string]: any }) => (
+                h1: ({ node, ...props }: { node?: any; [key: string]: any }) => (
                     <h1 style={{ fontSize: "1.3em", fontWeight: "bold", marginTop: "20px" }} {...props} />
                 ),
-                h2: ({ node, ...props }: { node: unknown; [key: string]: any }) => (
+                h2: ({ node, ...props }: { node?: unknown; [key: string]: any }) => (
                     <h2 style={{ fontSize: "1.0em", fontWeight: "bold" }} {...props} />
                 ),
-                h3: ({ node, ...props }: { node: unknown; [key: string]: any }) => (
+                h3: ({ node, ...props }: { node?: unknown; [key: string]: any }) => (
                     <h3 style={{ fontSize: "1em", fontWeight: "bold" }} {...props} />
                 ),
-                p: ({ node, ...props }: { node: unknown; [key: string]: any }) => (
+                p: ({ node, ...props }: { node?: unknown; [key: string]: any }) => (
                     <p style={{ fontSize: "1em", lineHeight: "1.5" }} {...props} />
                 ),
             }}
@@ -128,7 +128,7 @@ const AIChatMessage: React.FC<ChatMessageProps> = ({ message, index }) => {
                 {message.role === Role.MIUser ? <Codicon name="account" /> : <Codicon name="hubot" />}
                 <h3 style={{ margin: 0 }}>{message.role}</h3>
                 {message.role === Role.MICopilot && isRuntimeVersionThresholdReached ? (
-                    <PreviewContainerRole>V2-Preview</PreviewContainerRole>
+                    <PreviewContainerRole>V3-Preview</PreviewContainerRole>
                 ) : null}
             </RoleContainer>
 

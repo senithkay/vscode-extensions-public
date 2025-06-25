@@ -9,13 +9,13 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { FlexRow, Footer, StyledTransParentButton, RippleLoader, FlexColumn } from "../styles";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ToggleSwitch } from "@wso2-enterprise/ui-toolkit";
 import SuggestionsList from "./SuggestionsList";
 import { useMICopilotContext } from "./MICopilotContext";
 import { handleFileAttach } from "../utils";
 import { USER_INPUT_PLACEHOLDER_MESSAGE, VALID_FILE_TYPES } from "../constants";
-import { generateSuggestions, generateId, getBackendUrlAndView, fetchCodeGenerationsWithRetry } from "../utils";
-import { Role, MessageType, CopilotChatEntry, BackendRequestType } from "../types";
+import { generateSuggestions, generateId, getBackendUrlAndView, fetchCodeGenerationsWithRetry, getDiagnosticsReponseFromLlm, replaceCodeBlock } from "../utils";
+import { Role, MessageType, CopilotChatEntry, BackendRequestType, FixedConfigItem, CorrectedCodeItem, ChatMessage } from "../types";
 import Attachments from "./Attachments";
 
 /**
@@ -59,6 +59,37 @@ const AIChatFooter: React.FC = () => {
     const [charIndex, setCharIndex] = useState(0);
     const [showDots, setShowDots] = useState(false);
 
+    const [thinkingChecked, setChecked] = useState(false);
+    // State to track when we're validating code (getting diagnostics and LLM corrections)
+    const [isValidating, setIsValidating] = useState(false);
+    // Reference to store code blocks for the current chat
+    const currentChatCodeBlocksRef = useRef<string[]>([]);
+
+    // List of programming languages to filter for actual code files (Kept it as a list for extensibility)
+    const codeLanguages = [
+        'xml'
+    ];
+
+    // Function to extract code content from a code block
+    const extractCodeContent = (codeBlock: string): { language: string, code: string } | null => {
+        // Match the language identifier and code content
+        const match = codeBlock.match(/```([\w#+]*)\s*\n([\s\S]*?)```/);
+        if (!match) return null;
+
+        const language = match[1].trim().toLowerCase();
+        const code = match[2];
+
+        // Check if this is an actual code file (not JSON examples or other non-code content)
+        if (codeLanguages.includes(language)) {
+            return { language, code };
+        }
+        return null;
+    };
+
+    const toggleThinkingSelection = () => {
+        setChecked(!thinkingChecked);
+    };
+
     // Handle text input keydown events
     const handleTextKeydown = (event: React.KeyboardEvent) => {
         if (event.key === "Enter" && !event.shiftKey) {
@@ -78,6 +109,11 @@ const AIChatFooter: React.FC = () => {
 
         // Create a new AbortController for future fetches
         resetController();
+
+        // If we're in the validation phase, reset the validation state
+        if (isValidating) {
+            setIsValidating(false);
+        }
 
         // Remove the last user and copilot messages
         setMessages((prevMessages) => {
@@ -100,6 +136,9 @@ const AIChatFooter: React.FC = () => {
             }, 0);
         }
         isStopButtonClicked.current = false;
+        
+        // Reset backend request triggered state
+        setBackendRequestTriggered(false);
     };
 
     // File handling
@@ -130,6 +169,9 @@ const AIChatFooter: React.FC = () => {
 
         // Variable to hold Assistant response
         let assistant_response = "";
+
+        // Reset the current chat code blocks array for this new chat
+        currentChatCodeBlocksRef.current = [];
 
         // Add the current user prompt to the chats based on the request type
         let currentCopilotChat: CopilotChatEntry[] = [...copilotChat];
@@ -182,7 +224,8 @@ const AIChatFooter: React.FC = () => {
                 images,
                 rpcClient,
                 controller,
-                view
+                view,
+                thinkingChecked
             );
 
             // Remove the user uploaded files and images after sending them to the backend
@@ -232,6 +275,165 @@ const AIChatFooter: React.FC = () => {
                                 { id: chatId, role: Role.CopilotAssistant, content: assistant_response },
                             ]);
 
+                            // Filter XML code blocks and pass them to getCodeDiagnostics
+                            const xmlCodes = currentChatCodeBlocksRef.current
+                                .filter(codeBlock => {
+                                    // Extract language from the comment line
+                                    const languageMatch = codeBlock.match(/\/\/ Language: (\w+)/);
+                                    return languageMatch && languageMatch[1].toLowerCase() === 'xml';
+                                })
+                                .map((xmlCodeBlock, index) => {
+                                    // Remove the language comment line and get the actual code
+                                    const code = xmlCodeBlock.replace(/\/\/ Language: \w+\n/, '');
+                                    
+                                    // Extract the name attribute from the XML content
+                                    const nameMatch = code.match(/name=["']([^"']+)["']/);
+                                    const fileName = nameMatch ? `${nameMatch[1]}.xml` : `code_${index}.xml`;
+                                    
+                                    return {
+                                        fileName,
+                                        code
+                                    };
+                                });
+                            
+                            
+                            // Only call getCodeDiagnostics if there are XML code blocks
+                            if (xmlCodes.length > 0) {
+                                try {
+                                    // Set validating state to true when we start getting diagnostics
+                                    setIsValidating(true);
+                                    
+                                    // Get diagnostics from the RPC client
+                                    const diagnosticResponse = await rpcClient.getMiDiagramRpcClient().getCodeDiagnostics({
+                                        xmlCodes
+                                    });
+                                    
+                                    const hasAnyDiagnostics = diagnosticResponse.diagnostics.some(file => file.diagnostics.length > 0);
+
+                                    // If there are diagnostics, send them to the LLM for analysis
+                                    if (hasAnyDiagnostics) {
+                                        // Import the getDiagnosticsReponseFromLlm function
+                                        const llmResponse = await getDiagnosticsReponseFromLlm(
+                                            diagnosticResponse,
+                                            xmlCodes,
+                                            rpcClient,
+                                            new AbortController() // Create a new controller for this request
+                                        );
+                                        
+                                        // Process the LLM response
+                                        const llmResponseData = await llmResponse.json();
+                                        
+                                        // Process the fixed_config from the LLM response - this is the only format we need to handle
+                                        if (llmResponseData.fixed_config && Array.isArray(llmResponseData.fixed_config)) {
+                                            // Create a map to store the latest corrected code for each file
+                                            const fileCorrections = new Map<string, string>();
+                                            
+                                            // Process all items in the fixed_config array and store the latest correction for each file
+                                            llmResponseData.fixed_config.forEach((item: FixedConfigItem) => {
+                                                if (item.name && (item.configuration || item.code)) {
+                                                    const correctedCode = item.configuration || item.code;
+                                                    const fileName = item.name;
+                                                    
+                                                    // Store the corrected code for this file
+                                                    fileCorrections.set(fileName, correctedCode);
+                                                    
+                                                    // Find the corresponding XML code block in the current chat
+                                                    const xmlCodeIndex = xmlCodes.findIndex(xml => 
+                                                        xml.fileName === fileName || 
+                                                        (!fileName.endsWith('.xml') && xml.fileName === fileName + '.xml') ||
+                                                        (fileName.endsWith('.xml') && xml.fileName === fileName.slice(0, -4))
+                                                    );
+                                                    
+                                                    if (xmlCodeIndex !== -1) {
+                                                        // Replace the code in the XML codes array
+                                                        xmlCodes[xmlCodeIndex].code = correctedCode;
+                                                    }
+                                                }
+                                            });
+                                            
+                                            // Helper function to update message content with corrections
+                                            const updateMessageContent = <T extends { role: Role; id?: number; content: string; type?: MessageType }>(
+                                                prevState: T[],
+                                                assistantRole: Role,
+                                                messageId: number,
+                                                corrections: Map<string, string>
+                                            ): T[] => {
+                                                const newState = [...prevState];
+                                                
+                                                // Try to find the message with this chat ID
+                                                const lastAssistantMessageIndex = newState.findIndex(
+                                                    msg => msg.role === assistantRole && msg.id === messageId
+                                                );
+                                                
+                                                if (lastAssistantMessageIndex !== -1) {
+                                                    let content = newState[lastAssistantMessageIndex].content;
+                                                    
+                                                    // Apply all corrections to this message
+                                                    corrections.forEach((correctedCode, fileName) => {
+                                                        content = replaceCodeBlock(content, fileName, correctedCode);
+                                                    });
+                                                    
+                                                    // Update the message with all corrections
+                                                    newState[lastAssistantMessageIndex] = {
+                                                        ...newState[lastAssistantMessageIndex],
+                                                        content: content
+                                                    };
+                                                } else {
+                                                    // If we can't find the message with the specific chatId,
+                                                    // try to update the most recent assistant message
+                                                    const lastIndex = newState.length - 1;
+                                                    for (let i = lastIndex; i >= 0; i--) {
+                                                        if (newState[i].role === assistantRole) {
+                                                            let content = newState[i].content;
+                                                            let appendContent = "";
+                                                            
+                                                            // Try to replace existing code blocks first
+                                                            corrections.forEach((correctedCode, fileName) => {
+                                                                const newContent = replaceCodeBlock(content, fileName, correctedCode);
+                                                                if (newContent === content) {
+                                                                    // If no replacement was made, prepare to append
+                                                                    appendContent += `\n\n**Updated ${fileName}**\n\`\`\`xml\n${correctedCode}\n\`\`\``;
+                                                                } else {
+                                                                    content = newContent;
+                                                                }
+                                                            });
+                                                            
+                                                            // Update the message with all corrections
+                                                            newState[i] = {
+                                                                ...newState[i],
+                                                                content: content + appendContent
+                                                            };
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                return newState;
+                                            };
+
+                                            // Now apply all corrections to the messages
+                                            if (fileCorrections.size > 0) {
+                                                // Update the messages state
+                                                setMessages(prevMessages => 
+                                                    updateMessageContent<ChatMessage>(prevMessages, Role.MICopilot, chatId, fileCorrections)
+                                                );
+                                                
+                                                // Also update the copilotChat state
+                                                setCopilotChat(prevCopilotChat => 
+                                                    updateMessageContent<CopilotChatEntry>(prevCopilotChat, Role.CopilotAssistant, chatId, fileCorrections)
+                                                );
+                                            }
+                                        }
+                                    }
+                                    // Reset validating state when LLM correction is complete
+                                    setIsValidating(false);
+                                } catch (error) {
+                                    console.error("Error processing diagnostics:", error);
+                                    // Reset validating state on error
+                                    setIsValidating(false);
+                                }
+                            }
+
                             const questions = json.questions.map((question: string) => {
                                 return {
                                     id: chatId,
@@ -259,6 +461,16 @@ const AIChatFooter: React.FC = () => {
                             while ((match = regex.exec(assistant_response)) !== null) {
                                 if (!newCodeBlocks.includes(match[0])) {
                                     newCodeBlocks.push(match[0]);
+                                    
+                                    // Process the code block to extract actual code files
+                                    const codeContent = extractCodeContent(match[0]);
+                                    if (codeContent) {
+                                        // Only add actual code files to the current chat's code blocks array
+                                        const codeFileEntry = `// Language: ${codeContent.language}\n${codeContent.code}`;
+                                        if (!currentChatCodeBlocksRef.current.includes(codeFileEntry)) {
+                                            currentChatCodeBlocksRef.current.push(codeFileEntry);
+                                        }
+                                    }
                                 }
                             }
 
@@ -368,10 +580,10 @@ const AIChatFooter: React.FC = () => {
                 onBlur={() => setIsFocused(false)}
                 tabIndex={0}
             >
-                {backendRequestTriggered ? (
+                {backendRequestTriggered || isValidating ? (
                     <FlexRow style={{ alignItems: "center", justifyContent: "center", width: "100%", padding: "10px" }}>
                         <span style={{ marginLeft: "10px" }}>
-                            {isResponseReceived.current ? "Generating ": "Thinking "}
+                            {isValidating ? "Validating " : isResponseReceived.current ? "Generating " : "Thinking "}
                         </span>
                         <RippleLoader>
                             <div className="ldio">
@@ -464,7 +676,7 @@ const AIChatFooter: React.FC = () => {
                     </>
                 )}
                 <FlexRow style={{ justifyContent: "space-between", width: "100%", alignItems: "center" }}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                         <StyledTransParentButton
                             onClick={() => document.getElementById("fileInput")?.click()}
                             style={{
@@ -472,10 +684,32 @@ const AIChatFooter: React.FC = () => {
                                 color: isDarkMode
                                     ? "var(--vscode-input-foreground)"
                                     : "var(--vscode-editor-foreground)",
+                                opacity: backendRequestTriggered || isValidating ? 0.5 : 1,
+                                cursor: backendRequestTriggered || isValidating ? "not-allowed" : "pointer"
                             }}
+                            disabled={backendRequestTriggered || isValidating}
                         >
                             <Codicon name="new-file" />
                         </StyledTransParentButton>
+                        
+                        <div 
+                            style={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: "5px", 
+                                backgroundColor: isDarkMode 
+                                    ? "var(--vscode-editor-background)" 
+                                    : "var(--vscode-list-hoverBackground)",
+                                padding: "4px 10px",
+                                borderRadius: "12px",
+                                border: "1px solid var(--vscode-editor-lineHighlightBorder)",
+                                fontSize: "8px"
+                            }}
+                        >
+                            <span>Thinking</span>
+                            <ToggleSwitch checked={thinkingChecked} onChange={toggleThinkingSelection} sx={{ fontSize: 5 }} />
+                        </div>
+                        
                         {fileUploadStatus.text && fileUploadStatus.type === "error" && (
                             <span
                                 style={{
@@ -487,6 +721,7 @@ const AIChatFooter: React.FC = () => {
                             </span>
                         )}
                     </div>
+                    
                     <input
                         id="fileInput"
                         type="file"
@@ -496,18 +731,19 @@ const AIChatFooter: React.FC = () => {
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             handleFileAttach(e, files, setFiles, images, setImages, setFileUploadStatus)
                         }
-                        disabled={backendRequestTriggered}
+                        disabled={backendRequestTriggered || isValidating}
                     />
+                    
                     <StyledTransParentButton
-                        onClick={() => (backendRequestTriggered ? handleStop() : handleSend())}
+                        onClick={() => ((backendRequestTriggered || isValidating) ? handleStop() : handleSend())}
                         style={{
                             width: "30px",
                             color: isDarkMode ? "var(--vscode-input-foreground)" : "var(--vscode-editor-foreground)",
                         }}
-                        disabled={currentUserPrompt.trim() === "" && !backendRequestTriggered}
+                        disabled={(currentUserPrompt.trim() === "" && !backendRequestTriggered && !isValidating)}
                     >
                         <span
-                            className={`codicon ${backendRequestTriggered ? "codicon-stop-circle" : "codicon-send"}`}
+                            className={`codicon ${(backendRequestTriggered || isValidating) ? "codicon-stop-circle" : "codicon-send"}`}
                         />
                     </StyledTransParentButton>
                 </FlexRow>

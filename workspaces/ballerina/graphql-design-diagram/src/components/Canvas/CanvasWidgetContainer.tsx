@@ -32,7 +32,7 @@ export const Container: React.FC<any> = styled.div`
   }
 `;
 
-export class CanvasWidgetContainer extends React.Component {
+export class CanvasWidgetContainer extends React.Component<React.PropsWithChildren> {
     render() {
         return (
             <Container data-testid="graphql-canvas-widget-container">

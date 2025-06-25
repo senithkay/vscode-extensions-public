@@ -15,7 +15,7 @@
    * path segment in the "$schema" field for all your Rush config files.  This will ensure
    * correct error-underlining and tab-completion for editors such as VS Code.
    */
-  "rushVersion": "5.109.2",
+  "rushVersion": "5.153.2",
   /**
    * The next field selects which package manager should be installed and determines its version.
    * Rush installs its own local copy of the package manager to ensure that your build process
@@ -24,7 +24,7 @@
    * Specify one of: "pnpmVersion", "npmVersion", or "yarnVersion".  See the Rush documentation
    * for details about these alternatives.
    */
-  "pnpmVersion": "7.26.3",
+  "pnpmVersion": "10.11.0",
   // "npmVersion": "8.5.4",
   // "yarnVersion": "1.9.4",
   /**
@@ -38,8 +38,7 @@
    * LTS schedule: https://nodejs.org/en/about/releases/
    * LTS versions: https://nodejs.org/en/download/releases/
    */
-  "nodeSupportedVersionRange": ">=16.13.0 <=21.19.2",
-  "nodeSupportedVersionRange": ">=16.13.0 <=21.19.2",
+  "nodeSupportedVersionRange": ">=20.0.0 <=22.16.0",
   /**
    * If the version check above fails, Rush will display a message showing the current
    * node version and the supported version range. You can use this setting to provide
@@ -238,11 +237,13 @@
      * The list of shell commands to run before the Rush build command starts
      */
     "preRushBuild": [
-      "npm run init-submodules"
+      "npm run init-submodules",
+      "cd workspaces/mi/mi-extension && pnpm run download-ls",
+      "cd workspaces/ballerina/ballerina-extension && pnpm run download-ls"
     ],
     /**
-     * The list of shell commands to run after the Rush build command finishes
-     */
+    * The list of shell commands to run after the Rush build command finishes
+    */
     "postRushBuild": [
       "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/wso2-platform/wso2-platform-extension && pnpm run copyVSIXToRoot", 
@@ -252,7 +253,6 @@
       "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/api-designer/api-designer-extension && pnpm run copyVSIXToRoot"
-
     ]
   },
   /**
@@ -401,30 +401,6 @@
     //    */
     //   // "tags": [ "1.0.0-release", "frontend-team" ]
     // },
-    // 
-    // {
-    //   "packageName": "my-controls",
-    //   "projectFolder": "libraries/my-controls",
-    //   "reviewCategory": "production",
-    //   "tags": [ "frontend-team" ]
-    // },
-    // 
-    // {
-    //   "packageName": "my-toolchain",
-    //   "projectFolder": "tools/my-toolchain",
-    //   "reviewCategory": "tools",
-    //   "tags": [ "tools" ]
-    // }
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-languageclient",
-    //   "projectFolder": "workspaces/ballerina/ballerina-languageclient",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
-    // {
-    //   "packageName": "@ballerina/ballerina-by-examples",
-    //   "projectFolder": "workspaces/ballerina/bbe",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
     {
       "packageName": "@wso2-enterprise/font-wso2-vscode",
       "projectFolder": "workspaces/common-libs/font-wso2-vscode",
@@ -476,36 +452,6 @@
       "versionPolicyName": "choreo-extension"
     },
     {
-      "packageName": "fhir-tools",
-      "projectFolder": "workspaces/fhir-tools/fhir-tools-extension",
-      "versionPolicyName": "fhir-tools-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/fhir-tools-webview",
-      "projectFolder": "workspaces/fhir-tools/webview",
-      "versionPolicyName": "fhir-tools-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/fhir-tools-core",
-      "projectFolder": "workspaces/fhir-tools/fhir-tools-core",
-      "versionPolicyName": "fhir-tools-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/fhir-tools-rpc-client",
-      "projectFolder": "workspaces/fhir-tools/fhir-tools-rpc-client",
-      "versionPolicyName": "fhir-tools-extension"
-    },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-data-mapper",
-    //   "projectFolder": "workspaces/ballerina/data-mapper",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-expression-editor",
-    //   "projectFolder": "workspaces/ballerina/expression-editor",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
-    {
       "packageName": "graphqlview-lib",
       "projectFolder": "workspaces/ballerina/graphql",
       "versionPolicyName": "ballerina-extension"
@@ -515,16 +461,6 @@
       "projectFolder": "workspaces/ballerina/graphql-design-diagram",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/lang-service",
-    //   "projectFolder": "workspaces/ballerina/lang-service",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-service-designer",
-    //   "projectFolder": "workspaces/ballerina/service-designer",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
     {
       "packageName": "@wso2-enterprise/ballerina-low-code-diagram",
       "projectFolder": "workspaces/ballerina/ballerina-low-code-diagram",
@@ -535,16 +471,6 @@
       "projectFolder": "workspaces/ballerina/ballerina-side-panel",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-low-code-editor-distribution",
-    //   "projectFolder": "workspaces/ballerina/low-code-distribution",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-low-code-editor",
-    //   "projectFolder": "workspaces/ballerina/low-code-editor",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
     {
       "packageName": "@wso2-enterprise/ballerina-core",
       "projectFolder": "workspaces/ballerina/ballerina-core",
@@ -570,31 +496,6 @@
       "projectFolder": "workspaces/ballerina/data-mapper-view",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-low-code-edtior-commons",
-    //   "projectFolder": "workspaces/ballerina/low-code-editor-commons",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
-    //   "projectFolder": "workspaces/ballerina/low-code-ui-components",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
-    // {
-    //   "packageName": "notebook-renderer",
-    //   "projectFolder": "workspaces/ballerina/notebook-renderer",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
-    // {
-    //   "packageName": "perf",
-    //   "projectFolder": "workspaces/ballerina/perf-forecast",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
-    {
-      "packageName": "@wso2-enterprise/choreo-cell-diagram",
-      "projectFolder": "workspaces/choreo/cell-diagram",
-      "versionPolicyName": "choreo-extension"
-    },
     {
       "packageName": "@wso2-enterprise/persist-layer-diagram",
       "projectFolder": "workspaces/ballerina/persist-layer-diagram",
@@ -610,21 +511,11 @@
       "projectFolder": "workspaces/ballerina/statement-editor",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "swaggerview-lib",
-    //   "projectFolder": "workspaces/ballerina/swagger",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
     {
       "packageName": "@wso2-enterprise/syntax-tree",
       "projectFolder": "workspaces/ballerina/syntax-tree",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "variableview-lib",
-    //   "projectFolder": "workspaces/ballerina/variable-view",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
     {
       "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
@@ -663,11 +554,6 @@
       "projectFolder": "workspaces/mi/mi-data-mapper-utils"
     },
     {
-      "packageName": "api-chat",
-      "projectFolder": "workspaces/api-chat/extension",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
       "packageName": "@wso2-enterprise/api-chat-vscode-webviews",
       "projectFolder": "workspaces/api-chat/webviews",
       "versionPolicyName": "ballerina-extension"
@@ -682,16 +568,6 @@
       "projectFolder": "workspaces/bi/bi-extension",
       "versionPolicyName": "ballerina-extension"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/bi-diagram",
-    //   "projectFolder": "workspaces/bi/bi-diagram",
-    //   "versionPolicyName": "bi-extension"
-    // },
-    // {
-    //   "packageName": "@wso2-enterprise/bi-diagram-2",
-    //   "projectFolder": "workspaces/bi/bi-diagram-2",
-    //   "versionPolicyName": "bi-extension"
-    // },
     {
       "packageName": "@wso2-enterprise/bi-diagram",
       "projectFolder": "workspaces/ballerina/bi-diagram",
@@ -711,11 +587,6 @@
       "packageName": "@wso2-enterprise/mi-component-diagram",
       "projectFolder": "workspaces/mi/mi-component-diagram"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/bi-overview",
-    //   "projectFolder": "workspaces/bi/bi-overview",
-    //   "versionPolicyName": "bi-extension"
-    // },
     {
       "packageName": "@wso2-enterprise/record-creator",
       "projectFolder": "workspaces/ballerina/record-creator",
@@ -730,10 +601,6 @@
       "packageName": "@wso2-enterprise/ballerina-inline-data-mapper",
       "projectFolder": "workspaces/ballerina/inline-data-mapper",
       "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "api-designer",
-      "projectFolder": "workspaces/api-designer/api-designer-extension"
     },
     {
       "packageName": "@wso2-enterprise/api-designer-core",

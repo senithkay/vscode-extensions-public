@@ -13,7 +13,6 @@ import ReactMarkdown from "react-markdown";
 import {
     Button,
     Codicon,
-    FormExpressionEditorRef,
     LinkButton,
     ThemeColors,
     SidePanelBody,
@@ -62,7 +61,7 @@ namespace S {
         width: 100%;
     `;
 
-    export const CategoryRow = styled.div<{ showBorder?: boolean }>`
+    export const CategoryRow = styled.div<{ bottomBorder?: boolean, topBorder?: boolean }>`
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -70,8 +69,10 @@ namespace S {
         gap: 20px;
         width: 100%;
         margin-top: 8px;
-        padding-bottom: ${({ showBorder }) => (showBorder ? "14px" : "0")};
-        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
+        padding-bottom: ${({ bottomBorder }) => (bottomBorder ? "14px" : "0")};
+        border-bottom: ${({ bottomBorder }) => (bottomBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
+        padding-top: ${({ topBorder }) => (topBorder ? "14px" : "0")};
+        border-top: ${({ topBorder }) => (topBorder ? `1px solid ${ThemeColors.OUTLINE_VARIANT}` : "none")};
     `;
 
     export const CheckboxRow = styled.div<{}>`
@@ -304,7 +305,7 @@ export interface FormProps {
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
-    onSubmit?: (data: FormValues) => void;
+    onSubmit?: (data: FormValues, dirtyFields?: any) => void;
     isSaving?: boolean;
     openRecordEditor?: (isOpen: boolean, fields: FormValues, editingField?: FormField) => void;
     openView?: (filePath: string, position: NodePosition) => void;
@@ -373,7 +374,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors, isDirty, isValid: isFormValid },
+        formState: { isValidating, errors, isDirty, isValid: isFormValid, dirtyFields },
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -382,8 +383,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const [isMarkdownExpanded, setIsMarkdownExpanded] = useState(false);
     const [isIdentifierEditing, setIsIdentifierEditing] = useState(false);
     const markdownRef = useRef<HTMLDivElement>(null);
-
-    const exprRef = useRef<FormExpressionEditorRef>(null);
 
     const [isUserConcert, setIsUserConcert] = useState(false);
 
@@ -472,7 +471,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     const handleOnSave = (data: FormValues) => {
         console.log(">>> saved form fields", { data });
-        onSubmit && onSubmit(data);
+        onSubmit && onSubmit(data, dirtyFields);
     };
 
     // Expose a method to trigger the save
@@ -576,7 +575,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
-    const prioritizeVariableField = (variableField || typeField) && !dataMapperField;
+    const prioritizedNodes = ["VARIABLE", "CONFIG_VARIABLE"]
+    const prioritizeVariableField = (variableField || typeField) && !dataMapperField && (prioritizedNodes.includes(selectedNode));
 
     const contextValue: FormContext = {
         form: {
@@ -649,7 +649,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     const disableSaveButton =
         !isValid || isValidating || props.disableSaveButton || (concertMessage && concertRequired && !isUserConcert) ||
-        isIdentifierEditing;
+        isIdentifierEditing || Object.keys(errors).length > 0;
 
     const handleShowMoreClick = () => {
         setIsMarkdownExpanded(!isMarkdownExpanded);
@@ -687,8 +687,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         )}
                     </S.MarkdownWrapper>
                 )}
-                {prioritizeVariableField && variableField && (
-                    <S.CategoryRow showBorder={!compact}>
+                {prioritizeVariableField && (variableField || typeField) && (
+                    <S.CategoryRow bottomBorder={!compact}>
                         {variableField && (
                             <EditorFactory
                                 field={variableField}
@@ -715,16 +715,15 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         )}
                     </S.CategoryRow>
                 )}
-                <S.CategoryRow showBorder={false}>
+                <S.CategoryRow bottomBorder={false}>
                     {formFields
                         .sort((a, b) => b.groupNo - a.groupNo)
                         .filter((field) => field.type !== "VIEW")
                         .map((field) => {
                             if (
-                                ((field.key === "variable" || field.key === "type") &&
-                                    prioritizeVariableField &&
-                                    variableField) ||
-                                field.advanced
+                                ((field.key === "variable" || field.key === "type") && variableField) ||
+                                field.advanced ||
+                                field.hidden
                             ) {
                                 return;
                             }
@@ -732,7 +731,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             return (
                                 <S.Row key={updatedField.key}>
                                     <EditorFactory
-                                        ref={exprRef}
                                         field={updatedField}
                                         selectedNode={selectedNode}
                                         openRecordEditor={
@@ -782,7 +780,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 return (
                                     <S.Row key={updatedField.key}>
                                         <EditorFactory
-                                            ref={exprRef}
                                             field={updatedField}
                                             openRecordEditor={
                                                 openRecordEditor &&
@@ -801,6 +798,34 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         })}
                 </S.CategoryRow>
 
+                {!prioritizeVariableField && (variableField || typeField) && (
+                    <S.CategoryRow topBorder={!compact}>
+                        {variableField && (
+                            <EditorFactory
+                                field={variableField}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                                visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
+                                onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
+                            />
+                        )}
+                        {typeField && !isInferredReturnType && (
+                            <EditorFactory
+                                field={typeField}
+                                openRecordEditor={
+                                    openRecordEditor && ((open: boolean) => handleOpenRecordEditor(open, typeField))
+                                }
+                                openSubPanel={handleOpenSubPanel}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                                handleOnTypeChange={handleOnTypeChange}
+                                visualizableFields={visualizableFields}
+                                recordTypeFields={recordTypeFields}
+                                onIdentifierEditingStateChange={handleIdentifierEditingStateChange}
+                            />
+                        )}
+                    </S.CategoryRow>
+                )}
+
                 {concertMessage && (
                     <S.ConcertContainer>
                         <CheckBox checked={isUserConcert} onChange={handleConcertChange} label={concertMessage} />
@@ -815,16 +840,9 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 {cancelText || "Cancel"}{" "}
                             </Button>
                         )}
-                        {!isSaving &&
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                                {submitText || "Save"}
-                            </S.PrimaryButton>
-                        }
-                        {isSaving &&
-                            <S.PrimaryButton disabled={true}>
-                                <ProgressRing sx={{ width: 16, height: 16, marginRight: 8 }} color={ThemeColors.ON_PRIMARY} /> <Typography variant="body2">{submitText}...</Typography>
-                            </S.PrimaryButton>
-                        }
+                        <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton || isSaving}>
+                            {isSaving ? <Typography variant="progress">{submitText || "Saving..."}</Typography> : submitText || "Save"}
+                        </S.PrimaryButton>
                     </S.Footer>
                 )}
             </S.Container>

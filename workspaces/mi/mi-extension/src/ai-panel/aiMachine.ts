@@ -40,7 +40,7 @@ interface AiMachineContext extends AIVisualizerLocation {
 const aiStateMachine = createMachine<AiMachineContext>({
     /** @xstate-layout N4IgpgJg5mDOIC5QFsCWBaAhqgdASQDtUAXVTAG1QC8wBiCAewLB1QIDcGBrFtLXQiTKUaCNpwDGmUkwDaABgC6CxYlAAHBrCFM1IAB6IATEYAsOAJwBmAOwBWeaZs2rFm-Lt2ANCACeiGwA2QJw7KysjeXkLAA4Y0wt5AEYAXxSfPmx8IlIKajpGZlYObl4MLMFckTAxEqkZAhVZJNUkEE1tBr1DBCMLEJsY+3lA0zshmLsbH38ECz6cd3k+1xikvs80jPKBHOF82jAAJyOGI5x1cmkAMzPkHEzdoTzRcQZ61DklFT0OnQJuohAjFFjYkuEostAvIYvJpn5EEk4fJLKZbEYhs4nEYtiBHjhyAwoDAIAB5ACuxFoABlSQBxPAAOR+bT+XTaPQsphRySSozsJmSgQs3gRCCSSXioJFkqspjMphiOPSeJ2OAASmBMBBfDT6aSAKoAFRZGi0-0BCDsiRwRkCfLWgRcSRcMRmASsdhw0SmNjMGLlcVx+M12t1AFEABrhgDCxvDpva5vZoB663coKMdmhdklNic7qtGO9SXlTmdGPBwbVoZ1tBj1PDAEF1Ym2Z8ARzEeEQaYkhZYn35BEYoFC36QtFEnCjEkwn3ldt+DgAOrYUgEKAAMTO1KJbHoTBYbx4DzVa6Em53Rz3UDYtUk0g7TSUv2THctSO53qcMUSVmhNFwkLIYBnGRIkSmcsbGrZcLw3bdd33AhDhOM4LiuYhbiOe58XgthEJvZCH3eJ8vmUV9WXfXQuwQSYLBwJFoTtFwjHCF0QLCSwe36J1hQ8WCsnwq8kLvFCYybRkY3Dak22oztUwCGwGL6Cx+z-F0ISMQsJVnb0ljtQIIjtOxBNwYTCNvA8tybPBqTwcNW0os1Og-WinRU4JImFfohjsUwdKiAZTBzdwrElKYzJwcN9DACRKQI+tSQAWQABUbI0E2cpNXJoxTxSMFxQmUl0EmBEUjMLPsQRiKx4n7cZuRdKKYrihLN1oRz1VJJzWhci1aPWP8cD-ZTPSdMw4kLADzGiExnDUtx+k9FrYvihDaAAZSNUlUrk3KFIMRE+nMYF-L6YVfTGQs+hsYr7FiQratGQJVrajbaTpcMABFDRNbL2zyo7xTlIxFn7FwHCzDx1h0qxHBwe1lLWf0-0cNIVQIBgIDgPRHjfA7LXQeHGLqv0-X8sI1MCbSxVnFFCvsP9mOCBqosqfYaAJgb8vlEDauK3MlmSELFSiwliUgCliG5lNgetBjJTcOcEkxJUdJdFT4cGfMB1U16VRDLUdVltz8sgsGhkVNYpmSKYLELAUwezWEIWhcLlKiiBUFgTAACNyEgU2gbTO7R3TQqxhCmE6o1yZGNqiIRjR0coos68rMOwHDp6NYrEsMw1MmDF+hcQtHtRHMFy5JG3vWgjg5zxEwnzyYYXmEZXBMx2TFCYFh3h93NYxlIgA */
     id: 'mi-ai',
-    initial: "initialize",
+    initial: "checkWorkspace",
     predictableActionArguments: true,
     context: {
         token: undefined,
@@ -50,10 +50,34 @@ const aiStateMachine = createMachine<AiMachineContext>({
     },
     on: {
         DISPOSE: {
-            target: "initialize",
+            target: "checkWorkspace",
         }
     },
     states: {
+        checkWorkspace: {
+            invoke: {
+                src: "checkWorkspaceSupport",
+                onDone: [
+                    {
+                        cond: (context, event) => event.data === true,
+                        target: "initialize",
+                    }
+                ],
+                onError: [
+                    {
+                        target: 'notSupported',
+                    },
+                ]
+            }
+        },
+        notSupported: {
+            on: {
+                RETRY: {
+                    target: "checkWorkspace",
+                },
+                LOGOUT: "loggedOut",
+            }
+        },
         initialize: {
             invoke: {
                 src: "checkToken",
@@ -167,8 +191,19 @@ const aiStateMachine = createMachine<AiMachineContext>({
     services: {
         checkToken: checkToken,
         openLogin: openLogin,
+        checkWorkspaceSupport: checkWorkspaceSupport,
     }
 });
+
+async function checkWorkspaceSupport(context, event): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 1) {
+            reject();
+        } else {
+            resolve(true);
+        }
+    });
+}
 
 async function checkToken(context, event): Promise<UserToken> {
     return new Promise(async (resolve, reject) => {
@@ -186,7 +221,7 @@ async function checkToken(context, event): Promise<UserToken> {
                     },
                 });
                 if (response.ok) {
-                    const responseBody = await response.json();
+                    const responseBody = await response.json() as AIUserTokens | undefined;
                     resolve({token, userToken: responseBody});
                 } else {
                     if (response.status === 401 || response.status === 403) {
@@ -200,7 +235,7 @@ async function checkToken(context, event): Promise<UserToken> {
                                 },
                             });
                             if(tokenFetchResponse.ok){
-                                const responseBody = await tokenFetchResponse.json();
+                                const responseBody = await tokenFetchResponse.json() as AIUserTokens | undefined;
                                 resolve({token: newToken, userToken: responseBody});
                             }else{
                                 console.log("Error: " + tokenFetchResponse.statusText);

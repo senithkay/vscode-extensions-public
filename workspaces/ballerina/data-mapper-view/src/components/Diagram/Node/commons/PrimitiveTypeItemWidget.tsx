@@ -11,6 +11,7 @@ import React, { useState } from "react";
 
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { TypeField } from "@wso2-enterprise/ballerina-core";
+import { TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
@@ -46,18 +47,20 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
     }
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
-            <span className={classes.valueLabel}>
-                <InputSearchHighlight>{valueLabel ? valueLabel : id}</InputSearchHighlight>
-                {typeName && ":"}
-            </span>
-            {typeName && (
-                <span className={classes.inputTypeLabel}>
-                    {typeName}
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{ marginRight: "auto" }}>
+                <span className={classes.valueLabel}>
+                    <InputSearchHighlight>{valueLabel ? valueLabel : id}</InputSearchHighlight>
+                    {typeName && ":"}
                 </span>
-            )}
+                {typeName && (
+                    <span className={classes.inputTypeLabel}>
+                        {typeName}
+                    </span>
+                )}
 
-        </span>
+            </span>
+        </TruncatedLabel>
     );
 
     /** Invisible port to which the right angle link from the query header/clauses are connected to */

@@ -17,7 +17,7 @@ import { discoverTestFunctionsInProject, handleFileChange as handleTestFileUpdat
 export let testController: TestController;
 
 export async function activate(ballerinaExtInstance: BallerinaExtension) {
-    testController = tests.createTestController('ballerina-integrator-tests', 'Ballerina Integrator Tests');
+    testController = tests.createTestController('ballerina-integrator-tests', 'WSO2 Integrator: BI Tests');
 
     // Create test profiles to display.
     testController.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);

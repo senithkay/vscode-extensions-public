@@ -10,9 +10,9 @@
 import React from "react";
 
 import styled from "@emotion/styled";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 
 import { DataMapperInputParam } from "./types";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 interface InputParamItemProps {
     index: number;
@@ -25,10 +25,10 @@ export function InputParamItem(props: InputParamItemProps) {
     const { index, inputParam, onDelete, onEditClick } = props;
 
     const label = (
-        <>
+        <TruncatedLabel style={{ marginRight: "auto" }}>
             <TypeName isInvalid={inputParam.isUnsupported}>{inputParam.isArray ? `${inputParam.type}[]` : inputParam.type}</TypeName>
             <span>{" " + inputParam.name}</span>
-        </>
+        </TruncatedLabel>
     );
 
     const handleDelete = () => {

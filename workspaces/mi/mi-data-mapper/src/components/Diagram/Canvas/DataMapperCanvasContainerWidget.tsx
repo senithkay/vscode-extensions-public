@@ -36,7 +36,7 @@ export const Expand = css`
 `;
 
 
-export class DataMapperCanvasContainerWidget extends React.Component<{ hideCanvas: boolean }> {
+export class DataMapperCanvasContainerWidget extends React.Component<React.PropsWithChildren<{ hideCanvas: boolean }>> {
 	render() {
 		return (
 			<>

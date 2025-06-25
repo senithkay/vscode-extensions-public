@@ -9,6 +9,10 @@
 
 import { Frame, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { page } from '../Utils';
+import { ProjectExplorer } from "../components/ProjectExplorer";
+import { Overview } from "../components/Overview";
 
 export class AddArtifact {
     private webView!: Frame;
@@ -16,8 +20,26 @@ export class AddArtifact {
     constructor(private _page: Page) {
     }
 
-    public async init() {
-        const webview = await switchToIFrame("Add Artifact", this._page)
+    public async init(projectName?: string) {
+        let iframeTitle;
+
+        try {
+            const webview = await page.getCurrentWebview();
+            iframeTitle = webview.title;
+        } catch (error) {
+            console.error("Error retrieving iframe title:", error);
+            iframeTitle = null;
+        }                         
+        if (iframeTitle !== MACHINE_VIEW.ADD_ARTIFACT && !projectName) {
+            const projectExplorer = new ProjectExplorer(this._page);
+            await projectExplorer.goToOverview("testProject");
+    
+            const overviewPage = new Overview(this._page);
+            await overviewPage.init();
+            await overviewPage.goToAddArtifact();    
+        } 
+
+        const webview = projectName ? await switchToIFrame(`Add Artifact - ${projectName}`, this._page) : await switchToIFrame('Add Artifact', this._page); 
         if (!webview) {
             throw new Error("Failed to switch to Add Artifact iframe");
         }
@@ -25,10 +47,15 @@ export class AddArtifact {
     }
 
     public async add(artifactType: string) {
-        const createIntegrationSection = await this.webView.waitForSelector(`h3:text("Create an Integration") >> ..`);
-        const viewMoreBtn = await createIntegrationSection.waitForSelector(`p:text("View More") >> ..`);
+        const createIntegrationSection = this.webView.locator('div#artifacts');
+        await createIntegrationSection.waitFor({ state: 'visible' });
+        
+        const viewMoreBtn = createIntegrationSection.locator('p:text("View More")').locator('..');
+        await viewMoreBtn.waitFor({ state: 'visible' });
         await viewMoreBtn.click();
-        const btn = await createIntegrationSection.waitForSelector(`div:text("${artifactType}") >> ../../../..`);
+        
+        const btn = createIntegrationSection.locator(`div[id="${artifactType}"]`);
+        await btn.waitFor({ state: 'visible' });
         await btn.click();
     }
 }

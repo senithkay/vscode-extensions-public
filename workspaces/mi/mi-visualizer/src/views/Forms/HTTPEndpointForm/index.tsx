@@ -414,7 +414,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     <FormCheckBox
                         label="Save the endpoint in registry"
                         {...register("saveInReg")}
-                        control={control}
+                        control={control as any}
                     />
                     {watch("saveInReg") && (<>
                         <AddToRegistry path={props.path}
@@ -431,6 +431,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     Cancel
                 </Button>
                 <Button
+                    data-testid="create-button"
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateHttpEndpoint)}
                     disabled={!isDirty}

@@ -6,19 +6,22 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useState } from "react";
-import { storiesOf } from "@storybook/react";
+import React from "react";
+import { Meta, StoryObj } from "@storybook/react-vite";
 import { Toggle } from "./Toggle";
 
-const Sample = () => {
-    const [checked, unChecked] = useState(false);
-    const toggleSelection = () => {
-        unChecked(!checked);
-    };
-    return (
-        <>
-            <Toggle checked={checked} onChange={toggleSelection} />
-        </>
-    );
+const meta: Meta<typeof Toggle> = {
+    component: Toggle,
+    title: "Toggle",
 };
-storiesOf("Toggle").add("Toggle", () => <Sample />);
+export default meta;
+
+type Story = StoryObj<typeof Toggle>;
+
+export const Default: Story = {
+    render: () => {
+        const [checked, setChecked] = React.useState(false);
+        const toggleSelection = () => setChecked(!checked);
+        return <Toggle checked={checked} onChange={toggleSelection} />;
+    },
+};

@@ -30,6 +30,7 @@ import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { DataMapperLinkModel } from "../../Link";
+import { useShallow } from "zustand/react/shallow";
 
 export interface UnionOutputFieldWidgetProps {
     parentId: string;
@@ -64,10 +65,12 @@ export function UnionOutputFieldWidget(props: UnionOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(state => ({
-        exprBarFocusedPort: state.focusedPort,
-        setExprBarFocusedPort: state.setFocusedPort
-    }));
+    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(
+        useShallow(state => ({
+            exprBarFocusedPort: state.focusedPort,
+            setExprBarFocusedPort: state.setFocusedPort
+        }))
+    );
 
     let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;

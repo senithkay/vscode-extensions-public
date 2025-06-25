@@ -580,7 +580,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     <FormCheckBox
                         name="seperatePolicies"
                         label="Specify as Inbound and Outbound Policies"
-                        control={control}
+                        control={control as any}
                     />
                     {watch("seperatePolicies") ? <>
                         <FormKeylookup
@@ -662,7 +662,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     <FormCheckBox
                         label="Save the endpoint in registry"
                         {...register("saveInReg")}
-                        control={control}
+                        control={control as any}
                     />
                     {watch("saveInReg") && (<>
                         <AddToRegistry path={props.path}

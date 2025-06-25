@@ -170,6 +170,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
         watch,
         setValue,
         setError,
+        getValues,
         clearErrors
     } = formMethods;
 
@@ -210,6 +211,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
             (async () => {
                 const response = await rpcClient.getMiDiagramRpcClient().getDataSource({ path: props.path });
                 reset(response);
+                const formValues = getValues();
                 if (response.type === "RDBMS") {
                     if (response.driverClassName) {
                         if (response.driverClassName.includes("mysql")) {
@@ -260,6 +262,9 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                         }
                         
                     }
+                    if (!formValues.dataSourceProvider){
+                        setValue("dataSourceProvider", "default");
+                    }
                     if (response.externalDSClassName) {
                         setValue("dataSourceProvider", "External Datasource");
                         if (response.dataSourceProperties) {
@@ -299,7 +304,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
         if (prevDbType !== watch('dbEngine')) {
             setPrevDbType(watch('dbEngine'));
             setValue('hostname', "localhost");
-            setValue('port', driverUrl.port);
+            setValue('port', driverUrl?.port);
         }
     }, [watch("dbEngine"), watch("hostname"), watch("port"), watch("databaseName")]);
 
@@ -591,7 +596,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                                     <FormCheckBox
                                         label="Use Datasource Factory"
                                         {...register("useDatasourceFactory")}
-                                        control={control}
+                                        control={control as any}
                                     />
                                     <ParamManager
                                         paramConfigs={jndiProperties}

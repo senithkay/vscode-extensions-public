@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { ProjectStructureArtifactResponse } from "../..";
 
 export interface ExportOASRequest {
     documentFilePath?: string;
@@ -83,6 +83,5 @@ export const responseCodes: ResponseCode[] = [
 ]
 
 export interface SourceUpdateResponse {
-    position: NodePosition;
-    filePath: string;
+    artifacts: ProjectStructureArtifactResponse[]
 }

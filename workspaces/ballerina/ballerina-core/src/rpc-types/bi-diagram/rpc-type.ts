@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { ProjectStructureResponse } from "../../interfaces/bi";
+import { ProjectStructureResponse, UpdatedArtifactsResponse } from "../../interfaces/bi";
 import { LinePosition } from "../../interfaces/common";
 import {
     BIAvailableNodesRequest,
@@ -17,7 +17,6 @@ import {
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
-    BISourceCodeResponse,
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -73,7 +72,11 @@ import {
     OpenAPIGeneratedModulesRequest,
     OpenAPIGeneratedModulesResponse,
     OpenAPIClientDeleteRequest,
-    OpenAPIClientDeleteResponse
+    OpenAPIClientDeleteResponse,
+    OpenConfigTomlRequest,
+    UpdateConfigVariableRequestV2,
+    GetConfigVariableNodeTemplateRequest,
+    BISourceCodeResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -101,8 +104,8 @@ import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "bi-diagram";
 export const getFlowModel: RequestType<void, BIFlowModelResponse> = { method: `${_preFix}/getFlowModel` };
-export const getSourceCode: RequestType<BISourceCodeRequest, BISourceCodeResponse> = { method: `${_preFix}/getSourceCode` };
-export const deleteFlowNode: RequestType<BISourceCodeRequest, BISourceCodeResponse> = { method: `${_preFix}/deleteFlowNode` };
+export const getSourceCode: RequestType<BISourceCodeRequest, UpdatedArtifactsResponse> = { method: `${_preFix}/getSourceCode` };
+export const deleteFlowNode: RequestType<BISourceCodeRequest, UpdatedArtifactsResponse> = { method: `${_preFix}/deleteFlowNode` };
 export const deleteByComponentInfo: RequestType<BIDeleteByComponentInfoRequest, BIDeleteByComponentInfoResponse> = { method: `${_preFix}/deleteByComponentInfo` };
 export const getAvailableNodes: RequestType<BIAvailableNodesRequest, BIAvailableNodesResponse> = { method: `${_preFix}/getAvailableNodes` };
 export const getEnclosedFunction: RequestType<BIGetEnclosedFunctionRequest, BIGetEnclosedFunctionResponse> = { method: `${_preFix}/getEnclosedFunction` };
@@ -118,6 +121,10 @@ export const getVisibleVariableTypes: RequestType<BIGetVisibleVariableTypesReque
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
 export const getConfigVariables: RequestType<void, ConfigVariableResponse> = { method: `${_preFix}/getConfigVariables` };
 export const updateConfigVariables: RequestType<UpdateConfigVariableRequest, UpdateConfigVariableResponse> = { method: `${_preFix}/updateConfigVariables` };
+export const getConfigVariablesV2: RequestType<void, ConfigVariableResponse> = { method: `${_preFix}/getConfigVariablesV2` };
+export const updateConfigVariablesV2: RequestType<UpdateConfigVariableRequestV2, BISourceCodeResponse> = { method: `${_preFix}/updateConfigVariablesV2` };
+export const deleteConfigVariableV2: RequestType<UpdateConfigVariableRequestV2, BISourceCodeResponse> = { method: `${_preFix}/deleteConfigVariableV2` };
+export const getConfigVariableNodeTemplate: RequestType<GetConfigVariableNodeTemplateRequest, BINodeTemplateResponse> = { method: `${_preFix}/getConfigVariableNodeTemplate` };
 export const getModuleNodes: RequestType<void, BIModuleNodesResponse> = { method: `${_preFix}/getModuleNodes` };
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
@@ -160,3 +167,4 @@ export const getDevantMetadata: RequestType<void, DevantMetadata> = { method: `$
 export const generateOpenApiClient: RequestType<OpenAPIClientGenerationRequest, GeneratedClientSaveResponse> = { method: `${_preFix}/generateOpenApiClient` };
 export const getOpenApiGeneratedModules: RequestType<OpenAPIGeneratedModulesRequest, OpenAPIGeneratedModulesResponse> = { method: `${_preFix}/getOpenApiGeneratedModules` };
 export const deleteOpenApiGeneratedModules: RequestType<OpenAPIClientDeleteRequest, OpenAPIClientDeleteResponse> = { method: `${_preFix}/deleteOpenApiGeneratedModules` };
+export const openConfigToml: RequestType<OpenConfigTomlRequest, void> = { method: `${_preFix}/openConfigToml` };

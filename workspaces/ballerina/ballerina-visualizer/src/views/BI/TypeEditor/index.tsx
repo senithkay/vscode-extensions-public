@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { debounce } from 'lodash';
 import { LineRange, Type } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -36,10 +36,11 @@ type FormTypeEditorProps = {
     newTypeValue?: string;
     isGraphql?: boolean;
     onCloseCompletions?: () => void;
+    onTypeCreate: (typeName?: string) => void;
 };
 
 export const FormTypeEditor = (props: FormTypeEditorProps) => {
-    const { type, onTypeChange, newType, newTypeValue, isGraphql, onCloseCompletions } = props;
+    const { type, onTypeChange, newType, newTypeValue, isGraphql, onCloseCompletions, onTypeCreate } = props;
     const { rpcClient } = useRpcContext();
 
     const [filePath, setFilePath] = useState<string | undefined>(undefined);
@@ -48,11 +49,13 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingTypeBrowser, setLoadingTypeBrowser] = useState<boolean>(false);
 
-    const [basicTypes, setBasicTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
-    const [importedTypes, setImportedTypes] = useState<TypeHelperCategory[] | undefined>(undefined);
+    const [basicTypes, setBasicTypes] = useState<TypeHelperCategory[]>([]);
+    const [importedTypes, setImportedTypes] = useState<TypeHelperCategory[]>([]);
     const [filteredBasicTypes, setFilteredBasicTypes] = useState<TypeHelperCategory[]>([]);
     const [filteredOperators, setFilteredOperators] = useState<TypeHelperOperator[]>([]);
     const [filteredTypeBrowserTypes, setFilteredTypeBrowserTypes] = useState<TypeHelperCategory[]>([]);
+
+    const fetchedInitialTypes = useRef<boolean>(false);
 
     useEffect(() => {
         if (rpcClient) {
@@ -75,7 +78,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
 
     const debouncedSearchTypeHelper = useCallback(
         debounce((searchText: string, isType: boolean) => {
-            if (isType && basicTypes === undefined) {
+            if (isType && !fetchedInitialTypes.current) {
                 if (rpcClient) {
                     rpcClient
                         .getBIDiagramRpcClient()
@@ -90,6 +93,7 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                         .then((types) => {
                             setBasicTypes(getTypes(types));
                             setFilteredBasicTypes(getTypes(types));
+                            fetchedInitialTypes.current = true;
 
                             /* Get imported types */
                             rpcClient
@@ -188,18 +192,22 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
         [debouncedSearchTypeBrowser]
     );
 
-    const { mutateAsync: addFunction, isLoading: isAddingType } = useMutation(
-        (item: TypeHelperItem) => 
+    const { mutateAsync: addFunction, isPending: isAddingType } = useMutation({
+        mutationFn: (item: TypeHelperItem) => 
             rpcClient.getBIDiagramRpcClient().addFunction({
                 filePath: filePath,
                 codedata: item.codedata,
                 kind: item.kind,
                 searchKind: 'TYPE'
             })
-    );
+    });
 
     const handleTypeItemClick = async (item: TypeHelperItem) => {
         return await addFunction(item);
+    };
+
+    const handleTypeCreate = (typeName?: string) => {
+        onTypeCreate(typeName || 'MyType');
     };
 
     return (
@@ -223,7 +231,8 @@ export const FormTypeEditor = (props: FormTypeEditorProps) => {
                         onSearchTypeHelper: handleSearchTypeHelper,
                         onSearchTypeBrowser: handleSearchTypeBrowser,
                         onTypeItemClick: handleTypeItemClick,
-                        onCloseCompletions: onCloseCompletions
+                        onCloseCompletions: onCloseCompletions,
+                        onTypeCreate: handleTypeCreate
                     }}
                 />
             )}

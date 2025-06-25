@@ -8,6 +8,7 @@
  */
 
 import {
+	BuildPackReq,
 	ChoreoRpcCancelWorkflowApproval,
 	ChoreoRpcCheckWorkflowStatus,
 	ChoreoRpcCreateBuildRequest,
@@ -45,52 +46,77 @@ import {
 	ChoreoRpcIsRepoAuthorizedRequest,
 	ChoreoRpcPromoteProxyDeployment,
 	ChoreoRpcRequestPromoteApproval,
+	GetBranchesReq,
+	GetBuildsReq,
+	GetCommitsReq,
+	GetComponentEndpointsReq,
+	GetComponentItemReq,
+	GetComponentsReq,
+	GetConnectionGuideReq,
+	GetConnectionItemReq,
+	GetConnectionsReq,
+	GetCredentialsReq,
+	GetDeploymentStatusReq,
+	GetDeploymentTracksReq,
+	GetMarketplaceIdlReq,
+	GetMarketplaceListReq,
+	GetProjectEnvsReq,
+	GetProxyDeploymentInfoReq,
+	GetSwaggerSpecReq,
+	GetTestKeyReq,
+	IsRepoAuthorizedReq,
+	GetAutoBuildStatusReq,
 	type IChoreoRPCClient,
+	ToggleAutoBuildReq,
+	GetBuildLogsReq,
+	GetBuildLogsForTypeReq,
+	CheckWorkflowStatusReq,
+	CancelApprovalReq,
 } from "@wso2-enterprise/wso2-platform-core";
 import { ProgressLocation, window } from "vscode";
 import type { Messenger } from "vscode-messenger";
 import { webviewStateStore } from "../stores/webview-state-store";
 
 export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChoreoRPCClient) {
-	messenger.onRequest(ChoreoRpcGetProjectsRequest, (orgID) => rpcClient.getProjects(orgID));
-	messenger.onRequest(ChoreoRpcGetComponentItemRequest, (params) => rpcClient.getComponentItem(params));
-	messenger.onRequest(ChoreoRpcGetComponentsRequest, (params) => rpcClient.getComponentList(params));
-	messenger.onRequest(ChoreoRpcCreateProjectRequest, async (params) => {
+	messenger.onRequest(ChoreoRpcGetProjectsRequest, (orgID: string) => rpcClient.getProjects(orgID));
+	messenger.onRequest(ChoreoRpcGetComponentItemRequest, (params: GetComponentItemReq) => rpcClient.getComponentItem(params));
+	messenger.onRequest(ChoreoRpcGetComponentsRequest, (params: GetComponentsReq) => rpcClient.getComponentList(params));
+	messenger.onRequest(ChoreoRpcCreateProjectRequest, async (params: Parameters<IChoreoRPCClient["createProject"]>[0]) => {
 		return window.withProgress({ title: `Creating project ${params.projectName}`, location: ProgressLocation.Notification }, () =>
 			rpcClient.createProject(params),
 		);
 	});
-	messenger.onRequest(ChoreoRpcCreateComponentRequest, async (params) => {
+	messenger.onRequest(ChoreoRpcCreateComponentRequest, async (params: Parameters<IChoreoRPCClient["createComponent"]>[0]) => {
 		const extName = webviewStateStore.getState().state.extensionName;
 		return window.withProgress(
 			{ title: `Creating ${extName === "Devant" ? "integration" : "component"} ${params.name}...`, location: ProgressLocation.Notification },
 			() => rpcClient.createComponent(params),
 		);
 	});
-	messenger.onRequest(ChoreoRpcGetBuildPacksRequest, (params) => rpcClient.getBuildPacks(params));
-	messenger.onRequest(ChoreoRpcGetBranchesRequest, (params) => rpcClient.getRepoBranches(params));
-	messenger.onRequest(ChoreoRpcIsRepoAuthorizedRequest, (params) => rpcClient.isRepoAuthorized(params));
-	messenger.onRequest(ChoreoRpcGetCredentialsRequest, (params) => rpcClient.getCredentials(params));
-	messenger.onRequest(ChoreoRpcDeleteComponentRequest, async (params) => {
+	messenger.onRequest(ChoreoRpcGetBuildPacksRequest, (params: BuildPackReq) => rpcClient.getBuildPacks(params));
+	messenger.onRequest(ChoreoRpcGetBranchesRequest, (params:GetBranchesReq) => rpcClient.getRepoBranches(params));
+	messenger.onRequest(ChoreoRpcIsRepoAuthorizedRequest, (params:IsRepoAuthorizedReq) => rpcClient.isRepoAuthorized(params));
+	messenger.onRequest(ChoreoRpcGetCredentialsRequest, (params:GetCredentialsReq) => rpcClient.getCredentials(params));
+	messenger.onRequest(ChoreoRpcDeleteComponentRequest, async (params: Parameters<IChoreoRPCClient["deleteComponent"]>[0]) => {
 		const extName = webviewStateStore.getState().state.extensionName;
 		return window.withProgress(
 			{ title: `Deleting ${extName === "Devant" ? "integration" : "component"} ${params.componentName}...`, location: ProgressLocation.Notification },
 			() => rpcClient.deleteComponent(params),
 		);
 	});
-	messenger.onRequest(ChoreoRpcCreateBuildRequest, async (params) => {
+	messenger.onRequest(ChoreoRpcCreateBuildRequest, async (params: Parameters<IChoreoRPCClient["createBuild"]>[0]) => {
 		return window.withProgress({ title: `Triggering build for ${params.componentName}...`, location: ProgressLocation.Notification }, () =>
 			rpcClient.createBuild(params),
 		);
 	});
-	messenger.onRequest(ChoreoRpcGetDeploymentTracksRequest, (params) => rpcClient.getDeploymentTracks(params));
-	messenger.onRequest(ChoreoRpcGetBuildsRequest, (params) => rpcClient.getBuilds(params));
-	messenger.onRequest(ChoreoRpcGetCommitsRequest, (params) => rpcClient.getCommits(params));
-	messenger.onRequest(ChoreoRpcGetEnvsRequest, (params) => rpcClient.getEnvs(params));
-	messenger.onRequest(ChoreoRpcGetEndpointsRequest, (params) => rpcClient.getComponentEndpoints(params));
-	messenger.onRequest(ChoreoRpcGetDeploymentStatusRequest, (params) => rpcClient.getDeploymentStatus(params));
-	messenger.onRequest(ChoreoRpcGetProxyDeploymentInfo, (params) => rpcClient.getProxyDeploymentInfo(params));
-	messenger.onRequest(ChoreoRpcCreateDeploymentRequest, async (params) => {
+	messenger.onRequest(ChoreoRpcGetDeploymentTracksRequest, (params:GetDeploymentTracksReq) => rpcClient.getDeploymentTracks(params));
+	messenger.onRequest(ChoreoRpcGetBuildsRequest, (params:GetBuildsReq) => rpcClient.getBuilds(params));
+	messenger.onRequest(ChoreoRpcGetCommitsRequest, (params:GetCommitsReq) => rpcClient.getCommits(params));
+	messenger.onRequest(ChoreoRpcGetEnvsRequest, (params:GetProjectEnvsReq) => rpcClient.getEnvs(params));
+	messenger.onRequest(ChoreoRpcGetEndpointsRequest, (params: GetComponentEndpointsReq) => rpcClient.getComponentEndpoints(params));
+	messenger.onRequest(ChoreoRpcGetDeploymentStatusRequest, (params:GetDeploymentStatusReq) => rpcClient.getDeploymentStatus(params));
+	messenger.onRequest(ChoreoRpcGetProxyDeploymentInfo, (params: GetProxyDeploymentInfoReq) => rpcClient.getProxyDeploymentInfo(params));
+	messenger.onRequest(ChoreoRpcCreateDeploymentRequest, async (params: Parameters<IChoreoRPCClient["createDeployment"]>[0]) => {
 		const extName = webviewStateStore.getState().state.extensionName;
 		return window.withProgress(
 			{
@@ -100,41 +126,41 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 			() => rpcClient.createDeployment(params),
 		);
 	});
-	messenger.onRequest(ChoreoRpcGetTestKeyRequest, (params) => rpcClient.getTestKey(params));
-	messenger.onRequest(ChoreoRpcGetSwaggerRequest, (params) => rpcClient.getSwaggerSpec(params));
-	messenger.onRequest(ChoreoRpcGetMarketplaceItems, (params) => rpcClient.getMarketplaceItems(params));
-	messenger.onRequest(ChoreoRpcGetMarketplaceItemIdl, (params) => rpcClient.getMarketplaceIdl(params));
-	messenger.onRequest(ChoreoRpcGetConnections, (params) => rpcClient.getConnections(params));
-	messenger.onRequest(ChoreoRpcGetConnectionItem, (params) => rpcClient.getConnectionItem(params));
-	messenger.onRequest(ChoreoRpcCreateComponentConnection, async (params) => {
+	messenger.onRequest(ChoreoRpcGetTestKeyRequest, (params:GetTestKeyReq) => rpcClient.getTestKey(params));
+	messenger.onRequest(ChoreoRpcGetSwaggerRequest, (params: GetSwaggerSpecReq) => rpcClient.getSwaggerSpec(params));
+	messenger.onRequest(ChoreoRpcGetMarketplaceItems, (params: GetMarketplaceListReq) => rpcClient.getMarketplaceItems(params));
+	messenger.onRequest(ChoreoRpcGetMarketplaceItemIdl, (params: GetMarketplaceIdlReq) => rpcClient.getMarketplaceIdl(params));
+	messenger.onRequest(ChoreoRpcGetConnections, (params: GetConnectionsReq) => rpcClient.getConnections(params));
+	messenger.onRequest(ChoreoRpcGetConnectionItem, (params:GetConnectionItemReq) => rpcClient.getConnectionItem(params));
+	messenger.onRequest(ChoreoRpcCreateComponentConnection, async (params: Parameters<IChoreoRPCClient["createComponentConnection"]>[0]) => {
 		return window.withProgress({ title: `Creating connection ${params.name}...`, location: ProgressLocation.Notification }, () =>
 			rpcClient.createComponentConnection(params),
 		);
 	});
-	messenger.onRequest(ChoreoRpcDeleteConnection, async (params) => {
+	messenger.onRequest(ChoreoRpcDeleteConnection, async (params: Parameters<IChoreoRPCClient["deleteConnection"]>[0]) => {
 		return window.withProgress({ title: `Deleting connection ${params.connectionName}...`, location: ProgressLocation.Notification }, () =>
 			rpcClient.deleteConnection(params),
 		);
 	});
-	messenger.onRequest(ChoreoRpcGetConnectionGuide, (params) => rpcClient.getConnectionGuide(params));
-	messenger.onRequest(ChoreoRpcGetAutoBuildStatus, (params) => rpcClient.getAutoBuildStatus(params));
-	messenger.onRequest(ChoreoRpcEnableAutoBuild, (params) => rpcClient.enableAutoBuildOnCommit(params));
-	messenger.onRequest(ChoreoRpcDisableAutoBuild, (params) => rpcClient.disableAutoBuildOnCommit(params));
-	messenger.onRequest(ChoreoRpcGetBuildLogs, (params) => rpcClient.getBuildLogs(params));
-	messenger.onRequest(ChoreoRpcGetBuildLogsForType, (params) => rpcClient.getBuildLogsForType(params));
-	messenger.onRequest(ChoreoRpcCheckWorkflowStatus, (params) => rpcClient.checkWorkflowStatus(params));
-	messenger.onRequest(ChoreoRpcCancelWorkflowApproval, async (params) => {
+	messenger.onRequest(ChoreoRpcGetConnectionGuide, (params: GetConnectionGuideReq) => rpcClient.getConnectionGuide(params));
+	messenger.onRequest(ChoreoRpcGetAutoBuildStatus, (params:GetAutoBuildStatusReq) => rpcClient.getAutoBuildStatus(params));
+	messenger.onRequest(ChoreoRpcEnableAutoBuild, (params: ToggleAutoBuildReq) => rpcClient.enableAutoBuildOnCommit(params));
+	messenger.onRequest(ChoreoRpcDisableAutoBuild, (params: ToggleAutoBuildReq) => rpcClient.disableAutoBuildOnCommit(params));
+	messenger.onRequest(ChoreoRpcGetBuildLogs, (params: GetBuildLogsReq) => rpcClient.getBuildLogs(params));
+	messenger.onRequest(ChoreoRpcGetBuildLogsForType, (params: GetBuildLogsForTypeReq) => rpcClient.getBuildLogsForType(params));
+	messenger.onRequest(ChoreoRpcCheckWorkflowStatus, (params: CheckWorkflowStatusReq) => rpcClient.checkWorkflowStatus(params));
+	messenger.onRequest(ChoreoRpcCancelWorkflowApproval, async (params: CancelApprovalReq) => {
 		return window.withProgress({ title: "Cancelling approval request...", location: ProgressLocation.Notification }, () =>
 			rpcClient.cancelApprovalRequest(params),
 		);
 	});
-	messenger.onRequest(ChoreoRpcRequestPromoteApproval, async (params) => {
+	messenger.onRequest(ChoreoRpcRequestPromoteApproval, async (params: Parameters<IChoreoRPCClient["requestPromoteApproval"]>[0]) => {
 		return window.withProgress(
 			{ title: `Requesting approval to promote to ${params.envName} environment...`, location: ProgressLocation.Notification },
 			() => rpcClient.requestPromoteApproval(params),
 		);
 	});
-	messenger.onRequest(ChoreoRpcPromoteProxyDeployment, async (params) => {
+	messenger.onRequest(ChoreoRpcPromoteProxyDeployment, async (params: Parameters<IChoreoRPCClient["promoteProxyDeployment"]>[0]) => {
 		return window.withProgress({ title: "Promoting proxy deployment...", location: ProgressLocation.Notification }, () =>
 			rpcClient.promoteProxyDeployment(params),
 		);

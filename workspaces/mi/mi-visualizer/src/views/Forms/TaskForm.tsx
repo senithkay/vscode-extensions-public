@@ -35,23 +35,23 @@ interface TaskFormProps {
 };
 
 type InputsFields = {
-    name?: string;
-    group?: string;
-    implementation?: string;
-    pinnedServers?: string;
-    triggerType?: string;
-    triggerCount?: number;
-    triggerInterval?: number;
-    triggerCron?: string;
-    format?: string;
-    message?: string;
-    soapAction?: string;
-    proxyName?: string;
-    registryKey?: string;
-    sequenceName?: string;
-    invokeHandlers?: boolean;
-    injectTo?: string;
-    isCountUndefined?: boolean;
+    name: string;
+    group: string;
+    implementation: string;
+    pinnedServers: string;
+    triggerType: string;
+    triggerCount: number;
+    triggerInterval: number;
+    triggerCron: string;
+    format: string;
+    message: string;
+    soapAction: string;
+    proxyName: string;
+    registryKey: string;
+    sequenceName: string;
+    invokeHandlers: boolean;
+    injectTo: string;
+    isCountUndefined: boolean;
 };
 
 const newTask: InputsFields = {
@@ -67,7 +67,11 @@ const newTask: InputsFields = {
     format: "soap12",
     injectTo: "sequence",
     message: "<message></message>",
-    isCountUndefined: true
+    isCountUndefined: true,
+    proxyName:'',
+    sequenceName: '',
+    soapAction:'',
+    registryKey:''
 };
 
 function generateSequenceName(taskName: string) {
@@ -288,7 +292,7 @@ export function TaskForm(props: TaskFormProps) {
         // Hanlde the case where user do not secify a sequence 
         // Here we need to create a sequence and add the task to the sequence
         if (values.injectTo === "sequence") {
-            if (!values.sequenceName) {
+            if (!values.sequenceName.length) {
                 const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
                 const sequenceDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
                 const sequenceRequest: CreateSequenceRequest = {
@@ -302,7 +306,7 @@ export function TaskForm(props: TaskFormProps) {
                 };
                 taskRequest.sequence = sequenceRequest;
             }
-            taskProperties.push({ key: "sequenceName", value: values.sequenceName ?? generateSequenceName(values.name), isLiteral: true });
+            taskProperties.push({ key: "sequenceName", value: !values.sequenceName.length ? generateSequenceName(values.name) : values.sequenceName, isLiteral: true });
         }
         const response = await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
     };
@@ -380,7 +384,7 @@ export function TaskForm(props: TaskFormProps) {
                             />
                             {watch("triggerType") === 'simple' ? (
                                 <>
-                                    <FormCheckBox label="Trigger Indefinitely" control={control} {...register('isCountUndefined')} />
+                                    <FormCheckBox label="Trigger Indefinitely" control={control as any} {...register('isCountUndefined')} />
                                     {!watch("isCountUndefined") &&
                                         <TextField
                                             id="triggerCount"
@@ -442,7 +446,7 @@ export function TaskForm(props: TaskFormProps) {
                             {watch("injectTo") === 'proxy' && (<>
                                 <FormKeylookup
                                     id="proxyName"
-                                    control={control}
+                                    control={control as any}
                                     label="Proxy service name"
                                     name="proxyName"
                                     filterType="proxyService"
@@ -455,7 +459,7 @@ export function TaskForm(props: TaskFormProps) {
                                 <FormKeylookup
                                     filter={(value: string) => !value.endsWith(".xml")}
                                     id="sequenceName"
-                                    control={control}
+                                    control={control as any}
                                     label="Sequence name"
                                     name="proxyName"
                                     filterType="sequence"
@@ -464,7 +468,7 @@ export function TaskForm(props: TaskFormProps) {
                                     {...register("sequenceName")}
                                 />
                                 <FormCheckBox
-                                    control={control}
+                                    control={control as any}
                                     label="Invoke handlers when calling sequence"
                                     {...register("invokeHandlers")}
                                 />
@@ -539,6 +543,7 @@ export function TaskForm(props: TaskFormProps) {
                                 appearance="primary"
                                 onClick={handleSubmit(handleCreateTask)}
                                 disabled={!(isDirty || isCustomPropsUpdated)}
+                                data-testid="create-task-button"
                             >
                                 {isNewTask ? "Create" : "Update"}
                             </Button>

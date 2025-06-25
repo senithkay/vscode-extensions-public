@@ -16,7 +16,7 @@ import classnames from "classnames";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getOptionalRecordField, getTypeName, isOptionalAndNillableField } from "../../../utils/dm-utils";
 import { InputSearchHighlight } from "../Search";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TruncatedLabel } from "@wso2-enterprise/ui-toolkit";
 import { useIONodesStyles } from "../../../../styles";
 import { getUnionTypes } from "../../../utils/union-type-utils";
 
@@ -89,19 +89,21 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
-            <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
-                <InputSearchHighlight>{fieldName}</InputSearchHighlight>
-                {field.optional && "?"}
-                {typeName && ":"}
-            </span>
-            {typeName && (
-                <span className={classes.inputTypeLabel}>
-                    {field.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
+        <TruncatedLabel style={{ marginRight: "auto" }}>
+            <span style={{ marginRight: "auto" }}>
+                <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
+                    <InputSearchHighlight>{fieldName}</InputSearchHighlight>
+                    {field.optional && "?"}
+                    {typeName && ":"}
                 </span>
-            )}
+                {typeName && (
+                    <span className={classes.inputTypeLabel}>
+                        {field.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
+                    </span>
+                )}
 
-        </span>
+            </span>
+        </TruncatedLabel>
     );
 
     const handleExpand = () => {

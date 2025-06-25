@@ -19,6 +19,7 @@ import { useDMExpressionBarStore } from '../../../../store/store';
 import { getFilterExpression } from '../../../../components/DataMapper/Header/utils';
 import { filterDiagnosticsForNode } from '../../utils/diagnostics-utils';
 import { getPosition, isPositionsEquals } from '../../utils/st-utils';
+import { useShallow } from 'zustand/react/shallow';
 
 
 const useStyles = () => ({
@@ -71,12 +72,14 @@ export default function ArrayFilterItem(props: FilterBarItemProps) {
     const [isFocused, setIsFocused] = useState(justAdded);
     const [isHovered, setIsHovered] = useState(false);
 
-    const { focusedPort, focusedFilter, setExprBarFocusedFilter, resetExprBarFocus } = useDMExpressionBarStore(state => ({
-        focusedPort: state.focusedPort,
-        focusedFilter: state.focusedFilter,
-        setExprBarFocusedFilter: state.setFocusedFilter,
-        resetExprBarFocus: state.resetFocus
-    }));
+    const { focusedPort, focusedFilter, setExprBarFocusedFilter, resetExprBarFocus } = useDMExpressionBarStore(
+        useShallow(state => ({
+            focusedPort: state.focusedPort,
+            focusedFilter: state.focusedFilter,
+            setExprBarFocusedFilter: state.setFocusedFilter,
+            resetExprBarFocus: state.resetFocus
+        }))
+    );
 
     const filterExpr = filterNode && !filterNode.wasForgotten() && getFilterExpression(filterNode);
     const diagnostics = filterExpr && filterDiagnosticsForNode(allDiagnostics, filterExpr);

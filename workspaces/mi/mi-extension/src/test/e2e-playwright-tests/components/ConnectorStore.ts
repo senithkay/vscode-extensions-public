@@ -7,11 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Page } from "@playwright/test";
-import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { Frame, Keyboard, Locator, Page } from "@playwright/test";
+import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import path from "path";
+import * as os from 'os';
 
+const dataFolder = __dirname.replace('components', 'data');
 export class ConnectorStore {
     private webView!: Frame;
+    private container!: Locator;
 
     constructor(private _page: Page, private type: 'Connector Store Form' | 'Resource View') {
     }
@@ -22,6 +26,7 @@ export class ConnectorStore {
             throw new Error("Failed to switch to Connector Store iframe");
         }
         this.webView = webview;
+        this.container = webview.locator('div#root');
     }
 
     public async add(artifactType: string) {
@@ -37,12 +42,72 @@ export class ConnectorStore {
         await searchInput.type(str);
     }
 
-    public async selectConnector(connectorName: string) {
-        const connectorSection = await this.webView.waitForSelector(`h2:text("Add New Connection") >> ../..`);
-        const connectorBtn = await connectorSection.waitForSelector(`div:text("${connectorName}") >> ../../../..`);
-        await connectorBtn.click();
-        await this.webView.waitForSelector(`span:text("Connector:") >> ../../..`);
-        await this.webView.waitForSelector(`div:text("${connectorName.toLowerCase()}") >> ../../..`);
+    public async selectOperation(operationName: string) {
+        const operationBtn = await this.webView.waitForSelector(`div:text("${operationName}") >> ../..`);
+        await operationBtn.click();
+    }
+
+    public async confirmDownloadDependency(failIfNotFound: boolean = false) {
+        try {
+            console.log('Confirming download of dependencies');
+            await this.webView.waitForSelector(`p:text("Dependencies will be added to the project. Do you want to continue?")`);
+            const confiramtionBtn = await getVsCodeButton(this.container, "Yes", "primary");
+            await confiramtionBtn.click();
+            console.log('Download dependency confirmed');
+        } catch (error) {
+            if (failIfNotFound) {
+                throw new Error("Failed to confirm download dependency");
+            }
+            console.log("Dependency download confirmation not found");
+        }
+    }
+
+    public async importConnector(fileName: string, type: 'proto' | 'zip' | 'OpenAPI') {
+        console.log(`Importing connector from file: ${fileName}`);
+        if (type === 'proto') {
+            console.log(`Importing gRPC (Proto) connector from file: ${fileName}`);
+            const dropdownBtn = this.webView.locator('#dropdown-icon-openapi i')
+            await dropdownBtn.waitFor();
+            await dropdownBtn.click();
+            console.log(`Clicked on dropdown button for import options`);
+            const option = this.webView.getByRole('heading', { name: 'For gRPC (Proto)' });
+            await option.waitFor();
+            await option.click();
+            const importBtn = this.webView.getByText('Import (proto)');
+            await importBtn.waitFor();
+            await importBtn.click();
+        } else if (type === 'OpenAPI') {
+            const importBtn = this.webView.getByText('Import (openapi)');
+            await importBtn.waitFor();
+            await importBtn.click();
+        }
+
+        const locationBtn = await this.webView.waitForSelector(`vscode-button:text("Select Location")`);
+        await locationBtn.click();
+
+        const filePath = path.join(dataFolder, fileName);
+        await this.fillLocationPath(filePath);
+
+        const submitBtn = await this.webView.waitForSelector(`vscode-button:text("Import")`);
+        await submitBtn.click();
+
+        const loader = this.webView.locator(`div:text("Importing Connector...")`);
+        await loader.waitFor();
+
+        if (type !== 'zip') {
+            const addNewConnection = this.webView.locator(`h2:text("Add New Connection")`);
+            await addNewConnection.waitFor();
+        }
+    }
+
+    async fillLocationPath(path: string) {
+        const keyboard = this._page.keyboard;
+        // Waiting for the command palette input
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await keyboard.press(os.platform() === 'darwin' ? 'Meta+A' : 'Control+A');
+        await keyboard.press('Backspace');
+        await keyboard.type(path);
+        await keyboard.press('Enter');
     }
 
 }

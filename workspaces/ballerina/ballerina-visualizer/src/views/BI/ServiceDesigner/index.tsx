@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import {
@@ -29,7 +29,7 @@ import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { FunctionConfigForm } from "./Forms/FunctionConfigForm";
 import { ResourceForm } from "./Forms/ResourceForm";
 import { FunctionForm } from "./Forms/FunctionForm";
-import { applyModifications } from "../../../utils/utils";
+import { applyModifications, isPositionChanged } from "../../../utils/utils";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { TitleBar } from "../../../components/TitleBar";
 import { LoadingRing } from "../../../components/Loader";
@@ -74,10 +74,11 @@ const ButtonText = styled.span`
 interface ServiceDesignerProps {
     filePath: string;
     position: NodePosition;
+    serviceIdentifier: string;
 }
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { filePath, position } = props;
+    const { filePath, position, serviceIdentifier } = props;
     const { rpcClient } = useRpcContext();
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [functionModel, setFunctionModel] = useState<FunctionModel>(undefined);
@@ -87,15 +88,18 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const [showForm, setShowForm] = useState<boolean>(false);
     const [showFunctionConfigForm, setShowFunctionConfigForm] = useState<boolean>(false);
     const [projectListeners, setProjectListeners] = useState<ProjectStructureArtifactResponse[]>([]);
+    const prevPosition = useRef(position);
 
     useEffect(() => {
-        fetchService();
+        if (!serviceModel || isPositionChanged(prevPosition.current, position)) {
+            fetchService(position);
+        }
     }, [position]);
 
-    const fetchService = () => {
+    const fetchService = (targetPosition: NodePosition) => {
         const lineRange: LineRange = {
-            startLine: { line: position.startLine, offset: position.startColumn },
-            endLine: { line: position.endLine, offset: position.endColumn },
+            startLine: { line: targetPosition.startLine, offset: targetPosition.startColumn },
+            endLine: { line: targetPosition.endLine, offset: targetPosition.endColumn },
         };
         try {
             rpcClient
@@ -106,6 +110,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     setShowForm(false);
                     setServiceModel(res.service);
                     setIsSaving(false);
+                    prevPosition.current = targetPosition;
                 });
         } catch (error) {
             console.log("Error fetching service model: ", error);
@@ -203,7 +208,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             };
             const deleteAction: STModification = removeStatement(targetPosition);
             await applyModifications(rpcClient, [deleteAction]);
-            fetchService();
+            fetchService(targetPosition);
         }
     };
 
@@ -218,10 +223,24 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .addResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
+            const serviceArtifact = res.artifacts.find(res => res.isNew && res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+                setIsSaving(false);
+                return;
+            }
         } else {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value, service: serviceModel });
+            const serviceArtifact = res.artifacts.find(res => res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+                setIsSaving(false);
+                return;
+            }
         }
         setIsNew(false);
     };
@@ -237,14 +256,25 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .addFunctionSourceCode({ filePath, codedata: { lineRange }, function: value });
+            const serviceArtifact = res.artifacts.find(res => res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+            }
         } else {
             res = await rpcClient
                 .getServiceDesignerRpcClient()
                 .updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+            const serviceArtifact = res.artifacts.find(res => res.name === serviceIdentifier);
+            if (serviceArtifact) {
+                fetchService(serviceArtifact.position);
+                await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.UPDATE_PROJECT_LOCATION, location: { documentUri: serviceArtifact.path, position: serviceArtifact.position } });
+            }
         }
         setIsNew(false);
         handleNewFunctionClose();
         handleFunctionConfigClose();
+        setIsSaving(false);
     };
 
     const handleFunctionConfigClose = () => {
@@ -456,6 +486,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         onClose={handleFunctionConfigClose}
                     >
                         <FunctionConfigForm
+                            isSaving={isSaving}
                             serviceModel={serviceModel}
                             onSubmit={handleFunctionSubmit}
                             onBack={handleFunctionConfigClose}

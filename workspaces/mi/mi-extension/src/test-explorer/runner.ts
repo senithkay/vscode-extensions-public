@@ -72,7 +72,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
 
             try {
                 // delete cars
-                const serverPath = await getServerPath();
+                const serverPath = await getServerPath(projectRoot);
                 if (!serverPath) {
                     window.showErrorMessage("MI server path not found");
                     failAllTests();
@@ -348,7 +348,7 @@ export function runCommand(command, pathToRun?: string,
         }
         const envVariables = {
             ...process.env,
-            ...setJavaHomeInEnvironmentAndPath()
+            ...(pathToRun ? setJavaHomeInEnvironmentAndPath(pathToRun) : {})
         };
         const cp = child_process.spawn(command, [], { shell: true, env: envVariables });
 

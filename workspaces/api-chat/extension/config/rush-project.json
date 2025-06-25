@@ -2,10 +2,7 @@
     "extends": "../../../rush-config.json",
     "operationSettings": [
         {
-            "operationName": "build",
-            "dependsOnAdditionalFiles": [
-                "../webviews/build/*"
-            ]
+            "operationName": "build"
         }
     ]
 }

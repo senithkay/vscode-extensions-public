@@ -14,7 +14,8 @@ import {
     GetGraphqlTypeResponse,
     GetGraphqlTypeRequest,
     EVENT_TYPE,
-    MACHINE_VIEW
+    MACHINE_VIEW,
+    TypeNodeKind
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
@@ -66,16 +67,35 @@ interface GraphQLDiagramProps {
     filePath: string;
     position: NodePosition;
     projectUri?: string;
+    serviceIdentifier: string;
 }
 
 export function GraphQLDiagram(props: GraphQLDiagramProps) {
-    const { filePath, position, projectUri } = props;
+    const { filePath, position, projectUri, serviceIdentifier } = props;
     const { rpcClient } = useRpcContext();
     const queryClient = useQueryClient();
     const [isServiceEditorOpen, setIsServiceEditorOpen] = useState<boolean>(false);
     const [isTypeEditorOpen, setIsTypeEditorOpen] = useState(false);
     const [editingType, setEditingType] = useState<Type>();
     const [focusedNodeId, setFocusedNodeId] = useState<string | undefined>(undefined);
+
+    // Helper function to convert TypeNodeKind to display name
+    const getTypeKindDisplayName = (typeNodeKind?: TypeNodeKind): string => {
+        switch (typeNodeKind) {
+            case "RECORD":
+                return "Input Object";
+            case "ENUM":
+                return "Enum";
+            case "CLASS":
+                return "Object";
+            case "UNION":
+                return "Union";
+            case "ARRAY":
+                return "Array";
+            default:
+                return "";
+        }
+    };
 
     const fetchGraphqlTypeModel = async () => {
         if (!filePath) return null;
@@ -236,6 +256,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
             </View>
             {isServiceEditorOpen && (
                 <GraphqlServiceEditor
+                    serviceIdentifier={serviceIdentifier}
                     filePath={filePath}
                     lineRange={{
                         startLine: {
@@ -251,8 +272,15 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
                 />
             )}
             {isTypeEditorOpen && editingType && editingType.codedata.node !== "CLASS" && (
-                <PanelContainer title={`Edit Type`} show={true} onClose={onTypeEditorClosed}>
+                <PanelContainer
+                    title={`Edit Type${getTypeKindDisplayName(editingType?.codedata?.node) ?
+                        ` : ${getTypeKindDisplayName(editingType?.codedata?.node)}` :
+                        ''}`}
+                    show={true}
+                    onClose={onTypeEditorClosed}
+                >
                     <FormTypeEditor
+                        key={editingType.name}
                         type={editingType}
                         onTypeChange={onTypeChange}
                         newType={false}
@@ -262,6 +290,7 @@ export function GraphQLDiagram(props: GraphQLDiagramProps) {
             )}
             {isTypeEditorOpen && editingType && editingType.codedata.node === "CLASS" && (
                 <GraphqlObjectViewer
+                    serviceIdentifier={serviceIdentifier}
                     onClose={onTypeEditorClosed}
                     type={editingType}
                     projectUri={projectUri}

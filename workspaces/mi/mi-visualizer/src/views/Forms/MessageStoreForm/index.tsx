@@ -31,27 +31,27 @@ export interface MessageStoreWizardProps {
 }
 
 type InputsFields = {
-    name?: string;
-    type?: string;
-    connectionInformationType?: string;
-    initialContextFactory?: string;
+    name: string;
+    type: string;
+    connectionInformationType: string;
+    initialContextFactory: string;
     connectionFactory?: string;
-    providerURL?: string;
+    providerURL: string;
     userName?: string;
     password?: string;
     cacheConnection?: boolean;
     jmsAPIVersion?: string;
-    providerClass?: string;
-    rabbitMQServerHostName?: string;
-    rabbitMQServerPort?: string;
-    dataBaseTable?: string;
+    providerClass: string;
+    rabbitMQServerHostName: string;
+    rabbitMQServerPort: string;
+    dataBaseTable: string;
     rdbmsType?: string;
-    driver?: string;
-    url?: string;
-    user?: string;
+    driver: string;
+    url: string;
+    user: string;
     dataSourceName?: string;
-    queueConnectionFactory?: string;
-    jndiQueueName?: string;
+    queueConnectionFactory: string;
+    jndiQueueName: string;
     pollingCount?: string;
     xPath?: string;
     enableProducerGuaranteedDelivery?: boolean;
@@ -684,13 +684,13 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 <FormCheckBox
                                     label="Cache Connection"
                                     {...register("cacheConnection")}
-                                    control={control}
+                                    control={control as any}
                                 />
                                 <FormAutoComplete
                                     name="jmsAPIVersion"
                                     label="JMS API Version"
                                     items={["1.0", "1.1"]}
-                                    control={control}
+                                    control={control as any}
                                     {...register("jmsAPIVersion")}
                                 />
                             </FormGroup>
@@ -734,7 +734,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 <FormCheckBox
                                     label="SSL Enabled"
                                     {...register("sslEnabled")}
-                                    control={control}
+                                    control={control as any}
                                 />
                                 {watch("sslEnabled") === true && (
                                     <FormGroup title="SSL Properties">
@@ -839,7 +839,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     name="connectionInformationType"
                                     label="Connection Information Type"
                                     items={["Pool", "Carbon Datasource"]}
-                                    control={control}
+                                    control={control as any}
                                     {...register("connectionInformationType")}
                                 />
                                 {getValues("connectionInformationType") === "Pool" && (
@@ -849,7 +849,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                                 name="rdbmsType"
                                                 label="RDBMS Type"
                                                 items={rdbmsTypes}
-                                                control={control}
+                                                control={control as any}
                                                 {...register("rdbmsType")}/>
                                         )}
                                         <TextField
@@ -927,13 +927,13 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     name="jmsAPIVersion"
                                     label="JMS API Version"
                                     items={["1.0", "1.1"]}
-                                    control={control}
+                                    control={control as any}
                                     {...register("jmsAPIVersion")}
                                 />
                                 <FormCheckBox
                                     label="Cache Connection"
                                     {...register("cacheConnection")}
-                                    control={control}
+                                    control={control as any}
                                 />
                             </FormGroup>
                         </>
@@ -953,7 +953,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     name="connectionInformationType"
                                     label="Connection Information Type"
                                     items={["Pool", "Carbon Datasource"]}
-                                    control={control}
+                                    control={control as any}
                                     {...register("connectionInformationType")}
                                 />
                                 {watch("connectionInformationType") === "Pool" && (
@@ -963,7 +963,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                                 name="rdbmsType"
                                                 label="RDBMS Type"
                                                 items={rdbmsTypes}
-                                                control={control}
+                                                control={control as any}
                                                 {...register("rdbmsType")}/>
                                         )}
                                         <TextField
@@ -1036,10 +1036,10 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             <FormCheckBox
                                 label="Enable Producer Guaranteed Delivery"
                                 {...register("enableProducerGuaranteedDelivery")}
-                                control={control}
+                                control={control as any}
                             />
                             <FormAutoComplete
-                                control={control}
+                                control={control as any}
                                 label="Fail Over Message Store"
                                 items={messageStoreNames}
                                 {...register("failOverMessageStore")}

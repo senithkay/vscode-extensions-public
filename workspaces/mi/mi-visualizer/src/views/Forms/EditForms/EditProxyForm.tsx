@@ -36,13 +36,13 @@ export type Protocol = "http" | "https";
 export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "options";
 
 type InputsFields = {
-    name?: string;
+    name: string;
     pinnedServers?: string;
     serviceGroup?: string;
     trace?: boolean;
     statistics?: boolean;
     startOnLoad?: boolean;
-    transports?: string;
+    transports: string;
     transport?: {
         http: boolean;
         https: boolean;
@@ -57,24 +57,24 @@ type InputsFields = {
         udp: boolean;
     };
     enableAddressing?: boolean;
-    endpointType?: string;
-    endpoint?: string;
-    faultSequenceType?: string;
-    faultSequence?: string;
+    endpointType: string;
+    endpoint: string;
+    faultSequenceType: string;
+    faultSequence: string;
     faultSequenceEdited?: boolean;
-    inSequenceType?: string;
-    inSequence?: string;
+    inSequenceType: string;
+    inSequence: string;
     inSequenceEdited?: boolean;
-    outSequenceType?: string;
-    outSequence?: string;
+    outSequenceType: string;
+    outSequence: string;
     outSequenceEdited?: boolean;
     securityEnabled?: boolean;
-    wsdlType?: string;
-    wsdlInLine?: string;
+    wsdlType: string;
+    wsdlInLine: string;
     preservePolicy?: boolean;
-    wsdlUrl?: string;
-    registryKey?: string;
-    wsdlEndpoint?: string;
+    wsdlUrl: string;
+    registryKey: string;
+    wsdlEndpoint: string;
     parametersUpdated?: boolean;
 }    
 
@@ -616,23 +616,23 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                         {...renderProps("serviceGroup")}
                     />        
                     <CheckBoxGroup columns={3}>
-                        <FormCheckBox label="Statistics" {...register("statistics")} control={control} />
-                        <FormCheckBox label="Trace" {...register("trace")} control={control} />
-                        <FormCheckBox label="Start On Load" {...register("startOnLoad")} control={control} />
+                        <FormCheckBox label="Statistics" {...register("statistics")} control={control as any} />
+                        <FormCheckBox label="Trace" {...register("trace")} control={control as any} />
+                        <FormCheckBox label="Start On Load" {...register("startOnLoad")} control={control as any} />
                     </CheckBoxGroup>
                     <span>Transports</span>
                     <CheckBoxGroup columns={5}  >
-                        <FormCheckBox label="HTTP" {...register("transport.http")} control={control}/>
-                        <FormCheckBox label="HTTPS" {...register("transport.https")} control={control}/>
-                        <FormCheckBox label="JMS" {...register("transport.jms")} control={control}/>
-                        <FormCheckBox label="VFS" {...register("transport.vfs")} control={control}/>
-                        <FormCheckBox label="Local" {...register("transport.local")} control={control}/>
-                        <FormCheckBox label="MailTo" {...register("transport.malito")} control={control}/>
-                        <FormCheckBox label="FIX" {...register("transport.fix")} control={control}/>
-                        <FormCheckBox label="RabbitMQ" {...register("transport.rabbitmq")} control={control}/>
-                        <FormCheckBox label="HL7" {...register("transport.hl7")} control={control}/>
-                        <FormCheckBox label="TCP" {...register("transport.tcp")} control={control}/>
-                        <FormCheckBox label="UDP" {...register("transport.udp")} control={control}/>
+                        <FormCheckBox label="HTTP" {...register("transport.http")} control={control as any}/>
+                        <FormCheckBox label="HTTPS" {...register("transport.https")} control={control as any}/>
+                        <FormCheckBox label="JMS" {...register("transport.jms")} control={control as any}/>
+                        <FormCheckBox label="VFS" {...register("transport.vfs")} control={control as any}/>
+                        <FormCheckBox label="Local" {...register("transport.local")} control={control as any}/>
+                        <FormCheckBox label="MailTo" {...register("transport.malito")} control={control as any}/>
+                        <FormCheckBox label="FIX" {...register("transport.fix")} control={control as any}/>
+                        <FormCheckBox label="RabbitMQ" {...register("transport.rabbitmq")} control={control as any}/>
+                        <FormCheckBox label="HL7" {...register("transport.hl7")} control={control as any}/>
+                        <FormCheckBox label="TCP" {...register("transport.tcp")} control={control as any}/>
+                        <FormCheckBox label="UDP" {...register("transport.udp")} control={control as any}/>
                     </CheckBoxGroup>
                     <span style={{ color:"#f48771" }}>{errors["transports"]?.message.toString()}</span>
                     <FormGroup title="Advanced Options" >
@@ -654,7 +654,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                     filterType="endpoint"
                                     path={documentUri}
                                     {...renderProps("endpoint")}
-                                    control={control}
+                                    control={control as any}
                                 />
                             )}
                             <ContentSeperator></ContentSeperator>
@@ -675,7 +675,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                     filterType="sequence"
                                     path={documentUri}
                                     {...renderProps("inSequence")}
-                                    control={control}/>
+                                    control={control as any}/>
                             )}
                             <ContentSeperator></ContentSeperator>
                             <CheckBoxContainer>
@@ -695,7 +695,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                     filterType="sequence"
                                     path={documentUri}
                                     {...renderProps("outSequence")}
-                                    control={control}/>
+                                    control={control as any}/>
                             )}
                             <ContentSeperator></ContentSeperator>
                             <CheckBoxContainer>
@@ -715,7 +715,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                     filterType="sequence"
                                     path={documentUri}
                                     {...renderProps("faultSequence")}
-                                    control={control}/>
+                                    control={control as any}/>
                             )}
                             <ContentSeperator></ContentSeperator>
                             <h3>Service Parameters</h3>
@@ -725,8 +725,8 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                 onChange={(param)=>handleOnChange(param,"parameters")} />
                             <ContentSeperator></ContentSeperator>
                             <h3>Security</h3>
-                            <FormCheckBox label="Enable Addressing" {...register("enableAddressing")} control={control} />
-                            <FormCheckBox label="Security Enabled" {...register("securityEnabled")} control={control} />
+                            <FormCheckBox label="Enable Addressing" {...register("enableAddressing")} control={control as any} />
+                            <FormCheckBox label="Security Enabled" {...register("securityEnabled")} control={control as any} />
                             <span>Service Policies</span>
                             <ParamManager
                                 paramConfigs={policies}
@@ -765,7 +765,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                         }}
                                     />
                                     {message.isError === true && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                                    <FormCheckBox label="Preserve Policy" {...register("preservePolicy")} control={control} />
+                                    <FormCheckBox label="Preserve Policy" {...register("preservePolicy")} control={control as any} />
                                 </>
                             )}
                             {watch("wsdlType") === "SOURCE_URL" && (
@@ -782,19 +782,19 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                     filterType="wsdl"
                                     path={documentUri}
                                     {...renderProps("registryKey")}
-                                    control={control}
+                                    control={control as any}
                                 />
                             )}
                             {watch("wsdlType") === "ENDPOINT" && (
                                 <>
-                                    <FormCheckBox label="Preserve Policy" {...register("preservePolicy")} control={control} />
+                                    <FormCheckBox label="Preserve Policy" {...register("preservePolicy")} control={control as any} />
                                     <FormKeylookup
                                         label="WSDL Endpoint"
                                         name="wsdlEndpoint"
                                         filterType="endpoint"
                                         path={documentUri}
                                         {...renderProps("wsdlEndpoint")}
-                                        control={control}/>
+                                        control={control as any}/>
                                 </>
                             )}
                             {watch("wsdlType") !== "NONE" && watch("wsdlType") !=="ENDPOINT" && (

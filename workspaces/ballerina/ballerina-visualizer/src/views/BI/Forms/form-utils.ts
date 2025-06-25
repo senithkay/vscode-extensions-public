@@ -39,16 +39,17 @@ export function updateNodeWithProperties(
     node: FlowNode,
     updatedNode: FlowNode,
     data: FormValues,
-    formImports: FormImports
+    formImports: FormImports,
+    dirtyFields?: any
 ): FlowNode {
     const newNode = { ...updatedNode };
 
     if (node.branches?.at(0)?.properties) {
         // branch properties
-        newNode.branches[0].properties = updateNodeProperties(data, node.branches[0].properties, formImports);
+        newNode.branches[0].properties = updateNodeProperties(data, node.branches[0].properties, formImports, dirtyFields);
     } else if (node.properties) {
         // node properties
-        newNode.properties = updateNodeProperties(data, node.properties, formImports);
+        newNode.properties = updateNodeProperties(data, node.properties, formImports, dirtyFields);
     } else {
         console.error(">>> Error updating source code. No properties found");
     }

@@ -9,7 +9,7 @@
 
 import axios from 'axios';
 import { StateMachineAI } from './aiMachine';
-import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/mi-core';
 import { extension } from '../MIExtensionContext';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
@@ -79,7 +79,8 @@ export async function exchangeAuthCode(authCode: string) {
             await extension.context.secrets.store('MIAIUser', response.accessToken);
             await extension.context.secrets.store('MIAIRefreshToken', response.refreshToken ?? '');
 
-            const rpcManager = new MiDiagramRpcManager();
+            // TODO: This is a temporary fix to get the backend root url. Once multiple workspace support is added, this should be removed.
+            const rpcManager = new MiDiagramRpcManager(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? "");
             const backendRootUrlResponse = await rpcManager.getBackendRootUrl();
             const url = backendRootUrlResponse.url + USER_CHECK_BACKEND_URL;
             
@@ -92,7 +93,7 @@ export async function exchangeAuthCode(authCode: string) {
             });
 
             if(fetch_response.ok) {
-                const responseBody = await fetch_response.json();
+                const responseBody = await fetch_response.json() as AIUserTokens | undefined;
                 const context = StateMachineAI.context();
                 context.userTokens = responseBody;
             }else{

@@ -78,9 +78,10 @@ export interface ParameterManagerProps {
     parameters?: Param[];
     nodeRange?: Range;
     setParameters?: (params: Param[]) => void;
+    documentUri?: string;
 }
 const ParameterManager = (props: ParameterManagerProps) => {
-    const { formData, nodeRange, parameters, setParameters } = props;
+    const { documentUri, formData, nodeRange, parameters, setParameters } = props;
     const { addParamText, noDataText, readonly, tableKey, tableValue } = formData;
     const { control, setValue, getValues, reset, watch, handleSubmit, formState: { errors } } = useForm();
 
@@ -136,8 +137,9 @@ const ParameterManager = (props: ParameterManagerProps) => {
     }
 
     const Form = () => {
-        return <FormWrapper>
+        return <FormWrapper id='parameterManagerForm'>
             <FormGenerator
+                documentUri={documentUri}
                 formData={formData}
                 range={nodeRange}
                 control={control}
@@ -176,22 +178,25 @@ const ParameterManager = (props: ParameterManagerProps) => {
             {parameters?.map((param: Param, index: number) => (
                 <>
                     <Row key={index}>
-                        <div
-                            style={{
-                                backgroundColor: Colors.PRIMARY,
-                                padding: '5px',
-                                flex: 1,
-                                borderTopLeftRadius: 4,
-                                borderBottomLeftRadius: 4,
-                                height: !param[tableKey as keyof Param] && 15,
-                            }}
-                        >
-                            <Typography
-                                sx={{
-                                    color: Colors.ON_PRIMARY
+                        {getFieldValue(param[tableKey as keyof Param]) &&
+
+                            <div
+                                style={{
+                                    backgroundColor: Colors.PRIMARY,
+                                    padding: '5px',
+                                    flex: 1,
+                                    borderTopLeftRadius: 4,
+                                    borderBottomLeftRadius: 4,
+                                    height: !param[tableKey as keyof Param] && 15,
                                 }}
-                            >{getFieldValue(param[tableKey as keyof Param]) ?? (index + 1)}</Typography>
-                        </div>
+                            >
+                                <Typography
+                                    sx={{
+                                        color: Colors.ON_PRIMARY
+                                    }}
+                                >{getFieldValue(param[tableKey as keyof Param]) ?? (index + 1)}</Typography>
+                            </div>
+                        }
                         <div
                             style={{
                                 backgroundColor: Colors.SURFACE_CONTAINER,
@@ -200,6 +205,8 @@ const ParameterManager = (props: ParameterManagerProps) => {
                                 overflow: 'hidden',
                                 borderTopRightRadius: 4,
                                 borderBottomRightRadius: 4,
+                                borderTopLeftRadius: getFieldValue(param[tableKey as keyof Param]) ? 0 : 4,
+                                borderBottomLeftRadius: getFieldValue(param[tableKey as keyof Param]) ? 0 : 4,
                                 height: !getFieldValue(param[tableValue as keyof Param]) && 15,
                             }}
                         >
@@ -209,10 +216,10 @@ const ParameterManager = (props: ParameterManagerProps) => {
                         {!readonly && !isAdding && !isUpdate && (
                             <ActionWrapper>
                                 <ActionIconWrapper>
-                                    <EditIconWrapper>
+                                    <EditIconWrapper id='paramEdit'>
                                         <Codicon name="edit" onClick={() => handleEditParameter(param, index)} />
                                     </EditIconWrapper>
-                                    <DeleteIconWrapper>
+                                    <DeleteIconWrapper id='paramTrash'>
                                         <Codicon name="trash" onClick={() => handleDeleteParameter(param)} />
                                     </DeleteIconWrapper>
                                 </ActionIconWrapper>

@@ -8,8 +8,8 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodePropertyKey } from "@wso2-enterprise/ballerina-core";
-import { View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { FunctionNode, LineRange, NodeKind, NodeProperties, Property, NodePropertyKey, DIRECTORY_MAP, ProjectStructureArtifactResponse, MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
+import { Button, Codicon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { FormField, FormImports, FormValues } from "@wso2-enterprise/ballerina-side-panel";
@@ -19,7 +19,7 @@ import { TitleBar } from "../../../components/TitleBar";
 import { TopNavigationBar } from "../../../components/TopNavigationBar";
 import { FormHeader } from "../../../components/FormHeader";
 import { convertConfig, getImportsForProperty } from "../../../utils/bi";
-import { LoadingContainer } from "../../styles";
+import { BodyText, LoadingContainer, TopBar } from "../../styles";
 import { LoadingRing } from "../../../components/Loader";
 
 const FormContainer = styled.div`
@@ -42,11 +42,12 @@ interface FunctionFormProps {
     isDataMapper?: boolean;
     isNpFunction?: boolean;
     isAutomation?: boolean;
+    isPopup?: boolean;
 }
 
 export function FunctionForm(props: FunctionFormProps) {
     const { rpcClient } = useRpcContext();
-    const { projectPath, functionName, filePath, isDataMapper, isNpFunction, isAutomation } = props;
+    const { projectPath, functionName, filePath, isDataMapper, isNpFunction, isAutomation, isPopup } = props;
 
     const [functionFields, setFunctionFields] = useState<FormField[]>([]);
     const [functionNode, setFunctionNode] = useState<FunctionNode>(undefined);
@@ -259,9 +260,24 @@ export function FunctionForm(props: FunctionFormProps) {
             .getBIDiagramRpcClient()
             .getSourceCode({ filePath, flowNode: functionNodeCopy, isFunctionNodeUpdate: true });
 
-        if (!sourceCode.textEdits) {
+        if (sourceCode.artifacts.length === 0) {
             setSaving(false);
             showErrorNotification();
+        } else {
+            const newArtifact = sourceCode.artifacts.find(res => res.isNew);
+            if (newArtifact) {
+                if (isPopup) {
+                    handleClosePopup(functionNodeCopy.properties.functionName.value as string);
+                    return;
+                }
+                rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: newArtifact.path, position: newArtifact.position } });
+                return;
+            }
+            const updatedArtifact = sourceCode.artifacts.find(res => !res.isNew && (res.name === functionName || res.context === functionName));
+            if (updatedArtifact) {
+                rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: updatedArtifact.path, position: updatedArtifact.position } });
+                return;
+            }
         }
     };
 
@@ -311,6 +327,12 @@ export function FunctionForm(props: FunctionFormProps) {
         return "Function";
     };
 
+    const handleClosePopup = (functionName?: string) => {
+        rpcClient
+            .getVisualizerRpcClient()
+            .openView({ type: EVENT_TYPE.CLOSE_VIEW, location: { view: null, recentIdentifier: functionName, artifactType: DIRECTORY_MAP.FUNCTION }, isPopup: true });
+    }
+
     useEffect(() => {
         if (filePath && rpcClient) {
             rpcClient
@@ -334,13 +356,30 @@ export function FunctionForm(props: FunctionFormProps) {
 
     return (
         <View>
-            <TopNavigationBar />
-            <TitleBar
-                title={formType.current}
-                subtitle={titleSubtitle}
-            />
+            {!isPopup &&
+                <>
+                    <TopNavigationBar />
+                    <TitleBar
+                        title={formType.current}
+                        subtitle={titleSubtitle}
+                    />
+                </>
+            }
             <ViewContent padding>
                 <Container>
+                    {isPopup && (
+                        <>
+                            <TopBar>
+                                <Typography variant="h2">Create New Function</Typography>
+                                <Button appearance="icon" onClick={() => handleClosePopup()}>
+                                    <Codicon name="close" />
+                                </Button>
+                            </TopBar>
+                            <BodyText>
+                                Create a new function to define reusable logic.
+                            </BodyText>
+                        </>
+                    )}
                     <FormHeader
                         title={`${functionName ? 'Edit' : 'Create New'} ${formType.current}`}
                         subtitle={formSubtitle}
@@ -358,7 +397,7 @@ export function FunctionForm(props: FunctionFormProps) {
                                 fields={functionFields}
                                 isSaving={saving}
                                 onSubmit={handleFormSubmit}
-                                submitText={saving ? (functionName ? "Saving" : "Creating") : (functionName ? "Save" : "Create")}
+                                submitText={saving ? (functionName ? "Saving..." : "Creating...") : (functionName ? "Save" : "Create")}
                                 selectedNode={functionNode?.codedata?.node}
                             />
                         }

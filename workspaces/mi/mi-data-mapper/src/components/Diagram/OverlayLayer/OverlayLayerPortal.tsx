@@ -11,7 +11,7 @@ import ReactDOM from 'react-dom';
 
 import { OverlayContainerID } from './OverlayLayerWidget';
 
-export const OverlayLayerPortal: React.FC<{}> = (props) => {
+export const OverlayLayerPortal: React.FC<React.PropsWithChildren<{ hideCanvas: boolean }>> = (props) => {
     const container = document.getElementById(OverlayContainerID);
 	   return container !== null ? ReactDOM.createPortal(props.children, container) : <></>;
 }

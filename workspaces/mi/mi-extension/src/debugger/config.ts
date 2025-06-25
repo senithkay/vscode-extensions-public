@@ -9,7 +9,6 @@
  */
 
 import * as vscode from 'vscode';
-import { StateMachine } from "../stateMachine";
 import * as path from "path";
 
 const toml = require('@iarna/toml');
@@ -151,8 +150,8 @@ export class DebuggerConfig {
         }
     }
 
-    public static setConfigPortOffset(): void {
-        const deploymentConfig = path.join(StateMachine.context().projectUri!, "deployment", "deployment.toml");
+    public static setConfigPortOffset(projectUri: string): void {
+        const deploymentConfig = path.join(projectUri, "deployment", "deployment.toml");
         const configs = toml.parse(fs.readFileSync(deploymentConfig, 'utf8'));
         this.configPortOffset = configs.server?.offset ?? null;
     }

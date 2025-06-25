@@ -146,7 +146,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
         deleteEmptyFoldersInPath(source);
 
         const projectDirToResolvedPomMap = await generateProjectDirToResolvedPomMap(destinationFolderPath);
-        
+
         const createdProjectCount = await createFolderStructuresForDistributionProjects(
             destinationFolderPath,
             directory,
@@ -179,11 +179,11 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
 
 /**
  * Creates folder structures for distribution projects found within a given destination folder path.
- * 
+ *
  * This function recursively scans the specified `destinationFolderPath` for directories representing
  * distribution projects (as determined by `determineProjectType`). For each distribution project found,
  * it creates a corresponding folder structure in the specified `directory`.
- * 
+ *
  * @param destinationFolderPath - The root path to scan for distribution projects.
  * @param directory - The base directory where new folder structures should be created.
  * @param projectUuid - The unique identifier for the project, used in folder structure generation.
@@ -272,12 +272,12 @@ export async function generateProjectDirToResolvedPomMap(multiModuleProjectDir: 
                 cleanedProjectDir = cleanedProjectDir.substring(0, srcMainIndex);
             }
             if (process.platform === 'win32' && cleanedProjectDir[1] === ':') {
-                cleanedProjectDir = cleanedProjectDir[0].toLowerCase() + cleanedProjectDir.slice(1); 
+                cleanedProjectDir = cleanedProjectDir[0].toLowerCase() + cleanedProjectDir.slice(1);
             }
             projectDirToResolvedPomMap.set(cleanedProjectDir.trim(), projectXml);
         }
     }
-    
+
     removeMavenWrapper(multiModuleProjectDir);
     return projectDirToResolvedPomMap;
 }
@@ -328,7 +328,7 @@ export function getProjectDetails(filePath: string, projectDirToResolvedPomMap?:
 }
 
 /**
- * Captures the project directory from a given file path which is in ".bakcup" dir.
+ * Captures the project directory from a given file path which is in ".backup" dir.
  * If filePath contains ".backup", extract the segment after the last ".backup" and keep only the next directory name
  *
  * @param filePath - The absolute or relative file path to analyze.
@@ -777,7 +777,7 @@ function getPomIdentifier(projectDir: string, projectDirToResolvedPom: Map<strin
             return `${groupId}:${artifactId}:${version}`;
         }
     }
-    
+
     return null;
 }
 

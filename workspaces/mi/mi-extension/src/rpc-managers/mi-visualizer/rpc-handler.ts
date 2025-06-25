@@ -69,7 +69,11 @@ import {
     SetPathRequest,
     updateProjectSettingsConfig,
     updateDependenciesFromOverview,
-    DownloadMIRequest, ProjectConfig,
+    DownloadMIRequest,
+    updateAiDependencies,
+    UpdateAiDependenciesRequest,
+    UpdateAiDependenciesResponse,
+    ProjectConfig,
     MavenDeployPluginDetails,
     setDeployPlugin,
     getDeployPluginDetails,
@@ -78,8 +82,8 @@ import {
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
 
-export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
-    const rpcManger = new MiVisualizerRpcManager();
+export function registerMiVisualizerRpcHandlers(messenger: Messenger, projectUri: string): void {
+    const rpcManger = new MiVisualizerRpcManager(projectUri);
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
     messenger.onRequest(getProjectOverview, (args: ProjectStructureRequest) => rpcManger.getProjectOverview(args));
@@ -125,4 +129,6 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(setDeployPlugin, (args: MavenDeployPluginDetails) => rpcManger.setDeployPlugin(args));
     messenger.onRequest(getDeployPluginDetails, () => rpcManger.getDeployPluginDetails());
     messenger.onRequest(removeDeployPlugin, () => rpcManger.removeDeployPlugin());
+    messenger.onRequest(updateAiDependencies, (args: UpdateAiDependenciesRequest) => rpcManger.updateAiDependencies(args));
+    messenger.onRequest(updateAiDependencies, (args: UpdateAiDependenciesRequest) => rpcManger.updateAiDependencies(args));
 }

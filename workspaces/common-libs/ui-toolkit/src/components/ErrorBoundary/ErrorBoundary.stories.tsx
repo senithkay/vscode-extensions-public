@@ -7,9 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useState } from "react";
-import { ComponentStory } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ErrorBoundary as EB } from "./ErrorBoundary";
-import { ErrorBoundaryProps } from "react-error-boundary";
 import { Button } from "../Button/Button";
 
 function MyComponent() {
@@ -27,9 +26,14 @@ function MyComponent() {
     return <Button onClick={handleClick}>My Component</Button>;
 }
 
-const Template: ComponentStory<typeof EB> = (args: ErrorBoundaryProps) => <EB {...args} />;
+const meta = {
+    component: EB,
+    title: "Error Boundary",
+} satisfies Meta<typeof EB>;
+export default meta;
 
-export const ErrorBoundary = Template.bind();
-ErrorBoundary.args = { children: <MyComponent />, errorMsg: "An error occurred" };
+type Story = StoryObj<typeof EB>;
 
-export default { component: ErrorBoundary, title: "Error Boundary" };
+export const ErrorBoundary: Story = {
+    args: { children: <MyComponent />, errorMsg: "An error occurred" },
+};

@@ -8,7 +8,7 @@
  */
 
 import { debounce } from 'lodash';
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import styled from '@emotion/styled';
 import {
@@ -33,8 +33,14 @@ import {
     SubPanelView,
     SubPanelViewProps
 } from '@wso2-enterprise/ballerina-core';
+import ReactMarkdown from 'react-markdown';
 
 export type ContextAwareExpressionEditorProps = {
+    id?: string;
+    fieldKey?: string;
+    placeholder?: string;
+    required?: boolean;
+    showHeader?: boolean;
     field: FormField;
     openSubPanel?: (subPanel: SubPanel) => void;
     subPanelView?: SubPanelView;
@@ -156,16 +162,101 @@ export namespace S {
         font-family: monospace;
         font-size: 12px;
     `;
+
+    export const EditorMdContainer = styled.div`
+        width: 100%;
+        font-size: 13px;
+        font-family: var(--vscode-font-family);
+        color: var(--vscode-list-deemphasizedForeground);
+        border-radius: 4px;
+        margin-bottom: 0;
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 16px 0 8px 0;
+            font-family: var(--vscode-font-family);
+            font-weight: normal;
+            font-size: 13px;
+            color: var(--vscode-list-deemphasizedForeground);
+        }
+
+        p {
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.5;
+            font-family: var(--vscode-font-family);
+            color: var(--vscode-list-deemphasizedForeground);
+        }
+
+        code {
+            background-color: unset;
+            color: ${ThemeColors.PRIMARY};
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        pre {
+            // hide code blocks
+            display: none;
+        }
+
+        ul,
+        ol {
+            margin: 8px 0;
+            padding-left: 24px;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        li {
+            margin: 4px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        blockquote {
+            margin: 8px 0;
+            padding-left: 8px;
+            border-left: 4px solid ${ThemeColors.PRIMARY};
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 8px 0;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        th,
+        td {
+            border: 1px solid var(--vscode-editor-inactiveSelectionBackground);
+            padding: 8px;
+            text-align: left;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+        }
+
+        th {
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+        }
+    `;
 }
 
 const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
     return (
         <Tooltip content="Add Expression" containerSx={{ cursor: 'default' }}>
             <S.Ribbon onClick={onClick}>
-                <Icon name="bi-expression" sx={{ 
-                    color: ThemeColors.ON_PRIMARY, 
-                    fontSize: '12px', 
-                    width: '12px', 
+                <Icon name="bi-expression" sx={{
+                    color: ThemeColors.ON_PRIMARY,
+                    fontSize: '12px',
+                    width: '12px',
                     height: '12px'
                 }} />
             </S.Ribbon>
@@ -173,29 +264,31 @@ const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
     );
 };
 
-export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, ContextAwareExpressionEditorProps>(
-    (props, ref) => {
-        const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
+export const ContextAwareExpressionEditor = (props: ContextAwareExpressionEditorProps) => {
+    const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
 
-        return (
-            <ExpressionEditor
-                ref={ref}
-                fileName={fileName}
-                {...targetLineRange}
-                {...props}
-                {...form}
-                {...expressionEditor}
-            />
-        );
-    }
-);
+    return (
+        <ExpressionEditor
+            fileName={fileName}
+            targetLineRange={targetLineRange}
+            {...props}
+            {...form}
+            {...expressionEditor}
+        />
+    );
+};
 
-export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEditorProps>((props, ref) => {
+export const ExpressionEditor = (props: ExpressionEditorProps) => {
     const {
         autoFocus,
         control,
         field,
+        id,
+        placeholder,
+        required,
+        showHeader = true,
         watch,
+        fieldKey,
         completions,
         triggerCharacters,
         retrieveCompletions,
@@ -217,10 +310,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         helperPaneOrigin,
         helperPaneHeight,
         recordTypeField,
-        growRange = { start: 1, offset: 4 },
+        growRange = { start: 1, offset: 9 },
         rawExpression, // original expression
         sanitizedExpression // sanitized expression that will be rendered in the editor
     } = props as ExpressionEditorProps;
+
+    const key = fieldKey ?? field.key;
     const [focused, setFocused] = useState<boolean>(false);
 
     // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
@@ -236,9 +331,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     // Use to fetch initial diagnostics
     const fetchInitialDiagnostics = useRef<boolean>(true);
-    const fieldValue = rawExpression ? rawExpression(watch(field.key)) : watch(field.key);
-
-    useImperativeHandle(ref, () => exprRef.current);
+    const fieldValue = rawExpression ? rawExpression(watch(key)) : watch(key);
 
     // Initial render
     useEffect(() => {
@@ -246,40 +339,29 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         if (getExpressionEditorDiagnostics && fieldValue !== undefined && fetchInitialDiagnostics.current) {
             fetchInitialDiagnostics.current = false;
             getExpressionEditorDiagnostics(
-                !field.optional || fieldValue !== '',
+                (required ?? !field.optional) || fieldValue !== '',
                 fieldValue,
-                field.key,
+                key,
                 getPropertyFromFormField(field)
             );
         }
     }, [fieldValue]);
-
-    const cursorPositionRef = useRef<number | undefined>(undefined);
 
     const handleFocus = async () => {
         setFocused(true);
 
         // Trigger actions on focus
         await onFocus?.();
-        handleOnFieldFocus?.(field.key);
+        handleOnFieldFocus?.(key);
     };
 
     const handleBlur = async () => {
         setFocused(false);
-        // Trigger actions on blur
         await onBlur?.();
-
-        // Clean up memory
-        cursorPositionRef.current = undefined;
     };
 
     const handleCompletionSelect = async (value: string, item: CompletionItem) => {
-        // Trigger actions on completion select
-        await onCompletionItemSelect?.(value, field.key, item.additionalTextEdits);
-
-        // Set cursor position
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-        cursorPositionRef.current = cursorPosition;
+        await onCompletionItemSelect?.(value, key, item.additionalTextEdits);
     };
 
     const handleOpenSubPanel = (view: SubPanelView, subPanelInfo: SubPanelViewProps) => {
@@ -301,11 +383,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                         line: effectiveTargetLineRange.startLine.line,
                         offset: effectiveTargetLineRange.startLine.offset
                     },
-                    propertyKey: field.key,
-                    editorKey: field.key
+                    propertyKey: key,
+                    editorKey: key
                 }
             });
-            handleOnFieldFocus?.(field.key);
+            handleOnFieldFocus?.(key);
         }
     };
 
@@ -328,7 +410,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         helperPaneHeight: HelperPaneHeight
     ) => {
         return getHelperPane?.(
-            field.key,
+            key,
             exprRef,
             anchorRef,
             field.placeholder,
@@ -361,46 +443,44 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         )
     ];
 
-    const defaultValueText = field.defaultValue ? 
+    const defaultValueText = field.defaultValue ?
         <div>Defaults to <S.DefaultValue>{field.defaultValue}</S.DefaultValue></div> : null;
 
-    const documentation = field.documentation 
-        ? field.documentation.endsWith('.') 
-            ? field.documentation 
+    const documentation = field.documentation
+        ? field.documentation.endsWith('.')
+            ? field.documentation
             : `${field.documentation}.`
         : '';
     
-    const combinedDescription = (
-        <>
-            {documentation && <span>{documentation} </span>}
-            {defaultValueText}
-        </>
-    );
-
     return (
-        <S.Container>
-            <S.HeaderContainer>
+        <S.Container id={id}>
+            {showHeader && (
                 <S.Header>
-                    <S.LabelContainer>
-                        <S.Label>{field.label}</S.Label>
-                        {!field.optional && <RequiredFormInput />}
-                    </S.LabelContainer>
-                    <S.Description>{combinedDescription}</S.Description>
-                </S.Header>
-                {field.valueTypeConstraint && (
-                    <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
-                        {sanitizeType(field.valueTypeConstraint as string)}
-                    </S.Type>
-                )}
-            </S.HeaderContainer>
+                    <S.HeaderContainer>
+                        <S.LabelContainer>
+                            <S.Label>{field.label}</S.Label>
+                            {(required ?? !field.optional) && <RequiredFormInput />}
+                        </S.LabelContainer>
+                        {field.valueTypeConstraint && (
+                            <S.Type isVisible={focused} title={field.valueTypeConstraint as string}>
+                                {sanitizeType(field.valueTypeConstraint as string)}
+                            </S.Type>
+                        )}
+                    </S.HeaderContainer>
+                        <S.EditorMdContainer>
+                            {documentation && <ReactMarkdown>{documentation}</ReactMarkdown>}
+                            {defaultValueText}
+                        </S.EditorMdContainer>
+                    </S.Header>
+            )}
             <Controller
                 control={control}
-                name={field.key}
-                rules={{ required: !field.optional && !field.placeholder }}
+                name={key}
+                rules={{ required: required ?? (!field.optional && !field.placeholder) }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
                         <FormExpressionEditor
-                            key={field.key}
+                            key={key}
                             ref={exprRef}
                             anchorRef={anchorRef}
                             name={name}
@@ -416,13 +496,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                                 const rawValue = rawExpression ? rawExpression(updatedValue) : updatedValue;
                                 onChange(rawValue);
                                 debouncedUpdateSubPanelData(rawValue);
-                                cursorPositionRef.current = updatedCursorPosition;
 
                                 if (getExpressionEditorDiagnostics) {
                                     getExpressionEditorDiagnostics(
-                                        !field.optional || rawValue !== '',
+                                        (required ?? !field.optional) || rawValue !== '',
                                         rawValue,
-                                        field.key,
+                                        key,
                                         getPropertyFromFormField(field)
                                     );
                                 }
@@ -464,6 +543,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             growRange={growRange}
                             sx={{ paddingInline: '0' }}
                             codeActions={codeActions}
+                            placeholder={placeholder}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>
@@ -471,4 +551,4 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             />
         </S.Container>
     );
-});
+};

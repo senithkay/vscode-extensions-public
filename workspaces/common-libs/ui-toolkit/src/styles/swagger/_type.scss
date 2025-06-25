@@ -1,3 +1,5 @@
+@use "variables" as *;
+
 @mixin text_body($color: $text-body-default-font-color)
 {
     font-family: sans-serif;

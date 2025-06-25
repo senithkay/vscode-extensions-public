@@ -6,17 +6,28 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { LocationSelector as LS, FileSelectorProps } from "./LocationSelector";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { LocationSelector as LS } from "./LocationSelector";
 
-const Template: ComponentStory<typeof LS> = (args: FileSelectorProps) => <LS {...args} />;
+const meta = {
+    component: LS,
+    title: "File Selector",
+} satisfies Meta<typeof LS>;
+export default meta;
+
+type Story = StoryObj<typeof LS>;
 
 const onChange = () => {
     console.log("File Selected");
-}
+};
 
-export const FileSelector = Template.bind();
-FileSelector.args = { id: "File Selector", label: "File Selector", selectionText: "Please select a folder", btnText: "Browse Directory", onSelect: onChange, required: true };
-
-export default { component: FileSelector, title: "File Selector" };
+export const FileSelector: Story = {
+    args: {
+        id: "File Selector",
+        label: "File Selector",
+        selectionText: "Please select a folder",
+        btnText: "Browse Directory",
+        onSelect: onChange,
+        required: true
+    }
+};

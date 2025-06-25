@@ -1818,8 +1818,4 @@ export class STKindChecker {
     public static isXmlnsKeyword(node: Ballerina.STNode): node is Ballerina.XmlnsKeyword {
         return node.kind === "XmlnsKeyword";
     }
-
-    public static isundefined(node: Ballerina.STNode): node is Ballerina.undefined {
-        return node.kind === "undefined";
-    }
 }

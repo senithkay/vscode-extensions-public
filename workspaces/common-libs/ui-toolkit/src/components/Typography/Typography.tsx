@@ -8,6 +8,8 @@
  */
 import styled from "@emotion/styled";
 import React, { forwardRef, PropsWithChildren } from "react";
+import ProgressRing from "../ProgressRing/ProgressRing";
+import { ThemeColors } from "../../styles";
 
 const removeMargin = {
     margin: 'unset'
@@ -70,6 +72,12 @@ const Overline = styled.p`
     ${removeMargin};
 `;
 
+const ProgressText = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+`;
+
 export interface TypographyBaseProps {
     id?: string;
     className?: string;
@@ -78,7 +86,8 @@ export interface TypographyBaseProps {
     | "body1" | "body2" | "body3"
     | "button"
     | "caption"
-    | "overline";
+    | "overline"
+    | "progress";
     sx?: any;
 }
 
@@ -116,6 +125,8 @@ export const Typography = forwardRef<HTMLParagraphElement, TypographyProps>((pro
             return <Caption ref={ref} id={id} className={className} style={sx}>{children}</Caption>;
         case "overline":
             return <Overline ref={ref} id={id} className={className} style={sx}>{children}</Overline>;
+        case "progress":
+            return <ProgressText ref={ref} id={id} className={className} style={sx}><ProgressRing sx={{ width: 14, height: 14 }} color={ThemeColors.ON_PRIMARY} />{children}</ProgressText>;
         default:
             return <p ref={ref} id={id} className={className} style={sx}>{children}</p>;
     }
