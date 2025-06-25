@@ -28,6 +28,7 @@ export function AddForm(props: ConfigFormProps) {
     const { isOpen, onClose, onSubmit, title, filename } = props;
     const { rpcClient } = useRpcContext();
     const [configVarNode, setCofigVarNode] = useState<FlowNode>();
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         const fetchNode = async () => {
@@ -41,17 +42,17 @@ export function AddForm(props: ConfigFormProps) {
     }, []);
 
     const handleSave = async (node: FlowNode) => {
-
+        setIsSaving(true);
         await rpcClient.getBIDiagramRpcClient().updateConfigVariablesV2({
             configFilePath: props.filename,
             configVariable: node,
             packageName: props.packageName,
             moduleName: props.moduleName,
         }).finally(() => {
-            if (onClose) {
-                onSubmit();
-            }
+            onSubmit();
         });
+        setIsSaving(false);
+        onClose();
     
     };
 
@@ -71,6 +72,7 @@ export function AddForm(props: ConfigFormProps) {
                             endLine: configVarNode.codedata?.lineRange?.endLine ?? { line: 0, offset: 0 }
                         }}
                         onSubmit={handleSave}
+                        showProgressIndicator={isSaving}
                     />
                 )}
             </PanelContainer>

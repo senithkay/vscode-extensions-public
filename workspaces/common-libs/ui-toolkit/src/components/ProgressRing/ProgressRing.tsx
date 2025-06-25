@@ -11,7 +11,7 @@ import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 
-interface ProgressRingProps {
+export interface ProgressRingProps {
     sx?: React.CSSProperties;
     color?: string;
 }

@@ -7,13 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { ComponentStory } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AutoComplete, AutoCompleteProps } from "./AutoComplete";
 
-const Template: ComponentStory<typeof AutoComplete> = (args: AutoCompleteProps) => <div style={{ width: 300 }}><AutoComplete {...args} ref={null}/></div>;
+const meta = {
+    component: AutoComplete,
+    title: "AutoComplete",
+} satisfies Meta<typeof AutoComplete>;
+export default meta;
 
-export const Select = Template.bind();
-const args: AutoCompleteProps = { id: "autoComplete", label: "Words", required: true, nullable: true, onValueChange: (value: string) => { console.log(value); }, items: ["foo", "boo"] };
-Select.args = args;
+type Story = StoryObj<typeof AutoComplete>;
 
-export default { component: Select, title: "AutoComplete" };
+export const Select: Story = {
+    args: {
+        id: "autoComplete",
+        label: "Words",
+        required: true,
+        nullable: true,
+        onValueChange: (value: string) => { console.log(value); },
+        items: ["foo", "boo"]
+    },
+    render: (args: AutoCompleteProps) => (
+        <div style={{ width: 300 }}>
+            <AutoComplete {...args} ref={null} />
+        </div>
+    ),
+};

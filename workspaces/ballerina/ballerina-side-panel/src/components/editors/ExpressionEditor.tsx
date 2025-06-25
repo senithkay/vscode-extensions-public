@@ -253,10 +253,10 @@ const EditorRibbon = ({ onClick }: { onClick: () => void }) => {
     return (
         <Tooltip content="Add Expression" containerSx={{ cursor: 'default' }}>
             <S.Ribbon onClick={onClick}>
-                <Icon name="bi-expression" sx={{ 
-                    color: ThemeColors.ON_PRIMARY, 
-                    fontSize: '12px', 
-                    width: '12px', 
+                <Icon name="bi-expression" sx={{
+                    color: ThemeColors.ON_PRIMARY,
+                    fontSize: '12px',
+                    width: '12px',
                     height: '12px'
                 }} />
             </S.Ribbon>
@@ -443,12 +443,12 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         )
     ];
 
-    const defaultValueText = field.defaultValue ? 
+    const defaultValueText = field.defaultValue ?
         <div>Defaults to <S.DefaultValue>{field.defaultValue}</S.DefaultValue></div> : null;
 
-    const documentation = field.documentation 
-        ? field.documentation.endsWith('.') 
-            ? field.documentation 
+    const documentation = field.documentation
+        ? field.documentation.endsWith('.')
+            ? field.documentation
             : `${field.documentation}.`
         : '';
     

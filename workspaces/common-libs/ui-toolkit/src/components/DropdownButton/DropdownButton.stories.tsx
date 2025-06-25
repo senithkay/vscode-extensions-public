@@ -8,10 +8,10 @@
  */
 import React, { useState } from "react";
 import { DropdownButton } from "./DropdownButton";
-import { storiesOf } from "@storybook/react";
 import Typography from "../Typography/Typography";
 import styled from "@emotion/styled";
 import { Icon } from "../Icon/Icon";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const IconWrapper = styled.div`
     height: 20px;
@@ -46,95 +46,103 @@ const onSelect = (option: string) => {
     console.log(`Selected option: ${option}`);
 };
 
-const DropdownButtonWithComponent = () => {
-    const [selectedItem, setSelectedItem] = useState<string>("Option 1");
-    const handleOptionSelect = (option: string) => {
-        setSelectedItem(option);
-        console.log(`Selected option: ${option}`);
-    };
-    const buttonContent = (
-        <div style={{ display: "flex", flexDirection: "row", gap: 4, alignItems: "center" }}>
-            <IconWrapper>
-                <Icon name="import" iconSx={{ fontSize: 22 }} />
-            </IconWrapper>
-            <TextWrapper>Import {selectedItem}</TextWrapper>
-        </div>
-    );
-
-    return (
-        <div style={{ display: "flex", flexDirection: "column", paddingTop: "100px" }}>
-            <div style={{ marginBottom: "10px" }}>
-                <Typography  variant="h1">Dropdown Button Example</Typography>
-                <Typography variant="h2">Select an option from the dropdown below:</Typography>
-            </div>
-            <DropdownButton
-                tooltip="Select an option"
-                dropDownAlign="top"
-                selecteOption={selectedItem}
-                buttonContent={buttonContent}
-                selectIconSx={{marginRight: 10}}
-                onOptionChange={handleOptionSelect}
-                onClick={onSelect}
-                options={[
-                    {
-                        content: option1,
-                        value: "Option 1",
-                    },
-                    {
-                        content: option2,
-                        value: "Option 2",
-                    },
-                    {
-                        content: option3,
-                        value: "Option 3",
-                    },
-                ]}
-                optionButtonSx={{ height: 30 }}
-                iconName="chevron-down"
-            />
-        </div>
-    );
+const meta: Meta<typeof DropdownButton> = {
+    title: "DropdownButton",
+    component: DropdownButton,
 };
-storiesOf("DropdownButton").add("DropdownButtonWithComponent", () => <DropdownButtonWithComponent />);
+export default meta;
 
-const DropdownButtonWithStringContent = () => {
-    const [selectedItem, setSelectedItem] = useState<string>("Option 1");
-    const handleOptionSelect = (option: string) => {
-        setSelectedItem(option);
-        console.log(`Selected option: ${option}`);
-    };
+type Story = StoryObj<typeof DropdownButton>;
 
-    return (
-        <div style={{ display: "flex", flexDirection: "column" , paddingTop: "100px" }}>
-            <div style={{ marginBottom: "10px" }}>
-                <Typography variant="h1">Dropdown Button Example</Typography>
-                <Typography variant="h2">Select an option from the dropdown below:</Typography>
+export const DropdownButtonWithComponent: Story = {
+    render: () => {
+        const [selectedItem, setSelectedItem] = useState<string>("Option 1");
+        const handleOptionSelect = (option: string) => {
+            setSelectedItem(option);
+            console.log(`Selected option: ${option}`);
+        };
+        const buttonContent = (
+            <div style={{ display: "flex", flexDirection: "row", gap: 4, alignItems: "center" }}>
+                <IconWrapper>
+                    <Icon name="import" iconSx={{ fontSize: 22 }} />
+                </IconWrapper>
+                <TextWrapper>Import {selectedItem}</TextWrapper>
             </div>
-            <DropdownButton
-                dropDownAlign="top"
-                selecteOption={selectedItem}
-                buttonContent={`Import ${selectedItem}`}
-                onOptionChange={handleOptionSelect}
-                onClick={onSelect}
-                options={[
-                    {
-                        content: option1,
-                        value: "Option 1",
-                    },
-                    {
-                        content: option2,
-                        value: "Option 2",
-                    },
-                    {
-                        content: option3,
-                        value: "Option 3",
-                    },
-                ]}
-                optionButtonSx={{ height: 26 }}
-                selectIconSx={{marginRight: 10}}
-                iconName="chevron-down"
-            />
-        </div>
-    );
-}
-storiesOf("DropdownButton").add("DropdownButtonWithStringContent", () => <DropdownButtonWithStringContent />);
+        );
+        return (
+            <div style={{ display: "flex", flexDirection: "column", paddingTop: "100px" }}>
+                <div style={{ marginBottom: "10px" }}>
+                    <Typography  variant="h1">Dropdown Button Example</Typography>
+                    <Typography variant="h2">Select an option from the dropdown below:</Typography>
+                </div>
+                <DropdownButton
+                    tooltip="Select an option"
+                    dropDownAlign="top"
+                    selecteOption={selectedItem}
+                    buttonContent={buttonContent}
+                    selectIconSx={{marginRight: 10}}
+                    onOptionChange={handleOptionSelect}
+                    onClick={onSelect}
+                    options={[
+                        {
+                            content: option1,
+                            value: "Option 1",
+                        },
+                        {
+                            content: option2,
+                            value: "Option 2",
+                        },
+                        {
+                            content: option3,
+                            value: "Option 3",
+                        },
+                    ]}
+                    optionButtonSx={{ height: 30 }}
+                    iconName="chevron-down"
+                />
+            </div>
+        );
+    },
+};
+
+export const DropdownButtonWithStringContent: Story = {
+    render: () => {
+        const [selectedItem, setSelectedItem] = useState<string>("Option 1");
+        const handleOptionSelect = (option: string) => {
+            setSelectedItem(option);
+            console.log(`Selected option: ${option}`);
+        };
+        return (
+            <div style={{ display: "flex", flexDirection: "column" , paddingTop: "100px" }}>
+                <div style={{ marginBottom: "10px" }}>
+                    <Typography variant="h1">Dropdown Button Example</Typography>
+                    <Typography variant="h2">Select an option from the dropdown below:</Typography>
+                </div>
+                <DropdownButton
+                    dropDownAlign="top"
+                    selecteOption={selectedItem}
+                    buttonContent={`Import ${selectedItem}`}
+                    onOptionChange={handleOptionSelect}
+                    onClick={onSelect}
+                    options={[
+                        {
+                            content: option1,
+                            value: "Option 1",
+                        },
+                        {
+                            content: option2,
+                            value: "Option 2",
+                        },
+                        {
+                            content: option3,
+                            value: "Option 3",
+                        },
+                    ]}
+                    optionButtonSx={{ height: 26 }}
+                    selectIconSx={{marginRight: 10}}
+                    iconName="chevron-down"
+                />
+            </div>
+        );
+    },
+};

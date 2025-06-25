@@ -7,8 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import { storiesOf } from "@storybook/react";
-
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ContextMenu } from "./ContextMenu";
 import styled from "@emotion/styled";
 
@@ -20,30 +19,12 @@ const Container = styled.div`
     align-items: center;
 `;
 
-const ComponentStory = () => {
-
-    return (
-        <ContextMenu menuItems={[{id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}}]}/>
-    );
-};
-
-storiesOf("Context Menu").add("Horizontal Menu", () => <ComponentStory />);
-
 const verticalIconStyles = {
     transform: "rotate(90deg)",
     ":hover": {
         backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",
     }
-}
-
-const VericleMenu = () => {
-
-    return (
-        <ContextMenu iconSx={verticalIconStyles} menuItems={[{id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}}]}/>
-    );
 };
-
-storiesOf("Context Menu").add("Verticle Menu", () => <VericleMenu />);
 
 const rounderIconStyles = {
     width: "30px",
@@ -55,51 +36,80 @@ const rounderIconStyles = {
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center"
-}
-const VericleMenuWithCircularBorder = () => {
-
-    return (
-        <ContextMenu iconSx={rounderIconStyles} menuItems={[{id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}}]}/>
-    );
 };
 
-storiesOf("Context Menu").add("Vericle Menu With Circular Border", () => <VericleMenuWithCircularBorder />);
+const meta = {
+    component: ContextMenu,
+    title: "ContextMenu",
+} satisfies Meta<typeof ContextMenu>;
+export default meta;
 
-const ContextMenuPosition = () => {
+type Story = StoryObj<typeof ContextMenu>;
 
-    return (
+export const HorizontalMenu: Story = {
+    render: () => (
+        <ContextMenu menuItems={[
+            { id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")} }
+        ]}/>
+    )
+};
+
+export const VerticalMenu: Story = {
+    render: () => (
+        <ContextMenu iconSx={verticalIconStyles} menuItems={[
+            { id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")} }
+        ]}/>
+    )
+};
+
+export const VerticalMenuWithCircularBorder: Story = {
+    render: () => (
+        <ContextMenu iconSx={rounderIconStyles} menuItems={[
+            { id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")} }
+        ]}/>
+    )
+};
+
+export const ContextMenuPosition: Story = {
+    render: () => (
         <Container>
-            <ContextMenu iconSx={verticalIconStyles} position="bottom-left" menuItems={[{id: "1", label: <>Test Item 1</>, onClick: () => {console.log("Item 1 Selected")}}, {id: "2", label: <>Test Item 2</>, onClick: () => {console.log("Item 2 Selected")}}]}/>
+            <ContextMenu
+                iconSx={verticalIconStyles}
+                position="bottom-left"
+                menuItems={[
+                    { id: "1", label: <>Test Item 1</>, onClick: () => {console.log("Item 1 Selected")} },
+                    { id: "2", label: <>Test Item 2</>, onClick: () => {console.log("Item 2 Selected")} }
+                ]}
+            />
         </Container>
-    );
+    )
 };
 
-storiesOf("Context Menu").add("Context Menu Position", () => <ContextMenuPosition />);
-
-const VericleSubMenu = () => {
-    return (
-        <ContextMenu 
+export const VerticalSubMenu: Story = {
+    render: () => (
+        <ContextMenu
             iconSx={verticalIconStyles}
-            menuItems={[{
-                id: "",
-                label: <>Test Item 1</>,
-                onClick: () => {}, // Add this line
-                sunMenuItems: [{
+            menuItems={[
+                {
                     id: "",
-                    label: <>Sub Menu Item 1</>,
-                    onClick: () => {console.log("Sub Menu Item 1 Selected")}
-                }, {
-                    id: "",
-                    label: <>Sub Menu Item 2</>,
-                    onClick: () => {console.log("Sub Menu Item 2 Selected")}
-                }
-                ]
-            },
-            {id: "", label: <>Test Item 2</>, onClick: () => {console.log("Item Selected")}},
-            {id: "", label: <>Test Item 3</>, onClick: () => {console.log("Item Selected")}}
+                    label: <>Test Item 1</>,
+                    onClick: () => {},
+                    sunMenuItems: [
+                        {
+                            id: "",
+                            label: <>Sub Menu Item 1</>,
+                            onClick: () => {console.log("Sub Menu Item 1 Selected")}
+                        },
+                        {
+                            id: "",
+                            label: <>Sub Menu Item 2</>,
+                            onClick: () => {console.log("Sub Menu Item 2 Selected")}
+                        }
+                    ]
+                },
+                { id: "", label: <>Test Item 2</>, onClick: () => {console.log("Item Selected")} },
+                { id: "", label: <>Test Item 3</>, onClick: () => {console.log("Item Selected")} }
             ]}
         />
-    );
+    )
 };
-
-storiesOf("Context Menu").add("Verticle Sub Menu", () => <VericleSubMenu />);

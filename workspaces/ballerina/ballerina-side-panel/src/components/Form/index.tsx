@@ -649,7 +649,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     const disableSaveButton =
         !isValid || isValidating || props.disableSaveButton || (concertMessage && concertRequired && !isUserConcert) ||
-        isIdentifierEditing;
+        isIdentifierEditing || Object.keys(errors).length > 0;
 
     const handleShowMoreClick = () => {
         setIsMarkdownExpanded(!isMarkdownExpanded);

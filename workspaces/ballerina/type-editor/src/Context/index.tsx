@@ -38,6 +38,8 @@ export type TypeHelperContext = {
     onTypeItemClick: (item: TypeHelperItem) => Promise<AddImportItemResponse>;
     // Callback function to close the completions
     onCloseCompletions?: () => void;
+    // Callback function to be executed when a new type is created
+    onTypeCreate?: (typeName?: string) => void;
 };
 
 const defaultTypeHelperContext: TypeHelperContext = {
@@ -51,7 +53,8 @@ const defaultTypeHelperContext: TypeHelperContext = {
     onSearchTypeHelper: () => {},
     onSearchTypeBrowser: () => {},
     onTypeItemClick: () => Promise.resolve({} as AddImportItemResponse),
-    onCloseCompletions: () => {}
+    onCloseCompletions: () => {},
+    onTypeCreate: () => {}
 };
 
 export const TypeHelperContext = createContext<TypeHelperContext>(defaultTypeHelperContext);

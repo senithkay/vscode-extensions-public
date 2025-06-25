@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 body {
+    --foreground: #d4d4d4;
+    --background: #1e1e1e;
     background-color: #000;
     color: #d4d4d4;
     --vscode-foreground: #cccccc;
@@ -28,6 +30,17 @@ body {
     --vscode-widget-shadow: rgba(0, 0, 0, 0.36);
     --vscode-widget-border: #303031;
     --vscode-input-background: #3c3c3c;
+    --input-background: #3c3c3c;
+    --vscode-input-foreground: #f0f0f0;
+    --dropdown-background: #3c3c3c;
+    --dropdown-foreground: #f0f0f0;
+    --checkbox-background: #3c3c3c;
+    --checkbox-foreground: #f0f0f0;
+    --checkbox-border: #6b6b6b;
+    --checkbox-foreground: #f0f0f0;
+    --button-secondary-background: #3a3d41;
+    --button-secondary-foreground: #ffffff;
+    --dropdown-background: #3c3c3c;
     --vscode-input-foreground: #cccccc;
     --vscode-inputOption-activeBorder: #007acc;
     --vscode-inputOption-hoverBackground: rgba(90, 93, 94, 0.5);
@@ -184,6 +197,48 @@ body {
     --vscode-charts-orange: #d18616;
     --vscode-charts-green: #89d185;
     --vscode-charts-purple: #b180d7;
+    --vscode-charts-pieForeground: #cccccc;
+    --vscode-charts-pieBackground: #252526;
+    --vscode-charts-barForeground: #89d185;
+    --vscode-charts-barBackground: #1e1e1e;
+    --vscode-charts-lineForeground: #3794ff;
+    --vscode-charts-lineBackground: #1e1e1e;
+    --vscode-charts-areaForeground: #cca700;
+    --vscode-charts-areaBackground: #282828;
+    --vscode-charts-scatterForeground: #d18616;
+    --vscode-charts-scatterBackground: #252526;
+    --vscode-charts-donutForeground: #b180d7;
+    --vscode-charts-donutBackground: #252526;
+    --vscode-charts-radarForeground: #3794ff;
+    --vscode-charts-radarBackground: #2a2d2e;
+    --vscode-charts-legendForeground: #cccccc;
+    --vscode-charts-legendBackground: #252526;
+    --vscode-charts-tooltipForeground: #cccccc;
+    --vscode-charts-tooltipBackground: #1e1e1e;
+    --vscode-charts-gridline: #303031;
+    --vscode-charts-axis: #cccccc;
+    --vscode-charts-tick: #5a5a5a;
+    --vscode-charts-title: #ffffff;
+    --vscode-charts-label: #cccccc;
+    --vscode-charts-crosshair: #007fd4;
+    --vscode-charts-highlight: #3794ff;
+    --vscode-charts-selection: #264f78;
+    --vscode-charts-annotation: #cca700;
+    --vscode-charts-error: #f14c4c;
+    --vscode-charts-warning: #cca700;
+    --vscode-charts-success: #89d185;
+    --vscode-charts-info: #3794ff;
+    --vscode-charts-background: #1e1e1e;
+    --vscode-charts-foregroundSecondary: #5a5a5a;
+    --vscode-charts-foregroundTertiary: #303031;
+    --vscode-charts-foregroundQuaternary: #252526;
+    --vscode-charts-foregroundQuinary: #232323;
+    --vscode-charts-foregroundSenary: #282828;
+    --vscode-charts-foregroundSeptenary: #2a2d2e;
+    --vscode-charts-foregroundOctonary: #303031;
+    --vscode-charts-foregroundNonary: #5a5a5a;
+    --vscode-charts-foregroundDenary: #cccccc;
+    /* Add Other colors in vscode */
     --vscode-diffEditor-move\.border: rgba(139, 139, 139, 0.61);
     --vscode-symbolIcon-arrayForeground: #cccccc;
     --vscode-symbolIcon-booleanForeground: #cccccc;
@@ -668,4 +723,10 @@ body {
     --vscode-gitlens-graphMinimapMarkerTagsColor: #6b562e;
     --vscode-gitlens-graphScrollMarkerTagsColor: #6b562e;
     --vscode-debugTokenExpression-string: #ce9178;
+    --vscode-editorIndentGuide-activeBackground: #404040;
+    --vscode-editorOverviewRuler-warningForeground: #cca700;
+    --vscode-panel-border: #444444;
+    --vscode-statusBarItem-remoteBackground: #16825d;
+
+    /* How to give style attribute  */
 }

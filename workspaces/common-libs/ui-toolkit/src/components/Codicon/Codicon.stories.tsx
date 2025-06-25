@@ -6,13 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Codicon, CodiconProps } from "./Codicon";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Codicon } from "./Codicon";
 
-const Template: ComponentStory<typeof Codicon> = (args: CodiconProps) => <Codicon {...args} />;
+const meta = {
+    component: Codicon,
+    title: "Codicon",
+} satisfies Meta<typeof Codicon>;
+export default meta;
 
-export const SampleIcon = Template.bind();
-SampleIcon.args = { name: "add" };
+type Story = StoryObj<typeof Codicon>;
 
-export default { component: Codicon, title: "Codicon" };
+export const SampleIcon: Story = {
+    args: { name: "add" },
+};

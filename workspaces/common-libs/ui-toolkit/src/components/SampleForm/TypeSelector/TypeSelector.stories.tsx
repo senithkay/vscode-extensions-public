@@ -6,17 +6,24 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { TypeSelector as AppTypeSelector, TypeSelectorProps } from "./TypeSelector";
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { TypeSelector as AppTypeSelector } from "./TypeSelector";
 
-const Template: ComponentStory<typeof AppTypeSelector> = (args: TypeSelectorProps) => <AppTypeSelector {...args} />;
+const meta = {
+    component: AppTypeSelector,
+    title: "Sample Form",
+} satisfies Meta<typeof AppTypeSelector>;
+export default meta;
+
+type Story = StoryObj<typeof AppTypeSelector>;
 
 const onClick = (type: string) => {
     console.log("Selected Type", type);
-}
+};
 
-export const TypeSelector = Template.bind();
-TypeSelector.args = { onTypeSelected: onClick, sx: { width: 600 } };
-
-export default { component: TypeSelector, title: "Sample Form" };
+export const TypeSelector: Story = {
+    args: {
+        onTypeSelected: onClick,
+        sx: { width: 600 }
+    }
+};
