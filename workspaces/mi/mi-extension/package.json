@@ -97,90 +97,108 @@
         ]
       }
     ],
-    "configuration": [
-      {
-        "type": "object",
-        "title": "Micro Integrator",
-        "properties": {
-          "MI.rootUrl": {
-            "type": "string",
-            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v2.0",
-            "description": "Root URL for Backend Services\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v2.0"
-          },
-          "MI.enhancedRootUrl": {
-            "type": "string",
-            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v3",
-            "description": "Enhanced Root URL for Backend Services on Synapse Expressions\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v3"
-          },
-          "MI.authOrg": {
-            "type": "string",
-            "default": "wso2mi",
-            "description": "Asgardeo Organization for Auth Services\nDefault: wso2mi"
-          },
-          "MI.authClientID": {
-            "type": "string",
-            "default": "rTEgoRFEQMc1baXcsO6_AU1ugjAa",
-            "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: rTEgoRFEQMc1baXcsO6_AU1ugjAa"
-          },
-          "MI.authRedirectURL": {
-            "type": "string",
-            "default": "https://mi-copilot.wso2.com/vscode-auth",
-            "description": "Redirect URL for Auth Service \n Default: https://mi-copilot.wso2.com/vscode-auth"
-          },
-          "MI.debugger.commandPort": {
-            "type": "number",
-            "default": 9005,
-            "description": "Command port for the debugger to communicate with the MI server"
-          },
-          "MI.debugger.eventPort": {
-            "type": "number",
-            "default": 9006,
-            "description": "Event port for the MI server to communicate with the debugger"
-          },
-          "MI.serverPort": {
-            "type": "number",
-            "default": 8290,
-            "description": "Port to check the readiness of the MI server"
-          },
-          "MI.SERVER_PATH": {
-            "type": "string",
-            "default": "",
-            "description": "Location to store MI archives, considering the user's home directory",
-            "scope": "resource"
-          },
-          "MI.JAVA_HOME": {
-            "type": "string",
-            "default": "",
-            "description": "Java Home path",
-            "scope": "resource"
-          },
-          "MI.LEGACY_EXPRESSION_ENABLED": {
-            "type": "boolean",
-            "default": false,
-            "description": "Enable legacy expression support",
-            "scope": "resource"
-          },
-          "MI.REMOTE_DEPLOYMENT_ENABLED": {
-            "type": "boolean",
-            "default": false,
-            "description": "Enable remote server deployment support",
-            "scope": "resource"
-          },
-          "MI.Scope": {
-            "type": "string",
-            "default": "",
-            "description": "Devant project scope",
-            "scope": "resource"
-          },
-          "MI.suppressServerUpdateNotification": {
-            "type": "boolean",
-            "default": false,
-            "description": "Don't show server update notification",
-            "scope": "resource"
-          }
+    "configuration": {
+      "type": "object",
+      "title": "MI Extension",
+      "properties": {
+        "MI.rootUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Root URL for Backend Services"
+        },
+        "MI.enhancedRootUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Enhanced Root URL for Backend Services on Synapse Expressions"
+        },
+        "MI.authOrg": {
+          "type": "string",
+          "default": "",
+          "description": "Asgardeo Organization for Auth Services\nDefault: wso2mi"
+        },
+        "MI.authClientID": {
+          "type": "string",
+          "default": "",
+          "description": "Client ID of the Asgardeo Organization for Auth Services"
+        },
+        "MI.authRedirectURL": {
+          "type": "string",
+          "default": "",
+          "description": "Redirect URL for Auth Service "
+        },
+        "MI.debugger.commandPort": {
+          "type": "number",
+          "default": 9005,
+          "description": "Command port for the debugger to communicate with the MI server"
+        },
+        "MI.debugger.eventPort": {
+          "type": "number",
+          "default": 9006,
+          "description": "Event port for the MI server to communicate with the debugger"
+        },
+        "MI.serverPort": {
+          "type": "number",
+          "default": 8290,
+          "description": "Port to check the readiness of the MI server"
+        },
+        "MI.SERVER_PATH": {
+          "type": "string",
+          "default": "",
+          "description": "Location to store MI archives, considering the user's home directory",
+          "scope": "resource"
+        },
+        "MI.JAVA_HOME": {
+          "type": "string",
+          "default": "",
+          "description": "Java Home path",
+          "scope": "resource"
+        },
+        "MI.LEGACY_EXPRESSION_ENABLED": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable legacy expression support",
+          "scope": "resource"
+        },
+        "MI.REMOTE_DEPLOYMENT_ENABLED": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable remote server deployment support",
+          "scope": "resource"
+        },
+        "MI.Scope": {
+          "type": "string",
+          "default": "",
+          "description": "Devant project scope",
+          "scope": "resource"
+        },
+        "MI.suppressServerUpdateNotification": {
+          "type": "boolean",
+          "default": false,
+          "description": "Don't show server update notification",
+          "scope": "resource"
+        },
+        "MI.miCopilotBackendUrl": {
+          "type": "string",
+          "default": "",
+          "description": "MI Copilot backend URL"
+        },
+        "MI.miUpdateVersionCheckUrl": {
+          "type": "string",
+          "default": "",
+          "description": "URL to check for the latest MI versions."
+        },
+        "MI.sampleIconsGithubUrl": {
+          "type": "string",
+          "default": "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/",
+          "description": "GitHub URL for MI sample icons."
+        },
+        "MI.adoptiumApiBaseUrl": {
+          "type": "string",
+          "default": "https://api.adoptium.net/v3/assets/feature_releases",
+          "description": "Base URL for Adoptium API used to download Java."
         }
       }
-    ],
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -944,8 +962,8 @@
     "mocha": "^11.4.0",
     "typescript": "5.8.3",
     "ts-loader": "^9.5.2",
-    "webpack": "^5.99.9",
-    "webpack-cli": "^6.0.1",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^4.10.0",
     "@vscode/test-electron": "^2.5.2",
     "rimraf": "~6.0.1",
     "@wso2-enterprise/mi-visualizer": "workspace:*",
@@ -957,7 +975,8 @@
     "await-notify": "^1.0.1",
     "yaml": "~2.8.0",
     "@playwright/test": "~1.52.0",
-    "playwright-core": "~1.52.0"
+    "playwright-core": "~1.52.0",
+    "dotenv-webpack": "~8.1.0"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",

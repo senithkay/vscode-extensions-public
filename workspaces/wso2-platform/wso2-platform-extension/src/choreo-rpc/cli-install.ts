@@ -15,6 +15,12 @@ import axios from "axios";
 import { ProgressLocation, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 
+const config = workspace.getConfiguration('WSO2.WSO2-Platform');
+const CHOREO_CLI_RELEASES_BASE_URL =
+    process.env.CHOREO_CLI_RELEASES_BASE_URL ||
+    config.get<string>('ChoreoCliReleasesBaseUrl') ||
+    '';
+
 export const getCliVersion = (): string => {
 	const packageJson = JSON.parse(fs.readFileSync(path.join(ext.context.extensionPath, "package.json"), "utf8"));
 	return packageJson?.cliVersion;
@@ -65,7 +71,7 @@ export const downloadCLI = async () => {
 	}
 	const CHOREO_TMP_FILE_DEST = path.join(CHOREO_TMP_DIR, `${FILE_NAME}${FILE_TYPE}`);
 
-	const INSTALLER_URL = `https://github.com/wso2/choreo-cli/releases/download/${CLI_VERSION}/${FILE_NAME}${FILE_TYPE}`;
+	const INSTALLER_URL = `${CHOREO_CLI_RELEASES_BASE_URL}${CLI_VERSION}/${FILE_NAME}${FILE_TYPE}`;
 
 	console.log(`WSO2 Platform RPC download URL: ${INSTALLER_URL}`);
 

@@ -20,6 +20,7 @@ config/
 tests/
 **/*.log
 test-resources/
+.env
 
 # Ignore all webview-ui files except the build directory
 webview-ui/src/**

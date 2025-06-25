@@ -72,157 +72,156 @@
                 "path": "./grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage"
             }
         ],
-        "configuration": [
-            {
-                "type": "object",
-                "title": "Ballerina",
-                "properties": {
-                    "ballerina.pluginDevMode": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Enable plugin development mode."
-                    },
-                    "ballerina.home": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Specify the Ballerina home directory path."
-                    },
-                    "ballerina.isBI": {
-                        "type": "boolean",
-                        "default": false,
-                        "scope": "resource",
-                        "description": "Activate features for WSO2 Integrator: BI."
-                    },
-                    "ballerina.scope": {
-                        "type": "string",
-                        "default": "any",
-                        "scope": "resource",
-                        "description": "Define the scope of the project.",
-                        "enum": [
-                            "automation",
-                            "ai-agent",
-                            "integration-as-api",
-                            "event-integration",
-                            "file-integration",
-                            "any"
-                        ],
-                        "enumDescriptions": [
-                            "Automation",
-                            "AI Agent",
-                            "Integration as API",
-                            "Event Integration",
-                            "File Integration",
-                            "Any"
-                        ]
-                    },
-                    "ballerina.debugLog": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Enable printing debug messages on to the Ballerina output channel."
-                    },
-                    "ballerina.enableLiveReload": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable automatic re-run of Ballerina service projects upon file changes."
-                    },
-                    "ballerina.traceLog": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Enable printing trace messages on to the Ballerina output channel."
-                    },
-                    "ballerina.codeLens.all.enabled": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable all code lens features."
-                    },
-                    "ballerina.enableFileWatcher": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable watching file change events of the project."
-                    },
-                    "ballerina.enableTelemetry": {
-                        "type": "boolean",
-                        "default": true,
-                        "markdownDescription": "Enable Ballerina telemetry."
-                    },
-                    "ballerina.enableSemanticHighlighting": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable semantic highlighting for Ballerina source."
-                    },
-                    "ballerina.enableBackgroundDriftCheck": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Enable background drift check for Ballerina source.",
-                        "tags": [
-                            "experimental"
-                        ]
-                    },
-                    "ballerina.enablePerformanceForecast": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable real-time performance forecasting."
-                    },
-                    "ballerina.enableLanguageServerDebug": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Enable Language Server debug mode."
-                    },
-                    "ballerina.experimental": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Enable experimental features."
-                    },
-                    "ballerina.enableNotebookDebug": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Enable notebook debug mode."
-                    },
-                    "ballerina.enableRunFast": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Enable faster execution by using the Language Server's compilation cache to reduce startup time.",
-                        "tags": [
-                            "experimental"
-                        ]
-                    },
-                    "ballerina.samplesDownloadDirectory": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Specify the directory where you want to download the Ballerina samples. Leave it empty to use the default download directory."
-                    },
-                    "ballerina.enableInlayHints": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Experimental: Enable inlay hints for Ballerina."
-                    },
-                    "ballerina.useDistributionLanguageServer": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Use Ballerina distribution language server instead of bundled language server. Note: This will be automatically enabled for Ballerina versions older than 2201.12.3."
-                    }
-                }
-            },
-            {
-                "type": "object",
-                "title": "WSO2 Integrator: BI",
-                "properties": {
-                    "ballerina.enableSequenceDiagramView": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable the experimental Sequence Diagram View.",
-                        "tags": [
-                            "experimental"
-                        ]
-                    },
-                    "ballerina.enableAiSuggestions": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable AI suggestions from BI Copilot."
-                    }
+        "configuration": {
+            "type": "object",
+            "title": "Ballerina Extension",
+            "properties": {
+                "ballerina.pluginDevMode": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable plugin development mode."
+                },
+                "ballerina.home": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Specify the Ballerina home directory path."
+                },
+                "ballerina.isBI": {
+                    "type": "boolean",
+                    "default": false,
+                    "scope": "resource",
+                    "description": "Activate features for WSO2 Integrator: BI."
+                },
+                "ballerina.scope": {
+                    "type": "string",
+                    "default": "any",
+                    "scope": "resource",
+                    "description": "Define the scope of the project.",
+                    "enum": [
+                        "automation",
+                        "ai-agent",
+                        "integration-as-api",
+                        "event-integration",
+                        "file-integration",
+                        "any"
+                    ],
+                    "enumDescriptions": [
+                        "Automation",
+                        "AI Agent",
+                        "Integration as API",
+                        "Event Integration",
+                        "File Integration",
+                        "Any"
+                    ]
+                },
+                "ballerina.debugLog": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable printing debug messages on to the Ballerina output channel."
+                },
+                "ballerina.enableLiveReload": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable automatic re-run of Ballerina service projects upon file changes."
+                },
+                "ballerina.traceLog": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable printing trace messages on to the Ballerina output channel."
+                },
+                "ballerina.codeLens.all.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable all code lens features."
+                },
+                "ballerina.enableFileWatcher": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable watching file change events of the project."
+                },
+                "ballerina.enableTelemetry": {
+                    "type": "boolean",
+                    "default": true,
+                    "markdownDescription": "Enable Ballerina telemetry."
+                },
+                "ballerina.enableSemanticHighlighting": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable semantic highlighting for Ballerina source."
+                },
+                "ballerina.enableBackgroundDriftCheck": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable background drift check for Ballerina source.",
+                    "tags": [
+                        "experimental"
+                    ]
+                },
+                "ballerina.enablePerformanceForecast": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable real-time performance forecasting."
+                },
+                "ballerina.enableLanguageServerDebug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable Language Server debug mode."
+                },
+                "ballerina.experimental": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable experimental features."
+                },
+                "ballerina.enableNotebookDebug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable notebook debug mode."
+                },
+                "ballerina.enableRunFast": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable faster execution by using the Language Server's compilation cache to reduce startup time.",
+                    "tags": [
+                        "experimental"
+                    ]
+                },
+                "ballerina.samplesDownloadDirectory": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Specify the directory where you want to download the Ballerina samples. Leave it empty to use the default download directory."
+                },
+                "ballerina.enableInlayHints": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Experimental: Enable inlay hints for Ballerina."
+                },
+                "ballerina.useDistributionLanguageServer": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use Ballerina distribution language server instead of bundled language server. Note: This will be automatically enabled for Ballerina versions older than 2201.12.3."
+                },
+                "ballerina.rootUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Root backend URL for Ballerina AI features."
+                },
+                "ballerina.authOrg": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Auth organization for Ballerina AI features."
+                },
+                "ballerina.authClientID": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Auth client ID for Ballerina AI features."
+                },
+                "ballerina.authRedirectURL": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Auth redirect URL for Ballerina AI features."
                 }
             }
-        ],
+        },
         "configurationDefaults": {
             "[ballerina]": {
                 "editor.wordBasedSuggestions": false,
@@ -1173,7 +1172,8 @@
         "webpack-cli": "^4.10.0",
         "webpack-merge-and-include-globally": "^2.3.4",
         "yarn": "^1.22.19",
-        "adm-zip": "^0.5.16"
+        "adm-zip": "^0.5.16",
+        "dotenv-webpack": "~8.1.0"
     },
     "extensionPack": [
         "be5invis.toml"

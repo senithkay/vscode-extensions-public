@@ -30,7 +30,15 @@ const miDownloadUrls: { [key: string]: string } = {
     '4.4.0': 'https://mi-distribution.wso2.com/4.4.0/wso2mi-4.4.0.zip',
     '4.3.0': 'https://mi-distribution.wso2.com/4.3.0/wso2mi-4.3.0.zip'
 };
-const miUpdateVersionCheckUrl = 'https://mi-distribution.wso2.com/versions.json';
+
+// Move MI update version check URL to VS Code config
+const config = vscode.workspace.getConfiguration('MI');
+export const miUpdateVersionCheckUrl: string =
+    process.env.MI_UPDATE_VERSION_CHECK_URL || config.get<string>('miUpdateVersionCheckUrl') || 'https://mi-distribution.wso2.com/versions.json';
+export const ADOPTIUM_API_BASE_URL: string =
+    process.env.MI_ADOPTIUM_API_BASE_URL ||
+    config.get<string>('adoptiumApiBaseUrl') ||
+    '';
 
 const CACHED_FOLDER = path.join(os.homedir(), '.wso2-mi');
 
@@ -423,7 +431,7 @@ export async function downloadJavaFromMI(projectUri: string, miVersion: string):
             fs.mkdirSync(javaPath, { recursive: true });
         }
 
-        const apiUrl = `https://api.adoptium.net/v3/assets/feature_releases/${javaVersion}/ga?architecture=${archName}&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=${osName}&project=jdk&vendor=eclipse`;
+        const apiUrl = `${ADOPTIUM_API_BASE_URL}/${javaVersion}/ga?architecture=${archName}&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=${osName}&project=jdk&vendor=eclipse`;
 
         const response = await axios.get<AdoptiumApiResponse[]>(apiUrl);
         if (response.data.length === 0) {
