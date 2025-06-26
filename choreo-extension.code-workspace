@@ -7,9 +7,6 @@
 			"path": "workspaces/choreo/choreo-extension"
 		},
 		{
-			"path": "workspaces/choreo/cell-diagram"
-		},
-		{
 			"path": "workspaces/choreo/choreo-webviews"
 		}
 	]

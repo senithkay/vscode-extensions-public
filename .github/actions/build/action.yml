@@ -16,11 +16,6 @@ inputs:
     type: boolean
     required: false
     default: false
-  api-chat:
-    description: Update API Chat extension version
-    type: boolean
-    required: false
-    default: false
   apk:
     description: Update APK extension version
     type: boolean
@@ -43,9 +38,6 @@ inputs:
   balVersion:
     default: 2201.7.1
     type: string
-  API_CHAT_API_KEY:
-    type: string
-    required: true
   token:
     type: string
     required: false
@@ -80,14 +72,6 @@ runs:
       uses: ./.github/actions/updateVersion
       with:
         path: "choreo/choreo-extension"
-        isPreRelease: ${{ inputs.isPreRelease }}
-        version: ${{ inputs.version }}
-
-    - name: Update version - API Chat
-      if: ${{ inputs.api-chat == 'true' }}
-      uses: ./.github/actions/updateVersion
-      with:
-        path: "api-chat/extension"
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 
@@ -130,7 +114,6 @@ runs:
         node common/scripts/install-run-rush.js build --verbose
       env:
         isPreRelease: ${{ inputs.isPreRelease == 'true' }}
-        API_CHAT_API_KEY: ${{ inputs.API_CHAT_API_KEY }}
 
     - name: Compress build
       shell: bash

@@ -51,9 +51,9 @@ rush build -o <package name>
 
 Replace <package name> with the name of the package you want to build.
 
-Example: To build ballerina-low-code-editor, you can run the following command:
+Example: To build ballerina-core, you can run the following command:
 ```bash
-rush build -o @wso2-enterprise/ballerina-low-code-editor
+rush build -o @wso2-enterprise/ballerina-core
 ```
 ### Adding a New Package
 
