@@ -150,3 +150,16 @@ export async function addArtifact(artifactName: string, testId: string) {
     await addArtifactBtn.waitFor();
     await addArtifactBtn.click();
 }
+
+export async function enableICP() {
+    console.log('Enabling ICP');
+    const webview = await switchToIFrame('WSO2 Integrator: BI', page.page);
+    if (!webview) {
+        throw new Error('WSO2 Integrator: BI webview not found');
+    }
+    const icpToggle = webview.getByRole('checkbox', { name: 'Enable WSO2 Integrator: ICP' });
+    await icpToggle.waitFor();
+    if (!(await icpToggle.isChecked())) {
+        await icpToggle.click();
+    }
+}
