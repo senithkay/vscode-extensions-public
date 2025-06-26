@@ -710,7 +710,7 @@ export async function getResolvedPomXmlContent(pomFilePath: string): Promise<str
             shell: true,
             env: {
                 ...process.env,
-                ...setJavaHomeInEnvironmentAndPath()
+                ...setJavaHomeInEnvironmentAndPath(pomDir)
             }
         });
 
